@@ -2,28 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.atmosphere.samples</groupId>
-        <artifactId>atmosphere-samples</artifactId>
-        <version>0.8.0-RC3</version>
-    </parent>
-
-    <groupId>org.atmosphere.samples</groupId>
-    <artifactId>atmosphere-gwt-demo</artifactId>
+    <groupId>ch.cern.atlas</groupId>
+    <artifactId>apvs-chat</artifactId>
+    <version>0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>atmosphere-gwt-demo</name>
+    <name>apvs-chat</name>
 
     <properties>
+        <gwt-version>2.3.0</gwt-version>
+        <atmosphere-version>0.8.0-RC2</atmosphere-version>
+
         <gwtModule>org.atmosphere.samples.GWTDemo</gwtModule>
         <war.target>${basedir}/src/main/webapp</war.target>
         <gwt.compiler.force>false</gwt.compiler.force>
         <gwt.draftCompile>false</gwt.draftCompile>
         <gwt.style>PRETTY</gwt.style>
         <outputDir>${war.target}/WEB-INF/classes</outputDir>
-        <netbeans.hint.deploy.server>Tomcat70</netbeans.hint.deploy.server>
     </properties>
 
     <build>
+        <defaultGoal>package</defaultGoal>
         <outputDirectory>${outputDir}</outputDirectory>
         <plugins>
             <plugin>
@@ -88,24 +86,24 @@
         <dependency>
             <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-gwt-client</artifactId>
-            <version>0.8.0-RC3</version>
+            <version>${atmosphere-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-gwt-common</artifactId>
-            <version>0.8.0-RC3</version>
+            <version>${atmosphere-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-gwt-server</artifactId>
-            <version>0.8.0-RC3</version>
+            <version>${atmosphere-version}</version>
         </dependency>
         <dependency>
             <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-gwt-poll</artifactId>
-            <version>0.8.0-RC3</version>
+            <version>${atmosphere-version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
