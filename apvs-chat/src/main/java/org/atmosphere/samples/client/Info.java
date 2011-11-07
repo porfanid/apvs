@@ -15,17 +15,11 @@
  */
 package org.atmosphere.samples.client;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
+import java.util.ArrayList;
+
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.Widget;
-
-import java.util.ArrayList;
 
 /**
  * @author p.havelaar
@@ -91,24 +85,4 @@ public class Info extends PopupPanel {
         }
         return size;
     }
-
-    public static class InfoWidget extends Composite {
-        MyUiBinder binder = GWT.create(MyUiBinder.class);
-
-        interface MyUiBinder extends UiBinder<Widget, InfoWidget> {
-        }
-
-        @UiField
-        Label title;
-        @UiField
-        Label message;
-
-        private InfoWidget(String title, String message) {
-            initWidget(binder.createAndBindUi(this));
-            this.title.setText(title);
-            this.message.setText(message);
-        }
-    }
-
-
 }

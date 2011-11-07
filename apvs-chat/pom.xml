@@ -2,16 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ch.cern.atlas</groupId>
+    <parent>
+        <groupId>ch.cern.atlas</groupId>
+        <artifactId>apvs</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>    
+
     <artifactId>apvs-chat</artifactId>
-    <version>0.1-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>apvs-chat</name>
 
     <properties>
-        <gwt-version>2.3.0</gwt-version>
-        <atmosphere-version>0.8.0-RC2</atmosphere-version>
-
         <gwtModule>org.atmosphere.samples.GWTDemo</gwtModule>
         <war.target>${basedir}/src/main/webapp</war.target>
         <gwt.compiler.force>false</gwt.compiler.force>
@@ -27,7 +28,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <version>${gwt-version}</version>
+                <version>${gwt-plugin-version}</version>
                 <configuration>
                     <module>${gwtModule}</module>
                     <gwtVersion>${gwt-version}</gwtVersion>
@@ -40,6 +41,9 @@
                     <execution>
                         <configuration>
                             <extraJvmArgs>-Xmx512m</extraJvmArgs>
+<!-- 
+                            <runTarget>org.atmosphere.samples.public/gwtDemo.jsp</runTarget>
+-->
                         </configuration>
                         <goals>
                             <goal>compile</goal>

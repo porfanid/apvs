@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ch.cern.atlas</groupId>
+    <artifactId>apvs</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>apvs</name>
+
+    <properties>
+        <gwt-version>2.4.0</gwt-version>
+        <gwt-plugin-version>2.4.0</gwt-plugin-version>
+        <atmosphere-version>0.8.0-RC2</atmosphere-version>
+    </properties>
+
+    <modules>
+        <module>apvs-chat</module>
+    </modules>
+
+</project>
+
+
+
+
