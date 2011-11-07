@@ -41,9 +41,6 @@
                     <execution>
                         <configuration>
                             <extraJvmArgs>-Xmx512m</extraJvmArgs>
-<!-- 
-                            <runTarget>org.atmosphere.samples.public/gwtDemo.jsp</runTarget>
--->
                         </configuration>
                         <goals>
                             <goal>compile</goal>
