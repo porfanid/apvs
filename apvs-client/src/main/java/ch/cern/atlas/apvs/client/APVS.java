@@ -142,6 +142,7 @@ public class APVS implements EntryPoint {
 			}
 		});
 
+		// get rid of logpanel
 		RootPanel.get().clear();
 
 		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
