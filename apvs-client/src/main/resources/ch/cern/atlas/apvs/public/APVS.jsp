@@ -1,11 +1,5 @@
 <%@page session="true"%>
 <!doctype html>
-<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
-<!-- above set at the top of the file will set -->
-<!-- the browser's rendering engine into -->
-<!-- "Quirks Mode". Replacing this declaration -->
-<!-- with a "Standards Mode" doctype is supported, -->
-<!-- but may lead to some differences in layout. -->
 <%
 	long current = new java.util.Date().getTime();
 	session.setAttribute("time", new Long(current));
@@ -16,10 +10,10 @@
 <!--                                           -->
 <!-- Any title is fine                         -->
 <!--                                           -->
-<title>GWT Comet Demo Timestamp[<%=current%>] SessionID[<%=session.getId()%>]
+<title>APVS [<%=current%>] SessionID[<%=session.getId()%>]
 </title>
 
-<link rel="stylesheet" type="text/css" href="css/gwtDemo.css" />
+<link rel="stylesheet" type="text/css" href="css/APVS.css" />
 
 <!--                                           -->
 <!-- This script loads your compiled module.   -->
@@ -27,7 +21,7 @@
 <!-- be added before this line.                -->
 <!--                                           -->
 <script type="text/javascript" language="javascript"
-	src="gwtDemo.nocache.js"></script>
+	src="apvs.nocache.js"></script>
 </head>
 
 <!--                                           -->
@@ -44,8 +38,7 @@
 	<noscript>
 		<div
 			style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
-			Your web browser must have JavaScript enabled in order for this
-			application to display correctly.</div>
+			Your web browser must have JavaScript enabled in order for APVS to display correctly.</div>
 	</noscript>
 
 </body>

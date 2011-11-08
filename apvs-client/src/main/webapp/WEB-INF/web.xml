@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-    <display-name>gwt-test</display-name>
+    <display-name>apvs</display-name>
 
     <servlet>
-        <description>AtmosphereServlet</description>
-        <servlet-name>AtmosphereServlet</servlet-name>
+        <description>APVS Service</description>
+        <servlet-name>APVSServlet</servlet-name>
         <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
         <init-param>
             <!-- prevent deadlocks -->
@@ -29,9 +29,9 @@
         <async-supported>true</async-supported>
     </servlet>
     <servlet-mapping>
-        <servlet-name>AtmosphereServlet</servlet-name>
-        <url-pattern>/gwtDemo/gwtComet</url-pattern>
-        <url-pattern>/gwtDemo/gwtPoll</url-pattern>
+        <servlet-name>APVSServlet</servlet-name>
+        <url-pattern>/apvs/apvsComet</url-pattern>
+        <url-pattern>/apvs/apvsPoll</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

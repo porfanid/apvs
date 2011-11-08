@@ -1,4 +1,4 @@
-package org.atmosphere.samples.client;
+package ch.cern.atlas.apvs.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -7,6 +7,10 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * 
+ * @author Mark Donszelmann
+ */
 public class InfoWidget extends Composite {
     MyUiBinder binder = GWT.create(MyUiBinder.class);
 

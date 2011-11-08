@@ -1,19 +1,4 @@
-/*
- * Copyright 2011 Jeanfrancois Arcand
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-package org.atmosphere.samples.client;
+package ch.cern.atlas.apvs.client;
 
 import java.io.Serializable;
 import java.util.List;
@@ -42,12 +27,13 @@ import com.google.gwt.user.client.rpc.StatusCodeException;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 
 /**
- * @author p.havelaar
+ * @author Mark Donszelmann
  */
-public class GWTDemo implements EntryPoint {
+public class APVS implements EntryPoint {
 
 	PollAsync polling = GWT.create(Poll.class);
 	AtmosphereClient client;
@@ -156,6 +142,8 @@ public class GWTDemo implements EntryPoint {
 			}
 		});
 
+		RootPanel.get().clear();
+
 		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
 		rootLayoutPanel.add(tabLayoutPanel);
 		rootLayoutPanel.setWidgetLeftRight(tabLayoutPanel, 0.0, Unit.PX, 0.0,
@@ -165,7 +153,7 @@ public class GWTDemo implements EntryPoint {
 
 	}
 
-	private class MyCometListener implements AtmosphereListener {
+	private class APVSCometListener implements AtmosphereListener {
 
 		@Override
 		public void onConnected(int heartbeat, int connectionID) {
@@ -214,7 +202,8 @@ public class GWTDemo implements EntryPoint {
 					+ messages.size() + " messages", result.toString());
 			for (Serializable msg : messages) {
 				if (msg instanceof TabSelectEvent) {
-					tabLayoutPanel.selectTab(((TabSelectEvent) msg).getTabNo(), false);
+					tabLayoutPanel.selectTab(((TabSelectEvent) msg).getTabNo(),
+							false);
 				}
 			}
 		}
@@ -222,12 +211,12 @@ public class GWTDemo implements EntryPoint {
 
 	public void initialize() {
 
-		MyCometListener cometListener = new MyCometListener();
+		APVSCometListener cometListener = new APVSCometListener();
 
 		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
 		// set a small length parameter to force refreshes
 		// normally you should remove the length parameter
-		client = new AtmosphereClient(GWT.getModuleBaseURL() + "gwtComet",
+		client = new AtmosphereClient(GWT.getModuleBaseURL() + "apvsComet",
 				serializer, cometListener);
 		client.start();
 	}

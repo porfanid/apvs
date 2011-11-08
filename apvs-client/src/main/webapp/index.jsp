@@ -1,9 +1,9 @@
 <%-- 
     Document   : index
-    Created on : 8-mrt-2010, 9:32:29
-    Author     : p.havelaar
+    Created on : 8-Nov-2011
+    Author     : Mark Donszelmann
 --%>
-<%response.sendRedirect("gwtDemo/gwtDemo.jsp");%>
+<%response.sendRedirect("apvs/APVS.jsp");%>
 <%@page contentType="text/html" pageEncoding="windows-1252" %>
 <!doctype html>
 <html>

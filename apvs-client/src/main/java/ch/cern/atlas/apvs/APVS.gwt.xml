@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<module rename-to="gwtDemo">
+<module rename-to="apvs">
 
     <inherits name='com.google.gwt.user.User'/>
     <inherits name='com.google.gwt.core.Core'/>
     <inherits name="org.atmosphere.gwt.Client"/>
     <inherits name="com.google.gwt.logging.Logging"/>
+<!-- 
     <set-property name="gwt.logging.logLevel" value="FINEST"/>
+-->
+    <set-property name="gwt.logging.logLevel" value="WARNING"/>
 
     <!--  inherit css based theme -->
     <inherits name='com.google.gwt.user.theme.standard.Standard'/>
@@ -14,5 +17,5 @@
     <set-property name="user.agent" value="safari" />
     <set-property name="locale" value="default"/>
 
-    <entry-point class='org.atmosphere.samples.client.GWTDemo'/>
+    <entry-point class='ch.cern.atlas.apvs.client.APVS'/>
 </module>
