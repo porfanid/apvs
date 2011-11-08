@@ -8,9 +8,9 @@
         <version>0.1-SNAPSHOT</version>
     </parent>    
 
-    <artifactId>apvs-chat</artifactId>
+    <artifactId>apvs-client</artifactId>
     <packaging>war</packaging>
-    <name>apvs-chat</name>
+    <name>apvs-client</name>
 
     <properties>
         <gwtModule>org.atmosphere.samples.GWTDemo</gwtModule>

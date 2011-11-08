@@ -15,7 +15,7 @@
     </properties>
 
     <modules>
-        <module>apvs-chat</module>
+        <module>apvs-client</module>
     </modules>
 
 </project>
