@@ -16,6 +16,7 @@
 
     <set-property name="user.agent" value="safari" />
     <set-property name="locale" value="default"/>
+    <set-property name="gwt.logging.popupHandler" value="DISABLED"/>
 
     <entry-point class='ch.cern.atlas.apvs.client.APVS'/>
 </module>

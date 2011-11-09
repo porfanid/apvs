@@ -27,7 +27,6 @@ import com.google.gwt.user.client.rpc.StatusCodeException;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 
 /**
@@ -43,7 +42,7 @@ public class APVS implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
-
+		
 		Button button = new Button("Broadcast");
 		button.addClickHandler(new ClickHandler() {
 			@Override
@@ -143,7 +142,7 @@ public class APVS implements EntryPoint {
 		});
 
 		// get rid of logpanel
-		RootPanel.get().clear();
+//		RootPanel.get().clear();
 
 		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
 		rootLayoutPanel.add(tabLayoutPanel);
