@@ -1,11 +1,11 @@
-package ch.cern.atlas.apvs;
+package ch.cern.atlas.apvs.client;
 
 import java.util.HashMap;
 import java.util.Iterator;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.event.dom.client.LoadEvent;
-import com.google.gwt.event.dom.client.LoadHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -18,16 +18,12 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.WindowResizeListener;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -44,7 +40,6 @@ public class CavCom implements EntryPoint {
 	private HashMap<String, Integer> rowIndex = new HashMap<String, Integer>();
 	private Label label = new Label();
 
-	private Label lbl = new Label();
 	private VerticalPanel verticalPanel = new VerticalPanel();
 	private HorizontalPanel horizontalPanel = new HorizontalPanel();
 	private boolean vertical;
@@ -84,12 +79,14 @@ public class CavCom implements EntryPoint {
 
 		RootPanel.get("radList").add(mainPanel);
 
-		Window.addWindowResizeListener(new WindowResizeListener() {
-			public void onWindowResized(int width, int height) {
+		Window.addResizeHandler(new ResizeHandler() {
+			
+			@Override
+			public void onResize(ResizeEvent event) {
 				setOrientation();
 			}
 		});
-
+		
 		// Setup timer to refresh list automatically.
 		Timer refreshTimer = new Timer() {
 			@Override
@@ -137,7 +134,7 @@ public class CavCom implements EntryPoint {
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 
 		try {
-			Request request = builder.sendRequest(null, new RequestCallback() {
+			builder.sendRequest(null, new RequestCallback() {
 
 				public void onError(Request request, Throwable exception) {
 					Window.alert("Couldn't retrieve JSON " + url);
