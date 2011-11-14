@@ -12,6 +12,9 @@ import org.atmosphere.gwt.client.extra.Window;
 import org.atmosphere.gwt.client.extra.WindowFeatures;
 import org.atmosphere.gwt.client.extra.WindowSocket;
 
+import ch.cern.atlas.apvs.client.places.RemotePlace;
+import ch.cern.atlas.apvs.client.places.User;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -22,6 +25,10 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.place.shared.Place;
+import com.google.gwt.place.shared.PlaceChangeEvent;
+import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.StatusCodeException;
 import com.google.gwt.user.client.ui.Button;
@@ -37,6 +44,7 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * @author Mark Donszelmann
@@ -48,9 +56,12 @@ public class APVS implements EntryPoint {
 	Logger logger = Logger.getLogger(getClass().getName());
 	Window screen;
 
+	EventBus eventBus;
+	PlaceController placeController;
+
 	@Override
 	public void onModuleLoad() {
-		
+
 		Button button = new Button("Broadcast");
 		button.addClickHandler(new ClickHandler() {
 			@Override
@@ -135,64 +146,94 @@ public class APVS implements EntryPoint {
 			}
 		});
 
+		eventBus = new SimpleEventBus();
+		placeController = new PlaceController(eventBus);
+
+		eventBus.addHandler(PlaceChangeEvent.TYPE,
+				new PlaceChangeEvent.Handler() {
+			@Override
+			public void onPlaceChange(PlaceChangeEvent event) {
+				client.broadcast(new RemotePlaceChangeEvent((RemotePlace)event.getNewPlace()));
+			}
+		});
+		
 		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
 
 		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
 		rootLayoutPanel.add(panel);
-//		rootLayoutPanel.setWidgetLeftWidth(panel, 0.0, Unit.PX, 200.0, Unit.PX);
-//		rootLayoutPanel.setWidgetTopHeight(panel, 0.0, Unit.PX, 500.0, Unit.PX);
-		
+
 		panel.addWest(getLeftBar(), 20);
 	}
-	
+
 	private Widget getLeftBar() {
 		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
 		panel.addNorth(getUser(), 2.0);
 		panel.add(getStackedMenu());
 		return panel;
 	}
-	
+
 	private Widget getUser() {
-		ListBox comboBox = new ListBox();
+		final ListBox comboBox = new ListBox();
 		comboBox.addItem("Dimi");
 		comboBox.addItem("Mark");
 		comboBox.addItem("Marzio");
 		comboBox.addItem("Olga");
 		comboBox.addItem("Olivier");
 
-		comboBox.setItemSelected(2, true);
-		
+		comboBox.setSelectedIndex(2);
+
 		comboBox.addChangeHandler(new ChangeHandler() {
-			
+
 			@Override
 			public void onChange(ChangeEvent event) {
-				
+				String user = comboBox.getValue(comboBox.getSelectedIndex());
+				placeController.goTo(new User(client.getConnectionID(), user));
 			}
 		});
-		
+
+		eventBus.addHandler(PlaceChangeEvent.TYPE,
+				new PlaceChangeEvent.Handler() {
+
+					@Override
+					public void onPlaceChange(PlaceChangeEvent event) {
+						Place place = event.getNewPlace();
+						com.google.gwt.user.client.Window.alert("Received "+place);
+						if (place instanceof User) {
+							for (int i = 0; i < comboBox.getItemCount(); i++) {
+								if (comboBox.getValue(i).equals(
+										((User) place).getUser())) {
+									comboBox.setSelectedIndex(i);
+									return;
+								}
+							}
+							GWT.log(place + " not found");
+						}
+					}
+				});
+
 		return comboBox;
 	}
-	
+
 	private Widget getStackedMenu() {
 		StackLayoutPanel stackLayoutPanel = new StackLayoutPanel(Unit.EM);
 		stackLayoutPanel.setPixelSize(200, 400);
-					
-		stackLayoutPanel.add(new HTML(""), new HTML("Settings"), 2.0);		
+
+		stackLayoutPanel.add(new HTML(""), new HTML("Settings"), 2.0);
 		stackLayoutPanel.add(getProcedures(), new HTML("Procedures"), 2.0);
 		stackLayoutPanel.add(new HTML(""), new HTML("Acquisition"), 2.0);
 		stackLayoutPanel.add(new HTML(""), new HTML("2D/3D Models"), 2.0);
 		stackLayoutPanel.add(new HTML(""), new HTML("Radiation Mapping"), 2.0);
-		stackLayoutPanel.add(getLog(), new HTML("Log"), 2.0);	
+		stackLayoutPanel.add(getLog(), new HTML("Log"), 2.0);
 
-		return  stackLayoutPanel;
+		return stackLayoutPanel;
 	}
-	
+
 	private Widget getProcedures() {
 		Tree tree = new Tree();
 
 		TreeItem tile = new TreeItem("Tile Calo Drawer Extraction");
 		tree.addItem(tile);
-		
+
 		tile.addItem("Step 1");
 		tile.addItem("Step 2");
 		tile.addItem("Step 3");
@@ -201,7 +242,7 @@ public class APVS implements EntryPoint {
 		tile.addItem("Step 6");
 		tile.addItem("Step 7");
 		tile.addItem("Step 8");
-					
+
 		TreeItem ibl = new TreeItem("IBL Installation");
 		tree.addItem(ibl);
 
@@ -214,25 +255,25 @@ public class APVS implements EntryPoint {
 		panel.add(tree);
 		return panel;
 	}
-	
+
 	private Widget getLog() {
 		panel = new VerticalPanel();
-		
+
 		RadioButton error = new RadioButton("log", "Error");
 		panel.add(error);
-		
+
 		RadioButton info = new RadioButton("log", "Info");
 		panel.add(info);
-		
+
 		RadioButton warning = new RadioButton("log", "Warning");
 		panel.add(warning);
-		
+
 		RadioButton debug = new RadioButton("log", "Debug");
 		panel.add(debug);
-		
+
 		RadioButton all = new RadioButton("log", "All");
 		panel.add(all);
-		
+
 		error.setValue(true);
 
 		return new SimplePanel(panel);
@@ -287,8 +328,12 @@ public class APVS implements EntryPoint {
 					+ messages.size() + " messages", result.toString());
 			for (Serializable msg : messages) {
 				if (msg instanceof TabSelectEvent) {
-//					tabLayoutPanel.selectTab(((TabSelectEvent) msg).getTabNo(),
-//							false);
+					// tabLayoutPanel.selectTab(((TabSelectEvent)
+					// msg).getTabNo(),
+					// false);
+				} else if (msg instanceof RemotePlaceChangeEvent) {
+					RemotePlaceChangeEvent event = (RemotePlaceChangeEvent)msg;
+					GWT.log(client.getConnectionID()+" -> "+event);
 				}
 			}
 		}
