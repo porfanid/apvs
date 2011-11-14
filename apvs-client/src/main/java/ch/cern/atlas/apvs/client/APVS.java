@@ -18,16 +18,25 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.StatusCodeException;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.StackLayoutPanel;
+import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author Mark Donszelmann
@@ -38,7 +47,6 @@ public class APVS implements EntryPoint {
 	AtmosphereClient client;
 	Logger logger = Logger.getLogger(getClass().getName());
 	Window screen;
-	TabLayoutPanel tabLayoutPanel;
 
 	@Override
 	public void onModuleLoad() {
@@ -127,30 +135,107 @@ public class APVS implements EntryPoint {
 			}
 		});
 
-		tabLayoutPanel = new TabLayoutPanel(1.5, Unit.EM);
+		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
 
-		tabLayoutPanel.add(new HTML("this"), "[this]");
-		tabLayoutPanel.add(new HTML("that"), "[that]");
-		tabLayoutPanel.add(new HTML("the other"), "[the other]");
+		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
+		rootLayoutPanel.add(panel);
+//		rootLayoutPanel.setWidgetLeftWidth(panel, 0.0, Unit.PX, 200.0, Unit.PX);
+//		rootLayoutPanel.setWidgetTopHeight(panel, 0.0, Unit.PX, 500.0, Unit.PX);
+		
+		panel.addWest(getLeftBar(), 20);
+	}
+	
+	private Widget getLeftBar() {
+		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
+		panel.addNorth(getUser(), 2.0);
+		panel.add(getStackedMenu());
+		return panel;
+	}
+	
+	private Widget getUser() {
+		ListBox comboBox = new ListBox();
+		comboBox.addItem("Dimi");
+		comboBox.addItem("Mark");
+		comboBox.addItem("Marzio");
+		comboBox.addItem("Olga");
+		comboBox.addItem("Olivier");
 
-		tabLayoutPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-
+		comboBox.setItemSelected(2, true);
+		
+		comboBox.addChangeHandler(new ChangeHandler() {
+			
 			@Override
-			public void onSelection(SelectionEvent<Integer> event) {
-				client.broadcast(new TabSelectEvent(event.getSelectedItem()));
+			public void onChange(ChangeEvent event) {
+				
 			}
 		});
+		
+		return comboBox;
+	}
+	
+	private Widget getStackedMenu() {
+		StackLayoutPanel stackLayoutPanel = new StackLayoutPanel(Unit.EM);
+		stackLayoutPanel.setPixelSize(200, 400);
+					
+		stackLayoutPanel.add(new HTML(""), new HTML("Settings"), 2.0);		
+		stackLayoutPanel.add(getProcedures(), new HTML("Procedures"), 2.0);
+		stackLayoutPanel.add(new HTML(""), new HTML("Acquisition"), 2.0);
+		stackLayoutPanel.add(new HTML(""), new HTML("2D/3D Models"), 2.0);
+		stackLayoutPanel.add(new HTML(""), new HTML("Radiation Mapping"), 2.0);
+		stackLayoutPanel.add(getLog(), new HTML("Log"), 2.0);	
 
-		// get rid of logpanel
-//		RootPanel.get().clear();
+		return  stackLayoutPanel;
+	}
+	
+	private Widget getProcedures() {
+		Tree tree = new Tree();
 
-		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
-		rootLayoutPanel.add(tabLayoutPanel);
-		rootLayoutPanel.setWidgetLeftRight(tabLayoutPanel, 0.0, Unit.PX, 0.0,
-				Unit.PX);
-		rootLayoutPanel.setWidgetTopBottom(tabLayoutPanel, 0.0, Unit.PX, 0.0,
-				Unit.PX);
+		TreeItem tile = new TreeItem("Tile Calo Drawer Extraction");
+		tree.addItem(tile);
+		
+		tile.addItem("Step 1");
+		tile.addItem("Step 2");
+		tile.addItem("Step 3");
+		tile.addItem("Step 4");
+		tile.addItem("Step 5");
+		tile.addItem("Step 6");
+		tile.addItem("Step 7");
+		tile.addItem("Step 8");
+					
+		TreeItem ibl = new TreeItem("IBL Installation");
+		tree.addItem(ibl);
 
+		ibl.addItem("Step A");
+		ibl.addItem("Step B");
+		ibl.addItem("Step C");
+		ibl.addItem("Step D");
+
+		ScrollPanel panel = new ScrollPanel();
+		panel.add(tree);
+		return panel;
+	}
+	
+	private Widget getLog() {
+		panel = new VerticalPanel();
+		
+		RadioButton error = new RadioButton("log", "Error");
+		panel.add(error);
+		
+		RadioButton info = new RadioButton("log", "Info");
+		panel.add(info);
+		
+		RadioButton warning = new RadioButton("log", "Warning");
+		panel.add(warning);
+		
+		RadioButton debug = new RadioButton("log", "Debug");
+		panel.add(debug);
+		
+		RadioButton all = new RadioButton("log", "All");
+		panel.add(all);
+		
+		error.setValue(true);
+
+		return new SimplePanel(panel);
 	}
 
 	private class APVSCometListener implements AtmosphereListener {
@@ -202,8 +287,8 @@ public class APVS implements EntryPoint {
 					+ messages.size() + " messages", result.toString());
 			for (Serializable msg : messages) {
 				if (msg instanceof TabSelectEvent) {
-					tabLayoutPanel.selectTab(((TabSelectEvent) msg).getTabNo(),
-							false);
+//					tabLayoutPanel.selectTab(((TabSelectEvent) msg).getTabNo(),
+//							false);
 				}
 			}
 		}
@@ -222,6 +307,7 @@ public class APVS implements EntryPoint {
 	}
 
 	static int count = 0;
+	private VerticalPanel panel;
 
 	public void sendMessage() {
 		client.broadcast(new Event(count++, "Button clicked!"));

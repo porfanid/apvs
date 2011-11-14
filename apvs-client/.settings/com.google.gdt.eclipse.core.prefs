@@ -1,5 +1,6 @@
-#Mon Nov 07 10:57:41 CET 2011
+#Mon Nov 14 14:09:53 CET 2011
 eclipse.preferences.version=1
 jarsExcludedFromWebInfLib=
+lastWarOutDir=/Users/duns/cern/git/apvs/apvs-client/src/main/webapp
 warSrcDir=src/main/webapp
 warSrcDirIsOutput=false
