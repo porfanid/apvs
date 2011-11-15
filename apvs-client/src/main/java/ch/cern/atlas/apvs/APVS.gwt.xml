@@ -2,26 +2,28 @@
 
 <module rename-to="apvs">
 
-    <inherits name='com.google.gwt.user.User'/>
-    <inherits name='com.google.gwt.core.Core'/>
-    <inherits name='com.google.gwt.activity.Activity'/>
-    <inherits name='com.google.gwt.place.Place'/>
-    <inherits name="com.google.gwt.logging.Logging"/>
-    <inherits name="com.google.gwt.http.HTTP" />
-    <inherits name="com.google.gwt.json.JSON"/>
-    
-    <inherits name="org.atmosphere.gwt.Client"/>
-     
-    <!--  inherit css based theme -->
-    <inherits name='com.google.gwt.user.theme.standard.Standard'/>
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name='com.google.gwt.core.Core' />
+	<inherits name='com.google.gwt.activity.Activity' />
+	<inherits name='com.google.gwt.place.Place' />
+	<inherits name="com.google.gwt.logging.Logging" />
+	<inherits name="com.google.gwt.http.HTTP" />
+	<inherits name="com.google.gwt.json.JSON" />
+
+	<inherits name="org.atmosphere.gwt.Client" />
+
+	<!-- inherit css based theme -->
+	<inherits name='com.google.gwt.user.theme.standard.Standard' />
 
 
-<!-- 
-    <set-property name="user.agent" value="safari" />
--->
-    <set-property name="locale" value="default"/>
-    <set-property name="gwt.logging.logLevel" value="FINEST"/>
-    <set-property name="gwt.logging.popupHandler" value="DISABLED"/>
+	<!-- <set-property name="user.agent" value="safari" /> -->
+	<set-property name="locale" value="default" />
+	<set-property name="gwt.logging.logLevel" value="FINEST" />
+	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
 
-    <entry-point class='ch.cern.atlas.apvs.client.APVS'/>
+	<replace-with class="ch.cern.atlas.apvs.client.APVSClientFactory">
+		<when-type-is class="ch.cern.atlas.apvs.client.ClientFactory" />
+	</replace-with>
+
+	<entry-point class='ch.cern.atlas.apvs.client.APVS' />
 </module>

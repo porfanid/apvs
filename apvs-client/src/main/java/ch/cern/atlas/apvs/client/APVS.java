@@ -36,7 +36,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
@@ -159,9 +158,11 @@ public class APVS implements EntryPoint {
 				client.stop();
 			}
 		});
+		
+		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
-		eventBus = new SimpleEventBus();
-		placeController = new PlaceController(eventBus);
+		eventBus = clientFactory.getEventBus();
+		placeController = clientFactory.getPlaceController();
 
 		eventBus.addHandler(PlaceChangeEvent.TYPE,
 				new PlaceChangeEvent.Handler() {
