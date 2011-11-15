@@ -34,6 +34,8 @@ import com.google.gwt.user.client.rpc.StatusCodeException;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
@@ -58,6 +60,7 @@ public class APVS implements EntryPoint {
 
 	EventBus eventBus;
 	PlaceController placeController;
+	Label clientId = new Label();
 
 	@Override
 	public void onModuleLoad() {
@@ -151,12 +154,18 @@ public class APVS implements EntryPoint {
 
 		eventBus.addHandler(PlaceChangeEvent.TYPE,
 				new PlaceChangeEvent.Handler() {
-			@Override
-			public void onPlaceChange(PlaceChangeEvent event) {
-				client.broadcast(new RemotePlaceChangeEvent((RemotePlace)event.getNewPlace()));
-			}
-		});
-		
+					@Override
+					public void onPlaceChange(PlaceChangeEvent event) {
+						RemotePlace place = (RemotePlace) event.getNewPlace();
+						if (place.getRemoteID() == client.getConnectionID()) {
+							GWT.log("Broadcast " + place);
+							client.broadcast(place);
+						} else {
+							GWT.log("NoBroadcast");
+						}
+					}
+				});
+
 		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
 
 		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
@@ -166,12 +175,16 @@ public class APVS implements EntryPoint {
 	}
 
 	private Widget getLeftBar() {
+		HorizontalPanel top = new HorizontalPanel();
+		top.add(clientId);
+		top.add(getUser());
+		
 		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
-		panel.addNorth(getUser(), 2.0);
+		panel.addNorth(top, 2.0);
 		panel.add(getStackedMenu());
 		return panel;
 	}
-
+	
 	private Widget getUser() {
 		final ListBox comboBox = new ListBox();
 		comboBox.addItem("Dimi");
@@ -186,6 +199,7 @@ public class APVS implements EntryPoint {
 
 			@Override
 			public void onChange(ChangeEvent event) {
+				GWT.log("New event");
 				String user = comboBox.getValue(comboBox.getSelectedIndex());
 				placeController.goTo(new User(client.getConnectionID(), user));
 			}
@@ -197,7 +211,6 @@ public class APVS implements EntryPoint {
 					@Override
 					public void onPlaceChange(PlaceChangeEvent event) {
 						Place place = event.getNewPlace();
-						com.google.gwt.user.client.Window.alert("Received "+place);
 						if (place instanceof User) {
 							for (int i = 0; i < comboBox.getItemCount(); i++) {
 								if (comboBox.getValue(i).equals(
@@ -284,6 +297,7 @@ public class APVS implements EntryPoint {
 		@Override
 		public void onConnected(int heartbeat, int connectionID) {
 			GWT.log("comet.connected [" + heartbeat + ", " + connectionID + "]");
+			clientId.setText(Integer.toString(connectionID));
 		}
 
 		@Override
@@ -327,13 +341,14 @@ public class APVS implements EntryPoint {
 			Info.display("[" + client.getConnectionID() + "] Received "
 					+ messages.size() + " messages", result.toString());
 			for (Serializable msg : messages) {
-				if (msg instanceof TabSelectEvent) {
-					// tabLayoutPanel.selectTab(((TabSelectEvent)
-					// msg).getTabNo(),
-					// false);
-				} else if (msg instanceof RemotePlaceChangeEvent) {
-					RemotePlaceChangeEvent event = (RemotePlaceChangeEvent)msg;
-					GWT.log(client.getConnectionID()+" -> "+event);
+				if (msg instanceof RemotePlace) {
+					RemotePlace place = (RemotePlace) msg;
+					if (place.getRemoteID() != client.getConnectionID()) {
+						GWT.log("Incoming Broadcast "+client.getConnectionID() + " -> " + place);
+						eventBus.fireEvent(new PlaceChangeEvent(place));
+					} else {
+						GWT.log("Own Broadcast Ignored");
+					}
 				}
 			}
 		}
