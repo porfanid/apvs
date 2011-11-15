@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.client;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,7 +14,14 @@ import org.atmosphere.gwt.client.extra.Window;
 import org.atmosphere.gwt.client.extra.WindowFeatures;
 import org.atmosphere.gwt.client.extra.WindowSocket;
 
+import ch.cern.atlas.apvs.client.places.Acquisition;
+import ch.cern.atlas.apvs.client.places.Log;
+import ch.cern.atlas.apvs.client.places.MenuPlace;
+import ch.cern.atlas.apvs.client.places.Models;
+import ch.cern.atlas.apvs.client.places.Procedures;
+import ch.cern.atlas.apvs.client.places.RadiationMapping;
 import ch.cern.atlas.apvs.client.places.RemotePlace;
+import ch.cern.atlas.apvs.client.places.Settings;
 import ch.cern.atlas.apvs.client.places.User;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -25,6 +34,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceChangeEvent;
@@ -33,18 +44,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.StatusCodeException;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.StackLayoutPanel;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -178,13 +182,13 @@ public class APVS implements EntryPoint {
 		HorizontalPanel top = new HorizontalPanel();
 		top.add(clientId);
 		top.add(getUser());
-		
+
 		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
 		panel.addNorth(top, 2.0);
 		panel.add(getStackedMenu());
 		return panel;
 	}
-	
+
 	private Widget getUser() {
 		final ListBox comboBox = new ListBox();
 		comboBox.addItem("Dimi");
@@ -228,68 +232,47 @@ public class APVS implements EntryPoint {
 	}
 
 	private Widget getStackedMenu() {
-		StackLayoutPanel stackLayoutPanel = new StackLayoutPanel(Unit.EM);
+		final List<MenuPlace> places = new ArrayList<MenuPlace>();
+		places.add(new Settings());
+		places.add(new Procedures());
+		places.add(new Acquisition());
+		places.add(new Models());
+		places.add(new RadiationMapping());
+		places.add(new Log());
+
+		final StackLayoutPanel stackLayoutPanel = new StackLayoutPanel(Unit.EM);
 		stackLayoutPanel.setPixelSize(200, 400);
 
-		stackLayoutPanel.add(new HTML(""), new HTML("Settings"), 2.0);
-		stackLayoutPanel.add(getProcedures(), new HTML("Procedures"), 2.0);
-		stackLayoutPanel.add(new HTML(""), new HTML("Acquisition"), 2.0);
-		stackLayoutPanel.add(new HTML(""), new HTML("2D/3D Models"), 2.0);
-		stackLayoutPanel.add(new HTML(""), new HTML("Radiation Mapping"), 2.0);
-		stackLayoutPanel.add(getLog(), new HTML("Log"), 2.0);
+		for (Iterator<MenuPlace> i = places.iterator(); i.hasNext();) {
+			MenuPlace menuPlace = i.next();
+			stackLayoutPanel.add(menuPlace.getWidget(), menuPlace.getHeader(),
+					2.0);
+		}
+
+		stackLayoutPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+
+			@Override
+			public void onSelection(SelectionEvent<Integer> event) {
+				RemotePlace place = places.get(event.getSelectedItem());
+				place.setRemoteID(client.getConnectionID());
+				placeController.goTo(place);
+			}
+		});
+
+		eventBus.addHandler(PlaceChangeEvent.TYPE,
+				new PlaceChangeEvent.Handler() {
+
+					@Override
+					public void onPlaceChange(PlaceChangeEvent event) {
+						Place place = event.getNewPlace();
+						if (place instanceof MenuPlace) {
+							MenuPlace menuPlace = (MenuPlace)place;
+							stackLayoutPanel.showWidget(menuPlace.getIndex(), false);
+						}
+					}
+				});
 
 		return stackLayoutPanel;
-	}
-
-	private Widget getProcedures() {
-		Tree tree = new Tree();
-
-		TreeItem tile = new TreeItem("Tile Calo Drawer Extraction");
-		tree.addItem(tile);
-
-		tile.addItem("Step 1");
-		tile.addItem("Step 2");
-		tile.addItem("Step 3");
-		tile.addItem("Step 4");
-		tile.addItem("Step 5");
-		tile.addItem("Step 6");
-		tile.addItem("Step 7");
-		tile.addItem("Step 8");
-
-		TreeItem ibl = new TreeItem("IBL Installation");
-		tree.addItem(ibl);
-
-		ibl.addItem("Step A");
-		ibl.addItem("Step B");
-		ibl.addItem("Step C");
-		ibl.addItem("Step D");
-
-		ScrollPanel panel = new ScrollPanel();
-		panel.add(tree);
-		return panel;
-	}
-
-	private Widget getLog() {
-		panel = new VerticalPanel();
-
-		RadioButton error = new RadioButton("log", "Error");
-		panel.add(error);
-
-		RadioButton info = new RadioButton("log", "Info");
-		panel.add(info);
-
-		RadioButton warning = new RadioButton("log", "Warning");
-		panel.add(warning);
-
-		RadioButton debug = new RadioButton("log", "Debug");
-		panel.add(debug);
-
-		RadioButton all = new RadioButton("log", "All");
-		panel.add(all);
-
-		error.setValue(true);
-
-		return new SimplePanel(panel);
 	}
 
 	private class APVSCometListener implements AtmosphereListener {
@@ -344,7 +327,8 @@ public class APVS implements EntryPoint {
 				if (msg instanceof RemotePlace) {
 					RemotePlace place = (RemotePlace) msg;
 					if (place.getRemoteID() != client.getConnectionID()) {
-						GWT.log("Incoming Broadcast "+client.getConnectionID() + " -> " + place);
+						GWT.log("Incoming Broadcast "
+								+ client.getConnectionID() + " -> " + place);
 						eventBus.fireEvent(new PlaceChangeEvent(place));
 					} else {
 						GWT.log("Own Broadcast Ignored");
@@ -367,7 +351,6 @@ public class APVS implements EntryPoint {
 	}
 
 	static int count = 0;
-	private VerticalPanel panel;
 
 	public void sendMessage() {
 		client.broadcast(new Event(count++, "Button clicked!"));

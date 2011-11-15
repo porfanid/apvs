@@ -16,6 +16,10 @@ public abstract class RemotePlace extends Place implements Serializable {
 		this.remoteId = remoteId;
 	}
 	
+	public void setRemoteID(int remoteId) {
+		this.remoteId = remoteId;
+	}
+	
 	public int getRemoteID() {
 		return remoteId;
 	}
