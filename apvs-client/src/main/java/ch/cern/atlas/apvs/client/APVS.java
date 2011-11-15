@@ -143,7 +143,14 @@ public class APVS implements EntryPoint {
 		});
 		socket.bind("wsock");
 
-		initialize();
+		APVSCometListener cometListener = new APVSCometListener();
+
+		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
+		// set a small length parameter to force refreshes
+		// normally you should remove the length parameter
+		client = new AtmosphereClient(GWT.getModuleBaseURL() + "apvsComet",
+				serializer, cometListener);
+		client.start();
 
 		Button killbutton = new Button("Stop");
 		killbutton.addClickHandler(new ClickHandler() {
@@ -336,18 +343,6 @@ public class APVS implements EntryPoint {
 				}
 			}
 		}
-	}
-
-	public void initialize() {
-
-		APVSCometListener cometListener = new APVSCometListener();
-
-		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
-		// set a small length parameter to force refreshes
-		// normally you should remove the length parameter
-		client = new AtmosphereClient(GWT.getModuleBaseURL() + "apvsComet",
-				serializer, cometListener);
-		client.start();
 	}
 
 	static int count = 0;
