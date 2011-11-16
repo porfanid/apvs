@@ -19,8 +19,9 @@
 	<!-- <set-property name="user.agent" value="safari" /> -->
 	<set-property name="locale" value="default" />
 	<set-property name="gwt.logging.logLevel" value="FINEST" />
+<!-- 
 	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
-
+-->
 	<replace-with class="ch.cern.atlas.apvs.client.APVSClientFactory">
 		<when-type-is class="ch.cern.atlas.apvs.client.ClientFactory" />
 	</replace-with>

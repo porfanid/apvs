@@ -4,13 +4,13 @@
 
     <parent>
         <groupId>ch.cern.atlas</groupId>
-        <artifactId>apvs</artifactId>
+        <artifactId>apvs-project</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>    
 
-    <artifactId>apvs-client</artifactId>
+    <artifactId>apvs</artifactId>
     <packaging>war</packaging>
-    <name>apvs-client</name>
+    <name>apvs</name>
 
     <properties>
         <gwtModule>ch.cern.atlas.apvs.APVS</gwtModule>
@@ -19,10 +19,12 @@
         <gwt.draftCompile>false</gwt.draftCompile>
         <gwt.style>PRETTY</gwt.style>
         <outputDir>${war.target}/WEB-INF/classes</outputDir>
+        <netbeans.hint.deploy.server>Tomcat70</netbeans.hint.deploy.server>
     </properties>
 
     <build>
         <defaultGoal>package</defaultGoal>
+        <finalName>${project.artifactId}</finalName>
         <outputDirectory>${outputDir}</outputDirectory>
         <plugins>
             <plugin>
@@ -56,6 +58,14 @@
                     <encoding>UTF-8</encoding>
                     <source>1.6</source>
                     <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
 

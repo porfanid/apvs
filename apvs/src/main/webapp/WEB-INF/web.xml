@@ -4,7 +4,7 @@
     <display-name>apvs</display-name>
 
     <servlet>
-        <description>APVS Service</description>
+        <description>APVSServlet</description>
         <servlet-name>APVSServlet</servlet-name>
         <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
         <init-param>

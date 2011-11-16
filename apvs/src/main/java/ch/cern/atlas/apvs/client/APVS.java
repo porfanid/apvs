@@ -36,6 +36,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
@@ -49,7 +50,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.StackLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * @author Mark Donszelmann
@@ -132,7 +132,7 @@ public class APVS implements EntryPoint {
 				}
 			}
 		});
-
+/*
 		WindowSocket socket = new WindowSocket();
 		socket.addHandler(new WindowSocket.MessageHandler() {
 			@Override
@@ -141,7 +141,7 @@ public class APVS implements EntryPoint {
 			}
 		});
 		socket.bind("wsock");
-
+*/
 		APVSCometListener cometListener = new APVSCometListener();
 
 		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
@@ -287,17 +287,20 @@ public class APVS implements EntryPoint {
 
 		@Override
 		public void onConnected(int heartbeat, int connectionID) {
+			com.google.gwt.user.client.Window.alert("New connection "+connectionID);
 			GWT.log("comet.connected [" + heartbeat + ", " + connectionID + "]");
 			clientId.setText(Integer.toString(connectionID));
 		}
 
 		@Override
 		public void onBeforeDisconnected() {
+			com.google.gwt.user.client.Window.alert("before disc "+client.getConnectionID());
 			logger.log(Level.INFO, "comet.beforeDisconnected");
 		}
 
 		@Override
 		public void onDisconnected() {
+			com.google.gwt.user.client.Window.alert("Disconnected "+client.getConnectionID());
 			GWT.log("comet.disconnected");
 		}
 
@@ -309,20 +312,28 @@ public class APVS implements EntryPoint {
 			}
 			GWT.log("comet.error [connected=" + connected + "] (" + statuscode
 					+ ")", exception);
+			com.google.gwt.user.client.Window.alert("comet.error [connected=" + connected + "] (" + statuscode
+					+ ") "+exception);
+			if (!connected) {
+				clientId.setText(Integer.toString(0));
+			}
 		}
 
 		@Override
 		public void onHeartbeat() {
 			GWT.log("comet.heartbeat [" + client.getConnectionID() + "]");
+			com.google.gwt.user.client.Window.alert("comet.heartbeat [" + client.getConnectionID() + "]");
 		}
 
 		@Override
 		public void onRefresh() {
 			GWT.log("comet.refresh [" + client.getConnectionID() + "]");
+			com.google.gwt.user.client.Window.alert("comet.refresh [" + client.getConnectionID() + "]");
 		}
 
 		@Override
 		public void onMessage(List<? extends Serializable> messages) {
+			com.google.gwt.user.client.Window.alert("comet.onMessage [" + client.getConnectionID() + "]");
 			StringBuilder result = new StringBuilder();
 			for (Serializable obj : messages) {
 				result.append(obj.toString()).append("<br/>");
