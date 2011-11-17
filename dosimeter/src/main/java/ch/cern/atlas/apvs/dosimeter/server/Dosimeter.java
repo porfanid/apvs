@@ -1,11 +1,14 @@
 package ch.cern.atlas.apvs.dosimeter.server;
 
+import java.util.Random;
+
 
 public class Dosimeter {
 
 	private int serialNo;
 	private double dose;
 	private double rate;
+	private Random random = new Random(System.currentTimeMillis());
 
 	// Conversion from device mrem into microsievert
 	private static final double MICRO_SIEVERT = 10;
@@ -74,6 +77,12 @@ public class Dosimeter {
 	public String toString() {
 		return "Dosimeter (" + getSerialNo() + "): dose=" + getDose()
 				+ "; rate=" + getRate();
+	}
+	
+	Dosimeter next() {
+		double newDose = getDose() + getRate();
+		double newRate = getRate() + random.nextGaussian() * 0.5;
+		return new Dosimeter(getSerialNo(), newDose, newRate);
 	}
 	
 	private static int getChecksum(String encodedString) {
