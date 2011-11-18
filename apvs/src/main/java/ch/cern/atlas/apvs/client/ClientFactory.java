@@ -1,7 +1,7 @@
 package ch.cern.atlas.apvs.client;
 
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.place.shared.PlaceController;
+import com.google.web.bindery.event.shared.EventBus;
 
 public interface ClientFactory {
 	
