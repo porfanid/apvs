@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,6 +58,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class APVS implements EntryPoint {
 
 	PollAsync polling = GWT.create(Poll.class);
+	DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
 	AtmosphereClient client;
 	Logger logger = Logger.getLogger(getClass().getName());
 	Window screen;
@@ -65,8 +67,8 @@ public class APVS implements EntryPoint {
 	PlaceController placeController;
 	Label clientId = new Label();
 
-	Button pollButton;
-	
+	Button dosimeterButton;
+
 	@Override
 	public void onModuleLoad() {
 
@@ -87,7 +89,7 @@ public class APVS implements EntryPoint {
 			}
 		});
 
-		pollButton = new Button("Poll");
+		Button pollButton = new Button("Poll");
 		pollButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -134,16 +136,37 @@ public class APVS implements EntryPoint {
 				}
 			}
 		});
-/*
-		WindowSocket socket = new WindowSocket();
-		socket.addHandler(new WindowSocket.MessageHandler() {
+		/*
+		 * WindowSocket socket = new WindowSocket(); socket.addHandler(new
+		 * WindowSocket.MessageHandler() {
+		 * 
+		 * @Override public void onMessage(String message) {
+		 * Info.display("Received through window socket", message); } });
+		 * socket.bind("wsock");
+		 */
+
+		dosimeterButton = new Button("Dosimeter");
+		dosimeterButton.addClickHandler(new ClickHandler() {
 			@Override
-			public void onMessage(String message) {
-				Info.display("Received through window socket", message);
+			public void onClick(ClickEvent event) {
+				dosimeterService
+						.getSerialNumbers(new AsyncCallback<Set<Integer>>() {
+
+							@Override
+							public void onSuccess(Set<Integer> result) {
+								Info.display("Polling message received: ",
+										"Size: "+result.size());
+							}
+
+							@Override
+							public void onFailure(Throwable caught) {
+								GWT.log("Failed to get dosimeterlist", caught);
+
+							}
+						});
 			}
 		});
-		socket.bind("wsock");
-*/
+
 		APVSCometListener cometListener = new APVSCometListener();
 
 		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
@@ -160,7 +183,7 @@ public class APVS implements EntryPoint {
 				client.stop();
 			}
 		});
-		
+
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
 		eventBus = clientFactory.getEventBus();
@@ -191,7 +214,7 @@ public class APVS implements EntryPoint {
 	private Widget getLeftBar() {
 		HorizontalPanel top = new HorizontalPanel();
 		top.add(clientId);
-		top.add(pollButton);
+		top.add(dosimeterButton);
 		top.add(getUser());
 
 		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
@@ -277,8 +300,9 @@ public class APVS implements EntryPoint {
 					public void onPlaceChange(PlaceChangeEvent event) {
 						Place place = event.getNewPlace();
 						if (place instanceof MenuPlace) {
-							MenuPlace menuPlace = (MenuPlace)place;
-							stackLayoutPanel.showWidget(menuPlace.getIndex(), false);
+							MenuPlace menuPlace = (MenuPlace) place;
+							stackLayoutPanel.showWidget(menuPlace.getIndex(),
+									false);
 						}
 					}
 				});
@@ -290,20 +314,23 @@ public class APVS implements EntryPoint {
 
 		@Override
 		public void onConnected(int heartbeat, int connectionID) {
-			com.google.gwt.user.client.Window.alert("New connection "+connectionID);
+			com.google.gwt.user.client.Window.alert("New connection "
+					+ connectionID);
 			GWT.log("comet.connected [" + heartbeat + ", " + connectionID + "]");
 			clientId.setText(Integer.toString(connectionID));
 		}
 
 		@Override
 		public void onBeforeDisconnected() {
-			com.google.gwt.user.client.Window.alert("before disc "+client.getConnectionID());
+			com.google.gwt.user.client.Window.alert("before disc "
+					+ client.getConnectionID());
 			logger.log(Level.INFO, "comet.beforeDisconnected");
 		}
 
 		@Override
 		public void onDisconnected() {
-			com.google.gwt.user.client.Window.alert("Disconnected "+client.getConnectionID());
+			com.google.gwt.user.client.Window.alert("Disconnected "
+					+ client.getConnectionID());
 			GWT.log("comet.disconnected");
 		}
 
@@ -315,8 +342,8 @@ public class APVS implements EntryPoint {
 			}
 			GWT.log("comet.error [connected=" + connected + "] (" + statuscode
 					+ ")", exception);
-			com.google.gwt.user.client.Window.alert("comet.error [connected=" + connected + "] (" + statuscode
-					+ ") "+exception);
+			com.google.gwt.user.client.Window.alert("comet.error [connected="
+					+ connected + "] (" + statuscode + ") " + exception);
 			if (!connected) {
 				clientId.setText(Integer.toString(0));
 			}
@@ -325,18 +352,21 @@ public class APVS implements EntryPoint {
 		@Override
 		public void onHeartbeat() {
 			GWT.log("comet.heartbeat [" + client.getConnectionID() + "]");
-			com.google.gwt.user.client.Window.alert("comet.heartbeat [" + client.getConnectionID() + "]");
+			com.google.gwt.user.client.Window.alert("comet.heartbeat ["
+					+ client.getConnectionID() + "]");
 		}
 
 		@Override
 		public void onRefresh() {
 			GWT.log("comet.refresh [" + client.getConnectionID() + "]");
-			com.google.gwt.user.client.Window.alert("comet.refresh [" + client.getConnectionID() + "]");
+			com.google.gwt.user.client.Window.alert("comet.refresh ["
+					+ client.getConnectionID() + "]");
 		}
 
 		@Override
 		public void onMessage(List<? extends Serializable> messages) {
-			com.google.gwt.user.client.Window.alert("comet.onMessage [" + client.getConnectionID() + "]");
+			com.google.gwt.user.client.Window.alert("comet.onMessage ["
+					+ client.getConnectionID() + "]");
 			StringBuilder result = new StringBuilder();
 			for (Serializable obj : messages) {
 				result.append(obj.toString()).append("<br/>");
