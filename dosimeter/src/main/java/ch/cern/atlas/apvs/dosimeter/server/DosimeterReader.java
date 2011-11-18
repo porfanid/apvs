@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ch.cern.atlas.apvs.domain.Dosimeter;
+
 public class DosimeterReader implements Runnable {
 
 	private Socket socket;
@@ -25,7 +27,7 @@ public class DosimeterReader implements Runnable {
 				BufferedReader is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				String line;
 				while ((line = is.readLine()) != null) {
-					Dosimeter dosimeter = Dosimeter.decode(line);
+					Dosimeter dosimeter = DosimeterCoder.decode(line);
 					dosimeters.put(dosimeter.getSerialNo(), dosimeter);
 				}
 			} catch (IOException e) {

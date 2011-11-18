@@ -15,8 +15,13 @@
         <atmosphere-version>0.8.0-RC3</atmosphere-version>
     </properties>
 
+    <build>
+        <defaultGoal>install</defaultGoal>
+    </build>
+
     <modules>
         <module>apvs</module>
+        <module>domain</module>
         <module>dosimeter</module>
     </modules>
 

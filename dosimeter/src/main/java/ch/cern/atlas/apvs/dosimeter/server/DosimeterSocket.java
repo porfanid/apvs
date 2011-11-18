@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import ch.cern.atlas.apvs.domain.Dosimeter;
+
 public class DosimeterSocket implements Runnable {
 
 	private Socket socket;
@@ -32,8 +34,8 @@ public class DosimeterSocket implements Runnable {
 			while (true) {
 				for (int i = 0; i<dosimeters.size(); i++) {
 					Dosimeter dosimeter = dosimeters.get(i);
-					out.println(Dosimeter.encode(dosimeter));
-					dosimeters.set(i, dosimeter.next());
+					out.println(DosimeterCoder.encode(dosimeter));
+					dosimeters.set(i, next(dosimeter));
 				}
 				out.flush();
 				
@@ -59,4 +61,11 @@ public class DosimeterSocket implements Runnable {
 			}
 		}
 	}
+	
+	private Dosimeter next(Dosimeter dosimeter) {
+		double newDose = dosimeter.getDose() + dosimeter.getRate();
+		double newRate = Math.max(0, dosimeter.getRate() + random.nextGaussian() * 0.5);
+		return new Dosimeter(dosimeter.getSerialNo(), newDose, newRate);
+	}	
+
 }

@@ -24,7 +24,6 @@
 	</properties>
 
 	<build>
-		<defaultGoal>package</defaultGoal>
 		<finalName>${project.artifactId}</finalName>
 		<outputDirectory>${outputDir}</outputDirectory>
 		<plugins>
@@ -39,6 +38,7 @@
 					<noServer>false</noServer>
 					<sourcesOnPath>true</sourcesOnPath>
 					<hostedWebapp>${war.target}</hostedWebapp>
+					<encoding>UTF-8</encoding>
 				</configuration>
 				<executions>
 					<execution>
@@ -46,6 +46,7 @@
 							<extraJvmArgs>-Xmx512m</extraJvmArgs>
 						</configuration>
 						<goals>
+							<goal>generateAsync</goal>
 							<goal>compile</goal>
 						</goals>
 					</execution>
@@ -99,7 +100,12 @@
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>dosimeter</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>domain</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.atmosphere</groupId>

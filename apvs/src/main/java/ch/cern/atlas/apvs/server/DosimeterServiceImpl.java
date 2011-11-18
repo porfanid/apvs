@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.server;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
@@ -13,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.DosimeterService;
-import ch.cern.atlas.apvs.dosimeter.server.Dosimeter;
+import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
 
 /**
@@ -74,7 +75,7 @@ public class DosimeterServiceImpl extends AtmospherePollService
 	
 	@Override
 	public Set<Integer> getSerialNumbers() {
-		return dosimeterReader == null ? null : dosimeterReader.getDosimeterSerialNumbers();
+		return dosimeterReader == null ? null : new HashSet<Integer>(dosimeterReader.getDosimeterSerialNumbers());
 	}
 	
 	@Override

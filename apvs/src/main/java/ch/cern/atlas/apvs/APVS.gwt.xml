@@ -12,6 +12,8 @@
 
 	<inherits name="org.atmosphere.gwt.Client" />
 
+	<inherits name="ch.cern.atlas.apvs.Domain" />
+
 	<!-- inherit css based theme -->
 	<inherits name='com.google.gwt.user.theme.standard.Standard' />
 
