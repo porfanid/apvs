@@ -17,6 +17,7 @@
 
     <modules>
         <module>apvs</module>
+        <module>dosimeter</module>
     </modules>
 
 </project>

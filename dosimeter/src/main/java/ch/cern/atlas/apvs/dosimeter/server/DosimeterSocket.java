@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class DosimeterSocket implements Runnable {
 
 	private Socket socket;
 	private Random random = new Random();
+	private int noOfDosimeters = 5;
 	
 	public DosimeterSocket(Socket socket) {
 		this.socket = socket;
@@ -18,14 +21,22 @@ public class DosimeterSocket implements Runnable {
 	@Override
 	public void run() {
 		try {
-			Dosimeter dosimeter = new Dosimeter(random.nextInt(100000), random.nextInt(500), random.nextInt(5));
+			List<Dosimeter> dosimeters = new ArrayList<Dosimeter>(noOfDosimeters);
+			for (int i = 0; i<noOfDosimeters; i++) {
+				dosimeters.add(new Dosimeter(random.nextInt(100000), random.nextInt(500), random.nextInt(5)));
+				System.err.println(dosimeters.get(i).getSerialNo());
+			}
 			
 			OutputStream os = socket.getOutputStream();
 			PrintStream out = new PrintStream(os);
 			while (true) {
-				out.println(Dosimeter.encode(dosimeter));
+				for (int i = 0; i<dosimeters.size(); i++) {
+					Dosimeter dosimeter = dosimeters.get(i);
+					out.println(Dosimeter.encode(dosimeter));
+					dosimeters.set(i, dosimeter.next());
+				}
 				out.flush();
-				dosimeter = dosimeter.next();
+				
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
@@ -35,9 +46,17 @@ public class DosimeterSocket implements Runnable {
 				System.err.flush();
 			}
 
-		} catch (IOException e1) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e.printStackTrace();
+		} finally {
+			if (socket != null) {
+				try {
+				socket.close();
+				} catch (IOException e) {
+					// ignored
+				}
+			}
 		}
 	}
 }

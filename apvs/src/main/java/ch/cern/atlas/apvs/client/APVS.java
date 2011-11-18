@@ -65,6 +65,8 @@ public class APVS implements EntryPoint {
 	PlaceController placeController;
 	Label clientId = new Label();
 
+	Button pollButton;
+	
 	@Override
 	public void onModuleLoad() {
 
@@ -85,7 +87,7 @@ public class APVS implements EntryPoint {
 			}
 		});
 
-		Button pollButton = new Button("Poll");
+		pollButton = new Button("Poll");
 		pollButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -189,6 +191,7 @@ public class APVS implements EntryPoint {
 	private Widget getLeftBar() {
 		HorizontalPanel top = new HorizontalPanel();
 		top.add(clientId);
+		top.add(pollButton);
 		top.add(getUser());
 
 		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);

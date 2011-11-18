@@ -86,7 +86,6 @@ public class Dosimeter {
 	}
 	
 	private static int getChecksum(String encodedString) {
-		System.err.println(encodedString);
 		int checksum = 0;
 		for (int i=0; i<Math.min(encodedString.length(), 44); i+=2) {
 			checksum += Integer.parseInt(encodedString.substring(i, i+2), 16);
