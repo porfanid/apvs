@@ -2,7 +2,6 @@ package ch.cern.atlas.apvs.dosimeter.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 
 public class DosimeterServer {
 
