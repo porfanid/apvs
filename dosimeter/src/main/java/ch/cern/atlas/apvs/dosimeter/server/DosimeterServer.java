@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.dosimeter.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 public class DosimeterServer {
 
@@ -10,11 +11,10 @@ public class DosimeterServer {
 		System.err.println("Server open at 4001");
 
 		while (true) {
-			DosimeterSocket socket;
 			try {
-				socket = new DosimeterSocket(server.accept());
-				Thread thread = new Thread(socket);
-				thread.start();
+				DosimeterSocket socket = new DosimeterSocket(server.accept());
+				Thread writer = new Thread(socket);				
+				writer.start();
 			} catch (IOException e) {
 				System.out.println("Accept failed: 4001");
 				System.exit(-1);
