@@ -1,15 +1,16 @@
 package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
-public class Dosimeter implements Serializable {
+public class Dosimeter implements Serializable, Comparable<Dosimeter> {
 
 	private static final long serialVersionUID = -9183933693411766044L;
 
 	private int serialNo;
 	private double dose;
 	private double rate;
-	
+
 	public Dosimeter() {
 	}
 
@@ -51,5 +52,15 @@ public class Dosimeter implements Serializable {
 	public String toString() {
 		return "Dosimeter (" + getSerialNo() + "): dose=" + getDose()
 				+ "; rate=" + getRate();
+	}
+
+	@Override
+	public int compareTo(Dosimeter o) {
+		if (this == o) {
+			return 0;
+		}
+
+		return (o != null) ? getSerialNo() < o.getSerialNo() ? -1
+				: getSerialNo() == o.getSerialNo() ? 0 : 1 : 1;
 	}
 }

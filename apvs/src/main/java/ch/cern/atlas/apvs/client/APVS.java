@@ -47,7 +47,9 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.StackLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -71,7 +73,17 @@ public class APVS implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
+		
+		Panel p = RootPanel.get("dosimeterView");
+		if (p != null) {
+			p.add(new DosimeterView());
+			return;
+		}
 
+		onMainModuleLoad();
+	}
+		
+	private void onMainModuleLoad() {
 		Button button = new Button("Broadcast");
 		button.addClickHandler(new ClickHandler() {
 			@Override
@@ -150,7 +162,7 @@ public class APVS implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				dosimeterService
-						.getSerialNumbers(new AsyncCallback<Set<Integer>>() {
+						.getSerialNumbers(0, new AsyncCallback<Set<Integer>>() {
 
 							@Override
 							public void onSuccess(Set<Integer> result) {

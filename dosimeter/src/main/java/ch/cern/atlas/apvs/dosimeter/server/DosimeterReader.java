@@ -10,37 +10,70 @@ import java.util.Set;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
 
-public class DosimeterReader implements Runnable {
+import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.event.shared.HandlerRegistration;
+
+public class DosimeterReader implements Runnable,
+		HasValueChangeHandlers<Map<Integer, Dosimeter>> {
 
 	private Socket socket;
 	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
+	private HandlerManager handlerManager = new HandlerManager(this);
 
 	public DosimeterReader(Socket socket) {
 		this.socket = socket;
 	}
-	
+
 	@Override
 	public void run() {
-		
-		while (true) {
-			try {
-				BufferedReader is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+		try {
+			while (true) {
+				BufferedReader is = new BufferedReader(new InputStreamReader(
+						socket.getInputStream()));
 				String line;
 				while ((line = is.readLine()) != null) {
 					Dosimeter dosimeter = DosimeterCoder.decode(line);
 					dosimeters.put(dosimeter.getSerialNo(), dosimeter);
+
+					ValueChangeEvent.fire(this, dosimeters);
 				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				socket.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				// ignore
 			}
 		}
 	}
-	
+
 	public Set<Integer> getDosimeterSerialNumbers() {
 		return dosimeters.keySet();
 	}
-	
+
 	public Dosimeter getDosimeter(int serialNo) {
 		return dosimeters.get(serialNo);
+	}
+
+	public Map<Integer, Dosimeter> getDosimeterMap() {
+		return dosimeters;
+	}
+
+	@Override
+	public HandlerRegistration addValueChangeHandler(
+			ValueChangeHandler<Map<Integer, Dosimeter>> handler) {
+		return handlerManager.addHandler(ValueChangeEvent.getType(), handler);
+	}
+
+	@Override
+	public void fireEvent(GwtEvent<?> event) {
+		handlerManager.fireEvent(event);
 	}
 }
