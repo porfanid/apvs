@@ -33,7 +33,12 @@ public class ResponseHandler<T> implements
 		V object = null;
 
 		if (response != null) {
-			object = response.getValue();
+			try {
+				object = response.getValue();
+			} catch (NullPointerException e) {
+				System.err.println("NPE");
+				object = null;
+			}
 		}
 		
 		if (object == null) {

@@ -30,14 +30,10 @@ public class DosimeterView extends SimplePanel {
 			3.0, 0.2), new Dosimeter(19, 2.5, 0.9),
 			new Dosimeter(98, 1.9, 0.1), new Dosimeter(67, 6.5, 0.2));
 	
-	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();
-	
+	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();	
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
-	
 	private ListHandler<Dosimeter> columnSortHandler;
-	
 	private DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
-
 	private Map<Integer, Dosimeter> dosimeters = new TreeMap<Integer, Dosimeter>();
 
 	public DosimeterView() {
@@ -123,6 +119,10 @@ public class DosimeterView extends SimplePanel {
 			
 			@Override
 			public void onSuccess(Map<Integer, Dosimeter> result) {
+				if (result == null) {
+					System.err.println("onSuccess null in dosimeterView");
+					return;
+				}
 				dosimeters  = result;
 				
 				List<Dosimeter> list = dataProvider.getList();

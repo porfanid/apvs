@@ -5,9 +5,23 @@ import java.net.ServerSocket;
 
 public class DosimeterServer {
 
+	private ServerSocket server;
+	
+	private DosimeterServer() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() { 
+				try {
+					finalize();
+				} catch (Throwable e) {
+					// ignored
+				}
+			}
+		});
+	}
+	
 	private void run() throws IOException {
-		ServerSocket server = new ServerSocket(4001);
-		System.err.println("Server open at 4001");
+		server = new ServerSocket(4001);
+		System.out.println("Server open at 4001");
 
 		while (true) {
 			try {
@@ -20,9 +34,18 @@ public class DosimeterServer {
 			}
 		}
 	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		System.out.println("Closing server");
+		if (server != null) {
+			System.out.println("Closing server");
+			server.close();
+		}
+	}
 
 	public static void main(String[] args) throws IOException {
 		new DosimeterServer().run();
 	}
-
 }

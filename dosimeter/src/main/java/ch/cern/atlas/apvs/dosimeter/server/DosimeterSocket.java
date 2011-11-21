@@ -2,7 +2,6 @@ package ch.cern.atlas.apvs.dosimeter.server;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,6 +19,15 @@ public class DosimeterSocket implements Runnable {
 	public DosimeterSocket(Socket socket) {
 		this.socket = socket;
 	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		if (socket != null) {
+			System.out.println("Closing socket");
+			socket.close();
+		}
+	}
 
 	@Override
 	public void run() {
@@ -29,35 +37,34 @@ public class DosimeterSocket implements Runnable {
 			for (int i = 0; i < noOfDosimeters; i++) {
 				dosimeters.add(new Dosimeter(random.nextInt(100000), random
 						.nextInt(500), random.nextInt(5)));
-				System.err.println(dosimeters.get(i).getSerialNo());
+				System.out.println(dosimeters.get(i).getSerialNo());
 			}
 			
-			System.err.print("Connected from: "+socket.getInetAddress());
+			System.out.print("Connected on: "+socket.getInetAddress());
 
-			OutputStream os = socket.getOutputStream();
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(os));
+			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			while (true) {
 				for (int i = 0; i < dosimeters.size(); i++) {
 					Dosimeter dosimeter = dosimeters.get(i);
-					out.write(DosimeterCoder.encode(dosimeter));
-					out.newLine();
+					os.write(DosimeterCoder.encode(dosimeter));
+					os.newLine();
 					dosimeters.set(i, next(dosimeter));
 				}
-				out.flush();
+				os.flush();
 
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					// ignored
 				}
-				System.err.print(".");
-				System.err.flush();
+				System.out.print(".");
+				System.out.flush();
 			}
 
 		} catch (IOException e) {
 		} finally {
 			try {
-				System.err.println("Closing");
+				System.out.println("Closing");
 				socket.close();
 			} catch (IOException e) {
 				// ignored

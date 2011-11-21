@@ -37,6 +37,7 @@ public class DosimeterReader implements Runnable,
 						socket.getInputStream()));
 				String line;
 				while ((line = is.readLine()) != null) {
+					System.err.println("Read a line");
 					Dosimeter dosimeter = DosimeterCoder.decode(line);
 					dosimeters.put(dosimeter.getSerialNo(), dosimeter);
 
@@ -44,10 +45,10 @@ public class DosimeterReader implements Runnable,
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(getClass()+" "+e);
 		} finally {
 			try {
-				socket.close();
+				close();
 			} catch (IOException e) {
 				// ignore
 			}
@@ -75,5 +76,9 @@ public class DosimeterReader implements Runnable,
 	@Override
 	public void fireEvent(GwtEvent<?> event) {
 		handlerManager.fireEvent(event);
+	}
+
+	public void close() throws IOException {
+		socket.close();
 	}
 }
