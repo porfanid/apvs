@@ -10,6 +10,6 @@ import ch.cern.atlas.apvs.client.places.User;
  * 
  * @author Mark Donszelmann
  */
-@SerialTypes(value = { Event.class, RemotePlace.class, User.class })
+@SerialTypes(value = { RemotePlace.class, User.class })
 public abstract class EventSerializer extends AtmosphereGWTSerializer {
 }

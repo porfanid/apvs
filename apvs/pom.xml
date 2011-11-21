@@ -32,6 +32,7 @@
 				<artifactId>gwt-maven-plugin</artifactId>
 				<version>${gwt-plugin-version}</version>
 				<configuration>
+				    <strict>true</strict>
 					<module>${gwtModule}</module>
 					<gwtVersion>${gwt-version}</gwtVersion>
 					<runTarget>http://localhost:8888/apvs/APVS.jsp</runTarget>

@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
-import java.util.Comparator;
 
 public class Dosimeter implements Serializable, Comparable<Dosimeter> {
 

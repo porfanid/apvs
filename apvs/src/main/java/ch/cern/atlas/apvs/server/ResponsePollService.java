@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client;
+package ch.cern.atlas.apvs.server;
 
 import org.atmosphere.gwt.poll.AtmospherePollService;
 

@@ -10,11 +10,9 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import ch.cern.atlas.apvs.client.DosimeterService;
-import ch.cern.atlas.apvs.client.ResponseHandler;
-import ch.cern.atlas.apvs.client.ResponseHandler.Response;
-import ch.cern.atlas.apvs.client.ResponsePollService;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
+import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
 /**
  * @author Mark Donszelmann

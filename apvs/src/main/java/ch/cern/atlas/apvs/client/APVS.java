@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,8 +11,6 @@ import org.atmosphere.gwt.client.AtmosphereClient;
 import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
 import org.atmosphere.gwt.client.AtmosphereListener;
 import org.atmosphere.gwt.client.extra.Window;
-import org.atmosphere.gwt.client.extra.WindowFeatures;
-import org.atmosphere.gwt.client.extra.WindowSocket;
 
 import ch.cern.atlas.apvs.client.places.Acquisition;
 import ch.cern.atlas.apvs.client.places.Log;
@@ -27,20 +24,14 @@ import ch.cern.atlas.apvs.client.places.User;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.StatusCodeException;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
@@ -59,7 +50,6 @@ import com.google.web.bindery.event.shared.EventBus;
  */
 public class APVS implements EntryPoint {
 
-	PollAsync polling = GWT.create(Poll.class);
 	DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
 	AtmosphereClient client;
 	Logger logger = Logger.getLogger(getClass().getName());
@@ -84,100 +74,6 @@ public class APVS implements EntryPoint {
 	}
 		
 	private void onMainModuleLoad() {
-		Button button = new Button("Broadcast");
-		button.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				sendMessage();
-			}
-		});
-
-		Button post = new Button("Post");
-		post.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				client.post(new Event(count++,
-						"This was send using the post mechanism"));
-			}
-		});
-
-		Button pollButton = new Button("Poll");
-		pollButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				polling.pollDelayed(3000, new AsyncCallback<Event>() {
-
-					@Override
-					public void onFailure(Throwable caught) {
-						GWT.log("Failed to poll", caught);
-					}
-
-					@Override
-					public void onSuccess(Event result) {
-						Info.display(
-								"Polling message received: " + result.getCode(),
-								result.getData());
-					}
-				});
-			}
-		});
-
-		Button wnd = new Button("Open Window");
-		wnd.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-					@Override
-					public void execute() {
-						screen = Window.current().open(
-								Document.get().getURL(),
-								"child",
-								new WindowFeatures().setStatus(true)
-										.setResizable(true));
-					}
-				});
-			}
-		});
-
-		Button sendWindow = new Button("Send to window");
-		sendWindow.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				if (screen != null) {
-					WindowSocket.post(screen, "wsock", "Hello Child!");
-				}
-			}
-		});
-		/*
-		 * WindowSocket socket = new WindowSocket(); socket.addHandler(new
-		 * WindowSocket.MessageHandler() {
-		 * 
-		 * @Override public void onMessage(String message) {
-		 * Info.display("Received through window socket", message); } });
-		 * socket.bind("wsock");
-		 */
-
-		dosimeterButton = new Button("Dosimeter");
-		dosimeterButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				dosimeterService
-						.getSerialNumbers(0, new AsyncCallback<Set<Integer>>() {
-
-							@Override
-							public void onSuccess(Set<Integer> result) {
-								Info.display("Polling message received: ",
-										"Size: "+result.size());
-							}
-
-							@Override
-							public void onFailure(Throwable caught) {
-								GWT.log("Failed to get dosimeterlist", caught);
-
-							}
-						});
-			}
-		});
 
 		APVSCometListener cometListener = new APVSCometListener();
 
@@ -187,14 +83,6 @@ public class APVS implements EntryPoint {
 		client = new AtmosphereClient(GWT.getModuleBaseURL() + "apvsComet",
 				serializer, cometListener);
 		client.start();
-
-		Button killbutton = new Button("Stop");
-		killbutton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				client.stop();
-			}
-		});
 
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
@@ -400,11 +288,5 @@ public class APVS implements EntryPoint {
 				}
 			}
 		}
-	}
-
-	static int count = 0;
-
-	public void sendMessage() {
-		client.broadcast(new Event(count++, "Button clicked!"));
 	}
 }
