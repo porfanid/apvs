@@ -120,7 +120,7 @@ public class DosimeterView extends SimplePanel {
 			@Override
 			public void onSuccess(Map<Integer, Dosimeter> result) {
 				if (result == null) {
-					System.err.println("onSuccess null in dosimeterView");
+					System.err.println("FIXME onSuccess null in dosimeterView");
 					return;
 				}
 				dosimeters  = result;

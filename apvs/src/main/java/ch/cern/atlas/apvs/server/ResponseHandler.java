@@ -10,8 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 
-public class ResponseHandler<T> implements
-		ValueChangeHandler<T> {
+public class ResponseHandler<T> implements ValueChangeHandler<T> {
 
 	private ResponsePollService service;
 	// Synchronized !!
@@ -27,26 +26,24 @@ public class ResponseHandler<T> implements
 		this.service = service;
 	}
 
-	public <V> V respond(
-			int currentHashCode, Response<V> response) {
+	public <V> V respond(int currentHashCode, Response<V> response) {
 
 		V object = null;
 
-		if (response != null) {
-			try {
+		try {
+			if (response != null) {
 				object = response.getValue();
-			} catch (NullPointerException e) {
-				System.err.println("NPE");
-				object = null;
 			}
-		}
-		
-		if (object == null) {
-			return null;
-		}
 
-		if (currentHashCode != object.hashCode()) {
-			return object;
+			if (object == null) {
+				return null;
+			}
+
+			if (currentHashCode != object.hashCode()) {
+				return object;
+			}
+		} catch (NullPointerException e) {
+			System.err.println("We assume the call does not work due to a disconnect, we keep you waiting...");
 		}
 
 		suspendInfo.push(service.suspend());
