@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -99,27 +99,27 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 		}
 	}
 
-	private ResponseHandler<Map<Integer, Dosimeter>> getSerialNumbersResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>>(
+	private ResponseHandler<Map<Integer, Dosimeter>, List<Integer>> getSerialNumbersResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>, List<Integer>>(
 			this);
 
 	@Override
-	public Set<Integer> getSerialNumbers(int currentHashCode) {
+	public List<Integer> getSerialNumbers(int currentHashCode) {
 		return getSerialNumbersResponseHandler.respond(currentHashCode,
-				new Response<Set<Integer>>() {
+				new Response<List<Integer>>() {
 
 					@Override
-					public Set<Integer> getValue() {
+					public List<Integer> getValue() {
 						return dosimeterReader.getDosimeterSerialNumbers();
 					}
 				});
 	}
 
-	private ResponseHandler<Map<Integer, Dosimeter>> getDosimeterResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>>(
+	private ResponseHandler<Map<Integer, Dosimeter>, Dosimeter> getDosimeterResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>, Dosimeter>(
 			this);
 
 	@Override
 	public Dosimeter getDosimeter(final int serialNo, int currentHashCode) {
-		return getDosimeterMapResponseHandler.respond(currentHashCode,
+		return getDosimeterResponseHandler.respond(currentHashCode,
 				new Response<Dosimeter>() {
 
 					@Override
@@ -129,7 +129,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 				});
 	}
 
-	private ResponseHandler<Map<Integer, Dosimeter>> getDosimeterMapResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>>(
+	private ResponseHandler<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>> getDosimeterMapResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>(
 			this);
 
 	@Override

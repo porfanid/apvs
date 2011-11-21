@@ -64,9 +64,17 @@ public class APVS implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 		
-		Panel p = RootPanel.get("dosimeterView");
+		Panel p;
+		p = RootPanel.get("dosimeterView");
 		if (p != null) {
 			p.add(new DosimeterView());
+			return;
+		}
+		p = RootPanel.get("measurementView");
+		if (p != null) {
+			DosimeterSelector dosimeterSelector = new DosimeterSelector();
+			p.add(dosimeterSelector);
+			p.add(new MeasurementView(dosimeterSelector));
 			return;
 		}
 

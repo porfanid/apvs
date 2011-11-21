@@ -3,10 +3,10 @@ package ch.cern.atlas.apvs.client;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
 
@@ -34,7 +34,7 @@ public class DosimeterView extends SimplePanel {
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
 	private ListHandler<Dosimeter> columnSortHandler;
 	private DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
-	private Map<Integer, Dosimeter> dosimeters = new TreeMap<Integer, Dosimeter>();
+	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
 
 	public DosimeterView() {
 		add(table);
@@ -109,7 +109,7 @@ public class DosimeterView extends SimplePanel {
 			}
 		});
 		table.addColumnSortHandler(columnSortHandler);
-		table.getColumnSortList().push(rate);
+		table.getColumnSortList().push(serialNo);
 		
 		getDosimeterMap();		
 	}

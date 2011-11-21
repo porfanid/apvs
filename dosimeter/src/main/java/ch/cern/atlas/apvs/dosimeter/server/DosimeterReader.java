@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
 
@@ -37,7 +39,6 @@ public class DosimeterReader implements Runnable,
 						socket.getInputStream()));
 				String line;
 				while ((line = is.readLine()) != null) {
-					System.err.println("Read a line");
 					Dosimeter dosimeter = DosimeterCoder.decode(line);
 					dosimeters.put(dosimeter.getSerialNo(), dosimeter);
 
@@ -55,8 +56,10 @@ public class DosimeterReader implements Runnable,
 		}
 	}
 
-	public Set<Integer> getDosimeterSerialNumbers() {
-		return dosimeters.keySet();
+	public List<Integer> getDosimeterSerialNumbers() {
+		List<Integer> list = new ArrayList<Integer>(dosimeters.keySet());
+		Collections.sort(list);
+		return list;
 	}
 
 	public Dosimeter getDosimeter(int serialNo) {

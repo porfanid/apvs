@@ -74,7 +74,7 @@ public class DosimeterSocket implements Runnable {
 
 	private Dosimeter next(Dosimeter dosimeter) {
 		double newDose = dosimeter.getDose() + dosimeter.getRate();
-		double newRate = Math.max(0,
+		double newRate = Math.max(0.0,
 				dosimeter.getRate() + random.nextGaussian() * 0.5);
 		return new Dosimeter(dosimeter.getSerialNo(), newDose, newRate);
 	}
