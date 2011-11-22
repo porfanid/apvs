@@ -1,0 +1,5 @@
+svn checkout http://json-io.googlecode.com/svn/trunk/ json-io
+
+- src/main/java and test directory from svn
+- taken at 1.0.2+ at 22-11-2011
+- test does not run in maven at this time

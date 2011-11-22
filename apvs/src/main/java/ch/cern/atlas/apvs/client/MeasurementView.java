@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
+import ch.cern.atlas.apvs.domain.Measurement;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.NumberCell;

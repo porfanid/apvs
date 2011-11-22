@@ -13,6 +13,7 @@
         <gwt-version>2.4.0</gwt-version>
         <gwt-plugin-version>2.4.0</gwt-plugin-version>
         <atmosphere-version>0.8.0-RC3</atmosphere-version>
+        <junit-version>4.10</junit-version>
     </properties>
 
     <build>
@@ -23,6 +24,8 @@
         <module>apvs</module>
         <module>domain</module>
         <module>dosimeter</module>
+        <module>json-io</module>
+        <module>ptu</module>
     </modules>
 
 </project>
