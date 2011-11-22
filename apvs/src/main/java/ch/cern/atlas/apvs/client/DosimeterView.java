@@ -12,12 +12,22 @@ import ch.cern.atlas.apvs.domain.Dosimeter;
 
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Display;
+import com.google.gwt.dom.client.Style.Position;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -29,16 +39,60 @@ public class DosimeterView extends SimplePanel {
 	private static List<Dosimeter> DOSIMETERS = Arrays.asList(new Dosimeter(22,
 			3.0, 0.2), new Dosimeter(19, 2.5, 0.9),
 			new Dosimeter(98, 1.9, 0.1), new Dosimeter(67, 6.5, 0.2));
-	
-	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();	
+
+	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
 	private ListHandler<Dosimeter> columnSortHandler;
-	private DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
+	private DosimeterServiceAsync dosimeterService = GWT
+			.create(DosimeterService.class);
 	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
+
+	private DivElement glass;
+	private ResizeHandler glassResizer = new ResizeHandler() {
+		public void onResize(ResizeEvent event) {
+			Style style = glass.getStyle();
+
+			int winWidth = table.getOffsetWidth();
+			int winHeight = Window.getClientHeight();
+
+			// Hide the glass while checking the document size. Otherwise it
+			// would
+			// interfere with the measurement.
+			style.setDisplay(Display.NONE);
+			style.setWidth(0, Unit.PX);
+			style.setHeight(0, Unit.PX);
+
+			int width = 0;
+			int height = Document.get().getScrollHeight();
+
+			// Set the glass size to the larger of the window's client size or
+			// the
+			// document's scroll size.
+			style.setWidth(Math.max(width, winWidth), Unit.PX);
+			style.setHeight(Math.max(height, winHeight), Unit.PX);
+
+			// The size is set. Show the glass again.
+			style.setDisplay(Display.BLOCK);
+		}
+	};
 
 	public DosimeterView() {
 		add(table);
+		
+		if (false) {
+			String glassStyleName = "gwt-PopupPanelGlass";
+			glass = Document.get().createDivElement();
+			glass.setClassName(glassStyleName);
 
+			glass.getStyle().setPosition(Position.ABSOLUTE);
+			glass.getStyle().setLeft(0, Unit.PX);
+			glass.getStyle().setTop(0, Unit.PX);
+			Document.get().getBody().appendChild(glass);
+
+			HandlerRegistration resizeRegistration = Window
+					.addResizeHandler(glassResizer);
+			glassResizer.onResize(null);
+		}
 		Column<Dosimeter, Number> serialNo = new Column<Dosimeter, Number>(
 				new NumberCell(NumberFormat.getFormat("0"))) {
 			@Override
@@ -59,7 +113,8 @@ public class DosimeterView extends SimplePanel {
 		};
 		dose.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		dose.setSortable(true);
-		table.addColumn(dose, SafeHtmlUtils.fromSafeConstant("Dose [&micro;Sv]"));
+		table.addColumn(dose,
+				SafeHtmlUtils.fromSafeConstant("Dose [&micro;Sv]"));
 
 		Column<Dosimeter, Number> rate = new Column<Dosimeter, Number>(
 				new NumberCell(NumberFormat.getFormat("0.0"))) {
@@ -70,13 +125,13 @@ public class DosimeterView extends SimplePanel {
 		};
 		rate.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		rate.setSortable(true);
-		table.addColumn(rate, SafeHtmlUtils.fromSafeConstant("Rate [&micro;Sv/h]"));
+		table.addColumn(rate,
+				SafeHtmlUtils.fromSafeConstant("Rate [&micro;Sv/h]"));
 
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(new ArrayList<Dosimeter>());
-		
-		columnSortHandler = new ListHandler<Dosimeter>(
-				dataProvider.getList());
+
+		columnSortHandler = new ListHandler<Dosimeter>(dataProvider.getList());
 		columnSortHandler.setComparator(serialNo, new Comparator<Dosimeter>() {
 			public int compare(Dosimeter o1, Dosimeter o2) {
 				return o1 != null ? o1.compareTo(o2) : -1;
@@ -110,43 +165,46 @@ public class DosimeterView extends SimplePanel {
 		});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(serialNo);
-		
-		getDosimeterMap();		
+
+		getDosimeterMap();
 	}
-	
+
 	private void getDosimeterMap() {
-		dosimeterService.getDosimeterMap(dosimeters.hashCode(), new AsyncCallback<Map<Integer,Dosimeter>>() {
-			
-			@Override
-			public void onSuccess(Map<Integer, Dosimeter> result) {
-				if (result == null) {
-					System.err.println("FIXME onSuccess null in dosimeterView");
-					return;
-				}
-				dosimeters  = result;
-				
-				List<Dosimeter> list = dataProvider.getList();
-				list.clear();
-				
-				for (Iterator<Dosimeter> i = result.values().iterator(); i.hasNext(); ) {
-					list.add(i.next());
-				}
+		dosimeterService.getDosimeterMap(dosimeters.hashCode(),
+				new AsyncCallback<Map<Integer, Dosimeter>>() {
 
-				// Resort the table
-				ColumnSortEvent.fire(table, table.getColumnSortList());			
-				table.redraw();
-				
-				getDosimeterMap();
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				GWT.log("Could not retrieve dosimeter map");
-				
-				getDosimeterMap();
-			}
-		});
+					@Override
+					public void onSuccess(Map<Integer, Dosimeter> result) {
+						if (result == null) {
+							System.err
+									.println("FIXME onSuccess null in dosimeterView");
+							return;
+						}
+						dosimeters = result;
+
+						List<Dosimeter> list = dataProvider.getList();
+						list.clear();
+
+						for (Iterator<Dosimeter> i = result.values().iterator(); i
+								.hasNext();) {
+							list.add(i.next());
+						}
+
+						// Resort the table
+						ColumnSortEvent.fire(table, table.getColumnSortList());
+						table.redraw();
+
+						getDosimeterMap();
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						GWT.log("Could not retrieve dosimeter map");
+
+						getDosimeterMap();
+					}
+				});
 
 	}
-	
+
 }
