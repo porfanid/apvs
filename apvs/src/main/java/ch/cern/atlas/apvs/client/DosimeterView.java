@@ -12,8 +12,8 @@ import ch.cern.atlas.apvs.domain.Dosimeter;
 
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.dom.client.Style.Position;
@@ -27,6 +27,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -47,13 +48,20 @@ public class DosimeterView extends SimplePanel {
 			.create(DosimeterService.class);
 	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
 
-	private DivElement glass;
+	private static final int TIMEOUT = 10000;
+	private Timer timeoutTimer = null;
+
+	private Element glass;
+	private boolean glassShowing;
+	private String glassStyleName = "gwt-PopupPanelGlass";
+
+	private HandlerRegistration resizeRegistration;
 	private ResizeHandler glassResizer = new ResizeHandler() {
 		public void onResize(ResizeEvent event) {
 			Style style = glass.getStyle();
 
-			int winWidth = table.getOffsetWidth();
-			int winHeight = Window.getClientHeight();
+			int width = table.getOffsetWidth();
+			int height = table.getOffsetHeight();
 
 			// Hide the glass while checking the document size. Otherwise it
 			// would
@@ -62,14 +70,11 @@ public class DosimeterView extends SimplePanel {
 			style.setWidth(0, Unit.PX);
 			style.setHeight(0, Unit.PX);
 
-			int width = 0;
-			int height = Document.get().getScrollHeight();
-
 			// Set the glass size to the larger of the window's client size or
 			// the
 			// document's scroll size.
-			style.setWidth(Math.max(width, winWidth), Unit.PX);
-			style.setHeight(Math.max(height, winHeight), Unit.PX);
+			style.setWidth(width, Unit.PX);
+			style.setHeight(height, Unit.PX);
 
 			// The size is set. Show the glass again.
 			style.setDisplay(Display.BLOCK);
@@ -78,21 +83,15 @@ public class DosimeterView extends SimplePanel {
 
 	public DosimeterView() {
 		add(table);
-		
-		if (false) {
-			String glassStyleName = "gwt-PopupPanelGlass";
-			glass = Document.get().createDivElement();
-			glass.setClassName(glassStyleName);
 
-			glass.getStyle().setPosition(Position.ABSOLUTE);
-			glass.getStyle().setLeft(0, Unit.PX);
-			glass.getStyle().setTop(0, Unit.PX);
-			Document.get().getBody().appendChild(glass);
+		// create class "disconected" pane
+		glass = Document.get().createDivElement();
+		glass.setClassName(glassStyleName);
 
-			HandlerRegistration resizeRegistration = Window
-					.addResizeHandler(glassResizer);
-			glassResizer.onResize(null);
-		}
+		glass.getStyle().setPosition(Position.ABSOLUTE);
+		glass.getStyle().setLeft(0, Unit.PX);
+		glass.getStyle().setTop(0, Unit.PX);
+
 		Column<Dosimeter, Number> serialNo = new Column<Dosimeter, Number>(
 				new NumberCell(NumberFormat.getFormat("0"))) {
 			@Override
@@ -169,7 +168,16 @@ public class DosimeterView extends SimplePanel {
 		getDosimeterMap();
 	}
 
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		glass.getStyle().setProperty("visibility",
+				visible ? "visible" : "hidden");
+	}
+
 	private void getDosimeterMap() {
+		cancelTimer();
+		startTimer();
 		dosimeterService.getDosimeterMap(dosimeters.hashCode(),
 				new AsyncCallback<Map<Integer, Dosimeter>>() {
 
@@ -193,6 +201,8 @@ public class DosimeterView extends SimplePanel {
 						// Resort the table
 						ColumnSortEvent.fire(table, table.getColumnSortList());
 						table.redraw();
+						
+						showGlass(false);
 
 						getDosimeterMap();
 					}
@@ -205,6 +215,43 @@ public class DosimeterView extends SimplePanel {
 					}
 				});
 
+	}
+
+	private void startTimer() {
+		timeoutTimer = new Timer() {
+			@Override
+			public void run() {
+				timeoutTimer = null;
+				showGlass(true);
+			}
+		};
+		timeoutTimer.schedule(TIMEOUT);
+	}
+
+	private void cancelTimer() {
+		if (timeoutTimer != null) {
+			timeoutTimer.cancel();
+			timeoutTimer = null;
+		}
+	}	
+	
+	private void showGlass(boolean show) {
+		if (show) {
+			Document.get().getBody().appendChild(glass);
+
+			resizeRegistration = Window.addResizeHandler(glassResizer);
+			glassResizer.onResize(null);
+
+			glassShowing = true;
+
+		} else if (glassShowing) {
+			Document.get().getBody().removeChild(glass);
+
+			resizeRegistration.removeHandler();
+			resizeRegistration = null;
+
+			glassShowing = false;
+		}
 	}
 
 }
