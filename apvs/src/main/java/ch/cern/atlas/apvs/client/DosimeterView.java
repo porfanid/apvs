@@ -51,7 +51,7 @@ public class DosimeterView extends SimplePanel {
 		table.addColumn(serialNo, "Serial No");
 
 		Column<Dosimeter, Number> dose = new Column<Dosimeter, Number>(
-				new NumberCell(NumberFormat.getFormat("0.0"))) {
+				new NumberCell(NumberFormat.getFormat("0"))) {
 			@Override
 			public Number getValue(Dosimeter object) {
 				return object.getDose();
@@ -62,7 +62,7 @@ public class DosimeterView extends SimplePanel {
 		table.addColumn(dose, SafeHtmlUtils.fromSafeConstant("Dose [&micro;Sv]"));
 
 		Column<Dosimeter, Number> rate = new Column<Dosimeter, Number>(
-				new NumberCell(NumberFormat.getFormat("0.00"))) {
+				new NumberCell(NumberFormat.getFormat("0.0"))) {
 			@Override
 			public Number getValue(Dosimeter object) {
 				return object.getRate();

@@ -36,7 +36,7 @@ public class DosimeterSocket implements Runnable {
 					noOfDosimeters);
 			for (int i = 0; i < noOfDosimeters; i++) {
 				dosimeters.add(new Dosimeter(random.nextInt(100000), random
-						.nextInt(500), random.nextInt(5)));
+						.nextDouble()*500.0, random.nextDouble()*5.0));
 				System.out.println(dosimeters.get(i).getSerialNo());
 			}
 			
