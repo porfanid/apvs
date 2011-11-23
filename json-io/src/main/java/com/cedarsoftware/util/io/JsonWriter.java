@@ -318,7 +318,7 @@ public class JsonWriter extends Writer
         }
     }
 
-    private void writePrimitive(Object obj) throws IOException
+    protected void writePrimitive(Object obj) throws IOException
     {
         String value = obj.toString();
 

@@ -53,7 +53,7 @@ public class DosimeterSocket implements Runnable {
 				os.flush();
 
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(3000 + random.nextInt(3000));
 				} catch (InterruptedException e) {
 					// ignored
 				}

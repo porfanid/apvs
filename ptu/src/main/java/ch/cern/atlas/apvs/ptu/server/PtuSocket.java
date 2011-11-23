@@ -1,23 +1,22 @@
 package ch.cern.atlas.apvs.ptu.server;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import ch.cern.atlas.apvs.domain.Measurement;
-
 public class PtuSocket implements Runnable {
 
 	private Socket socket;
+	private boolean json;
 	private Random random = new Random();
 	private int noOfPtus = 3;
 
-	public PtuSocket(Socket socket) {
+	public PtuSocket(Socket socket, boolean json) {
 		this.socket = socket;
+		this.json = json;
 	}
 	
 	@Override
@@ -41,23 +40,20 @@ public class PtuSocket implements Runnable {
 			
 			System.out.print("Connected on: "+socket.getInetAddress());
 
-			boolean json = true;
-			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			OutputStream os = socket.getOutputStream();
+			ObjectWriter writer = json ? new PtuJsonWriter(os) : new PtuXmlWriter(os);
 			for (int i = 0; i < ptus.size(); i++) {
 				Ptu ptu = ptus.get(i);
-				ptu.write(os, json);
+				ptu.write(writer);
 			}
-			os.flush();
+			writer.flush();
 
 			while (true) {
-				for (int i = 0; i < ptus.size(); i++) {
-					Ptu ptu = ptus.get(i);
-					ptu.next(os, json);
-				}
-				os.flush();
+				ptus.get(random.nextInt(ptus.size())).next(writer);
+				writer.flush();
 
 				try {
-					Thread.sleep(2000);
+					Thread.sleep(2000 + random.nextInt(2000));
 				} catch (InterruptedException e) {
 					// ignored
 				}
@@ -75,28 +71,4 @@ public class PtuSocket implements Runnable {
 			}
 		}
 	}
-	
-	public static String toXml(Measurement<?> m) {
-		String i = "    ";
-		String newLine = "\n";
-		StringBuffer s = new StringBuffer();
-		s.append(i).append("<message type=\"measurement\">").append(newLine);
-		s.append(i).append(i).append("<field name=\"ptu_id\">").append(m.getPtuId()).append("</field>").append(newLine);
-		s.append(i).append(i).append("<field name=\"sensor\">").append(m.getName()).append("</field>").append(newLine);
-		s.append(i).append(i).append("<field name=\"value\">").append(m.getValue()).append("</field>").append(newLine);
-		s.append(i).append(i).append("<field name=\"unit\">").append(m.getUnit()).append("</field>").append(newLine);
-		s.append(i).append(i).append("<field name=\"datetime\">").append(PtuConstants.dateFormat.format(m.getDate())).append("</field>").append(newLine);
-		s.append(i).append(i).append("<field name=\"type\">").append(m.getType()).append("</field>").append(newLine);
-        s.append(i).append("</message>").append(newLine);
-        return s.toString();
-	}
-
-/*
-	private Dosimeter next(Dosimeter dosimeter) {
-		double newDose = dosimeter.getDose() + dosimeter.getRate();
-		double newRate = Math.max(0.0,
-				dosimeter.getRate() + random.nextGaussian() * 0.5);
-		return new Dosimeter(dosimeter.getSerialNo(), newDose, newRate);
-	}
-*/
 }

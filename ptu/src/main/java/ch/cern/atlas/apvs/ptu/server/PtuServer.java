@@ -3,14 +3,16 @@ package ch.cern.atlas.apvs.ptu.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import com.cedarsoftware.util.io.JsonWriter;
-
 
 public class PtuServer {
 
+	private final static int portNo = 4005;
+	private boolean json;
 	private ServerSocket server;
 	
-	private PtuServer() {
+	private PtuServer(boolean json) {
+		this.json = json;
+		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() { 
 				try {
@@ -23,16 +25,16 @@ public class PtuServer {
 	}
 	
 	private void run() throws IOException {
-		server = new ServerSocket(4005);
-		System.out.println("Server open at 4005");
+		server = new ServerSocket(portNo);
+		System.out.println("Server open at "+portNo);
 
 		while (true) {
 			try {
-				PtuSocket socket = new PtuSocket(server.accept());
+				PtuSocket socket = new PtuSocket(server.accept(), json);
 				Thread writer = new Thread(socket);				
 				writer.start();
 			} catch (IOException e) {
-				System.out.println("Accept failed: 4005");
+				System.out.println("Accept failed: "+portNo);
 				System.exit(-1);
 			}
 		}
@@ -49,15 +51,7 @@ public class PtuServer {
 	}
 
 	public static void main(String[] args) throws IOException {
-		JsonWriter writer = new PtuJsonWriter(System.err);
-		
-		int ptuId = 643;
-		Temperature temperature = new Temperature(ptuId, 22.9);
-		System.err.println(temperature);
-		writer.write(temperature);		
-		System.err.println();
-		System.err.println(PtuSocket.toXml(temperature));
-		
-		new PtuServer().run();
+		boolean json = args.length > 0 ? args[0].equalsIgnoreCase("xml") ? false : true : true;
+		new PtuServer(json).run();
 	}
 }
