@@ -600,7 +600,7 @@ public class JsonWriter extends Writer
                 {
                     _out.write(',');
                 }
-                writeJsonUtf8String(field.getName());
+                writeFieldName(field.getName());
                 _out.write(':');
 
                 Object o;
@@ -661,7 +661,11 @@ public class JsonWriter extends Writer
         _out.write('}');
     }
 
-    private static boolean isPrimitiveWrapper(Class c)
+    protected void writeFieldName(String name) throws IOException {
+        writeJsonUtf8String(name);
+	}
+
+	private static boolean isPrimitiveWrapper(Class c)
     {
         return c.isPrimitive() || JsonReader._prims.contains(c);
     }
@@ -674,7 +678,7 @@ public class JsonWriter extends Writer
      * @param s String to be written in utf8 format on the output stream.
      * @throws IOException if an error occurs writing to the output stream.
      */
-    private void writeJsonUtf8String(String s) throws IOException
+    protected void writeJsonUtf8String(String s) throws IOException
     {
         _out.write('\"');
         int len = s.length();

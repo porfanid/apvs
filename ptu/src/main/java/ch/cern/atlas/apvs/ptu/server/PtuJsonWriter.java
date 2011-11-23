@@ -21,6 +21,15 @@ public class PtuJsonWriter extends JsonWriter {
 		_objVisited.clear();
 		_objsReferenced.clear();
 	}
+	
+	@Override
+	protected void writeFieldName(String name) throws IOException {
+		if (name.equals("name")) {
+			write("sensor");
+		} else {
+			super.writeFieldName(name);
+		}
+	}
 
 	@Override
     protected void writeDate(Object obj, boolean showType) throws IOException

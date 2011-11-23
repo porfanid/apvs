@@ -83,7 +83,7 @@ public class PtuSocket implements Runnable {
 		s.append(i).append(i).append("<field name=\"value\">").append(m.getValue()).append("</field>").append(newLine);
 		s.append(i).append(i).append("<field name=\"unit\">").append(m.getUnit()).append("</field>").append(newLine);
 		s.append(i).append(i).append("<field name=\"datetime\">").append(PtuConstants.dateFormat.format(m.getDate())).append("</field>").append(newLine);
-		s.append(i).append(i).append("<field name=\"type\">").append("average").append("</field>").append(newLine);
+		s.append(i).append(i).append("<field name=\"type\">").append(m.getType()).append("</field>").append(newLine);
         s.append(i).append("</message>").append(newLine);
         return s.toString();
 	}
