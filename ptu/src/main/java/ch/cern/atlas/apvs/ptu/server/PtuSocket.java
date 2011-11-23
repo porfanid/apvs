@@ -8,14 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
 
 public class PtuSocket implements Runnable {
 
 	private Socket socket;
 	private Random random = new Random();
-	private int noOfDosimeters = 5;
+	private int noOfPtus = 3;
 
 	public PtuSocket(Socket socket) {
 		this.socket = socket;
@@ -33,28 +32,32 @@ public class PtuSocket implements Runnable {
 	@Override
 	public void run() {
 		try {
-			List<Dosimeter> dosimeters = new ArrayList<Dosimeter>(
-					noOfDosimeters);
-			for (int i = 0; i < noOfDosimeters; i++) {
-				dosimeters.add(new Dosimeter(random.nextInt(100000), random
-						.nextDouble()*500.0, random.nextDouble()*5.0));
-				System.out.println(dosimeters.get(i).getSerialNo());
+			List<Ptu> ptus = new ArrayList<Ptu>(
+					noOfPtus);
+			for (int i = 0; i < noOfPtus; i++) {
+				ptus.add(new Ptu(random.nextInt(300)));
+				System.out.println(ptus.get(i).getPtuId());
 			}
 			
 			System.out.print("Connected on: "+socket.getInetAddress());
 
+			boolean json = true;
 			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			for (int i = 0; i < ptus.size(); i++) {
+				Ptu ptu = ptus.get(i);
+				ptu.write(os, json);
+			}
+			os.flush();
+
 			while (true) {
-				for (int i = 0; i < dosimeters.size(); i++) {
-					Dosimeter dosimeter = dosimeters.get(i);
-//					os.write(DosimeterCoder.encode(dosimeter));
-					os.newLine();
-					dosimeters.set(i, next(dosimeter));
+				for (int i = 0; i < ptus.size(); i++) {
+					Ptu ptu = ptus.get(i);
+					ptu.next(os, json);
 				}
 				os.flush();
 
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					// ignored
 				}
@@ -88,11 +91,12 @@ public class PtuSocket implements Runnable {
         return s.toString();
 	}
 
+/*
 	private Dosimeter next(Dosimeter dosimeter) {
 		double newDose = dosimeter.getDose() + dosimeter.getRate();
 		double newRate = Math.max(0.0,
 				dosimeter.getRate() + random.nextGaussian() * 0.5);
 		return new Dosimeter(dosimeter.getSerialNo(), newDose, newRate);
 	}
-
+*/
 }

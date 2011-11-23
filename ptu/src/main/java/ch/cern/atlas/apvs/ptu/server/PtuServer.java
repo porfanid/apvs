@@ -58,6 +58,6 @@ public class PtuServer {
 		System.err.println();
 		System.err.println(PtuSocket.toXml(temperature));
 		
-//		new PtuServer().run();
+		new PtuServer().run();
 	}
 }
