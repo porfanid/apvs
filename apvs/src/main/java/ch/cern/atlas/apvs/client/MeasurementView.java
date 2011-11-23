@@ -30,9 +30,9 @@ import com.google.gwt.view.client.ListDataProvider;
 public class MeasurementView extends SimplePanel {
 
 	private static final int NUMBER_OF_ITEMS = 2;
-	private ListDataProvider<Measurement> dataProvider = new ListDataProvider<Measurement>();
-	private CellTable<Measurement> table = new CellTable<Measurement>();
-	private ListHandler<Measurement> columnSortHandler;
+	private ListDataProvider<Measurement<?>> dataProvider = new ListDataProvider<Measurement<?>>();
+	private CellTable<Measurement<?>> table = new CellTable<Measurement<?>>();
+	private ListHandler<Measurement<?>> columnSortHandler;
 
 	private DosimeterServiceAsync dosimeterService = GWT
 			.create(DosimeterService.class);
@@ -58,14 +58,14 @@ public class MeasurementView extends SimplePanel {
 
 		add(table);
 
-		TextColumn<Measurement> name = new TextColumn<Measurement>() {
+		TextColumn<Measurement<?>> name = new TextColumn<Measurement<?>>() {
 			@Override
-			public String getValue(Measurement object) {
+			public String getValue(Measurement<?> object) {
 				return object.getName();
 			}
 
 			@Override
-			public void render(Context context, Measurement object,
+			public void render(Context context, Measurement<?> object,
 					SafeHtmlBuilder sb) {
 				((TextCell) getCell()).render(context,
 						SafeHtmlUtils.fromSafeConstant(getValue(object)), sb);
@@ -75,25 +75,26 @@ public class MeasurementView extends SimplePanel {
 		name.setSortable(true);
 		table.addColumn(name, "Name");
 
-		Column<Measurement, Number> value = new Column<Measurement, Number>(
+		Column<Measurement<?>, Number> value = new Column<Measurement<?>, Number>(
 				new NumberCell(NumberFormat.getFormat("0.0"))) {
 			@Override
-			public Number getValue(Measurement object) {
-				return object.getValue();
+			public Number getValue(Measurement<?> object) {
+				// FIXME what about arrays
+				return (Number)object.getValue();
 			}
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		value.setSortable(true);
 		table.addColumn(value, "Value");
 
-		TextColumn<Measurement> unit = new TextColumn<Measurement>() {
+		TextColumn<Measurement<?>> unit = new TextColumn<Measurement<?>>() {
 			@Override
-			public String getValue(Measurement object) {
+			public String getValue(Measurement<?> object) {
 				return object.getUnit();
 			}
 
 			@Override
-			public void render(Context context, Measurement object,
+			public void render(Context context, Measurement<?> object,
 					SafeHtmlBuilder sb) {
 				((TextCell) getCell()).render(context,
 						SafeHtmlUtils.fromSafeConstant(getValue(object)), sb);
@@ -103,34 +104,41 @@ public class MeasurementView extends SimplePanel {
 		unit.setSortable(true);
 		table.addColumn(unit, "Unit");
 
-		List<Measurement> list = new ArrayList<Measurement>();
+		List<Measurement<?>> list = new ArrayList<Measurement<?>>();
 		for (int i = 0; i < NUMBER_OF_ITEMS; i++) {
-			list.add(new Measurement());
+			list.add(new Measurement<Object>());
 		}
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(list);
 
-		columnSortHandler = new ListHandler<Measurement>(dataProvider.getList());
-		columnSortHandler.setComparator(name, new Comparator<Measurement>() {
-			public int compare(Measurement o1, Measurement o2) {
-				return o1 != null ? o1.compareTo(o2) : -1;
-			}
-		});
-		columnSortHandler.setComparator(value, new Comparator<Measurement>() {
-			public int compare(Measurement o1, Measurement o2) {
+		columnSortHandler = new ListHandler<Measurement<?>>(dataProvider.getList());
+		columnSortHandler.setComparator(name, new Comparator<Measurement<? extends Object>>() {
+			public int compare(Measurement<? extends Object> o1, Measurement<? extends Object> o2) {
 				if (o1 == o2) {
 					return 0;
 				}
 
 				if (o1 != null) {
-					return (o2 != null) ? o1.getValue() < o2.getValue() ? -1
-							: o1.getValue() == o2.getValue() ? 0 : 1 : 1;
+					return (o2 != null) ? o1.getName().compareTo(o2.getName()) : 1;
 				}
 				return -1;
 			}
 		});
-		columnSortHandler.setComparator(unit, new Comparator<Measurement>() {
-			public int compare(Measurement o1, Measurement o2) {
+		columnSortHandler.setComparator(value, new Comparator<Measurement<? extends Object>>() {
+			public int compare(Measurement<? extends Object> o1, Measurement<? extends Object> o2) {
+				if (o1 == o2) {
+					return 0;
+				}
+
+				if ((o1 != null) && (o1.getValue() instanceof Comparable<?>)) {
+					Comparable<?> value = (Comparable<?>)o1.getValue();
+					return (o2 != null) ? value.compareTo(o2.getValue()) : 1;
+				}
+				return -1;
+			}
+		});
+		columnSortHandler.setComparator(unit, new Comparator<Measurement<? extends Object>>() {
+			public int compare(Measurement<? extends Object> o1, Measurement<? extends Object> o2) {
 				if (o1 == o2) {
 					return 0;
 				}
@@ -169,10 +177,10 @@ public class MeasurementView extends SimplePanel {
 
 						dosimeter = result;
 
-						List<Measurement> list = dataProvider.getList();
-						list.set(0, new Measurement("Dose",
+						List<Measurement<?>> list = dataProvider.getList();
+						list.set(0, new Measurement<Double>("Dose",
 								dosimeter.getDose(), "&micro;Sv"));
-						list.set(1, new Measurement("Rate",
+						list.set(1, new Measurement<Double>("Rate",
 								dosimeter.getRate(), "&micro;Sv/h"));
 
 						// Resort the table

@@ -73,7 +73,7 @@ public class PtuSocket implements Runnable {
 		}
 	}
 	
-	public static String toXml(Measurement m) {
+	public static String toXml(Measurement<?> m) {
 		String i = "    ";
 		String newLine = "\n";
 		StringBuffer s = new StringBuffer();

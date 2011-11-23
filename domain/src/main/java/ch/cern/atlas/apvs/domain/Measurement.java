@@ -2,26 +2,24 @@ package ch.cern.atlas.apvs.domain;
 
 import java.util.Date;
 
-public class Measurement implements Comparable<Measurement> {
+public class Measurement<T> implements Comparable<Measurement<T>> {
 
 	private int ptuId;
 	private String name;
-	private double value;
+	private T value;
 	private String unit;
 	private Date date;
 	// FIXME constant
 	private String type = "average";
 
 	public Measurement() {
-		this("---", 0, "");
 	}
 
-	public Measurement(String name, double value, String unit) {
+	public Measurement(String name, T value, String unit) {
 		this(0, name, value, unit, new Date());
 	}
 
-	public Measurement(int ptuId, String name, double value, String unit,
-			Date date) {
+	public Measurement(int ptuId, String name, T value, String unit, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
 		this.value = value;
@@ -37,7 +35,7 @@ public class Measurement implements Comparable<Measurement> {
 		return name;
 	}
 
-	public double getValue() {
+	public T getValue() {
 		return value;
 	}
 
@@ -54,7 +52,7 @@ public class Measurement implements Comparable<Measurement> {
 	}
 
 	@Override
-	public int compareTo(Measurement o) {
+	public int compareTo(Measurement<T> o) {
 		// FIXME include PTU
 		return (o != null) ? getName().compareTo(o.getName()) : 1;
 	}
@@ -62,17 +60,17 @@ public class Measurement implements Comparable<Measurement> {
 	@Override
 	public int hashCode() {
 		return Integer.valueOf(getPtuId()).hashCode() + getName().hashCode()
-				+ Double.valueOf(getValue()).hashCode() + getUnit().hashCode()
+				+ getValue().hashCode() + getUnit().hashCode()
 				+ getDate().hashCode() + getType().hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Measurement) {
-			Measurement m = (Measurement) obj;
+		if (obj instanceof Measurement<?>) {
+			Measurement<?> m = (Measurement<?>) obj;
 			return (getPtuId() == m.getPtuId())
 					&& (getName().equals(m.getName()))
-					&& (getValue() == m.getValue())
+					&& (getValue().equals(m.getValue()))
 					&& (getUnit().equals(m.getUnit()))
 					&& (getDate().equals(m.getDate()))
 					&& (getType().equals(m.getType()));

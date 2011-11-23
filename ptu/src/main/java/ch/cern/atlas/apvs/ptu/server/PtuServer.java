@@ -5,7 +5,6 @@ import java.net.ServerSocket;
 
 import com.cedarsoftware.util.io.JsonWriter;
 
-import ch.cern.atlas.apvs.domain.Temperature;
 
 public class PtuServer {
 
