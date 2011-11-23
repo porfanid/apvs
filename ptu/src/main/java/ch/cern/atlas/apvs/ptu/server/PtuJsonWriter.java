@@ -2,15 +2,11 @@ package ch.cern.atlas.apvs.ptu.server;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.cedarsoftware.util.io.JsonWriter;
 
 public class PtuJsonWriter extends JsonWriter {
-
-	private DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
 	public PtuJsonWriter(OutputStream out) throws IOException {
 		super(out);
@@ -29,7 +25,7 @@ public class PtuJsonWriter extends JsonWriter {
 	@Override
     protected void writeDate(Object obj, boolean showType) throws IOException
     {
-        String value = "\""+format.format((Date)obj)+"\"";
+        String value = "\""+PtuConstants.dateFormat.format((Date)obj)+"\"";
 
         if (showType)
         {

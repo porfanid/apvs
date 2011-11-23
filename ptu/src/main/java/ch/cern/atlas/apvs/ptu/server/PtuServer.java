@@ -55,9 +55,9 @@ public class PtuServer {
 		int ptuId = 643;
 		Temperature temperature = new Temperature(ptuId, 22.9);
 		System.err.println(temperature);
-		writer.write(temperature);
-		
+		writer.write(temperature);		
 		System.err.println();
+		System.err.println(PtuSocket.toXml(temperature));
 		
 //		new PtuServer().run();
 	}

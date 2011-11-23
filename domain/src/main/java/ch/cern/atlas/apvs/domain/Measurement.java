@@ -54,6 +54,5 @@ public class Measurement implements Comparable<Measurement> {
 
 	public String toString() {
 		return "Measurement("+getPtuId()+"): name="+getName()+" value="+getValue()+" unit="+getUnit()+" date: "+getDate();
-	}
-	
+	}	
 }

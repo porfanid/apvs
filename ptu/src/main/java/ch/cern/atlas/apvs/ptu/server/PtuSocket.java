@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
+import ch.cern.atlas.apvs.domain.Measurement;
 
 public class PtuSocket implements Runnable {
 
@@ -70,6 +71,21 @@ public class PtuSocket implements Runnable {
 				// ignored
 			}
 		}
+	}
+	
+	public static String toXml(Measurement m) {
+		String i = "    ";
+		String newLine = "\n";
+		StringBuffer s = new StringBuffer();
+		s.append(i).append("<message type=\"measurement\">").append(newLine);
+		s.append(i).append(i).append("<field name=\"ptu_id\">").append(m.getPtuId()).append("</field>").append(newLine);
+		s.append(i).append(i).append("<field name=\"sensor\">").append(m.getName()).append("</field>").append(newLine);
+		s.append(i).append(i).append("<field name=\"value\">").append(m.getValue()).append("</field>").append(newLine);
+		s.append(i).append(i).append("<field name=\"unit\">").append(m.getUnit()).append("</field>").append(newLine);
+		s.append(i).append(i).append("<field name=\"datetime\">").append(PtuConstants.dateFormat.format(m.getDate())).append("</field>").append(newLine);
+		s.append(i).append(i).append("<field name=\"type\">").append("average").append("</field>").append(newLine);
+        s.append(i).append("</message>").append(newLine);
+        return s.toString();
 	}
 
 	private Dosimeter next(Dosimeter dosimeter) {
