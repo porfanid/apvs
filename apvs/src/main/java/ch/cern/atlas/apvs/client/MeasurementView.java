@@ -124,14 +124,15 @@ public class MeasurementView extends SimplePanel {
 				return -1;
 			}
 		});
-		columnSortHandler.setComparator(value, new Comparator<Measurement<? extends Object>>() {
-			public int compare(Measurement<? extends Object> o1, Measurement<? extends Object> o2) {
+		columnSortHandler.setComparator(value, new Comparator<Measurement<?>>() {
+			public int compare(Measurement<?> o1, Measurement<?> o2) {
 				if (o1 == o2) {
 					return 0;
 				}
 
 				if ((o1 != null) && (o1.getValue() instanceof Comparable<?>)) {
-					Comparable<?> value = (Comparable<?>)o1.getValue();
+					@SuppressWarnings("unchecked")
+					Comparable<Object> value = (Comparable<Object>)o1.getValue();
 					return (o2 != null) ? value.compareTo(o2.getValue()) : 1;
 				}
 				return -1;
