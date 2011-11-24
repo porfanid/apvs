@@ -1,0 +1,3 @@
+#!/bin/sh
+java -jar target/ptu-jar-with-dependencies.jar
+
