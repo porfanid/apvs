@@ -6,8 +6,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.Iterator;
 
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Ptu;
 
 public class PtuXmlWriter extends Writer implements ObjectWriter {
 
@@ -92,5 +94,14 @@ public class PtuXmlWriter extends Writer implements ObjectWriter {
 	@Override
 	public void write(char[] cbuf, int off, int len) throws IOException {
 		_out.write(cbuf, off, len);
+	}
+	
+	@Override
+	public void write(Ptu ptu) throws IOException {
+		for (Iterator<Measurement<Double>> i = ptu.getMeasurements().iterator(); i
+				.hasNext();) {
+			write(i.next());
+			newLine();
+		}
 	}
 }

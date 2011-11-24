@@ -30,9 +30,14 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 	private boolean stopped = false;
 	private DosimeterReader dosimeterReader;
 
+	public DosimeterServiceImpl() {
+		System.out.println("Creating DosimeterService...");
+	}
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		System.out.println("Starting DosimeterService...");
 
 		Thread t = new Thread(this);
 		t.start();

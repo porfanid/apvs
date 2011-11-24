@@ -4,8 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
+
+import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Ptu;
 
 public class PtuSocket implements Runnable {
 
@@ -34,7 +38,14 @@ public class PtuSocket implements Runnable {
 			List<Ptu> ptus = new ArrayList<Ptu>(
 					noOfPtus);
 			for (int i = 0; i < noOfPtus; i++) {
-				ptus.add(new Ptu(random.nextInt(300)));
+				int ptuId = random.nextInt(300);
+				Ptu ptu = new Ptu(ptuId);
+				ptus.add(ptu);
+				ptu.add(new Temperature(ptuId, 25.7 + random.nextGaussian()));
+				ptu.add(new Humidity(ptuId, 31.4 + random.nextGaussian()));
+				ptu.add(new CO2(ptuId, 2.5 + random.nextGaussian()/10));
+				ptu.add(new O2(ptuId, 85.2 + random.nextGaussian()));
+				
 				System.out.println(ptus.get(i).getPtuId());
 			}
 			
@@ -44,12 +55,12 @@ public class PtuSocket implements Runnable {
 			ObjectWriter writer = json ? new PtuJsonWriter(os) : new PtuXmlWriter(os);
 			for (int i = 0; i < ptus.size(); i++) {
 				Ptu ptu = ptus.get(i);
-				ptu.write(writer);
+				writer.write(ptu);
 			}
 			writer.flush();
 
 			while (true) {
-				ptus.get(random.nextInt(ptus.size())).next(writer);
+				next(ptus.get(random.nextInt(ptus.size())),writer);
 				writer.flush();
 
 				try {
@@ -70,5 +81,17 @@ public class PtuSocket implements Runnable {
 				// ignored
 			}
 		}
+	}
+	
+	private void next(Ptu ptu, ObjectWriter writer) throws IOException {
+		int index = random.nextInt(ptu.getMeasurements().size());
+		Measurement<Double> measurement = next(ptu.getMeasurement(index));
+		ptu.setMeasurement(index, measurement);
+		writer.write(measurement);
+		writer.newLine();
+	}
+
+	private Measurement<Double> next(Measurement<Double> m) {
+		return new Measurement<Double>(m.getPtuId(), m.getName(), m.getValue()+random.nextGaussian(), m.getUnit(), new Date());
 	}
 }

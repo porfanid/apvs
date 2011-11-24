@@ -50,7 +50,8 @@ import com.google.web.bindery.event.shared.EventBus;
  */
 public class APVS implements EntryPoint {
 
-	DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
+	DosimeterServiceAsync dosimeterService;
+	PtuServiceAsync ptuService;
 	AtmosphereClient client;
 	Logger logger = Logger.getLogger(getClass().getName());
 	Window screen;
@@ -63,6 +64,8 @@ public class APVS implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
+		dosimeterService = GWT.create(DosimeterService.class);
+		ptuService = GWT.create(PtuService.class);
 		
 		Panel p;
 		p = RootPanel.get("dosimeterView");

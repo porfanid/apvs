@@ -98,11 +98,16 @@
 
 
 	<dependencies>
-		<dependency>
-			<groupId>ch.cern.atlas</groupId>
-			<artifactId>dosimeter</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>ch.cern.atlas</groupId>
+            <artifactId>dosimeter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.cern.atlas</groupId>
+            <artifactId>ptu</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>domain</artifactId>
