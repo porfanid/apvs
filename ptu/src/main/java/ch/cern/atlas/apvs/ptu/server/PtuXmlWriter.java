@@ -75,7 +75,7 @@ public class PtuXmlWriter extends Writer implements ObjectWriter {
 
 	@Override
 	public void newLine() throws IOException {
-		_out.write("\n");
+		_out.append("\n");
 		flush();
 	}
 
