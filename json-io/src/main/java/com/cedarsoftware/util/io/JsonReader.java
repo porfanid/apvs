@@ -160,7 +160,7 @@ public class JsonReader extends Reader
      * @param <String> field name in Map-of-Map
      * @param <V> Value
      */
-    private static class JsonObject<String, V> extends LinkedHashMap<String, V>
+    public static class JsonObject<String, V> extends LinkedHashMap<String, V>
     {
         private Object target;
     }
@@ -540,7 +540,7 @@ public class JsonReader extends Reader
      * enough hints to get the right class instantiated.  It is not populated when returned. 
      * @throws IOException for stream errors or parsing errors.
      */
-    private Object createJavaObjectInstance(Class clazz, JsonObject jsonObj) throws IOException
+    protected Object createJavaObjectInstance(Class clazz, JsonObject jsonObj) throws IOException
     {
         String type = (String) jsonObj.get("@type");
         Object mate;
@@ -1172,7 +1172,7 @@ public class JsonReader extends Reader
         }
         else if (c.equals(Date.class))
         {
-            return new Date((Long) rhs);
+            return convertToDate(rhs);
         }
         else if (c.equals(Class.class))
         {
@@ -1182,6 +1182,10 @@ public class JsonReader extends Reader
         throw new IOException("Class '" + c.getName() + "' requested for special instantiation.");
     }
 
+    protected Date convertToDate(Object rhs) {
+    	return new Date((Long) rhs);
+    }
+    
     private static boolean isDigit(int c)
     {
         return c >= '0' && c <= '9';

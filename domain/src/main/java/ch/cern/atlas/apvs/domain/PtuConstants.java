@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.ptu.server;
+package ch.cern.atlas.apvs.domain;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

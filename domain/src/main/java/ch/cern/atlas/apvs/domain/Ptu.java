@@ -1,14 +1,16 @@
 package ch.cern.atlas.apvs.domain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Ptu {
 	
 	// SHould be MAP FIXME
 	private int ptuId;
-	List<Measurement<Double>> measurements = new ArrayList<Measurement<Double>>();
+	Map<String, Measurement<Double>> measurements = new HashMap<String, Measurement<Double>>();
 
 	public Ptu(int ptuId) {
 		this.ptuId = ptuId;
@@ -18,19 +20,24 @@ public class Ptu {
 		return ptuId;
 	}
 	
-	public List<Measurement<Double>> getMeasurements() {
-		return measurements;
+	public List<String> getMeasurementNames() {
+		return new ArrayList<String>(measurements.keySet());
 	}
 	
-	public Measurement<Double> getMeasurement(int index) {
-		return measurements.get(index);
+	public int getSize() {
+		return measurements.size();
 	}
 	
-	public void setMeasurement(int index, Measurement<Double> measurement) {
-		measurements.set(index, measurement);
+	public Measurement<Double> getMeasurement(String name) {
+		return measurements.get(name);
+	}
+	
+	public void setMeasurement(String name, Measurement<Double> measurement) {
+		measurements.put(name, measurement);
 	}
 	
 	public void add(Measurement<Double> measurement) {
-		measurements.add(measurement);
+		// FIXME check ptuId
+		measurements.put(measurement.getName(), measurement);
 	}
 }

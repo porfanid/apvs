@@ -1,11 +1,12 @@
 package ch.cern.atlas.apvs.ptu.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Ptu;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
@@ -20,7 +21,8 @@ public class PtuReader implements Runnable,
 
 	private Socket socket;
 	private HandlerManager handlerManager = new HandlerManager(this);
-
+	private Map<Integer, Ptu> ptus = new HashMap<Integer, Ptu>();
+	
 	public PtuReader(Socket socket) {
 		this.socket = socket;
 	}
@@ -29,29 +31,26 @@ public class PtuReader implements Runnable,
 	public void run() {
 
 		try {
+			JsonReader reader = new PtuJsonReader(socket.getInputStream());
 			while (true) {
-/*
-				BufferedReader is = new BufferedReader(new InputStreamReader(
-						socket.getInputStream()));
-				// FIXME, may not contain end of line chars
-				String line;
-				while ((line = is.readLine()) != null) {
-//					Dosimeter dosimeter = DosimeterCoder.decode(line);
-//					dosimeters.put(dosimeter.getSerialNo(), dosimeter);
-					System.err.println("***"+line);
+				Object object = reader.readObject();
+				if (object instanceof Measurement<?>) {
+					Measurement<?> measurement = (Measurement<?>) reader
+							.readObject();
 					
-//					Measurement<Double> measurement = new Measurement<Double>();
+					int ptuId = measurement.getPtuId();
+					Ptu ptu = ptus.get(ptuId);
+					if (ptu == null) {
+						ptu = new Ptu(ptuId);
+						ptus.put(ptuId, ptu);
+					}
+					ptu.add((Measurement<Double>)measurement);
 					
-//					ValueChangeEvent.fire(this, measurement);
-				}
-				*/
-				JsonReader reader = new JsonReader(socket.getInputStream(), false);
-				while (true) {
-					System.err.println(reader.readObject());
+					ValueChangeEvent.fire(this, measurement);
 				}
 			}
 		} catch (IOException e) {
-			System.err.println(getClass()+" "+e);
+			System.err.println(getClass() + " " + e);
 		} finally {
 			try {
 				close();
@@ -74,5 +73,9 @@ public class PtuReader implements Runnable,
 
 	public void close() throws IOException {
 		socket.close();
+	}
+
+	public Ptu getPtu(int ptuId) {
+		return ptus.get(ptuId);
 	}
 }

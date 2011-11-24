@@ -5,8 +5,8 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.Iterator;
 
-import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
+import ch.cern.atlas.apvs.domain.PtuConstants;
 
 import com.cedarsoftware.util.io.JsonWriter;
 
@@ -58,9 +58,10 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 
 	@Override
 	public void write(Ptu ptu) throws IOException {
-		for (Iterator<Measurement<Double>> i = ptu.getMeasurements().iterator(); i
+		for (Iterator<String> i = ptu.getMeasurementNames().iterator(); i
 				.hasNext();) {
-			write(i.next());
+			String name = i.next();
+			write(ptu.getMeasurement(name));
 			newLine();
 		}
 	}

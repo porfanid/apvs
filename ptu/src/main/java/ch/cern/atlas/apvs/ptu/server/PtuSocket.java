@@ -84,9 +84,10 @@ public class PtuSocket implements Runnable {
 	}
 	
 	private void next(Ptu ptu, ObjectWriter writer) throws IOException {
-		int index = random.nextInt(ptu.getMeasurements().size());
-		Measurement<Double> measurement = next(ptu.getMeasurement(index));
-		ptu.setMeasurement(index, measurement);
+		int index = random.nextInt(ptu.getSize());
+		String name = ptu.getMeasurementNames().get(index);
+		Measurement<Double> measurement = next(ptu.getMeasurement(name));
+		ptu.setMeasurement(name, measurement);
 		writer.write(measurement);
 		writer.newLine();
 	}

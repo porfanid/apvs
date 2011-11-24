@@ -9,8 +9,10 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import ch.cern.atlas.apvs.client.PtuService;
+import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
+import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
 /**
  * @author Mark Donszelmann
@@ -55,8 +57,8 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 					writer.start();
 
 					ptuReader = new PtuReader(socket);
-					// ptuReader
-					// .addValueChangeHandler(getSerialNumbersResponseHandler);
+					ptuReader
+							.addValueChangeHandler(getMeasurementResponseHandler);
 					Thread reader = new Thread(ptuReader);
 					reader.start();
 					reader.join();
@@ -98,13 +100,23 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 			// ignored
 		}
 	}
+
+	private ResponseHandler<Measurement<?>, Measurement<Double>> getMeasurementResponseHandler = new ResponseHandler<Measurement<?>, Measurement<Double>>(
+			this);
+
+	@Override
+	public Measurement<Double> getMeasurement(final int ptuId, final String name,
+			int currentHashCode) {
+		return getMeasurementResponseHandler.respond(currentHashCode, new Response<Measurement<Double>>() {
+
+			@Override
+			public Measurement<Double> getValue() {
+				return ptuReader.getPtu(ptuId).getMeasurement(name);
+			}
+			
+		});
+	}
 	/*
-	 * private ResponseHandler<Ptu> getPtuResponseHandler = new
-	 * ResponseHandler<Ptu>( this);
-	 * 
-	 * @Override public Ptu getPtu(int ptuId, int currentHashCode) { // TODO
-	 * Auto-generated method stub return null; }
-	 * 
 	 * @Override public List<Integer> getSerialNumbers(int currentHashCode) {
 	 * return getSerialNumbersResponseHandler.respond(currentHashCode, new
 	 * Response<List<Integer>>() {
