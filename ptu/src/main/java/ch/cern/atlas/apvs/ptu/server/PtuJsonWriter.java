@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Iterator;
 
 import ch.cern.atlas.apvs.domain.Ptu;
-import ch.cern.atlas.apvs.domain.PtuConstants;
 
 import com.cedarsoftware.util.io.JsonWriter;
 

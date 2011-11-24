@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 
-import ch.cern.atlas.apvs.domain.PtuConstants;
 
 import com.cedarsoftware.util.io.JsonReader;
 

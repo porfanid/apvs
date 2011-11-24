@@ -10,7 +10,6 @@ import java.util.Iterator;
 
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
-import ch.cern.atlas.apvs.domain.PtuConstants;
 
 public class PtuXmlWriter extends Writer implements ObjectWriter {
 

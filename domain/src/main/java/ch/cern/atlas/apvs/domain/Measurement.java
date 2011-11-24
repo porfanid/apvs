@@ -1,8 +1,11 @@
 package ch.cern.atlas.apvs.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Measurement<T> implements Comparable<Measurement<T>> {
+public class Measurement<T> implements Serializable, Comparable<Measurement<T>> {
+
+	private static final long serialVersionUID = -906069262585850986L;
 
 	private int ptuId;
 	private String name;

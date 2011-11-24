@@ -1,17 +1,22 @@
 package ch.cern.atlas.apvs.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-public class Ptu {
+public class Ptu implements Serializable {
 	
-	// SHould be MAP FIXME
+	private static final long serialVersionUID = 1933500417755260216L;
+
 	private int ptuId;
 	Map<String, Measurement<Double>> measurements = new HashMap<String, Measurement<Double>>();
 
+	public Ptu() {
+	}
+	
 	public Ptu(int ptuId) {
 		this.ptuId = ptuId;
 	}
