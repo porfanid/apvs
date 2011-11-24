@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import ch.cern.atlas.apvs.domain.Measurement;
 
+import com.cedarsoftware.util.io.JsonReader;
 import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -29,6 +30,7 @@ public class PtuReader implements Runnable,
 
 		try {
 			while (true) {
+/*
 				BufferedReader is = new BufferedReader(new InputStreamReader(
 						socket.getInputStream()));
 				// FIXME, may not contain end of line chars
@@ -36,11 +38,16 @@ public class PtuReader implements Runnable,
 				while ((line = is.readLine()) != null) {
 //					Dosimeter dosimeter = DosimeterCoder.decode(line);
 //					dosimeters.put(dosimeter.getSerialNo(), dosimeter);
-					System.err.println(line);
+					System.err.println("***"+line);
 					
-					Measurement<Double> measurement = new Measurement<Double>();
+//					Measurement<Double> measurement = new Measurement<Double>();
 					
-					ValueChangeEvent.fire(this, measurement);
+//					ValueChangeEvent.fire(this, measurement);
+				}
+				*/
+				JsonReader reader = new JsonReader(socket.getInputStream(), false);
+				while (true) {
+					System.err.println(reader.readObject());
 				}
 			}
 		} catch (IOException e) {
