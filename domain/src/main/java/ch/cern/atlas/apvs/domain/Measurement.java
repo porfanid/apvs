@@ -62,13 +62,17 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 
 	@Override
 	public int hashCode() {
-		return Integer.valueOf(getPtuId()).hashCode() + getName().hashCode()
-				+ getValue().hashCode() + getUnit().hashCode()
-				+ getDate().hashCode() + getType().hashCode();
+		return Integer.valueOf(getPtuId()).hashCode() 
+				+ (getName() != null ? getName().hashCode() : 0)
+				+ (getValue() != null ? getValue().hashCode() : 0)
+				+ (getUnit() != null ? getUnit().hashCode() : 0)
+				+ (getDate() != null ? getDate().hashCode() : 0)
+				+ (getType() != null ? getType().hashCode() : 0);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		// FIXME check on nulls
 		if (obj instanceof Measurement<?>) {
 			Measurement<?> m = (Measurement<?>) obj;
 			return (getPtuId() == m.getPtuId())

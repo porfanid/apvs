@@ -16,6 +16,8 @@ import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterWriter;
 import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+
 /**
  * @author Mark Donszelmann
  */
@@ -110,10 +112,10 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 	@Override
 	public List<Integer> getSerialNumbers(int currentHashCode) {
 		return getSerialNumbersResponseHandler.respond(currentHashCode,
-				new Response<List<Integer>>() {
+				new Response<Map<Integer, Dosimeter>, List<Integer>>() {
 
 					@Override
-					public List<Integer> getValue() {
+					public List<Integer> getValue(ValueChangeEvent<Map<Integer, Dosimeter>> event) {
 						return dosimeterReader.getDosimeterSerialNumbers();
 					}
 				});
@@ -125,10 +127,10 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 	@Override
 	public Dosimeter getDosimeter(final int serialNo, int currentHashCode) {
 		return getDosimeterResponseHandler.respond(currentHashCode,
-				new Response<Dosimeter>() {
+				new Response<Map<Integer, Dosimeter>, Dosimeter>() {
 
 					@Override
-					public Dosimeter getValue() {
+					public Dosimeter getValue(ValueChangeEvent<Map<Integer, Dosimeter>> event) {
 						return dosimeterReader.getDosimeter(serialNo);
 					}
 				});
@@ -140,10 +142,10 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 	@Override
 	public Map<Integer, Dosimeter> getDosimeterMap(int currentHashCode) {
 		return getDosimeterMapResponseHandler.respond(currentHashCode,
-				new Response<Map<Integer, Dosimeter>>() {
+				new Response<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>() {
 
 					@Override
-					public Map<Integer, Dosimeter> getValue() {
+					public Map<Integer, Dosimeter> getValue(ValueChangeEvent<Map<Integer, Dosimeter>> event) {
 						return dosimeterReader.getDosimeterMap();
 					}
 				});

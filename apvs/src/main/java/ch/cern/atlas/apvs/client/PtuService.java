@@ -11,7 +11,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("apvsPtu")
 public interface PtuService extends RemoteService {
 	
-//	public List<Integer> getPtuIds(int currentHashCode);
+	public Measurement<Double> getLastMeasurement(int currentHashCode);
 	
 	public Measurement<Double> getMeasurement(int putId, String name, int currentHashCode);
 	

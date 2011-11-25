@@ -2,8 +2,10 @@ package ch.cern.atlas.apvs.ptu.server;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -21,7 +23,7 @@ public class PtuReader implements Runnable,
 
 	private Socket socket;
 	private HandlerManager handlerManager = new HandlerManager(this);
-	private Map<Integer, Ptu> ptus = new HashMap<Integer, Ptu>();
+	private SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
 	
 	public PtuReader(Socket socket) {
 		this.socket = socket;
@@ -77,5 +79,9 @@ public class PtuReader implements Runnable,
 
 	public Ptu getPtu(int ptuId) {
 		return ptus.get(ptuId);
+	}
+	
+	public SortedSet<Integer> getPtuIds() {
+		return new TreeSet<Integer>(ptus.keySet());
 	}
 }

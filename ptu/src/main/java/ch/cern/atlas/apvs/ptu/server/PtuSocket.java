@@ -44,6 +44,9 @@ public class PtuSocket implements Runnable {
 				ptu.add(new Temperature(ptuId, 25.7 + random.nextGaussian()));
 				ptu.add(new Humidity(ptuId, 31.4 + random.nextGaussian()));
 				ptu.add(new CO2(ptuId, 2.5 + random.nextGaussian()/10));
+				ptu.add(new BodyTemperature(ptuId, 37.2 + random.nextGaussian()));
+				ptu.add(new HeartBeat(ptuId, 120 + random.nextGaussian()));
+				ptu.add(new O2SkinSaturationRate(ptuId, 20.8 + random.nextGaussian()));
 				ptu.add(new O2(ptuId, 85.2 + random.nextGaussian()));
 				
 				System.out.println(ptus.get(i).getPtuId());

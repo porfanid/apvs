@@ -14,6 +14,8 @@ import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
 import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+
 /**
  * @author Mark Donszelmann
  */
@@ -57,6 +59,8 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 					writer.start();
 
 					ptuReader = new PtuReader(socket);
+					ptuReader
+							.addValueChangeHandler(getLastMeasurementResponseHandler);
 					ptuReader
 							.addValueChangeHandler(getMeasurementResponseHandler);
 					Thread reader = new Thread(ptuReader);
@@ -105,47 +109,31 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 			this);
 
 	@Override
-	public Measurement<Double> getMeasurement(final int ptuId, final String name,
-			int currentHashCode) {
-		return getMeasurementResponseHandler.respond(currentHashCode, new Response<Measurement<Double>>() {
+	public Measurement<Double> getMeasurement(final int ptuId,
+			final String name, int currentHashCode) {
+		return getMeasurementResponseHandler.respond(currentHashCode,
+				new Response<Measurement<?>, Measurement<Double>>() {
 
-			@Override
-			public Measurement<Double> getValue() {
-				return ptuReader.getPtu(ptuId).getMeasurement(name);
-			}
-			
-		});
+					@Override
+					public Measurement<Double> getValue(ValueChangeEvent<Measurement<?>> event) {
+						return ptuReader.getPtu(ptuId).getMeasurement(name);
+					}
+
+				});
 	}
-	/*
-	 * @Override public List<Integer> getSerialNumbers(int currentHashCode) {
-	 * return getSerialNumbersResponseHandler.respond(currentHashCode, new
-	 * Response<List<Integer>>() {
-	 * 
-	 * @Override public List<Integer> getValue() { return
-	 * dosimeterReader.getDosimeterSerialNumbers(); } }); }
-	 * 
-	 * private ResponseHandler<Map<Integer, Dosimeter>, Dosimeter>
-	 * getDosimeterResponseHandler = new ResponseHandler<Map<Integer,
-	 * Dosimeter>, Dosimeter>( this);
-	 * 
-	 * @Override public Dosimeter getDosimeter(final int serialNo, int
-	 * currentHashCode) { return
-	 * getDosimeterResponseHandler.respond(currentHashCode, new
-	 * Response<Dosimeter>() {
-	 * 
-	 * @Override public Dosimeter getValue() { return
-	 * dosimeterReader.getDosimeter(serialNo); } }); }
-	 * 
-	 * private ResponseHandler<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>
-	 * getDosimeterMapResponseHandler = new ResponseHandler<Map<Integer,
-	 * Dosimeter>, Map<Integer, Dosimeter>>( this);
-	 * 
-	 * @Override public Map<Integer, Dosimeter> getDosimeterMap(int
-	 * currentHashCode) { return
-	 * getDosimeterMapResponseHandler.respond(currentHashCode, new
-	 * Response<Map<Integer, Dosimeter>>() {
-	 * 
-	 * @Override public Map<Integer, Dosimeter> getValue() { return
-	 * dosimeterReader.getDosimeterMap(); } }); }
-	 */
+
+	private ResponseHandler<Measurement<?>, Measurement<Double>> getLastMeasurementResponseHandler = new ResponseHandler<Measurement<?>, Measurement<Double>>(
+			this);
+
+	@Override
+	public Measurement<Double> getLastMeasurement(int currentHashCode) {
+		return getLastMeasurementResponseHandler.respond(currentHashCode,
+				new Response<Measurement<?>, Measurement<Double>>() {
+
+					@Override
+					public Measurement<Double> getValue(ValueChangeEvent<Measurement<?>> event) {
+						return (Measurement<Double>)event.getValue();
+					}
+				});
+	}
 }
