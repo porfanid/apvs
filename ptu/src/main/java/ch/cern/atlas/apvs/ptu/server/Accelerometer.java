@@ -4,6 +4,7 @@ import java.util.Date;
 
 import ch.cern.atlas.apvs.domain.Measurement;
 
+@SuppressWarnings("serial")
 public class Accelerometer extends Measurement<Double[]> {
 
 	public Accelerometer(int ptuId, Double[] value) {
