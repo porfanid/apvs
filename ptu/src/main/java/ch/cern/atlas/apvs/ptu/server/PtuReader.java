@@ -40,8 +40,8 @@ public class PtuReader implements Runnable,
 			while (true) {
 				Object object = reader.readObject();
 				if (object instanceof Measurement<?>) {
-					Measurement<?> measurement = (Measurement<?>) reader
-							.readObject();
+					@SuppressWarnings("unchecked")
+					Measurement<Double> measurement = (Measurement<Double>) object;
 					
 					int ptuId = measurement.getPtuId();
 					Ptu ptu = ptus.get(ptuId);

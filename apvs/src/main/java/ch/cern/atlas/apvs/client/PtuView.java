@@ -97,6 +97,8 @@ public class PtuView extends SimplePanel {
 					handleMeasurement(i.next());
 				}
 
+				System.err.println(result.size());
+				
 				redraw();
 				getLastMeasurement();
 			}
