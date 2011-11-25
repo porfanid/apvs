@@ -3,6 +3,8 @@ package ch.cern.atlas.apvs.client;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -86,11 +88,29 @@ public class PtuView extends SimplePanel {
 		});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
+		
+		ptuService.getCurrentMeasurements(new AsyncCallback<List<Measurement<Double>>>() {
+			
+			@Override
+			public void onSuccess(List<Measurement<Double>> result) {
+				for (Iterator<Measurement<Double>> i = result.iterator(); i.hasNext(); ) {
+					handleMeasurement(i.next());
+				}
 
-		getLastMeaserument();
+				redraw();
+				getLastMeasurement();
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				GWT.log("Could not retrieve current Measurements" + caught);
+				getLastMeasurement();
+			}
+		});
+
 	}
 
-	private void getLastMeaserument() {
+	private void getLastMeasurement() {
 		ptuService.getLastMeasurement(last.hashCode(),
 				new AsyncCallback<Measurement<Double>>() {
 
@@ -101,42 +121,47 @@ public class PtuView extends SimplePanel {
 									.println("FIXME onSuccess null in ptuView");
 							return;
 						}
-
-						Integer ptuId = result.getPtuId();
-						Ptu ptu = ptus.get(ptuId);
-						if (ptu == null) {
-							ptu = new Ptu(ptuId);
-							ptus.put(ptuId, ptu);
-							insertColumn(ptuId);
-						}
-
-						String name = result.getName();
-						if (ptu.getMeasurement(name) == null) {
-							units.put(name, result.getUnit());
-							ptu.add(result);
-						} else {
-							ptu.setMeasurement(name, result);
-						}
-
-						if (!dataProvider.getList().contains(name)) {
-							dataProvider.getList().add(name);
-						}
+						
+						handleMeasurement(result);
 
 						last = result;
 
 						redraw();
-						getLastMeaserument();
+						getLastMeasurement();
 					}
+
 
 					@Override
 					public void onFailure(Throwable caught) {
 						GWT.log("Could not retrieve last Measurement" + caught);
-						getLastMeaserument();
+						getLastMeasurement();
 					}
 
 				});
 	}
 
+	private void handleMeasurement(Measurement<Double> result) {
+		Integer ptuId = result.getPtuId();
+		Ptu ptu = ptus.get(ptuId);
+		if (ptu == null) {
+			ptu = new Ptu(ptuId);
+			ptus.put(ptuId, ptu);
+			insertColumn(ptuId);
+		}
+
+		String name = result.getName();
+		if (ptu.getMeasurement(name) == null) {
+			units.put(name, result.getUnit());
+			ptu.add(result);
+		} else {
+			ptu.setMeasurement(name, result);
+		}
+
+		if (!dataProvider.getList().contains(name)) {
+			dataProvider.getList().add(name);
+		}
+	}
+	
 	private void insertColumn(final Integer ptuId) {
 		int columnIndex = new ArrayList<Integer>(ptus.keySet()).indexOf(ptuId) + 2;
 		TextColumn<String> column = new TextColumn<String>() {

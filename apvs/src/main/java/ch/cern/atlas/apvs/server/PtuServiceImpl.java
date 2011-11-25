@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -133,5 +134,10 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 						return (Measurement<Double>)object;
 					}
 				});
+	}
+	
+	@Override
+	public List<Measurement<Double>> getCurrentMeasurements() {
+		return ptuReader.getMeasurements();
 	}
 }

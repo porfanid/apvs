@@ -2,6 +2,9 @@ package ch.cern.atlas.apvs.ptu.server;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -83,5 +86,13 @@ public class PtuReader implements Runnable,
 	
 	public SortedSet<Integer> getPtuIds() {
 		return new TreeSet<Integer>(ptus.keySet());
+	}
+
+	public List<Measurement<Double>> getMeasurements() {
+		List<Measurement<Double>> m = new ArrayList<Measurement<Double>>();
+		for (Iterator<Ptu> i = ptus.values().iterator(); i.hasNext();) {
+			m.addAll(i.next().getMeasurements());
+		}
+		return m;
 	}
 }

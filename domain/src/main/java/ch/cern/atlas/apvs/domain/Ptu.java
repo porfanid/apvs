@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,5 +45,9 @@ public class Ptu implements Serializable {
 	public void add(Measurement<Double> measurement) {
 		// FIXME check ptuId
 		measurements.put(measurement.getName(), measurement);
+	}
+
+	public Collection<? extends Measurement<Double>> getMeasurements() {
+		return measurements.values();
 	}
 }
