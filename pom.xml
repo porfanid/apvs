@@ -12,7 +12,7 @@
     <properties>
         <gwt-version>2.4.0</gwt-version>
         <gwt-plugin-version>2.4.0</gwt-plugin-version>
-        <atmosphere-version>0.8.0-RC3</atmosphere-version>
+        <atmosphere-version>0.8.1</atmosphere-version>
         <junit-version>4.10</junit-version>
     </properties>
 
