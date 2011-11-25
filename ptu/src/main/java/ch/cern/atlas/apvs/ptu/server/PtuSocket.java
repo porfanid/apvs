@@ -16,7 +16,7 @@ public class PtuSocket implements Runnable {
 	private Socket socket;
 	private boolean json;
 	private Random random = new Random();
-	private int noOfPtus = 3;
+	private int noOfPtus = 6;
 
 	public PtuSocket(Socket socket, boolean json) {
 		this.socket = socket;
@@ -67,7 +67,7 @@ public class PtuSocket implements Runnable {
 				writer.flush();
 
 				try {
-					Thread.sleep(2000 + random.nextInt(2000));
+					Thread.sleep(500 + random.nextInt(2000));
 				} catch (InterruptedException e) {
 					// ignored
 				}

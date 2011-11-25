@@ -20,7 +20,7 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 			.getName());
 
 	public interface Response<T,V> {
-		public V getValue(ValueChangeEvent<T> event);
+		public V getValue(T object);
 	}
 	
 	private class InfoAndResponse<U,S> {
@@ -61,6 +61,7 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 			}
 
 			if (object == null) {
+				delayedResponses.add(new InfoAndResponse<T,V>(service.suspend(), response, currentHashCode));
 				return null;
 			}
 
@@ -69,6 +70,7 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 			}
 		} catch (NullPointerException e) {
 			System.err.println("We assume the call does not work due to a disconnect, we keep you waiting...");
+			e.printStackTrace(System.err);
 		}
 
 		delayedResponses.add(new InfoAndResponse<T,V>(service.suspend(), response, currentHashCode));
@@ -81,7 +83,7 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 		synchronized (delayedResponses) {
 			for (Iterator<InfoAndResponse<T,V>> i = delayedResponses.iterator(); i.hasNext(); ) {
 				InfoAndResponse<T,V> d = i.next();
-				Object o = d.getResponse().getValue(event);
+				Object o = d.getResponse().getValue(event.getValue());
 				if (d.getCurrentHashCode() != o.hashCode()) {
 					try {
 						d.getInfo().writeAndResume(o);

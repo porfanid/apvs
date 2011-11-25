@@ -16,8 +16,6 @@ import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterWriter;
 import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-
 /**
  * @author Mark Donszelmann
  */
@@ -115,7 +113,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 				new Response<Map<Integer, Dosimeter>, List<Integer>>() {
 
 					@Override
-					public List<Integer> getValue(ValueChangeEvent<Map<Integer, Dosimeter>> event) {
+					public List<Integer> getValue(Map<Integer, Dosimeter> object) {
 						return dosimeterReader.getDosimeterSerialNumbers();
 					}
 				});
@@ -130,7 +128,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 				new Response<Map<Integer, Dosimeter>, Dosimeter>() {
 
 					@Override
-					public Dosimeter getValue(ValueChangeEvent<Map<Integer, Dosimeter>> event) {
+					public Dosimeter getValue(Map<Integer, Dosimeter> object) {
 						return dosimeterReader.getDosimeter(serialNo);
 					}
 				});
@@ -145,7 +143,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 				new Response<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>() {
 
 					@Override
-					public Map<Integer, Dosimeter> getValue(ValueChangeEvent<Map<Integer, Dosimeter>> event) {
+					public Map<Integer, Dosimeter> getValue(Map<Integer, Dosimeter> object) {
 						return dosimeterReader.getDosimeterMap();
 					}
 				});

@@ -14,8 +14,6 @@ import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
 import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-
 /**
  * @author Mark Donszelmann
  */
@@ -115,7 +113,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 				new Response<Measurement<?>, Measurement<Double>>() {
 
 					@Override
-					public Measurement<Double> getValue(ValueChangeEvent<Measurement<?>> event) {
+					public Measurement<Double> getValue(Measurement<?> object) {
 						return ptuReader.getPtu(ptuId).getMeasurement(name);
 					}
 
@@ -131,8 +129,8 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 				new Response<Measurement<?>, Measurement<Double>>() {
 
 					@Override
-					public Measurement<Double> getValue(ValueChangeEvent<Measurement<?>> event) {
-						return (Measurement<Double>)event.getValue();
+					public Measurement<Double> getValue(Measurement<?> object) {
+						return (Measurement<Double>)object;
 					}
 				});
 	}
