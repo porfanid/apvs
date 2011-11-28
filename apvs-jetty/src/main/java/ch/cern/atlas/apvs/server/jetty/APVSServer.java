@@ -1,4 +1,4 @@
-// No Package, to run directly
+package ch.cern.atlas.apvs.server.jetty;
 
 import java.io.File;
 import java.net.URL;
@@ -46,6 +46,10 @@ public class APVSServer {
 			server.join();
 		} catch (Exception e) {
 			e.printStackTrace();
+			if (e.getCause() != null) {
+				System.err.println("Caused by:");
+				e.getCause().printStackTrace();
+			}
 		}
 	}
 }
