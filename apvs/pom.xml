@@ -62,9 +62,16 @@
 							<mainClass>ch.cern.atlas.apvs.server.jetty.APVSServer</mainClass>
 						</manifest>
 					</archive>
-<!-- 
-					<packagingExcludes>WEB-INF/lib/jetty-*.jar,WEB-INF/lib/*EmbeddedJetty*.jar</packagingExcludes>
--->
+					<packagingExcludes>
+						WEB-INF/lib/jetty-continuation-*.jar,
+						WEB-INF/lib/jetty-http-*.jar,
+						WEB-INF/lib/jetty-io-*.jar,
+						WEB-INF/lib/jetty-security-*.jar,
+						WEB-INF/lib/jetty-server-*.jar,
+						WEB-INF/lib/jetty-servlet-*.jar,
+						WEB-INF/lib/jetty-webapp-*.jar,
+						WEB-INF/lib/jetty-xml-*.jar
+					</packagingExcludes>
 					<overlays>
 						<overlay>
 							<groupId>ch.cern.atlas</groupId>
@@ -117,7 +124,7 @@
 							<type>jar</type>
 						</overlay>
 						<overlay>
-							<groupId>org.mortbay.jetty</groupId>
+							<groupId>javax.servlet</groupId>
 							<artifactId>servlet-api</artifactId>
 							<type>jar</type>
 						</overlay>
@@ -240,7 +247,7 @@
 			<artifactId>jetty-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
+			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 		</dependency>
 	</dependencies>
