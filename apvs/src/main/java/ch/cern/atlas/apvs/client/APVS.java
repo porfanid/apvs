@@ -87,7 +87,12 @@ public class APVS implements EntryPoint {
 			p.add(new MeasurementView(dosimeterSelector));
 			return;
 		}
-
+		p = RootPanel.get("measurementView");
+		if (p != null) {
+			p.add(new ProcedureView());
+			return;
+		}
+		
 		onMainModuleLoad();
 	}
 
