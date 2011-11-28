@@ -11,7 +11,7 @@
 
 	<artifactId>apvs</artifactId>
 	<packaging>war</packaging>
-	<name>apvs</name>
+	<name>APVS client/server</name>
 
 	<properties>
 		<gwtModule>ch.cern.atlas.apvs.APVS</gwtModule>
@@ -21,6 +21,7 @@
 		<gwt.style>PRETTY</gwt.style>
 		<outputDir>${war.target}/WEB-INF/classes</outputDir>
 		<netbeans.hint.deploy.server>Tomcat70</netbeans.hint.deploy.server>
+		<jetty.port>8095</jetty.port>
 	</properties>
 
 	<build>
@@ -32,7 +33,7 @@
 				<artifactId>gwt-maven-plugin</artifactId>
 				<version>${gwt-plugin-version}</version>
 				<configuration>
-				    <strict>true</strict>
+					<strict>true</strict>
 					<module>${gwtModule}</module>
 					<gwtVersion>${gwt-version}</gwtVersion>
 					<runTarget>http://localhost:8888/apvs/APVS.jsp</runTarget>
@@ -56,25 +57,74 @@
 
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>${compiler-plugin-version}</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>${jdk-version}</source>
+					<target>${jdk-version}</target>
 				</configuration>
 			</plugin>
 
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.5</version>
+				<version>${resources-plugin-version}</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 
 			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>${war-plugin-version}</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>APVSServer</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<!-- The main class needs to be in the root of the war in order to be 
+				runnable -->
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>antrun-plugin-version</version>
+				<executions>
+					<execution>
+						<id>move-main-class</id>
+						<phase>compile</phase>
+						<configuration>
+							<tasks>
+								<move todir="${project.build.directory}/${project.artifactId}">
+									<fileset dir="src/main/webapp/WEB-INF/classes">
+										<include name="APVSServer.class" />
+									</fileset>
+								</move>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<configuration>
+					<connectors>
+						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+							<port>${jetty.port}</port>
+						</connector>
+					</connectors>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
-				<version>2.4.1</version>
+				<version>${clean-plugin-version}</version>
 				<configuration>
 					<filesets>
 						<fileset>
@@ -98,19 +148,19 @@
 
 
 	<dependencies>
-        <dependency>
-            <groupId>ch.cern.atlas</groupId>
-            <artifactId>dosimeter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.cern.atlas</groupId>
-            <artifactId>ptu</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
-			<artifactId>domain</artifactId>
+			<artifactId>apvs-dosimeter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-ptu</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-domain</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -146,6 +196,16 @@
 			<artifactId>gwt-servlet</artifactId>
 			<version>${gwt-version}</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>${jetty-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-webapp</artifactId>
+			<version>${jetty-version}</version>
 		</dependency>
 	</dependencies>
 

@@ -9,28 +9,27 @@
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
-    <groupId>com.cedarsoftware</groupId>
-	<artifactId>json-io</artifactId>
+    	<groupId>com.cedarsoftware</groupId>
+	<artifactId>apvs-json-io</artifactId>
 	<packaging>jar</packaging>
-	<name>JSON IO</name>
-        <version>1.0.3-SNAPSHOT</version>
+	<name>APVS json io</name>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>${compiler-plugin-version}</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>${jdk-version}</source>
+					<target>${jdk-version}</target>
 				</configuration>
 			</plugin>
 
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.5</version>
+				<version>${resources-plugin-version}</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 				</configuration>

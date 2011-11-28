@@ -62,11 +62,12 @@ public class APVS implements EntryPoint {
 
 	Button dosimeterButton;
 
+
 	@Override
 	public void onModuleLoad() {
 		dosimeterService = GWT.create(DosimeterService.class);
 		ptuService = GWT.create(PtuService.class);
-		
+
 		Panel p;
 		p = RootPanel.get("dosimeterView");
 		if (p != null) {
@@ -88,7 +89,7 @@ public class APVS implements EntryPoint {
 
 		onMainModuleLoad();
 	}
-		
+
 	private void onMainModuleLoad() {
 
 		APVSCometListener cometListener = new APVSCometListener();
