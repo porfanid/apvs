@@ -31,7 +31,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
-				<version>${gwt-plugin-version}</version>
 				<configuration>
 					<strict>true</strict>
 					<module>${gwtModule}</module>
@@ -56,26 +55,7 @@
 			</plugin>
 
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiler-plugin-version}</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-					<source>${jdk-version}</source>
-					<target>${jdk-version}</target>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>${resources-plugin-version}</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>${war-plugin-version}</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -89,7 +69,6 @@
 				runnable -->
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>antrun-plugin-version</version>
 				<executions>
 					<execution>
 						<id>move-main-class</id>
@@ -124,7 +103,6 @@
 
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
-				<version>${clean-plugin-version}</version>
 				<configuration>
 					<filesets>
 						<fileset>
@@ -151,61 +129,46 @@
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-dosimeter</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-ptu</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-client</artifactId>
-			<version>${atmosphere-version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-common</artifactId>
-			<version>${atmosphere-version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-server</artifactId>
-			<version>${atmosphere-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-poll</artifactId>
-			<version>${atmosphere-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
-			<version>${gwt-version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-servlet</artifactId>
-			<version>${gwt-version}</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>${jetty-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
-			<version>${jetty-version}</version>
 		</dependency>
 	</dependencies>
 
