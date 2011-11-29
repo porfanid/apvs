@@ -109,7 +109,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 	@Override
 	public Measurement<Double> getMeasurement(final int ptuId,
-			final String name, int currentHashCode) {
+			final String name, long currentHashCode) {
 		return getMeasurementResponseHandler.respond(currentHashCode,
 				new Response<Measurement<?>, Measurement<Double>>() {
 
@@ -125,7 +125,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 			this);
 
 	@Override
-	public Measurement<Double> getLastMeasurement(int currentHashCode) {
+	public Measurement<Double> getLastMeasurement(long currentHashCode) {
 		return getLastMeasurementResponseHandler.respond(currentHashCode,
 				new Response<Measurement<?>, Measurement<Double>>() {
 

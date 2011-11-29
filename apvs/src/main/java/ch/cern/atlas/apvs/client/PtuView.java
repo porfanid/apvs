@@ -113,7 +113,8 @@ public class PtuView extends SimplePanel {
 	}
 
 	private void getLastMeasurement() {
-		ptuService.getLastMeasurement(last.hashCode(),
+		System.err.println("========= > "+last.hashCode());
+		ptuService.getLastMeasurement((long)last.hashCode(),
 				new AsyncCallback<Measurement<Double>>() {
 
 					@Override

@@ -26,9 +26,9 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 	private class InfoAndResponse<U,S> {
 		private SuspendInfo info;
 		private Response<U,S> response;
-		private int currentHashCode;
+		private long currentHashCode;
 
-		public InfoAndResponse(SuspendInfo info, Response<U,S> response, int currentHashCode) {
+		public InfoAndResponse(SuspendInfo info, Response<U,S> response, long currentHashCode) {
 			this.info = info;
 			this.response = response;
 			this.currentHashCode = currentHashCode;
@@ -42,7 +42,7 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 			return response;
 		}
 		
-		public int getCurrentHashCode() {
+		public long getCurrentHashCode() {
 			return currentHashCode;
 		}
 	}
@@ -51,7 +51,7 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 		this.service = service;
 	}
 
-	public V respond(int currentHashCode, Response<T,V> response) {
+	public V respond(long currentHashCode, Response<T,V> response) {
 
 		V object = null;
 
