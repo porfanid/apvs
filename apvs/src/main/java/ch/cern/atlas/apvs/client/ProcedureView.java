@@ -16,10 +16,10 @@ public class ProcedureView extends SimplePanel {
 
 	public ProcedureView(EventBus eventBus) {
 		setStep(firstStep);
-		SelectStepEvent.register(eventBus, new SelectStepEvent.Handler() {
+		NavigateStepEvent.register(eventBus, new NavigateStepEvent.Handler() {
 
 			@Override
-			public void onStepSelect(SelectStepEvent event) {
+			public void onStepSelect(NavigateStepEvent event) {
 				switch (event.getSelection()) {
 				case START:
 					start();

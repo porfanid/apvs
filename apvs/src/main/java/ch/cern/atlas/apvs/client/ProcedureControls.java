@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client;
 
-import ch.cern.atlas.apvs.client.SelectStepEvent.Selection;
+import ch.cern.atlas.apvs.client.NavigateStepEvent.Selection;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -20,7 +20,7 @@ public class ProcedureControls extends FlowPanel {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				eventBus.fireEvent(new SelectStepEvent(Selection.START));
+				eventBus.fireEvent(new NavigateStepEvent(Selection.START));
 			}
 		});
 		add(previous);
@@ -28,7 +28,7 @@ public class ProcedureControls extends FlowPanel {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				eventBus.fireEvent(new SelectStepEvent(Selection.PREVIOUS));
+				eventBus.fireEvent(new NavigateStepEvent(Selection.PREVIOUS));
 				
 			}
 		});
@@ -37,7 +37,7 @@ public class ProcedureControls extends FlowPanel {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				eventBus.fireEvent(new SelectStepEvent(Selection.NEXT));
+				eventBus.fireEvent(new NavigateStepEvent(Selection.NEXT));
 			}
 		});
 	}

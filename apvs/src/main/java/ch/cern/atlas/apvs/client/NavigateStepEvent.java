@@ -4,7 +4,7 @@ import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectStepEvent extends Event<SelectStepEvent.Handler> {
+public class NavigateStepEvent extends Event<NavigateStepEvent.Handler> {
 
 	public interface Handler {
 		/**
@@ -13,10 +13,10 @@ public class SelectStepEvent extends Event<SelectStepEvent.Handler> {
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onStepSelect(SelectStepEvent event);
+		void onStepSelect(NavigateStepEvent event);
 	}
 
-	private static final Type<SelectStepEvent.Handler> TYPE = new Type<SelectStepEvent.Handler>();
+	private static final Type<NavigateStepEvent.Handler> TYPE = new Type<NavigateStepEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -28,7 +28,7 @@ public class SelectStepEvent extends Event<SelectStepEvent.Handler> {
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(EventBus eventBus,
-			SelectStepEvent.Handler handler) {
+			NavigateStepEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
@@ -38,12 +38,12 @@ public class SelectStepEvent extends Event<SelectStepEvent.Handler> {
 
 	private final Selection selection;
 
-	public SelectStepEvent(Selection selection) {
+	public NavigateStepEvent(Selection selection) {
 		this.selection = selection;
 	}
 
 	@Override
-	public Type<SelectStepEvent.Handler> getAssociatedType() {
+	public Type<NavigateStepEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
