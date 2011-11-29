@@ -66,6 +66,11 @@ public class APVS implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
+		ClientFactory clientFactory = GWT.create(ClientFactory.class);
+
+		eventBus = clientFactory.getEventBus();
+		placeController = clientFactory.getPlaceController();
+		
 		dosimeterService = GWT.create(DosimeterService.class);
 		ptuService = GWT.create(PtuService.class);
 
@@ -87,9 +92,10 @@ public class APVS implements EntryPoint {
 			p.add(new MeasurementView(dosimeterSelector));
 			return;
 		}
-		p = RootPanel.get("measurementView");
+		p = RootPanel.get("procedureView");
 		if (p != null) {
-			p.add(new ProcedureView());
+			p.add(new ProcedureView(eventBus));
+			p.add(new ProcedureControls(eventBus));
 			return;
 		}
 		
@@ -106,11 +112,6 @@ public class APVS implements EntryPoint {
 		client = new AtmosphereClient(GWT.getModuleBaseURL() + "apvsComet",
 				serializer, cometListener);
 		client.start();
-
-		ClientFactory clientFactory = GWT.create(ClientFactory.class);
-
-		eventBus = clientFactory.getEventBus();
-		placeController = clientFactory.getPlaceController();
 
 		eventBus.addHandler(PlaceChangeEvent.TYPE,
 				new PlaceChangeEvent.Handler() {
