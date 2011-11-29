@@ -4,7 +4,7 @@ import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class NavigateStepEvent extends Event<NavigateStepEvent.Handler> {
+public class SelectStepEvent extends Event<SelectStepEvent.Handler> {
 
 	public interface Handler {
 		/**
@@ -13,10 +13,10 @@ public class NavigateStepEvent extends Event<NavigateStepEvent.Handler> {
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onNavigateStep(NavigateStepEvent event);
+		void onStepSelected(SelectStepEvent event);
 	}
 
-	private static final Type<NavigateStepEvent.Handler> TYPE = new Type<NavigateStepEvent.Handler>();
+	private static final Type<SelectStepEvent.Handler> TYPE = new Type<SelectStepEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -28,31 +28,43 @@ public class NavigateStepEvent extends Event<NavigateStepEvent.Handler> {
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(EventBus eventBus,
-			NavigateStepEvent.Handler handler) {
+			SelectStepEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	public static enum Navigation {
-		START, PREVIOUS, NEXT;
-	}
+	private final int step, total;
+	private final boolean previous, next;
 
-	private final Navigation navigation;
-
-	public NavigateStepEvent(Navigation selection) {
-		this.navigation = selection;
+	public SelectStepEvent(int step, int total, boolean hasPrevious, boolean hasNext) {
+		this.step = step;
+		this.total = total;
+		previous = hasPrevious;
+		next = hasNext;
 	}
 
 	@Override
-	public Type<NavigateStepEvent.Handler> getAssociatedType() {
+	public Type<SelectStepEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
-	public Navigation getNavigation() {
-		return navigation;
+	public int getStep() {
+		return step;
+	}
+	
+	public int getTotal() {
+		return total;
+	}
+	
+	public boolean hasPrevious() {
+		return previous;
+	}
+	
+	public boolean hasNext() {
+		return next;
 	}
 
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onNavigateStep(this);
+		handler.onStepSelected(this);
 	}
 }

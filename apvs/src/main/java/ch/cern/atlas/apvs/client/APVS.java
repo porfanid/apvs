@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.atmosphere.cpr.AtmosphereServlet;
 import org.atmosphere.gwt.client.AtmosphereClient;
 import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
 import org.atmosphere.gwt.client.AtmosphereListener;
@@ -94,8 +93,11 @@ public class APVS implements EntryPoint {
 		}
 		p = RootPanel.get("procedureView");
 		if (p != null) {
-			p.add(new ProcedureView(eventBus));
+			ProcedureView view = new ProcedureView(eventBus);
+			p.add(view);
 			p.add(new ProcedureControls(eventBus));
+			
+			view.setStep(1);
 			return;
 		}
 		

@@ -6,21 +6,24 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class ProcedureView extends SimplePanel {
 
-	private final String procedureURL = "http://localhost:8890/apvs-proc";
+	// FIXME
+	private final String procedureURL = "http://192.168.1.20:8890/apvs-proc";
 	private String procedure = "mural-m4v";
 	private int step = 1;
 	private String extension = ".m4v";
 	// FIXME...
 	private final int firstStep = 1;
 	private final int lastStep = 6;
+	private EventBus eventBus;
 
 	public ProcedureView(EventBus eventBus) {
-		setStep(firstStep);
+		this.eventBus = eventBus;
+		
 		NavigateStepEvent.register(eventBus, new NavigateStepEvent.Handler() {
 
 			@Override
-			public void onStepSelect(NavigateStepEvent event) {
-				switch (event.getSelection()) {
+			public void onNavigateStep(NavigateStepEvent event) {
+				switch (event.getNavigation()) {
 				case START:
 					start();
 					break;
@@ -35,18 +38,27 @@ public class ProcedureView extends SimplePanel {
 				}
 			}
 		});
+		
+		SelectStepEvent.register(eventBus, new SelectStepEvent.Handler() {
+			
+			@Override
+			public void onStepSelected(SelectStepEvent event) {
+				String source = procedureURL + "/" + procedure + "/" + step
+						+ extension;
+				System.err.println(source);
+				setWidget(new HTML(
+						"<video width='640' height='360' poster='poster.jpg' controls autoplay>"
+								+ "<source src='" + source
+								+ "' type='video/mp4'></source>" + "</video>"));
+
+			}
+		});
 	}
 
 	public void setStep(int step) {
 		if ((firstStep <= step) && (step <= lastStep)) {
 			this.step = step;
-			String source = procedureURL + "/" + procedure + "/" + step
-					+ extension;
-			System.err.println(source);
-			setWidget(new HTML(
-					"<video width='640' height='360' poster='poster.jpg' controls autoplay>"
-							+ "<source src='" + source
-							+ "' type='video/mp4'></source>" + "</video>"));
+			eventBus.fireEvent(new SelectStepEvent(step, lastStep, hasPrevious(), hasNext()));
 		}
 	}
 
