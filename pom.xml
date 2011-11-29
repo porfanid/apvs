@@ -35,6 +35,7 @@
 		<module>apvs-dosimeter</module>
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
+		<module>apvs-procedure</module>
 		<module>apvs-ptu</module>
 	</modules>
 
@@ -109,8 +110,13 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>ch.cern.atlas</groupId>
+				<groupId>com.cedarsoftware</groupId>
 				<artifactId>apvs-json-io</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-procedure</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -202,6 +208,11 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>servlet-api</artifactId>
 				<version>${servlet-api-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit-version}</version>
 			</dependency>
 		</dependencies>
 

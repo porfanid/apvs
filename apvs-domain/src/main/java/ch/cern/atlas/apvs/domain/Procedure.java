@@ -1,0 +1,23 @@
+package ch.cern.atlas.apvs.domain;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Procedure extends DirectoryEntry implements Serializable {
+
+	private static final long serialVersionUID = 4875978323097992653L;
+
+	private List<Step> steps = new ArrayList<Step>();
+	
+	public Procedure() {
+	}
+
+	public Step getStep(int sequenceNumber) {
+		return steps.get(sequenceNumber);
+	}
+	
+	public void addStep(Step step) {
+		steps.add(step);
+	}
+}

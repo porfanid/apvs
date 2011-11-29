@@ -175,15 +175,19 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-ptu</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-jetty</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-procedure</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-ptu</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.atmosphere</groupId>

@@ -17,27 +17,8 @@
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiler-plugin-version}</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-					<source>${jdk-version}</source>
-					<target>${jdk-version}</target>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>${resources-plugin-version}</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
-				<version>${gwt-plugin-version}</version>
+				<groupId>org.codehaus.mojo</groupId>
 				<executions>
 					<execution>
 						<goals>
@@ -55,7 +36,6 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit-version}</version>
 		</dependency>
 	</dependencies>
 

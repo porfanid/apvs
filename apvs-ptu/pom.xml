@@ -17,26 +17,7 @@
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiler-plugin-version}</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-					<source>${jdk-version}</source>
-					<target>${jdk-version}</target>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>${resources-plugin-version}</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>${assembly-plugin-version}</version>
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -67,23 +48,18 @@
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.cedarsoftware</groupId>
 			<artifactId>apvs-json-io</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit-version}</version>
 		</dependency>
                 <dependency>
                         <groupId>com.google.gwt</groupId>
                         <artifactId>gwt-user</artifactId>
-                        <version>${gwt-version}</version>
-                        <scope>provided</scope>
                 </dependency>
 
 	</dependencies>
