@@ -178,7 +178,7 @@ public class DosimeterView extends SimplePanel {
 	private void getDosimeterMap() {
 		cancelTimer();
 		startTimer();
-		dosimeterService.getDosimeterMap(dosimeters.hashCode(),
+		dosimeterService.getDosimeterMap((long)dosimeters.hashCode(),
 				new AsyncCallback<Map<Integer, Dosimeter>>() {
 
 					@Override

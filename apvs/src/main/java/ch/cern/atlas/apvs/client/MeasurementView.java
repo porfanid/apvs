@@ -80,7 +80,7 @@ public class MeasurementView extends SimplePanel {
 			@Override
 			public Number getValue(Measurement<?> object) {
 				// FIXME what about arrays
-				return (Number)object.getValue();
+				return (Number) object.getValue();
 			}
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -111,46 +111,56 @@ public class MeasurementView extends SimplePanel {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(list);
 
-		columnSortHandler = new ListHandler<Measurement<?>>(dataProvider.getList());
-		columnSortHandler.setComparator(name, new Comparator<Measurement<? extends Object>>() {
-			public int compare(Measurement<? extends Object> o1, Measurement<? extends Object> o2) {
-				if (o1 == o2) {
-					return 0;
-				}
+		columnSortHandler = new ListHandler<Measurement<?>>(
+				dataProvider.getList());
+		columnSortHandler.setComparator(name,
+				new Comparator<Measurement<? extends Object>>() {
+					public int compare(Measurement<? extends Object> o1,
+							Measurement<? extends Object> o2) {
+						if (o1 == o2) {
+							return 0;
+						}
 
-				if (o1 != null) {
-					return (o2 != null) ? o1.getName().compareTo(o2.getName()) : 1;
-				}
-				return -1;
-			}
-		});
-		columnSortHandler.setComparator(value, new Comparator<Measurement<?>>() {
-			public int compare(Measurement<?> o1, Measurement<?> o2) {
-				if (o1 == o2) {
-					return 0;
-				}
+						if (o1 != null) {
+							return (o2 != null) ? o1.getName().compareTo(
+									o2.getName()) : 1;
+						}
+						return -1;
+					}
+				});
+		columnSortHandler.setComparator(value,
+				new Comparator<Measurement<?>>() {
+					public int compare(Measurement<?> o1, Measurement<?> o2) {
+						if (o1 == o2) {
+							return 0;
+						}
 
-				if ((o1 != null) && (o1.getValue() instanceof Comparable<?>)) {
-					@SuppressWarnings("unchecked")
-					Comparable<Object> value = (Comparable<Object>)o1.getValue();
-					return (o2 != null) ? value.compareTo(o2.getValue()) : 1;
-				}
-				return -1;
-			}
-		});
-		columnSortHandler.setComparator(unit, new Comparator<Measurement<? extends Object>>() {
-			public int compare(Measurement<? extends Object> o1, Measurement<? extends Object> o2) {
-				if (o1 == o2) {
-					return 0;
-				}
+						if ((o1 != null)
+								&& (o1.getValue() instanceof Comparable<?>)) {
+							@SuppressWarnings("unchecked")
+							Comparable<Object> value = (Comparable<Object>) o1
+									.getValue();
+							return (o2 != null) ? value.compareTo(o2.getValue())
+									: 1;
+						}
+						return -1;
+					}
+				});
+		columnSortHandler.setComparator(unit,
+				new Comparator<Measurement<? extends Object>>() {
+					public int compare(Measurement<? extends Object> o1,
+							Measurement<? extends Object> o2) {
+						if (o1 == o2) {
+							return 0;
+						}
 
-				if (o1 != null) {
-					return (o2 != null) ? o1.getUnit().compareTo(o2.getUnit())
-							: 1;
-				}
-				return -1;
-			}
-		});
+						if (o1 != null) {
+							return (o2 != null) ? o1.getUnit().compareTo(
+									o2.getUnit()) : 1;
+						}
+						return -1;
+					}
+				});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
 
@@ -158,7 +168,7 @@ public class MeasurementView extends SimplePanel {
 	}
 
 	private void getDosimeter() {
-		dosimeterService.getDosimeter(serialNo, dosimeter.hashCode(),
+		dosimeterService.getDosimeter(serialNo, (long) dosimeter.hashCode(),
 				new AsyncCallback<Dosimeter>() {
 
 					@Override
@@ -179,10 +189,14 @@ public class MeasurementView extends SimplePanel {
 						dosimeter = result;
 
 						List<Measurement<?>> list = dataProvider.getList();
-						list.set(0, new Measurement<Double>("Dose",
-								dosimeter.getDose(), "&micro;Sv"));
-						list.set(1, new Measurement<Double>("Rate",
-								dosimeter.getRate(), "&micro;Sv/h"));
+						list.set(
+								0,
+								new Measurement<Double>("Dose", dosimeter
+										.getDose(), "&micro;Sv"));
+						list.set(
+								1,
+								new Measurement<Double>("Rate", dosimeter
+										.getRate(), "&micro;Sv/h"));
 
 						// Resort the table
 						ColumnSortEvent.fire(table, table.getColumnSortList());
