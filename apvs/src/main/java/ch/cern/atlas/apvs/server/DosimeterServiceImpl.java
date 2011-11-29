@@ -108,7 +108,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 			this);
 
 	@Override
-	public List<Integer> getSerialNumbers(int currentHashCode) {
+	public List<Integer> getSerialNumbers(long currentHashCode) {
 		return getSerialNumbersResponseHandler.respond(currentHashCode,
 				new Response<Map<Integer, Dosimeter>, List<Integer>>() {
 
@@ -123,7 +123,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 			this);
 
 	@Override
-	public Dosimeter getDosimeter(final int serialNo, int currentHashCode) {
+	public Dosimeter getDosimeter(final int serialNo, long currentHashCode) {
 		return getDosimeterResponseHandler.respond(currentHashCode,
 				new Response<Map<Integer, Dosimeter>, Dosimeter>() {
 
@@ -138,7 +138,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 			this);
 
 	@Override
-	public Map<Integer, Dosimeter> getDosimeterMap(int currentHashCode) {
+	public Map<Integer, Dosimeter> getDosimeterMap(long currentHashCode) {
 		return getDosimeterMapResponseHandler.respond(currentHashCode,
 				new Response<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>() {
 
