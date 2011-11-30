@@ -33,9 +33,9 @@
 		<module>apvs</module>
 		<module>apvs-domain</module>
 		<module>apvs-dosimeter</module>
+		<module>apvs-eventbus</module>
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
-		<module>apvs-procedure</module>
 		<module>apvs-ptu</module>
 	</modules>
 
@@ -116,7 +116,7 @@
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
-				<artifactId>apvs-procedure</artifactId>
+				<artifactId>apvs-eventbus</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -114,7 +114,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 
 					@Override
 					public List<Integer> getValue(Map<Integer, Dosimeter> object) {
-						return dosimeterReader.getDosimeterSerialNumbers();
+						return dosimeterReader != null ? dosimeterReader.getDosimeterSerialNumbers() : null;
 					}
 				});
 	}
@@ -129,7 +129,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 
 					@Override
 					public Dosimeter getValue(Map<Integer, Dosimeter> object) {
-						return dosimeterReader.getDosimeter(serialNo);
+						return dosimeterReader != null ? dosimeterReader.getDosimeter(serialNo) : null;
 					}
 				});
 	}
@@ -144,7 +144,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 
 					@Override
 					public Map<Integer, Dosimeter> getValue(Map<Integer, Dosimeter> object) {
-						return dosimeterReader.getDosimeterMap();
+						return dosimeterReader != null ? dosimeterReader.getDosimeterMap() : null;
 					}
 				});
 	}

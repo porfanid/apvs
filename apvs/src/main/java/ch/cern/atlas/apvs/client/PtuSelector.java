@@ -12,61 +12,59 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class DosimeterSelector extends SimplePanel {
+public class PtuSelector extends SimplePanel {
 		
 	private ListBox list = new ListBox();
 	
-	private DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
-	private List<Integer> serialNumbers = new ArrayList<Integer>();
+	private PtuServiceAsync ptuService = GWT.create(PtuService.class);
+	private List<Integer> ptuIds = new ArrayList<Integer>();
  
-	public DosimeterSelector(final EventBus eventBus) {
+	public PtuSelector(final EventBus eventBus) {
 		add(list);
 		
 		list.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
-				int serialNo;
+				int ptuId;
 				try {
-					serialNo = Integer.parseInt(list.getItemText(list
+					ptuId = Integer.parseInt(list.getItemText(list
 							.getSelectedIndex()));
 				} catch (NumberFormatException e) {
-					serialNo = 0;
+					ptuId = 0;
 				}
-				eventBus.fireEvent(new SelectDosimeterEvent(serialNo));
+				eventBus.fireEvent(new SelectPtuEvent(ptuId));
 			}
 		});
 		
-		getDosimeterSerialNumbers();		
+		getPtuIds();		
 	}
 		
-	private void getDosimeterSerialNumbers() {
-		dosimeterService.getSerialNumbers((long)serialNumbers.hashCode(), new AsyncCallback<List<Integer>>() {
+	private void getPtuIds() {
+		ptuService.getPtuIds((long)ptuIds.hashCode(), new AsyncCallback<List<Integer>>() {
 			
 			@Override
 			public void onSuccess(List<Integer> result) {
 				if (result == null) {
-					System.err.println("FIXME onSuccess null in dosimeterSelector");
+					System.err.println("FIXME onSuccess null in ptuSelector");
 					return;
 				}
-				serialNumbers  = result;
+				ptuIds  = result;
 				
 				list.clear();
-				list.addItem("Select SerialNo");
-				for (Iterator<Integer> i=serialNumbers.iterator(); i.hasNext();) {
+				list.addItem("Select PTU ID");
+				for (Iterator<Integer> i=ptuIds.iterator(); i.hasNext();) {
 					list.addItem(Integer.toString(i.next()));
 				}
 				
-				getDosimeterSerialNumbers();
+				getPtuIds();
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
 				GWT.log("Could not retrieve dosimeterSerialNumbers");
 				
-				getDosimeterSerialNumbers();
+				getPtuIds();
 			}
 		});
-
 	}
-	
 }

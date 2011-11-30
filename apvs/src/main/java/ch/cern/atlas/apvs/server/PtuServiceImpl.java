@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
@@ -11,9 +12,13 @@ import javax.servlet.ServletException;
 
 import ch.cern.atlas.apvs.client.PtuService;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
 import ch.cern.atlas.apvs.server.ResponseHandler.Response;
+
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.SimpleEventBus;
 
 /**
  * @author Mark Donszelmann
@@ -31,6 +36,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 	public PtuServiceImpl() {
 		System.out.println("Creating PtuService...");
+		EventBus eventBus = new SimpleEventBus();
 	}
 
 	@Override
@@ -58,6 +64,8 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 					writer.start();
 
 					ptuReader = new PtuReader(socket);
+					ptuReader.addValueChangeHandler(getPtuIdsResponseHandler);
+					ptuReader.addValueChangeHandler(getPtuResponseHandler);
 					ptuReader
 							.addValueChangeHandler(getLastMeasurementResponseHandler);
 					ptuReader
@@ -104,6 +112,39 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 		}
 	}
 
+	private ResponseHandler<Measurement<?>, Ptu> getPtuResponseHandler = new ResponseHandler<Measurement<?>, Ptu>(
+			this);
+
+	@Override
+	public Ptu getPtu(final int ptuId, long currentHashCode) {
+		return getPtuResponseHandler.respond(currentHashCode,
+				new Response<Measurement<?>, Ptu>() {
+
+					@Override
+					public Ptu getValue(Measurement<?> object) {
+						return ptuReader != null ? ptuReader.getPtu(ptuId) : null;
+					}
+
+				});
+	}
+
+	private ResponseHandler<Measurement<?>, List<Integer>> getPtuIdsResponseHandler = new ResponseHandler<Measurement<?>, List<Integer>>(
+			this);
+
+	@Override
+	public List<Integer> getPtuIds(long currentHashCode) {
+		return getPtuIdsResponseHandler.respond(currentHashCode,
+				new Response<Measurement<?>, List<Integer>>() {
+
+					@Override
+					public List<Integer> getValue(Measurement<?> object) {
+						return ptuReader != null ? new ArrayList<Integer>(
+								ptuReader.getPtuIds()) : null;
+					}
+
+				});
+	}
+
 	private ResponseHandler<Measurement<?>, Measurement<Double>> getMeasurementResponseHandler = new ResponseHandler<Measurement<?>, Measurement<Double>>(
 			this);
 
@@ -115,7 +156,8 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 					@Override
 					public Measurement<Double> getValue(Measurement<?> object) {
-						return ptuReader.getPtu(ptuId).getMeasurement(name);
+						return ptuReader != null ? ptuReader.getPtu(ptuId)
+								.getMeasurement(name) : null;
 					}
 
 				});
@@ -131,11 +173,11 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 					@Override
 					public Measurement<Double> getValue(Measurement<?> object) {
-						return (Measurement<Double>)object;
+						return (Measurement<Double>) object;
 					}
 				});
 	}
-	
+
 	@Override
 	public List<Measurement<Double>> getCurrentMeasurements() {
 		return ptuReader.getMeasurements();

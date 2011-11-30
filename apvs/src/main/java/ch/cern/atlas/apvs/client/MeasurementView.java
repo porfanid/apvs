@@ -2,17 +2,17 @@ package ch.cern.atlas.apvs.client;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Ptu;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -23,40 +23,49 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class MeasurementView extends SimplePanel {
 
-	private static final int NUMBER_OF_ITEMS = 2;
 	private ListDataProvider<Measurement<?>> dataProvider = new ListDataProvider<Measurement<?>>();
 	private CellTable<Measurement<?>> table = new CellTable<Measurement<?>>();
 	private ListHandler<Measurement<?>> columnSortHandler;
 
 	private DosimeterServiceAsync dosimeterService = GWT
 			.create(DosimeterService.class);
+
 	private Dosimeter dosimeter = new Dosimeter();
 	private int serialNo = 0;
 
-	public MeasurementView(DosimeterSelector dosimeterSelector) {
-		dosimeterSelector.addChangeHandler(new ChangeHandler() {
+	private PtuServiceAsync ptuService = GWT
+			.create(PtuService.class);
+
+	private Ptu ptu = new Ptu();
+	private int ptuId = 0;
+
+	public MeasurementView(EventBus eventBus) {
+		add(table);
+
+		SelectDosimeterEvent.register(eventBus,
+				new SelectDosimeterEvent.Handler() {
+
+					@Override
+					public void onDosimeterSelected(SelectDosimeterEvent event) {
+						serialNo = event.getSerialNo();
+						getDosimeter();
+					}
+				});
+
+		SelectPtuEvent.register(eventBus, new SelectPtuEvent.Handler() {
 
 			@Override
-			public void onChange(ChangeEvent event) {
-				// Maybe use something in DosimeterSelector
-				ListBox list = (ListBox) event.getSource();
-				try {
-					serialNo = Integer.parseInt(list.getItemText(list
-							.getSelectedIndex()));
-				} catch (NumberFormatException e) {
-					serialNo = 0;
-				}
-				getDosimeter();
+			public void onPtuSelected(SelectPtuEvent event) {
+				ptuId = event.getPtuId();
+				getPtu();
 			}
 		});
-
-		add(table);
 
 		TextColumn<Measurement<?>> name = new TextColumn<Measurement<?>>() {
 			@Override
@@ -67,8 +76,11 @@ public class MeasurementView extends SimplePanel {
 			@Override
 			public void render(Context context, Measurement<?> object,
 					SafeHtmlBuilder sb) {
-				((TextCell) getCell()).render(context,
-						SafeHtmlUtils.fromSafeConstant(getValue(object)), sb);
+				String name = getValue(object);
+				if (name != null) {
+					((TextCell) getCell()).render(context,
+							SafeHtmlUtils.fromSafeConstant(name), sb);
+				}
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -96,8 +108,11 @@ public class MeasurementView extends SimplePanel {
 			@Override
 			public void render(Context context, Measurement<?> object,
 					SafeHtmlBuilder sb) {
-				((TextCell) getCell()).render(context,
-						SafeHtmlUtils.fromSafeConstant(getValue(object)), sb);
+				String unit = getValue(object);
+				if (unit != null) {
+					((TextCell) getCell()).render(context,
+							SafeHtmlUtils.fromSafeConstant(unit), sb);
+				}
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -105,9 +120,6 @@ public class MeasurementView extends SimplePanel {
 		table.addColumn(unit, "Unit");
 
 		List<Measurement<?>> list = new ArrayList<Measurement<?>>();
-		for (int i = 0; i < NUMBER_OF_ITEMS; i++) {
-			list.add(new Measurement<Object>());
-		}
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(list);
 
@@ -163,8 +175,6 @@ public class MeasurementView extends SimplePanel {
 				});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
-
-		getDosimeter();
 	}
 
 	private void getDosimeter() {
@@ -188,6 +198,7 @@ public class MeasurementView extends SimplePanel {
 
 						dosimeter = result;
 
+						// FIXME we always get two, we need to replace the previous ones...
 						List<Measurement<?>> list = dataProvider.getList();
 						list.set(
 								0,
@@ -214,5 +225,48 @@ public class MeasurementView extends SimplePanel {
 				});
 
 	}
+
+	private void getPtu() {
+		if (ptuId == 0) return;
+		
+		ptuService.getPtu(ptuId, (long)ptu.hashCode(), new AsyncCallback<Ptu>() {
+			
+			@Override
+			public void onSuccess(Ptu result) {
+				if (result == null) {
+					System.err.println("FIXME onSuccess null in measurementView");
+					return;
+				}
+				
+				if (ptuId != result.getPtuId()) {
+					System.err.println("PtuId "
+							+ result.getPtuId() + " != " + ptuId
+							+ ", abandoned");
+					return;
+				}
+
+				ptu  = result;
+				
+				// FIXME maybe a better way
+				List<Measurement<?>> list = dataProvider.getList();
+				list.clear();
+				list.addAll(ptu.getMeasurements());
+				
+				// Resort the table
+				ColumnSortEvent.fire(table, table.getColumnSortList());
+				table.redraw();
+				
+				getPtu();
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				GWT.log("Could not retrieve ptu "+ptuId);
+				
+				getPtu();
+			}
+		});
+	}
+	
 
 }

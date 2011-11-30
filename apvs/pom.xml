@@ -179,11 +179,11 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-jetty</artifactId>
+			<artifactId>apvs-eventbus</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-procedure</artifactId>
+			<artifactId>apvs-jetty</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
