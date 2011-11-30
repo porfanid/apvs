@@ -1,10 +1,10 @@
-package ch.cern.atlas.apvs.client;
+package ch.cern.atlas.apvs.client.event;
 
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectDosimeterEvent extends Event<SelectDosimeterEvent.Handler> {
+public class NavigateStepEvent extends Event<NavigateStepEvent.Handler> {
 
 	public interface Handler {
 		/**
@@ -13,10 +13,10 @@ public class SelectDosimeterEvent extends Event<SelectDosimeterEvent.Handler> {
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onDosimeterSelected(SelectDosimeterEvent event);
+		void onNavigateStep(NavigateStepEvent event);
 	}
 
-	private static final Type<SelectDosimeterEvent.Handler> TYPE = new Type<SelectDosimeterEvent.Handler>();
+	private static final Type<NavigateStepEvent.Handler> TYPE = new Type<NavigateStepEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -28,27 +28,31 @@ public class SelectDosimeterEvent extends Event<SelectDosimeterEvent.Handler> {
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(EventBus eventBus,
-			SelectDosimeterEvent.Handler handler) {
+			NavigateStepEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	private final int serialNo;
+	public static enum Navigation {
+		START, PREVIOUS, NEXT;
+	}
 
-	public SelectDosimeterEvent(int serialNo) {
-		this.serialNo = serialNo;
+	private final Navigation navigation;
+
+	public NavigateStepEvent(Navigation selection) {
+		this.navigation = selection;
 	}
 
 	@Override
-	public Type<SelectDosimeterEvent.Handler> getAssociatedType() {
+	public Type<NavigateStepEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
-	public int getSerialNo() {
-		return serialNo;
+	public Navigation getNavigation() {
+		return navigation;
 	}
-	
+
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onDosimeterSelected(this);
+		handler.onNavigateStep(this);
 	}
 }

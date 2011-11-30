@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.event.SelectDosimeterEvent;
+import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -16,10 +19,11 @@ public class DosimeterSelector extends SimplePanel {
 		
 	private ListBox list = new ListBox();
 	
-	private DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
+	private DosimeterServiceAsync dosimeterService;
 	private List<Integer> serialNumbers = new ArrayList<Integer>();
  
-	public DosimeterSelector(final EventBus eventBus) {
+	public DosimeterSelector(final EventBus eventBus, DosimeterServiceAsync dosimeterService) {
+		this.dosimeterService = dosimeterService;
 		add(list);
 		
 		list.addChangeHandler(new ChangeHandler() {

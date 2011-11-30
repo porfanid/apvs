@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.event.SelectDosimeterEvent;
+import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
+import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -32,19 +35,20 @@ public class MeasurementView extends SimplePanel {
 	private CellTable<Measurement<?>> table = new CellTable<Measurement<?>>();
 	private ListHandler<Measurement<?>> columnSortHandler;
 
-	private DosimeterServiceAsync dosimeterService = GWT
-			.create(DosimeterService.class);
+	private DosimeterServiceAsync dosimeterService;
 
 	private Dosimeter dosimeter = new Dosimeter();
 	private int serialNo = 0;
 
-	private PtuServiceAsync ptuService = GWT
-			.create(PtuService.class);
+	private PtuServiceAsync ptuService;
 
 	private Ptu ptu = new Ptu();
 	private int ptuId = 0;
 
-	public MeasurementView(EventBus eventBus) {
+	public MeasurementView(EventBus eventBus, DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
+		this.ptuService = ptuService;
+		this.dosimeterService = dosimeterService;
+		
 		add(table);
 
 		SelectDosimeterEvent.register(eventBus,

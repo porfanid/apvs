@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client;
+package ch.cern.atlas.apvs.client.event;
 
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;

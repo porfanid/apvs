@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.client;
 
-import ch.cern.atlas.apvs.client.NavigateStepEvent.Navigation;
+import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
+import ch.cern.atlas.apvs.client.event.SelectStepEvent;
+import ch.cern.atlas.apvs.client.event.NavigateStepEvent.Navigation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

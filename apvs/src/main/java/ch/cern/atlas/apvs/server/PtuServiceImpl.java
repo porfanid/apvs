@@ -10,7 +10,7 @@ import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import ch.cern.atlas.apvs.client.PtuService;
+import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.ptu.server.MeasurementChangedEvent;

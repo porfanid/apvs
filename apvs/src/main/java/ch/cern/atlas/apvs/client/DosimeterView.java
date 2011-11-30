@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 
 import com.google.gwt.cell.client.NumberCell;
@@ -44,8 +45,7 @@ public class DosimeterView extends SimplePanel {
 	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
 	private ListHandler<Dosimeter> columnSortHandler;
-	private DosimeterServiceAsync dosimeterService = GWT
-			.create(DosimeterService.class);
+	private DosimeterServiceAsync dosimeterService;
 	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
 
 	private static final int TIMEOUT = 10000;
@@ -81,7 +81,9 @@ public class DosimeterView extends SimplePanel {
 		}
 	};
 
-	public DosimeterView() {
+	public DosimeterView(DosimeterServiceAsync dosimeterService) {
+		this.dosimeterService = dosimeterService;
+		
 		add(table);
 
 		// create class "disconected" pane

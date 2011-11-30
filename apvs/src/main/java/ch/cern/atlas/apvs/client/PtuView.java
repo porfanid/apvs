@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import ch.cern.atlas.apvs.client.service.PtuService;
+import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 
@@ -32,14 +34,16 @@ public class PtuView extends SimplePanel {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 	private ListHandler<String> columnSortHandler;
-	private PtuServiceAsync ptuService = GWT.create(PtuService.class);
+	private PtuServiceAsync ptuService;
 
 	Measurement<Double> last = new Measurement<Double>();
 	SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
 	Map<String, String> units = new HashMap<String, String>();
 	Map<Integer, TextColumn<String>> columns = new HashMap<Integer, TextColumn<String>>();
 
-	public PtuView() {
+	public PtuView(PtuServiceAsync ptuService) {
+		this.ptuService = ptuService;
+		
 		add(table);
 
 		// name column

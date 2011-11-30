@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.client;
 
+import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
+import ch.cern.atlas.apvs.client.event.SelectStepEvent;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -16,10 +18,12 @@ public class PtuSelector extends SimplePanel {
 		
 	private ListBox list = new ListBox();
 	
-	private PtuServiceAsync ptuService = GWT.create(PtuService.class);
+	private PtuServiceAsync ptuService;
 	private List<Integer> ptuIds = new ArrayList<Integer>();
  
-	public PtuSelector(final EventBus eventBus) {
+	public PtuSelector(final EventBus eventBus, PtuServiceAsync ptuService) {
+		this.ptuService = ptuService;
+		
 		add(list);
 		
 		list.addChangeHandler(new ChangeHandler() {

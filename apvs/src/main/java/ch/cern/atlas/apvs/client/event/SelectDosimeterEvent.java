@@ -1,10 +1,10 @@
-package ch.cern.atlas.apvs.client;
+package ch.cern.atlas.apvs.client.event;
 
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class NavigateStepEvent extends Event<NavigateStepEvent.Handler> {
+public class SelectDosimeterEvent extends Event<SelectDosimeterEvent.Handler> {
 
 	public interface Handler {
 		/**
@@ -13,10 +13,10 @@ public class NavigateStepEvent extends Event<NavigateStepEvent.Handler> {
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onNavigateStep(NavigateStepEvent event);
+		void onDosimeterSelected(SelectDosimeterEvent event);
 	}
 
-	private static final Type<NavigateStepEvent.Handler> TYPE = new Type<NavigateStepEvent.Handler>();
+	private static final Type<SelectDosimeterEvent.Handler> TYPE = new Type<SelectDosimeterEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -28,31 +28,27 @@ public class NavigateStepEvent extends Event<NavigateStepEvent.Handler> {
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(EventBus eventBus,
-			NavigateStepEvent.Handler handler) {
+			SelectDosimeterEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	public static enum Navigation {
-		START, PREVIOUS, NEXT;
-	}
+	private final int serialNo;
 
-	private final Navigation navigation;
-
-	public NavigateStepEvent(Navigation selection) {
-		this.navigation = selection;
+	public SelectDosimeterEvent(int serialNo) {
+		this.serialNo = serialNo;
 	}
 
 	@Override
-	public Type<NavigateStepEvent.Handler> getAssociatedType() {
+	public Type<SelectDosimeterEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
-	public Navigation getNavigation() {
-		return navigation;
+	public int getSerialNo() {
+		return serialNo;
 	}
-
+	
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onNavigateStep(this);
+		handler.onDosimeterSelected(this);
 	}
 }
