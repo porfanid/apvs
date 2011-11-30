@@ -2,13 +2,14 @@ package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
+import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 
 import com.google.gwt.place.shared.PlaceController;
-import com.google.web.bindery.event.shared.EventBus;
 
 public interface ClientFactory {
 	
-	EventBus getEventBus();
+	// FIXME change to RemoteEventBus
+	SimpleRemoteEventBus getEventBus();
 
 	PlaceController getPlaceController();
 	

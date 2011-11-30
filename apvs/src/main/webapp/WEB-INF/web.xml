@@ -31,6 +31,7 @@
     <servlet-mapping>
         <servlet-name>APVSServlet</servlet-name>
         <url-pattern>/apvs/apvsComet</url-pattern> 
+        <url-pattern>/apvs/eventBusComet</url-pattern> 
         <url-pattern>/apvs/apvsDosimeter</url-pattern>
         <url-pattern>/apvs/apvsPtu</url-pattern>
     </servlet-mapping>

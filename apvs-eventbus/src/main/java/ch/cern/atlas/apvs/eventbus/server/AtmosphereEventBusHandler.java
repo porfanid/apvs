@@ -1,23 +1,28 @@
-package ch.cern.atlas.apvs.server;
+package ch.cern.atlas.apvs.eventbus.server;
 
-import org.atmosphere.gwt.server.AtmosphereGwtHandler;
-import org.atmosphere.gwt.server.GwtAtmosphereResource;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.atmosphere.gwt.server.AtmosphereGwtHandler;
+import org.atmosphere.gwt.server.GwtAtmosphereResource;
 
 /**
  * @author Mark Donszelmann
  */
-public class AtmosphereHandler extends AtmosphereGwtHandler {
+public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
+        System.out.println("AtmosphereEventBusHandler started...");
         Logger.getLogger("").setLevel(Level.INFO);
         Logger.getLogger("gwtcomettest").setLevel(Level.ALL);
         Logger.getLogger("").getHandlers()[0].setLevel(Level.ALL);
@@ -26,6 +31,8 @@ public class AtmosphereHandler extends AtmosphereGwtHandler {
 
     @Override
     public int doComet(GwtAtmosphereResource resource) throws ServletException, IOException {
+    	System.out.println("AtmosphereEventBusHandler.doComet()...");
+    	System.out.println(resource.getAtmosphereResource().getAtmosphereResourceEvent());
         resource.getBroadcaster().setID("GWT_COMET");
         HttpSession session = resource.getAtmosphereResource().getRequest().getSession(false);
         if (session != null) {
@@ -41,8 +48,29 @@ public class AtmosphereHandler extends AtmosphereGwtHandler {
         return NO_TIMEOUT;
     }
 
+    @Override
+    public void doPost(List<Serializable> messages, GwtAtmosphereResource resource) {
+    	super.doPost(messages, resource);
+    	System.out.println("Post...");
+    	for (Iterator<Serializable> i = messages.iterator(); i.hasNext(); ) {
+    		System.out.println("-- "+i.next().getClass());
+    	}
+    }
+    @Override
+    public void broadcast(List<Serializable> messages, GwtAtmosphereResource resource) {
+    	super.doPost(messages, resource);
+    	System.out.println("bCast...");
+    	for (Iterator<Serializable> i = messages.iterator(); i.hasNext(); ) {
+    		System.out.println("-- "+i.next().getClass());
+    	}
+    }
     
-   
+    @Override
+    public void broadcast(Serializable message, GwtAtmosphereResource resource) {
+    	super.broadcast(message, resource);
+    	System.out.println("bCast..."+message.getClass());
+    }
+       
     @Override
     public void cometTerminated(GwtAtmosphereResource cometResponse, boolean serverInitiated) {
         super.cometTerminated(cometResponse, serverInitiated);

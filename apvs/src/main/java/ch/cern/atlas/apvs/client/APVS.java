@@ -23,6 +23,7 @@ import ch.cern.atlas.apvs.client.places.Settings;
 import ch.cern.atlas.apvs.client.places.User;
 import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
+import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -45,7 +46,6 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.StackLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * @author Mark Donszelmann
@@ -58,7 +58,7 @@ public class APVS implements EntryPoint {
 	Logger logger = Logger.getLogger(getClass().getName());
 	Window screen;
 
-	EventBus eventBus;
+	SimpleRemoteEventBus eventBus;
 	PlaceController placeController;
 	Label clientId = new Label();
 

@@ -5,11 +5,13 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectDosimeterEvent;
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
+import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.NumberCell;
@@ -27,7 +29,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.web.bindery.event.shared.EventBus;
 
 public class MeasurementView extends SimplePanel {
 
@@ -45,7 +46,7 @@ public class MeasurementView extends SimplePanel {
 	private Ptu ptu = new Ptu();
 	private int ptuId = 0;
 
-	public MeasurementView(EventBus eventBus, DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
+	public MeasurementView(SimpleRemoteEventBus eventBus, DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
 		this.ptuService = ptuService;
 		this.dosimeterService = dosimeterService;
 		

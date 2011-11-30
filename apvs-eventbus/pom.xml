@@ -41,14 +41,14 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-client</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.atmosphere</groupId>
+			<artifactId>atmosphere-gwt-server</artifactId>
+		</dependency>
 		<!-- 
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-gwt-server</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.atmosphere</groupId>

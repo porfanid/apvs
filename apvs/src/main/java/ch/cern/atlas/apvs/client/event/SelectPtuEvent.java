@@ -1,10 +1,14 @@
-package ch.cern.atlas.apvs.client;
+package ch.cern.atlas.apvs.client.event;
 
-import com.google.web.bindery.event.shared.Event;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
+public class SelectPtuEvent extends RemoteEvent<SelectPtuEvent.Handler> {
+
+	private static final long serialVersionUID = 4782769296921555320L;
 
 	public interface Handler {
 		/**
@@ -27,13 +31,16 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(EventBus eventBus,
+	public static HandlerRegistration register(RemoteEventBus eventBus,
 			SelectPtuEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	private final int ptuId;
+	private int ptuId;
 
+	public SelectPtuEvent() {
+	}
+	
 	public SelectPtuEvent(int ptuId) {
 		this.ptuId = ptuId;
 	}
