@@ -13,6 +13,7 @@
 	<inherits name="org.atmosphere.gwt.Client" />
 
 	<inherits name="ch.cern.atlas.apvs.Domain" />
+	<inherits name="ch.cern.atlas.apvs.EventBus" />
 
 	<!-- inherit css based theme -->
 	<inherits name='com.google.gwt.user.theme.standard.Standard' />
