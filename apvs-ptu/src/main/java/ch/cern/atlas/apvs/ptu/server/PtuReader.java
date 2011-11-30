@@ -14,21 +14,16 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 
 import com.cedarsoftware.util.io.JsonReader;
-import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.web.bindery.event.shared.EventBus;
 
-public class PtuReader implements Runnable,
-		HasValueChangeHandlers<Measurement<?>> {
+public class PtuReader implements Runnable {
 
+	private EventBus eventBus;
 	private Socket socket;
-	private HandlerManager handlerManager = new HandlerManager(this);
 	private SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
 	
-	public PtuReader(Socket socket) {
+	public PtuReader(EventBus eventBus, Socket socket) {
+		this.eventBus = eventBus;
 		this.socket = socket;
 	}
 
@@ -43,15 +38,23 @@ public class PtuReader implements Runnable,
 					@SuppressWarnings("unchecked")
 					Measurement<Double> measurement = (Measurement<Double>) object;
 					
+					boolean ptuIdsChanged = false;
 					int ptuId = measurement.getPtuId();
 					Ptu ptu = ptus.get(ptuId);
 					if (ptu == null) {
 						ptu = new Ptu(ptuId);
 						ptus.put(ptuId, ptu);
+						ptuIdsChanged = true;
 					}
 					ptu.add((Measurement<Double>)measurement);
 					
-					ValueChangeEvent.fire(this, measurement);
+					// fire all at the end
+					// FIXME we can still add MeasurementNamesChanged
+					if (ptuIdsChanged) {
+						eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<Integer>(ptus.keySet())));
+					}
+					eventBus.fireEvent(new PtuChangedEvent(ptu));
+					eventBus.fireEvent(new MeasurementChangedEvent(measurement));
 				}
 			}
 		} catch (IOException e) {
@@ -63,17 +66,6 @@ public class PtuReader implements Runnable,
 				// ignore
 			}
 		}
-	}
-
-	@Override
-	public HandlerRegistration addValueChangeHandler(
-			ValueChangeHandler<Measurement<?>> handler) {
-		return handlerManager.addHandler(ValueChangeEvent.getType(), handler);
-	}
-
-	@Override
-	public void fireEvent(GwtEvent<?> event) {
-		handlerManager.fireEvent(event);
 	}
 
 	public void close() throws IOException {

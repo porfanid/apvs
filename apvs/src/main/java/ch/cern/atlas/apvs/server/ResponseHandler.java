@@ -96,4 +96,21 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 		}
 	}
 
+	public void onValueChange(T value) {
+		synchronized (delayedResponses) {
+			for (Iterator<InfoAndResponse<T,V>> i = delayedResponses.iterator(); i.hasNext(); ) {
+				InfoAndResponse<T,V> d = i.next();
+				Object o = d.getResponse().getValue(value);
+				if (d.getCurrentHashCode() != o.hashCode()) {
+					try {
+						d.getInfo().writeAndResume(o);
+					} catch (IOException e) {
+						logger.error("Failed to write and resume", e);
+					}
+					i.remove();
+				}
+			}
+		}
+	}
+
 }

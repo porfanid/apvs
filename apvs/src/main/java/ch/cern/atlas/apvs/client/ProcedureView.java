@@ -11,6 +11,10 @@ public class ProcedureView extends SimplePanel {
 	private String procedure = "mural-m4v";
 	private int step = 1;
 	private String extension = ".m4v";
+	private String contentType = "video/x-m4v"; // video/mp4
+	private int videoWidth = 640;
+	private int videoHeight = 360;
+	private String videoPoster = "poster.jpg"; // FIXME
 	// FIXME...
 	private final int firstStep = 1;
 	private final int lastStep = 6;
@@ -47,9 +51,9 @@ public class ProcedureView extends SimplePanel {
 						+ extension;
 				System.err.println(source);
 				setWidget(new HTML(
-						"<video width='640' height='360' poster='poster.jpg' controls autoplay>"
+						"<video width='"+videoWidth+"' height='"+videoHeight+"' poster='"+videoPoster+"' controls autoplay>"
 								+ "<source src='" + source
-								+ "' type='video/mp4'></source>" + "</video>"));
+								+ "' type='"+contentType+"'></source>" + "</video>"));
 
 			}
 		});

@@ -72,8 +72,7 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 
 	@Override
 	public boolean equals(Object obj) {
-		// FIXME check on nulls
-		if (obj instanceof Measurement<?>) {
+		if ((obj != null) && (obj instanceof Measurement<?>)) {
 			Measurement<?> m = (Measurement<?>) obj;
 			return (getPtuId() == m.getPtuId())
 					&& (getName().equals(m.getName()))
