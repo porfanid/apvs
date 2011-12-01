@@ -14,24 +14,23 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 public class EventBusServiceHandler extends AtmospherePollService implements EventBusService {
 
 	private SuspendInfo info;
+	private ServerEventBus eventBus; 
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		System.out.println("Starting EventBusService...");
+		
+		eventBus = ServerEventBus.getInstance();
+		eventBus.setEventBusServiceHandler(this);
 	}
 	
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
 		System.err.println("Server: Received event..."+event);
+		sendToRemote(event);
 		
-		if (info != null) {
-			try {
-				info.writeAndResume(event);
-			} catch (IOException e) {
-				System.err.println("Server: Could not write and resume event");
-			}
-		}
+		eventBus.forwardEvent(event);
 	}
 
 	@Override
@@ -40,5 +39,20 @@ public class EventBusServiceHandler extends AtmospherePollService implements Eve
 		info = suspend();
 		return null;
 	}
+
+	public void forwardEvent(RemoteEvent<?> event) {
+		System.err.println("Server: Forward event..."+event);
+		sendToRemote(event);
+	}
+
+	private void sendToRemote(RemoteEvent<?> event) {
+		if (info != null) {
+			try {
+				info.writeAndResume(event);
+			} catch (IOException e) {
+				System.err.println("Server: Could not write and resume event "+e);
+			}
+		}
+	}	
 
 }

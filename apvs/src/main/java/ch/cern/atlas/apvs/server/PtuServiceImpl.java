@@ -13,14 +13,12 @@ import javax.servlet.ServletException;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
+import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.MeasurementChangedEvent;
-import ch.cern.atlas.apvs.ptu.server.PtuChangedEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuIdsChangedEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
 import ch.cern.atlas.apvs.server.ResponseHandler.Response;
-
-import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * @author Mark Donszelmann
@@ -36,7 +34,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 	private boolean stopped = false;
 	private PtuReader ptuReader;
 
-	private EventBus eventBus;
+	private SimpleRemoteEventBus eventBus;
 
 	public PtuServiceImpl() {
 		System.out.println("Creating PtuService...");
@@ -79,7 +77,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 											.onValueChange(event.getPtuIds());
 								}
 							});
-
+/*
 					PtuChangedEvent.register(eventBus,
 							new PtuChangedEvent.Handler() {
 
@@ -89,7 +87,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 											.getPtu());
 								}
 							});
-
+*/
 					MeasurementChangedEvent.register(eventBus,
 							new MeasurementChangedEvent.Handler() {
 								@Override

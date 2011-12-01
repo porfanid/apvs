@@ -12,6 +12,7 @@ import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.NumberCell;
@@ -44,7 +45,7 @@ public class MeasurementView extends SimplePanel {
 	private PtuServiceAsync ptuService;
 
 	private Ptu ptu = new Ptu();
-	private int ptuId = 0;
+	private int ptuId = -1;
 
 	public MeasurementView(SimpleRemoteEventBus eventBus, DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
 		this.ptuService = ptuService;
@@ -68,6 +69,14 @@ public class MeasurementView extends SimplePanel {
 			public void onPtuSelected(SelectPtuEvent event) {
 				ptuId = event.getPtuId();
 				getPtu();
+			}
+		});
+		
+		PtuChangedEvent.register(eventBus, new PtuChangedEvent.Handler() {
+			
+			@Override
+			public void onPtuChanged(PtuChangedEvent event) {
+				setPtu(event.getPtu());
 			}
 		});
 
@@ -231,46 +240,48 @@ public class MeasurementView extends SimplePanel {
 	}
 
 	private void getPtu() {
-		if (ptuId == 0) return;
+		if (ptuId == -1) return;
 		
 		ptuService.getPtu(ptuId, (long)ptu.hashCode(), new AsyncCallback<Ptu>() {
 			
 			@Override
 			public void onSuccess(Ptu result) {
-				if (result == null) {
-					System.err.println("FIXME onSuccess null in measurementView");
-					return;
-				}
+				setPtu(result);
 				
-				if (ptuId != result.getPtuId()) {
-					System.err.println("PtuId "
-							+ result.getPtuId() + " != " + ptuId
-							+ ", abandoned");
-					return;
-				}
-
-				ptu  = result;
-				
-				// FIXME maybe a better way
-				List<Measurement<?>> list = dataProvider.getList();
-				list.clear();
-				list.addAll(ptu.getMeasurements());
-				
-				// Resort the table
-				ColumnSortEvent.fire(table, table.getColumnSortList());
-				table.redraw();
-				
-				getPtu();
+//				getPtu();
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
 				GWT.log("Could not retrieve ptu "+ptuId);
 				
-				getPtu();
+//				getPtu();
 			}
 		});
 	}
 	
+	private void setPtu(Ptu newPtu) {
+		if (newPtu == null) {
+			System.err.println("FIXME onSuccess null in measurementView");
+			return;
+		}
+		
+		if (ptuId != newPtu.getPtuId()) {
+			System.err.println("PtuId "
+					+ newPtu.getPtuId() + " != " + ptuId
+					+ ", abandoned");
+			return;
+		}
 
+		ptu  = newPtu;
+		
+		// FIXME maybe a better way
+		List<Measurement<?>> list = dataProvider.getList();
+		list.clear();
+		list.addAll(ptu.getMeasurements());
+		
+		// Resort the table
+		ColumnSortEvent.fire(table, table.getColumnSortList());
+		table.redraw();	
+	}
 }

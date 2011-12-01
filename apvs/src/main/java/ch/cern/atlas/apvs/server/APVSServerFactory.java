@@ -1,23 +1,23 @@
 package ch.cern.atlas.apvs.server;
 
-import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.SimpleEventBus;
+import ch.cern.atlas.apvs.eventbus.server.ServerEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 
 public class APVSServerFactory {
 	
 	private static APVSServerFactory factory = new APVSServerFactory();
 	
-	private EventBus eventBus;
+	private SimpleRemoteEventBus eventBus;
 	
 	public APVSServerFactory() {
-		eventBus = new SimpleEventBus();
+		eventBus = ServerEventBus.getInstance();
 	}
 	
 	public static APVSServerFactory getInstance() {
 		return factory;
 	}
 	
-	public EventBus getEventBus() {
+	public SimpleRemoteEventBus getEventBus() {
 		return eventBus;
 	}
 	

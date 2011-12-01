@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.eventbus.shared;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent.Type;
 
+import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public interface RemoteEventBus {
@@ -10,6 +11,10 @@ public interface RemoteEventBus {
 
 	public <H> HandlerRegistration addHandlerToSource(Type<H> type,
 			Object source, H handler);
+
+	public void fireEvent(Event<?> event);
+
+	public void fireEventFromSource(Event<?> event, Object source);
 
 	public void fireEvent(RemoteEvent<?> event);
 

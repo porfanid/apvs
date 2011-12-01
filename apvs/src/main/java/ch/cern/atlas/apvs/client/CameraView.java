@@ -11,6 +11,7 @@ public class CameraView extends SimplePanel {
 	private int videoWidth = 640;
 	private int videoHeight = 360;
 	private String videoPoster = "camera.jpg"; // FIXME
+	@SuppressWarnings("unused")
 	private EventBus eventBus;
 
 	public CameraView(EventBus eventBus) {

@@ -12,17 +12,18 @@ import java.util.TreeSet;
 
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
 
 import com.cedarsoftware.util.io.JsonReader;
-import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuReader implements Runnable {
 
-	private EventBus eventBus;
+	private RemoteEventBus eventBus;
 	private Socket socket;
 	private SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
 	
-	public PtuReader(EventBus eventBus, Socket socket) {
+	public PtuReader(RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;
 	}
