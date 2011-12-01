@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.server.jetty;
 
-import java.io.File;
 import java.net.URL;
 import java.security.ProtectionDomain;
 
