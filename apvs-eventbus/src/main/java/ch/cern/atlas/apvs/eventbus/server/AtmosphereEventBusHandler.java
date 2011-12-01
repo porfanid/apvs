@@ -58,7 +58,7 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
     }
     @Override
     public void broadcast(List<Serializable> messages, GwtAtmosphereResource resource) {
-    	super.doPost(messages, resource);
+    	super.broadcast(messages, resource);
     	System.out.println("bCast...");
     	for (Iterator<Serializable> i = messages.iterator(); i.hasNext(); ) {
     		System.out.println("-- "+i.next().getClass());
