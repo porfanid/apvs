@@ -19,10 +19,14 @@
 			<plugin>
 				<artifactId>gwt-maven-plugin</artifactId>
 				<groupId>org.codehaus.mojo</groupId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
 							<goal>resources</goal>
+							<goal>generateAsync</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -45,15 +49,12 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-server</artifactId>
 		</dependency>
-		<!-- 
-		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-gwt-common</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-poll</artifactId>
-		</dependency>  -->
+		</dependency>
+		<!-- <dependency> <groupId>org.atmosphere</groupId> <artifactId>atmosphere-gwt-common</artifactId> 
+			</dependency> -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

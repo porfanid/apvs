@@ -21,7 +21,7 @@ public abstract class RemoteEvent<H> implements Serializable {
 
 		@Override
 		public String toString() {
-			return "Event type";
+			return "RemoteEvent type of class "+getClass();
 		}
 	}
 
@@ -44,7 +44,7 @@ public abstract class RemoteEvent<H> implements Serializable {
 
 	@Override
 	public String toString() {
-		return "An event type";
+		return "Remote event of class "+getClass();
 	}
 
 	protected abstract void dispatch(H handler);

@@ -1,12 +1,10 @@
 package ch.cern.atlas.apvs.client;
 
-import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
-
 import ch.cern.atlas.apvs.client.service.DosimeterService;
 import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
-import ch.cern.atlas.apvs.eventbus.client.AtmosphereEventBus;
+import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
@@ -23,8 +21,9 @@ public class APVSClientFactory implements ClientFactory {
 //	private final GoodbyeView goodbyeView = new GoodbyeViewImpl();
 	
 	public APVSClientFactory() {
-		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
-		eventBus = new AtmosphereEventBus(serializer);
+//		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
+//		eventBus = new AtmosphereEventBus(serializer);
+		eventBus = new PollEventBus();
 	}
 
 	@Override

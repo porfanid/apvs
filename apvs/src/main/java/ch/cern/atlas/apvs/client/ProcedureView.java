@@ -17,7 +17,7 @@ public class ProcedureView extends SimplePanel {
 	private String contentType = "video/x-m4v"; // video/mp4
 	private int videoWidth = 640;
 	private int videoHeight = 360;
-	private String videoPoster = "poster.jpg"; // FIXME
+	private String videoPoster = "procedure.jpg"; // FIXME
 	// FIXME...
 	private final int firstStep = 1;
 	private final int lastStep = 6;

@@ -67,6 +67,8 @@ public class APVS implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
+		GWT.setUncaughtExceptionHandler(new APVSUncaughtExceptionHandler());
+		
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
 		eventBus = clientFactory.getEventBus();
@@ -103,7 +105,11 @@ public class APVS implements EntryPoint {
 			view.setStep(1);
 			return;
 		}
-		
+		p = RootPanel.get("cameraView");
+		if (p != null) {
+			p.add(new CameraView(eventBus));
+			return;
+		}
 		onMainModuleLoad();
 	}
 
