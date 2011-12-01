@@ -59,4 +59,9 @@ public class PtuChangedEvent extends RemoteEvent<PtuChangedEvent.Handler> {
 	protected void dispatch(Handler handler) {
 		handler.onPtuChanged(this);
 	}
+	
+	@Override
+	public String toString() {
+		return "PtuChangedEvent "+ptu.getPtuId();
+	}
 }

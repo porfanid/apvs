@@ -28,8 +28,8 @@ public class ResettableRemoteEventBus extends ResettableEventBus implements Remo
 
 	@Override
 	public <H> HandlerRegistration addHandlerToSource(RemoteEvent.Type<H> type,
-			Object source, H handler) {
-		HandlerRegistration rtn = wrapped.addHandlerToSource(type, source,
+			int uuid, H handler) {
+		HandlerRegistration rtn = wrapped.addHandlerToSource(type, uuid,
 				handler);
 		return doRegisterHandler(rtn);
 	}
@@ -40,8 +40,8 @@ public class ResettableRemoteEventBus extends ResettableEventBus implements Remo
 	}
 
 	@Override
-	public void fireEventFromSource(RemoteEvent<?> event, Object source) {
-		wrapped.fireEventFromSource(event, source);
+	public void fireEventFromSource(RemoteEvent<?> event, int uuid) {
+		wrapped.fireEventFromSource(event, uuid);
 	}
 
 	@Override

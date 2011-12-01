@@ -31,7 +31,7 @@ public class PollEventBus extends SimpleRemoteEventBus {
 	 * 
 	 */
 	@Override
-	public void fireEventFromSource(RemoteEvent<?> event, Object source) {
+	public void fireEventFromSource(RemoteEvent<?> event, int uuid) {
 		doFire(event);
 	}
 
@@ -56,7 +56,7 @@ public class PollEventBus extends SimpleRemoteEventBus {
 
 			@Override
 			public void onSuccess(RemoteEvent<?> event) {
-				System.err.println("Client: Received event..." + event);
+//				System.err.println("Client: Received event..." + event);
 				
 				// forward event locally
 				PollEventBus.super.fireEvent(event);

@@ -29,6 +29,8 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class PtuView extends SimplePanel {
+	
+	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
@@ -177,7 +179,7 @@ public class PtuView extends SimplePanel {
 				if (m == null) {
 					return "";
 				}
-				return NumberFormat.getFormat("0.00").format(m.getValue());
+				return format.format(m.getValue());
 			}
 
 			@Override

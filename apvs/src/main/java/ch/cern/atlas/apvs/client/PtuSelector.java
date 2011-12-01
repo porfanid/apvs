@@ -36,7 +36,7 @@ public class PtuSelector extends SimplePanel {
 					ptuId = Integer.parseInt(list.getItemText(list
 							.getSelectedIndex()));
 				} catch (NumberFormatException e) {
-					ptuId = 0;
+					ptuId = -1;
 				}
 				eventBus.fireEvent(new SelectPtuEvent(ptuId));
 			}
@@ -46,11 +46,16 @@ public class PtuSelector extends SimplePanel {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
-				for (int i = 0; i < list.getItemCount(); i++) {
+				int i = 0;
+				while (i < list.getItemCount()) {
 					if (list.getValue(i).equals(toLabel(event.getPtuId()))) {
 						list.setSelectedIndex(i);
 						break;
 					}
+					i++;
+				}
+				if (i == list.getItemCount()) {
+					list.setSelectedIndex(0);
 				}
 			}
 		});

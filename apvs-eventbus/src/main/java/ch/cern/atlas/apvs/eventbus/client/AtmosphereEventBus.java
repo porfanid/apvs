@@ -47,7 +47,7 @@ public class AtmosphereEventBus extends SimpleRemoteEventBus {
 	 * 
 	 */
 	@Override
-	public void fireEventFromSource(RemoteEvent<?> event, Object source) {
+	public void fireEventFromSource(RemoteEvent<?> event, int uuid) {
 		client.broadcast(event);
 	}
 

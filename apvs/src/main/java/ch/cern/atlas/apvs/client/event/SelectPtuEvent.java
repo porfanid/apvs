@@ -58,4 +58,10 @@ public class SelectPtuEvent extends RemoteEvent<SelectPtuEvent.Handler> {
 	protected void dispatch(Handler handler) {
 		handler.onPtuSelected(this);
 	}
+	
+	@Override
+	public String toString() {
+		return "SelectPtuEvent "+ptuId;
+	}
+
 }

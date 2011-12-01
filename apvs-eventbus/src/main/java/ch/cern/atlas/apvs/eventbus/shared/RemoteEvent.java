@@ -25,16 +25,16 @@ public abstract class RemoteEvent<H> implements Serializable {
 		}
 	}
 
-//	private Object source;
+	private int uuid;
 
 	protected RemoteEvent() {
 	}
 
 	public abstract Type<H> getAssociatedType();
 
-//	public Object getSource() {
-//		return source;
-//	}
+	public int getUUID() {
+		return uuid;
+	}
 
 	public String toDebugString() {
 		String name = this.getClass().getName();
@@ -49,7 +49,7 @@ public abstract class RemoteEvent<H> implements Serializable {
 
 	protected abstract void dispatch(H handler);
 
-//	protected void setSource(Object source) {
-//		this.source = source;
-//	}
+	protected void setUUID(int uuid) {
+		this.uuid = uuid;
+	}
 }

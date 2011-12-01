@@ -15,14 +15,12 @@ import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -30,8 +28,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class MeasurementView extends SimplePanel {
+
+	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
 	private ListDataProvider<Measurement<?>> dataProvider = new ListDataProvider<Measurement<?>>();
 	private CellTable<Measurement<?>> table = new CellTable<Measurement<?>>();
@@ -42,15 +43,18 @@ public class MeasurementView extends SimplePanel {
 	private Dosimeter dosimeter = new Dosimeter();
 	private int serialNo = 0;
 
+	private HandlerRegistration registration;
 	private PtuServiceAsync ptuService;
 
+	private SimpleRemoteEventBus eventBus;
 	private Ptu ptu = new Ptu();
-	private int ptuId = -1;
 
-	public MeasurementView(SimpleRemoteEventBus eventBus, DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
+	public MeasurementView(SimpleRemoteEventBus eventBus,
+			DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
+		this.eventBus = eventBus;
 		this.ptuService = ptuService;
 		this.dosimeterService = dosimeterService;
-		
+
 		add(table);
 
 		SelectDosimeterEvent.register(eventBus,
@@ -67,16 +71,7 @@ public class MeasurementView extends SimplePanel {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
-				ptuId = event.getPtuId();
-				getPtu();
-			}
-		});
-		
-		PtuChangedEvent.register(eventBus, new PtuChangedEvent.Handler() {
-			
-			@Override
-			public void onPtuChanged(PtuChangedEvent event) {
-				setPtu(event.getPtu());
+				getPtu(event.getPtuId());
 			}
 		});
 
@@ -100,16 +95,44 @@ public class MeasurementView extends SimplePanel {
 		name.setSortable(true);
 		table.addColumn(name, "Name");
 
-		Column<Measurement<?>, Number> value = new Column<Measurement<?>, Number>(
-				new NumberCell(NumberFormat.getFormat("0.0"))) {
+		TextColumn<Measurement<?>> value = new TextColumn<Measurement<?>>() {
 			@Override
-			public Number getValue(Measurement<?> object) {
-				// FIXME what about arrays
-				return (Number) object.getValue();
+			public String getValue(Measurement<?> object) {
+				if (object == null) {
+					return "";
+				}
+				return format.format((Double) object.getValue());
 			}
+
+			@Override
+			public void render(Context context, Measurement<?> object,
+					SafeHtmlBuilder sb) {
+				String s = getValue(object);
+				if ((object != null)
+						&& object.getName().equals(ptu.getLastChanged())) {
+					String a;
+					switch (ptu.getState()) {
+					case NEW:
+						a = "&larr;";
+						break;
+					case UP:
+						a = "&uarr;";
+						break;
+					case DOWN:
+						a = "&darr;";
+						break;
+					default:
+						a = "";
+						break;
+					}
+					s = a + "&nbsp;<b>" + s + "</b>";
+				}
+				((TextCell) getCell()).render(context,
+						SafeHtmlUtils.fromSafeConstant(s), sb);
+			}
+
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		value.setSortable(true);
 		table.addColumn(value, "Value");
 
 		TextColumn<Measurement<?>> unit = new TextColumn<Measurement<?>>() {
@@ -211,7 +234,8 @@ public class MeasurementView extends SimplePanel {
 
 						dosimeter = result;
 
-						// FIXME we always get two, we need to replace the previous ones...
+						// FIXME we always get two, we need to replace the
+						// previous ones...
 						List<Measurement<?>> list = dataProvider.getList();
 						list.set(
 								0,
@@ -239,49 +263,64 @@ public class MeasurementView extends SimplePanel {
 
 	}
 
-	private void getPtu() {
-		if (ptuId == -1) return;
-		
-		ptuService.getPtu(ptuId, (long)ptu.hashCode(), new AsyncCallback<Ptu>() {
-			
-			@Override
-			public void onSuccess(Ptu result) {
-				setPtu(result);
-				
-//				getPtu();
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				GWT.log("Could not retrieve ptu "+ptuId);
-				
-//				getPtu();
-			}
-		});
+	private void getPtu(final int ptuId) {
+		ptuService.getPtu(ptuId, (long) ptu.hashCode(),
+				new AsyncCallback<Ptu>() {
+
+					@Override
+					public void onSuccess(Ptu result) {
+						setPtu(result);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						GWT.log("Could not retrieve ptu " + ptuId);
+					}
+				});
+
 	}
-	
+
 	private void setPtu(Ptu newPtu) {
-		if (newPtu == null) {
-			System.err.println("FIXME onSuccess null in measurementView");
-			return;
-		}
-		
-		if (ptuId != newPtu.getPtuId()) {
-			System.err.println("PtuId "
-					+ newPtu.getPtuId() + " != " + ptuId
-					+ ", abandoned");
-			return;
+		if (registration != null) {
+			registration.removeHandler();
+			registration = null;
 		}
 
-		ptu  = newPtu;
-		
+		if (newPtu == null) {
+			ptu = new Ptu();
+			System.err.println("======> PTU = " + null);
+		} else {
+			ptu = newPtu;
+			System.err.println("======> PTU = " + ptu.getPtuId());
+
+			registration = PtuChangedEvent.register(eventBus,
+					new PtuChangedEvent.Handler() {
+
+						@Override
+						public void onPtuChanged(PtuChangedEvent event) {
+							if (event.getPtu().getPtuId() == ptu.getPtuId()) {
+								ptu = event.getPtu();
+								updatePtu();
+							} else {
+								System.err.println("Ignoring "+event.getPtu().getPtuId());
+							}
+						}
+					});
+		}
+
+		updatePtu();
+	}
+
+	private void updatePtu() {
+		System.err.println("Updating PTU "+ptu.getPtuId());
 		// FIXME maybe a better way
 		List<Measurement<?>> list = dataProvider.getList();
 		list.clear();
+
 		list.addAll(ptu.getMeasurements());
-		
+
 		// Resort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
-		table.redraw();	
+		table.redraw();
 	}
 }

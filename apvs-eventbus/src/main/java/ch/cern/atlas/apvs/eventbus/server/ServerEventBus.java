@@ -29,7 +29,7 @@ public class ServerEventBus extends SimpleRemoteEventBus {
 	}
 
 	@Override
-	public void fireEventFromSource(RemoteEvent<?> event, Object source) {
+	public void fireEventFromSource(RemoteEvent<?> event, int uuid) {
 		doFire(event);
 	}
 

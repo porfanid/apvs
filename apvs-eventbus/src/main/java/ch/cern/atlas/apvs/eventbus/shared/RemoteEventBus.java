@@ -10,7 +10,7 @@ public interface RemoteEventBus {
 	public <H> HandlerRegistration addHandler(Type<H> type, H handler);
 
 	public <H> HandlerRegistration addHandlerToSource(Type<H> type,
-			Object source, H handler);
+			int uuid, H handler);
 
 	public void fireEvent(Event<?> event);
 
@@ -18,5 +18,5 @@ public interface RemoteEventBus {
 
 	public void fireEvent(RemoteEvent<?> event);
 
-	public void fireEventFromSource(RemoteEvent<?> event, Object source);
+	public void fireEventFromSource(RemoteEvent<?> event, int uuid);
 }
