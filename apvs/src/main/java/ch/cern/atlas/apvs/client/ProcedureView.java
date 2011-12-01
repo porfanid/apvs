@@ -10,7 +10,7 @@ import com.google.web.bindery.event.shared.EventBus;
 public class ProcedureView extends SimplePanel {
 
 	// FIXME
-	private final String procedureURL = "http://192.168.1.20:8890/apvs-proc";
+	private final String procedureURL = "http://localhost:8890/apvs-procs";
 	private String procedure = "mural-m4v";
 	private int step = 1;
 	private String extension = ".m4v";
