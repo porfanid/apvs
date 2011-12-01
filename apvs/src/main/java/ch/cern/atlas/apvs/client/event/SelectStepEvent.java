@@ -1,10 +1,14 @@
 package ch.cern.atlas.apvs.client.event;
 
-import com.google.web.bindery.event.shared.Event;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectStepEvent extends Event<SelectStepEvent.Handler> {
+public class SelectStepEvent extends RemoteEvent<SelectStepEvent.Handler> {
+
+	private static final long serialVersionUID = 8083231975565002912L;
 
 	public interface Handler {
 		/**
@@ -27,13 +31,16 @@ public class SelectStepEvent extends Event<SelectStepEvent.Handler> {
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(EventBus eventBus,
+	public static HandlerRegistration register(RemoteEventBus eventBus,
 			SelectStepEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	private final int step, total;
-	private final boolean previous, next;
+	private int step, total;
+	private boolean previous, next;
+	
+	public SelectStepEvent() {
+	}
 
 	public SelectStepEvent(int step, int total, boolean hasPrevious, boolean hasNext) {
 		this.step = step;

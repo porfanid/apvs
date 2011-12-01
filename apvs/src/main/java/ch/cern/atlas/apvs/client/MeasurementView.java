@@ -11,7 +11,7 @@ import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
-import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
@@ -46,10 +46,10 @@ public class MeasurementView extends SimplePanel {
 	private HandlerRegistration registration;
 	private PtuServiceAsync ptuService;
 
-	private SimpleRemoteEventBus eventBus;
+	private RemoteEventBus eventBus;
 	private Ptu ptu = new Ptu();
 
-	public MeasurementView(SimpleRemoteEventBus eventBus,
+	public MeasurementView(RemoteEventBus eventBus,
 			DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
 		this.eventBus = eventBus;
 		this.ptuService = ptuService;

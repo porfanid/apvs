@@ -2,10 +2,10 @@ package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.web.bindery.event.shared.EventBus;
 
 public class ProcedureView extends SimplePanel {
 
@@ -21,9 +21,9 @@ public class ProcedureView extends SimplePanel {
 	// FIXME...
 	private final int firstStep = 1;
 	private final int lastStep = 6;
-	private EventBus eventBus;
+	private RemoteEventBus eventBus;
 
-	public ProcedureView(EventBus eventBus) {
+	public ProcedureView(RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
 		
 		NavigateStepEvent.register(eventBus, new NavigateStepEvent.Handler() {

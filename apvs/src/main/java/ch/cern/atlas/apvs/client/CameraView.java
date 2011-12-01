@@ -1,8 +1,9 @@
 package ch.cern.atlas.apvs.client;
 
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.web.bindery.event.shared.EventBus;
 
 public class CameraView extends SimplePanel {
 
@@ -12,9 +13,9 @@ public class CameraView extends SimplePanel {
 	private int videoHeight = 360;
 	private String videoPoster = "camera.jpg"; // FIXME
 	@SuppressWarnings("unused")
-	private EventBus eventBus;
+	private RemoteEventBus eventBus;
 
-	public CameraView(EventBus eventBus) {
+	public CameraView(RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
 
 		String source = cameraURL;

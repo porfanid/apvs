@@ -1,10 +1,14 @@
 package ch.cern.atlas.apvs.client.event;
 
-import com.google.web.bindery.event.shared.Event;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectDosimeterEvent extends Event<SelectDosimeterEvent.Handler> {
+public class SelectDosimeterEvent extends RemoteEvent<SelectDosimeterEvent.Handler> {
+
+	private static final long serialVersionUID = 3684090069329583327L;
 
 	public interface Handler {
 		/**
@@ -27,12 +31,15 @@ public class SelectDosimeterEvent extends Event<SelectDosimeterEvent.Handler> {
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(EventBus eventBus,
+	public static HandlerRegistration register(RemoteEventBus eventBus,
 			SelectDosimeterEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	private final int serialNo;
+	private int serialNo;
+	
+	public SelectDosimeterEvent() {
+	}
 
 	public SelectDosimeterEvent(int serialNo) {
 		this.serialNo = serialNo;

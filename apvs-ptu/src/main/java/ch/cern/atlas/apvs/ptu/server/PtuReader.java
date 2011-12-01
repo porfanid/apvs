@@ -13,7 +13,9 @@ import java.util.TreeSet;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
+import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.cedarsoftware.util.io.JsonReader;
 

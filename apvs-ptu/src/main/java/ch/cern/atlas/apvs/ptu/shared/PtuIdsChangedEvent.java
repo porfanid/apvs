@@ -1,12 +1,16 @@
-package ch.cern.atlas.apvs.ptu.server;
+package ch.cern.atlas.apvs.ptu.shared;
 
 import java.util.List;
 
-import com.google.web.bindery.event.shared.Event;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class PtuIdsChangedEvent extends Event<PtuIdsChangedEvent.Handler> {
+public class PtuIdsChangedEvent extends RemoteEvent<PtuIdsChangedEvent.Handler> {
+
+	private static final long serialVersionUID = -3179096931692618042L;
 
 	public interface Handler {
 		/**
@@ -29,12 +33,15 @@ public class PtuIdsChangedEvent extends Event<PtuIdsChangedEvent.Handler> {
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(EventBus eventBus,
+	public static HandlerRegistration register(RemoteEventBus eventBus,
 			PtuIdsChangedEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	private final List<Integer> ptuIds;
+	private List<Integer> ptuIds;
+	
+	public PtuIdsChangedEvent() {
+	}
 
 	public PtuIdsChangedEvent(List<Integer> ptuIds) {
 		this.ptuIds = ptuIds;
@@ -52,5 +59,10 @@ public class PtuIdsChangedEvent extends Event<PtuIdsChangedEvent.Handler> {
 	@Override
 	protected void dispatch(Handler handler) {
 		handler.onPtuIdsChanged(this);
+	}
+	
+	@Override
+	public String toString() {
+		return "PtuIdsChangedEvent "+ptuIds.size();
 	}
 }

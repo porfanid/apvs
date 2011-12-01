@@ -5,6 +5,7 @@ import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
@@ -12,22 +13,24 @@ import com.google.gwt.place.shared.PlaceController;
 
 public class APVSClientFactory implements ClientFactory {
 	private SimpleRemoteEventBus eventBus;
-	private final PlaceController placeController = new PlaceController(
-			eventBus);
-	private final DosimeterServiceAsync dosimeterService = GWT.create(DosimeterService.class);
+	private final PlaceController placeController;
+	private final DosimeterServiceAsync dosimeterService = GWT
+			.create(DosimeterService.class);
 	private final PtuServiceAsync ptuService = GWT.create(PtuService.class);
-	
-//	private final HelloView helloView = new HelloViewImpl();
-//	private final GoodbyeView goodbyeView = new GoodbyeViewImpl();
-	
+
+	// private final HelloView helloView = new HelloViewImpl();
+	// private final GoodbyeView goodbyeView = new GoodbyeViewImpl();
+
 	public APVSClientFactory() {
-//		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
-//		eventBus = new AtmosphereEventBus(serializer);
+		// AtmosphereGWTSerializer serializer =
+		// GWT.create(EventSerializer.class);
+		// eventBus = new AtmosphereEventBus(serializer);
 		eventBus = new PollEventBus();
+		placeController = new PlaceController(eventBus);
 	}
 
 	@Override
-	public SimpleRemoteEventBus getEventBus() {
+	public RemoteEventBus getEventBus() {
 		return eventBus;
 	}
 

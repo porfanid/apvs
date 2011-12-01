@@ -6,7 +6,7 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
-import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -22,7 +22,7 @@ public class PtuSelector extends SimplePanel {
 	private PtuServiceAsync ptuService;
 	private List<Integer> ptuIds = new ArrayList<Integer>();
 
-	public PtuSelector(final SimpleRemoteEventBus eventBus,
+	public PtuSelector(final RemoteEventBus eventBus,
 			PtuServiceAsync ptuService) {
 		this.ptuService = ptuService;
 

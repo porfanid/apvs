@@ -23,7 +23,7 @@ import ch.cern.atlas.apvs.client.places.Settings;
 import ch.cern.atlas.apvs.client.places.User;
 import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
-import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -32,7 +32,6 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.rpc.StatusCodeException;
@@ -58,7 +57,7 @@ public class APVS implements EntryPoint {
 	Logger logger = Logger.getLogger(getClass().getName());
 	Window screen;
 
-	SimpleRemoteEventBus eventBus;
+	RemoteEventBus eventBus;
 	PlaceController placeController;
 	Label clientId = new Label();
 
@@ -91,7 +90,7 @@ public class APVS implements EntryPoint {
 		p = RootPanel.get("measurementView");
 		if (p != null) {
 			// FIXME
-//			p.add(new DosimeterSelector(eventBus));
+//			p.add(new DosimeterSelector(eventBus, dosimeterService));
 			p.add(new PtuSelector(eventBus, ptuService));
 			p.add(new MeasurementView(eventBus, dosimeterService, ptuService));
 			return;
@@ -123,7 +122,7 @@ public class APVS implements EntryPoint {
 		client = new AtmosphereClient(GWT.getModuleBaseURL() + "apvsComet",
 				serializer, cometListener);
 		client.start();
-
+/*
 		eventBus.addHandler(PlaceChangeEvent.TYPE,
 				new PlaceChangeEvent.Handler() {
 					@Override
@@ -137,7 +136,7 @@ public class APVS implements EntryPoint {
 						}
 					}
 				});
-
+*/
 		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
 
 		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
@@ -177,7 +176,7 @@ public class APVS implements EntryPoint {
 				placeController.goTo(new User(client.getConnectionID(), user));
 			}
 		});
-
+/*
 		eventBus.addHandler(PlaceChangeEvent.TYPE,
 				new PlaceChangeEvent.Handler() {
 
@@ -196,7 +195,7 @@ public class APVS implements EntryPoint {
 						}
 					}
 				});
-
+*/
 		return comboBox;
 	}
 
@@ -227,7 +226,7 @@ public class APVS implements EntryPoint {
 				placeController.goTo(place);
 			}
 		});
-
+/*
 		eventBus.addHandler(PlaceChangeEvent.TYPE,
 				new PlaceChangeEvent.Handler() {
 
@@ -241,7 +240,7 @@ public class APVS implements EntryPoint {
 						}
 					}
 				});
-
+*/
 		return stackLayoutPanel;
 	}
 
