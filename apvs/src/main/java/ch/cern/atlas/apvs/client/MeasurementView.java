@@ -266,6 +266,11 @@ public class MeasurementView extends SimplePanel {
 	}
 
 	private void getPtu(final int ptuId) {
+		if (ptuId == -1) {
+			setPtu(null);
+			return;
+		}
+		
 		ptuService.getPtu(ptuId, (long) ptu.hashCode(),
 				new AsyncCallback<Ptu>() {
 
