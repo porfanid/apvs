@@ -5,6 +5,7 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.UUID;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -12,6 +13,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class PollEventBus extends SimpleRemoteEventBus {
 
 	private EventBusServiceAsync eventBusService;
+	private long eventBusUUID = UUID.uuidLong(8);
 
 	public PollEventBus() {
 		eventBusService = GWT.create(EventBusService.class);
@@ -20,7 +22,7 @@ public class PollEventBus extends SimpleRemoteEventBus {
 	}
 
 	/**
-	 * broadcast event and (receive it locally to distribute, below)
+	 * broadcast event
 	 * 
 	 */
 	@Override
@@ -29,8 +31,7 @@ public class PollEventBus extends SimpleRemoteEventBus {
 	}
 
 	/**
-	 * broadcast event and (receive it locally to distribute, below) FIXME
-	 * source is ignored
+	 * broadcast event FIXME source is ignored
 	 * 
 	 */
 	@Override
@@ -39,6 +40,12 @@ public class PollEventBus extends SimpleRemoteEventBus {
 	}
 
 	private void doFire(final RemoteEvent<?> event) {
+		setEventBusUuidOfEvent(event, eventBusUUID);
+
+		// send out locally
+		super.fireEvent(event);
+
+		// send out remote
 		eventBusService.fireEvent(event, new AsyncCallback<Void>() {
 
 			@Override
@@ -55,8 +62,8 @@ public class PollEventBus extends SimpleRemoteEventBus {
 	}
 
 	private void getQueuedEvents() {
-		eventBusService
-				.getQueuedEvents(new AsyncCallback<List<RemoteEvent<?>>>() {
+		eventBusService.getQueuedEvents(eventBusUUID,
+				new AsyncCallback<List<RemoteEvent<?>>>() {
 
 					@Override
 					public void onSuccess(List<RemoteEvent<?>> events) {
@@ -66,7 +73,12 @@ public class PollEventBus extends SimpleRemoteEventBus {
 						// forward events locally
 						for (Iterator<RemoteEvent<?>> i = events.iterator(); i
 								.hasNext();) {
-							PollEventBus.super.fireEvent(i.next());
+
+							RemoteEvent<?> event = i.next();
+							// do not fire your own events
+							if (event.getEventBusUUID() != eventBusUUID) {
+								PollEventBus.super.fireEvent(event);
+							}
 						}
 
 						getQueuedEvents();

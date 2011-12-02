@@ -29,6 +29,10 @@ public class SimpleRemoteEventBus extends SimpleEventBus implements
 		event.setUUID(uuid);
 	}
 
+	protected static void setEventBusUuidOfEvent(RemoteEvent<?> event, long eventBusUUID) {
+		event.setEventBusUUID(eventBusUUID);
+	}
+
 	private interface Command {
 		void execute();
 	}

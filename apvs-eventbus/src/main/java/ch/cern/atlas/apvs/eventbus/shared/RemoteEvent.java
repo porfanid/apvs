@@ -26,7 +26,7 @@ public abstract class RemoteEvent<H> implements Serializable {
 	}
 	
 	private int uuid;
-	private long sourceUUID = Long.parseLong(UUID.uuid(8, 10));
+	private Long eventBusUUID;
 
 	protected RemoteEvent() {
 	}
@@ -37,8 +37,8 @@ public abstract class RemoteEvent<H> implements Serializable {
 		return uuid;
 	}
 
-	public long getSourceUUID() {
-		return sourceUUID;
+	public long getEventBusUUID() {
+		return eventBusUUID;
 	}
 	
 	public String toDebugString() {
@@ -56,5 +56,10 @@ public abstract class RemoteEvent<H> implements Serializable {
 
 	protected void setUUID(int uuid) {
 		this.uuid = uuid;
+	}
+
+	protected void setEventBusUUID(long eventBusUUID) {
+		assert(this.eventBusUUID == null);
+		this.eventBusUUID = eventBusUUID;
 	}
 }

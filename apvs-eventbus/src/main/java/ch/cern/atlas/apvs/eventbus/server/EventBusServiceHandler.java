@@ -2,7 +2,12 @@ package ch.cern.atlas.apvs.eventbus.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.ServletConfig;
@@ -17,10 +22,14 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 public class EventBusServiceHandler extends AtmospherePollService implements
 		EventBusService {
 
-	private SuspendInfo info;
 	private ServerEventBus eventBus;
-	private LinkedBlockingQueue<RemoteEvent<?>> eventQueue = new LinkedBlockingQueue<RemoteEvent<?>>();
+	private Map<Long, ClientInfo> clients = new HashMap<Long, EventBusServiceHandler.ClientInfo>();
 
+	class ClientInfo {
+		SuspendInfo suspendInfo;
+		BlockingQueue<RemoteEvent<?>> eventQueue = new LinkedBlockingQueue<RemoteEvent<?>>();
+	}
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
@@ -30,64 +39,90 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 		eventBus.setEventBusServiceHandler(this);
 	}
 
+	/**
+	 * Incoming event from client
+	 * Broadcast it to all other clients
+	 * Forward it to server event bus
+	 */
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
-		System.err.println("Server: Received event..." + event);
+		System.err.println("Server: Received event..." + event+" "+event.getEventBusUUID());
 		sendToRemote(event);
 
 		eventBus.forwardEvent(event);
 	}
 
+	/**
+	 * Provide available events for the eventbus of the client
+	 */
 	@Override
-	public List<RemoteEvent<?>> getQueuedEvents() {
+	public synchronized List<RemoteEvent<?>> getQueuedEvents(Long eventBusUUID) {
+		BlockingQueue<RemoteEvent<?>> eventQueue = getEventQueue(eventBusUUID);
 		List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
 		if (eventQueue.drainTo(events) > 0) {
 			System.err.println("Server: getting next events..." + events.size());
 			return events;
 		}
 		System.err.println("Server: getting next event...");
-		info = suspend();
+		clients.get(eventBusUUID).suspendInfo = suspend();
 		return null;
 	}
 
-	public void forwardEvent(RemoteEvent<?> event) {
+	/**
+	 * Incoming event from server bus, broadcast to all clients
+	 * @param event
+	 */
+    void forwardEvent(RemoteEvent<?> event) {
 		// System.err.println("Server: Forward event..."+event);
 		sendToRemote(event);
 	}
 
-	private void sendToRemote(RemoteEvent<?> event) {
+	private synchronized void sendToRemote(RemoteEvent<?> event) {
 		if (event == null) {
 			System.err.println("*S**S*S* event is null");
 			return;
 		}
-
-		// FIXME we need to make sure that ALL events get routed to ALL
-		// receivers
-		// we need a queue per requester on uuid
-		// need to empty those queueus sometimes (timer)
-		// keep an info object per uuid
-		eventQueue.add(event);
-
-		purgeQueue();
-	}
-
-	// FIXME the call for next event should ask for list of.
-	private void purgeQueue() {
-		if (info != null) {
-			List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
-			if (eventQueue.drainTo(events) > 0) {
-				try {
-					info.writeAndResume(events);
-					System.err.println("Sending events..." + events.size());
-					info = null;
-				} catch (IOException e) {
-					System.err
-							.println("Server: Could not write and resume event "
-									+ e);
-				}
+		
+		// add event to all the queues (except its own)
+		for (Iterator<Entry<Long, ClientInfo>> i = clients.entrySet().iterator(); i.hasNext(); ) {
+			Entry<Long, ClientInfo> entry = i.next();
+			if (event.getEventBusUUID() != entry.getKey()) {
+				entry.getValue().eventQueue.add(event);
 			}
 		}
 
+		purgeQueues();
 	}
 
+	private void purgeQueues() {
+		
+		for (Iterator<ClientInfo> i = clients.values().iterator(); i.hasNext(); ) {
+			ClientInfo client = i.next();
+			if (client.suspendInfo != null) {
+				List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
+				if (client.eventQueue.drainTo(events) > 0) {
+					try {
+						client.suspendInfo.writeAndResume(events);
+						System.err.println("Sending events..." + events.size());
+						client.suspendInfo = null;
+					} catch (IOException e) {
+						System.err
+								.println("Server: Could not write and resume event "
+										+ e);
+					}
+				}
+			}
+		}
+		
+
+	}
+
+	private BlockingQueue<RemoteEvent<?>> getEventQueue(Long uuid) {
+		ClientInfo info = clients.get(uuid);
+		if (info == null) {
+			info = new ClientInfo();
+			clients.put(uuid, info);
+		}
+		return info.eventQueue;
+	}
 }

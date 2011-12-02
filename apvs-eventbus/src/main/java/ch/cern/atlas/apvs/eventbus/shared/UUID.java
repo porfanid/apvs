@@ -63,4 +63,8 @@ public class UUID {
 		}
 		return new String(uuid);
 	}
+
+	public static long uuidLong(int len) {
+		return Long.parseLong(uuid(len, 10));
+	}
 }

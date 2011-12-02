@@ -15,6 +15,6 @@ public interface EventBusService extends RemoteService {
 	
 	public void fireEvent(RemoteEvent<?> event);
 	
-	public List<RemoteEvent<?>> getQueuedEvents();
+	public List<RemoteEvent<?>> getQueuedEvents(Long eventBusUUID);
 	
 }
