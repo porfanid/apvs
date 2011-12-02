@@ -25,8 +25,8 @@ public class SimpleRemoteEventBus extends SimpleEventBus implements
 		event.dispatch(handler);
 	}
 
-	protected static void setUuidOfEvent(RemoteEvent<?> event, int uuid) {
-		event.setUUID(uuid);
+	protected static void setSourceUuidOfEvent(RemoteEvent<?> event, int uuid) {
+		event.setSourceUUID(uuid);
 	}
 
 	protected static void setEventBusUuidOfEvent(RemoteEvent<?> event, long eventBusUUID) {
@@ -129,7 +129,7 @@ public class SimpleRemoteEventBus extends SimpleEventBus implements
 			firingDepth++;
 
 			if (uuid != 0) {
-				setUuidOfEvent(event, uuid);
+				setSourceUuidOfEvent(event, uuid);
 			}
 
 			List<H> handlers = getDispatchList(event.getAssociatedType(), uuid);

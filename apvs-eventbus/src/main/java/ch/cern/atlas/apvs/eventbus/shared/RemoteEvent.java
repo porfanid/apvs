@@ -33,7 +33,7 @@ public abstract class RemoteEvent<H> implements Serializable {
 
 	public abstract Type<H> getAssociatedType();
 
-	public int getUUID() {
+	public int getSourceUUID() {
 		return uuid;
 	}
 
@@ -54,7 +54,7 @@ public abstract class RemoteEvent<H> implements Serializable {
 
 	protected abstract void dispatch(H handler);
 
-	protected void setUUID(int uuid) {
+	protected void setSourceUUID(int uuid) {
 		this.uuid = uuid;
 	}
 

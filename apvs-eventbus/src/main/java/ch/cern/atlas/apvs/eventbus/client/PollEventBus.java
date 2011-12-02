@@ -5,7 +5,6 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.UUID;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
