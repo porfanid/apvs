@@ -37,12 +37,12 @@ public class MeasurementChangedEvent extends RemoteEvent<MeasurementChangedEvent
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	private Measurement<?> measurement;
+	private Measurement<Double> measurement;
 	
 	public MeasurementChangedEvent() {
 	}
 
-	public MeasurementChangedEvent(Measurement<?> measurement) {
+	public MeasurementChangedEvent(Measurement<Double> measurement) {
 		this.measurement = measurement;
 	}
 
@@ -51,7 +51,7 @@ public class MeasurementChangedEvent extends RemoteEvent<MeasurementChangedEvent
 		return TYPE;
 	}
 
-	public Measurement<?> getMeasurement() {
+	public Measurement<Double> getMeasurement() {
 		return measurement;
 	}
 	
