@@ -2,13 +2,11 @@ package ch.cern.atlas.apvs.eventbus.server;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.UUID;
 
 public class ServerEventBus extends SimpleRemoteEventBus {
 	
 	private static ServerEventBus instance;
 
-	private long eventBusUUID = UUID.uuidLong(8);
 	private EventBusServiceHandler eventBusServiceHandler;
 
 	public static ServerEventBus getInstance() {
@@ -36,7 +34,7 @@ public class ServerEventBus extends SimpleRemoteEventBus {
 	}
 
 	private void doFire(RemoteEvent<?> event) {
-		setEventBusUuidOfEvent(event, eventBusUUID);
+		setEventBusUuidOfEvent(event, getUUID());
 		
 		// send out locally
 		super.fireEvent(event);
@@ -49,7 +47,7 @@ public class ServerEventBus extends SimpleRemoteEventBus {
 
 	public void forwardEvent(RemoteEvent<?> event) {
 		// Only forward events that are not from us
-		if (event.getEventBusUUID() != eventBusUUID) {
+		if (event.getEventBusUUID() != getUUID()) {
 			super.fireEvent(event);
 		}
 	}

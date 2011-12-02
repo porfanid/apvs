@@ -36,6 +36,8 @@ public class SimpleRemoteEventBus extends SimpleEventBus implements
 	private interface Command {
 		void execute();
 	}
+	
+	private long uuid = UUID.uuidLong(8);
 
 	private int firingDepth = 0;
 
@@ -44,6 +46,11 @@ public class SimpleRemoteEventBus extends SimpleEventBus implements
 	private final Map<RemoteEvent.Type<?>, Map<Integer, List<?>>> map = new HashMap<RemoteEvent.Type<?>, Map<Integer, List<?>>>();
 
 	public SimpleRemoteEventBus() {
+	}
+	
+	@Override
+	public long getUUID() {
+		return uuid;
 	}
 
 	@Override

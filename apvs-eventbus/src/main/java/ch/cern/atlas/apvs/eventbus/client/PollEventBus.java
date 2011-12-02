@@ -13,7 +13,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class PollEventBus extends SimpleRemoteEventBus {
 
 	private EventBusServiceAsync eventBusService;
-	private long eventBusUUID = UUID.uuidLong(8);
 
 	public PollEventBus() {
 		eventBusService = GWT.create(EventBusService.class);
@@ -40,7 +39,7 @@ public class PollEventBus extends SimpleRemoteEventBus {
 	}
 
 	private void doFire(final RemoteEvent<?> event) {
-		setEventBusUuidOfEvent(event, eventBusUUID);
+		setEventBusUuidOfEvent(event, getUUID());
 
 		// send out locally
 		super.fireEvent(event);
@@ -62,7 +61,7 @@ public class PollEventBus extends SimpleRemoteEventBus {
 	}
 
 	private void getQueuedEvents() {
-		eventBusService.getQueuedEvents(eventBusUUID,
+		eventBusService.getQueuedEvents(getUUID(),
 				new AsyncCallback<List<RemoteEvent<?>>>() {
 
 					@Override
@@ -76,7 +75,7 @@ public class PollEventBus extends SimpleRemoteEventBus {
 
 							RemoteEvent<?> event = i.next();
 							// do not fire your own events
-							if (event.getEventBusUUID() != eventBusUUID) {
+							if (event.getEventBusUUID() != getUUID()) {
 								PollEventBus.super.fireEvent(event);
 							}
 						}

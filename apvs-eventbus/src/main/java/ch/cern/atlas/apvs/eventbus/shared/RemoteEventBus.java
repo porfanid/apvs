@@ -7,6 +7,8 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public interface RemoteEventBus {
 
+	public long getUUID();
+
 	public <H> HandlerRegistration addHandler(Type<H> type, H handler);
 
 	public <H> HandlerRegistration addHandlerToSource(Type<H> type,
@@ -19,4 +21,5 @@ public interface RemoteEventBus {
 	public void fireEvent(RemoteEvent<?> event);
 
 	public void fireEventFromSource(RemoteEvent<?> event, int uuid);
+
 }

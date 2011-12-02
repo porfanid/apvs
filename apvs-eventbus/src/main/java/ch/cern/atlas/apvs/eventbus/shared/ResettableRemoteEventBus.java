@@ -19,6 +19,11 @@ public class ResettableRemoteEventBus extends ResettableEventBus implements Remo
 		super(wrappedBus);
 		this.wrapped = wrappedBus;
 	}
+	
+	@Override
+	public long getUUID() {
+		return wrapped.getUUID();
+	}
 
 	@Override
 	public <H> HandlerRegistration addHandler(RemoteEvent.Type<H> type, H handler) {

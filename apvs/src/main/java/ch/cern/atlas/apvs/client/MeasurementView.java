@@ -49,7 +49,7 @@ public class MeasurementView extends SimplePanel {
 	private RemoteEventBus eventBus;
 	private Ptu ptu = new Ptu();
 
-	public MeasurementView(RemoteEventBus eventBus,
+	public MeasurementView(final RemoteEventBus eventBus,
 			DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
 		this.eventBus = eventBus;
 		this.ptuService = ptuService;
@@ -71,6 +71,8 @@ public class MeasurementView extends SimplePanel {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
+				if (eventBus.getUUID() != event.getEventBusUUID()) return;
+				
 				getPtu(event.getPtuId());
 			}
 		});

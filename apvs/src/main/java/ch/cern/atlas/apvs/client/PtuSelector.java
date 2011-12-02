@@ -46,6 +46,8 @@ public class PtuSelector extends SimplePanel {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
+				if (eventBus.getUUID() != event.getEventBusUUID()) return;
+				
 				int i = 0;
 				while (i < list.getItemCount()) {
 					if (list.getValue(i).equals(toLabel(event.getPtuId()))) {
