@@ -79,7 +79,7 @@ public class APVS implements EntryPoint {
 		Panel p;
 		p = RootPanel.get("dosimeterView");
 		if (p != null) {
-			p.add(new DosimeterView(dosimeterService));
+			p.add(new DosimeterView(eventBus, dosimeterService));
 			return;
 		}
 		p = RootPanel.get("ptuView");
@@ -89,8 +89,7 @@ public class APVS implements EntryPoint {
 		}
 		p = RootPanel.get("measurementView");
 		if (p != null) {
-			// FIXME
-//			p.add(new DosimeterSelector(eventBus, dosimeterService));
+			p.add(new DosimeterSelector(eventBus, dosimeterService));
 			p.add(new PtuSelector(eventBus, ptuService));
 			p.add(new MeasurementView(eventBus, dosimeterService, ptuService));
 			return;

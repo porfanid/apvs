@@ -40,6 +40,26 @@ public class DosimeterSelector extends SimplePanel {
 			}
 		});
 		
+		SelectDosimeterEvent.register(eventBus, new SelectDosimeterEvent.Handler() {
+			
+			@Override
+			public void onDosimeterSelected(SelectDosimeterEvent event) {
+				if (eventBus.getUUID() != event.getEventBusUUID()) return;
+				
+				int i = 0;
+				while (i < list.getItemCount()) {
+					if (list.getValue(i).equals(toLabel(event.getSerialNo()))) {
+						list.setSelectedIndex(i);
+						break;
+					}
+					i++;
+				}
+				if (i == list.getItemCount()) {
+					list.setSelectedIndex(0);
+				}
+			}
+		});
+		
 		getDosimeterSerialNumbers();		
 	}
 		
@@ -72,5 +92,8 @@ public class DosimeterSelector extends SimplePanel {
 		});
 
 	}
-	
+
+	private String toLabel(int ptuId) {
+		return Integer.toString(ptuId);
+	}
 }

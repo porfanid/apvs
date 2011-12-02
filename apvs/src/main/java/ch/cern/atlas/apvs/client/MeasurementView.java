@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
+import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
 
@@ -38,42 +39,125 @@ public class MeasurementView extends SimplePanel {
 	private CellTable<Measurement<?>> table = new CellTable<Measurement<?>>();
 	private ListHandler<Measurement<?>> columnSortHandler;
 
-	private DosimeterServiceAsync dosimeterService;
-
-	private Dosimeter dosimeter = new Dosimeter();
-	private int serialNo = 0;
-
-	private HandlerRegistration registration;
-	private PtuServiceAsync ptuService;
-
-	private RemoteEventBus eventBus;
-	private Ptu ptu = new Ptu();
+	private Dosimeter dosimeter;
+	private Ptu ptu;
 
 	public MeasurementView(final RemoteEventBus eventBus,
-			DosimeterServiceAsync dosimeterService, PtuServiceAsync ptuService) {
-		this.eventBus = eventBus;
-		this.ptuService = ptuService;
-		this.dosimeterService = dosimeterService;
+			final DosimeterServiceAsync dosimeterService,
+			final PtuServiceAsync ptuService) {
 
 		add(table);
 
 		SelectDosimeterEvent.register(eventBus,
 				new SelectDosimeterEvent.Handler() {
 
+					private HandlerRegistration registration;
+
 					@Override
-					public void onDosimeterSelected(SelectDosimeterEvent event) {
-						serialNo = event.getSerialNo();
-						getDosimeter();
+					public void onDosimeterSelected(final SelectDosimeterEvent event) {
+						if (eventBus.getUUID() != event.getEventBusUUID())
+							return;
+
+						dosimeterService.getDosimeter(event.getSerialNo(),
+								(long) (dosimeter != null ? dosimeter.hashCode() : 0),
+								new AsyncCallback<Dosimeter>() {
+
+									@Override
+									public void onSuccess(Dosimeter result) {
+										// unregister any remaining handler
+										if (registration != null) {
+											registration.removeHandler();
+											registration = null;
+										}
+
+										// set result
+										dosimeter = result;
+
+										// register a new handler
+										if (dosimeter != null) {
+											registration = DosimeterChangedEvent
+													.register(
+															eventBus,
+															new DosimeterChangedEvent.Handler() {
+
+																@Override
+																public void onDosimeterChanged(
+																		DosimeterChangedEvent event) {
+																	if (event
+																			.getDosimeter()
+																			.getSerialNo() == dosimeter
+																			.getSerialNo()) {
+																		dosimeter = event
+																				.getDosimeter();
+																		update();
+																	}
+																}
+															});
+										}
+
+										update();
+									}
+
+									@Override
+									public void onFailure(Throwable caught) {
+										GWT.log("Could not retrieve dosimeter "
+												+ event.getSerialNo());
+									}
+								});
 					}
 				});
 
 		SelectPtuEvent.register(eventBus, new SelectPtuEvent.Handler() {
 
+			private HandlerRegistration registration;
+
 			@Override
-			public void onPtuSelected(SelectPtuEvent event) {
-				if (eventBus.getUUID() != event.getEventBusUUID()) return;
-				
-				getPtu(event.getPtuId());
+			public void onPtuSelected(final SelectPtuEvent event) {
+				if (eventBus.getUUID() != event.getEventBusUUID())
+					return;
+
+				ptuService.getPtu(event.getPtuId(), (long) (ptu != null ? ptu.hashCode() : 0),
+						new AsyncCallback<Ptu>() {
+
+							@Override
+							public void onSuccess(Ptu result) {
+								// unregister any remaining handler
+								if (registration != null) {
+									registration.removeHandler();
+									registration = null;
+								}
+
+								// set result
+								ptu = result;
+
+								// register a new handler
+								if (ptu != null) {
+									registration = PtuChangedEvent.register(
+											eventBus,
+											new PtuChangedEvent.Handler() {
+
+												@Override
+												public void onPtuChanged(
+														PtuChangedEvent event) {
+													if (event.getPtu()
+															.getPtuId() == ptu
+															.getPtuId()) {
+														ptu = event.getPtu();
+														update();
+													}
+												}
+											});
+								}
+
+								update();
+							}
+
+							@Override
+							public void onFailure(Throwable caught) {
+								GWT.log("Could not retrieve ptu "
+										+ event.getPtuId());
+							}
+						});
 			}
 		});
 
@@ -110,7 +194,8 @@ public class MeasurementView extends SimplePanel {
 			public void render(Context context, Measurement<?> object,
 					SafeHtmlBuilder sb) {
 				String s = getValue(object);
-				if ((object != null)
+				// FIXME does not work for dosimeter
+				if ((object != null) && (ptu != null)
 						&& object.getName().equals(ptu.getLastChanged())) {
 					String a;
 					switch (ptu.getState()) {
@@ -215,118 +300,21 @@ public class MeasurementView extends SimplePanel {
 		table.getColumnSortList().push(name);
 	}
 
-	private void getDosimeter() {
-		dosimeterService.getDosimeter(serialNo, (long) dosimeter.hashCode(),
-				new AsyncCallback<Dosimeter>() {
-
-					@Override
-					public void onSuccess(Dosimeter result) {
-						if (result == null) {
-							System.err
-									.println("FIXME onSuccess null in measurementView");
-							return;
-						}
-
-						if (serialNo != result.getSerialNo()) {
-							System.err.println("SerialNo "
-									+ result.getSerialNo() + " != " + serialNo
-									+ ", abandoned");
-							return;
-						}
-
-						dosimeter = result;
-
-						// FIXME we always get two, we need to replace the
-						// previous ones...
-						List<Measurement<?>> list = dataProvider.getList();
-						list.set(
-								0,
-								new Measurement<Double>("Dose", dosimeter
-										.getDose(), "&micro;Sv"));
-						list.set(
-								1,
-								new Measurement<Double>("Rate", dosimeter
-										.getRate(), "&micro;Sv/h"));
-
-						// Resort the table
-						ColumnSortEvent.fire(table, table.getColumnSortList());
-						table.redraw();
-
-						getDosimeter();
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						GWT.log("Could not retrieve dosimeter");
-
-						getDosimeter();
-					}
-				});
-
-	}
-
-	private void getPtu(final int ptuId) {
-		if (ptuId == -1) {
-			setPtu(null);
-			return;
-		}
-		
-		ptuService.getPtu(ptuId, (long) ptu.hashCode(),
-				new AsyncCallback<Ptu>() {
-
-					@Override
-					public void onSuccess(Ptu result) {
-						setPtu(result);
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						GWT.log("Could not retrieve ptu " + ptuId);
-					}
-				});
-
-	}
-
-	private void setPtu(Ptu newPtu) {
-		if (registration != null) {
-			registration.removeHandler();
-			registration = null;
-		}
-
-		if (newPtu == null) {
-			ptu = new Ptu();
-			System.err.println("======> PTU = " + null);
-		} else {
-			ptu = newPtu;
-			System.err.println("======> PTU = " + ptu.getPtuId());
-
-			registration = PtuChangedEvent.register(eventBus,
-					new PtuChangedEvent.Handler() {
-
-						@Override
-						public void onPtuChanged(PtuChangedEvent event) {
-							if (event.getPtu().getPtuId() == ptu.getPtuId()) {
-								ptu = event.getPtu();
-								updatePtu();
-							} else {
-								System.err.println("Ignoring "+event.getPtu().getPtuId());
-							}
-						}
-					});
-		}
-
-		updatePtu();
-	}
-
-	private void updatePtu() {
-		System.err.println("Updating PTU "+ptu.getPtuId());
+	private void update() {
 		// FIXME maybe a better way
 		List<Measurement<?>> list = dataProvider.getList();
 		list.clear();
 
-		list.addAll(ptu.getMeasurements());
+		if (ptu != null) {
+			list.addAll(ptu.getMeasurements());
+		}
+		
+		if (dosimeter != null) {
+			list.add(new Measurement<Double>("Radiation Rate", dosimeter.getRate(), "&micro;Sv/h"));
+			list.add(new Measurement<Double>("Radiation Dose", dosimeter.getDose(), "&micro;Sv"));
+		}
 
-		// Resort the table
+		// Re-sort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 	}

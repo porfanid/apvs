@@ -13,7 +13,7 @@ import javax.servlet.ServletException;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
-import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
@@ -34,7 +34,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 	private boolean stopped = false;
 	private PtuReader ptuReader;
 
-	private SimpleRemoteEventBus eventBus;
+	private RemoteEventBus eventBus;
 
 	public PtuServiceImpl() {
 		System.out.println("Creating PtuService...");
@@ -58,7 +58,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 			if (ptuReader == null) {
 				try {
 					Socket socket = new Socket(host, port);
-					System.err.println("Connected to " + name + " on " + host
+					System.out.println("Connected to " + name + " on " + host
 							+ ":" + port);
 
 					PtuWriter ptuWriter = new PtuWriter(socket);
@@ -88,6 +88,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 								}
 							});
 */
+
 					MeasurementChangedEvent.register(eventBus,
 							new MeasurementChangedEvent.Handler() {
 								@Override

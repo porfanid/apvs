@@ -14,6 +14,7 @@
 
 	<inherits name="ch.cern.atlas.apvs.Domain" />
     <inherits name="ch.cern.atlas.apvs.eventbus.EventBus" />
+    <inherits name="ch.cern.atlas.apvs.dosimeter.Dosimeter" />
     <inherits name="ch.cern.atlas.apvs.ptu.Ptu" />
 
 	<!-- inherit css based theme -->

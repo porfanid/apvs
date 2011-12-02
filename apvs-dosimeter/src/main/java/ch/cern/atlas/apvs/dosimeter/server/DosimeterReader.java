@@ -11,22 +11,18 @@ import java.util.List;
 import java.util.Map;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
+import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
+import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.event.shared.HandlerRegistration;
+public class DosimeterReader implements Runnable {
 
-public class DosimeterReader implements Runnable,
-		HasValueChangeHandlers<Map<Integer, Dosimeter>> {
-
+	private RemoteEventBus eventBus;
 	private Socket socket;
 	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
-	private HandlerManager handlerManager = new HandlerManager(this);
 
-	public DosimeterReader(Socket socket) {
+	public DosimeterReader(RemoteEventBus eventBus, Socket socket) {
+		this.eventBus = eventBus;
 		this.socket = socket;
 	}
 
@@ -40,9 +36,14 @@ public class DosimeterReader implements Runnable,
 				String line;
 				while ((line = is.readLine()) != null) {
 					Dosimeter dosimeter = DosimeterCoder.decode(line);
+					
+					boolean serialNumbersChanged = !dosimeters.containsKey(dosimeter.getSerialNo());
 					dosimeters.put(dosimeter.getSerialNo(), dosimeter);
 
-					ValueChangeEvent.fire(this, dosimeters);
+					if (serialNumbersChanged) {
+						eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(new ArrayList<Integer>(dosimeters.keySet())));	
+					}
+					eventBus.fireEvent(new DosimeterChangedEvent(dosimeter));
 				}
 			}
 		} catch (IOException e) {
@@ -54,6 +55,10 @@ public class DosimeterReader implements Runnable,
 				// ignore
 			}
 		}
+	}
+
+	public void close() throws IOException {
+		socket.close();
 	}
 
 	public List<Integer> getDosimeterSerialNumbers() {
@@ -68,20 +73,5 @@ public class DosimeterReader implements Runnable,
 
 	public Map<Integer, Dosimeter> getDosimeterMap() {
 		return dosimeters;
-	}
-
-	@Override
-	public HandlerRegistration addValueChangeHandler(
-			ValueChangeHandler<Map<Integer, Dosimeter>> handler) {
-		return handlerManager.addHandler(ValueChangeEvent.getType(), handler);
-	}
-
-	@Override
-	public void fireEvent(GwtEvent<?> event) {
-		handlerManager.fireEvent(event);
-	}
-
-	public void close() throws IOException {
-		socket.close();
 	}
 }

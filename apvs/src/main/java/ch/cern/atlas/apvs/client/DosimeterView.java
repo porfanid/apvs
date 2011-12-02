@@ -10,6 +10,7 @@ import java.util.Map;
 
 import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.domain.Dosimeter;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
@@ -81,7 +82,7 @@ public class DosimeterView extends SimplePanel {
 		}
 	};
 
-	public DosimeterView(DosimeterServiceAsync dosimeterService) {
+	public DosimeterView(RemoteEventBus eventBus, DosimeterServiceAsync dosimeterService) {
 		this.dosimeterService = dosimeterService;
 		
 		add(table);

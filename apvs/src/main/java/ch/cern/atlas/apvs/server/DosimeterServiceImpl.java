@@ -14,6 +14,9 @@ import ch.cern.atlas.apvs.client.service.DosimeterService;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterWriter;
+import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
+import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
 /**
@@ -29,9 +32,11 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 	private static final int RECONNECT_INTERVAL = 20000;
 	private boolean stopped = false;
 	private DosimeterReader dosimeterReader;
+	private RemoteEventBus eventBus;
 
 	public DosimeterServiceImpl() {
 		System.out.println("Creating DosimeterService...");
+		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
 	
 	@Override
@@ -50,19 +55,32 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 			if (dosimeterReader == null) {
 				try {
 					Socket socket = new Socket(host, port);
-					System.err.println("Connected to "+name+" on "+host+":"+port);
+					System.out.println("Connected to "+name+" on "+host+":"+port);
 					
 					DosimeterWriter dosimeterWriter = new DosimeterWriter(socket);
 					Thread writer = new Thread(dosimeterWriter);
 					writer.start();
 
-					dosimeterReader = new DosimeterReader(socket);
-					dosimeterReader
-							.addValueChangeHandler(getSerialNumbersResponseHandler);
-					dosimeterReader
-							.addValueChangeHandler(getDosimeterResponseHandler);
-					dosimeterReader
-							.addValueChangeHandler(getDosimeterMapResponseHandler);
+					dosimeterReader = new DosimeterReader(eventBus, socket);
+					
+					// we can probablye get rid of these, as events will travel to the view directly FIXME
+					DosimeterSerialNumbersChangedEvent.register(eventBus, new DosimeterSerialNumbersChangedEvent.Handler() {
+						
+						@Override
+						public void onDosimeterSerialNumbersChanged(
+								DosimeterSerialNumbersChangedEvent event) {
+							getSerialNumbersResponseHandler.onValueChange(event.getDosimeterSerialNumbers());
+						}
+					});
+					
+					DosimeterChangedEvent.register(eventBus, new DosimeterChangedEvent.Handler() {
+						
+						@Override
+						public void onDosimeterChanged(DosimeterChangedEvent event) {
+							getDosimeterResponseHandler.onValueChange(event.getDosimeter());
+						}
+					});
+
 					Thread reader = new Thread(dosimeterReader);
 					reader.start();
 					reader.join();
@@ -104,31 +122,31 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 		}
 	}
 
-	private ResponseHandler<Map<Integer, Dosimeter>, List<Integer>> getSerialNumbersResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>, List<Integer>>(
+	private ResponseHandler<List<Integer>, List<Integer>> getSerialNumbersResponseHandler = new ResponseHandler<List<Integer>, List<Integer>>(
 			this);
 
 	@Override
 	public List<Integer> getSerialNumbers(long currentHashCode) {
 		return getSerialNumbersResponseHandler.respond(currentHashCode,
-				new Response<Map<Integer, Dosimeter>, List<Integer>>() {
+				new Response<List<Integer>, List<Integer>>() {
 
 					@Override
-					public List<Integer> getValue(Map<Integer, Dosimeter> object) {
+					public List<Integer> getValue(List<Integer> object) {
 						return dosimeterReader != null ? dosimeterReader.getDosimeterSerialNumbers() : null;
 					}
 				});
 	}
 
-	private ResponseHandler<Map<Integer, Dosimeter>, Dosimeter> getDosimeterResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>, Dosimeter>(
+	private ResponseHandler<Dosimeter, Dosimeter> getDosimeterResponseHandler = new ResponseHandler<Dosimeter, Dosimeter>(
 			this);
 
 	@Override
 	public Dosimeter getDosimeter(final int serialNo, long currentHashCode) {
 		return getDosimeterResponseHandler.respond(currentHashCode,
-				new Response<Map<Integer, Dosimeter>, Dosimeter>() {
+				new Response<Dosimeter, Dosimeter>() {
 
 					@Override
-					public Dosimeter getValue(Map<Integer, Dosimeter> object) {
+					public Dosimeter getValue(Dosimeter object) {
 						return dosimeterReader != null ? dosimeterReader.getDosimeter(serialNo) : null;
 					}
 				});
