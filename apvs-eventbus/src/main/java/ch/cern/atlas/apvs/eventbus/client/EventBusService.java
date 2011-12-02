@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.eventbus.client;
 
+import java.util.List;
+
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -13,6 +15,6 @@ public interface EventBusService extends RemoteService {
 	
 	public void fireEvent(RemoteEvent<?> event);
 	
-	public RemoteEvent<?> getNextEvent();
+	public List<RemoteEvent<?>> getQueuedEvents();
 	
 }

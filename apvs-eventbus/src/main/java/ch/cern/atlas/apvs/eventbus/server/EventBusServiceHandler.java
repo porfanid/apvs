@@ -1,7 +1,9 @@
 package ch.cern.atlas.apvs.eventbus.server;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -17,7 +19,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 
 	private SuspendInfo info;
 	private ServerEventBus eventBus;
-	private ConcurrentLinkedQueue<RemoteEvent<?>> eventQueue = new ConcurrentLinkedQueue<RemoteEvent<?>>();
+	private LinkedBlockingQueue<RemoteEvent<?>> eventQueue = new LinkedBlockingQueue<RemoteEvent<?>>();
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -37,11 +39,11 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	}
 
 	@Override
-	public RemoteEvent<?> getNextEvent() {
-		RemoteEvent<?> event = eventQueue.poll();
-		if (event != null) {
-			System.err.println("Server: getting next event..." + event);
-			return event;
+	public List<RemoteEvent<?>> getQueuedEvents() {
+		List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
+		if (eventQueue.drainTo(events) > 0) {
+			System.err.println("Server: getting next events..." + events.size());
+			return events;
 		}
 		System.err.println("Server: getting next event...");
 		info = suspend();
@@ -72,11 +74,11 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	// FIXME the call for next event should ask for list of.
 	private void purgeQueue() {
 		if (info != null) {
-			RemoteEvent<?> event = eventQueue.poll();
-			if (event != null) {
+			List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
+			if (eventQueue.drainTo(events) > 0) {
 				try {
-					info.writeAndResume(event);
-					System.err.println("Sending event..." + event);
+					info.writeAndResume(events);
+					System.err.println("Sending events..." + events.size());
 					info = null;
 				} catch (IOException e) {
 					System.err

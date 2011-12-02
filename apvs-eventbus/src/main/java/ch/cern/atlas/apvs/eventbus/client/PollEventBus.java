@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.eventbus.client;
 
+import java.util.Iterator;
+import java.util.List;
+
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 
@@ -13,7 +16,7 @@ public class PollEventBus extends SimpleRemoteEventBus {
 	public PollEventBus() {
 		eventBusService = GWT.create(EventBusService.class);
 
-		getNextEvent();
+		getQueuedEvents();
 	}
 
 	/**
@@ -51,25 +54,31 @@ public class PollEventBus extends SimpleRemoteEventBus {
 		});
 	}
 
-	private void getNextEvent() {
-		eventBusService.getNextEvent(new AsyncCallback<RemoteEvent<?>>() {
+	private void getQueuedEvents() {
+		eventBusService
+				.getQueuedEvents(new AsyncCallback<List<RemoteEvent<?>>>() {
 
-			@Override
-			public void onSuccess(RemoteEvent<?> event) {
-//				System.err.println("Client: Received event..." + event);
-				
-				// forward event locally
-				PollEventBus.super.fireEvent(event);
-				
-				getNextEvent();
-			}
+					@Override
+					public void onSuccess(List<RemoteEvent<?>> events) {
+						// System.err.println("Client: Received event..." +
+						// event);
 
-			@Override
-			public void onFailure(Throwable caught) {
-				System.err.println("Failed to get next event " + caught);
-				
-				getNextEvent();
-			}
-		});
+						// forward events locally
+						for (Iterator<RemoteEvent<?>> i = events.iterator(); i
+								.hasNext();) {
+							PollEventBus.super.fireEvent(i.next());
+						}
+
+						getQueuedEvents();
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						System.err
+								.println("Failed to get next event " + caught);
+
+						getQueuedEvents();
+					}
+				});
 	}
 }
