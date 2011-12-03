@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 public class DosimeterReader implements Runnable {
 
@@ -21,9 +23,25 @@ public class DosimeterReader implements Runnable {
 	private Socket socket;
 	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
 
-	public DosimeterReader(RemoteEventBus eventBus, Socket socket) {
+	public DosimeterReader(final RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;
+		
+		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+			
+			@Override
+			public void onRequestEvent(RequestRemoteEvent event) {
+				String type = event.getRequestedClassName();
+				
+				if (type.equals(DosimeterSerialNumbersChangedEvent.class.getName())) {
+					eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(getDosimeterSerialNumbers()));
+				} else if (type.equals(DosimeterChangedEvent.class.getName())) {
+					for (Iterator<Integer> i = dosimeters.keySet().iterator(); i.hasNext(); ) {
+						eventBus.fireEvent(new DosimeterChangedEvent(getDosimeter(i.next())));
+					}
+				}
+			}
+		});
 	}
 
 	@Override
@@ -38,7 +56,7 @@ public class DosimeterReader implements Runnable {
 					Dosimeter dosimeter = DosimeterCoder.decode(line);
 					
 					if (dosimeters.put(dosimeter.getSerialNo(), dosimeter) == null) {
-						eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(new ArrayList<Integer>(dosimeters.keySet())));	
+						eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(getDosimeterSerialNumbers()));	
 					}
 					eventBus.fireEvent(new DosimeterChangedEvent(dosimeter));
 				}

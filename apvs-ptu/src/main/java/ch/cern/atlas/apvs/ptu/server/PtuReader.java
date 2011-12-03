@@ -3,16 +3,16 @@ package ch.cern.atlas.apvs.ptu.server;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
@@ -25,9 +25,31 @@ public class PtuReader implements Runnable {
 	private Socket socket;
 	private SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
 
-	public PtuReader(RemoteEventBus eventBus, Socket socket) {
+	public PtuReader(final RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;
+		
+		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+			
+			@Override
+			public void onRequestEvent(RequestRemoteEvent event) {
+				String type = event.getRequestedClassName();
+				
+				if (type.equals(PtuIdsChangedEvent.class.getName())) {
+					eventBus.fireEvent(new PtuIdsChangedEvent(getPtuIds()));
+				} else if (type.equals(PtuChangedEvent.class.getName())) {
+					for (Iterator<Integer> i = ptus.keySet().iterator(); i.hasNext(); ) {
+						eventBus.fireEvent(new PtuChangedEvent(getPtu(i.next())));
+					}
+				} else if (type.equals(MeasurementChangedEvent.class.getName())) {
+					List<Measurement<Double>> m = getMeasurements();
+					System.err.println("Getting all meas "+m.size());
+					for (Iterator<Measurement<Double>> i = m.iterator(); i.hasNext(); ) {
+						eventBus.fireEvent(new MeasurementChangedEvent(i.next()));
+					}
+				}
+			}
+		});
 	}
 
 	@Override
@@ -81,8 +103,10 @@ public class PtuReader implements Runnable {
 		return ptus.get(ptuId);
 	}
 
-	public SortedSet<Integer> getPtuIds() {
-		return new TreeSet<Integer>(ptus.keySet());
+	public List<Integer> getPtuIds() {
+		List<Integer> list = new ArrayList<Integer>(ptus.keySet());
+		Collections.sort(list);
+		return list;
 	}
 
 	public List<Measurement<Double>> getMeasurements() {

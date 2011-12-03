@@ -3,19 +3,17 @@ package ch.cern.atlas.apvs.client;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -23,7 +21,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
@@ -41,7 +38,7 @@ public class PtuView extends SimplePanel {
 	Map<String, String> units = new HashMap<String, String>();
 	Map<Integer, TextColumn<String>> columns = new HashMap<Integer, TextColumn<String>>();
 
-	public PtuView(PtuServiceAsync ptuService) {
+	public PtuView(RemoteEventBus eventBus) {
 		
 		add(table);
 
@@ -92,82 +89,35 @@ public class PtuView extends SimplePanel {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
 		
-		ptuService.getCurrentMeasurements(new AsyncCallback<List<Measurement<Double>>>() {
+		MeasurementChangedEvent.subscribe(eventBus, new MeasurementChangedEvent.Handler() {
 			
 			@Override
-			public void onSuccess(List<Measurement<Double>> result) {
-				for (Iterator<Measurement<Double>> i = result.iterator(); i.hasNext(); ) {
-					handleMeasurement(i.next());
+			public void onMeasurementChanged(MeasurementChangedEvent event) {
+				Measurement<Double> measurement = event.getMeasurement();
+				Integer ptuId = measurement.getPtuId();
+				Ptu ptu = ptus.get(ptuId);
+				if (ptu == null) {
+					ptu = new Ptu(ptuId);
+					ptus.put(ptuId, ptu);
+					insertColumn(ptuId);
 				}
 
-				System.err.println(result.size());
-				
-				redraw();
-				getLastMeasurement();
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				GWT.log("Could not retrieve current Measurements" + caught);
-				getLastMeasurement();
+				String name = measurement.getName();
+				if (ptu.getMeasurement(name) == null) {
+					units.put(name, measurement.getUnit());
+					ptu.add(measurement);
+				} else {
+					ptu.setMeasurement(name, measurement);
+				}
+
+				if (!dataProvider.getList().contains(name)) {
+					dataProvider.getList().add(name);
+				}
+				update();
 			}
 		});
-
-	}
-
-	private void getLastMeasurement() {
-		System.err.println("========= > "+last.hashCode());
-/* FIXME
-		ptuService.getLastMeasurement((long)last.hashCode(),
-				new AsyncCallback<Measurement<Double>>() {
-
-					@Override
-					public void onSuccess(Measurement<Double> result) {
-						if (result == null) {
-							System.err
-									.println("FIXME onSuccess null in ptuView");
-							return;
-						}
-						
-						handleMeasurement(result);
-
-						last = result;
-
-						redraw();
-						getLastMeasurement();
-					}
-
-
-					@Override
-					public void onFailure(Throwable caught) {
-						GWT.log("Could not retrieve last Measurement" + caught);
-						getLastMeasurement();
-					}
-
-				});
-				*/
-	}
-
-	private void handleMeasurement(Measurement<Double> result) {
-		Integer ptuId = result.getPtuId();
-		Ptu ptu = ptus.get(ptuId);
-		if (ptu == null) {
-			ptu = new Ptu(ptuId);
-			ptus.put(ptuId, ptu);
-			insertColumn(ptuId);
-		}
-
-		String name = result.getName();
-		if (ptu.getMeasurement(name) == null) {
-			units.put(name, result.getUnit());
-			ptu.add(result);
-		} else {
-			ptu.setMeasurement(name, result);
-		}
-
-		if (!dataProvider.getList().contains(name)) {
-			dataProvider.getList().add(name);
-		}
+		
+		update();
 	}
 	
 	private void insertColumn(final Integer ptuId) {
@@ -199,7 +149,7 @@ public class PtuView extends SimplePanel {
 		table.insertColumn(columnIndex, column, ptuId.toString());
 	}
 
-	private void redraw() {
+	private void update() {
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 	}

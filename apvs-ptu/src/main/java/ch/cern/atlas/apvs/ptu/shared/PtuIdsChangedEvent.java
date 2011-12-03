@@ -4,6 +4,7 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -37,6 +38,15 @@ public class PtuIdsChangedEvent extends RemoteEvent<PtuIdsChangedEvent.Handler> 
 			PtuIdsChangedEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
+	
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) {
+		HandlerRegistration registration = register(eventBus, handler);
+		
+		eventBus.fireEvent(new RequestRemoteEvent(PtuIdsChangedEvent.class));
+		
+		return registration;
+	}
+
 	
 	private List<Integer> ptuIds;
 	

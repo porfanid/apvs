@@ -5,17 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class PtuSelector extends SimplePanel {
 
@@ -23,7 +19,7 @@ public class PtuSelector extends SimplePanel {
 
 	private List<Integer> ptuIds;
 
-	public PtuSelector(final RemoteEventBus eventBus, PtuServiceAsync ptuService) {
+	public PtuSelector(final RemoteEventBus eventBus) {
 		add(list);
 
 		list.addChangeHandler(new ChangeHandler() {
@@ -61,41 +57,17 @@ public class PtuSelector extends SimplePanel {
 			}
 		});
 
-		ptuService.getPtuIds(new AsyncCallback<List<Integer>>() {
+		PtuIdsChangedEvent.subscribe(eventBus,
+				new PtuIdsChangedEvent.Handler() {
 
-			private HandlerRegistration registration;
+					@Override
+					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
 
-			@Override
-			public void onSuccess(List<Integer> result) {
-				// unregister any remaining handler
-				if (registration != null) {
-					registration.removeHandler();
-					registration = null;
-				}
-
-				// set result
-				ptuIds = result;
-
-				// register a new handler
-				registration = PtuIdsChangedEvent.register(eventBus,
-						new PtuIdsChangedEvent.Handler() {
-
-							@Override
-							public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-
-								ptuIds = event.getPtuIds();
-								update();
-							}
-						});
-				update();
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				GWT.log("Could not retrieve ptuIds");
-			}
-		});
-
+						ptuIds = event.getPtuIds();
+						update();
+					}
+				});
+		update();
 	}
 
 	private void update() {

@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.dosimeter.shared;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -21,7 +22,7 @@ public class DosimeterChangedEvent extends RemoteEvent<DosimeterChangedEvent.Han
 		void onDosimeterChanged(DosimeterChangedEvent event);
 	}
 
-	private static final Type<DosimeterChangedEvent.Handler> TYPE = new Type<DosimeterChangedEvent.Handler>();
+	public static final Type<DosimeterChangedEvent.Handler> TYPE = new Type<DosimeterChangedEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -36,6 +37,16 @@ public class DosimeterChangedEvent extends RemoteEvent<DosimeterChangedEvent.Han
 			DosimeterChangedEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
+	
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+			Handler handler) {
+		HandlerRegistration registration = register(eventBus, handler);
+		
+		eventBus.fireEvent(new RequestRemoteEvent(DosimeterChangedEvent.class));
+		
+		return registration;
+	}
+
 	
 	private Dosimeter dosimeter;
 	

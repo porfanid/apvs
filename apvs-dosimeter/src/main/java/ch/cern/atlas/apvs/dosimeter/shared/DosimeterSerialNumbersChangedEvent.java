@@ -4,6 +4,7 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -22,7 +23,7 @@ public class DosimeterSerialNumbersChangedEvent extends RemoteEvent<DosimeterSer
 		void onDosimeterSerialNumbersChanged(DosimeterSerialNumbersChangedEvent event);
 	}
 
-	private static final Type<DosimeterSerialNumbersChangedEvent.Handler> TYPE = new Type<DosimeterSerialNumbersChangedEvent.Handler>();
+	public static final Type<DosimeterSerialNumbersChangedEvent.Handler> TYPE = new Type<DosimeterSerialNumbersChangedEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -36,6 +37,14 @@ public class DosimeterSerialNumbersChangedEvent extends RemoteEvent<DosimeterSer
 	public static HandlerRegistration register(RemoteEventBus eventBus,
 			DosimeterSerialNumbersChangedEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
+	}
+	
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) {
+		HandlerRegistration registration = register(eventBus, handler);
+		
+		eventBus.fireEvent(new RequestRemoteEvent(DosimeterSerialNumbersChangedEvent.class));
+		
+		return registration;
 	}
 	
 	private List<Integer> dosimeterSerialNumbers;

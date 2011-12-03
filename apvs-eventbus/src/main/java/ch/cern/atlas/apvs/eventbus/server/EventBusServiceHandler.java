@@ -61,6 +61,9 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 		List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
 		if (eventQueue.drainTo(events) > 0) {
 			System.err.println("Server: getting next events..." + events.size());
+			for (Iterator<RemoteEvent<?>> i = events.iterator(); i.hasNext(); ) {
+				System.err.println("  "+i.next());
+			}
 			return events;
 		}
 		System.err.println("Server: getting next event...");
@@ -104,6 +107,9 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 					try {
 						client.suspendInfo.writeAndResume(events);
 						System.err.println("Sending events..." + events.size());
+						for (Iterator<RemoteEvent<?>> j = events.iterator(); j.hasNext(); ) {
+							System.err.println("  "+j.next());
+						}
 						client.suspendInfo = null;
 					} catch (IOException e) {
 						System.err

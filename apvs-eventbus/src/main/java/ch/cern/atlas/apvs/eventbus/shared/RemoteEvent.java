@@ -7,16 +7,19 @@ public abstract class RemoteEvent<H> implements Serializable {
 	private static final long serialVersionUID = -7670083062245182625L;
 	
 	public static class Type<H> {
-		private static int nextHashCode;
-		private final int index;
+		private final int uuid;
 
 		public Type() {
-			index = ++nextHashCode;
+			uuid = UUID.uuidInt(8);
+		}
+		
+		public int getUUID() {
+			return uuid;
 		}
 
 		@Override
 		public final int hashCode() {
-			return index;
+			return (int)uuid;
 		}
 
 		@Override

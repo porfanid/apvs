@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.ptu.shared;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -36,6 +37,15 @@ public class MeasurementChangedEvent extends RemoteEvent<MeasurementChangedEvent
 			MeasurementChangedEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
+	
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) {
+		HandlerRegistration registration = register(eventBus, handler);
+		
+		eventBus.fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));
+		
+		return registration;
+	}
+
 	
 	private Measurement<Double> measurement;
 	

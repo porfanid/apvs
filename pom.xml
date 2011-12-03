@@ -20,7 +20,7 @@
 		<servlet-api-version>2.5</servlet-api-version>
 
 		<antrun-plugin-version>1.7</antrun-plugin-version>
-		<assembly-plugin-version>2.2.1</assembly-plugin-version>
+		<assembly-plugin-version>2.2.2</assembly-plugin-version>
 		<clean-plugin-version>2.4.1</clean-plugin-version>
 		<compiler-plugin-version>2.3.2</compiler-plugin-version>
 		<gwt-plugin-version>2.4.0</gwt-plugin-version>
@@ -66,6 +66,16 @@
 					<configuration>
 						<encoding>UTF-8</encoding>
 					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>${assembly-plugin-version}</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${jar-plugin-version}</version>
 				</plugin>
 
 				<plugin>

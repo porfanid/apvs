@@ -6,8 +6,6 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectDosimeterEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -17,7 +15,6 @@ import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -25,7 +22,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
@@ -39,17 +35,19 @@ public class MeasurementView extends SimplePanel {
 	private CellTable<Measurement<?>> table = new CellTable<Measurement<?>>();
 	private ListHandler<Measurement<?>> columnSortHandler;
 
+	private int dosimeterSerialNo = -1;
 	private Dosimeter dosimeter;
+	private int ptuId = -1;
 	private Ptu ptu;
 
-	public MeasurementView(final RemoteEventBus eventBus,
-			final DosimeterServiceAsync dosimeterService,
-			final PtuServiceAsync ptuService) {
+	public MeasurementView(final RemoteEventBus eventBus) {
 
 		add(table);
 
 		SelectDosimeterEvent.register(eventBus,
 				new SelectDosimeterEvent.Handler() {
+
+					private HandlerRegistration registration;
 
 					@Override
 					public void onDosimeterSelected(
@@ -57,69 +55,6 @@ public class MeasurementView extends SimplePanel {
 						if (eventBus.getUUID() != event.getEventBusUUID())
 							return;
 
-						dosimeterService.getDosimeter(event.getSerialNo(),
-								new AsyncCallback<Dosimeter>() {
-
-									private HandlerRegistration registration;
-
-									@Override
-									public void onSuccess(Dosimeter result) {
-										// unregister any remaining handler
-										if (registration != null) {
-											registration.removeHandler();
-											registration = null;
-										}
-
-										// set result
-										dosimeter = result;
-
-										// register a new handler
-										if (dosimeter != null) {
-											registration = DosimeterChangedEvent
-													.register(
-															eventBus,
-															new DosimeterChangedEvent.Handler() {
-
-																@Override
-																public void onDosimeterChanged(
-																		DosimeterChangedEvent event) {
-																	if (event
-																			.getDosimeter()
-																			.getSerialNo() == dosimeter
-																			.getSerialNo()) {
-																		dosimeter = event
-																				.getDosimeter();
-																		update();
-																	}
-																}
-															});
-										}
-
-										update();
-									}
-
-									@Override
-									public void onFailure(Throwable caught) {
-										GWT.log("Could not retrieve dosimeter "
-												+ event.getSerialNo());
-									}
-								});
-					}
-				});
-
-		SelectPtuEvent.register(eventBus, new SelectPtuEvent.Handler() {
-
-			@Override
-			public void onPtuSelected(final SelectPtuEvent event) {
-				if (eventBus.getUUID() != event.getEventBusUUID())
-					return;
-
-				ptuService.getPtu(event.getPtuId(), new AsyncCallback<Ptu>() {
-
-					private HandlerRegistration registration;
-
-					@Override
-					public void onSuccess(Ptu result) {
 						// unregister any remaining handler
 						if (registration != null) {
 							registration.removeHandler();
@@ -127,19 +62,22 @@ public class MeasurementView extends SimplePanel {
 						}
 
 						// set result
-						ptu = result;
+						dosimeterSerialNo = event.getSerialNo();
+						dosimeter = null;
 
 						// register a new handler
-						if (ptu != null) {
-							registration = PtuChangedEvent.register(eventBus,
-									new PtuChangedEvent.Handler() {
+						if (dosimeterSerialNo >= 0) {
+							registration = DosimeterChangedEvent.subscribe(
+									eventBus,
+									new DosimeterChangedEvent.Handler() {
 
 										@Override
-										public void onPtuChanged(
-												PtuChangedEvent event) {
-											if (event.getPtu().getPtuId() == ptu
-													.getPtuId()) {
-												ptu = event.getPtu();
+										public void onDosimeterChanged(
+												DosimeterChangedEvent event) {
+											if (event.getDosimeter()
+													.getSerialNo() == dosimeterSerialNo) {
+												dosimeter = event
+														.getDosimeter();
 												update();
 											}
 										}
@@ -148,12 +86,42 @@ public class MeasurementView extends SimplePanel {
 
 						update();
 					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						GWT.log("Could not retrieve ptu " + event.getPtuId());
-					}
 				});
+
+		SelectPtuEvent.register(eventBus, new SelectPtuEvent.Handler() {
+
+			private HandlerRegistration registration;
+
+			@Override
+			public void onPtuSelected(final SelectPtuEvent event) {
+				if (eventBus.getUUID() != event.getEventBusUUID())
+					return;
+
+				// unregister any remaining handler
+				if (registration != null) {
+					registration.removeHandler();
+					registration = null;
+				}
+
+				ptuId = event.getPtuId();
+				ptu = null;
+
+				// register a new handler
+				if (ptuId >= 0) {
+					registration = PtuChangedEvent.subscribe(eventBus,
+							new PtuChangedEvent.Handler() {
+
+								@Override
+								public void onPtuChanged(PtuChangedEvent event) {
+									if (event.getPtu().getPtuId() == ptuId) {
+										ptu = event.getPtu();
+										update();
+									}
+								}
+							});
+				}
+
+				update();
 			}
 		});
 

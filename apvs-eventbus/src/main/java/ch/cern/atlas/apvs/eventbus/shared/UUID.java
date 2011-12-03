@@ -65,6 +65,12 @@ public class UUID {
 	}
 
 	public static long uuidLong(int len) {
+		// FIXME, check max len
 		return Long.parseLong(uuid(len, 10));
+	}
+
+	public static int uuidInt(int len) {
+		// FIXME, check max len
+		return Integer.parseInt(uuid(len, 10));
 	}
 }
