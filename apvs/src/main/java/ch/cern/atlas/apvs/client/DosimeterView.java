@@ -3,17 +3,13 @@ package ch.cern.atlas.apvs.client;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
 import ch.cern.atlas.apvs.domain.Dosimeter;
+import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.NumberCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
@@ -31,7 +27,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
@@ -46,8 +41,6 @@ public class DosimeterView extends SimplePanel {
 	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
 	private ListHandler<Dosimeter> columnSortHandler;
-	private DosimeterServiceAsync dosimeterService;
-	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
 
 	private static final int TIMEOUT = 10000;
 	private Timer timeoutTimer = null;
@@ -82,9 +75,7 @@ public class DosimeterView extends SimplePanel {
 		}
 	};
 
-	public DosimeterView(RemoteEventBus eventBus,
-			DosimeterServiceAsync dosimeterService) {
-		this.dosimeterService = dosimeterService;
+	public DosimeterView(RemoteEventBus eventBus) {
 
 		add(table);
 
@@ -169,7 +160,40 @@ public class DosimeterView extends SimplePanel {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(serialNo);
 
-		getDosimeterMap();
+		DosimeterChangedEvent.subscribe(eventBus,
+				new DosimeterChangedEvent.Handler() {
+
+					@Override
+					public void onDosimeterChanged(DosimeterChangedEvent event) {
+						Dosimeter dosimeter = event.getDosimeter();
+
+						List<Dosimeter> list = dataProvider.getList();
+						int i = 0;
+						while (i < list.size()) {
+							if (list.get(i).getSerialNo() == dosimeter
+									.getSerialNo()) {
+								list.set(i, dosimeter);
+								break;
+							}
+							i++;
+						}
+						if (i == list.size()) {
+							list.add(dosimeter);
+						}
+
+						update();
+					}
+				});
+
+		update();
+	}
+
+	private void update() {
+		// Resort the table
+		ColumnSortEvent.fire(table, table.getColumnSortList());
+		table.redraw();
+
+		showGlass(false);
 	}
 
 	@Override
@@ -177,48 +201,6 @@ public class DosimeterView extends SimplePanel {
 		super.setVisible(visible);
 		glass.getStyle().setProperty("visibility",
 				visible ? "visible" : "hidden");
-	}
-
-	private void getDosimeterMap() {
-		cancelTimer();
-		startTimer();
-		dosimeterService
-				.getDosimeterMap(new AsyncCallback<Map<Integer, Dosimeter>>() {
-
-					@Override
-					public void onSuccess(Map<Integer, Dosimeter> result) {
-						if (result == null) {
-							System.err
-									.println("FIXME onSuccess null in dosimeterView");
-							return;
-						}
-						dosimeters = result;
-
-						List<Dosimeter> list = dataProvider.getList();
-						list.clear();
-
-						for (Iterator<Dosimeter> i = result.values().iterator(); i
-								.hasNext();) {
-							list.add(i.next());
-						}
-
-						// Resort the table
-						ColumnSortEvent.fire(table, table.getColumnSortList());
-						table.redraw();
-
-						showGlass(false);
-
-						getDosimeterMap();
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						GWT.log("Could not retrieve dosimeter map");
-
-						getDosimeterMap();
-					}
-				});
-
 	}
 
 	private void startTimer() {

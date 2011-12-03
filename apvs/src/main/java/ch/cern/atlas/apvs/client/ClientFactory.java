@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client;
 
-import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
+import ch.cern.atlas.apvs.client.service.FileServiceAsync;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.place.shared.PlaceController;
@@ -12,10 +11,8 @@ public interface ClientFactory {
 
 	PlaceController getPlaceController();
 	
-	DosimeterServiceAsync getDosimeterService();
-	
-	PtuServiceAsync getPtuService();
-	
+	FileServiceAsync getFileService();
+		
 	// HelloView getHelloView();
 	// GoodbyeView getGoodbyeView();
 }

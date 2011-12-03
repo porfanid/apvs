@@ -4,15 +4,10 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import ch.cern.atlas.apvs.client.service.PtuService;
-import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
@@ -21,8 +16,7 @@ import ch.cern.atlas.apvs.ptu.server.PtuWriter;
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class PtuServiceImpl extends ResponsePollService implements PtuService,
-		Runnable {
+public class PtuServiceImpl extends ResponsePollService implements Runnable {
 
 	private static final String name = "PtuSocket";
 	private static final String host = "localhost";
@@ -102,27 +96,5 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 		if (ptuReader != null) {
 			ptuReader.close();
 		}
-	}
-
-	@Override
-	public List<Integer> getPtuIds() {
-		return ptuReader != null ? new ArrayList<Integer>(ptuReader.getPtuIds())
-				: null;
-	}
-
-	@Override
-	public Ptu getPtu(final int ptuId) {
-		return ptuReader != null ? ptuReader.getPtu(ptuId) : null;
-	}
-
-	@Override
-	public Measurement<Double> getMeasurement(final int ptuId, final String name) {
-		return ptuReader != null ? ptuReader.getPtu(ptuId).getMeasurement(name)
-				: null;
-	}
-
-	@Override
-	public List<Measurement<Double>> getCurrentMeasurements() {
-		return ptuReader.getMeasurements();
 	}
 }

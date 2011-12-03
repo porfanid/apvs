@@ -4,14 +4,10 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import ch.cern.atlas.apvs.client.service.DosimeterService;
-import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterWriter;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -21,7 +17,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
  */
 @SuppressWarnings("serial")
 public class DosimeterServiceImpl extends ResponsePollService implements
-		DosimeterService, Runnable {
+		Runnable {
 
 	private static final String name = "DosimeterSocket";
 	private static final String host = "localhost";
@@ -100,22 +96,6 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 		if (dosimeterReader != null) {
 			dosimeterReader.close();
 		}
-	}
-
-	@Override
-	public List<Integer> getSerialNumbers() {
-		return dosimeterReader != null ? dosimeterReader
-				.getDosimeterSerialNumbers() : null;
-	}
-
-	@Override
-	public Dosimeter getDosimeter(final int serialNo) {
-		return dosimeterReader != null ? dosimeterReader.getDosimeter(serialNo) : null;
-	}
-
-	@Override
-	public Map<Integer, Dosimeter> getDosimeterMap() {
-		return dosimeterReader != null ? dosimeterReader.getDosimeterMap() : null;
 	}
 
 }

@@ -21,8 +21,6 @@ import ch.cern.atlas.apvs.client.places.RadiationMapping;
 import ch.cern.atlas.apvs.client.places.RemotePlace;
 import ch.cern.atlas.apvs.client.places.Settings;
 import ch.cern.atlas.apvs.client.places.User;
-import ch.cern.atlas.apvs.client.service.DosimeterServiceAsync;
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -51,8 +49,6 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class APVS implements EntryPoint {
 	
-	DosimeterServiceAsync dosimeterService;
-	PtuServiceAsync ptuService;
 	AtmosphereClient client;
 	Logger logger = Logger.getLogger(getClass().getName());
 	Window screen;
@@ -73,13 +69,10 @@ public class APVS implements EntryPoint {
 		eventBus = clientFactory.getEventBus();
 		placeController = clientFactory.getPlaceController();
 		
-		dosimeterService = clientFactory.getDosimeterService();
-		ptuService = clientFactory.getPtuService();
-
 		Panel p;
 		p = RootPanel.get("dosimeterView");
 		if (p != null) {
-			p.add(new DosimeterView(eventBus, dosimeterService));
+			p.add(new DosimeterView(eventBus));
 			return;
 		}
 		p = RootPanel.get("ptuView");
