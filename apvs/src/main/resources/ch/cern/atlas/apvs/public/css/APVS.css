@@ -9,3 +9,8 @@ root {
     display: block;
 }
 
+// Block elastics (in javascript for iOS)
+body {
+	overflow: hidden;
+}
+
