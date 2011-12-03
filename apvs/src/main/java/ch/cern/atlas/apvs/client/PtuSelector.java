@@ -61,42 +61,40 @@ public class PtuSelector extends SimplePanel {
 			}
 		});
 
-		ptuService.getPtuIds((long) (ptuIds != null ? ptuIds.hashCode() : 0),
-				new AsyncCallback<List<Integer>>() {
+		ptuService.getPtuIds(new AsyncCallback<List<Integer>>() {
 
-					private HandlerRegistration registration;
+			private HandlerRegistration registration;
 
-					@Override
-					public void onSuccess(List<Integer> result) {
-						// unregister any remaining handler
-						if (registration != null) {
-							registration.removeHandler();
-							registration = null;
-						}
+			@Override
+			public void onSuccess(List<Integer> result) {
+				// unregister any remaining handler
+				if (registration != null) {
+					registration.removeHandler();
+					registration = null;
+				}
 
-						// set result
-						ptuIds = result;
+				// set result
+				ptuIds = result;
 
-						// register a new handler
-						registration = PtuIdsChangedEvent.register(eventBus,
-								new PtuIdsChangedEvent.Handler() {
+				// register a new handler
+				registration = PtuIdsChangedEvent.register(eventBus,
+						new PtuIdsChangedEvent.Handler() {
 
-									@Override
-									public void onPtuIdsChanged(
-											PtuIdsChangedEvent event) {
+							@Override
+							public void onPtuIdsChanged(PtuIdsChangedEvent event) {
 
-										ptuIds = event.getPtuIds();
-										update();
-									}
-								});
-						update();
-					}
+								ptuIds = event.getPtuIds();
+								update();
+							}
+						});
+				update();
+			}
 
-					@Override
-					public void onFailure(Throwable caught) {
-						GWT.log("Could not retrieve ptuIds");
-					}
-				});
+			@Override
+			public void onFailure(Throwable caught) {
+				GWT.log("Could not retrieve ptuIds");
+			}
+		});
 
 	}
 

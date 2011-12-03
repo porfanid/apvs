@@ -14,9 +14,9 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("apvsDosimeter")
 public interface DosimeterService extends RemoteService {
 	
-	public List<Integer> getSerialNumbers(long currentHashCode);
+	public List<Integer> getSerialNumbers();
 
-    public Dosimeter getDosimeter(int serialNo, long currentHashCode);
+    public Dosimeter getDosimeter(int serialNo);
     
-	public Map<Integer, Dosimeter> getDosimeterMap(long currentHashCode);
+	public Map<Integer, Dosimeter> getDosimeterMap();
 }

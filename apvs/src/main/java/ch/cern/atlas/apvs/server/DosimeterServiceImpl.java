@@ -14,10 +14,7 @@ import ch.cern.atlas.apvs.client.service.DosimeterService;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterWriter;
-import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
-import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
 /**
  * @author Mark Donszelmann
@@ -105,56 +102,20 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 		}
 	}
 
-	private ResponseHandler<List<Integer>, List<Integer>> getSerialNumbersResponseHandler = new ResponseHandler<List<Integer>, List<Integer>>(
-			this);
-
-	public List<Integer> getSerialNumbers(long currentHashCode) {
+	@Override
+	public List<Integer> getSerialNumbers() {
 		return dosimeterReader != null ? dosimeterReader
 				.getDosimeterSerialNumbers() : null;
 	}
 
-	/*
-	 * @Override public List<Integer> getSerialNumbers(long currentHashCode) {
-	 * return getSerialNumbersResponseHandler.respond(currentHashCode, new
-	 * Response<List<Integer>, List<Integer>>() {
-	 * 
-	 * @Override public List<Integer> getValue(List<Integer> object) { return
-	 * dosimeterReader != null ? dosimeterReader.getDosimeterSerialNumbers() :
-	 * null; } }); }
-	 */
-	private ResponseHandler<Dosimeter, Dosimeter> getDosimeterResponseHandler = new ResponseHandler<Dosimeter, Dosimeter>(
-			this);
-
 	@Override
-	public Dosimeter getDosimeter(final int serialNo, long currentHashCode) {
-		return getDosimeterResponseHandler.respond(currentHashCode,
-				new Response<Dosimeter, Dosimeter>() {
-
-					@Override
-					public Dosimeter getValue(Dosimeter object) {
-						return dosimeterReader != null ? dosimeterReader
-								.getDosimeter(serialNo) : null;
-					}
-				});
+	public Dosimeter getDosimeter(final int serialNo) {
+		return dosimeterReader != null ? dosimeterReader.getDosimeter(serialNo) : null;
 	}
 
-	private ResponseHandler<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>> getDosimeterMapResponseHandler = new ResponseHandler<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>(
-			this);
-
 	@Override
-	public Map<Integer, Dosimeter> getDosimeterMap(long currentHashCode) {
-		return getDosimeterMapResponseHandler
-				.respond(
-						currentHashCode,
-						new Response<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>() {
-
-							@Override
-							public Map<Integer, Dosimeter> getValue(
-									Map<Integer, Dosimeter> object) {
-								return dosimeterReader != null ? dosimeterReader
-										.getDosimeterMap() : null;
-							}
-						});
+	public Map<Integer, Dosimeter> getDosimeterMap() {
+		return dosimeterReader != null ? dosimeterReader.getDosimeterMap() : null;
 	}
 
 }

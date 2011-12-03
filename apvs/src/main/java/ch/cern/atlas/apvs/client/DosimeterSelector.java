@@ -64,46 +64,43 @@ public class DosimeterSelector extends SimplePanel {
 					}
 				});
 
-		dosimeterService.getSerialNumbers(
-				(long) (serialNumbers != null ? serialNumbers.hashCode() : 0),
-				new AsyncCallback<List<Integer>>() {
+		dosimeterService.getSerialNumbers(new AsyncCallback<List<Integer>>() {
 
-					private HandlerRegistration registration;
+			private HandlerRegistration registration;
 
-					@Override
-					public void onSuccess(List<Integer> result) {
-						// unregister any remaining handler
-						if (registration != null) {
-							registration.removeHandler();
-							registration = null;
-						}
+			@Override
+			public void onSuccess(List<Integer> result) {
+				// unregister any remaining handler
+				if (registration != null) {
+					registration.removeHandler();
+					registration = null;
+				}
 
-						// set result
-						serialNumbers = result;
+				// set result
+				serialNumbers = result;
 
-						// register a new handler
-						registration = DosimeterSerialNumbersChangedEvent
-								.register(
-										eventBus,
-										new DosimeterSerialNumbersChangedEvent.Handler() {
+				// register a new handler
+				registration = DosimeterSerialNumbersChangedEvent.register(
+						eventBus,
+						new DosimeterSerialNumbersChangedEvent.Handler() {
 
-											@Override
-											public void onDosimeterSerialNumbersChanged(
-													DosimeterSerialNumbersChangedEvent event) {
+							@Override
+							public void onDosimeterSerialNumbersChanged(
+									DosimeterSerialNumbersChangedEvent event) {
 
-												serialNumbers = event
-														.getDosimeterSerialNumbers();
-												update();
-											}
-										});
-						update();
-					}
+								serialNumbers = event
+										.getDosimeterSerialNumbers();
+								update();
+							}
+						});
+				update();
+			}
 
-					@Override
-					public void onFailure(Throwable caught) {
-						GWT.log("Could not retrieve serialNumbers");
-					}
-				});
+			@Override
+			public void onFailure(Throwable caught) {
+				GWT.log("Could not retrieve serialNumbers");
+			}
+		});
 	}
 
 	private void update() {

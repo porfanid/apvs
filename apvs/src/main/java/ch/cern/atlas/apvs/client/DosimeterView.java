@@ -82,9 +82,10 @@ public class DosimeterView extends SimplePanel {
 		}
 	};
 
-	public DosimeterView(RemoteEventBus eventBus, DosimeterServiceAsync dosimeterService) {
+	public DosimeterView(RemoteEventBus eventBus,
+			DosimeterServiceAsync dosimeterService) {
 		this.dosimeterService = dosimeterService;
-		
+
 		add(table);
 
 		// create class "disconected" pane
@@ -181,8 +182,8 @@ public class DosimeterView extends SimplePanel {
 	private void getDosimeterMap() {
 		cancelTimer();
 		startTimer();
-		dosimeterService.getDosimeterMap((long)dosimeters.hashCode(),
-				new AsyncCallback<Map<Integer, Dosimeter>>() {
+		dosimeterService
+				.getDosimeterMap(new AsyncCallback<Map<Integer, Dosimeter>>() {
 
 					@Override
 					public void onSuccess(Map<Integer, Dosimeter> result) {
@@ -204,7 +205,7 @@ public class DosimeterView extends SimplePanel {
 						// Resort the table
 						ColumnSortEvent.fire(table, table.getColumnSortList());
 						table.redraw();
-						
+
 						showGlass(false);
 
 						getDosimeterMap();
@@ -236,8 +237,8 @@ public class DosimeterView extends SimplePanel {
 			timeoutTimer.cancel();
 			timeoutTimer = null;
 		}
-	}	
-	
+	}
+
 	private void showGlass(boolean show) {
 		if (show) {
 			Document.get().getBody().appendChild(glass);

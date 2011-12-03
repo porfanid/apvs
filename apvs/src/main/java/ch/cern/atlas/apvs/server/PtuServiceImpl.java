@@ -16,9 +16,6 @@ import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
-import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
-import ch.cern.atlas.apvs.server.ResponseHandler.Response;
 
 /**
  * @author Mark Donszelmann
@@ -67,42 +64,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 					ptuReader = new PtuReader(eventBus, socket);
 
-					/*
-					PtuIdsChangedEvent.register(eventBus,
-							new PtuIdsChangedEvent.Handler() {
-
-								@Override
-								public void onPtuIdsChanged(
-										PtuIdsChangedEvent event) {
-									getPtuIdsResponseHandler
-											.onValueChange(event.getPtuIds());
-								}
-							});
-					PtuChangedEvent.register(eventBus,
-							new PtuChangedEvent.Handler() {
-
-								@Override
-								public void onPtuChanged(PtuChangedEvent event) {
-									getPtuResponseHandler.onValueChange(event
-											.getPtu());
-								}
-							});
-
-					MeasurementChangedEvent.register(eventBus,
-							new MeasurementChangedEvent.Handler() {
-								@Override
-								public void onMeasurementChanged(
-										MeasurementChangedEvent event) {
-									getLastMeasurementResponseHandler
-											.onValueChange(event
-													.getMeasurement());
-									getMeasurementResponseHandler
-											.onValueChange(event
-													.getMeasurement());
-								}
-							});
-*/
-
 					Thread reader = new Thread(ptuReader);
 					reader.start();
 					reader.join();
@@ -116,8 +77,8 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 				} catch (InterruptedException e) {
 					System.err.println(getClass() + " " + e);
 				}
-				
-				if (ptuReader != null){
+
+				if (ptuReader != null) {
 					ptuReader.close();
 				}
 				ptuReader = null;
@@ -143,61 +104,21 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 		}
 	}
 
-	// FIXME, if we have a remote event bus all these could give direct answers
-	private ResponseHandler<List<Integer>, List<Integer>> getPtuIdsResponseHandler = new ResponseHandler<List<Integer>, List<Integer>>(
-			this);
-
 	@Override
-	public List<Integer> getPtuIds(long currentHashCode) {
-		return ptuReader != null ? new ArrayList<Integer>(ptuReader.getPtuIds()) : null;
+	public List<Integer> getPtuIds() {
+		return ptuReader != null ? new ArrayList<Integer>(ptuReader.getPtuIds())
+				: null;
 	}
 
-	private ResponseHandler<Ptu, Ptu> getPtuResponseHandler = new ResponseHandler<Ptu, Ptu>(
-			this);
-
 	@Override
-	public Ptu getPtu(final int ptuId, long currentHashCode) {
-		return getPtuResponseHandler.respond(currentHashCode,
-				new Response<Ptu, Ptu>() {
-
-					@Override
-					public Ptu getValue(Ptu object) {
-						return ptuReader.getPtu(ptuId);
-					}
-
-				});
+	public Ptu getPtu(final int ptuId) {
+		return ptuReader != null ? ptuReader.getPtu(ptuId) : null;
 	}
 
-	private ResponseHandler<Measurement<?>, Measurement<Double>> getMeasurementResponseHandler = new ResponseHandler<Measurement<?>, Measurement<Double>>(
-			this);
-
 	@Override
-	public Measurement<Double> getMeasurement(final int ptuId,
-			final String name, long currentHashCode) {
-		return getMeasurementResponseHandler.respond(currentHashCode,
-				new Response<Measurement<?>, Measurement<Double>>() {
-
-					@Override
-					public Measurement<Double> getValue(Measurement<?> object) {
-						return ptuReader.getPtu(ptuId).getMeasurement(name);
-					}
-
-				});
-	}
-
-	private ResponseHandler<Measurement<?>, Measurement<Double>> getLastMeasurementResponseHandler = new ResponseHandler<Measurement<?>, Measurement<Double>>(
-			this);
-
-	@Override
-	public Measurement<Double> getLastMeasurement(long currentHashCode) {
-		return getLastMeasurementResponseHandler.respond(currentHashCode,
-				new Response<Measurement<?>, Measurement<Double>>() {
-
-					@Override
-					public Measurement<Double> getValue(Measurement<?> object) {
-						return (Measurement<Double>) object;
-					}
-				});
+	public Measurement<Double> getMeasurement(final int ptuId, final String name) {
+		return ptuReader != null ? ptuReader.getPtu(ptuId).getMeasurement(name)
+				: null;
 	}
 
 	@Override

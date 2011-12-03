@@ -35,7 +35,6 @@ public class PtuView extends SimplePanel {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 	private ListHandler<String> columnSortHandler;
-	private PtuServiceAsync ptuService;
 
 	Measurement<Double> last = new Measurement<Double>();
 	SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
@@ -43,7 +42,6 @@ public class PtuView extends SimplePanel {
 	Map<Integer, TextColumn<String>> columns = new HashMap<Integer, TextColumn<String>>();
 
 	public PtuView(PtuServiceAsync ptuService) {
-		this.ptuService = ptuService;
 		
 		add(table);
 
@@ -119,6 +117,7 @@ public class PtuView extends SimplePanel {
 
 	private void getLastMeasurement() {
 		System.err.println("========= > "+last.hashCode());
+/* FIXME
 		ptuService.getLastMeasurement((long)last.hashCode(),
 				new AsyncCallback<Measurement<Double>>() {
 
@@ -146,6 +145,7 @@ public class PtuView extends SimplePanel {
 					}
 
 				});
+				*/
 	}
 
 	private void handleMeasurement(Measurement<Double> result) {

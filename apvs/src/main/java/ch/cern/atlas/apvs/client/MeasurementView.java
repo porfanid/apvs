@@ -57,10 +57,7 @@ public class MeasurementView extends SimplePanel {
 						if (eventBus.getUUID() != event.getEventBusUUID())
 							return;
 
-						dosimeterService.getDosimeter(
-								event.getSerialNo(),
-								(long) (dosimeter != null ? dosimeter
-										.hashCode() : 0),
+						dosimeterService.getDosimeter(event.getSerialNo(),
 								new AsyncCallback<Dosimeter>() {
 
 									private HandlerRegistration registration;
@@ -117,51 +114,46 @@ public class MeasurementView extends SimplePanel {
 				if (eventBus.getUUID() != event.getEventBusUUID())
 					return;
 
-				ptuService.getPtu(event.getPtuId(),
-						(long) (ptu != null ? ptu.hashCode() : 0),
-						new AsyncCallback<Ptu>() {
+				ptuService.getPtu(event.getPtuId(), new AsyncCallback<Ptu>() {
 
-							private HandlerRegistration registration;
+					private HandlerRegistration registration;
 
-							@Override
-							public void onSuccess(Ptu result) {
-								// unregister any remaining handler
-								if (registration != null) {
-									registration.removeHandler();
-									registration = null;
-								}
+					@Override
+					public void onSuccess(Ptu result) {
+						// unregister any remaining handler
+						if (registration != null) {
+							registration.removeHandler();
+							registration = null;
+						}
 
-								// set result
-								ptu = result;
+						// set result
+						ptu = result;
 
-								// register a new handler
-								if (ptu != null) {
-									registration = PtuChangedEvent.register(
-											eventBus,
-											new PtuChangedEvent.Handler() {
+						// register a new handler
+						if (ptu != null) {
+							registration = PtuChangedEvent.register(eventBus,
+									new PtuChangedEvent.Handler() {
 
-												@Override
-												public void onPtuChanged(
-														PtuChangedEvent event) {
-													if (event.getPtu()
-															.getPtuId() == ptu
-															.getPtuId()) {
-														ptu = event.getPtu();
-														update();
-													}
-												}
-											});
-								}
+										@Override
+										public void onPtuChanged(
+												PtuChangedEvent event) {
+											if (event.getPtu().getPtuId() == ptu
+													.getPtuId()) {
+												ptu = event.getPtu();
+												update();
+											}
+										}
+									});
+						}
 
-								update();
-							}
+						update();
+					}
 
-							@Override
-							public void onFailure(Throwable caught) {
-								GWT.log("Could not retrieve ptu "
-										+ event.getPtuId());
-							}
-						});
+					@Override
+					public void onFailure(Throwable caught) {
+						GWT.log("Could not retrieve ptu " + event.getPtuId());
+					}
+				});
 			}
 		});
 
