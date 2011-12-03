@@ -37,10 +37,7 @@ public class DosimeterReader implements Runnable {
 				while ((line = is.readLine()) != null) {
 					Dosimeter dosimeter = DosimeterCoder.decode(line);
 					
-					boolean serialNumbersChanged = !dosimeters.containsKey(dosimeter.getSerialNo());
-					dosimeters.put(dosimeter.getSerialNo(), dosimeter);
-
-					if (serialNumbersChanged) {
+					if (dosimeters.put(dosimeter.getSerialNo(), dosimeter) == null) {
 						eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(new ArrayList<Integer>(dosimeters.keySet())));	
 					}
 					eventBus.fireEvent(new DosimeterChangedEvent(dosimeter));
@@ -49,16 +46,18 @@ public class DosimeterReader implements Runnable {
 		} catch (IOException e) {
 			System.err.println(getClass()+" "+e);
 		} finally {
-			try {
-				close();
-			} catch (IOException e) {
-				// ignore
-			}
+			close();
 		}
 	}
 
-	public void close() throws IOException {
-		socket.close();
+	public void close() {
+		try {
+			socket.close();			
+		} catch (IOException e) {
+			// ignored
+		}
+		
+		eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(null));			
 	}
 
 	public List<Integer> getDosimeterSerialNumbers() {

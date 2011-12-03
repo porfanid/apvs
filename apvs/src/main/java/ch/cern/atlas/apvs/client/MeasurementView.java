@@ -51,16 +51,19 @@ public class MeasurementView extends SimplePanel {
 		SelectDosimeterEvent.register(eventBus,
 				new SelectDosimeterEvent.Handler() {
 
-					private HandlerRegistration registration;
-
 					@Override
-					public void onDosimeterSelected(final SelectDosimeterEvent event) {
+					public void onDosimeterSelected(
+							final SelectDosimeterEvent event) {
 						if (eventBus.getUUID() != event.getEventBusUUID())
 							return;
 
-						dosimeterService.getDosimeter(event.getSerialNo(),
-								(long) (dosimeter != null ? dosimeter.hashCode() : 0),
+						dosimeterService.getDosimeter(
+								event.getSerialNo(),
+								(long) (dosimeter != null ? dosimeter
+										.hashCode() : 0),
 								new AsyncCallback<Dosimeter>() {
+
+									private HandlerRegistration registration;
 
 									@Override
 									public void onSuccess(Dosimeter result) {
@@ -109,15 +112,16 @@ public class MeasurementView extends SimplePanel {
 
 		SelectPtuEvent.register(eventBus, new SelectPtuEvent.Handler() {
 
-			private HandlerRegistration registration;
-
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {
 				if (eventBus.getUUID() != event.getEventBusUUID())
 					return;
 
-				ptuService.getPtu(event.getPtuId(), (long) (ptu != null ? ptu.hashCode() : 0),
+				ptuService.getPtu(event.getPtuId(),
+						(long) (ptu != null ? ptu.hashCode() : 0),
 						new AsyncCallback<Ptu>() {
+
+							private HandlerRegistration registration;
 
 							@Override
 							public void onSuccess(Ptu result) {
@@ -308,10 +312,12 @@ public class MeasurementView extends SimplePanel {
 		if (ptu != null) {
 			list.addAll(ptu.getMeasurements());
 		}
-		
+
 		if (dosimeter != null) {
-			list.add(new Measurement<Double>("Radiation Rate", dosimeter.getRate(), "&micro;Sv/h"));
-			list.add(new Measurement<Double>("Radiation Dose", dosimeter.getDose(), "&micro;Sv"));
+			list.add(new Measurement<Double>("Radiation Rate", dosimeter
+					.getRate(), "&micro;Sv/h"));
+			list.add(new Measurement<Double>("Radiation Dose", dosimeter
+					.getDose(), "&micro;Sv"));
 		}
 
 		// Re-sort the table

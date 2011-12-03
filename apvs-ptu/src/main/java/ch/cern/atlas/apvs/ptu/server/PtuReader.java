@@ -24,7 +24,7 @@ public class PtuReader implements Runnable {
 	private RemoteEventBus eventBus;
 	private Socket socket;
 	private SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
-	
+
 	public PtuReader(RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;
@@ -40,7 +40,7 @@ public class PtuReader implements Runnable {
 				if (object instanceof Measurement<?>) {
 					@SuppressWarnings("unchecked")
 					Measurement<Double> measurement = (Measurement<Double>) object;
-					
+
 					boolean ptuIdsChanged = false;
 					int ptuId = measurement.getPtuId();
 					Ptu ptu = ptus.get(ptuId);
@@ -49,12 +49,13 @@ public class PtuReader implements Runnable {
 						ptus.put(ptuId, ptu);
 						ptuIdsChanged = true;
 					}
-					ptu.add((Measurement<Double>)measurement);
-					
+					ptu.add((Measurement<Double>) measurement);
+
 					// fire all at the end
 					// FIXME we can still add MeasurementNamesChanged
 					if (ptuIdsChanged) {
-						eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<Integer>(ptus.keySet())));
+						eventBus.fireEvent(new PtuIdsChangedEvent(
+								new ArrayList<Integer>(ptus.keySet())));
 					}
 					eventBus.fireEvent(new PtuChangedEvent(ptu));
 					eventBus.fireEvent(new MeasurementChangedEvent(measurement));
@@ -63,22 +64,23 @@ public class PtuReader implements Runnable {
 		} catch (IOException e) {
 			System.err.println(getClass() + " " + e);
 		} finally {
-			try {
-				close();
-			} catch (IOException e) {
-				// ignore
-			}
+			close();
 		}
 	}
 
-	public void close() throws IOException {
-		socket.close();
+	public void close() {
+		try {
+			socket.close();
+		} catch (IOException e) {
+			// ignored
+		}
+		eventBus.fireEvent(new PtuIdsChangedEvent(null));
 	}
 
 	public Ptu getPtu(int ptuId) {
 		return ptus.get(ptuId);
 	}
-	
+
 	public SortedSet<Integer> getPtuIds() {
 		return new TreeSet<Integer>(ptus.keySet());
 	}

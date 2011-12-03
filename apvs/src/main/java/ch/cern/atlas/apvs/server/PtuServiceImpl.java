@@ -67,6 +67,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 					ptuReader = new PtuReader(eventBus, socket);
 
+					/*
 					PtuIdsChangedEvent.register(eventBus,
 							new PtuIdsChangedEvent.Handler() {
 
@@ -77,7 +78,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 											.onValueChange(event.getPtuIds());
 								}
 							});
-/*
 					PtuChangedEvent.register(eventBus,
 							new PtuChangedEvent.Handler() {
 
@@ -87,7 +87,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 											.getPtu());
 								}
 							});
-*/
 
 					MeasurementChangedEvent.register(eventBus,
 							new MeasurementChangedEvent.Handler() {
@@ -102,12 +101,11 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 													.getMeasurement());
 								}
 							});
+*/
 
 					Thread reader = new Thread(ptuReader);
 					reader.start();
 					reader.join();
-					ptuReader = null;
-					continue;
 				} catch (UnknownHostException e) {
 					System.err.println(getClass() + " " + e);
 				} catch (ConnectException e) {
@@ -117,6 +115,10 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 					System.err.println(getClass() + " " + e);
 				} catch (InterruptedException e) {
 					System.err.println(getClass() + " " + e);
+				}
+				
+				if (ptuReader != null){
+					ptuReader.close();
 				}
 				ptuReader = null;
 			}
@@ -136,12 +138,8 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 		stopped = true;
 
-		try {
-			if (ptuReader != null) {
-				ptuReader.close();
-			}
-		} catch (IOException e) {
-			// ignored
+		if (ptuReader != null) {
+			ptuReader.close();
 		}
 	}
 
@@ -151,15 +149,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 	@Override
 	public List<Integer> getPtuIds(long currentHashCode) {
-		return getPtuIdsResponseHandler.respond(currentHashCode,
-				new Response<List<Integer>, List<Integer>>() {
-
-					@Override
-					public List<Integer> getValue(List<Integer> object) {
-						return new ArrayList<Integer>(ptuReader.getPtuIds());
-					}
-
-				});
+		return ptuReader != null ? new ArrayList<Integer>(ptuReader.getPtuIds()) : null;
 	}
 
 	private ResponseHandler<Ptu, Ptu> getPtuResponseHandler = new ResponseHandler<Ptu, Ptu>(

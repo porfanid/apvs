@@ -60,7 +60,7 @@ public class Ptu implements Serializable {
 		return measurements.get(name);
 	}
 	
-	public void setMeasurement(String name, Measurement<Double> measurement) {
+	public Measurement<Double> setMeasurement(String name, Measurement<Double> measurement) {
 		Measurement<Double> old = measurements.get(name);
 		if (old != null) {
 			if (old.getValue() < measurement.getValue()) {
@@ -72,12 +72,12 @@ public class Ptu implements Serializable {
 			state = State.NEW;
 		}
 		lastChanged = name;
-		measurements.put(name, measurement);
+		return measurements.put(name, measurement);
 	}
 	
-	public void add(Measurement<Double> measurement) {
+	public Measurement<Double> add(Measurement<Double> measurement) {
 		// FIXME check ptuId
-		setMeasurement(measurement.getName(), measurement);
+		return setMeasurement(measurement.getName(), measurement);
 	}
 
 	public Collection<? extends Measurement<Double>> getMeasurements() {

@@ -38,7 +38,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 		System.out.println("Creating DosimeterService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
-	
+
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
@@ -50,54 +50,41 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 
 	@Override
 	public void run() {
-		
+
 		while (!stopped) {
 			if (dosimeterReader == null) {
 				try {
 					Socket socket = new Socket(host, port);
-					System.out.println("Connected to "+name+" on "+host+":"+port);
-					
-					DosimeterWriter dosimeterWriter = new DosimeterWriter(socket);
+					System.out.println("Connected to " + name + " on " + host
+							+ ":" + port);
+
+					DosimeterWriter dosimeterWriter = new DosimeterWriter(
+							socket);
 					Thread writer = new Thread(dosimeterWriter);
 					writer.start();
 
 					dosimeterReader = new DosimeterReader(eventBus, socket);
-					
-					// we can probablye get rid of these, as events will travel to the view directly FIXME
-					DosimeterSerialNumbersChangedEvent.register(eventBus, new DosimeterSerialNumbersChangedEvent.Handler() {
-						
-						@Override
-						public void onDosimeterSerialNumbersChanged(
-								DosimeterSerialNumbersChangedEvent event) {
-							getSerialNumbersResponseHandler.onValueChange(event.getDosimeterSerialNumbers());
-						}
-					});
-					
-					DosimeterChangedEvent.register(eventBus, new DosimeterChangedEvent.Handler() {
-						
-						@Override
-						public void onDosimeterChanged(DosimeterChangedEvent event) {
-							getDosimeterResponseHandler.onValueChange(event.getDosimeter());
-						}
-					});
 
 					Thread reader = new Thread(dosimeterReader);
 					reader.start();
 					reader.join();
-					dosimeterReader = null;
-					continue;
 				} catch (UnknownHostException e) {
-					System.err.println(getClass()+" "+e);
+					System.err.println(getClass() + " " + e);
 				} catch (ConnectException e) {
-					System.err.println("Could not connect to "+name+" on "+host+":"+port);
+					System.err.println("Could not connect to " + name + " on "
+							+ host + ":" + port);
 				} catch (IOException e) {
-					System.err.println(getClass()+" "+e);
+					System.err.println(getClass() + " " + e);
 				} catch (InterruptedException e) {
-					System.err.println(getClass()+" "+e);
-				} 
+					System.err.println(getClass() + " " + e);
+				}
+
+				if (dosimeterReader != null) {
+					dosimeterReader.close();
+				}
 				dosimeterReader = null;
 			}
-			
+
 			System.err.println("Sleep");
 			try {
 				Thread.sleep(RECONNECT_INTERVAL);
@@ -110,33 +97,31 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 	@Override
 	public void destroy() {
 		super.destroy();
-		
+
 		stopped = true;
 
-		try {
-			if (dosimeterReader != null) {
-				dosimeterReader.close();
-			}
-		} catch (IOException e) {
-			// ignored
+		if (dosimeterReader != null) {
+			dosimeterReader.close();
 		}
 	}
 
 	private ResponseHandler<List<Integer>, List<Integer>> getSerialNumbersResponseHandler = new ResponseHandler<List<Integer>, List<Integer>>(
 			this);
 
-	@Override
 	public List<Integer> getSerialNumbers(long currentHashCode) {
-		return getSerialNumbersResponseHandler.respond(currentHashCode,
-				new Response<List<Integer>, List<Integer>>() {
-
-					@Override
-					public List<Integer> getValue(List<Integer> object) {
-						return dosimeterReader != null ? dosimeterReader.getDosimeterSerialNumbers() : null;
-					}
-				});
+		return dosimeterReader != null ? dosimeterReader
+				.getDosimeterSerialNumbers() : null;
 	}
 
+	/*
+	 * @Override public List<Integer> getSerialNumbers(long currentHashCode) {
+	 * return getSerialNumbersResponseHandler.respond(currentHashCode, new
+	 * Response<List<Integer>, List<Integer>>() {
+	 * 
+	 * @Override public List<Integer> getValue(List<Integer> object) { return
+	 * dosimeterReader != null ? dosimeterReader.getDosimeterSerialNumbers() :
+	 * null; } }); }
+	 */
 	private ResponseHandler<Dosimeter, Dosimeter> getDosimeterResponseHandler = new ResponseHandler<Dosimeter, Dosimeter>(
 			this);
 
@@ -147,7 +132,8 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 
 					@Override
 					public Dosimeter getValue(Dosimeter object) {
-						return dosimeterReader != null ? dosimeterReader.getDosimeter(serialNo) : null;
+						return dosimeterReader != null ? dosimeterReader
+								.getDosimeter(serialNo) : null;
 					}
 				});
 	}
@@ -157,14 +143,18 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 
 	@Override
 	public Map<Integer, Dosimeter> getDosimeterMap(long currentHashCode) {
-		return getDosimeterMapResponseHandler.respond(currentHashCode,
-				new Response<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>() {
+		return getDosimeterMapResponseHandler
+				.respond(
+						currentHashCode,
+						new Response<Map<Integer, Dosimeter>, Map<Integer, Dosimeter>>() {
 
-					@Override
-					public Map<Integer, Dosimeter> getValue(Map<Integer, Dosimeter> object) {
-						return dosimeterReader != null ? dosimeterReader.getDosimeterMap() : null;
-					}
-				});
+							@Override
+							public Map<Integer, Dosimeter> getValue(
+									Map<Integer, Dosimeter> object) {
+								return dosimeterReader != null ? dosimeterReader
+										.getDosimeterMap() : null;
+							}
+						});
 	}
 
 }
