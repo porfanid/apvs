@@ -389,6 +389,10 @@ google.bookmarkbubble.Bubble.prototype.isIpad_ = function() {
   return this.IPAD_USERAGENT_REGEX_.test(window.navigator.userAgent);
 };
 
+google.bookmarkbubble.Bubble.prototype.isPortrait_ = function() {
+  return window.innerHeight > window.innerWidth;
+};
+
 
 /**
  * Creates a version number from 4 integer pieces between 0 and 127 (inclusive).
@@ -533,7 +537,8 @@ google.bookmarkbubble.Bubble.prototype.getLink = function(rel) {
 google.bookmarkbubble.Bubble.prototype.build_ = function() {
   var bubble = document.createElement('div');
   var isIpad = this.isIpad_();
-
+  var isPortrait = this.isPortrait_();
+   
   bubble.style.position = 'absolute';
   bubble.style.zIndex = 1000;
   bubble.style.width = '100%';
@@ -543,7 +548,12 @@ google.bookmarkbubble.Bubble.prototype.build_ = function() {
   var bubbleInner = document.createElement('div');
   bubbleInner.style.position = 'relative';
   bubbleInner.style.width = '214px';
-  bubbleInner.style.margin = isIpad ? '0 0 0 82px' : '0 auto';
+  //Test for iPad vs iPhone
+  if (isIpad) {
+    bubbleInner.style.margin = isPortrait ? '0 0 0 142px' : '0 0 0 73px';     
+  } else {
+  bubbleInner.style.margin = '0 auto';  
+  }
   bubbleInner.style.border = '2px solid #fff';
   bubbleInner.style.padding = '20px 20px 20px 10px';
   bubbleInner.style.WebkitBorderRadius = '8px';
