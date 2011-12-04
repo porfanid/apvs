@@ -70,6 +70,11 @@ public class APVS implements EntryPoint {
 		placeController = clientFactory.getPlaceController();
 		
 		Panel p;
+		p = RootPanel.get("clientView");
+		if (p != null) {
+			p.add(new ClientView(eventBus));
+			return;
+		}
 		p = RootPanel.get("dosimeterView");
 		if (p != null) {
 			p.add(new DosimeterView(eventBus));
@@ -101,7 +106,7 @@ public class APVS implements EntryPoint {
 			p.add(new CameraView(eventBus));
 			return;
 		}
-		onMainModuleLoad();
+//		onMainModuleLoad();
 	}
 
 	private void onMainModuleLoad() {

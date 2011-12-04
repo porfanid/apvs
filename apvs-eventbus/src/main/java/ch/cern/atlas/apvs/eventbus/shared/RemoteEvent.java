@@ -29,7 +29,7 @@ public abstract class RemoteEvent<H> implements Serializable {
 	}
 	
 	private int uuid;
-	private Long eventBusUUID;
+	private long eventBusUUID = -1;
 
 	protected RemoteEvent() {
 	}
@@ -62,7 +62,7 @@ public abstract class RemoteEvent<H> implements Serializable {
 	}
 
 	protected void setEventBusUUID(long eventBusUUID) {
-		assert(this.eventBusUUID == null);
+		assert(this.eventBusUUID < 0);
 		this.eventBusUUID = eventBusUUID;
 	}
 }
