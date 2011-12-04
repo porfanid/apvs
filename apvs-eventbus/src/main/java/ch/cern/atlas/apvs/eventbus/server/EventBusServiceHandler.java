@@ -47,6 +47,9 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
 		System.err.println("Server: Received event..." + event+" "+event.getEventBusUUID());
+		// add to queues
+		getEventQueue(event.getEventBusUUID());
+		
 		sendToRemote(event);
 
 		eventBus.forwardEvent(event);
