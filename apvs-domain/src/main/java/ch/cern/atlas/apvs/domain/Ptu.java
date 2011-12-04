@@ -14,14 +14,7 @@ public class Ptu implements Serializable {
 
 	private int ptuId;
 	protected Map<String, Measurement<Double>> measurements = new HashMap<String, Measurement<Double>>();
-	
-	private String lastChanged;
-	private State state;
-
-	public enum State {
-		UP, DOWN, NEW;
-	};
-	
+		
 	public Ptu() {
 		ptuId = -1;
 	}
@@ -61,17 +54,6 @@ public class Ptu implements Serializable {
 	}
 	
 	public Measurement<Double> setMeasurement(String name, Measurement<Double> measurement) {
-		Measurement<Double> old = measurements.get(name);
-		if (old != null) {
-			if (old.getValue() < measurement.getValue()) {
-				state = State.UP;
-			} else {
-				state = State.DOWN;
-			}
-		} else {
-			state = State.NEW;
-		}
-		lastChanged = name;
 		return measurements.put(name, measurement);
 	}
 	
@@ -83,14 +65,5 @@ public class Ptu implements Serializable {
 	public Collection<? extends Measurement<Double>> getMeasurements() {
 		return measurements.values();
 	}
-
-	public State getState() {
-		return state;
-	}
-	
-	public String getLastChanged() {
-		return lastChanged;
-	}
-
 }
 

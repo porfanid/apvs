@@ -106,10 +106,11 @@ public class PtuView extends SimplePanel {
 				if (ptu.getMeasurement(name) == null) {
 					units.put(name, measurement.getUnit());
 					ptu.add(measurement);
+					last = measurement;
 				} else {
-					ptu.setMeasurement(name, measurement);
+					last = ptu.setMeasurement(name, measurement);
 				}
-
+				
 				if (!dataProvider.getList().contains(name)) {
 					dataProvider.getList().add(name);
 				}
@@ -137,11 +138,8 @@ public class PtuView extends SimplePanel {
 					SafeHtmlBuilder sb) {
 				Measurement<Double> m = ptus.get(ptuId).getMeasurement(object);
 				String s = getValue(object);
-				if ((m != null) && m.equals(last)) {
-					s = "<b>" + s + "</b>";
-				}
 				((TextCell) getCell()).render(context,
-						SafeHtmlUtils.fromSafeConstant(s), sb);
+						MeasurementView.decorate(s, m, last), sb);
 			}
 
 		};
