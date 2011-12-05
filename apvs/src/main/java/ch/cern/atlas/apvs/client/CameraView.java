@@ -8,8 +8,10 @@ import com.google.gwt.user.client.ui.HTML;
 public class CameraView extends VerticalFlowPanel {
 
 	// FIXME
-	private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
-	private int videoWidth = 640;
+//	private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
+//	private final String cameraURL = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
+	private final String cameraURL = "http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8";
+	private int videoWidth = 480;
 	private int videoHeight = 360;
 	private String videoPoster = "camera.jpg"; // FIXME
 	@SuppressWarnings("unused")
