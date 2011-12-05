@@ -3,15 +3,15 @@ package ch.cern.atlas.apvs.client;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent.Navigation;
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
+import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 
-public class ProcedureControls extends HorizontalPanel {
+public class ProcedureControls extends HorizontalFlowPanel {
 
 	Button start = new Button("Start");
 	Button previous = new Button("Previous");

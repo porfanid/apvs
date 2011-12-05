@@ -11,12 +11,12 @@
 	<description>ATLAS Procedure Visualizer System</description>
 
 	<properties>
+		<atmosphere-version>0.8.1</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
 		<jdk-version>1.6</jdk-version>
-
-		<atmosphere-version>0.8.1</atmosphere-version>
 		<jetty-version>7.5.4.v20111024</jetty-version>
 		<junit-version>4.10</junit-version>
+		<mgwt-version>1.0.0</mgwt-version>
 		<servlet-api-version>2.5</servlet-api-version>
 
 		<antrun-plugin-version>1.7</antrun-plugin-version>
@@ -168,6 +168,11 @@
 				<artifactId>gwt-servlet</artifactId>
 				<version>${gwt-version}</version>
 				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+      				<groupId>com.googlecode.mgwt</groupId>
+      				<artifactId>mgwt</artifactId>
+      				<version>${mgwt-version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>

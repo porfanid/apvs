@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class ClientIdsChangedEvent extends RemoteEvent<ClientIdsChangedEvent.Handler> {
+public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIdsChangedEvent.Handler> {
 
 	private static final long serialVersionUID = 1483151980311290676L;
 
@@ -17,10 +17,10 @@ public class ClientIdsChangedEvent extends RemoteEvent<ClientIdsChangedEvent.Han
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onClientIdsChanged(ClientIdsChangedEvent event);
+		void onClientIdsChanged(RemoteEventBusIdsChangedEvent event);
 	}
 
-	private static final Type<ClientIdsChangedEvent.Handler> TYPE = new Type<ClientIdsChangedEvent.Handler>();
+	private static final Type<RemoteEventBusIdsChangedEvent.Handler> TYPE = new Type<RemoteEventBusIdsChangedEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -32,14 +32,14 @@ public class ClientIdsChangedEvent extends RemoteEvent<ClientIdsChangedEvent.Han
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			ClientIdsChangedEvent.Handler handler) {
+			RemoteEventBusIdsChangedEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(ClientIdsChangedEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(RemoteEventBusIdsChangedEvent.class));
 		
 		return registration;
 	}
@@ -47,15 +47,15 @@ public class ClientIdsChangedEvent extends RemoteEvent<ClientIdsChangedEvent.Han
 	
 	private List<Long> clientIds;
 	
-	public ClientIdsChangedEvent() {
+	public RemoteEventBusIdsChangedEvent() {
 	}
 
-	public ClientIdsChangedEvent(List<Long> clientIds) {
+	public RemoteEventBusIdsChangedEvent(List<Long> clientIds) {
 		this.clientIds = clientIds;
 	}
 
 	@Override
-	public Type<ClientIdsChangedEvent.Handler> getAssociatedType() {
+	public Type<RemoteEventBusIdsChangedEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 

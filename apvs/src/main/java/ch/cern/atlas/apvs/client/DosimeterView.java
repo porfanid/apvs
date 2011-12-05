@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -28,10 +29,9 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
 
-public class DosimeterView extends SimplePanel {
+public class DosimeterView extends VerticalFlowPanel {
 
 	@SuppressWarnings("unused")
 	private static List<Dosimeter> DOSIMETERS = Arrays.asList(new Dosimeter(22,

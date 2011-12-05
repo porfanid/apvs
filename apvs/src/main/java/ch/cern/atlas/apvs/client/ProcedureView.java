@@ -5,13 +5,13 @@ import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class ProcedureView extends SimplePanel {
+public class ProcedureView extends VerticalPanel {
 
 	// FIXME
-	private final String procedureURL = "http://localhost:8890/apvs-procs";
-	private String procedure = "mural-m4v";
+	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Demo";
+	private String procedure = "mural";
 	private int step = 1;
 	private String extension = ".m4v";
 	private String contentType = "video/x-m4v"; // video/mp4
@@ -53,7 +53,8 @@ public class ProcedureView extends SimplePanel {
 				String source = procedureURL + "/" + procedure + "/" + step
 						+ extension;
 				System.err.println(source);
-				setWidget(new HTML(
+				clear();
+				add(new HTML(
 						"<video width='"+videoWidth+"' height='"+videoHeight+"' poster='"+videoPoster+"' controls autoplay>"
 								+ "<source src='" + source
 								+ "' type='"+contentType+"'></source>" + "</video>"));

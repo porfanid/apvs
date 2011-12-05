@@ -1,13 +1,13 @@
 package ch.cern.atlas.apvs.client;
 
+import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
 
-public class ClientView extends HorizontalPanel {
+public class ClientView extends HorizontalFlowPanel {
 
 	public ClientView(RemoteEventBus eventBus) {
 		Label nameLabel = new Label("Name: ");

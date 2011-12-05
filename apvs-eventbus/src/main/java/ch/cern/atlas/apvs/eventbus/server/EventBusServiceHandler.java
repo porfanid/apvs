@@ -16,7 +16,7 @@ import javax.servlet.ServletException;
 import org.atmosphere.gwt.poll.AtmospherePollService;
 
 import ch.cern.atlas.apvs.eventbus.client.EventBusService;
-import ch.cern.atlas.apvs.eventbus.shared.ClientIdsChangedEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 
 @SuppressWarnings("serial")
@@ -135,7 +135,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 			clients.put(uuid, info);
 			
 			// event without eventBusUUID
-			ClientIdsChangedEvent event = new ClientIdsChangedEvent(new ArrayList<Long>(clients.keySet()));
+			RemoteEventBusIdsChangedEvent event = new RemoteEventBusIdsChangedEvent(new ArrayList<Long>(clients.keySet()));
 			// broadcast to all
 			sendToRemote(event);
 			eventBus.forwardEvent(event);

@@ -6,6 +6,7 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectDosimeterEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
@@ -23,11 +24,10 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class MeasurementView extends SimplePanel {
+public class MeasurementView extends VerticalFlowPanel {
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 

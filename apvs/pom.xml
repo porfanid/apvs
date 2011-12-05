@@ -213,6 +213,10 @@
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-servlet</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.googlecode.mgwt</groupId>
+			<artifactId>mgwt</artifactId>
+		</dependency>
 		<!-- see http://wiki.eclipse.org/Jetty/Reference/Dependencies -->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
