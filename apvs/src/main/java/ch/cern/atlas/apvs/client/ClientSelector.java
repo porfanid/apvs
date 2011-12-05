@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectClientEvent;

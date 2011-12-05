@@ -66,6 +66,10 @@
         </dependency>
         <dependency>
             <groupId>ch.cern.atlas</groupId>
+            <artifactId>apvs-dosimeter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.cern.atlas</groupId>
             <artifactId>apvs-eventbus</artifactId>
         </dependency>
 		<dependency>
