@@ -90,6 +90,8 @@ public class APVS implements EntryPoint {
 			p.add(new ProcedureControls(eventBus));
 
 			procedureView.setStep(1);
+		} else if (view.equals("settingsView")) {
+			p.add(new SettingsView(eventBus));
 		} else if (view.equals("cameraView")) {
 			RootLayoutPanel.get().add(new CameraView(eventBus));
 			return;

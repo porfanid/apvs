@@ -22,7 +22,7 @@ public class PtuSocket implements Runnable {
 		this.socket = socket;
 		this.json = json;
 	}
-	
+
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
@@ -35,27 +35,29 @@ public class PtuSocket implements Runnable {
 	@Override
 	public void run() {
 		try {
-			List<Ptu> ptus = new ArrayList<Ptu>(
-					noOfPtus);
+			int[] ptuIds = { 78347, 82098, 37309, 27372, 39400, 88982 };
+			List<Ptu> ptus = new ArrayList<Ptu>(noOfPtus);
 			for (int i = 0; i < noOfPtus; i++) {
-				int ptuId = random.nextInt(300);
+				int ptuId = ptuIds[i];
 				Ptu ptu = new Ptu(ptuId);
 				ptus.add(ptu);
 				ptu.add(new Temperature(ptuId, 25.7 + random.nextGaussian()));
 				ptu.add(new Humidity(ptuId, 31.4 + random.nextGaussian()));
-				ptu.add(new CO2(ptuId, 2.5 + random.nextGaussian()/10));
+				ptu.add(new CO2(ptuId, 2.5 + random.nextGaussian() / 10));
 				ptu.add(new BodyTemperature(ptuId, 37.2 + random.nextGaussian()));
 				ptu.add(new HeartBeat(ptuId, 120 + random.nextGaussian()));
-				ptu.add(new O2SkinSaturationRate(ptuId, 20.8 + random.nextGaussian()));
+				ptu.add(new O2SkinSaturationRate(ptuId, 20.8 + random
+						.nextGaussian()));
 				ptu.add(new O2(ptuId, 85.2 + random.nextGaussian()));
-				
+
 				System.out.println(ptus.get(i).getPtuId());
 			}
-			
-			System.out.print("Connected on: "+socket.getInetAddress());
+
+			System.out.print("Connected on: " + socket.getInetAddress());
 
 			OutputStream os = socket.getOutputStream();
-			ObjectWriter writer = json ? new PtuJsonWriter(os) : new PtuXmlWriter(os);
+			ObjectWriter writer = json ? new PtuJsonWriter(os)
+					: new PtuXmlWriter(os);
 			for (int i = 0; i < ptus.size(); i++) {
 				Ptu ptu = ptus.get(i);
 				writer.write(ptu);
@@ -63,7 +65,7 @@ public class PtuSocket implements Runnable {
 			writer.flush();
 
 			while (true) {
-				next(ptus.get(random.nextInt(ptus.size())),writer);
+				next(ptus.get(random.nextInt(ptus.size())), writer);
 				writer.flush();
 
 				try {
@@ -85,7 +87,7 @@ public class PtuSocket implements Runnable {
 			}
 		}
 	}
-	
+
 	private void next(Ptu ptu, ObjectWriter writer) throws IOException {
 		int index = random.nextInt(ptu.getSize());
 		String name = ptu.getMeasurementNames().get(index);
@@ -96,6 +98,7 @@ public class PtuSocket implements Runnable {
 	}
 
 	private Measurement<Double> next(Measurement<Double> m) {
-		return new Measurement<Double>(m.getPtuId(), m.getName(), m.getValue()+random.nextGaussian(), m.getUnit(), new Date());
+		return new Measurement<Double>(m.getPtuId(), m.getName(), m.getValue()
+				+ random.nextGaussian(), m.getUnit(), new Date());
 	}
 }

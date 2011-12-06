@@ -64,8 +64,8 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 				} catch (UnknownHostException e) {
 					System.err.println(getClass() + " " + e);
 				} catch (ConnectException e) {
-					System.err.println("Could not connect to " + name + " on "
-							+ host + ":" + port);
+//					System.err.println("Could not connect to " + name + " on "
+//							+ host + ":" + port);
 				} catch (IOException e) {
 					System.err.println(getClass() + " " + e);
 				} catch (InterruptedException e) {
@@ -78,7 +78,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 				dosimeterReader = null;
 			}
 
-			System.err.println("Sleep");
+//			System.err.println("Sleep");
 			try {
 				Thread.sleep(RECONNECT_INTERVAL);
 			} catch (InterruptedException e) {

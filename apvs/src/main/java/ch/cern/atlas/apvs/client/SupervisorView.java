@@ -6,7 +6,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class SupervisorView extends SplitLayoutPanel {
 

@@ -34,8 +34,9 @@ public class DosimeterSocket implements Runnable {
 		try {
 			List<Dosimeter> dosimeters = new ArrayList<Dosimeter>(
 					noOfDosimeters);
+			int[] serialNo = { 265, 4738, 202, 106, 395 };
 			for (int i = 0; i < noOfDosimeters; i++) {
-				dosimeters.add(new Dosimeter(random.nextInt(100000), random
+				dosimeters.add(new Dosimeter(serialNo[i], random
 						.nextDouble()*500.0, random.nextDouble()*5.0));
 				System.out.println(dosimeters.get(i).getSerialNo());
 			}
@@ -53,7 +54,7 @@ public class DosimeterSocket implements Runnable {
 				os.flush();
 
 				try {
-					Thread.sleep(3000 + random.nextInt(3000));
+					Thread.sleep(10000 + random.nextInt(5000));
 				} catch (InterruptedException e) {
 					// ignored
 				}
