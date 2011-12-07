@@ -47,7 +47,7 @@ public class SettingsView extends VerticalFlowPanel {
 		add(table);
 		add(buttonPanel);
 		
-		Button add = new Button();
+		Button add = new Button("Add");
 		add.addClickHandler(new ClickHandler() {
 			
 			@Override
