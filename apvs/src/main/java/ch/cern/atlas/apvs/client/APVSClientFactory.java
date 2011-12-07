@@ -4,13 +4,12 @@ import ch.cern.atlas.apvs.client.service.FileService;
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.PlaceController;
 
 public class APVSClientFactory implements ClientFactory {
-	private SimpleRemoteEventBus eventBus;
+	private RemoteEventBus eventBus;
 	private final PlaceController placeController;
 	private final FileServiceAsync fileService = GWT
 			.create(FileService.class);

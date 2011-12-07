@@ -5,9 +5,9 @@ import java.util.Map;
 
 public interface Settings {
 
-	public void setMap(Map<Integer, Map<String, String>> map);
+	public void setMap(Map<String, Map<String, String>> map);
 
-	public Map<Integer, Map<String, String>> getMap();
+	public Map<String, Map<String, String>> getMap();
 	
 	public void put(int id, String name, String value);
 	

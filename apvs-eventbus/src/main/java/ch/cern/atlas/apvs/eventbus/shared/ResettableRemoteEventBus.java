@@ -5,18 +5,16 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
-import com.google.web.bindery.event.shared.ResettableEventBus;
 
 /**
  * Wraps an EventBus to hold on to any HandlerRegistrations, so that they can
  * easily all be cleared at once.
  */
-public class ResettableRemoteEventBus extends ResettableEventBus implements RemoteEventBus {
+public class ResettableRemoteEventBus extends RemoteEventBus {
 	private final RemoteEventBus wrapped;
 	private final Set<HandlerRegistration> registrations = new HashSet<HandlerRegistration>();
 
-	public ResettableRemoteEventBus(SimpleRemoteEventBus wrappedBus) {
-		super(wrappedBus);
+	public ResettableRemoteEventBus(RemoteEventBus wrappedBus) {
 		this.wrapped = wrappedBus;
 	}
 	
@@ -49,10 +47,7 @@ public class ResettableRemoteEventBus extends ResettableEventBus implements Remo
 		wrapped.fireEventFromSource(event, uuid);
 	}
 
-	@Override
-	public void removeHandlers() {
-		super.removeHandlers();
-		
+	public void removeHandlers() {		
 		Iterator<HandlerRegistration> it = registrations.iterator();
 		while (it.hasNext()) {
 			HandlerRegistration r = it.next();
@@ -70,9 +65,8 @@ public class ResettableRemoteEventBus extends ResettableEventBus implements Remo
 	/**
 	 * Visible for testing.
 	 */
-	@Override
 	protected int getRegistrationSize() {
-		return super.getRegistrationSize() + registrations.size();
+		return registrations.size();
 	}
 
 	private HandlerRegistration doRegisterHandler(

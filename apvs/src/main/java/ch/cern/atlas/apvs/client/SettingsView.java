@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client;
 
 import java.util.Arrays;
 
+import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -10,28 +11,21 @@ import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.web.bindery.autobean.shared.AutoBean;
-import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 
 public class SettingsView extends VerticalFlowPanel {
 
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
-	private final static String APVS_SETTINGS = "APVS.settings";
-	private SettingsFactory settingsFactory = GWT.create(SettingsFactory.class);
 	private Settings settings;
+	private RemoteEventBus eventBus;
 
 	private static final String[] settingNames = { "Name", "PTU Id",
 			"Dosimeter #", "URL Helmet Camera", "URL Hand Camera" };
@@ -41,8 +35,18 @@ public class SettingsView extends VerticalFlowPanel {
 			EditTextCell.class };
 
 	public SettingsView(RemoteEventBus eventBus) {
+		this.eventBus = eventBus;
 
 		add(table);
+		
+		SettingsChangedEvent.subscribe(eventBus, new SettingsChangedEvent.Handler() {
+			@Override
+			public void onSettingsChanged(SettingsChangedEvent event) {
+				settings = event.getSettings();
+				
+				update();
+			}
+		});
 
 		// name column
 		TextColumn<String> name = new TextColumn<String>() {
@@ -63,13 +67,6 @@ public class SettingsView extends VerticalFlowPanel {
 
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(Arrays.asList(settingNames));
-
-		settings = settingsFactory.settings().as();
-
-		load();
-
-		insertColumn(1);
-		insertColumn(2);
 
 		update();
 	}
@@ -103,54 +100,19 @@ public class SettingsView extends VerticalFlowPanel {
 						+ value + " for " + id);
 				settings.put(id, name, value);
 
-				// FIXME, publish on event bus
-				store();
+				eventBus.fireEvent(new SettingsChangedEvent(settings));
 			}
 		});
 
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		table.insertColumn(columnIndex, column, Integer.toString(id));
+		
+		// FIXME add to settings and fire event
+		
+		update();
 	}
 
 	private void update() {
 		table.redraw();
-	}
-
-	private void load() {
-		Storage store = Storage.getLocalStorageIfSupported();
-		if (store == null) {
-			Window.alert("Settings will not be stored");
-			return;
-		}
-		System.err.println(Storage.isSupported()+" "+Storage.isLocalStorageSupported());
-		System.err.println(store.getLength());
-		for (int i = 0; i < store.getLength(); i++) {
-			String key = store.key(i);
-			System.err.println(key+" "+store.getItem(key));
-		}
-		String json = store.getItem(APVS_SETTINGS);
-		if (json != null) {
-			System.err.println("get " + json);
-			AutoBean<Settings> bean = AutoBeanCodex.decode(settingsFactory,
-					Settings.class, json);
-			settings = bean.as();
-
-			System.err.println(settings.debugString());
-			
-			update();
-		} 
-	}
-
-	private void store() {
-		Storage store = Storage.getLocalStorageIfSupported();
-		if (store == null)
-			return;
-
-		AutoBean<Settings> bean = AutoBeanUtils.getAutoBean(settings);
-		String json = AutoBeanCodex.encode(bean).getPayload();
-
-		System.err.println("set " + json);
-		store.setItem(APVS_SETTINGS, json);
-		System.err.println(store.getLength());
 	}
 }

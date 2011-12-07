@@ -1,9 +1,9 @@
 package ch.cern.atlas.apvs.eventbus.server;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
-import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-public class ServerEventBus extends SimpleRemoteEventBus {
+public class ServerEventBus extends RemoteEventBus {
 	
 	private static ServerEventBus instance;
 

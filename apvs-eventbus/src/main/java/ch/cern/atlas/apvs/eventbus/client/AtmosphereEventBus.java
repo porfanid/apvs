@@ -9,11 +9,11 @@ import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
 import org.atmosphere.gwt.client.AtmosphereListener;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
-import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
 
-public class AtmosphereEventBus extends SimpleRemoteEventBus {
+public class AtmosphereEventBus extends RemoteEventBus {
 
 	private AtmosphereClient client;
 

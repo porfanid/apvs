@@ -1,13 +1,13 @@
 package ch.cern.atlas.apvs.server;
 
 import ch.cern.atlas.apvs.eventbus.server.ServerEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.SimpleRemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 public class APVSServerFactory {
 	
 	private static APVSServerFactory factory = new APVSServerFactory();
 	
-	private SimpleRemoteEventBus eventBus;
+	private RemoteEventBus eventBus;
 	
 	public APVSServerFactory() {
 		eventBus = ServerEventBus.getInstance();
@@ -17,7 +17,7 @@ public class APVSServerFactory {
 		return factory;
 	}
 	
-	public SimpleRemoteEventBus getEventBus() {
+	public RemoteEventBus getEventBus() {
 		return eventBus;
 	}
 	

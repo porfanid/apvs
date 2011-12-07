@@ -43,14 +43,16 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class APVS implements EntryPoint {
 
-	Logger logger = Logger.getLogger(getClass().getName());
-	Window screen;
+    private Logger logger = Logger.getLogger(getClass().getName());
+	private Window screen;
 
-	RemoteEventBus eventBus;
-	PlaceController placeController;
-	Label clientId = new Label();
+	private RemoteEventBus eventBus;
+	private PlaceController placeController;
+	@SuppressWarnings("unused")
+	private SettingsPersister settingsPersister;
+	private Label clientId = new Label();
 
-	Button dosimeterButton;
+	private Button dosimeterButton;
 
 	@Override
 	public void onModuleLoad() {
@@ -65,7 +67,10 @@ public class APVS implements EntryPoint {
 		NodeList<Element> divs = Document.get().getElementsByTagName("div");
 		if (divs.getLength() == 0) {
 			Window.alert("Please define a <div> element with the id set to your view in the html you are starting from.");
+			return;
 		}
+		
+		settingsPersister = new SettingsPersister(eventBus);
 
 		String view = divs.getItem(0).getId();
 		Panel p = new VerticalFlowPanel();
