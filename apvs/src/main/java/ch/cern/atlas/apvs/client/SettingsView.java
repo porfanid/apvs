@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client;
 import java.util.Arrays;
 
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
+import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -11,16 +12,20 @@ import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class SettingsView extends VerticalFlowPanel {
 
+	private int id = 1;
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
@@ -33,11 +38,24 @@ public class SettingsView extends VerticalFlowPanel {
 	private static final Class[] cellClass = { EditTextCell.class,
 			SelectionCell.class, SelectionCell.class, EditTextCell.class,
 			EditTextCell.class };
+	
+	private HorizontalFlowPanel buttonPanel = new HorizontalFlowPanel();
 
 	public SettingsView(RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
 
 		add(table);
+		add(buttonPanel);
+		
+		Button add = new Button();
+		add.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				insertColumn(id++);
+			}
+		});
+		buttonPanel.add(add);
 		
 		SettingsChangedEvent.subscribe(eventBus, new SettingsChangedEvent.Handler() {
 			@Override

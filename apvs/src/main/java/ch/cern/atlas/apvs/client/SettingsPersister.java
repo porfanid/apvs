@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -58,6 +61,10 @@ public class SettingsPersister extends VerticalFlowPanel {
 			AutoBean<Settings> bean = AutoBeanCodex.decode(settingsFactory,
 					Settings.class, json);
 			settings = bean.as();
+			
+			if (settings.getMap() == null) {
+				settings.setMap(new HashMap<String, Map<String,String>>());
+			}
 
 			System.err.println(settings.debugString());			
 		}
