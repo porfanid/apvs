@@ -9,7 +9,7 @@
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
-    	<groupId>com.cedarsoftware</groupId>
+	<groupId>com.cedarsoftware</groupId>
 	<artifactId>apvs-json-io</artifactId>
 	<packaging>jar</packaging>
 	<name>APVS json io</name>
@@ -18,12 +18,12 @@
 		<finalName>${project.artifactId}</finalName>
 	</build>
 
-      	<dependencies>
-              <dependency>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-              </dependency>
-	</dependencies>  
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+	</dependencies>
 </project>
 
 

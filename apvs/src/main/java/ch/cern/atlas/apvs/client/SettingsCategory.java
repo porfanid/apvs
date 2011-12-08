@@ -1,54 +1,66 @@
 package ch.cern.atlas.apvs.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.web.bindery.autobean.shared.AutoBean;
 
 public class SettingsCategory  {
+		
+	public static String get(AutoBean<Settings> instance, int index, String name) {
+		List<Map<String, String>> list = instance.as().getList();
+		if (list == null) return null;
+		Map<String, String> map = list.get(index);	
+		if (map == null) return null;
+		return map.get(name);
+	}
 
-	private static Map<String, Map<String, String>> getMap(AutoBean<Settings> instance) {
-		Map<String, Map<String, String>> settings = instance.as().getMap();
-		if (settings == null) {
-			settings = new HashMap<String, Map<String, String>>();
-			instance.as().setMap(settings);
+	public static void put(AutoBean<Settings> instance, int index, String name, String value) {
+		List<Map<String, String>> list = instance.as().getList();
+		if (list == null) {
+			list = new ArrayList<Map<String, String>>();
+			instance.as().setList(list);
 		}
-		return settings;
+
+		Map<String, String> map = index < list.size() ? list.get(index) : null;
+		if (map == null) {
+			for (int i=0; i < index - list.size() + 1; i++) {
+				list.add(new HashMap<String, String>());
+				System.err.println(index +" "+list.size());
+			}
+			map = new HashMap<String, String>();
+			list.set(index, map);
+		}
+		
+		map.put(name, value);
 	}
 	
-	public static String get(AutoBean<Settings> instance, int id, String name) {
-		Map<String, Map<String, String>> settings = getMap(instance);
-		Map<String, String> setting = settings.get(Integer.toString(id));	
-		if (setting == null) return null;
-		return setting.get(name);
-	}
-
-	public static void put(AutoBean<Settings> instance, int id, String name, String value) {
-		Map<String, Map<String, String>> settings = getMap(instance);
-		Map<String, String> setting = settings.get(Integer.toString(id));
-		if (setting == null) {
-			setting = new HashMap<String, String>();
-			setting.put("Name", "Person "+id);
-			settings.put(Integer.toString(id), setting);
-		}
-		setting.put(name, value);
+	public static void remove(AutoBean<Settings> instance, int index) {
+		List<Map<String, String>> list = instance.as().getList();
+		if (list == null) return;
+		list.remove(index);
 	}
 
 	public static int size(AutoBean<Settings> instance) {
-		return instance.as().getMap().size();
+		List<Map<String, String>> list = instance.as().getList();
+		return list != null ? list.size() : 0;
 	}
 
 	public static String debugString(AutoBean<Settings> instance) {
 		StringBuffer s = new StringBuffer("Settings {\n");
-		for (Iterator<Map.Entry<String,Map<String,String>>> i = instance.as().getMap().entrySet().iterator(); i.hasNext();) {
-			Entry<String, Map<String, String>> entry = i.next();
-			s.append("  "+entry.getKey()+"\n");
-			for (Iterator<Map.Entry<String, String>> j = entry.getValue().entrySet().iterator(); j.hasNext(); ) {
+		int index = 0;
+		for (Iterator<Map<String,String>> i = instance.as().getList().iterator(); i.hasNext();) {
+			Map<String, String> entry = i.next();
+			s.append("  "+index+"\n");
+			for (Iterator<Map.Entry<String, String>> j = entry.entrySet().iterator(); j.hasNext(); ) {
 				Entry<String, String> subEntry = j.next();
 				s.append("    "+subEntry.getKey()+": "+subEntry.getValue()+"\n");
 			}
+			index++;
 		}
 		s.append("}");
 		return s.toString();

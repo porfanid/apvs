@@ -5,23 +5,33 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.cell.client.AbstractInputCell;
+import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.EditTextCell;
+import com.google.gwt.cell.client.SelectionCell;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
-public class EditableCell extends AbstractInputCell<String, Object> {
-// FIXME add checkbox...
-	private EditableTextCell textCell;
-	private EditableSelectionCell selectionCell;
+public class EditableCell extends AbstractCell<Object> {
+	private MyEditTextCell editCell;
+	private MySelectionCell selectionCell;
 	private List<String> options;
-	private Class<? extends Cell<String>>[] cellClass;
-	
-	public EditableCell(Class<? extends Cell<String>>[] cellClass) {
+	private MyCheckboxCell checkboxCell;
+	private MyButtonCell buttonCell;
+	private MyTextCell textCell;
+
+	private Class<? extends Cell<Object>>[] cellClass;
+
+	public EditableCell(Class<? extends Cell<Object>>[] cellClass) {
 		this.cellClass = cellClass;
+
+		editCell = new MyEditTextCell();
 		options = new ArrayList<String>();
 		options.add("option 1");
 		options.add("option 2");
@@ -29,35 +39,111 @@ public class EditableCell extends AbstractInputCell<String, Object> {
 		options.add("option 4");
 		options.add("option 5");
 		options.add("option 6");
-		selectionCell = new EditableSelectionCell(options);
-		textCell = new EditableTextCell();
+		selectionCell = new MySelectionCell(options);
+		checkboxCell = new MyCheckboxCell();
+		buttonCell = new MyButtonCell();
+		textCell = new MyTextCell();
 	}
 
 	@Override
-	public boolean isEditing(Context context, Element parent, String value) {
-		if (getCellClass(context.getIndex()).equals(EditTextCell.class)) {
-			return textCell.isEditing(context, parent, value);
+	public boolean isEditing(Context context, Element parent, Object value) {
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
+				.getIndex());
+		if (cellClass.equals(EditTextCell.class)) {
+			return editCell.isEditing(context, parent, (String) value);
+		} else if (cellClass.equals(SelectionCell.class)) {
+			return selectionCell.isEditing(context, parent, (String) value);
+		} else if (cellClass.equals(CheckboxCell.class)) {
+			return checkboxCell.isEditing(context, parent,
+					Boolean.valueOf((String) value));
+		} else if (cellClass.equals(ButtonCell.class)) {
+			return buttonCell.isEditing(context, parent, (String) value);
 		} else {
-			return selectionCell.isEditing(context, parent, value);
+			return textCell.isEditing(context, parent, (String) value);
 		}
 	}
 
 	@Override
-	public void onBrowserEvent(Context context, Element parent, String value,
-			NativeEvent event, ValueUpdater<String> valueUpdater) {
-		if (getCellClass(context.getIndex()).equals(EditTextCell.class)) {
-			textCell.onBrowserEvent(context, parent, value, event, valueUpdater);
+	public void onBrowserEvent(Context context, Element parent, Object value,
+			NativeEvent event, final ValueUpdater<Object> valueUpdater) {
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
+				.getIndex());
+		if (cellClass.equals(EditTextCell.class)) {
+			editCell.onBrowserEvent(context, parent, (String) value, event,
+					new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
+		} else if (cellClass.equals(SelectionCell.class)) {
+			selectionCell.onBrowserEvent(context, parent, (String) value,
+					event, new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
+		} else if (cellClass.equals(CheckboxCell.class)) {
+			checkboxCell.onBrowserEvent(context, parent,
+					Boolean.valueOf((String) value), event,
+					new ValueUpdater<Boolean>() {
+						@Override
+						public void update(Boolean value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
+		} else if (cellClass.equals(ButtonCell.class)) {
+			buttonCell.onBrowserEvent(context, parent, (String) value, event,
+					new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
 		} else {
-			selectionCell.onBrowserEvent(context, parent, value, event, valueUpdater);
+			textCell.onBrowserEvent(context, parent, (String) value, event,
+					new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
 		}
 	}
 
 	@Override
-	public void render(Context context, String value, SafeHtmlBuilder sb) {
-		if (getCellClass(context.getIndex()).equals(EditTextCell.class)) {
-			textCell.render(context, value, sb);
+	public void render(Context context, Object value, SafeHtmlBuilder sb) {
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
+				.getIndex());
+		if (cellClass.equals(EditTextCell.class)) {
+			editCell.render(context, (String) value, sb);
+		} else if (cellClass.equals(SelectionCell.class)) {
+			selectionCell.render(context, (String) value, sb);
+		} else if (cellClass.equals(CheckboxCell.class)) {
+			checkboxCell.render(context, Boolean.valueOf((String) value), sb);
+		} else if (cellClass.equals(ButtonCell.class)) {
+			if (value instanceof SafeHtml) {
+				buttonCell.render(context, (SafeHtml) value, sb);
+			} else {
+				buttonCell.render(context, (String) value, sb);
+			}
 		} else {
-			selectionCell.render(context, value, sb);
+			if (value instanceof SafeHtml) {
+				textCell.render(context, (SafeHtml) value, sb);
+			} else {
+				textCell.render(context, (String) value, sb);
+			}
 		}
 	}
 
@@ -69,8 +155,27 @@ public class EditableCell extends AbstractInputCell<String, Object> {
 	@Override
 	public Set<String> getConsumedEvents() {
 		Set<String> events = new HashSet<String>();
-		events.addAll(textCell.getConsumedEvents());
-		events.addAll(selectionCell.getConsumedEvents());
+
+		Set<String> editCellEvents = editCell.getConsumedEvents();
+		if (editCellEvents != null) {
+			events.addAll(editCellEvents);
+		}
+		Set<String> selectionCellEvents = selectionCell.getConsumedEvents();
+		if (selectionCellEvents != null) {
+			events.addAll(selectionCellEvents);
+		}
+		Set<String> checkboxCellEvents = checkboxCell.getConsumedEvents();
+		if (checkboxCellEvents != null) {
+			events.addAll(checkboxCellEvents);
+		}
+		Set<String> buttonCellEvents = buttonCell.getConsumedEvents();
+		if (buttonCellEvents != null) {
+			events.addAll(buttonCellEvents);
+		}
+		Set<String> textCellEvents = textCell.getConsumedEvents();
+		if (textCellEvents != null) {
+			events.addAll(textCellEvents);
+		}
 		return events;
 	}
 
@@ -78,67 +183,163 @@ public class EditableCell extends AbstractInputCell<String, Object> {
 	public boolean handlesSelection() {
 		return false;
 	}
-	
+
 	@Override
 	protected void onEnterKeyDown(Context context, Element parent,
-			String value, NativeEvent event, ValueUpdater<String> valueUpdater) {
-		if (getCellClass(context.getIndex()).equals(EditTextCell.class)) {
-			textCell.onEnterKeyDown(context, parent, value, event, valueUpdater);
+			Object value, NativeEvent event,
+			final ValueUpdater<Object> valueUpdater) {
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
+				.getIndex());
+		if (cellClass.equals(EditTextCell.class)) {
+			editCell.onEnterKeyDown(context, parent, (String) value, event,
+					new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
+		} else if (cellClass.equals(SelectionCell.class)) {
+			selectionCell.onEnterKeyDown(context, parent, (String) value,
+					event, new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
+		} else if (cellClass.equals(CheckboxCell.class)) {
+			checkboxCell.onEnterKeyDown(context, parent,
+					Boolean.valueOf((String) value), event,
+					new ValueUpdater<Boolean>() {
+						@Override
+						public void update(Boolean value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
+		} else if (cellClass.equals(ButtonCell.class)) {
+			buttonCell.onEnterKeyDown(context, parent, (String) value, event,
+					new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
 		} else {
-			selectionCell.onEnterKeyDown(context, parent, value, event, valueUpdater);
+			textCell.onEnterKeyDown(context, parent, (String) value, event,
+					new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
 		}
 	}
-	
+
 	@Override
-	public boolean resetFocus(Context context, Element parent, String value) {
-		if (getCellClass(context.getIndex()).equals(EditTextCell.class)) {
-			return textCell.resetFocus(context, parent, value);
+	public boolean resetFocus(Context context, Element parent, Object value) {
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
+				.getIndex());
+		if (cellClass.equals(EditTextCell.class)) {
+			return editCell.resetFocus(context, parent, (String) value);
+		} else if (cellClass.equals(SelectionCell.class)) {
+			return selectionCell.resetFocus(context, parent, (String) value);
+		} else if (cellClass.equals(CheckboxCell.class)) {
+			return checkboxCell.resetFocus(context, parent,
+					Boolean.valueOf((String) value));
+		} else if (cellClass.equals(ButtonCell.class)) {
+			return buttonCell.resetFocus(context, parent, (String) value);
 		} else {
-			return selectionCell.resetFocus(context, parent, value);
+			return textCell.resetFocus(context, parent, (String) value);
 		}
 	}
 
 	@Override
-	public void setValue(Context context, Element parent, String value) {
-		if (getCellClass(context.getIndex()).equals(EditTextCell.class)) {
-			textCell.setValue(context, parent, value);
+	public void setValue(Context context, Element parent, Object value) {
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
+				.getIndex());
+		if (cellClass.equals(EditTextCell.class)) {
+			editCell.setValue(context, parent, (String) value);
+		} else if (cellClass.equals(SelectionCell.class)) {
+			selectionCell.setValue(context, parent, (String) value);
+		} else if (cellClass.equals(CheckboxCell.class)) {
+			checkboxCell.setValue(context, parent,
+					Boolean.valueOf((String) value));
+		} else if (cellClass.equals(ButtonCell.class)) {
+			buttonCell.setValue(context, parent, (String) value);
 		} else {
-			selectionCell.setValue(context, parent, value);
+			textCell.setValue(context, parent, (String) value);
 		}
 	}
 
-	@Override
-	public void clearViewData(Object key) {
-		System.err.println("clearViewData should not be called");
-	}
-
-	@Override
-	public Object getViewData(Object key) {
-		System.err.println("getViewData should not be called");
-		return null;
-	}
-
-	@Override
-	public void setViewData(Object key, Object viewData) {
-		System.err.println("setViewData should not be called");
-	}
-
-	@Override
-	protected Element getInputElement(Element parent) {
-		System.err.println("getInputElement should not be called");
-		return null;
-	}
-
-	@Override
-	protected void finishEditing(Element parent, String value, Object key,
-			ValueUpdater<String> valueUpdater) {
-		System.err.println("finishEditing should not be called");
-	}
-
-	private Class<? extends Cell<String>> getCellClass(int row) {
+	private Class<? extends Cell<? extends Object>> getCellClass(int row) {
 		if ((0 <= row) && (row < cellClass.length)) {
 			return cellClass[row];
 		}
-		return EditTextCell.class;
+		return TextCell.class;
 	}
+
+	private class MyEditTextCell extends EditTextCell {
+		@Override
+		protected void onEnterKeyDown(
+				com.google.gwt.cell.client.Cell.Context context,
+				Element parent, String value, NativeEvent event,
+				ValueUpdater<String> valueUpdater) {
+			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
+		}
+	}
+
+	private class MySelectionCell extends SelectionCell {
+
+		public MySelectionCell(List<String> options) {
+			super(options);
+		}
+
+		@Override
+		protected void onEnterKeyDown(
+				com.google.gwt.cell.client.Cell.Context context,
+				Element parent, String value, NativeEvent event,
+				ValueUpdater<String> valueUpdater) {
+			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
+		}
+	}
+
+	private class MyCheckboxCell extends CheckboxCell {
+		@Override
+		protected void onEnterKeyDown(
+				com.google.gwt.cell.client.Cell.Context context,
+				Element parent, Boolean value, NativeEvent event,
+				ValueUpdater<Boolean> valueUpdater) {
+			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
+		}
+	}
+
+	private class MyButtonCell extends ButtonCell {
+		@Override
+		protected void onEnterKeyDown(
+				com.google.gwt.cell.client.Cell.Context context,
+				Element parent, String value, NativeEvent event,
+				ValueUpdater<String> valueUpdater) {
+			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
+		}
+	}
+
+	private class MyTextCell extends TextCell {
+		@Override
+		protected void onEnterKeyDown(
+				com.google.gwt.cell.client.Cell.Context context,
+				Element parent, String value, NativeEvent event,
+				ValueUpdater<String> valueUpdater) {
+			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
+		}
+	}
+
 }

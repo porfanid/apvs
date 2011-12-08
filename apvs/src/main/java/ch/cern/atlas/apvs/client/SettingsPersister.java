@@ -1,11 +1,12 @@
 package ch.cern.atlas.apvs.client;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
 
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.storage.client.Storage;
@@ -21,29 +22,42 @@ public class SettingsPersister extends VerticalFlowPanel {
 	private Settings settings;
 	private RemoteEventBus eventBus;
 
-	public SettingsPersister(RemoteEventBus eventBus) {
+	public SettingsPersister(final RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
-		
+
 		settings = settingsFactory.settings().as();
-		
-		SettingsChangedEvent.register(eventBus, new SettingsChangedEvent.Handler() {
-			
-			@Override
-			public void onSettingsChanged(SettingsChangedEvent event) {
-				settings = event.getSettings();
-				
-				store();
-			}
-		});
 
 		try {
 			load();
 		} catch (Exception e) {
-			Window.alert("Could not load settings, continuing... \n"+e.getMessage());
+			Window.alert("Could not load settings, continuing... \n"
+					+ e.getMessage());
 			e.printStackTrace();
 		}
-	}
 
+		SettingsChangedEvent.register(eventBus,
+				new SettingsChangedEvent.Handler() {
+
+					@Override
+					public void onSettingsChanged(SettingsChangedEvent event) {
+						settings = event.getSettings();
+
+						store();
+					}
+				});
+
+		RequestEvent.register(eventBus, new RequestEvent.Handler() {
+
+			@Override
+			public void onRequestEvent(RequestEvent event) {
+				System.err.println("Request "+event.getRequestedClassName());
+				if (event.getRequestedClassName().equals(
+						SettingsChangedEvent.class.getName())) {
+					eventBus.fireEvent(new SettingsChangedEvent(settings));
+				}
+			}
+		});
+	}
 
 	private void load() {
 		Storage store = Storage.getLocalStorageIfSupported();
@@ -53,22 +67,27 @@ public class SettingsPersister extends VerticalFlowPanel {
 		}
 		for (int i = 0; i < store.getLength(); i++) {
 			String key = store.key(i);
-			System.err.println(key+" "+store.getItem(key));
+			System.err.println(key + " " + store.getItem(key));
 		}
 		String json = store.getItem(APVS_SETTINGS);
+//		String json = null;
+		System.err.println("get " + json);
+				
+		settings = settingsFactory.settings().as();
 		if (json != null) {
-			System.err.println("get " + json);
 			AutoBean<Settings> bean = AutoBeanCodex.decode(settingsFactory,
 					Settings.class, json);
-			settings = bean.as();
-			
-			if (settings.getMap() == null) {
-				settings.setMap(new HashMap<String, Map<String,String>>());
-			}
-
-			System.err.println(settings.debugString());			
+			// NOTE: the top-level List can be added to, but size() does not work... so we convert it. 
+			settings.setList(new ArrayList<Map<String,String>>(bean.as().getList()));
 		}
-		
+
+		// make sure Settings has a valid list
+		if (settings.getList() == null) {
+			settings.setList(new ArrayList<Map<String, String>>());
+		}
+
+		System.err.println(settings.debugString());
+
 		eventBus.fireEvent(new SettingsChangedEvent(settings));
 	}
 
