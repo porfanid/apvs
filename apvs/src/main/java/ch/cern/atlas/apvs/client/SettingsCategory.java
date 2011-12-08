@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+
 
 import com.google.web.bindery.autobean.shared.AutoBean;
 
-public class SettingsCategory  {
+public class SettingsCategory {
 		
 	public static String get(AutoBean<Settings> instance, int index, String name) {
 		List<Map<String, String>> list = instance.as().getList();
@@ -56,9 +56,9 @@ public class SettingsCategory  {
 		for (Iterator<Map<String,String>> i = instance.as().getList().iterator(); i.hasNext();) {
 			Map<String, String> entry = i.next();
 			s.append("  "+index+"\n");
-			for (Iterator<Map.Entry<String, String>> j = entry.entrySet().iterator(); j.hasNext(); ) {
-				Entry<String, String> subEntry = j.next();
-				s.append("    "+subEntry.getKey()+": "+subEntry.getValue()+"\n");
+			for (Iterator<String> j = entry.keySet().iterator(); j.hasNext(); ) {
+				String key = j.next();
+				s.append("    "+key+": "+entry.get(key)+"\n");
 			}
 			index++;
 		}

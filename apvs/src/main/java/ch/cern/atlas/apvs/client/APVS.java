@@ -82,8 +82,10 @@ public class APVS implements EntryPoint {
 		} else if (view.equals("clientView")) {
 			p.add(new ClientView(eventBus));
 		} else if (view.equals("dosimeterView")) {
+			p.add(new SettingsView(eventBus));
 			p.add(new DosimeterView(eventBus));
 		} else if (view.equals("ptuView")) {
+			p.add(new SettingsView(eventBus));			
 			p.add(new PtuView(eventBus));
 		} else if (view.equals("measurementView")) {
 			p.add(new DosimeterSelector(eventBus));

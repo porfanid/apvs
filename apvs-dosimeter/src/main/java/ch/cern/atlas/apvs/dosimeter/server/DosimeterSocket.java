@@ -41,7 +41,7 @@ public class DosimeterSocket implements Runnable {
 				System.out.println(dosimeters.get(i).getSerialNo());
 			}
 			
-			System.out.print("Connected on: "+socket.getInetAddress());
+			System.out.print("Dosimeter Demo Server connected on: "+socket.getInetAddress());
 
 			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			while (true) {

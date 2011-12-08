@@ -34,8 +34,16 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-eventbus</artifactId>
 		</dependency>
 	</dependencies>
 

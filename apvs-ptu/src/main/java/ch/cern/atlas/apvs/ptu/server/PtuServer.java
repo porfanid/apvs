@@ -26,7 +26,7 @@ public class PtuServer {
 	
 	private void run() throws IOException {
 		server = new ServerSocket(portNo);
-		System.out.println("Server open at "+portNo);
+		System.out.println("PTU Demo Server open at "+portNo);
 
 		while (true) {
 			try {

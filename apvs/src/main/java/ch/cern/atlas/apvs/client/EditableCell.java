@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +20,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 public class EditableCell extends AbstractCell<Object> {
 	private MyEditTextCell editCell;
 	private MySelectionCell selectionCell;
-	private List<String> options;
 	private MyCheckboxCell checkboxCell;
 	private MyButtonCell buttonCell;
 	private MyTextCell textCell;
@@ -32,17 +30,14 @@ public class EditableCell extends AbstractCell<Object> {
 		this.cellClass = cellClass;
 
 		editCell = new MyEditTextCell();
-		options = new ArrayList<String>();
-		options.add("option 1");
-		options.add("option 2");
-		options.add("option 3");
-		options.add("option 4");
-		options.add("option 5");
-		options.add("option 6");
-		selectionCell = new MySelectionCell(options);
+		selectionCell = new MySelectionCell();
 		checkboxCell = new MyCheckboxCell();
 		buttonCell = new MyButtonCell();
 		textCell = new MyTextCell();
+	}
+
+	public void setOptions(List<String> options) {
+		selectionCell.setOptions(options);	
 	}
 
 	@Override
@@ -68,6 +63,7 @@ public class EditableCell extends AbstractCell<Object> {
 			NativeEvent event, final ValueUpdater<Object> valueUpdater) {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
+				
 		if (cellClass.equals(EditTextCell.class)) {
 			editCell.onBrowserEvent(context, parent, (String) value, event,
 					new ValueUpdater<String>() {
@@ -297,11 +293,7 @@ public class EditableCell extends AbstractCell<Object> {
 		}
 	}
 
-	private class MySelectionCell extends SelectionCell {
-
-		public MySelectionCell(List<String> options) {
-			super(options);
-		}
+	private class MySelectionCell extends DynamicSelectionCell {
 
 		@Override
 		protected void onEnterKeyDown(
@@ -341,5 +333,4 @@ public class EditableCell extends AbstractCell<Object> {
 			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
 		}
 	}
-
 }

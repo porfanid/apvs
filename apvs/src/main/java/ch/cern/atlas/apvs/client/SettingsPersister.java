@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
@@ -53,12 +54,12 @@ public class SettingsPersister extends VerticalFlowPanel {
 				System.err.println("Request "+event.getRequestedClassName());
 				if (event.getRequestedClassName().equals(
 						SettingsChangedEvent.class.getName())) {
-					eventBus.fireEvent(new SettingsChangedEvent(settings));
+					SettingsView.fireSettingsChangedEvent(eventBus, settings);
 				}
 			}
 		});
 	}
-
+	
 	private void load() {
 		Storage store = Storage.getLocalStorageIfSupported();
 		if (store == null) {
@@ -74,16 +75,15 @@ public class SettingsPersister extends VerticalFlowPanel {
 		System.err.println("get " + json);
 				
 		settings = settingsFactory.settings().as();
+		settings.setList(new ArrayList<Map<String, String>>());
 		if (json != null) {
 			AutoBean<Settings> bean = AutoBeanCodex.decode(settingsFactory,
 					Settings.class, json);
 			// NOTE: the top-level List can be added to, but size() does not work... so we convert it. 
-			settings.setList(new ArrayList<Map<String,String>>(bean.as().getList()));
-		}
-
-		// make sure Settings has a valid list
-		if (settings.getList() == null) {
-			settings.setList(new ArrayList<Map<String, String>>());
+			List<Map<String, String>> list = bean.as().getList();
+			if (list != null) {
+				settings.getList().addAll(list);
+			}
 		}
 
 		System.err.println(settings.debugString());

@@ -20,6 +20,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 		Runnable {
 
 	private static final String name = "DosimeterSocket";
+//	private static final String host = "frontline-demo";
 	private static final String host = "localhost";
 	private static final int port = 4001;
 	private static final int RECONNECT_INTERVAL = 20000;
@@ -43,11 +44,18 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 
 	@Override
 	public void run() {
+		
+		boolean showError = true;
 
 		while (!stopped) {
 			if (dosimeterReader == null) {
 				try {
+					if (showError) {
+						System.out.println("Trying to connect to "+ name + " on " + host
+							+ ":" + port);
+					}
 					Socket socket = new Socket(host, port);
+					showError = true;
 					System.out.println("Connected to " + name + " on " + host
 							+ ":" + port);
 
@@ -62,12 +70,22 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 					reader.start();
 					reader.join();
 				} catch (UnknownHostException e) {
-					System.err.println(getClass() + " " + e);
+					if (showError) {
+						System.err.println(getClass() + " " + e);
+						showError = false;
+					}
 				} catch (ConnectException e) {
-//					System.err.println("Could not connect to " + name + " on "
-//							+ host + ":" + port);
+					if (showError) {
+						System.err.println("Could not connect to " + name
+								+ " on " + host + ":" + port
+								+ ", retrying in a while...");
+						showError = false;
+					}
 				} catch (IOException e) {
-					System.err.println(getClass() + " " + e);
+					if (showError) {
+						System.err.println(getClass() + " " + e);
+						showError = false;
+					}
 				} catch (InterruptedException e) {
 					System.err.println(getClass() + " " + e);
 				}
@@ -78,7 +96,7 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 				dosimeterReader = null;
 			}
 
-//			System.err.println("Sleep");
+			// System.err.println("Sleep");
 			try {
 				Thread.sleep(RECONNECT_INTERVAL);
 			} catch (InterruptedException e) {

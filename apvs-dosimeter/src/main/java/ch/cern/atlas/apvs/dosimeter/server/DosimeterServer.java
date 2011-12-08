@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 
 public class DosimeterServer {
 
+	private final static int portNo = 4001;
 	private ServerSocket server;
 	
 	private DosimeterServer() {
@@ -20,8 +21,8 @@ public class DosimeterServer {
 	}
 	
 	private void run() throws IOException {
-		server = new ServerSocket(4001);
-		System.out.println("Server open at 4001");
+		server = new ServerSocket(portNo);
+		System.out.println("Dosimeter Demo Server open at "+portNo);
 
 		while (true) {
 			try {
@@ -29,7 +30,7 @@ public class DosimeterServer {
 				Thread writer = new Thread(socket);				
 				writer.start();
 			} catch (IOException e) {
-				System.out.println("Accept failed: 4001");
+				System.out.println("Accept failed: "+portNo);
 				System.exit(-1);
 			}
 		}

@@ -64,10 +64,14 @@
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-eventbus</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ch.cern.atlas</groupId>
+            <artifactId>apvs-eventbus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.cern.atlas</groupId>
+            <artifactId>apvs-ptu</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>

@@ -3,7 +3,11 @@ package ch.cern.atlas.apvs.client;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * 
+ * @author duns
+ *
+ */
 public interface Settings {
 
 	public void setList(List<Map<String, String>> list);

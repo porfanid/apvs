@@ -53,7 +53,7 @@ public class PtuSocket implements Runnable {
 				System.out.println(ptus.get(i).getPtuId());
 			}
 
-			System.out.print("Connected on: " + socket.getInetAddress());
+			System.out.print("PTU Demo Server connected on: " + socket.getInetAddress());
 
 			OutputStream os = socket.getOutputStream();
 			ObjectWriter writer = json ? new PtuJsonWriter(os)
@@ -69,7 +69,7 @@ public class PtuSocket implements Runnable {
 				writer.flush();
 
 				try {
-					Thread.sleep(500 + random.nextInt(2000));
+					Thread.sleep(5000 + random.nextInt(2000));
 				} catch (InterruptedException e) {
 					// ignored
 				}

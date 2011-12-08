@@ -1,10 +1,18 @@
 package ch.cern.atlas.apvs.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
+import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
+import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell.Context;
@@ -30,6 +38,8 @@ public class SettingsView extends VerticalFlowPanel {
 
 	private Settings settings;
 	private RemoteEventBus eventBus;
+	protected List<Integer> ptuIds = new ArrayList<Integer>();
+	protected List<Integer> dosimeterSerialNumbers;
 
 	private static final String[] settingNames = { "Name", "PTU Id",
 			"Dosimeter #", "URL Helmet Camera", "URL Hand Camera",
@@ -75,7 +85,7 @@ public class SettingsView extends VerticalFlowPanel {
 					int column = settings.size();
 					settings.put(column, "Name", "Person " + (column + 1));
 
-					eventBus.fireEvent(new SettingsChangedEvent(settings));
+					fireSettingsChangedEvent(eventBus, settings);
 
 					SettingsView.this.update();
 				}
@@ -90,11 +100,34 @@ public class SettingsView extends VerticalFlowPanel {
 				new SettingsChangedEvent.Handler() {
 					@Override
 					public void onSettingsChanged(SettingsChangedEvent event) {
-						if (event.getSource() == this)
+						System.err.println("Setting settings !!HDJHJDFHJ");
+						if (event.getSource() == this) {
 							return;
-
+						}
 						settings = event.getSettings();
 
+						update();
+					}
+				});
+
+		PtuIdsChangedEvent.subscribe(eventBus,
+				new PtuIdsChangedEvent.Handler() {
+
+					@Override
+					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
+						ptuIds = event.getPtuIds();
+						update();
+					}
+				});
+
+		DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
+				new DosimeterSerialNumbersChangedEvent.Handler() {
+
+					@Override
+					public void onDosimeterSerialNumbersChanged(
+							DosimeterSerialNumbersChangedEvent event) {
+						dosimeterSerialNumbers = event
+								.getDosimeterSerialNumbers();
 						update();
 					}
 				});
@@ -106,8 +139,10 @@ public class SettingsView extends VerticalFlowPanel {
 			table.removeColumn(table.getColumnCount() - 1);
 		}
 
-		for (int i = 0; i < settings.size(); i++) {
-			addColumn(i);
+		if (settings != null) {
+			for (int i = 0; i < settings.size(); i++) {
+				addColumn(i);
+			}
 		}
 
 		table.redraw();
@@ -131,15 +166,39 @@ public class SettingsView extends VerticalFlowPanel {
 				if (context.getIndex() == table.getRowCount() - 1) {
 					s = "Delete";
 				}
+
+				if (name.equals(settingNames[1])) {
+					((EditableCell) getCell())
+							.setOptions(new StringList<Integer>(ptuIds));
+				} else if (name.equals(settingNames[2])) {
+					((EditableCell) getCell())
+							.setOptions(new StringList<Integer>(
+									dosimeterSerialNumbers));
+				}
+
 				getCell().render(context, s, sb);
+
+				((EditableCell) getCell()).setOptions(null);
 			}
-			
+
 			@Override
-					public void onBrowserEvent(Context context, Element elem,
-							String object, NativeEvent event) {
-System.err.println("On Browser Event... "+object);
-						super.onBrowserEvent(context, elem, object, event);
-					}
+			public void onBrowserEvent(Context context, Element elem,
+					String name, NativeEvent event) {
+				System.err.println("SettingsView Browser event " + name + " "
+						+ getCell().getClass());
+				if (name.equals(settingNames[1])) {
+					((EditableCell) getCell())
+							.setOptions(new StringList<Integer>(ptuIds));
+				} else if (name.equals(settingNames[2])) {
+					((EditableCell) getCell())
+							.setOptions(new StringList<Integer>(
+									dosimeterSerialNumbers));
+				}
+
+				super.onBrowserEvent(context, elem, name, event);
+
+				((EditableCell) getCell()).setOptions(null);
+			}
 		};
 
 		column.setFieldUpdater(new FieldUpdater<String, Object>() {
@@ -151,7 +210,7 @@ System.err.println("On Browser Event... "+object);
 				boolean fire = false;
 				if (index == table.getRowCount() - 1) {
 					if (Window
-							.confirm("Are you sur you want to delete setting "
+							.confirm("Are you sure you want to delete setting "
 									+ id + " with name '"
 									+ settings.get(id, settingNames[0]) + "' ?")) {
 						settings.remove(id);
@@ -164,12 +223,31 @@ System.err.println("On Browser Event... "+object);
 				}
 
 				if (fire) {
-					eventBus.fireEvent(new SettingsChangedEvent(settings));
+					fireSettingsChangedEvent(eventBus, settings);
 				}
 			}
 		});
 
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		table.addColumn(column, Integer.toString(id + 1));
+	}
+
+    static void fireSettingsChangedEvent(RemoteEventBus eventBus, Settings settings) {
+		HashMap<Integer, Integer> dosimeterToPtu = new HashMap<Integer, Integer>();
+
+		// takes the last proper value
+		for (Iterator<Map<String, String>> i = settings.getList().iterator(); i
+				.hasNext();) {
+			Map<String, String> map = i.next();
+			String ptuId = map.get(settingNames[1]);
+			String dosimeterSerialNo = map.get(settingNames[2]);
+			if ((ptuId != null) && (dosimeterSerialNo != null)) {
+				dosimeterToPtu.put(Integer.parseInt(dosimeterSerialNo),
+						Integer.parseInt(ptuId));
+			}
+		}
+
+		eventBus.fireEvent(new SettingsChangedEvent(settings));
+		eventBus.fireEvent(new DosimeterPtuChangedEvent(dosimeterToPtu));
 	}
 }
