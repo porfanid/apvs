@@ -13,6 +13,8 @@ import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -131,6 +133,13 @@ public class SettingsView extends VerticalFlowPanel {
 				}
 				getCell().render(context, s, sb);
 			}
+			
+			@Override
+					public void onBrowserEvent(Context context, Element elem,
+							String object, NativeEvent event) {
+System.err.println("On Browser Event... "+object);
+						super.onBrowserEvent(context, elem, object, event);
+					}
 		};
 
 		column.setFieldUpdater(new FieldUpdater<String, Object>() {
