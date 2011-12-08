@@ -100,8 +100,9 @@ public class APVS implements EntryPoint {
 		} else if (view.equals("settingsView")) {
 			p.add(new SettingsView(eventBus));
 		} else if (view.equals("cameraView")) {
-			RootLayoutPanel.get().add(new CameraView(eventBus));
-			return;
+			p.add(new SettingsView(eventBus));
+			p.add(new CameraView(eventBus, SettingsView.settingNames[3]));
+			p.add(new CameraView(eventBus, SettingsView.settingNames[4]));
 		}
 		
 		RootLayoutPanel.get().add(p);

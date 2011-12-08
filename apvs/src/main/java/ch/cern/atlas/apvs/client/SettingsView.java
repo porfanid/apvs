@@ -41,7 +41,7 @@ public class SettingsView extends VerticalFlowPanel {
 	protected List<Integer> ptuIds = new ArrayList<Integer>();
 	protected List<Integer> dosimeterSerialNumbers;
 
-	private static final String[] settingNames = { "Name", "PTU Id",
+    static final String[] settingNames = { "Name", "PTU Id",
 			"Dosimeter #", "URL Helmet Camera", "URL Hand Camera",
 			"Show Fake Measurements", "Add/Remove" };
 	@SuppressWarnings("rawtypes")
@@ -184,8 +184,7 @@ public class SettingsView extends VerticalFlowPanel {
 			@Override
 			public void onBrowserEvent(Context context, Element elem,
 					String name, NativeEvent event) {
-				System.err.println("SettingsView Browser event " + name + " "
-						+ getCell().getClass());
+
 				if (name.equals(settingNames[1])) {
 					((EditableCell) getCell())
 							.setOptions(new StringList<Integer>(ptuIds));

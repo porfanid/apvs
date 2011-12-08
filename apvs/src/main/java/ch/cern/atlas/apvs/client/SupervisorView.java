@@ -12,8 +12,10 @@ public class SupervisorView extends SplitLayoutPanel {
 	public SupervisorView(RemoteEventBus eventBus) {
 		VerticalFlowPanel west = new VerticalFlowPanel();
 		addWest(west, 600);
-		west.add(new HTML("<b>Dosimeters</b>"));
-		west.add(new DosimeterView(eventBus));
+		west.add(new HTML("<b>Settings</b>"));
+		west.add(new SettingsView(eventBus));
+//		west.add(new HTML("<b>Dosimeters</b>"));
+//		west.add(new DosimeterView(eventBus));
 		west.add(new HTML("<b>PTUs</b>"));
 		west.add(new PtuView(eventBus));
 		

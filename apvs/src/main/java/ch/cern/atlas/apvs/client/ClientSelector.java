@@ -46,7 +46,6 @@ public class ClientSelector extends SimplePanel {
 					}
 				});
 
-
 		update();
 	}
 
