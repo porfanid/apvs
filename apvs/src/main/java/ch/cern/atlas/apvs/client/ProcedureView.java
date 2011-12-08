@@ -10,8 +10,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class ProcedureView extends VerticalPanel {
 
 	// FIXME
-	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Demo";
-	private String procedure = "mural";
+//	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Demo";
+//	private String procedure = "mural";
+	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Tile";
+	private String procedure = "TileDrawerExtraction";
 	private int step = 1;
 	private String extension = ".m4v";
 	private String contentType = "video/x-m4v"; // video/mp4
@@ -20,7 +22,7 @@ public class ProcedureView extends VerticalPanel {
 	private String videoPoster = "procedure.jpg"; // FIXME
 	// FIXME...
 	private final int firstStep = 1;
-	private final int lastStep = 6;
+	private final int lastStep = 34;
 	private RemoteEventBus eventBus;
 
 	public ProcedureView(RemoteEventBus eventBus) {
