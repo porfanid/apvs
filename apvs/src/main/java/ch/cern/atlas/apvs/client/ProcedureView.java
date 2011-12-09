@@ -5,20 +5,22 @@ import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
-public class ProcedureView extends VerticalPanel {
+public class ProcedureView extends SimplePanel {
 
 	// FIXME
 //	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Demo";
 //	private String procedure = "mural";
-	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Tile";
+//	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Tile";
+	private final String procedureURL = "http://pc-atlas-duns:8890/apvs-procs/procedures/Tile";
 	private String procedure = "TileDrawerExtraction";
+	
 	private int step = 1;
 	private String extension = ".m4v";
 	private String contentType = "video/x-m4v"; // video/mp4
-	private int videoWidth = 640;
-	private int videoHeight = 360;
+	private int videoWidth = 350; // 640;
+	private int videoHeight = 300;
 	private String videoPoster = "procedure.jpg"; // FIXME
 	// FIXME...
 	private final int firstStep = 1;
@@ -55,9 +57,8 @@ public class ProcedureView extends VerticalPanel {
 				String source = procedureURL + "/" + procedure + "/" + step
 						+ extension;
 				System.err.println(source);
-				clear();
-				add(new HTML(
-						"<video width='"+videoWidth+"' height='"+videoHeight+"' poster='"+videoPoster+"' controls autoplay>"
+				setWidget(new HTML(
+						"<video width='"+videoWidth+"' height='"+videoHeight+"' poster='"+videoPoster+"' controls autoplay loop>"
 								+ "<source src='" + source
 								+ "' type='"+contentType+"'></source>" + "</video>"));
 

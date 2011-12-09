@@ -23,4 +23,10 @@ public interface Settings {
 	public int size();
 	
 	public String debugString();
+
+	public String getName(int ptuId);
+
+	public String getHelmetCameraUrl(int ptuId);
+
+	public String getHandCameraUrl(int ptuId);
 }

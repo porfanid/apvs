@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client;
 
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -8,26 +9,30 @@ import com.google.gwt.user.client.ui.SimplePanel;
 
 public class CameraView extends SimplePanel {
 
+	public static final int HELMET = 0;
+	public static final int HAND = 1;
+	
 	// FIXME
 //	private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
 //	private final String cameraURL = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
 	// private final String cameraURL = "http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8";
 //	private final String cameraURL = "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
 //	private final String cameraURL = "rtsp://quicktime.tc.columbia.edu:554/users/lrf10/movies/sixties.mov";
-	private int videoWidth = 480;
-	private int videoHeight = 360;
+	private int videoWidth = 400;
+	private int videoHeight = 300;
 	private String videoPoster = "Default-640x480.jpg";
 
-	private String urlName;
+	private int type;
 
 	private Settings settings;
+	private Integer ptuId;
 	
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
-	public CameraView(RemoteEventBus eventBus, String urlName) {
-		this.urlName = urlName;
+	public CameraView(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus, int type) {
+		this.type = type;
 		
-		SettingsChangedEvent.subscribe(eventBus, new SettingsChangedEvent.Handler() {
+		SettingsChangedEvent.subscribe(remoteEventBus, new SettingsChangedEvent.Handler() {
 			
 			@Override
 			public void onSettingsChanged(SettingsChangedEvent event) {
@@ -36,18 +41,34 @@ public class CameraView extends SimplePanel {
 				update();
 			}
 		});
+		
+		SelectPtuEvent.subscribe(localEventBus, new SelectPtuEvent.Handler() {
+			
+			@Override
+			public void onPtuSelected(SelectPtuEvent event) {
+				ptuId = event.getPtuId();
+				update();
+			}
+		});
 	}
 	
+	private String getCameraUrl(int type, int ptuId) {
+		return type == HELMET ? settings.getHelmetCameraUrl(ptuId) : settings.getHandCameraUrl(ptuId);
+	}
+
 	private void update() {
-		// FIXME, person fixed to be person 0;
-		String cameraUrl = settings.get(0, urlName);
+		setWidget(new HTML("<img width=\""+videoWidth+"\" height=\""+videoHeight+"\" src=\""+videoPoster+"\"/>"));
+		
+		if (ptuId == null) return;
+		
+		String cameraUrl = getCameraUrl(type, ptuId);
 		if (cameraUrl == null) return;
 		
 		HTML html;
 		if (cameraUrl.startsWith("http://")) {
 			html = new HTML("<video width='" + videoWidth + "' height='"
 					+ videoHeight + "' poster='" + videoPoster
-					+ "' controls autoplay>" + "<source src='" + cameraUrl
+					+ "' controls autoplay loop>" + "<source src='" + cameraUrl
 					+ "'></source>" + "</video>");
 		} else {
 			html = new HTML(quickTime + 

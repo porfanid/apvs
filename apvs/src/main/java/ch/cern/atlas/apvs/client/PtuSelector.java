@@ -7,6 +7,7 @@ import java.util.List;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -18,6 +19,7 @@ public class PtuSelector extends VerticalFlowPanel {
 	private ListBox list = new ListBox();
 
 	private List<Integer> ptuIds;
+	private Integer ptuId;
 
 	public PtuSelector(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus) {
 		add(list);
@@ -25,7 +27,7 @@ public class PtuSelector extends VerticalFlowPanel {
 		list.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
-				Integer ptuId = null;
+			    ptuId = null;
 				try {
 					ptuId = Integer.parseInt(list.getItemText(list
 							.getSelectedIndex()));
@@ -33,6 +35,16 @@ public class PtuSelector extends VerticalFlowPanel {
 					ptuId = null;
 				}
 				localEventBus.fireEvent(new SelectPtuEvent(ptuId));
+			}
+		});
+		
+		RequestRemoteEvent.register(localEventBus, new RequestRemoteEvent.Handler() {
+			
+			@Override
+			public void onRequestEvent(RequestRemoteEvent event) {
+				if (event.getRequestedClassName().equals(SelectPtuEvent.class.getName())) {
+					localEventBus.fireEvent(new SelectPtuEvent(ptuId));					
+				}
 			}
 		});
 
@@ -86,7 +98,7 @@ public class PtuSelector extends VerticalFlowPanel {
 		}
 	}
 
-	private String toLabel(int ptuId) {
-		return Integer.toString(ptuId);
+	private String toLabel(Integer ptuId) {
+		return ptuId != null ? Integer.toString(ptuId) : null;
 	}
 }

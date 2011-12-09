@@ -20,8 +20,8 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 		Runnable {
 
 	private static final String name = "DosimeterSocket";
-//	private static final String host = "frontline-demo";
-	private static final String host = "localhost";
+	private static final String host = "frontline-demo";
+//	private static final String host = "localhost";
 	private static final int port = 4001;
 	private static final int RECONNECT_INTERVAL = 20000;
 	private boolean stopped = false;

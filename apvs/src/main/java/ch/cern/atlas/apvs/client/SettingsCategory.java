@@ -49,6 +49,27 @@ public class SettingsCategory {
 		List<Map<String, String>> list = instance.as().getList();
 		return list != null ? list.size() : 0;
 	}
+	
+	public static String getName(AutoBean<Settings> instance, int ptuId) {
+		int index = getIndexForPtu(instance, ptuId);
+		if (index < 0) return null;
+		
+		return get(instance, index, SettingsView.settingNames[0]);
+	}
+	
+	public static String getHelmetCameraUrl(AutoBean<Settings> instance, int ptuId) {
+		int index = getIndexForPtu(instance, ptuId);
+		if (index < 0) return null;
+		
+		return get(instance, index, SettingsView.settingNames[3]);
+	}
+
+	public static String getHandCameraUrl(AutoBean<Settings> instance, int ptuId) {
+		int index = getIndexForPtu(instance, ptuId);
+		if (index < 0) return null;
+		
+		return get(instance, index, SettingsView.settingNames[4]);
+	}
 
 	public static String debugString(AutoBean<Settings> instance) {
 		StringBuffer s = new StringBuffer("Settings {\n");
@@ -64,5 +85,21 @@ public class SettingsCategory {
 		}
 		s.append("}");
 		return s.toString();
+	}
+	
+	private static int getIndexForPtu(AutoBean<Settings> instance, int ptuId) {
+		List<Map<String, String>> list = instance.as().getList();
+		if (list == null) return -1;
+		
+		int i = 0;
+		while (i < list.size()) {
+			String value = list.get(i).get(SettingsView.settingNames[1]);
+			if ((value != null) && (Integer.parseInt(value) == ptuId)) {
+				break;
+			}
+				i++;
+		}
+		
+		return i < list.size() ? i : -1;
 	}
 }

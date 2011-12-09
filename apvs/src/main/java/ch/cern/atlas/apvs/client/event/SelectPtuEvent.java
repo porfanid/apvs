@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client.event;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -35,13 +36,22 @@ public class SelectPtuEvent extends RemoteEvent<SelectPtuEvent.Handler> {
 			SelectPtuEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
-	
-	private int ptuId;
+
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+			SelectPtuEvent.Handler handler) {
+		HandlerRegistration registration = register(eventBus, handler);
+		
+		eventBus.fireEvent(new RequestRemoteEvent(SelectPtuEvent.class));
+		
+		return registration;
+	}
+
+	private Integer ptuId;
 
 	public SelectPtuEvent() {
 	}
 	
-	public SelectPtuEvent(int ptuId) {
+	public SelectPtuEvent(Integer ptuId) {
 		this.ptuId = ptuId;
 	}
 
@@ -50,7 +60,7 @@ public class SelectPtuEvent extends RemoteEvent<SelectPtuEvent.Handler> {
 		return TYPE;
 	}
 
-	public int getPtuId() {
+	public Integer getPtuId() {
 		return ptuId;
 	}
 	
