@@ -23,6 +23,8 @@ public class DosimeterCoder {
 
 	public static Dosimeter decode(String encodedString) {
 		System.err.println("'"+encodedString+"' "+encodedString.length());
+		if (encodedString.length() < 46) return null;
+		
 		int serialNo = Integer.parseInt(encodedString.substring(0, 6));
 		double dose = Double.parseDouble(encodedString.substring(8, 14) + "."
 				+ encodedString.substring(14, 15))
