@@ -33,9 +33,7 @@ public class ServerEventBus extends RemoteEventBus {
 		doFire(event);
 	}
 
-	private void doFire(RemoteEvent<?> event) {
-		setEventBusUuidOfEvent(event, getUUID());
-		
+	private void doFire(RemoteEvent<?> event) {		
 		// send out locally
 		super.fireEvent(event);
 

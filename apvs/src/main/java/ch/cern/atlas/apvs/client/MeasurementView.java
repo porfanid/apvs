@@ -4,12 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import ch.cern.atlas.apvs.client.event.SelectDosimeterEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
-import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -23,6 +20,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -31,70 +29,25 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
-	Measurement<Double> last = new Measurement<Double>();
+	private Measurement<Double> last = new Measurement<Double>();
 	private ListDataProvider<Measurement<Double>> dataProvider = new ListDataProvider<Measurement<Double>>();
 	private CellTable<Measurement<Double>> table = new CellTable<Measurement<Double>>();
 	private ListHandler<Measurement<Double>> columnSortHandler;
+	private TextColumn<Measurement<Double>> name;
 
-	private int dosimeterSerialNo = -1;
-	private Dosimeter dosimeter;
-	private int ptuId = -1;
+	private Integer ptuId = null;
 
-	public MeasurementView(final RemoteEventBus eventBus) {
+	public MeasurementView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus) {
 
 		add(table);
 
-		SelectDosimeterEvent.register(eventBus,
-				new SelectDosimeterEvent.Handler() {
-
-					private HandlerRegistration registration;
-
-					@Override
-					public void onDosimeterSelected(
-							final SelectDosimeterEvent event) {
-						if (eventBus.getUUID() != event.getEventBusUUID())
-							return;
-
-						// unregister any remaining handler
-						if (registration != null) {
-							registration.removeHandler();
-							registration = null;
-						}
-
-						// set result
-						dosimeterSerialNo = event.getSerialNo();
-						dosimeter = null;
-
-						// register a new handler
-						if (dosimeterSerialNo >= 0) {
-							registration = DosimeterChangedEvent.subscribe(
-									eventBus,
-									new DosimeterChangedEvent.Handler() {
-
-										@Override
-										public void onDosimeterChanged(
-												DosimeterChangedEvent event) {
-											if (event.getDosimeter()
-													.getSerialNo() == dosimeterSerialNo) {
-												dosimeter = event
-														.getDosimeter();
-												update();
-											}
-										}
-									});
-						}
-
-						update();
-					}
-				});
-
-		SelectPtuEvent.register(eventBus, new SelectPtuEvent.Handler() {
+		SelectPtuEvent.register(localEventBus, new SelectPtuEvent.Handler() {
 
 			private HandlerRegistration registration;
 
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {
-				if (eventBus.getUUID() != event.getEventBusUUID())
+				if (localEventBus.getUUID() != event.getEventBusUUID())
 					return;
 
 				// unregister any remaining handler
@@ -106,8 +59,8 @@ public class MeasurementView extends VerticalFlowPanel {
 				ptuId = event.getPtuId();
 
 				// register a new handler
-				if (ptuId >= 0) {
-					registration = MeasurementChangedEvent.subscribe(eventBus,
+				if (ptuId != null) {
+					registration = MeasurementChangedEvent.subscribe(remoteEventBus,
 							new MeasurementChangedEvent.Handler() {
 
 								@Override
@@ -124,12 +77,12 @@ public class MeasurementView extends VerticalFlowPanel {
 				} else {
 					dataProvider.getList().clear();
 				}
-
+				
 				update();
 			}
 		});
 
-		TextColumn<Measurement<Double>> name = new TextColumn<Measurement<Double>>() {
+		name = new TextColumn<Measurement<Double>>() {
 			@Override
 			public String getValue(Measurement<Double> object) {
 				return object.getName();
@@ -147,7 +100,12 @@ public class MeasurementView extends VerticalFlowPanel {
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
-		table.addColumn(name, "Name");
+		table.addColumn(name, new TextHeader("") {
+			@Override
+			public String getValue() {
+				return "Name "+(ptuId != null ? " (" + ptuId + ")" : "");
+			}			
+		});
 
 		TextColumn<Measurement<Double>> value = new TextColumn<Measurement<Double>>() {
 			@Override
@@ -260,14 +218,6 @@ public class MeasurementView extends VerticalFlowPanel {
 	}
 
 	private void update() {
-		// FIXME maybe a better way
-		if (dosimeter != null) {
-			replace(new Measurement<Double>("Radiation Rate",
-					dosimeter.getRate(), "&micro;Sv/h"));
-			replace(new Measurement<Double>("Radiation Dose",
-					dosimeter.getDose(), "&micro;Sv"));
-		}
-
 		// Re-sort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
@@ -275,7 +225,7 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	private Measurement<Double> replace(Measurement<Double> measurement) {
 		List<Measurement<Double>> list = dataProvider.getList();
-		
+
 		int i = 0;
 		while (i < list.size()) {
 			if (list.get(i).getName().equals(measurement.getName())) {
@@ -291,7 +241,8 @@ public class MeasurementView extends VerticalFlowPanel {
 		} else {
 			lastValue = list.set(i, measurement);
 		}
-	
+
 		return lastValue;
 	}
+
 }

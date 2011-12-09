@@ -12,6 +12,8 @@ public class CameraView extends SimplePanel {
 //	private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
 //	private final String cameraURL = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
 	// private final String cameraURL = "http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8";
+//	private final String cameraURL = "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
+//	private final String cameraURL = "rtsp://quicktime.tc.columbia.edu:554/users/lrf10/movies/sixties.mov";
 	private int videoWidth = 480;
 	private int videoHeight = 360;
 	private String videoPoster = "Default-640x480.jpg";

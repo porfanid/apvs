@@ -46,7 +46,7 @@ public class APVS implements EntryPoint {
     private Logger logger = Logger.getLogger(getClass().getName());
 	private Window screen;
 
-	private RemoteEventBus eventBus;
+	private RemoteEventBus remoteEventBus;
 	private PlaceController placeController;
 	@SuppressWarnings("unused")
 	private SettingsPersister settingsPersister;
@@ -60,7 +60,7 @@ public class APVS implements EntryPoint {
 
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
-		eventBus = clientFactory.getEventBus();
+		remoteEventBus = clientFactory.getEventBus();
 		placeController = clientFactory.getPlaceController();
 
 		// get first div element
@@ -70,39 +70,40 @@ public class APVS implements EntryPoint {
 			return;
 		}
 		
-		settingsPersister = new SettingsPersister(eventBus);
+		settingsPersister = new SettingsPersister(remoteEventBus);
 
 		String view = divs.getItem(0).getId();
 		Panel p = new VerticalFlowPanel();
 		if (view.equals("workerView")) {
-			p.add(new WorkerView(eventBus));
+			p.add(new WorkerView(remoteEventBus));
 		} else if (view.equals("supervisorView")) {
-			RootLayoutPanel.get().add(new SupervisorView(eventBus));
+			RootLayoutPanel.get().add(new SupervisorView(remoteEventBus));
 			return;
 		} else if (view.equals("clientView")) {
-			p.add(new ClientView(eventBus));
+			p.add(new ClientView(remoteEventBus));
 		} else if (view.equals("dosimeterView")) {
-			p.add(new SettingsView(eventBus));
-			p.add(new DosimeterView(eventBus));
+			p.add(new SettingsView(remoteEventBus));
+			p.add(new DosimeterView(remoteEventBus));
 		} else if (view.equals("ptuView")) {
-			p.add(new SettingsView(eventBus));			
-			p.add(new PtuView(eventBus));
+			p.add(new SettingsView(remoteEventBus));			
+			p.add(new PtuView(remoteEventBus));
 		} else if (view.equals("measurementView")) {
-			p.add(new DosimeterSelector(eventBus));
-			p.add(new PtuSelector(eventBus));
-			p.add(new MeasurementView(eventBus));
+			RemoteEventBus localEventBus = new RemoteEventBus();
+			p.add(new SettingsView(remoteEventBus));
+			p.add(new PtuSelector(remoteEventBus, localEventBus));
+			p.add(new MeasurementView(remoteEventBus, localEventBus));
 		} else if (view.equals("procedureView")) {
-			ProcedureView procedureView = new ProcedureView(eventBus);
+			ProcedureView procedureView = new ProcedureView(remoteEventBus);
 			p.add(procedureView);
-			p.add(new ProcedureControls(eventBus));
+			p.add(new ProcedureControls(remoteEventBus));
 
 			procedureView.setStep(1);
 		} else if (view.equals("settingsView")) {
-			p.add(new SettingsView(eventBus));
+			p.add(new SettingsView(remoteEventBus));
 		} else if (view.equals("cameraView")) {
-			p.add(new SettingsView(eventBus));
-			p.add(new CameraView(eventBus, SettingsView.settingNames[3]));
-			p.add(new CameraView(eventBus, SettingsView.settingNames[4]));
+			p.add(new SettingsView(remoteEventBus));
+			p.add(new CameraView(remoteEventBus, SettingsView.settingNames[3]));
+			p.add(new CameraView(remoteEventBus, SettingsView.settingNames[4]));
 		}
 		
 		RootLayoutPanel.get().add(p);

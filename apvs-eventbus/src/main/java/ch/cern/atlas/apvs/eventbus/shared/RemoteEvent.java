@@ -28,8 +28,8 @@ public abstract class RemoteEvent<H> implements Serializable {
 		}
 	}
 	
-	private int uuid;
-	private long eventBusUUID = -1;
+	private Integer uuid = null;
+	private Long eventBusUUID = null;
 
 	protected RemoteEvent() {
 	}
@@ -58,11 +58,16 @@ public abstract class RemoteEvent<H> implements Serializable {
 	protected abstract void dispatch(H handler);
 
 	protected void setSourceUUID(int uuid) {
-		this.uuid = uuid;
+		// only set when it was not set before. Forwarded events keep their original source.
+		if (this.uuid == null) {
+			this.uuid = uuid;
+		}
 	}
 
 	protected void setEventBusUUID(long eventBusUUID) {
-		assert(this.eventBusUUID < 0);
-		this.eventBusUUID = eventBusUUID;
+		// only set when it was not set before. Forwarded events do not get their UUID re-set.
+		if (this.eventBusUUID == null) {
+			this.eventBusUUID = eventBusUUID;
+		}
 	}
 }

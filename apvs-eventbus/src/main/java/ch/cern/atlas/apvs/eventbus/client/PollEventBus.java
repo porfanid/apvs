@@ -38,8 +38,6 @@ public class PollEventBus extends RemoteEventBus {
 	}
 
 	private void doFire(final RemoteEvent<?> event) {
-		setEventBusUuidOfEvent(event, getUUID());
-
 		// send out locally
 		super.fireEvent(event);
 

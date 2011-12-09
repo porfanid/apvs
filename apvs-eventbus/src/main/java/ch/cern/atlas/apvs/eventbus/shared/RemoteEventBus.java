@@ -126,6 +126,8 @@ public class RemoteEventBus extends SimpleEventBus {
 				setSourceUuidOfEvent(event, uuid);
 			}
 
+			setEventBusUuidOfEvent(event, getUUID());
+			
 			List<H> handlers = getDispatchList(event.getAssociatedType(), uuid);
 			Set<Throwable> causes = null;
 

@@ -19,28 +19,28 @@ public class PtuSelector extends VerticalFlowPanel {
 
 	private List<Integer> ptuIds;
 
-	public PtuSelector(final RemoteEventBus eventBus) {
+	public PtuSelector(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus) {
 		add(list);
 
 		list.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
-				int ptuId;
+				Integer ptuId = null;
 				try {
 					ptuId = Integer.parseInt(list.getItemText(list
 							.getSelectedIndex()));
 				} catch (NumberFormatException e) {
-					ptuId = -1;
+					ptuId = null;
 				}
-				eventBus.fireEvent(new SelectPtuEvent(ptuId));
+				localEventBus.fireEvent(new SelectPtuEvent(ptuId));
 			}
 		});
 
-		SelectPtuEvent.register(eventBus, new SelectPtuEvent.Handler() {
+		SelectPtuEvent.register(localEventBus, new SelectPtuEvent.Handler() {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
-				if (eventBus.getUUID() != event.getEventBusUUID())
+				if (localEventBus.getUUID() != event.getEventBusUUID())
 					return;
 
 				int i = 0;
@@ -57,7 +57,7 @@ public class PtuSelector extends VerticalFlowPanel {
 			}
 		});
 
-		PtuIdsChangedEvent.subscribe(eventBus,
+		PtuIdsChangedEvent.subscribe(remoteEventBus,
 				new PtuIdsChangedEvent.Handler() {
 
 					@Override
