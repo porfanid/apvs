@@ -81,7 +81,8 @@ public class DosimeterReader implements Runnable {
 				String line;
 				while ((line = is.readLine()) != null) {
 					Dosimeter dosimeter = DosimeterCoder.decode(line);
-
+					if (dosimeter == null) continue;
+					
 					if (dosimeters.put(dosimeter.getSerialNo(), dosimeter) == null) {
 						eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(
 								getDosimeterSerialNumbers()));
