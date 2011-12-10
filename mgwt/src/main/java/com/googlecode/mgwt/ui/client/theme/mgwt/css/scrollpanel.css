@@ -1,0 +1,11 @@
+@if mgwt.css pretty {
+	@external mgwt-ScrollPanel, container, mgwt-Scrollbar, horizontal, vertical, mgwt-Scrollbar-Bar;
+	
+}
+
+
+
+.mgwt-Scrollbar-Bar {
+	
+	background-color: baseColor;
+}

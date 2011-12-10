@@ -1,0 +1,50 @@
+@url arrowImage listArrow;
+@url arrowTouchedImage listArrowTouched;
+
+
+@if mgwt.css pretty {
+	@external mgwt-List, selected, group, mgwt-List-Header;
+	
+}
+
+
+.mgwt-List li {
+	color: fontColor;
+	background-color: baseColor;
+	background-image: literal('-webkit-gradient(linear,left top, left bottom, from(rgba(255, 255, 255, 0.3)), to(rgba(255, 255, 255, 0.3)) )');
+	border: 1px solid rgba(0,0,0,0.5);
+	background-origin: padding-box;
+}
+
+
+.mgwt-List.round li.last {
+	border: 1px solid rgba(0,0,0,0.5);
+		
+}
+
+
+
+.mgwt-List .group {
+	background-image: arrowImage, literal('-webkit-gradient(linear,left top, left bottom, from(rgba(255, 255, 255, 0.3)), to(rgba(255, 255, 255, 0.3)) )');
+	background-repeat: no-repeat;
+	background-position: 100% 50%;
+}
+
+.mgwt-List .group.selected {
+	background-image: arrowTouchedImage, literal('-webkit-gradient(linear,left top, left bottom, from(rgba(255, 255, 255, 0.5)), to(rgba(255, 255, 255, 0.5)) )');
+	background-repeat: no-repeat, repeat;
+	background-position: 100% 50%, 0 0;
+	color: baseColor;
+	background-color: fontColor;
+}
+
+
+
+
+.mgwt-List-Header {
+	color: baseColor;
+	
+}
+
+
+

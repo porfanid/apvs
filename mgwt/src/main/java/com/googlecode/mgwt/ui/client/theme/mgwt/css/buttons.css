@@ -1,0 +1,25 @@
+@if mgwt.css pretty {
+	@external mgwt-Button, active, small, round, important, confirm;
+	
+}
+
+.mgwt-Button {
+	border: solid 1px rgba(0,0,0, 0.5);
+	
+
+	background-color: baseColor;
+	background-image: literal('-webkit-gradient(linear, left top, left bottom, from(rgba(255,255, 255, 0.35)), color-stop(0.5, rgba(255,255, 255, 0.15)),  to(rgba(255,255, 255, 0.35)))'); 
+	color: fontColor;
+	
+	
+	
+}
+
+.mgwt-Button.active {
+	background-image: literal('-webkit-gradient(linear, left top, left bottom, from(rgba(255,255, 255, 0.20)), color-stop(0.5, rgba(0,0,0,0.10)),  to(rgba(255,255, 255, 0.20)))'); 
+}
+
+
+
+
+

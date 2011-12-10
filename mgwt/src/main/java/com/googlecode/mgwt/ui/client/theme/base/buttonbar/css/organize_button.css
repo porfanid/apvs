@@ -1,0 +1,24 @@
+@if mgwt.css pretty {
+	@external organize, active;
+}
+
+@url organizeImage toolbarOrganizeImage;
+@url pressedImage toolbarPressImage;
+
+.organize {
+	background-image: organizeImage;
+}
+
+.organize.active {
+	background-image: pressedImage, organizeImage;
+}
+
+@if mgwt.os retina {
+	.organize {
+		background-size: 19px 19px;
+	}
+	
+	.organize.active {
+		background-size: 44px 44px, 19px 19px;
+	}
+}

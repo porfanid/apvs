@@ -38,6 +38,7 @@
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-ptu</module>
+		<module>mgwt</module>
 	</modules>
 
 	<build>
@@ -180,8 +181,6 @@
       				<groupId>com.googlecode.mgwt</groupId>
       				<artifactId>mgwt</artifactId>
       				<version>${mgwt-version}</version>
-				<scope>system</scope>
-      				<systemPath>lib/.jar</systemPath>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>

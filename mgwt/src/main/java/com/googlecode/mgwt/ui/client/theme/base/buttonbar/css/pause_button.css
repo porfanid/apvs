@@ -1,0 +1,24 @@
+@if mgwt.css pretty {
+	@external pause, active;
+}
+
+@url pauseImage toolbarPauseImage;
+@url pressedImage toolbarPressImage;
+
+.pause {
+	background-image: pauseImage;
+}
+
+.pause.active {
+	background-image: pressedImage, pauseImage;
+}
+
+@if mgwt.os retina {
+	.pause {
+		background-size: 14px 16px;
+	}
+	
+	.pause.active {
+		background-size: 44px 44px, 14px 16px;
+	}
+}
