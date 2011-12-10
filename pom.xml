@@ -180,6 +180,8 @@
       				<groupId>com.googlecode.mgwt</groupId>
       				<artifactId>mgwt</artifactId>
       				<version>${mgwt-version}</version>
+				<scope>system</scope>
+      				<systemPath>lib/.jar</systemPath>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
