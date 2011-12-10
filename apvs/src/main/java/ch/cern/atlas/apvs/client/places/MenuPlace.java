@@ -5,7 +5,7 @@ import com.google.gwt.user.client.ui.Widget;
 @SuppressWarnings("serial")
 public abstract class MenuPlace extends RemotePlace {
 
-	public abstract Widget getHeader();
+	public abstract String getHeader();
 	public abstract Widget getWidget();
 	public abstract int getIndex();
 }

@@ -12,8 +12,8 @@ public class Models extends MenuPlace {
 	}
 
 	@Override
-	public Widget getHeader() {
-		return new HTML("2D/3D Models");
+	public String getHeader() {
+		return "2D/3D Models";
 	}
 
 	@Override

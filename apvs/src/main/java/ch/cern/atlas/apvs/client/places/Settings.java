@@ -12,8 +12,8 @@ public class Settings extends MenuPlace {
 	}
 
 	@Override
-	public Widget getHeader() {
-		return new HTML("Setting");
+	public String getHeader() {
+		return "Settings";
 	}
 
 	@Override

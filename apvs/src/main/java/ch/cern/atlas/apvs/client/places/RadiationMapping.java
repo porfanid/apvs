@@ -12,8 +12,8 @@ public class RadiationMapping extends MenuPlace {
 	}
 
 	@Override
-	public Widget getHeader() {
-		return new HTML("Radiation Mapping");
+	public String getHeader() {
+		return "Radiation Mapping";
 	}
 
 	@Override

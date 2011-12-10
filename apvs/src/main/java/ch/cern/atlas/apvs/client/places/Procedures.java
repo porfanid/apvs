@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.places;
 
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -16,8 +15,8 @@ public class Procedures extends MenuPlace {
 	}
 
 	@Override
-	public Widget getHeader() {
-		return new HTML("Procedures");
+	public String getHeader() {
+		return "Procedures";
 	}
 
 	@Override

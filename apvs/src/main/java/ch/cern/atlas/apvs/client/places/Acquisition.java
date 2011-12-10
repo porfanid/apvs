@@ -12,8 +12,8 @@ public class Acquisition extends MenuPlace {
 	}
 
 	@Override
-	public Widget getHeader() {
-		return new HTML("Acquisition");
+	public String getHeader() {
+		return "Acquisition";
 	}
 
 	@Override

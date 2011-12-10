@@ -1,18 +1,7 @@
 package ch.cern.atlas.apvs.client;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Logger;
 
-import ch.cern.atlas.apvs.client.places.Acquisition;
-import ch.cern.atlas.apvs.client.places.Log;
-import ch.cern.atlas.apvs.client.places.MenuPlace;
-import ch.cern.atlas.apvs.client.places.Models;
-import ch.cern.atlas.apvs.client.places.Procedures;
-import ch.cern.atlas.apvs.client.places.RadiationMapping;
-import ch.cern.atlas.apvs.client.places.RemotePlace;
-import ch.cern.atlas.apvs.client.places.Settings;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -21,21 +10,14 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.StackLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -50,9 +32,6 @@ public class APVS implements EntryPoint {
 	private PlaceController placeController;
 	@SuppressWarnings("unused")
 	private SettingsPersister settingsPersister;
-	private Label clientId = new Label();
-
-	private Button dosimeterButton;
 
 	@Override
 	public void onModuleLoad() {
@@ -110,27 +89,6 @@ public class APVS implements EntryPoint {
 		RootLayoutPanel.get().add(p);
 	}
 
-	private void onMainModuleLoad() {
-		RootLayoutPanel rootLayoutPanel = RootLayoutPanel.get();
-
-		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
-		rootLayoutPanel.add(panel);
-
-		panel.addWest(getLeftBar(), 20);
-	}
-
-	private Widget getLeftBar() {
-		HorizontalPanel top = new HorizontalPanel();
-		top.add(clientId);
-		top.add(dosimeterButton);
-		top.add(getUser());
-
-		DockLayoutPanel panel = new DockLayoutPanel(Unit.EM);
-		panel.addNorth(top, 2.0);
-		panel.add(getStackedMenu());
-		return panel;
-	}
-
 	private Widget getUser() {
 		final ListBox comboBox = new ListBox();
 		comboBox.addItem("Dimi");
@@ -165,42 +123,4 @@ public class APVS implements EntryPoint {
 		return comboBox;
 	}
 
-	private Widget getStackedMenu() {
-		final List<MenuPlace> places = new ArrayList<MenuPlace>();
-		places.add(new Settings());
-		places.add(new Procedures());
-		places.add(new Acquisition());
-		places.add(new Models());
-		places.add(new RadiationMapping());
-		places.add(new Log());
-
-		final StackLayoutPanel stackLayoutPanel = new StackLayoutPanel(Unit.EM);
-		stackLayoutPanel.setPixelSize(200, 400);
-
-		for (Iterator<MenuPlace> i = places.iterator(); i.hasNext();) {
-			MenuPlace menuPlace = i.next();
-			stackLayoutPanel.add(menuPlace.getWidget(), menuPlace.getHeader(),
-					2.0);
-		}
-
-		stackLayoutPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-
-			@Override
-			public void onSelection(SelectionEvent<Integer> event) {
-				RemotePlace place = places.get(event.getSelectedItem());
-				// place.setRemoteID(client.getConnectionID());
-				placeController.goTo(place);
-			}
-		});
-		/*
-		 * eventBus.addHandler(PlaceChangeEvent.TYPE, new
-		 * PlaceChangeEvent.Handler() {
-		 * 
-		 * @Override public void onPlaceChange(PlaceChangeEvent event) { Place
-		 * place = event.getNewPlace(); if (place instanceof MenuPlace) {
-		 * MenuPlace menuPlace = (MenuPlace) place;
-		 * stackLayoutPanel.showWidget(menuPlace.getIndex(), false); } } });
-		 */
-		return stackLayoutPanel;
-	}
 }

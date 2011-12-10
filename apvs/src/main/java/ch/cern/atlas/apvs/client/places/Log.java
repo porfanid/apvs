@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.places;
 
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -17,8 +16,8 @@ public class Log extends MenuPlace {
 	}
 
 	@Override
-	public Widget getHeader() {
-		return new HTML("Log");
+	public String getHeader() {
+		return "Log";
 	}
 
 	@Override

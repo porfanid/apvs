@@ -12,8 +12,8 @@ public class ProcedureView extends SimplePanel {
 	// FIXME
 //	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Demo";
 //	private String procedure = "mural";
-//	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Tile";
-	private final String procedureURL = "http://pc-atlas-duns:8890/apvs-procs/procedures/Tile";
+	private final String procedureURL = "http://localhost:8890/apvs-procs/procedures/Tile";
+//	private final String procedureURL = "http://pc-atlas-duns:8890/apvs-procs/procedures/Tile";
 	private String procedure = "TileDrawerExtraction";
 	
 	private int step = 1;
@@ -28,7 +28,13 @@ public class ProcedureView extends SimplePanel {
 	private RemoteEventBus eventBus;
 
 	public ProcedureView(RemoteEventBus eventBus) {
+		this(eventBus, 350, 300);
+	}
+	
+	public ProcedureView(RemoteEventBus eventBus, int width, int height) {
 		this.eventBus = eventBus;
+		this.videoWidth = width;
+		this.videoHeight = height;
 		
 		NavigateStepEvent.register(eventBus, new NavigateStepEvent.Handler() {
 
