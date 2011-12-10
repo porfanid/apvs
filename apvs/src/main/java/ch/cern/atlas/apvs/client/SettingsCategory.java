@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
 import com.google.web.bindery.autobean.shared.AutoBean;
 
 public class SettingsCategory {

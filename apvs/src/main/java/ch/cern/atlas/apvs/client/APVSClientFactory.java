@@ -2,6 +2,10 @@ package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.service.FileService;
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
+import ch.cern.atlas.apvs.client.tablet.AboutView;
+import ch.cern.atlas.apvs.client.tablet.AboutViewGwtImpl;
+import ch.cern.atlas.apvs.client.tablet.ShowCaseListView;
+import ch.cern.atlas.apvs.client.tablet.ShowCaseListViewGwtImpl;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -14,9 +18,9 @@ public class APVSClientFactory implements ClientFactory {
 	private final FileServiceAsync fileService = GWT
 			.create(FileService.class);
 
-	// private final HelloView helloView = new HelloViewImpl();
-	// private final GoodbyeView goodbyeView = new GoodbyeViewImpl();
-
+	private AboutView aboutView;
+	private ShowCaseListView homeViewImpl;
+	
 	public APVSClientFactory() {
 		// AtmosphereGWTSerializer serializer =
 		// GWT.create(EventSerializer.class);
@@ -39,4 +43,22 @@ public class APVSClientFactory implements ClientFactory {
 	public FileServiceAsync getFileService() {
 		return fileService;
 	}
+	
+	@Override
+	public ShowCaseListView getHomeView() {
+		if (homeViewImpl == null) {
+			homeViewImpl = new ShowCaseListViewGwtImpl();
+		}
+		return homeViewImpl;
+	}
+
+	@Override
+	public AboutView getAboutView() {
+		if (aboutView == null) {
+			aboutView = new AboutViewGwtImpl();
+		}
+
+		return aboutView;
+	}
+
 }

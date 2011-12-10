@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectClientEvent;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;

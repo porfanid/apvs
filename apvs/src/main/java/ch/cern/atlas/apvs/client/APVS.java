@@ -2,30 +2,48 @@ package ch.cern.atlas.apvs.client;
 
 import java.util.logging.Logger;
 
+import ch.cern.atlas.apvs.client.tablet.AppBundle;
+import ch.cern.atlas.apvs.client.tablet.ApvsHistoryObserver;
+import ch.cern.atlas.apvs.client.tablet.ApvsPlaceHistoryMapper;
+import ch.cern.atlas.apvs.client.tablet.ApvsTabletMainActivityMapper;
+import ch.cern.atlas.apvs.client.tablet.ApvsTabletMainAnimationMapper;
+import ch.cern.atlas.apvs.client.tablet.ApvsTabletNavActivityMapper;
+import ch.cern.atlas.apvs.client.tablet.ApvsTabletNavAnimationMapper;
+import ch.cern.atlas.apvs.client.tablet.HomePlace;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.googlecode.mgwt.mvp.client.AnimatableDisplay;
+import com.googlecode.mgwt.mvp.client.AnimatingActivityManager;
+import com.googlecode.mgwt.mvp.client.AnimationMapper;
+import com.googlecode.mgwt.mvp.client.history.MGWTPlaceHistoryHandler;
+import com.googlecode.mgwt.ui.client.MGWT;
+import com.googlecode.mgwt.ui.client.MGWTSettings;
+import com.googlecode.mgwt.ui.client.MGWTSettings.ViewPort;
+import com.googlecode.mgwt.ui.client.MGWTSettings.ViewPort.DENSITY;
+import com.googlecode.mgwt.ui.client.dialog.TabletPortraitOverlay;
+import com.googlecode.mgwt.ui.client.layout.MasterRegionHandler;
+import com.googlecode.mgwt.ui.client.layout.OrientationRegionHandler;
 
 /**
  * @author Mark Donszelmann
  */
 public class APVS implements EntryPoint {
 
-    private Logger logger = Logger.getLogger(getClass().getName());
+	private Logger logger = Logger.getLogger(getClass().getName());
 	private Window screen;
 
 	private RemoteEventBus remoteEventBus;
@@ -48,13 +66,15 @@ public class APVS implements EntryPoint {
 			Window.alert("Please define a <div> element with the id set to your view in the html you are starting from.");
 			return;
 		}
-		
+
 		settingsPersister = new SettingsPersister(remoteEventBus);
 
 		String view = divs.getItem(0).getId();
 		Panel p = new VerticalFlowPanel();
 		if (view.equals("workerView")) {
-			p.add(new WorkerView(remoteEventBus));
+			startWorker();
+			return;
+			// p.add(new WorkerView(remoteEventBus));
 		} else if (view.equals("supervisorView")) {
 			RootLayoutPanel.get().add(new SupervisorView(remoteEventBus));
 			return;
@@ -64,7 +84,7 @@ public class APVS implements EntryPoint {
 			p.add(new SettingsView(remoteEventBus));
 			p.add(new DosimeterView(remoteEventBus));
 		} else if (view.equals("ptuView")) {
-			p.add(new SettingsView(remoteEventBus));			
+			p.add(new SettingsView(remoteEventBus));
 			p.add(new PtuView(remoteEventBus));
 		} else if (view.equals("measurementView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
@@ -82,45 +102,129 @@ public class APVS implements EntryPoint {
 		} else if (view.equals("cameraView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
 			p.add(new SettingsView(remoteEventBus));
-			p.add(new CameraView(remoteEventBus, localEventBus, CameraView.HELMET));
+			p.add(new CameraView(remoteEventBus, localEventBus,
+					CameraView.HELMET));
 			p.add(new CameraView(remoteEventBus, localEventBus, CameraView.HAND));
 		}
-		
+
 		RootLayoutPanel.get().add(p);
 	}
 
-	private Widget getUser() {
-		final ListBox comboBox = new ListBox();
-		comboBox.addItem("Dimi");
-		comboBox.addItem("Mark");
-		comboBox.addItem("Marzio");
-		comboBox.addItem("Olga");
-		comboBox.addItem("Olivier");
+	private void startWorker() {
 
-		comboBox.setSelectedIndex(2);
+		// MGWTColorScheme.setBaseColor("#56a60D");
+		// MGWTColorScheme.setFontColor("#eee");
+		//
+		// MGWTStyle.setDefaultBundle((MGWTClientBundle)
+		// GWT.create(MGWTStandardBundle.class));
+		// MGWTStyle.getDefaultClientBundle().getMainCss().ensureInjected();
 
-		comboBox.addChangeHandler(new ChangeHandler() {
+		ViewPort viewPort = new MGWTSettings.ViewPort();
+		viewPort.setTargetDensity(DENSITY.MEDIUM);
+		viewPort.setUserScaleAble(false).setMinimumScale(1.0)
+				.setMinimumScale(1.0).setMaximumScale(1.0);
 
-			@Override
-			public void onChange(ChangeEvent event) {
-				GWT.log("New event");
-				String user = comboBox.getValue(comboBox.getSelectedIndex());
-				// placeController.goTo(new User(client.getConnectionID(),
-				// user));
-			}
-		});
-		/*
-		 * eventBus.addHandler(PlaceChangeEvent.TYPE, new
-		 * PlaceChangeEvent.Handler() {
-		 * 
-		 * @Override public void onPlaceChange(PlaceChangeEvent event) { Place
-		 * place = event.getNewPlace(); if (place instanceof User) { for (int i
-		 * = 0; i < comboBox.getItemCount(); i++) { if
-		 * (comboBox.getValue(i).equals( ((User) place).getUser())) {
-		 * comboBox.setSelectedIndex(i); return; } } GWT.log(place +
-		 * " not found"); } } });
-		 */
-		return comboBox;
+		MGWTSettings settings = new MGWTSettings();
+		settings.setViewPort(viewPort);
+//		settings.setIconUrl("logo.png");
+//		settings.setAddGlosToIcon(true);
+		settings.setFullscreen(true);
+		settings.setPreventScrolling(true);
+
+		MGWT.applySettings(settings);
+
+		final ClientFactory clientFactory = new APVSClientFactory();
+
+		// Start PlaceHistoryHandler with our PlaceHistoryMapper
+		ApvsPlaceHistoryMapper historyMapper = GWT
+				.create(ApvsPlaceHistoryMapper.class);
+
+		if (MGWT.getOsDetection().isTablet()) {
+
+			// very nasty workaround because GWT does not corretly support
+			// @media
+			StyleInjector.inject(AppBundle.INSTANCE.css().getText());
+
+			createTabletDisplay(clientFactory);
+		} else {
+
+			createTabletDisplay(clientFactory);
+//			createPhoneDisplay(clientFactory);
+
+		}
+
+		ApvsHistoryObserver historyObserver = new ApvsHistoryObserver();
+
+		MGWTPlaceHistoryHandler historyHandler = new MGWTPlaceHistoryHandler(
+				historyMapper, historyObserver);
+
+		historyHandler.register(clientFactory.getPlaceController(),
+				clientFactory.getEventBus(), new HomePlace());
+		historyHandler.handleCurrentHistory();
 	}
 
+/*
+	private void createPhoneDisplay(ClientFactory clientFactory) {
+		AnimatableDisplay display = GWT.create(AnimatableDisplay.class);
+
+		PhoneActivityMapper appActivityMapper = new PhoneActivityMapper(
+				clientFactory);
+
+		PhoneAnimationMapper appAnimationMapper = new PhoneAnimationMapper();
+
+		AnimatingActivityManager activityManager = new AnimatingActivityManager(
+				appActivityMapper, appAnimationMapper,
+				clientFactory.getEventBus());
+
+		activityManager.setDisplay(display);
+
+		RootPanel.get().add(display);
+
+	}
+*/
+	private void createTabletDisplay(ClientFactory clientFactory) {
+		SimplePanel navContainer = new SimplePanel();
+		navContainer.getElement().setId("nav");
+		navContainer.getElement().addClassName("landscapeonly");
+		AnimatableDisplay navDisplay = GWT.create(AnimatableDisplay.class);
+
+		final TabletPortraitOverlay tabletPortraitOverlay = new TabletPortraitOverlay();
+
+		new OrientationRegionHandler(navContainer, tabletPortraitOverlay,
+				navDisplay);
+		new MasterRegionHandler(clientFactory.getEventBus(), "nav",
+				tabletPortraitOverlay);
+
+		ActivityMapper navActivityMapper = new ApvsTabletNavActivityMapper(
+				clientFactory);
+
+		AnimationMapper navAnimationMapper = new ApvsTabletNavAnimationMapper();
+
+		AnimatingActivityManager navActivityManager = new AnimatingActivityManager(
+				navActivityMapper, navAnimationMapper,
+				clientFactory.getEventBus());
+
+		navActivityManager.setDisplay(navDisplay);
+
+		RootPanel.get().add(navContainer);
+
+		SimplePanel mainContainer = new SimplePanel();
+		mainContainer.getElement().setId("main");
+		AnimatableDisplay mainDisplay = GWT.create(AnimatableDisplay.class);
+
+		ApvsTabletMainActivityMapper tabletMainActivityMapper = new ApvsTabletMainActivityMapper(
+				clientFactory);
+
+		AnimationMapper tabletMainAnimationMapper = new ApvsTabletMainAnimationMapper();
+
+		AnimatingActivityManager mainActivityManager = new AnimatingActivityManager(
+				tabletMainActivityMapper, tabletMainAnimationMapper,
+				clientFactory.getEventBus());
+
+		mainActivityManager.setDisplay(mainDisplay);
+		mainContainer.setWidget(mainDisplay);
+
+		RootPanel.get().add(mainContainer);
+
+	}
 }
