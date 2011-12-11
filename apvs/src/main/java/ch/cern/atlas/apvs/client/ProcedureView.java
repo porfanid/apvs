@@ -4,6 +4,8 @@ import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.media.client.Video;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -18,7 +20,7 @@ public class ProcedureView extends SimplePanel {
 	
 	private int step = 1;
 	private String extension = ".m4v";
-	private String contentType = "video/x-m4v"; // video/mp4
+	private String videoType = "video/x-m4v"; // video/mp4
 	private int videoWidth = 350; // 640;
 	private int videoHeight = 300;
 	private String videoPoster = "procedure.jpg"; // FIXME
@@ -63,11 +65,15 @@ public class ProcedureView extends SimplePanel {
 				String source = procedureURL + "/" + procedure + "/" + step
 						+ extension;
 				System.err.println(source);
-				setWidget(new HTML(
-						"<video width='"+videoWidth+"' height='"+videoHeight+"' poster='"+videoPoster+"' controls autoplay loop>"
-								+ "<source src='" + source
-								+ "' type='"+contentType+"'></source>" + "</video>"));
-
+				Video video = Video.createIfSupported();
+				video.setWidth(videoWidth+Unit.PX.toString());
+				video.setHeight(videoHeight+Unit.PX.toString());
+				video.setPoster(videoPoster);
+				video.setAutoplay(true);
+				video.setControls(true);
+				video.setLoop(true);
+				video.setMuted(true);
+				video.addSource(source, videoType);
 			}
 		});
 	}

@@ -4,8 +4,12 @@ import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.media.client.Video;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class CameraView extends SimplePanel {
 
@@ -57,21 +61,32 @@ public class CameraView extends SimplePanel {
 	}
 
 	private void update() {
-		setWidget(new HTML("<img width=\""+videoWidth+"\" height=\""+videoHeight+"\" src=\""+videoPoster+"\"/>"));
-		
+		Image image = new Image(videoPoster);
+		image.setWidth(videoWidth+Unit.PX.toString());
+		image.setHeight(videoHeight+Unit.PX.toString());
+		setWidget(image);
+						
 		if (ptuId == null) return;
 		
 		String cameraUrl = getCameraUrl(type, ptuId);
 		if (cameraUrl == null) return;
 		
-		HTML html;
 		if (cameraUrl.startsWith("http://")) {
-			html = new HTML("<video width='" + videoWidth + "' height='"
-					+ videoHeight + "' poster='" + videoPoster
-					+ "' controls autoplay loop>" + "<source src='" + cameraUrl
-					+ "'></source>" + "</video>");
+			Video video = Video.createIfSupported();
+			if (video != null) {
+				video.setWidth(videoWidth+Unit.PX.toString());
+				video.setHeight(videoHeight+Unit.PX.toString());
+				video.setControls(true);
+				video.setAutoplay(true);
+				video.setPoster(videoPoster);
+				video.setMuted(true);
+				video.setLoop(true);
+				video.addSource(cameraUrl);
+			}
+			System.err.println(video.toString());
+			setWidget(video);
 		} else {
-			html = new HTML(quickTime + 
+			Widget video = new HTML(quickTime + 
 					"<script language=\"javascript\" type=\"text/javascript\">"
 							+ "QT_WriteOBJECT('"
 							+ videoPoster
@@ -82,8 +97,8 @@ public class CameraView extends SimplePanel {
 							+ "', '', 'href', '"
 							+ cameraUrl
 							+ "', 'autohref', 'true', 'target', 'myself', 'controller', 'true', 'autoplay', 'true');</script>");
+			System.err.println(video.toString());
+			setWidget(video);
 		}
-		System.err.println(html.toString());
-		setWidget(html);
 	}
 }
