@@ -15,6 +15,7 @@
 
 	<properties>
 		<gwtModule>ch.cern.atlas.apvs.APVS</gwtModule>
+		<gwtDevModule>ch.cern.atlas.apvs.APVSDev</gwtDevModule>
 		<war.target>${basedir}/src/main/webapp</war.target>
 		<gwt.compiler.force>false</gwt.compiler.force>
 		<gwt.draftCompile>false</gwt.draftCompile>
@@ -33,7 +34,7 @@
 				<artifactId>gwt-maven-plugin</artifactId>
 				<configuration>
 					<strict>true</strict>
-					<module>${gwtModule}</module>
+					<module>${gwtDevModule}</module>
 					<gwtVersion>${gwt-version}</gwtVersion>
 					<runTarget>http://localhost:8888/apvs/APVS.jsp</runTarget>
 					<noServer>false</noServer>
@@ -167,7 +168,6 @@
 		</plugins>
 	</build>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
@@ -264,6 +264,23 @@
 		</dependency>
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>prod</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<configuration>
+							<module>${gwtModule}</module>
+							<draftCompile>true</draftCompile>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
 
 

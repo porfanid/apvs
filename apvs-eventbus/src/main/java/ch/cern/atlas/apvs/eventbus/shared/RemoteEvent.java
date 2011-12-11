@@ -36,11 +36,11 @@ public abstract class RemoteEvent<H> implements Serializable {
 
 	public abstract Type<H> getAssociatedType();
 
-	public int getSourceUUID() {
+	public Integer getSourceUUID() {
 		return uuid;
 	}
 
-	public long getEventBusUUID() {
+	public Long getEventBusUUID() {
 		return eventBusUUID;
 	}
 	

@@ -26,10 +26,10 @@ public class SupervisorWorkerView extends DockPanel {
 		VerticalFlowPanel p1 = new VerticalFlowPanel();
 		add(p1, EAST);
 		
-		ProcedureView procedureView = new ProcedureView(localEventBus);
+		ProcedureView procedureView = new ProcedureView(remoteEventBus, localEventBus);
 		p1.add(new Label("Procedure"));
 		p1.add(procedureView);
-		p1.add(new ProcedureControls(localEventBus));
+		p1.add(new ProcedureControls(remoteEventBus, localEventBus));
 		procedureView.setStep(12);
 	}
 }

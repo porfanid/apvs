@@ -36,7 +36,7 @@ public class RemoteEventBus extends SimpleEventBus {
 		void execute();
 	}
 	
-	private long uuid = UUID.uuidLong(8);
+	private Long uuid = UUID.uuidLong(8);
 
 	private int firingDepth = 0;
 
@@ -47,7 +47,7 @@ public class RemoteEventBus extends SimpleEventBus {
 	public RemoteEventBus() {
 	}
 	
-	public long getUUID() {
+	public Long getUUID() {
 		return uuid;
 	}
 

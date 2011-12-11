@@ -15,6 +15,8 @@ public class SupervisorView extends DockPanel {
 		
 		VerticalFlowPanel west = new VerticalFlowPanel();
 		add(west, WEST);
+		west.add(new HTML("<b>Server Settings</b>"));
+		west.add(new ServerSettingsView(eventBus));
 		west.add(new HTML("<b>Settings</b>"));
 		west.add(new SettingsView(eventBus));
 		west.add(new HTML("<b>Dosimeters</b>"));
@@ -26,5 +28,4 @@ public class SupervisorView extends DockPanel {
 		add(new SupervisorWorkerView(eventBus), NORTH);
 		add(new SupervisorWorkerView(eventBus), NORTH);
 	}
-
 }

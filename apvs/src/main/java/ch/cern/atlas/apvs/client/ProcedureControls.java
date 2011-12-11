@@ -18,13 +18,13 @@ public class ProcedureControls extends HorizontalFlowPanel {
 	Button next = new Button("Next");
 	Label step = new Label("-");
 
-	public ProcedureControls(final RemoteEventBus eventBus) {
+	public ProcedureControls(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus) {
 		add(start);
 		start.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				eventBus.fireEvent(new NavigateStepEvent(Navigation.START));
+				localEventBus.fireEvent(new NavigateStepEvent(Navigation.START));
 			}
 		});
 		add(previous);
@@ -32,8 +32,7 @@ public class ProcedureControls extends HorizontalFlowPanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				eventBus.fireEvent(new NavigateStepEvent(Navigation.PREVIOUS));
-
+				localEventBus.fireEvent(new NavigateStepEvent(Navigation.PREVIOUS));
 			}
 		});
 		add(next);
@@ -41,13 +40,13 @@ public class ProcedureControls extends HorizontalFlowPanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				eventBus.fireEvent(new NavigateStepEvent(Navigation.NEXT));
+				localEventBus.fireEvent(new NavigateStepEvent(Navigation.NEXT));
 			}
 		});
 		
 		add(step);
 
-		SelectStepEvent.register(eventBus, new SelectStepEvent.Handler() {
+		SelectStepEvent.register(remoteEventBus, new SelectStepEvent.Handler() {
 			@Override
 			public void onStepSelected(SelectStepEvent event) {
 				previous.setEnabled(event.hasPrevious());

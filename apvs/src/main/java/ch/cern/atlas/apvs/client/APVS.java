@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client;
 
 import java.util.logging.Logger;
 
+import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
 import ch.cern.atlas.apvs.client.tablet.ApvsHistoryObserver;
 import ch.cern.atlas.apvs.client.tablet.ApvsPlaceHistoryMapper;
@@ -22,6 +23,7 @@ import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -54,6 +56,27 @@ public class APVS implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 		GWT.setUncaughtExceptionHandler(new APVSUncaughtExceptionHandler());
+		
+		ServerServiceAsync.Util.getInstance().isReady(new AsyncCallback<Boolean>() {
+			
+			@Override
+			public void onSuccess(Boolean result) {
+				if (result) {
+					System.err.println("Server ready");
+					start();
+				} else {
+					onFailure(null);
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("Server not ready. reload webpage "+caught);
+			}
+		});
+	}	
+	
+	private void start() {
 
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
@@ -72,9 +95,12 @@ public class APVS implements EntryPoint {
 		String view = divs.getItem(0).getId();
 		Panel p = new VerticalFlowPanel();
 		if (view.equals("workerView")) {
-			startWorker();
-			return;
-			// p.add(new WorkerView(remoteEventBus));
+			if (true) {
+				p.add(new WorkerView(remoteEventBus));
+			} else {
+				startWorker();
+				return;
+			}
 		} else if (view.equals("supervisorView")) {
 			RootLayoutPanel.get().add(new SupervisorView(remoteEventBus));
 			return;
@@ -92,9 +118,10 @@ public class APVS implements EntryPoint {
 			p.add(new PtuSelector(remoteEventBus, localEventBus));
 			p.add(new MeasurementView(remoteEventBus, localEventBus));
 		} else if (view.equals("procedureView")) {
-			ProcedureView procedureView = new ProcedureView(remoteEventBus);
+			RemoteEventBus localEventBus = new RemoteEventBus();
+			ProcedureView procedureView = new ProcedureView(remoteEventBus, localEventBus);
 			p.add(procedureView);
-			p.add(new ProcedureControls(remoteEventBus));
+			p.add(new ProcedureControls(remoteEventBus, localEventBus));
 
 			procedureView.setStep(1);
 		} else if (view.equals("settingsView")) {

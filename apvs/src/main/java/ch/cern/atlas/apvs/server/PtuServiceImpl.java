@@ -51,8 +51,8 @@ public class PtuServiceImpl extends ResponsePollService implements Runnable {
 			if (ptuReader == null) {
 				try {
 					if (showError) {
-						System.out.println("Trying to connect to "+ name + " on " + host
-							+ ":" + port);
+						System.out.println("Trying to connect to " + name
+								+ " on " + host + ":" + port);
 					}
 					Socket socket = new Socket(host, port);
 					showError = true;

@@ -16,7 +16,6 @@ import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.SelectionCell;
@@ -41,17 +40,15 @@ public class SettingsView extends VerticalFlowPanel {
 	protected List<Integer> ptuIds = new ArrayList<Integer>();
 	protected List<Integer> dosimeterSerialNumbers;
 
-    static final String[] settingNames = { "Name", "PTU Id",
-			"Dosimeter #", "URL Helmet Camera", "URL Hand Camera",
-			"Show Fake Measurements", "Add/Remove" };
+	static final String[] settingNames = { "Name", "PTU Id", "Dosimeter #",
+			"URL Helmet Camera", "URL Hand Camera", "Add/Remove" };
 	@SuppressWarnings("rawtypes")
 	private static final Class[] cellClass = { EditTextCell.class,
 			SelectionCell.class, SelectionCell.class, EditTextCell.class,
-			EditTextCell.class, CheckboxCell.class, ButtonCell.class };
+			EditTextCell.class, ButtonCell.class };
 	@SuppressWarnings("rawtypes")
 	private static final Class[] nameClass = { TextCell.class, TextCell.class,
-			TextCell.class, TextCell.class, TextCell.class, TextCell.class,
-			ButtonCell.class };
+			TextCell.class, TextCell.class, TextCell.class, ButtonCell.class };
 
 	public SettingsView(final RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
@@ -100,7 +97,6 @@ public class SettingsView extends VerticalFlowPanel {
 				new SettingsChangedEvent.Handler() {
 					@Override
 					public void onSettingsChanged(SettingsChangedEvent event) {
-						System.err.println("Setting settings !!HDJHJDFHJ");
 						if (event.getSource() == this) {
 							return;
 						}
@@ -231,7 +227,8 @@ public class SettingsView extends VerticalFlowPanel {
 		table.addColumn(column, Integer.toString(id + 1));
 	}
 
-    static void fireSettingsChangedEvent(RemoteEventBus eventBus, Settings settings) {
+	static void fireSettingsChangedEvent(RemoteEventBus eventBus,
+			Settings settings) {
 		HashMap<Integer, Integer> dosimeterToPtu = new HashMap<Integer, Integer>();
 
 		// takes the last proper value

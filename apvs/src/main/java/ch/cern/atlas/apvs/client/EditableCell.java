@@ -295,7 +295,7 @@ public class EditableCell extends AbstractCell<Object> {
 		@Override
 		public void render(com.google.gwt.cell.client.Cell.Context context,
 				String value, SafeHtmlBuilder sb) {
-			if (value.length() > 20) {
+			if ((value !=  null) && (value.length() > 20)) {
 				value = value.substring(0, 10)+"..."+value.substring(value.length()-10);
 			}
 			super.render(context, value, sb);

@@ -90,7 +90,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 			return;
 		}
 		
-		// add event to all the queues (except its own)
+		// add event to all the queues (except its own, unless EventBusUUID is null)
 		for (Iterator<Entry<Long, ClientInfo>> i = clients.entrySet().iterator(); i.hasNext(); ) {
 			Entry<Long, ClientInfo> entry = i.next();
 			if (event.getEventBusUUID() != entry.getKey()) {

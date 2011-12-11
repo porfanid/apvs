@@ -31,9 +31,9 @@ public class WorkerView extends DockPanel {
 		
 		VerticalFlowPanel east = new VerticalFlowPanel();
 		add(east, CENTER);
-		ProcedureView procedureView = new ProcedureView(remoteEventBus, 750, 730);
+		ProcedureView procedureView = new ProcedureView(remoteEventBus, remoteEventBus, 750, 730);
 		east.add(procedureView);
-		east.add(new ProcedureControls(remoteEventBus));
+		east.add(new ProcedureControls(remoteEventBus, remoteEventBus));
 		procedureView.setStep(7);
 	}
 

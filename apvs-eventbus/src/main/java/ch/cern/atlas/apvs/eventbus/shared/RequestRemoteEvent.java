@@ -58,4 +58,9 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 		handler.onRequestEvent(this);
 	}
 
+	@Override
+	public String toString() {
+		return "RequestRemoteEvent of class "+getRequestedClassName();
+	}
+
 }

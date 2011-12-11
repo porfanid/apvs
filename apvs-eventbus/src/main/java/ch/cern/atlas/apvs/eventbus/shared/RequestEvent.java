@@ -55,4 +55,8 @@ public class RequestEvent extends Event<RequestEvent.Handler> {
 		handler.onRequestEvent(this);
 	}
 
+	@Override
+	public String toString() {
+		return "RequestEvent of class "+getRequestedClassName();
+	}
 }
