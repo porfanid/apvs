@@ -17,7 +17,7 @@ public class SupervisorView extends DockPanel {
 		
 		DockPanel mainPanel = new DockPanel();
 		mainPanel.add(new SupervisorWorkerView(eventBus), NORTH);
-		mainPanel.add(new SupervisorWorkerView(eventBus), NORTH);
+//		mainPanel.add(new SupervisorWorkerView(eventBus), NORTH);
 		// FIXME add buttons
 		tabPanel.add(mainPanel, "Workers");
 		

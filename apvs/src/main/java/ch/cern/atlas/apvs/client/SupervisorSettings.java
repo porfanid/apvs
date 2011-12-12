@@ -150,6 +150,15 @@ public class SupervisorSettings implements Serializable {
 
 		return get(supervisor, index, workerSettingNames[0]);
 	}
+	
+	public void setName(String supervisor, Integer ptuId, String value) {
+		int index = getIndexForPtu(supervisor, ptuId);
+		if (index < 0)
+			return;
+		
+		put(supervisor, index, workerSettingNames[0], value);
+	}
+
 
 	public String getHelmetCameraUrl(String supervisor, int ptuId) {
 		int index = getIndexForPtu(supervisor, ptuId);

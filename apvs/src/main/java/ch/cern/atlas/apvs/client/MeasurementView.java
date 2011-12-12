@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -29,6 +30,7 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
+	private SupervisorSettings settings;
 	private Measurement<Double> last = new Measurement<Double>();
 	private ListDataProvider<Measurement<Double>> dataProvider = new ListDataProvider<Measurement<Double>>();
 	private CellTable<Measurement<Double>> table = new CellTable<Measurement<Double>>();
@@ -40,6 +42,16 @@ public class MeasurementView extends VerticalFlowPanel {
 	public MeasurementView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus) {
 
 		add(table);
+		
+		SupervisorSettingsChangedEvent.subscribe(remoteEventBus, new SupervisorSettingsChangedEvent.Handler() {
+			
+			@Override
+			public void onSupervisorSettingsChanged(SupervisorSettingsChangedEvent event) {
+				settings = event.getSupervisorSettings();
+				
+				update();
+			}
+		});
 
 		SelectPtuEvent.register(localEventBus, new SelectPtuEvent.Handler() {
 
@@ -103,7 +115,15 @@ public class MeasurementView extends VerticalFlowPanel {
 		table.addColumn(name, new TextHeader("") {
 			@Override
 			public String getValue() {
-				return "Name "+(ptuId != null ? " (" + ptuId + ")" : "");
+				if (ptuId == null) return "Name";
+				
+				if (settings != null) {
+					String name = settings.getName(Settings.DEFAULT_SUPERVISOR, ptuId);
+					
+					if (name != null) return name;
+				}
+				
+				return "PTU Id: "+ptuId;
 			}			
 		});
 

@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client;
 
+import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -10,7 +11,12 @@ public class SupervisorWorkerView extends DockPanel {
 
 	public SupervisorWorkerView(RemoteEventBus remoteEventBus) {
 		RemoteEventBus localEventBus = new RemoteEventBus();
-		add(new PtuSelector(remoteEventBus, localEventBus), NORTH);
+		HorizontalFlowPanel p0 = new HorizontalFlowPanel();
+		add(p0, NORTH);
+		p0.add(new Label("PTU Id:"));
+		p0.add(new PtuSelector(remoteEventBus, localEventBus));
+		p0.add(new Label("Name:"));
+		p0.add(new NameSelector(remoteEventBus, localEventBus));
 		
 		VerticalFlowPanel p4 = new VerticalFlowPanel();
 		add(p4, EAST);
