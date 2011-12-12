@@ -1,14 +1,10 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import ch.cern.atlas.apvs.client.tablet.ActionEvent.Handler;
-
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.History;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.googlecode.mgwt.dom.client.event.mouse.HandlerRegistrationCollection;
-import com.googlecode.mgwt.mvp.client.Animation;
-import com.googlecode.mgwt.mvp.client.AnimationNames;
 import com.googlecode.mgwt.mvp.client.history.HistoryHandler;
 import com.googlecode.mgwt.mvp.client.history.HistoryObserver;
 import com.googlecode.mgwt.ui.client.MGWT;

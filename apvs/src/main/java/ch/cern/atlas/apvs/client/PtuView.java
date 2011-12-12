@@ -1,14 +1,16 @@
 package ch.cern.atlas.apvs.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -43,7 +45,7 @@ public class PtuView extends VerticalFlowPanel {
 	private SortedMap<Integer, Ptu> ptus;
 	private Map<String, String> units;
 
-	protected Settings settings;
+	protected SupervisorSettings settings;
 
 	private void init() {
 		last = new Measurement<Double>();
@@ -109,12 +111,31 @@ public class PtuView extends VerticalFlowPanel {
 					@Override
 					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
 						ptuIds = event.getPtuIds();
+			
+						while (table.getColumnCount() > 2) {
+							table.removeColumn(table.getColumnCount()-1);
+						}
 
 						if (ptuIds != null) {
+							Collections.sort(ptuIds);
+
+							for (Iterator<Map.Entry<Integer, Ptu>> i=ptus.entrySet().iterator(); i.hasNext(); ) {
+								Map.Entry<Integer, Ptu> entry = i.next();
+								if (ptuIds.contains(entry.getKey())) continue;
+								
+								i.remove();
+							}
+														
+							for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext(); ) {
+								addColumn(i.next());
+							}
+
 							eventBus.fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));
+							
 						} else {
 							init();
 						}
+						update();
 					}
 				});
 
@@ -127,14 +148,12 @@ public class PtuView extends VerticalFlowPanel {
 						Measurement<Double> measurement = event
 								.getMeasurement();
 						Integer ptuId = measurement.getPtuId();
-						if (!ptuIds.contains(ptuId)) return;
+						if ((ptuIds == null) || !ptuIds.contains(ptuId)) return;
 						
 						Ptu ptu = ptus.get(ptuId);
 						if (ptu == null) {
 							ptu = new Ptu(ptuId);
 							ptus.put(ptuId, ptu);
-							// FIXME...
-							insertColumn(ptuId);
 						}
 
 						String name = measurement.getName();
@@ -153,19 +172,18 @@ public class PtuView extends VerticalFlowPanel {
 					}
 				});
 
-		SettingsChangedEvent.subscribe(eventBus,
-				new SettingsChangedEvent.Handler() {
+		SupervisorSettingsChangedEvent.subscribe(eventBus,
+				new SupervisorSettingsChangedEvent.Handler() {
 
 					@Override
-					public void onSettingsChanged(SettingsChangedEvent event) {
-						settings = event.getSettings();
+					public void onSupervisorSettingsChanged(SupervisorSettingsChangedEvent event) {
+						settings = event.getSupervisorSettings();
 						update();
 					}
 				});
 	}
 
-	private void insertColumn(final Integer ptuId) {
-		int columnIndex = new ArrayList<Integer>(ptus.keySet()).indexOf(ptuId) + 2;
+	private void addColumn(final Integer ptuId) {
 		TextColumn<String> column = new TextColumn<String>() {
 			@Override
 			public String getValue(String object) {
@@ -184,7 +202,6 @@ public class PtuView extends VerticalFlowPanel {
 			@Override
 			public void render(Context context, String object,
 					SafeHtmlBuilder sb) {
-				String s;
 				Ptu ptu = ptus.get(ptuId);
 				if (ptu == null) {
 					((TextCell) getCell()).render(context, "", sb);
@@ -197,10 +214,10 @@ public class PtuView extends VerticalFlowPanel {
 
 		};
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		table.insertColumn(columnIndex, column, new TextHeader("") {
+		table.addColumn(column, new TextHeader("") {
 			@Override
 			public String getValue() {
-				String name = settings.getName(ptuId);
+				String name = settings.getName(Settings.DEFAULT_SUPERVISOR, ptuId);
 				return name != null ? name + "<br/>(" + ptuId.toString() + ")"
 						: ptuId.toString();
 			}
@@ -214,8 +231,6 @@ public class PtuView extends VerticalFlowPanel {
 	}
 
 	private void update() {
-		
-		
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 	}

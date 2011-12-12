@@ -112,7 +112,8 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 						client.suspendInfo.writeAndResume(events);
 						System.err.println("Sending events..." + events.size());
 						for (Iterator<RemoteEvent<?>> j = events.iterator(); j.hasNext(); ) {
-							System.err.println("  "+j.next());
+							RemoteEvent<?> event = j.next();
+							System.err.println("  "+(event != null ? event.toString() : "null"));
 						}
 						client.suspendInfo = null;
 					} catch (IOException e) {

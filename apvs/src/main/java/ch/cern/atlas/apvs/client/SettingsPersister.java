@@ -1,9 +1,5 @@
 package ch.cern.atlas.apvs.client;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -51,15 +47,15 @@ public class SettingsPersister extends VerticalFlowPanel {
 
 			@Override
 			public void onRequestEvent(RequestEvent event) {
-				System.err.println("Request "+event.getRequestedClassName());
+				System.err.println("Request " + event.getRequestedClassName());
 				if (event.getRequestedClassName().equals(
 						SettingsChangedEvent.class.getName())) {
-					SettingsView.fireSettingsChangedEvent(eventBus, settings);
+					eventBus.fireEvent(new SettingsChangedEvent(settings));
 				}
 			}
 		});
 	}
-	
+
 	private void load() {
 		Storage store = Storage.getLocalStorageIfSupported();
 		if (store == null) {
@@ -71,22 +67,15 @@ public class SettingsPersister extends VerticalFlowPanel {
 			System.err.println(key + " " + store.getItem(key));
 		}
 		String json = store.getItem(APVS_SETTINGS);
-//		String json = null;
+		// String json = null;
 		System.err.println("get " + json);
-				
+
 		settings = settingsFactory.settings().as();
-		settings.setList(new ArrayList<Map<String, String>>());
 		if (json != null) {
 			AutoBean<Settings> bean = AutoBeanCodex.decode(settingsFactory,
 					Settings.class, json);
-			// NOTE: the top-level List can be added to, but size() does not work... so we convert it. 
-			List<Map<String, String>> list = bean.as().getList();
-			if (list != null) {
-				settings.getList().addAll(list);
-			}
+			settings = bean.as();
 		}
-
-		System.err.println(settings.debugString());
 
 		eventBus.fireEvent(new SettingsChangedEvent(settings));
 	}

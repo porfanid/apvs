@@ -29,6 +29,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 		add(table);
 
 		// name column
+		@SuppressWarnings("unchecked")
 		Column<String, Object> name = new Column<String, Object>(
 				new EditableCell(ServerSettings.nameClass)) {
 			@Override
@@ -47,6 +48,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		table.addColumn(name, "Server Setting");
 
+		@SuppressWarnings("unchecked")
 		Column<String, Object> column = new Column<String, Object>(
 				new EditableCell(ServerSettings.cellClass)) {
 			@Override

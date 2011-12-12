@@ -47,7 +47,7 @@ public class MeasurementView extends VerticalFlowPanel {
 
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {
-				if (localEventBus.getUUID() != event.getEventBusUUID())
+				if (!localEventBus.getUUID().equals(event.getEventBusUUID()))
 					return;
 
 				// unregister any remaining handler

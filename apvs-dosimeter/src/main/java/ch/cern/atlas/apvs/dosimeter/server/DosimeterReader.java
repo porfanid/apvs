@@ -25,13 +25,14 @@ public class DosimeterReader implements Runnable {
 
 	private RemoteEventBus eventBus;
 	private Socket socket;
-	private Map<Integer, Dosimeter> dosimeters = new HashMap<Integer, Dosimeter>();
+	private Map<Integer, Dosimeter> dosimeters;
 
-	private Map<Integer, Integer> dosimeterToPtu = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> dosimeterToPtu;
 
 	public DosimeterReader(final RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;
+		init();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
@@ -69,6 +70,11 @@ public class DosimeterReader implements Runnable {
 				dosimeterToPtu = event.getDosimeterToPtu();
 			}
 		});
+	}
+	
+	private void init() {
+		dosimeters = new HashMap<Integer, Dosimeter>();
+		dosimeterToPtu = new HashMap<Integer, Integer>();
 	}
 
 	@Override
@@ -117,7 +123,7 @@ public class DosimeterReader implements Runnable {
 		} catch (IOException e) {
 			// ignored
 		}
-
+		init();
 		eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(null));
 	}
 

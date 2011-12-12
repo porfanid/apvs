@@ -21,13 +21,14 @@ public class PtuSelector extends VerticalFlowPanel {
 	private List<Integer> ptuIds;
 	private Integer ptuId;
 
-	public PtuSelector(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus) {
+	public PtuSelector(final RemoteEventBus remoteEventBus,
+			final RemoteEventBus localEventBus) {
 		add(list);
 
 		list.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
-			    ptuId = null;
+				ptuId = null;
 				try {
 					ptuId = Integer.parseInt(list.getItemText(list
 							.getSelectedIndex()));
@@ -37,16 +38,18 @@ public class PtuSelector extends VerticalFlowPanel {
 				localEventBus.fireEvent(new SelectPtuEvent(ptuId));
 			}
 		});
-		
-		RequestRemoteEvent.register(localEventBus, new RequestRemoteEvent.Handler() {
-			
-			@Override
-			public void onRequestEvent(RequestRemoteEvent event) {
-				if (event.getRequestedClassName().equals(SelectPtuEvent.class.getName())) {
-					localEventBus.fireEvent(new SelectPtuEvent(ptuId));					
-				}
-			}
-		});
+
+		RequestRemoteEvent.register(localEventBus,
+				new RequestRemoteEvent.Handler() {
+
+					@Override
+					public void onRequestEvent(RequestRemoteEvent event) {
+						if (event.getRequestedClassName().equals(
+								SelectPtuEvent.class.getName())) {
+							localEventBus.fireEvent(new SelectPtuEvent(ptuId));
+						}
+					}
+				});
 
 		SelectPtuEvent.register(localEventBus, new SelectPtuEvent.Handler() {
 
@@ -83,19 +86,17 @@ public class PtuSelector extends VerticalFlowPanel {
 	}
 
 	private void update() {
-		list.clear();
-
 		if (ptuIds != null) {
-			list.addItem("Select PTU ID");
 			Collections.sort(ptuIds);
-			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext();) {
-				list.addItem(toLabel(i.next()));
-			}
-			list.setEnabled(true);
-		} else {
-			list.addItem("...");
-			list.setEnabled(false);
 		}
+
+		list.clear();
+		List<String> items = new OptionList<Integer>(ptuIds, 0);
+		for (Iterator<String> i = items.iterator(); i.hasNext();) {
+			list.addItem(i.next());
+		}
+
+		list.setEnabled(items.size() > 2);
 	}
 
 	private String toLabel(Integer ptuId) {

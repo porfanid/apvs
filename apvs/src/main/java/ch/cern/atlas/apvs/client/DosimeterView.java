@@ -203,6 +203,7 @@ public class DosimeterView extends VerticalFlowPanel {
 				visible ? "visible" : "hidden");
 	}
 
+	@SuppressWarnings("unused")
 	private void startTimer() {
 		timeoutTimer = new Timer() {
 			@Override
@@ -214,6 +215,7 @@ public class DosimeterView extends VerticalFlowPanel {
 		timeoutTimer.schedule(TIMEOUT);
 	}
 
+	@SuppressWarnings("unused")
 	private void cancelTimer() {
 		if (timeoutTimer != null) {
 			timeoutTimer.cancel();

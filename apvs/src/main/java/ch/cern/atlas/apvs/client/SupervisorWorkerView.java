@@ -11,8 +11,12 @@ public class SupervisorWorkerView extends DockPanel {
 	public SupervisorWorkerView(RemoteEventBus remoteEventBus) {
 		RemoteEventBus localEventBus = new RemoteEventBus();
 		add(new PtuSelector(remoteEventBus, localEventBus), NORTH);
-//		add(new MeasurementView(remoteEventBus, localEventBus), WEST);
 		
+		VerticalFlowPanel p4 = new VerticalFlowPanel();
+		add(p4, EAST);
+		p4.add(new Label("Measurements"));
+		p4.add(new MeasurementView(remoteEventBus, localEventBus));
+
 		VerticalFlowPanel p3 = new VerticalFlowPanel();
 		add(p3, EAST);
 		p3.add(new Label("Hand Camera"));
@@ -27,7 +31,7 @@ public class SupervisorWorkerView extends DockPanel {
 		add(p1, EAST);
 		
 		ProcedureView procedureView = new ProcedureView(remoteEventBus, localEventBus);
-		p1.add(new Label("Procedure"));
+		p1.add(new Label("Worker's View"));
 		p1.add(procedureView);
 		p1.add(new ProcedureControls(remoteEventBus, localEventBus));
 		procedureView.setStep(12);

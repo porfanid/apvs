@@ -7,19 +7,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
-import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.SelectionCell;
-import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -30,33 +26,25 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 
-public class SettingsView extends VerticalFlowPanel {
+public class SupervisorSettingsView extends VerticalFlowPanel {
 
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
-	private Settings settings;
+	private String supervisor = Settings.DEFAULT_SUPERVISOR;
+	private SupervisorSettings settings;
 	private RemoteEventBus eventBus;
 	protected List<Integer> ptuIds = new ArrayList<Integer>();
 	protected List<Integer> dosimeterSerialNumbers;
 
-	static final String[] settingNames = { "Name", "PTU Id", "Dosimeter #",
-			"URL Helmet Camera", "URL Hand Camera", "Add/Remove" };
-	@SuppressWarnings("rawtypes")
-	private static final Class[] cellClass = { EditTextCell.class,
-			SelectionCell.class, SelectionCell.class, EditTextCell.class,
-			EditTextCell.class, ButtonCell.class };
-	@SuppressWarnings("rawtypes")
-	private static final Class[] nameClass = { TextCell.class, TextCell.class,
-			TextCell.class, TextCell.class, TextCell.class, ButtonCell.class };
-
-	public SettingsView(final RemoteEventBus eventBus) {
+	public SupervisorSettingsView(final RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
 		add(table);
 
 		// name column, with Add button
+		@SuppressWarnings("unchecked")
 		Column<String, Object> name = new Column<String, Object>(
-				new EditableCell(nameClass)) {
+				new EditableCell(SupervisorSettings.workerNameClass)) {
 			@Override
 			public Object getValue(String object) {
 				return object;
@@ -79,28 +67,25 @@ public class SettingsView extends VerticalFlowPanel {
 			@Override
 			public void update(int index, String object, Object value) {
 				if (index == table.getRowCount() - 1) {
-					int column = settings.size();
-					settings.put(column, "Name", "Person " + (column + 1));
+					int column = settings.size(supervisor);
+					settings.put(supervisor, column, "Name", "Person " + (column + 1));
 
 					fireSettingsChangedEvent(eventBus, settings);
 
-					SettingsView.this.update();
+					SupervisorSettingsView.this.update();
 				}
 			}
 		});
 		table.addColumn(name, "Setting");
 
 		dataProvider.addDataDisplay(table);
-		dataProvider.setList(Arrays.asList(settingNames));
+		dataProvider.setList(Arrays.asList(SupervisorSettings.workerSettingNames));
 
-		SettingsChangedEvent.subscribe(eventBus,
-				new SettingsChangedEvent.Handler() {
+		SupervisorSettingsChangedEvent.subscribe(eventBus,
+				new SupervisorSettingsChangedEvent.Handler() {
 					@Override
-					public void onSettingsChanged(SettingsChangedEvent event) {
-						if (event.getSource() == this) {
-							return;
-						}
-						settings = event.getSettings();
+					public void onSupervisorSettingsChanged(SupervisorSettingsChangedEvent event) {
+						settings = event.getSupervisorSettings();
 
 						update();
 					}
@@ -136,7 +121,7 @@ public class SettingsView extends VerticalFlowPanel {
 		}
 
 		if (settings != null) {
-			for (int i = 0; i < settings.size(); i++) {
+			for (int i = 0; i < settings.size(supervisor); i++) {
 				addColumn(i);
 			}
 		}
@@ -145,11 +130,12 @@ public class SettingsView extends VerticalFlowPanel {
 	}
 
 	private void addColumn(final int id) {
+		@SuppressWarnings("unchecked")
 		Column<String, Object> column = new Column<String, Object>(
-				new EditableCell(cellClass)) {
+				new EditableCell(SupervisorSettings.workerCellClass)) {
 			@Override
 			public Object getValue(String name) {
-				Object s = settings.get(id, name);
+				Object s = settings.get(supervisor, id, name);
 				if (s != null) {
 					return s;
 				}
@@ -163,10 +149,10 @@ public class SettingsView extends VerticalFlowPanel {
 					s = "Delete";
 				}
 
-				if (name.equals(settingNames[1])) {
+				if (name.equals(SupervisorSettings.workerSettingNames[1])) {
 					((EditableCell) getCell())
 							.setOptions(new StringList<Integer>(ptuIds));
-				} else if (name.equals(settingNames[2])) {
+				} else if (name.equals(SupervisorSettings.workerSettingNames[2])) {
 					((EditableCell) getCell())
 							.setOptions(new StringList<Integer>(
 									dosimeterSerialNumbers));
@@ -181,10 +167,10 @@ public class SettingsView extends VerticalFlowPanel {
 			public void onBrowserEvent(Context context, Element elem,
 					String name, NativeEvent event) {
 
-				if (name.equals(settingNames[1])) {
+				if (name.equals(SupervisorSettings.workerSettingNames[1])) {
 					((EditableCell) getCell())
 							.setOptions(new StringList<Integer>(ptuIds));
-				} else if (name.equals(settingNames[2])) {
+				} else if (name.equals(SupervisorSettings.workerSettingNames[2])) {
 					((EditableCell) getCell())
 							.setOptions(new StringList<Integer>(
 									dosimeterSerialNumbers));
@@ -207,13 +193,13 @@ public class SettingsView extends VerticalFlowPanel {
 					if (Window
 							.confirm("Are you sure you want to delete setting "
 									+ id + " with name '"
-									+ settings.get(id, settingNames[0]) + "' ?")) {
-						settings.remove(id);
-						SettingsView.this.update();
+									+ settings.get(supervisor, id, SupervisorSettings.workerSettingNames[0]) + "' ?")) {
+						settings.remove(supervisor, id);
+						SupervisorSettingsView.this.update();
 						fire = true;
 					}
 				} else {
-					settings.put(id, name, value.toString());
+					settings.put(supervisor, id, name, value.toString());
 					fire = true;
 				}
 
@@ -227,23 +213,23 @@ public class SettingsView extends VerticalFlowPanel {
 		table.addColumn(column, Integer.toString(id + 1));
 	}
 
-	static void fireSettingsChangedEvent(RemoteEventBus eventBus,
-			Settings settings) {
+	private void fireSettingsChangedEvent(RemoteEventBus eventBus,
+			SupervisorSettings settings) {
 		HashMap<Integer, Integer> dosimeterToPtu = new HashMap<Integer, Integer>();
 
 		// takes the last proper value
-		for (Iterator<Map<String, String>> i = settings.getList().iterator(); i
+		for (Iterator<Map<String, String>> i = settings.iterator(supervisor); i
 				.hasNext();) {
 			Map<String, String> map = i.next();
-			String ptuId = map.get(settingNames[1]);
-			String dosimeterSerialNo = map.get(settingNames[2]);
+			String ptuId = map.get(SupervisorSettings.workerSettingNames[1]);
+			String dosimeterSerialNo = map.get(SupervisorSettings.workerSettingNames[2]);
 			if ((ptuId != null) && (dosimeterSerialNo != null)) {
 				dosimeterToPtu.put(Integer.parseInt(dosimeterSerialNo),
 						Integer.parseInt(ptuId));
 			}
 		}
 
-		eventBus.fireEvent(new SettingsChangedEvent(settings));
+		eventBus.fireEvent(new SupervisorSettingsChangedEvent(settings));
 		eventBus.fireEvent(new DosimeterPtuChangedEvent(dosimeterToPtu));
 	}
 }

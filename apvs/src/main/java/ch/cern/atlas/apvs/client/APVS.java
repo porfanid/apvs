@@ -45,10 +45,13 @@ import com.googlecode.mgwt.ui.client.layout.OrientationRegionHandler;
  */
 public class APVS implements EntryPoint {
 
+	@SuppressWarnings("unused")
 	private Logger logger = Logger.getLogger(getClass().getName());
+	@SuppressWarnings("unused")
 	private Window screen;
 
 	private RemoteEventBus remoteEventBus;
+	@SuppressWarnings("unused")
 	private PlaceController placeController;
 	@SuppressWarnings("unused")
 	private SettingsPersister settingsPersister;
@@ -101,37 +104,48 @@ public class APVS implements EntryPoint {
 				startWorker();
 				return;
 			}
+			
 		} else if (view.equals("supervisorView")) {
 			RootLayoutPanel.get().add(new SupervisorView(remoteEventBus));
 			return;
+			
 		} else if (view.equals("clientView")) {
 			p.add(new ClientView(remoteEventBus));
+			
 		} else if (view.equals("dosimeterView")) {
-			p.add(new SettingsView(remoteEventBus));
+			p.add(new SupervisorSettingsView(remoteEventBus));
 			p.add(new DosimeterView(remoteEventBus));
+			
 		} else if (view.equals("ptuView")) {
-			p.add(new SettingsView(remoteEventBus));
+			p.add(new ServerSettingsView(remoteEventBus));
+			p.add(new SupervisorSettingsView(remoteEventBus));
 			p.add(new PtuView(remoteEventBus));
+			
 		} else if (view.equals("measurementView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
-			p.add(new SettingsView(remoteEventBus));
+			p.add(new SupervisorSettingsView(remoteEventBus));
 			p.add(new PtuSelector(remoteEventBus, localEventBus));
 			p.add(new MeasurementView(remoteEventBus, localEventBus));
+			
 		} else if (view.equals("procedureView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
 			ProcedureView procedureView = new ProcedureView(remoteEventBus, localEventBus);
 			p.add(procedureView);
 			p.add(new ProcedureControls(remoteEventBus, localEventBus));
-
 			procedureView.setStep(1);
+			
 		} else if (view.equals("settingsView")) {
-			p.add(new SettingsView(remoteEventBus));
+			p.add(new SupervisorSettingsView(remoteEventBus));
+			
 		} else if (view.equals("cameraView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
-			p.add(new SettingsView(remoteEventBus));
+			p.add(new ServerSettingsView(remoteEventBus));
+			p.add(new SupervisorSettingsView(remoteEventBus));
+			p.add(new PtuSelector(remoteEventBus, localEventBus));
 			p.add(new CameraView(remoteEventBus, localEventBus,
 					CameraView.HELMET));
 			p.add(new CameraView(remoteEventBus, localEventBus, CameraView.HAND));
+			
 		}
 
 		RootLayoutPanel.get().add(p);

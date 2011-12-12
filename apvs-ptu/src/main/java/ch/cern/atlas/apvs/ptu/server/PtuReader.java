@@ -23,11 +23,12 @@ public class PtuReader implements Runnable {
 
 	private RemoteEventBus eventBus;
 	private Socket socket;
-	private SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
+	private SortedMap<Integer, Ptu> ptus;
 
 	public PtuReader(final RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;
+		init();
 		
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 			
@@ -50,6 +51,10 @@ public class PtuReader implements Runnable {
 				}
 			}
 		});
+	}
+	
+	private void init() {
+		ptus = new TreeMap<Integer, Ptu>();
 	}
 
 	@Override
@@ -97,6 +102,7 @@ public class PtuReader implements Runnable {
 			// ignored
 		}
 		System.err.println("Closed PTU socket, invalidated PTUids");
+		init();
 		eventBus.fireEvent(new PtuIdsChangedEvent(null));
 	}
 

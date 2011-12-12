@@ -73,6 +73,6 @@ public class PtuIdsChangedEvent extends RemoteEvent<PtuIdsChangedEvent.Handler> 
 	
 	@Override
 	public String toString() {
-		return "PtuIdsChangedEvent "+ptuIds.size();
+		return "PtuIdsChangedEvent "+(ptuIds != null ? ptuIds.size() : "null");
 	}
 }
