@@ -19,7 +19,7 @@ public class ResettableRemoteEventBus extends RemoteEventBus {
 	}
 	
 	@Override
-	public long getUUID() {
+	public Long getUUID() {
 		return wrapped.getUUID();
 	}
 
