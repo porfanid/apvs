@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -12,7 +13,9 @@ import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
+import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.TextCell;
@@ -35,17 +38,24 @@ public class PtuView extends VerticalFlowPanel {
 	private CellTable<String> table = new CellTable<String>();
 	private ListHandler<String> columnSortHandler;
 
-	Measurement<Double> last = new Measurement<Double>();
-	SortedMap<Integer, Ptu> ptus = new TreeMap<Integer, Ptu>();
-	Map<String, String> units = new HashMap<String, String>();
-	Map<Integer, TextColumn<String>> columns = new HashMap<Integer, TextColumn<String>>();
+	private List<Integer> ptuIds;
+	private Measurement<Double> last;
+	private SortedMap<Integer, Ptu> ptus;
+	private Map<String, String> units;
 
 	protected Settings settings;
 
-	public PtuView(RemoteEventBus eventBus) {
+	private void init() {
+		last = new Measurement<Double>();
+		ptus = new TreeMap<Integer, Ptu>();
+		units = new HashMap<String, String>();
+	}
+
+	public PtuView(final RemoteEventBus eventBus) {
+		init();
 
 		add(table);
-		
+
 		// name column
 		TextColumn<String> name = new TextColumn<String>() {
 			@Override
@@ -93,6 +103,21 @@ public class PtuView extends VerticalFlowPanel {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
 
+		PtuIdsChangedEvent.subscribe(eventBus,
+				new PtuIdsChangedEvent.Handler() {
+
+					@Override
+					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
+						ptuIds = event.getPtuIds();
+
+						if (ptuIds != null) {
+							eventBus.fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));
+						} else {
+							init();
+						}
+					}
+				});
+
 		MeasurementChangedEvent.subscribe(eventBus,
 				new MeasurementChangedEvent.Handler() {
 
@@ -102,10 +127,13 @@ public class PtuView extends VerticalFlowPanel {
 						Measurement<Double> measurement = event
 								.getMeasurement();
 						Integer ptuId = measurement.getPtuId();
+						if (!ptuIds.contains(ptuId)) return;
+						
 						Ptu ptu = ptus.get(ptuId);
 						if (ptu == null) {
 							ptu = new Ptu(ptuId);
 							ptus.put(ptuId, ptu);
+							// FIXME...
 							insertColumn(ptuId);
 						}
 
@@ -124,15 +152,16 @@ public class PtuView extends VerticalFlowPanel {
 						update();
 					}
 				});
-		
-		SettingsChangedEvent.subscribe(eventBus, new SettingsChangedEvent.Handler() {
-			
-			@Override
-			public void onSettingsChanged(SettingsChangedEvent event) {
-				settings = event.getSettings();
-				update();
-			}
-		});
+
+		SettingsChangedEvent.subscribe(eventBus,
+				new SettingsChangedEvent.Handler() {
+
+					@Override
+					public void onSettingsChanged(SettingsChangedEvent event) {
+						settings = event.getSettings();
+						update();
+					}
+				});
 	}
 
 	private void insertColumn(final Integer ptuId) {
@@ -140,7 +169,12 @@ public class PtuView extends VerticalFlowPanel {
 		TextColumn<String> column = new TextColumn<String>() {
 			@Override
 			public String getValue(String object) {
-				Measurement<Double> m = ptus.get(ptuId).getMeasurement(object);
+				Ptu ptu = ptus.get(ptuId);
+				if (ptu == null) {
+					return "";
+				}
+				
+				Measurement<Double> m = ptu.getMeasurement(object);
 				if (m == null) {
 					return "";
 				}
@@ -150,10 +184,15 @@ public class PtuView extends VerticalFlowPanel {
 			@Override
 			public void render(Context context, String object,
 					SafeHtmlBuilder sb) {
-				Measurement<Double> m = ptus.get(ptuId).getMeasurement(object);
-				String s = getValue(object);
-				((TextCell) getCell()).render(context,
-						MeasurementView.decorate(s, m, last), sb);
+				String s;
+				Ptu ptu = ptus.get(ptuId);
+				if (ptu == null) {
+					((TextCell) getCell()).render(context, "", sb);
+				} else {
+					Measurement<Double> m = ptu.getMeasurement(object);
+					((TextCell) getCell()).render(context,
+							MeasurementView.decorate(getValue(object), m, last), sb);
+				}
 			}
 
 		};
@@ -162,9 +201,10 @@ public class PtuView extends VerticalFlowPanel {
 			@Override
 			public String getValue() {
 				String name = settings.getName(ptuId);
-				return name != null ? name+"<br/>("+ptuId.toString()+")" : ptuId.toString();
+				return name != null ? name + "<br/>(" + ptuId.toString() + ")"
+						: ptuId.toString();
 			}
-			
+
 			@Override
 			public void render(Context context, SafeHtmlBuilder sb) {
 				((TextCell) getCell()).render(context,
@@ -174,6 +214,8 @@ public class PtuView extends VerticalFlowPanel {
 	}
 
 	private void update() {
+		
+		
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 	}

@@ -96,6 +96,7 @@ public class PtuReader implements Runnable {
 		} catch (IOException e) {
 			// ignored
 		}
+		System.err.println("Closed PTU socket, invalidated PTUids");
 		eventBus.fireEvent(new PtuIdsChangedEvent(null));
 	}
 

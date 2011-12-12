@@ -8,6 +8,8 @@ import java.net.UnknownHostException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import ch.cern.atlas.apvs.client.ServerSettings;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
@@ -19,10 +21,14 @@ import ch.cern.atlas.apvs.ptu.server.PtuWriter;
 public class PtuServiceImpl extends ResponsePollService implements Runnable {
 
 	private static final String name = "PtuSocket";
-	private static final String host = "localhost";
-	private static final int port = 4005;
+	private static final int DEFAULT_PORT = 4005;
 	private static final int RECONNECT_INTERVAL = 20000;
+
+	private String host = null;
+	private int port = DEFAULT_PORT;
 	private boolean stopped = false;
+	private Socket socket;
+	private String ptuUrl;
 	private PtuReader ptuReader;
 
 	private RemoteEventBus eventBus;
@@ -38,6 +44,36 @@ public class PtuServiceImpl extends ResponsePollService implements Runnable {
 
 		System.out.println("Starting PtuService...");
 
+		ServerSettingsChangedEvent.subscribe(eventBus,
+				new ServerSettingsChangedEvent.Handler() {
+
+					@Override
+					public void onServerSettingsChanged(
+							ServerSettingsChangedEvent event) {
+						ServerSettings settings = event.getServerSettings();
+						if (settings != null) {
+							String url = settings
+									.get(ServerSettings.settingNames[0]);
+							if ((url != null) && !url.equals(ptuUrl)) {
+								ptuUrl = url;
+								String[] s = ptuUrl.split(":", 2);
+								host = s[0];
+								port = s.length > 1 ? Integer.parseInt(s[1])
+										: DEFAULT_PORT;
+
+								if (socket != null) {
+									System.err.println("Interrupting PTU");
+									try {
+										socket.close();
+									} catch (IOException e) {
+										// ignored
+									}
+								}
+							}
+						}
+					}
+				});
+
 		Thread t = new Thread(this);
 		t.start();
 	}
@@ -48,26 +84,27 @@ public class PtuServiceImpl extends ResponsePollService implements Runnable {
 		boolean showError = true;
 
 		while (!stopped) {
-			if (ptuReader == null) {
+			if ((ptuReader == null) && (host != null)) {
 				try {
 					if (showError) {
 						System.out.println("Trying to connect to " + name
 								+ " on " + host + ":" + port);
 					}
-					Socket socket = new Socket(host, port);
+					socket = new Socket(host, port);
 					showError = true;
 					System.out.println("Connected to " + name + " on " + host
 							+ ":" + port);
 
 					PtuWriter ptuWriter = new PtuWriter(socket);
-					Thread writer = new Thread(ptuWriter);
-					writer.start();
+					Thread writerThread = new Thread(ptuWriter);
+					writerThread.start();
 
 					ptuReader = new PtuReader(eventBus, socket);
 
-					Thread reader = new Thread(ptuReader);
-					reader.start();
-					reader.join();
+					Thread readerThread = new Thread(ptuReader);
+					readerThread.start();
+					readerThread.join();
+					socket = null;
 				} catch (UnknownHostException e) {
 					if (showError) {
 						System.err.println(getClass() + " " + e);

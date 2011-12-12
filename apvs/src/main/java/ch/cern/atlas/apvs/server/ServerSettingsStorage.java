@@ -1,10 +1,5 @@
 package ch.cern.atlas.apvs.server;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
-
 import ch.cern.atlas.apvs.client.ServerSettings;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -12,8 +7,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
-import com.google.gwt.storage.client.Storage;
-import com.google.gwt.user.client.Window;
 
 public class ServerSettingsStorage {
 
