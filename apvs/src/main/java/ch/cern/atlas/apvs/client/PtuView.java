@@ -38,7 +38,6 @@ public class PtuView extends VerticalFlowPanel {
 
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
-	private ListHandler<String> columnSortHandler;
 
 	private List<Integer> ptuIds;
 	private Measurement<Double> last;
@@ -96,7 +95,7 @@ public class PtuView extends VerticalFlowPanel {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(new ArrayList<String>());
 
-		columnSortHandler = new ListHandler<String>(dataProvider.getList());
+		ListHandler<String> columnSortHandler = new ListHandler<String>(dataProvider.getList());
 		columnSortHandler.setComparator(name, new Comparator<String>() {
 			public int compare(String o1, String o2) {
 				return o1 != null ? o1.compareTo(o2) : -1;

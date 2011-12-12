@@ -1,10 +1,10 @@
 package ch.cern.atlas.apvs.client;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
@@ -26,6 +26,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -33,11 +34,7 @@ import com.google.gwt.view.client.ListDataProvider;
 
 public class DosimeterView extends VerticalFlowPanel {
 
-	@SuppressWarnings("unused")
-	private static List<Dosimeter> DOSIMETERS = Arrays.asList(new Dosimeter(22,
-			3.0, 0.2), new Dosimeter(19, 2.5, 0.9),
-			new Dosimeter(98, 1.9, 0.1), new Dosimeter(67, 6.5, 0.2));
-
+	private SupervisorSettings settings;
 	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
 	private ListHandler<Dosimeter> columnSortHandler;
@@ -75,7 +72,7 @@ public class DosimeterView extends VerticalFlowPanel {
 		}
 	};
 
-	public DosimeterView(RemoteEventBus eventBus) {
+	public DosimeterView(RemoteEventBus remoteEventBus) {
 
 		add(table);
 
@@ -86,6 +83,16 @@ public class DosimeterView extends VerticalFlowPanel {
 		glass.getStyle().setPosition(Position.ABSOLUTE);
 		glass.getStyle().setLeft(0, Unit.PX);
 		glass.getStyle().setTop(0, Unit.PX);
+
+		TextColumn<Dosimeter> name = new TextColumn<Dosimeter>() {
+			@Override
+			public String getValue(Dosimeter object) {
+				return getName(object);
+			}
+		};
+		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		name.setSortable(true);
+		table.addColumn(name, "Name");
 
 		Column<Dosimeter, Number> serialNo = new Column<Dosimeter, Number>(
 				new NumberCell(NumberFormat.getFormat("0"))) {
@@ -126,6 +133,11 @@ public class DosimeterView extends VerticalFlowPanel {
 		dataProvider.setList(new ArrayList<Dosimeter>());
 
 		columnSortHandler = new ListHandler<Dosimeter>(dataProvider.getList());
+		columnSortHandler.setComparator(name, new Comparator<Dosimeter>() {
+			public int compare(Dosimeter o1, Dosimeter o2) {
+				return getName(o1).compareTo(getName(o2));
+			}
+		});
 		columnSortHandler.setComparator(serialNo, new Comparator<Dosimeter>() {
 			public int compare(Dosimeter o1, Dosimeter o2) {
 				return o1 != null ? o1.compareTo(o2) : -1;
@@ -160,7 +172,19 @@ public class DosimeterView extends VerticalFlowPanel {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(serialNo);
 
-		DosimeterChangedEvent.subscribe(eventBus,
+		SupervisorSettingsChangedEvent.subscribe(remoteEventBus,
+				new SupervisorSettingsChangedEvent.Handler() {
+
+					@Override
+					public void onSupervisorSettingsChanged(
+							SupervisorSettingsChangedEvent event) {
+						settings = event.getSupervisorSettings();
+
+						update();
+					}
+				});
+
+		DosimeterChangedEvent.subscribe(remoteEventBus,
 				new DosimeterChangedEvent.Handler() {
 
 					@Override
@@ -186,6 +210,20 @@ public class DosimeterView extends VerticalFlowPanel {
 				});
 
 		update();
+	}
+
+	private String getName(Dosimeter object) {
+		if ((object == null) || (settings == null))
+			return "";
+		
+		String ptuId = settings.getPtuId(Settings.DEFAULT_SUPERVISOR,
+				object.getSerialNo());
+		if (ptuId == null)
+			return "";
+
+		String name = settings.getName(Settings.DEFAULT_SUPERVISOR,
+				Integer.parseInt(ptuId));
+		return name != null ? name : "";
 	}
 
 	private void update() {

@@ -144,7 +144,7 @@ public class SupervisorSettings implements Serializable {
 	}
 
 	public String getName(String supervisor, int ptuId) {
-		int index = getIndexForPtu(supervisor, ptuId);
+		int index = getIndexFor(supervisor, workerSettingNames[1], ptuId);
 		if (index < 0)
 			return null;
 
@@ -152,7 +152,7 @@ public class SupervisorSettings implements Serializable {
 	}
 	
 	public void setName(String supervisor, Integer ptuId, String value) {
-		int index = getIndexForPtu(supervisor, ptuId);
+		int index = getIndexFor(supervisor, workerSettingNames[1], ptuId);
 		if (index < 0)
 			return;
 		
@@ -161,7 +161,7 @@ public class SupervisorSettings implements Serializable {
 
 
 	public String getHelmetCameraUrl(String supervisor, int ptuId) {
-		int index = getIndexForPtu(supervisor, ptuId);
+		int index = getIndexFor(supervisor, workerSettingNames[1], ptuId);
 		if (index < 0)
 			return null;
 
@@ -169,12 +169,21 @@ public class SupervisorSettings implements Serializable {
 	}
 
 	public String getHandCameraUrl(String supervisor, int ptuId) {
-		int index = getIndexForPtu(supervisor, ptuId);
+		int index = getIndexFor(supervisor, workerSettingNames[1], ptuId);
 		if (index < 0)
 			return null;
 
 		return get(supervisor, index, workerSettingNames[4]);
 	}
+	
+	public String getPtuId(String supervisor, int dosimeterSerialNo) {
+		int index = getIndexFor(supervisor, workerSettingNames[2], dosimeterSerialNo);
+		if (index < 0) 
+			return null;
+		
+		return get(supervisor, index, workerSettingNames[1]);
+	}
+
 
 	public String debugString() {
 		StringBuffer s = new StringBuffer("Supervisor Settings {\n");
@@ -198,7 +207,7 @@ public class SupervisorSettings implements Serializable {
 		return s.toString();
 	}
 
-	private int getIndexForPtu(String supervisor, int ptuId) {
+	private int getIndexFor(String supervisor, String name, int ptuId) {
 		if (supervisor == null) {
 			return -1;
 		}
@@ -210,7 +219,7 @@ public class SupervisorSettings implements Serializable {
 
 		int i = 0;
 		while (i < list.size()) {
-			String value = list.get(i).get(workerSettingNames[1]);
+			String value = list.get(i).get(name);
 			if ((value != null) && (Integer.parseInt(value) == ptuId)) {
 				break;
 			}

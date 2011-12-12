@@ -55,7 +55,7 @@ public class SupervisorSettingsView extends VerticalFlowPanel {
 					SafeHtmlBuilder sb) {
 				String value = (String) getValue(object);
 				if (context.getIndex() == table.getRowCount() - 1) {
-					value = "Add";
+					value = "Add Worker";
 				}
 				getCell().render(context,
 						SafeHtmlUtils.fromSafeConstant(value), sb);
@@ -68,7 +68,7 @@ public class SupervisorSettingsView extends VerticalFlowPanel {
 			public void update(int index, String object, Object value) {
 				if (index == table.getRowCount() - 1) {
 					int column = settings.size(supervisor);
-					settings.put(supervisor, column, "Name", "Person " + (column + 1));
+					settings.put(supervisor, column, "Name", "Worker " + (column + 1));
 
 					fireSettingsChangedEvent(eventBus, settings);
 
@@ -76,7 +76,7 @@ public class SupervisorSettingsView extends VerticalFlowPanel {
 				}
 			}
 		});
-		table.addColumn(name, "Setting");
+		table.addColumn(name, "Worker");
 
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(Arrays.asList(SupervisorSettings.workerSettingNames));
@@ -191,8 +191,8 @@ public class SupervisorSettingsView extends VerticalFlowPanel {
 				boolean fire = false;
 				if (index == table.getRowCount() - 1) {
 					if (Window
-							.confirm("Are you sure you want to delete setting "
-									+ id + " with name '"
+							.confirm("Are you sure you want to delete worker "
+									+ (id+1) + " with name '"
 									+ settings.get(supervisor, id, SupervisorSettings.workerSettingNames[0]) + "' ?")) {
 						settings.remove(supervisor, id);
 						SupervisorSettingsView.this.update();

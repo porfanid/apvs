@@ -94,7 +94,6 @@ public class ServerSettingsView extends VerticalFlowPanel {
 					@Override
 					public void onServerSettingsChanged(
 							ServerSettingsChangedEvent event) {
-						System.err.println("khkfhsdjkhfjklas Server Settings Changed "+event.getServerSettings());
 						settings = event.getServerSettings();
 
 						update();
