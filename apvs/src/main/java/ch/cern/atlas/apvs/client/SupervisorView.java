@@ -48,7 +48,7 @@ public class SupervisorView extends DockPanel {
 
 					@Override
 					public void onClick(ClickEvent event) {
-						if (Window.confirm("Are you sure you want to delete worker: "+workerView.getName())) {
+						if (Window.confirm("Are you sure you want to delete the view of worker: "+workerView.getName())) {
 							mainPanel.remove(workerView);
 						}
 					}
