@@ -26,10 +26,10 @@ public class ShowCaseListActivity extends MGWTAbstractActivity {
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
 		ShowCaseListView view = clientFactory.getHomeView();
 
-		view.setTitle("mgwt");
+		view.setTitle("APVS");
 		view.setRightButtonText("about");
 
-		view.getFirstHeader().setText("Showcase");
+		view.getFirstHeader().setText("Home");
 
 		view.setTopics(createTopicsList());
 
@@ -62,8 +62,10 @@ public class ShowCaseListActivity extends MGWTAbstractActivity {
 
 	private List<Topic> createTopicsList() {
 		ArrayList<Topic> list = new ArrayList<Topic>();
-		list.add(new Topic("Animations", 5));
-		list.add(new Topic("UI", 5));
+		list.add(new Topic("Procedures", 5));
+		list.add(new Topic("Camera", 5));
+		list.add(new Topic("2D/3D Models", 5));
+		list.add(new Topic("Radiation Map", 5));
 
 		return list;
 	}

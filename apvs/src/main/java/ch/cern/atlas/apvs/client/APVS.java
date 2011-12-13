@@ -101,7 +101,7 @@ public class APVS implements EntryPoint {
 		String view = divs.getItem(0).getId();
 		Panel p = new VerticalFlowPanel();
 		if (view.equals("workerView")) {
-			if (true) {
+			if (false) {
 				p.add(new WorkerView(remoteEventBus));
 			} else {
 				startWorker();
