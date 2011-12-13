@@ -11,7 +11,7 @@ import com.googlecode.mgwt.ui.client.widget.HeaderPanel;
 import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
 import com.googlecode.mgwt.ui.client.widget.ScrollPanel;
 
-public abstract class DetailViewGwtImpl implements DetailView {
+public abstract class DetailPanel implements DetailUI {
 
 	protected LayoutPanel main;
 	protected ScrollPanel scrollPanel;
@@ -20,7 +20,7 @@ public abstract class DetailViewGwtImpl implements DetailView {
 	protected HeaderButton headerMainButton;
 	protected HTML title;
 
-	public DetailViewGwtImpl() {
+	public DetailPanel() {
 		main = new LayoutPanel();
 
 		scrollPanel = new ScrollPanel();

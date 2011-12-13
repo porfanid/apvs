@@ -1,10 +1,12 @@
 package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
-import ch.cern.atlas.apvs.client.tablet.AboutView;
-import ch.cern.atlas.apvs.client.tablet.ModelView;
-import ch.cern.atlas.apvs.client.tablet.RadiationMapView;
-import ch.cern.atlas.apvs.client.tablet.ShowCaseListView;
+import ch.cern.atlas.apvs.client.tablet.AboutUI;
+import ch.cern.atlas.apvs.client.tablet.CameraUI;
+import ch.cern.atlas.apvs.client.tablet.MainMenuUI;
+import ch.cern.atlas.apvs.client.tablet.ModelUI;
+import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
+import ch.cern.atlas.apvs.client.tablet.RadiationMapUI;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.place.shared.PlaceController;
@@ -17,11 +19,15 @@ public interface ClientFactory {
 
 	FileServiceAsync getFileService();
 
-	AboutView getAboutView();
+	AboutUI getAboutView();
 
-	ShowCaseListView getHomeView();
+	MainMenuUI getHomeView();
 
-	RadiationMapView getRadiationMapView();
+	RadiationMapUI getRadiationMapView();
 
-	ModelView getModelView();
+	ModelUI getModelView();
+
+	CameraUI getCameraView();
+
+	ProcedureUI getProcedureView();
 }

@@ -12,14 +12,14 @@ import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
 import com.googlecode.mgwt.ui.client.widget.ScrollPanel;
 import com.googlecode.mgwt.ui.client.widget.celllist.HasCellSelectedHandler;
 
-public class ModelViewImpl implements ModelView {
+public class ModelPanel implements ModelUI {
 
 	private LayoutPanel main;
 	private HeaderPanel headerPanel;
 	private HeaderButton headerBackButton;
-	private CellList<Item> cellListWithHeader;
+	private CellList<ModelItem> cellListWithHeader;
 
-	public ModelViewImpl() {
+	public ModelPanel() {
 		main = new LayoutPanel();
 
 //		main.getElement().setId("testdiv");
@@ -34,15 +34,15 @@ public class ModelViewImpl implements ModelView {
 
 		ScrollPanel scrollPanel = new ScrollPanel();
 
-		cellListWithHeader = new CellList<Item>(new BasicCell<Item>() {
+		cellListWithHeader = new CellList<ModelItem>(new BasicCell<ModelItem>() {
 
 			@Override
-			public String getDisplayString(Item model) {
+			public String getDisplayString(ModelItem model) {
 				return model.getDisplayString();
 			}
 
 			@Override
-			public boolean canBeSelected(Item model) {
+			public boolean canBeSelected(ModelItem model) {
 				return true;
 			}
 		});
@@ -81,7 +81,7 @@ public class ModelViewImpl implements ModelView {
 	}
 
 	@Override
-	public void renderItems(List<Item> items) {
+	public void renderItems(List<ModelItem> items) {
 		cellListWithHeader.render(items);
 
 	}

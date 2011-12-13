@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.tablet.ModelEntrySelectedEvent.ModelEntry;
+import ch.cern.atlas.apvs.client.tablet.ProcedureEntrySelectedEvent.ProcedureEntry;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -14,25 +14,25 @@ import com.googlecode.mgwt.mvp.client.MGWTAbstractActivity;
 import com.googlecode.mgwt.ui.client.widget.celllist.CellSelectedEvent;
 import com.googlecode.mgwt.ui.client.widget.celllist.CellSelectedHandler;
 
-public class ModelActivity extends MGWTAbstractActivity {
+public class ProcedureActivity extends MGWTAbstractActivity {
 
 	private final ClientFactory clientFactory;
 
 	private int oldIndex;
 
-	private List<ModelItem> items;
+	private List<ProcedureItem> items;
 
-	public ModelActivity(ClientFactory clientFactory) {
+	public ProcedureActivity(ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 
 	}
 
 	@Override
 	public void start(AcceptsOneWidget panel, final EventBus eventBus) {
-		final ModelUI view = clientFactory.getModelView();
+		final ProcedureUI view = clientFactory.getProcedureView();
 
 		view.setBackButtonText("Home");
-		view.setTitle("2D/3D Models");
+		view.setTitle("Procedures");
 
 		addHandlerRegistration(view.getBackButton().addTapHandler(
 				new TapHandler() {
@@ -57,7 +57,7 @@ public class ModelActivity extends MGWTAbstractActivity {
 						view.setSelectedIndex(index, true);
 						oldIndex = index;
 
-						ModelEntrySelectedEvent.fire(eventBus, items.get(index)
+						ProcedureEntrySelectedEvent.fire(eventBus, items.get(index)
 								.getEntry());
 
 					}
@@ -66,11 +66,10 @@ public class ModelActivity extends MGWTAbstractActivity {
 		panel.setWidget(view);
 	}
 
-	private List<ModelItem> createItems() {
-		ArrayList<ModelItem> list = new ArrayList<ModelItem>();
-		list.add(new ModelItem("Run Layout", ModelEntry.RUN_LAYOUT));
-		list.add(new ModelItem("Tile Cal Barrel 3D", ModelEntry.TILE_CAL_BARREL_3D));
-		list.add(new ModelItem("Tile Cal Barrel DWG", ModelEntry.TILE_CAL_BARREL_DWG));
+	private List<ProcedureItem> createItems() {
+		ArrayList<ProcedureItem> list = new ArrayList<ProcedureItem>();
+		list.add(new ProcedureItem("Tile Drawer Extraction", ProcedureEntry.TILE_DRAWER_EXTRACTION));
+		list.add(new ProcedureItem("Mural Painting", ProcedureEntry.MURAL_PAINTING));
 		return list;
 	}
 

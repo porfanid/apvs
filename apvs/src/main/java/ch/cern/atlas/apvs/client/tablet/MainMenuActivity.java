@@ -13,18 +13,18 @@ import com.googlecode.mgwt.mvp.client.MGWTAbstractActivity;
 import com.googlecode.mgwt.ui.client.widget.celllist.CellSelectedEvent;
 import com.googlecode.mgwt.ui.client.widget.celllist.CellSelectedHandler;
 
-public class ShowCaseListActivity extends MGWTAbstractActivity {
+public class MainMenuActivity extends MGWTAbstractActivity {
 
 	private final ClientFactory clientFactory;
 
-	public ShowCaseListActivity(ClientFactory clientFactory) {
+	public MainMenuActivity(ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 
 	}
 
 	@Override
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
-		ShowCaseListView view = clientFactory.getHomeView();
+		MainMenuUI view = clientFactory.getHomeView();
 
 		view.setTitle("APVS");
 		view.setRightButtonText("about");
@@ -40,11 +40,18 @@ public class ShowCaseListActivity extends MGWTAbstractActivity {
 				int index = event.getIndex();
 				System.err.println(index);
 				switch(index) {
+				case 0:
+					clientFactory.getPlaceController().goTo(new ProcedurePlace());
+					break;
+				case 1:
+					clientFactory.getPlaceController().goTo(new CameraPlace());
+					break;
 				case 2:
 					clientFactory.getPlaceController().goTo(new ModelPlace());
+					break;
 				case 3:
 					clientFactory.getPlaceController().goTo(new RadiationMapPlace());
-					return;
+					break;
 				}
 			}
 		}));

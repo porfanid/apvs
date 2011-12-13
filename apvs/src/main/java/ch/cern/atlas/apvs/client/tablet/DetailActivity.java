@@ -9,10 +9,10 @@ import com.googlecode.mgwt.ui.client.event.ShowMasterEvent;
 
 public class DetailActivity extends MGWTAbstractActivity {
 
-	private final DetailView detailView;
+	private final DetailUI detailView;
 	private final String eventId;
 
-	public DetailActivity(DetailView detailView, String eventId) {
+	public DetailActivity(DetailUI detailView, String eventId) {
 		this.detailView = detailView;
 		this.eventId = eventId;
 

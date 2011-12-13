@@ -14,7 +14,7 @@ public class RadiationMapPlace extends Place {
 
 		@Override
 		public String getToken(RadiationMapPlace place) {
-			return "RadiationMap";
+			return "";
 		}
 	}
 }

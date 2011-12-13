@@ -4,18 +4,18 @@ import com.google.gwt.user.client.ui.Image;
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;
 import com.googlecode.mgwt.ui.client.MGWT;
 import com.googlecode.mgwt.ui.client.widget.Button;
-import com.googlecode.mgwt.ui.client.widget.touch.TouchPanel;
+import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
 
-public class RadiationMapViewImpl extends DetailViewGwtImpl implements
-		RadiationMapView {
+public class AboutPanel extends DetailPanel implements AboutUI {
 
-	private TouchPanel panel;
+	private LayoutPanel panel;
 	private Button button;
 
-	public RadiationMapViewImpl() {
+	public AboutPanel() {
 
-		panel = new TouchPanel();
-		panel.add(new Image("images/InnerGapDosesMap.png"));
+		panel = new LayoutPanel();
+
+		panel.add(new Image("Default-640x480.jpg"));
 
 		if (MGWT.getOsDetection().isPhone()) {
 			button = new Button("back");
@@ -26,7 +26,8 @@ public class RadiationMapViewImpl extends DetailViewGwtImpl implements
 		}
 
 		scrollPanel.setWidget(panel);
-//		scrollPanel.setScrollingEnabledX(false);
+		scrollPanel.setScrollingEnabledX(false);
+		scrollPanel.setScrollingEnabledY(false);
 	}
 
 	@Override

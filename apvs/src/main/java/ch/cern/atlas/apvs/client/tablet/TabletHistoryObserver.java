@@ -9,7 +9,7 @@ import com.googlecode.mgwt.mvp.client.history.HistoryHandler;
 import com.googlecode.mgwt.mvp.client.history.HistoryObserver;
 import com.googlecode.mgwt.ui.client.MGWT;
 
-public class ApvsHistoryObserver implements HistoryObserver {
+public class TabletHistoryObserver implements HistoryObserver {
 
 	@Override
 	public void onPlaceChange(Place place, HistoryHandler handler) {

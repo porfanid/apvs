@@ -4,12 +4,12 @@ import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
-import ch.cern.atlas.apvs.client.tablet.ApvsHistoryObserver;
-import ch.cern.atlas.apvs.client.tablet.ApvsPlaceHistoryMapper;
-import ch.cern.atlas.apvs.client.tablet.ApvsTabletMainActivityMapper;
-import ch.cern.atlas.apvs.client.tablet.ApvsTabletMainAnimationMapper;
-import ch.cern.atlas.apvs.client.tablet.ApvsTabletNavActivityMapper;
-import ch.cern.atlas.apvs.client.tablet.ApvsTabletNavAnimationMapper;
+import ch.cern.atlas.apvs.client.tablet.TabletHistoryObserver;
+import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
+import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
+import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
+import ch.cern.atlas.apvs.client.tablet.TabletMenuActivityMapper;
+import ch.cern.atlas.apvs.client.tablet.TabletMenuAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -180,8 +180,8 @@ public class APVS implements EntryPoint {
 		final ClientFactory clientFactory = new APVSClientFactory();
 
 		// Start PlaceHistoryHandler with our PlaceHistoryMapper
-		ApvsPlaceHistoryMapper historyMapper = GWT
-				.create(ApvsPlaceHistoryMapper.class);
+		TabletPlaceHistoryMapper historyMapper = GWT
+				.create(TabletPlaceHistoryMapper.class);
 
 		if (MGWT.getOsDetection().isTablet()) {
 
@@ -197,7 +197,7 @@ public class APVS implements EntryPoint {
 
 		}
 
-		ApvsHistoryObserver historyObserver = new ApvsHistoryObserver();
+		TabletHistoryObserver historyObserver = new TabletHistoryObserver();
 
 		MGWTPlaceHistoryHandler historyHandler = new MGWTPlaceHistoryHandler(
 				historyMapper, historyObserver);
@@ -239,10 +239,10 @@ public class APVS implements EntryPoint {
 		new MasterRegionHandler(clientFactory.getEventBus(), "nav",
 				tabletPortraitOverlay);
 
-		ActivityMapper navActivityMapper = new ApvsTabletNavActivityMapper(
+		ActivityMapper navActivityMapper = new TabletMenuActivityMapper(
 				clientFactory);
 
-		AnimationMapper navAnimationMapper = new ApvsTabletNavAnimationMapper();
+		AnimationMapper navAnimationMapper = new TabletMenuAnimationMapper();
 
 		AnimatingActivityManager navActivityManager = new AnimatingActivityManager(
 				navActivityMapper, navAnimationMapper,
@@ -256,10 +256,10 @@ public class APVS implements EntryPoint {
 		mainContainer.getElement().setId("main");
 		AnimatableDisplay mainDisplay = GWT.create(AnimatableDisplay.class);
 
-		ApvsTabletMainActivityMapper tabletMainActivityMapper = new ApvsTabletMainActivityMapper(
+		TabletPanelActivityMapper tabletMainActivityMapper = new TabletPanelActivityMapper(
 				clientFactory);
 
-		AnimationMapper tabletMainAnimationMapper = new ApvsTabletMainAnimationMapper();
+		AnimationMapper tabletMainAnimationMapper = new TabletPanelAnimationMapper();
 
 		AnimatingActivityManager mainActivityManager = new AnimatingActivityManager(
 				tabletMainActivityMapper, tabletMainAnimationMapper,

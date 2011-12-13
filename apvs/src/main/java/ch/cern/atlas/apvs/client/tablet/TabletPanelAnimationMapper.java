@@ -4,7 +4,7 @@ import com.google.gwt.place.shared.Place;
 import com.googlecode.mgwt.mvp.client.Animation;
 import com.googlecode.mgwt.mvp.client.AnimationMapper;
 
-public class ApvsTabletNavAnimationMapper implements AnimationMapper {
+public class TabletPanelAnimationMapper implements AnimationMapper {
 
 	@Override
 	public Animation getAnimation(Place oldPlace, Place newPlace) {

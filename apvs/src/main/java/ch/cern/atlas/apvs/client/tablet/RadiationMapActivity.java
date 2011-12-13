@@ -20,7 +20,7 @@ public class RadiationMapActivity extends DetailActivity {
 	public void start(AcceptsOneWidget panel, final EventBus eventBus) {
 		super.start(panel, eventBus);
 		
-		RadiationMapView view = clientFactory.getRadiationMapView();
+		RadiationMapUI view = clientFactory.getRadiationMapView();
 
 		view.getBackbuttonText().setText("Home");
 

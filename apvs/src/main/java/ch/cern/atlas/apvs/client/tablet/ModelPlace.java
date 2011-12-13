@@ -14,7 +14,7 @@ public class ModelPlace extends Place {
 
 		@Override
 		public String getToken(ModelPlace place) {
-			return "Model";
+			return "";
 		}
 
 	}

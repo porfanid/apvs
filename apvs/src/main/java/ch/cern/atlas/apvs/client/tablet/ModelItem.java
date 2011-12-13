@@ -2,11 +2,11 @@ package ch.cern.atlas.apvs.client.tablet;
 
 import ch.cern.atlas.apvs.client.tablet.ModelEntrySelectedEvent.ModelEntry;
 
-public class Item {
+public class ModelItem {
 	private String displayString;
 	private final ModelEntry entry;
 
-	public Item(String displayString, ModelEntry entry) {
+	public ModelItem(String displayString, ModelEntry entry) {
 		this.displayString = displayString;
 		this.entry = entry;
 

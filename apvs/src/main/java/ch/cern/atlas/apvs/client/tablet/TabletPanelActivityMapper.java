@@ -6,13 +6,13 @@ import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.place.shared.Place;
 
-public class ApvsTabletMainActivityMapper implements ActivityMapper {
+public class TabletPanelActivityMapper implements ActivityMapper {
 
 	private final ClientFactory clientFactory;
 
 	private Place lastPlace;
 
-	public ApvsTabletMainActivityMapper(ClientFactory clientFactory) {
+	public TabletPanelActivityMapper(ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 
 	}
@@ -35,6 +35,16 @@ public class ApvsTabletMainActivityMapper implements ActivityMapper {
 		return aboutActivity;
 	}
 
+	private CameraActivity cameraActivity;
+
+	private CameraActivity getCameraActivity() {
+		if (cameraActivity == null) {
+			cameraActivity = new CameraActivity(clientFactory);
+		}
+
+		return cameraActivity;
+	}
+
 	private RadiationMapActivity radiationMapActivity;
 
 	private RadiationMapActivity getRadiationMapActivity() {
@@ -45,16 +55,7 @@ public class ApvsTabletMainActivityMapper implements ActivityMapper {
 		return radiationMapActivity;
 	}
 
-	private ModelActivity modelActivity;
-
-	private ModelActivity getModelActivity() {
-		if (modelActivity == null) {
-			modelActivity = new ModelActivity(clientFactory);
-		}
-
-		return modelActivity;
-	}
-
+	/* Main Panel */
 	private Activity getActivity(Place lastPlace, Place newPlace) {
 		if (newPlace instanceof HomePlace) {
 			return getAboutActivity();
@@ -64,15 +65,23 @@ public class ApvsTabletMainActivityMapper implements ActivityMapper {
 			return getAboutActivity();
 		}
 		
+		if (newPlace instanceof ProcedurePlace) {
+			return getAboutActivity();
+		}
+			
+		if (newPlace instanceof CameraPlace) {
+			return getCameraActivity();
+		}
+			
+		if (newPlace instanceof ModelPlace) {
+			return getAboutActivity();
+		}
+
 		if (newPlace instanceof RadiationMapPlace) {
 			return getRadiationMapActivity();
 		}
-		
-		if (newPlace instanceof ModelPlace) {
-			return getModelActivity();
-		}
-		
-		System.err.println("Activity not handled "+newPlace);
+			
+		System.err.println("Tablet Activity not handled "+newPlace);
 
 		return null;
 	}

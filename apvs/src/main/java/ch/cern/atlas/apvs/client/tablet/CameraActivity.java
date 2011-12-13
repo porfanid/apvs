@@ -7,12 +7,12 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.googlecode.mgwt.dom.client.event.tap.TapEvent;
 import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
 
-public class AboutActivity extends DetailActivity {
+public class CameraActivity extends DetailActivity {
 
 	private final ClientFactory clientFactory;
 
-	public AboutActivity(ClientFactory clientFactory) {
-		super(clientFactory.getAboutView(), "nav");
+	public CameraActivity(ClientFactory clientFactory) {
+		super(clientFactory.getCameraView(), "nav");
 		this.clientFactory = clientFactory;
 	}
 
@@ -20,11 +20,11 @@ public class AboutActivity extends DetailActivity {
 	public void start(AcceptsOneWidget panel, final EventBus eventBus) {
 		super.start(panel, eventBus);
 		
-		AboutUI view = clientFactory.getAboutView();
+		RadiationMapUI view = clientFactory.getRadiationMapView();
 
 		view.getBackbuttonText().setText("Home");
 
-		view.getHeader().setText("ATLAS Procedures Visualization System");
+		view.getHeader().setText("Camera");
 
 		view.getMainButtonText().setText("Nav");
 
