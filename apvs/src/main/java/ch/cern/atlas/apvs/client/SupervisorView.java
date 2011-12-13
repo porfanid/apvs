@@ -60,7 +60,6 @@ public class SupervisorView extends DockPanel {
 		});
 		buttonPanel.add(addWorker);
 		
-		// FIXME add buttons
 		mainScrollPanel = new ScrollPanel(mainPanel);
 		tabPanel.add(mainScrollPanel, "Workers");
 
