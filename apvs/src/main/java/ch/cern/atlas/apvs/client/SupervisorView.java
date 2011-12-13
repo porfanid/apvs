@@ -1,11 +1,16 @@
 package ch.cern.atlas.apvs.client;
 
+import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.logical.shared.AttachEvent.Handler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.WindowResizeListener;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -17,7 +22,7 @@ public class SupervisorView extends DockPanel {
 	private int windowWidth;
 	private int windowHeight;
 
-	public SupervisorView(RemoteEventBus eventBus) {
+	public SupervisorView(final RemoteEventBus remoteEventBus) {
 
 		add(new Label("Atlas Procedures Visualization System"), NORTH);
 		add(new Label("Version 0.1"), SOUTH);
@@ -25,18 +30,45 @@ public class SupervisorView extends DockPanel {
 		TabPanel tabPanel = new TabPanel();
 		add(tabPanel, NORTH);
 
-		DockPanel mainPanel = new DockPanel();
-		mainPanel.add(new SupervisorWorkerView(eventBus), NORTH);
+		final DockPanel mainPanel = new DockPanel();
+		mainPanel.add(new SupervisorWorkerView(remoteEventBus, null), NORTH);
 		// mainPanel.add(new SupervisorWorkerView(eventBus), NORTH);
+		
+		HorizontalFlowPanel buttonPanel = new HorizontalFlowPanel();
+		mainPanel.add(buttonPanel, SOUTH);
+		Button addWorker = new Button("Add Worker");
+		addWorker.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				Button deleteButton = new Button("Delete");
+				final SupervisorWorkerView workerView = new SupervisorWorkerView(remoteEventBus, deleteButton);
+
+				deleteButton.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						if (Window.confirm("Are you sure you want to delete worker: "+workerView.getName())) {
+							mainPanel.remove(workerView);
+						}
+					}
+				});
+				
+				mainPanel.add(workerView, NORTH);
+				resize();
+			}
+		});
+		buttonPanel.add(addWorker);
+		
 		// FIXME add buttons
 		mainScrollPanel = new ScrollPanel(mainPanel);
 		tabPanel.add(mainScrollPanel, "Workers");
 
-		tabPanel.add(new PtuView(eventBus), "PTUs");
-		tabPanel.add(new DosimeterView(eventBus), "Dosimeters");
-		tabPanel.add(new SupervisorSettingsView(eventBus),
+		tabPanel.add(new PtuView(remoteEventBus), "PTUs");
+		tabPanel.add(new DosimeterView(remoteEventBus), "Dosimeters");
+		tabPanel.add(new SupervisorSettingsView(remoteEventBus),
 				"Supervisor Settings");
-		tabPanel.add(new ServerSettingsView(eventBus), "Server Settings");
+		tabPanel.add(new ServerSettingsView(remoteEventBus), "Server Settings");
 
 		tabPanel.selectTab(0);
 		
@@ -53,6 +85,14 @@ public class SupervisorView extends DockPanel {
 				windowWidth = event.getWidth();
 				windowHeight = event.getHeight();
 				// Reformat everything for the new browser size.
+				resize();
+			}
+		});
+		
+		mainScrollPanel.addAttachHandler(new Handler() {
+			
+			@Override
+			public void onAttachOrDetach(AttachEvent event) {
 				resize();
 			}
 		});
