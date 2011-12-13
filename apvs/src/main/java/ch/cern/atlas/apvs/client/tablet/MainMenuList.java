@@ -17,6 +17,8 @@ package ch.cern.atlas.apvs.client.tablet;
 
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.MeasurementView;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Widget;
@@ -40,10 +42,10 @@ public class MainMenuList implements MainMenuUI {
 	private HeaderPanel headerPanel;
 	private CellListWithHeader<Topic> cellList;
 
-	public MainMenuList() {
+	public MainMenuList(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus) {
 		main = new LayoutPanel();
 
-		headerPanel = new HeaderPanel();
+		headerPanel = new HeaderPanel(); 
 
 		forwardButton = new HeaderButton();
 		forwardButton.setForwardButton(true);
@@ -72,6 +74,7 @@ public class MainMenuList implements MainMenuUI {
 		scrollPanel.setScrollingEnabledX(false);
 		main.add(scrollPanel);
 
+		main.add(new MeasurementView(remoteEventBus, localEventBus));
 	}
 
 	@Override

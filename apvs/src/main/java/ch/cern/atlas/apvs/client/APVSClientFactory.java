@@ -58,7 +58,8 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public MainMenuUI getHomeView() {
 		if (homeView== null) {
-			homeView = new MainMenuList();
+			// FIXME BUS
+			homeView = new MainMenuList(eventBus, eventBus);
 		}
 		return homeView;
 	}
