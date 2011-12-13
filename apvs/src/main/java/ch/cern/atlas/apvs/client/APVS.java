@@ -92,6 +92,9 @@ public class APVS implements EntryPoint {
 			Window.alert("Please define a <div> element with the id set to your view in the html you are starting from.");
 			return;
 		}
+		
+        // Turn off the browser scrollbars. 
+        Window.enableScrolling(false); 
 
 		settingsPersister = new SettingsPersister(remoteEventBus);
 
