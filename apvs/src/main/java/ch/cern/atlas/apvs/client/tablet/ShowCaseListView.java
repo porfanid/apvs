@@ -8,11 +8,6 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;
 import com.googlecode.mgwt.ui.client.widget.celllist.HasCellSelectedHandler;
 
-
-/**
- * @author Daniel Kurka
- *
- */
 public interface ShowCaseListView extends IsWidget {
 
 	public void setTitle(String text);

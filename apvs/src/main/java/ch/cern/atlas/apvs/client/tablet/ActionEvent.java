@@ -16,7 +16,8 @@ public class ActionEvent extends Event<ActionEvent.Handler> {
 		eventBus.fireEventFromSource(new ActionEvent(), sourceName);
 	}
 
-	public static HandlerRegistration register(EventBus eventBus, String sourceName, Handler handler) {
+	public static HandlerRegistration register(EventBus eventBus,
+			String sourceName, Handler handler) {
 		return eventBus.addHandlerToSource(TYPE, sourceName, handler);
 	}
 

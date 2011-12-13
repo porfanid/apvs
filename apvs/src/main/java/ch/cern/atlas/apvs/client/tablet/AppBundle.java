@@ -10,5 +10,4 @@ public interface AppBundle extends ClientBundle {
 	TextResource css();
 
 	public static final AppBundle INSTANCE = GWT.create(AppBundle.class);
-
 }

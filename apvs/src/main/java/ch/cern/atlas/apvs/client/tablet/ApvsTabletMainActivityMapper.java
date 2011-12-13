@@ -35,6 +35,26 @@ public class ApvsTabletMainActivityMapper implements ActivityMapper {
 		return aboutActivity;
 	}
 
+	private RadiationMapActivity radiationMapActivity;
+
+	private RadiationMapActivity getRadiationMapActivity() {
+		if (radiationMapActivity == null) {
+			radiationMapActivity = new RadiationMapActivity(clientFactory);
+		}
+
+		return radiationMapActivity;
+	}
+
+	private ModelActivity modelActivity;
+
+	private ModelActivity getModelActivity() {
+		if (modelActivity == null) {
+			modelActivity = new ModelActivity(clientFactory);
+		}
+
+		return modelActivity;
+	}
+
 	private Activity getActivity(Place lastPlace, Place newPlace) {
 		if (newPlace instanceof HomePlace) {
 			return getAboutActivity();
@@ -43,6 +63,16 @@ public class ApvsTabletMainActivityMapper implements ActivityMapper {
 		if (newPlace instanceof AboutPlace) {
 			return getAboutActivity();
 		}
+		
+		if (newPlace instanceof RadiationMapPlace) {
+			return getRadiationMapActivity();
+		}
+		
+		if (newPlace instanceof ModelPlace) {
+			return getModelActivity();
+		}
+		
+		System.err.println("Activity not handled "+newPlace);
 
 		return null;
 	}

@@ -34,7 +34,6 @@ public abstract class BasicCell<T> implements Cell<T> {
 	public interface Template extends SafeHtmlTemplates {
 		@SafeHtmlTemplates.Template("<div class=\"{0}\">{1}</div>")
 		SafeHtml content(String classes, String cellContents);
-
 	}
 
 	@Override

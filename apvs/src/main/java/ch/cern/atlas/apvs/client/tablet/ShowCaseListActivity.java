@@ -38,13 +38,14 @@ public class ShowCaseListActivity extends MGWTAbstractActivity {
 			@Override
 			public void onCellSelected(CellSelectedEvent event) {
 				int index = event.getIndex();
+				System.err.println(index);
 				switch(index) {
-				case 0:
-					// FIXME
-					clientFactory.getPlaceController().goTo(null);
+				case 2:
+					clientFactory.getPlaceController().goTo(new ModelPlace());
+				case 3:
+					clientFactory.getPlaceController().goTo(new RadiationMapPlace());
 					return;
 				}
-
 			}
 		}));
 
@@ -53,7 +54,6 @@ public class ShowCaseListActivity extends MGWTAbstractActivity {
 			@Override
 			public void onTap(TapEvent event) {
 				clientFactory.getPlaceController().goTo(new AboutPlace());
-
 			}
 		}));
 

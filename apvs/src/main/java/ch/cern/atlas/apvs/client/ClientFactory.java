@@ -2,6 +2,8 @@ package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.AboutView;
+import ch.cern.atlas.apvs.client.tablet.ModelView;
+import ch.cern.atlas.apvs.client.tablet.RadiationMapView;
 import ch.cern.atlas.apvs.client.tablet.ShowCaseListView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -18,4 +20,8 @@ public interface ClientFactory {
 	AboutView getAboutView();
 
 	ShowCaseListView getHomeView();
+
+	RadiationMapView getRadiationMapView();
+
+	ModelView getModelView();
 }

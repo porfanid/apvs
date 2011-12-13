@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.googlecode.mgwt.dom.client.event.tap.TapEvent;
@@ -21,23 +20,23 @@ public class DetailActivity extends MGWTAbstractActivity {
 
 	@Override
 	public void start(AcceptsOneWidget panel, final EventBus eventBus) {
-		addHandlerRegistration(detailView.getMainButton().addTapHandler(new TapHandler() {
+		addHandlerRegistration(detailView.getMainButton().addTapHandler(
+				new TapHandler() {
 
-			@Override
-			public void onTap(TapEvent event) {
-				eventBus.fireEvent(new ShowMasterEvent(eventId));
+					@Override
+					public void onTap(TapEvent event) {
+						eventBus.fireEvent(new ShowMasterEvent(eventId));
+					}
+				}));
 
-			}
-		}));
+		addHandlerRegistration(detailView.getBackbutton().addTapHandler(
+				new TapHandler() {
 
-		addHandlerRegistration(detailView.getBackbutton().addTapHandler(new TapHandler() {
-
-			@Override
-			public void onTap(TapEvent event) {
-				ActionEvent.fire(eventBus, ActionNames.BACK);
-
-			}
-		}));
+					@Override
+					public void onTap(TapEvent event) {
+						ActionEvent.fire(eventBus, ActionNames.BACK);
+					}
+				}));
 
 	}
 

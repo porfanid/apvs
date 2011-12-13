@@ -7,12 +7,12 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.googlecode.mgwt.dom.client.event.tap.TapEvent;
 import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
 
-public class AboutActivity extends DetailActivity {
+public class RadiationMapActivity extends DetailActivity {
 
 	private final ClientFactory clientFactory;
 
-	public AboutActivity(ClientFactory clientFactory) {
-		super(clientFactory.getAboutView(), "nav");
+	public RadiationMapActivity(ClientFactory clientFactory) {
+		super(clientFactory.getRadiationMapView(), "nav");
 		this.clientFactory = clientFactory;
 	}
 
@@ -20,11 +20,11 @@ public class AboutActivity extends DetailActivity {
 	public void start(AcceptsOneWidget panel, final EventBus eventBus) {
 		super.start(panel, eventBus);
 		
-		AboutView view = clientFactory.getAboutView();
+		RadiationMapView view = clientFactory.getRadiationMapView();
 
 		view.getBackbuttonText().setText("Home");
 
-		view.getHeader().setText("About");
+		view.getHeader().setText("Radiation Map");
 
 		view.getMainButtonText().setText("Nav");
 
@@ -33,7 +33,6 @@ public class AboutActivity extends DetailActivity {
 			@Override
 			public void onTap(TapEvent event) {
 				ActionEvent.fire(eventBus, ActionNames.BACK);
-
 			}
 		}));
 
