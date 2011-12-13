@@ -11,7 +11,7 @@ public class ProcedureEntrySelectedEvent extends Event<ProcedureEntrySelectedEve
 	}
 
 	public interface Handler {
-		void onAnimationSelected(ProcedureEntrySelectedEvent event);
+		void onProcedureEntrySelected(ProcedureEntrySelectedEvent event);
 	}
 
 	private static final Type<ProcedureEntrySelectedEvent.Handler> TYPE = new Type<ProcedureEntrySelectedEvent.Handler>();
@@ -37,7 +37,7 @@ public class ProcedureEntrySelectedEvent extends Event<ProcedureEntrySelectedEve
 
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onAnimationSelected(this);
+		handler.onProcedureEntrySelected(this);
 
 	}
 

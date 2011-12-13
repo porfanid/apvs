@@ -29,7 +29,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 		view.setTitle("APVS");
 		view.setRightButtonText("about");
 
-		view.getFirstHeader().setText("Home");
+		view.getFirstHeader().setText("--Home");
 
 		view.setTopics(createTopicsList());
 
@@ -41,7 +41,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 				System.err.println(index);
 				switch(index) {
 				case 0:
-					clientFactory.getPlaceController().goTo(new ProcedurePlace());
+					clientFactory.getPlaceController().goTo(new ProcedureMenuPlace());
 					break;
 				case 1:
 					clientFactory.getPlaceController().goTo(new CameraPlace());
@@ -50,7 +50,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 					clientFactory.getPlaceController().goTo(new ModelPlace());
 					break;
 				case 3:
-					clientFactory.getPlaceController().goTo(new RadiationMapPlace());
+					clientFactory.getPlaceController().goTo(new ImagePlace("Radiation Map", "images/InnerGapDosesMap.png"));
 					break;
 				}
 			}
@@ -60,7 +60,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 
 			@Override
 			public void onTap(TapEvent event) {
-				clientFactory.getPlaceController().goTo(new AboutPlace());
+				clientFactory.getPlaceController().goTo(new HomePlace());
 			}
 		}));
 

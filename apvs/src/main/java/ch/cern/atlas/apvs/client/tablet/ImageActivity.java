@@ -7,24 +7,28 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.googlecode.mgwt.dom.client.event.tap.TapEvent;
 import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
 
-public class AboutActivity extends DetailActivity {
+public class ImageActivity extends DetailActivity {
 
 	private final ClientFactory clientFactory;
+	private String name;
+	private String url;
 
-	public AboutActivity(ClientFactory clientFactory) {
-		super(clientFactory.getAboutView(), "nav");
+	public ImageActivity(ClientFactory clientFactory, String name, String url) {
+		super(clientFactory.getImagePanel(url), "nav");
 		this.clientFactory = clientFactory;
+		this.name = name;
+		this.url = url;
 	}
 
 	@Override
 	public void start(AcceptsOneWidget panel, final EventBus eventBus) {
 		super.start(panel, eventBus);
 		
-		AboutUI view = clientFactory.getAboutView();
+		ImageUI view = clientFactory.getImagePanel(url);
 
 		view.getBackbuttonText().setText("Home");
 
-		view.getHeader().setText("ATLAS Procedures Visualization System");
+		view.getHeader().setText(name);
 
 		view.getMainButtonText().setText("Nav");
 

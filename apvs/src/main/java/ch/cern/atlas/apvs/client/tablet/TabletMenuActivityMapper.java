@@ -23,11 +23,11 @@ public class TabletMenuActivityMapper implements ActivityMapper {
 		return mainMenuActivity;
 	}
 	
-	private ProcedureActivity procedureActivity;
+	private ProcedureMenuActivity procedureActivity;
 
-	private ProcedureActivity getProcedureActivity() {
+	private ProcedureMenuActivity getProcedureActivity() {
 		if (procedureActivity == null) {
-			procedureActivity = new ProcedureActivity(clientFactory);
+			procedureActivity = new ProcedureMenuActivity(clientFactory);
 		}
 
 		return procedureActivity;
@@ -46,14 +46,28 @@ public class TabletMenuActivityMapper implements ActivityMapper {
 	/* Navigation Panel */
 	@Override
 	public Activity getActivity(Place place) {
+		if (place instanceof ProcedureMenuPlace) {
+			return getProcedureActivity();
+		}
+
 		if (place instanceof ProcedurePlace) {
 			return getProcedureActivity();
 		}
-		
+
 		if (place instanceof ModelPlace) {
 			return getModelActivity();
 		}
-	
+
+		if (place instanceof ImagePlace) {
+			if (((ImagePlace)place).getName().equalsIgnoreCase("Radiation Map")) {
+				return getMainMenuActivity();
+			}
+			if (((ImagePlace)place).getName().startsWith("ATLAS Procedures")) {
+				return getMainMenuActivity();
+			}
+			return getModelActivity();
+		}
+
 		return getMainMenuActivity();
 	}
 }

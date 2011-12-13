@@ -1,93 +1,46 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import java.util.List;
+import ch.cern.atlas.apvs.client.ProcedureView;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;
 import com.googlecode.mgwt.ui.client.MGWT;
-import com.googlecode.mgwt.ui.client.widget.CellList;
-import com.googlecode.mgwt.ui.client.widget.HeaderButton;
-import com.googlecode.mgwt.ui.client.widget.HeaderPanel;
+import com.googlecode.mgwt.ui.client.widget.Button;
 import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
-import com.googlecode.mgwt.ui.client.widget.ScrollPanel;
-import com.googlecode.mgwt.ui.client.widget.celllist.HasCellSelectedHandler;
 
-public class ProcedurePanel implements ProcedureUI {
+public class ProcedurePanel extends DetailPanel implements ProcedureUI {
 
-	private LayoutPanel main;
-	private HeaderPanel headerPanel;
-	private HeaderButton headerBackButton;
-	private CellList<ProcedureItem> cellListWithHeader;
+	private LayoutPanel panel;
+	private Button button;
 
-	public ProcedurePanel() {
-		main = new LayoutPanel();
+	public ProcedurePanel(RemoteEventBus remoteEventBus,
+			RemoteEventBus localEventBus, String url, String name, String step) {
 
-//		main.getElement().setId("testdiv");
+		ProcedureView view = new ProcedureView(remoteEventBus, localEventBus, 800, 600);
 
-		headerPanel = new HeaderPanel();
-		main.add(headerPanel);
+		panel = new LayoutPanel();
+		panel.add(view);
 
-		headerBackButton = new HeaderButton();
-		headerBackButton.setBackButton(true);
-		headerPanel.setLeftWidget(headerBackButton);
-		headerBackButton.setVisible(!MGWT.getOsDetection().isAndroid());
+		if (MGWT.getOsDetection().isPhone()) {
+			button = new Button("back");
+			button.getElement().setAttribute("style",
+					"margin:auto;width: 200px;display:block");
+			panel.add(button);
+			headerBackButton.removeFromParent();
+		}
 
-		ScrollPanel scrollPanel = new ScrollPanel();
+		scrollPanel.setWidget(panel);
 
-		cellListWithHeader = new CellList<ProcedureItem>(new BasicCell<ProcedureItem>() {
-
-			@Override
-			public String getDisplayString(ProcedureItem procedure) {
-				return procedure.getDisplayString();
-			}
-
-			@Override
-			public boolean canBeSelected(ProcedureItem procedure) {
-				return true;
-			}
-		});
-		cellListWithHeader.setRound(true);
-		scrollPanel.setWidget(cellListWithHeader);
+		// width 100%
 		scrollPanel.setScrollingEnabledX(false);
-
-		main.add(scrollPanel);
 	}
 
 	@Override
-	public Widget asWidget() {
-		return main;
+	public HasTapHandlers getBackbutton() {
+		if (MGWT.getOsDetection().isPhone()) {
+			return button;
+		}
+		return super.getBackbutton();
 	}
 
-	@Override
-	public void setBackButtonText(String text) {
-		headerBackButton.setText(text);
-
-	}
-
-	@Override
-	public HasTapHandlers getBackButton() {
-		return headerBackButton;
-	}
-
-	@Override
-	public void setTitle(String title) {
-		headerPanel.setCenter(title);
-
-	}
-
-	@Override
-	public HasCellSelectedHandler getList() {
-		return cellListWithHeader;
-	}
-
-	@Override
-	public void renderItems(List<ProcedureItem> items) {
-		cellListWithHeader.render(items);
-
-	}
-
-	@Override
-	public void setSelectedIndex(int index, boolean selected) {
-		cellListWithHeader.setSelectedIndex(index, selected);
-	}
 }

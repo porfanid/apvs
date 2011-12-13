@@ -2,18 +2,18 @@ package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.service.FileService;
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
-import ch.cern.atlas.apvs.client.tablet.AboutPanel;
-import ch.cern.atlas.apvs.client.tablet.AboutUI;
 import ch.cern.atlas.apvs.client.tablet.CameraPanel;
 import ch.cern.atlas.apvs.client.tablet.CameraUI;
+import ch.cern.atlas.apvs.client.tablet.ImagePanel;
+import ch.cern.atlas.apvs.client.tablet.ImageUI;
 import ch.cern.atlas.apvs.client.tablet.MainMenuList;
 import ch.cern.atlas.apvs.client.tablet.MainMenuUI;
 import ch.cern.atlas.apvs.client.tablet.ModelPanel;
 import ch.cern.atlas.apvs.client.tablet.ModelUI;
+import ch.cern.atlas.apvs.client.tablet.ProcedureMenuPanel;
+import ch.cern.atlas.apvs.client.tablet.ProcedureMenuUI;
 import ch.cern.atlas.apvs.client.tablet.ProcedurePanel;
 import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
-import ch.cern.atlas.apvs.client.tablet.RadiationMapPanel;
-import ch.cern.atlas.apvs.client.tablet.RadiationMapUI;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -25,12 +25,9 @@ public class APVSClientFactory implements ClientFactory {
 	private final PlaceController placeController;
 	private final FileServiceAsync fileService = GWT.create(FileService.class);
 
-	private AboutUI aboutView;
 	private MainMenuUI homeView;
-	private RadiationMapUI radiationMapView;
 	private ModelUI modelView;
-	private CameraUI cameraView;
-	private ProcedureUI procedureView;
+	private ProcedureMenuUI procedureView;
 
 	public APVSClientFactory() {
 		// AtmosphereGWTSerializer serializer =
@@ -65,23 +62,6 @@ public class APVSClientFactory implements ClientFactory {
 	}
 
 	@Override
-	public AboutUI getAboutView() {
-		if (aboutView == null) {
-			aboutView = new AboutPanel();
-		}
-
-		return aboutView;
-	}
-
-	@Override
-	public RadiationMapUI getRadiationMapView() {
-		if (radiationMapView == null) {
-			radiationMapView = new RadiationMapPanel();
-		}
-		return radiationMapView;
-	}
-
-	@Override
 	public ModelUI getModelView() {
 		if (modelView == null) {
 			modelView = new ModelPanel();
@@ -91,19 +71,25 @@ public class APVSClientFactory implements ClientFactory {
 
 	@Override
 	public CameraUI getCameraView() {
-		if (cameraView == null) {
-			// FIXME eventbus (local)
-			cameraView = new CameraPanel(eventBus, eventBus, ch.cern.atlas.apvs.client.CameraView.HELMET);
-		}
-		return cameraView;
+		return new CameraPanel(eventBus, eventBus, ch.cern.atlas.apvs.client.CameraView.HELMET);
 	}
 
 	@Override
-	public ProcedureUI getProcedureView() {
+	public ProcedureMenuUI getProcedureMenuView() {
 		if (procedureView == null) {
-			procedureView = new ProcedurePanel();
+			procedureView = new ProcedureMenuPanel();
 		}
 		return procedureView;
+	}
+	
+	@Override
+	public ImageUI getImagePanel(String url) {
+		return new ImagePanel(url);
+	}
+
+	@Override
+	public ProcedureUI getProcedurePanel(String url, String name, String step) {
+		return new ProcedurePanel(eventBus, eventBus, url, name, step);
 	}
 
 }

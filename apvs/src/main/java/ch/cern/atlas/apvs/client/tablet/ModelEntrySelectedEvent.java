@@ -11,7 +11,7 @@ public class ModelEntrySelectedEvent extends Event<ModelEntrySelectedEvent.Handl
 	}
 
 	public interface Handler {
-		void onAnimationSelected(ModelEntrySelectedEvent event);
+		void onModelEntrySelected(ModelEntrySelectedEvent event);
 	}
 
 	private static final Type<ModelEntrySelectedEvent.Handler> TYPE = new Type<ModelEntrySelectedEvent.Handler>();
@@ -37,7 +37,7 @@ public class ModelEntrySelectedEvent extends Event<ModelEntrySelectedEvent.Handl
 
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onAnimationSelected(this);
+		handler.onModelEntrySelected(this);
 
 	}
 

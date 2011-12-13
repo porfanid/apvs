@@ -20,7 +20,7 @@ public class CameraActivity extends DetailActivity {
 	public void start(AcceptsOneWidget panel, final EventBus eventBus) {
 		super.start(panel, eventBus);
 		
-		RadiationMapUI view = clientFactory.getRadiationMapView();
+		CameraUI view = clientFactory.getCameraView();
 
 		view.getBackbuttonText().setText("Home");
 

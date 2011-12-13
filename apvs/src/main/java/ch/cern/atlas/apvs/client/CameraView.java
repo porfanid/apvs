@@ -15,6 +15,9 @@ public class CameraView extends SimplePanel {
 
 	public static final int HELMET = 0;
 	public static final int HAND = 1;
+	
+	private static final int DEFAULT_WIDTH = 400;
+	private static final int DEFAULT_HEIGHT = 300;
 
 	// FIXME
 	// private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
@@ -26,8 +29,8 @@ public class CameraView extends SimplePanel {
 	// "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
 	// private final String cameraURL =
 	// "rtsp://quicktime.tc.columbia.edu:554/users/lrf10/movies/sixties.mov";
-	private int videoWidth = 400;
-	private int videoHeight = 300;
+	private int videoWidth;
+	private int videoHeight;
 	private String videoPoster = "Default-640x480.jpg";
 
 	private int type;
@@ -39,7 +42,14 @@ public class CameraView extends SimplePanel {
 
 	public CameraView(RemoteEventBus remoteEventBus,
 			RemoteEventBus localEventBus, int type) {
+		this(remoteEventBus, localEventBus, type, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
+	
+	public CameraView(RemoteEventBus remoteEventBus,
+			RemoteEventBus localEventBus, int type, int width, int height) {	
 		this.type = type;
+		this.videoWidth = width;
+		this.videoHeight = height;
 
 		SupervisorSettingsChangedEvent.subscribe(remoteEventBus,
 				new SupervisorSettingsChangedEvent.Handler() {

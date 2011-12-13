@@ -1,21 +1,22 @@
 package ch.cern.atlas.apvs.client.tablet;
 
+import ch.cern.atlas.apvs.client.CameraView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;
 import com.googlecode.mgwt.ui.client.MGWT;
 import com.googlecode.mgwt.ui.client.widget.Button;
-import com.googlecode.mgwt.ui.client.widget.touch.TouchPanel;
+import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
 
 public class CameraPanel extends DetailPanel implements CameraUI {
 
-	private TouchPanel panel;
+	private LayoutPanel panel;
 	private Button button;
 
 	public CameraPanel(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus, int type) {
 
-		panel = new TouchPanel();
-		panel.add(new ch.cern.atlas.apvs.client.CameraView(remoteEventBus, localEventBus, type));
+		panel = new LayoutPanel();
+		panel.add(new CameraView(remoteEventBus, localEventBus, type, 800, 600));
 
 		if (MGWT.getOsDetection().isPhone()) {
 			button = new Button("back");

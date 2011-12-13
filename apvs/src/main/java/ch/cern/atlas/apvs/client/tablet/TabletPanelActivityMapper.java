@@ -25,65 +25,48 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 
 	}
 
-	private AboutActivity aboutActivity;
+	private ImageActivity defaultActivity;
 
-	private AboutActivity getAboutActivity() {
-		if (aboutActivity == null) {
-			aboutActivity = new AboutActivity(clientFactory);
+	private ImageActivity getDefaultActivity() {
+		if (defaultActivity == null) {
+			defaultActivity = new ImageActivity(clientFactory,
+					"ATLAS Procedures Visualization System",
+					"Default-640x480.jpg");
 		}
 
-		return aboutActivity;
-	}
-
-	private CameraActivity cameraActivity;
-
-	private CameraActivity getCameraActivity() {
-		if (cameraActivity == null) {
-			cameraActivity = new CameraActivity(clientFactory);
-		}
-
-		return cameraActivity;
-	}
-
-	private RadiationMapActivity radiationMapActivity;
-
-	private RadiationMapActivity getRadiationMapActivity() {
-		if (radiationMapActivity == null) {
-			radiationMapActivity = new RadiationMapActivity(clientFactory);
-		}
-
-		return radiationMapActivity;
+		return defaultActivity;
 	}
 
 	/* Main Panel */
 	private Activity getActivity(Place lastPlace, Place newPlace) {
 		if (newPlace instanceof HomePlace) {
-			return getAboutActivity();
-		}
-
-		if (newPlace instanceof AboutPlace) {
-			return getAboutActivity();
+			return getDefaultActivity();
 		}
 		
-		if (newPlace instanceof ProcedurePlace) {
-			return getAboutActivity();
+		if (newPlace instanceof ProcedureMenuPlace) {
+			return getDefaultActivity();
 		}
 			
 		if (newPlace instanceof CameraPlace) {
-			return getCameraActivity();
+			return new CameraActivity(clientFactory);
 		}
 			
 		if (newPlace instanceof ModelPlace) {
-			return getAboutActivity();
+			return getDefaultActivity();
 		}
-
-		if (newPlace instanceof RadiationMapPlace) {
-			return getRadiationMapActivity();
+		
+		if (newPlace instanceof ProcedurePlace) {
+			ProcedurePlace place = (ProcedurePlace)newPlace;
+			return new ProcedureActivity(clientFactory, place.getUrl(), place.getName(), place.getStep());
+		}
+		
+		if (newPlace instanceof ImagePlace) {
+			ImagePlace place = (ImagePlace)newPlace;
+			return new ImageActivity(clientFactory, place.getName(), place.getUrl());
 		}
 			
 		System.err.println("Tablet Activity not handled "+newPlace);
 
 		return null;
 	}
-
 }
