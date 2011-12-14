@@ -1,8 +1,0 @@
-@if mgwt.css pretty {
-	@external mgwt-ProgressBar;
-	
-}
-
-.mgwt-ProgressBar {
-	background-color: baseColor;	
-}
