@@ -13,17 +13,31 @@ import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
 
 public class ImagePanel extends DetailPanel implements ImageUI {
 
+	private String url;
 	private LayoutPanel panel;
 	private Button button;
+	private Image image;
+	private double imageRatio;
 
-	public ImagePanel(String url) {
+	// FIXME initial attachment seems correct, however animated attachment gives
+	// 0 for width and height
+	// we just use previous values.
+	private static int width = 1;
+	private static int height = 1;
 
-		final Image image = new Image(url);
-		image.setWidth("100%");
-		// FIXME, make either width or height set to 100% depending on the ratio
-		// of the image and the ratio of the panel.
+	public ImagePanel(final String url) {
+		this.url = url;
+		System.err.println("Creating " + url);
 
-		// image.setHeight("100%");
+		image = new Image(url) {
+			@Override
+			protected void onAttach() {
+				super.onAttach();
+				System.err.println("Attaching " + url);
+				imageRatio = (double) image.getWidth() / image.getHeight();
+				resize();
+			}
+		};
 
 		panel = new LayoutPanel();
 		panel.add(image);
@@ -36,21 +50,13 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 			headerBackButton.removeFromParent();
 		}
 
-		scrollPanel.setWidget(panel);
+		main.add(panel);
 
-		// width 100%
-		scrollPanel.setScrollingEnabledX(false);
-
-		scrollPanel.addAttachHandler(new Handler() {
+		panel.addAttachHandler(new Handler() {
 
 			@Override
 			public void onAttachOrDetach(AttachEvent event) {
-				System.err.println("A " + scrollPanel.getOffsetWidth() + " "
-						+ scrollPanel.getOffsetHeight());
-				System.err.println("P " + panel.getOffsetWidth() + " "
-						+ panel.getOffsetHeight());
-				System.err.println("I " + image.getWidth() + " "
-						+ image.getHeight());
+				resize();
 			}
 		});
 
@@ -58,17 +64,31 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 
 			@Override
 			public void onResize(ResizeEvent event) {
-				if (scrollPanel.getOffsetHeight() > 0) {
-					System.err.println("A* "
-							+ ((double)scrollPanel.getOffsetWidth() / scrollPanel
-									.getOffsetHeight()));
-				}
-				if (image.getHeight() > 0) {
-					System.err.println("I* "
-							+ ((double)image.getWidth() / image.getHeight()));
-				}
+				resize();
 			}
 		});
+
+		resize();
+	}
+
+	private void resize() {
+		if (panel.getOffsetWidth() > 0) {
+			width = panel.getOffsetWidth();
+		}
+		if (panel.getOffsetHeight() > 0) {
+			height = panel.getOffsetHeight();
+		}
+
+		double panelRatio = (double) getWidth() / getHeight();
+
+		System.err.println(panelRatio + " " + imageRatio);
+		if (imageRatio > panelRatio) {
+			image.setWidth("100%");
+			image.setHeight("");
+		} else {
+			image.setWidth("");
+			image.setHeight("100%");
+		}
 	}
 
 	@Override
@@ -79,4 +99,11 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 		return super.getBackbutton();
 	}
 
+	private int getWidth() {
+		return panel.getOffsetWidth() > 0 ? panel.getOffsetWidth() : width;
+	}
+
+	private int getHeight() {
+		return panel.getOffsetHeight() > 0 ? panel.getOffsetHeight() : height;
+	}
 }
