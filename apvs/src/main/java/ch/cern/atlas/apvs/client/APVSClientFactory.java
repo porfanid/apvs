@@ -12,6 +12,7 @@ import ch.cern.atlas.apvs.client.tablet.ModelPanel;
 import ch.cern.atlas.apvs.client.tablet.ModelUI;
 import ch.cern.atlas.apvs.client.tablet.ProcedureMenuPanel;
 import ch.cern.atlas.apvs.client.tablet.ProcedureMenuUI;
+import ch.cern.atlas.apvs.client.tablet.ProcedureNavigator;
 import ch.cern.atlas.apvs.client.tablet.ProcedurePanel;
 import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
@@ -19,9 +20,11 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.PlaceController;
+import com.google.web.bindery.event.shared.SimpleEventBus;
 
 public class APVSClientFactory implements ClientFactory {
-	private RemoteEventBus eventBus;
+	private RemoteEventBus remoteEventBus;
+	private RemoteEventBus localEventBus;
 	private final PlaceController placeController;
 	private final FileServiceAsync fileService = GWT.create(FileService.class);
 
@@ -35,13 +38,16 @@ public class APVSClientFactory implements ClientFactory {
 		// AtmosphereGWTSerializer serializer =
 		// GWT.create(EventSerializer.class);
 		// eventBus = new AtmosphereEventBus(serializer);
-		eventBus = new PollEventBus();
-		placeController = new PlaceController(eventBus);
+		remoteEventBus = new PollEventBus();
+		placeController = new PlaceController(remoteEventBus);
+		
+		// specially for now in iPad app
+		localEventBus = new RemoteEventBus();
 	}
 
 	@Override
 	public RemoteEventBus getEventBus() {
-		return eventBus;
+		return remoteEventBus;
 	}
 
 	@Override
@@ -73,7 +79,7 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public PtuSelector getPtuSelector() {
 //		if (ptuSelector == null) {
-			ptuSelector = new PtuSelector(eventBus, eventBus);
+			ptuSelector = new PtuSelector(remoteEventBus, remoteEventBus);
 //		}
 		return ptuSelector;
 	}
@@ -81,14 +87,14 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public MeasurementView getMeasurementView() {
 //		if (measurementView == null) {
-			measurementView = new MeasurementView(eventBus, eventBus);
+			measurementView = new MeasurementView(remoteEventBus, remoteEventBus);
 //		}
 		return measurementView;
 	}
 
 	@Override
 	public CameraUI getCameraView(int type) {
-		return new CameraPanel(eventBus, eventBus, type);
+		return new CameraPanel(remoteEventBus, remoteEventBus, type);
 	}
 
 	@Override
@@ -106,7 +112,16 @@ public class APVSClientFactory implements ClientFactory {
 
 	@Override
 	public ProcedureUI getProcedurePanel(String url, String name, String step) {
-		return new ProcedurePanel(eventBus, eventBus, url, name, step);
+		return new ProcedurePanel(this, url, name, step);
+	}
+	
+	@Override
+	public ProcedureNavigator getProcedureNavigator() {
+		return new ProcedureNavigator(localEventBus);
 	}
 
+	@Override
+	public ProcedureView getProcedureView(int width, int height) {
+		return new ProcedureView(remoteEventBus, localEventBus, width, height);
+	}
 }

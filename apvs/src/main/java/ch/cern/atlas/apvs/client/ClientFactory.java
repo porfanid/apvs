@@ -6,6 +6,7 @@ import ch.cern.atlas.apvs.client.tablet.ImageUI;
 import ch.cern.atlas.apvs.client.tablet.MainMenuUI;
 import ch.cern.atlas.apvs.client.tablet.ModelUI;
 import ch.cern.atlas.apvs.client.tablet.ProcedureMenuUI;
+import ch.cern.atlas.apvs.client.tablet.ProcedureNavigator;
 import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -34,4 +35,8 @@ public interface ClientFactory {
 	PtuSelector getPtuSelector();
 
 	MeasurementView getMeasurementView();
+
+	ProcedureNavigator getProcedureNavigator();
+
+	ProcedureView getProcedureView(int width, int height);
 }

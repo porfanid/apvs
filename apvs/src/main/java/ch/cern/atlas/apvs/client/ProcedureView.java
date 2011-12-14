@@ -67,7 +67,6 @@ public class ProcedureView extends SimplePanel {
 			
 			@Override
 			public void onServerSettingsChanged(ServerSettingsChangedEvent event) {
-				System.err.println("PV: ss changed "+event.getServerSettings().get(ServerSettings.settingNames[2]));
 				procedureURL = event.getServerSettings().get(ServerSettings.settingNames[2]);
 				localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));
 				update();
@@ -78,6 +77,8 @@ public class ProcedureView extends SimplePanel {
 
 			@Override
 			public void onStepSelected(SelectStepEvent event) {
+				if (event.getEventBusUUID().equals(remoteEventBus.getUUID())) return;
+				
 				if ((firstStep <= step) && (step <= lastStep)) {
 					step = event.getStep();
 					localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));

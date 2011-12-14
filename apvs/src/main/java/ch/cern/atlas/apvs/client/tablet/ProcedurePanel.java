@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import ch.cern.atlas.apvs.client.ProcedureView;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.client.ClientFactory;
 
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;
 import com.googlecode.mgwt.ui.client.MGWT;
@@ -13,13 +12,10 @@ public class ProcedurePanel extends DetailPanel implements ProcedureUI {
 	private LayoutPanel panel;
 	private Button button;
 
-	public ProcedurePanel(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, String url, String name, String step) {
-
-		ProcedureView view = new ProcedureView(remoteEventBus, localEventBus, 800, 600);
+	public ProcedurePanel(ClientFactory clientFactory, String url, String name, String step) {
 
 		panel = new LayoutPanel();
-		panel.add(view);
+		panel.add(clientFactory.getProcedureView(800, 600));
 
 		if (MGWT.getOsDetection().isPhone()) {
 			button = new Button("back");
@@ -33,6 +29,8 @@ public class ProcedurePanel extends DetailPanel implements ProcedureUI {
 
 		// width 100%
 		scrollPanel.setScrollingEnabledX(false);
+
+		main.add(clientFactory.getProcedureNavigator());
 	}
 
 	@Override
