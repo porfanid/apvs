@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client;
 
+import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -45,8 +46,8 @@ public class SupervisorWorkerView extends DockPanel {
 				localEventBus);
 		p1.add(new Label("Worker's View"));
 		p1.add(procedureView);
-		p1.add(new ProcedureControls(remoteEventBus, localEventBus));
-		procedureView.setStep(12);
+		p1.add(new ProcedureControls(localEventBus));
+		localEventBus.fireEvent(new SelectStepEvent(1));
 	}
 	
 	public String getName() {

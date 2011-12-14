@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client;
 
 import java.util.logging.Logger;
 
+import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
 import ch.cern.atlas.apvs.client.tablet.TabletHistoryObserver;
@@ -133,8 +134,9 @@ public class APVS implements EntryPoint {
 			ProcedureView procedureView = new ProcedureView(remoteEventBus,
 					localEventBus);
 			p.add(procedureView);
-			p.add(new ProcedureControls(remoteEventBus, localEventBus));
-			procedureView.setStep(1);
+			p.add(new ProcedureControls(localEventBus));
+			// FIXME should be 1
+			localEventBus.fireEvent(new SelectStepEvent(5));
 
 		} else if (view.equals("settingsView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));

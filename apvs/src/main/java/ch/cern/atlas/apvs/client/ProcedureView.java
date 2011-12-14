@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.dom.client.Style.Unit;
@@ -30,13 +31,15 @@ public class ProcedureView extends SimplePanel {
 	private final int firstStep = 1;
 	private final int lastStep = 34;
 	private RemoteEventBus remoteEventBus;
+	private RemoteEventBus localEventBus;
 
 	public ProcedureView(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus) {
 		this(remoteEventBus, localEventBus, 350, 300);
 	}
 
-	public ProcedureView(final RemoteEventBus remoteEventBus, RemoteEventBus localEventBus, int width, int height) {
+	public ProcedureView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus, int width, int height) {
 		this.remoteEventBus = remoteEventBus;
+		this.localEventBus = localEventBus;
 		this.videoWidth = width;
 		this.videoHeight = height;
 
@@ -66,7 +69,7 @@ public class ProcedureView extends SimplePanel {
 			public void onServerSettingsChanged(ServerSettingsChangedEvent event) {
 				System.err.println("PV: ss changed "+event.getServerSettings().get(ServerSettings.settingNames[2]));
 				procedureURL = event.getServerSettings().get(ServerSettings.settingNames[2]);
-				
+				localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));
 				update();
 			}
 		});
@@ -75,10 +78,11 @@ public class ProcedureView extends SimplePanel {
 
 			@Override
 			public void onStepSelected(SelectStepEvent event) {
-				System.err.println("PV: "+event+" "+event.getEventBusUUID()+" "+remoteEventBus.getUUID());
-				step = event.getStep();
-				
-				update();
+				if ((firstStep <= step) && (step <= lastStep)) {
+					step = event.getStep();
+					localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));
+					update();
+				}				
 			}
 		});
 	}
@@ -89,7 +93,8 @@ public class ProcedureView extends SimplePanel {
 		Video video = Video.createIfSupported();
 		video.setWidth(videoWidth + Unit.PX.toString());
 		video.setHeight(videoHeight + Unit.PX.toString());
-		video.setPoster(videoPoster);
+// Annoying
+// 		video.setPoster(videoPoster);
 		video.setAutoplay(true);
 		video.setControls(true);
 		video.setLoop(true);
@@ -101,19 +106,21 @@ public class ProcedureView extends SimplePanel {
 		
 	}
 
-	public void setStep(int step) {
+	private void navigateStep(int step) {
 		if ((firstStep <= step) && (step <= lastStep)) {
-			remoteEventBus.fireEvent(new SelectStepEvent(step, lastStep,
-					hasPrevious(), hasNext()));
+			this.step = step;
+			remoteEventBus.fireEvent(new SelectStepEvent(step));
+			localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));
+			update();
 		}
 	}
 
 	public void start() {
-		setStep(firstStep);
+		navigateStep(firstStep);
 	}
 
 	public void end() {
-		setStep(lastStep);
+		navigateStep(lastStep);
 	}
 
 	public boolean hasNext() {
@@ -122,7 +129,7 @@ public class ProcedureView extends SimplePanel {
 
 	public void next() {
 		if (hasNext()) {
-			setStep(step+1);
+			navigateStep(step+1);
 		}
 	}
 
@@ -132,7 +139,7 @@ public class ProcedureView extends SimplePanel {
 
 	public void previous() {
 		if (hasPrevious()) {
-			setStep(step-1);
+			navigateStep(step-1);
 		}
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.places.Acquisition;
 import ch.cern.atlas.apvs.client.places.MenuPlace;
 import ch.cern.atlas.apvs.client.places.Models;
@@ -31,10 +32,9 @@ public class WorkerView extends DockPanel {
 		
 		VerticalFlowPanel east = new VerticalFlowPanel();
 		add(east, CENTER);
-		ProcedureView procedureView = new ProcedureView(remoteEventBus, remoteEventBus, 750, 730);
-		east.add(procedureView);
-		east.add(new ProcedureControls(remoteEventBus, remoteEventBus));
-		procedureView.setStep(7);
+		east.add(new ProcedureView(remoteEventBus, remoteEventBus, 750, 730));
+		east.add(new ProcedureControls(remoteEventBus));
+		remoteEventBus.fireEvent(new SelectStepEvent(7));
 	}
 
 	private Widget getStackedMenu() {

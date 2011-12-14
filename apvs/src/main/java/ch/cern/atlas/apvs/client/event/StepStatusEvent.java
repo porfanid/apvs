@@ -1,14 +1,12 @@
 package ch.cern.atlas.apvs.client.event;
 
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectStepEvent extends RemoteEvent<SelectStepEvent.Handler> {
-
-	private static final long serialVersionUID = 8083231975565002912L;
+public class StepStatusEvent extends Event<StepStatusEvent.Handler> {
 
 	public interface Handler {
 		/**
@@ -17,10 +15,10 @@ public class SelectStepEvent extends RemoteEvent<SelectStepEvent.Handler> {
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onStepSelected(SelectStepEvent event);
+		void onStepStatus(StepStatusEvent event);
 	}
 
-	private static final Type<SelectStepEvent.Handler> TYPE = new Type<SelectStepEvent.Handler>();
+	private static final Type<StepStatusEvent.Handler> TYPE = new Type<StepStatusEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -32,21 +30,25 @@ public class SelectStepEvent extends RemoteEvent<SelectStepEvent.Handler> {
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			SelectStepEvent.Handler handler) {
+			StepStatusEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	private int step;
+	private int step, total;
+	private boolean previous, next;
 	
-	public SelectStepEvent() {
+	public StepStatusEvent() {
 	}
 
-	public SelectStepEvent(int step) {
+	public StepStatusEvent(int step, int total, boolean hasPrevious, boolean hasNext) {
 		this.step = step;
+		this.total = total;
+		previous = hasPrevious;
+		next = hasNext;
 	}
 
 	@Override
-	public Type<SelectStepEvent.Handler> getAssociatedType() {
+	public Type<StepStatusEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
@@ -54,8 +56,20 @@ public class SelectStepEvent extends RemoteEvent<SelectStepEvent.Handler> {
 		return step;
 	}
 	
+	public int getTotal() {
+		return total;
+	}
+	
+	public boolean hasPrevious() {
+		return previous;
+	}
+	
+	public boolean hasNext() {
+		return next;
+	}
+
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onStepSelected(this);
+		handler.onStepStatus(this);
 	}
 }

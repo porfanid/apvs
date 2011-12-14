@@ -2,7 +2,7 @@ package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent.Navigation;
-import ch.cern.atlas.apvs.client.event.SelectStepEvent;
+import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -18,7 +18,8 @@ public class ProcedureControls extends HorizontalFlowPanel {
 	Button next = new Button("Next");
 	Label step = new Label("-");
 
-	public ProcedureControls(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus) {
+	// Note only a local event bus
+	public ProcedureControls(final RemoteEventBus localEventBus) {
 		add(start);
 		start.addClickHandler(new ClickHandler() {
 
@@ -46,9 +47,9 @@ public class ProcedureControls extends HorizontalFlowPanel {
 		
 		add(step);
 
-		SelectStepEvent.register(remoteEventBus, new SelectStepEvent.Handler() {
+		StepStatusEvent.register(localEventBus, new StepStatusEvent.Handler() {
 			@Override
-			public void onStepSelected(SelectStepEvent event) {
+			public void onStepStatus(StepStatusEvent event) {
 				previous.setEnabled(event.hasPrevious());
 				next.setEnabled(event.hasNext());
 				step.setText(event.getStep()+" of "+event.getTotal());
