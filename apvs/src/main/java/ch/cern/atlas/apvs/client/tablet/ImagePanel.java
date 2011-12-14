@@ -13,7 +13,6 @@ import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
 
 public class ImagePanel extends DetailPanel implements ImageUI {
 
-	private String url;
 	private LayoutPanel panel;
 	private Button button;
 	private Image image;
@@ -26,14 +25,11 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 	private static int height = 1;
 
 	public ImagePanel(final String url) {
-		this.url = url;
-		System.err.println("Creating " + url);
 
 		image = new Image(url) {
 			@Override
 			protected void onAttach() {
 				super.onAttach();
-				System.err.println("Attaching " + url);
 				imageRatio = (double) image.getWidth() / image.getHeight();
 				resize();
 			}
@@ -81,7 +77,6 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 
 		double panelRatio = (double) getWidth() / getHeight();
 
-		System.err.println(panelRatio + " " + imageRatio);
 		if (imageRatio > panelRatio) {
 			image.setWidth("100%");
 			image.setHeight("");
