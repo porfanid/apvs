@@ -59,26 +59,28 @@ public class APVS implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 		GWT.setUncaughtExceptionHandler(new APVSUncaughtExceptionHandler());
-		
-		ServerServiceAsync.Util.getInstance().isReady(new AsyncCallback<Boolean>() {
-			
-			@Override
-			public void onSuccess(Boolean result) {
-				if (result) {
-					System.err.println("Server ready");
-					start();
-				} else {
-					onFailure(null);
-				}
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				Window.alert("Server not ready. reload webpage "+caught);
-			}
-		});
-	}	
-	
+
+		ServerServiceAsync.Util.getInstance().isReady(
+				new AsyncCallback<Boolean>() {
+
+					@Override
+					public void onSuccess(Boolean result) {
+						if (result) {
+							System.err.println("Server ready");
+							start();
+						} else {
+							onFailure(null);
+						}
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						Window.alert("Server not ready. reload webpage "
+								+ caught);
+					}
+				});
+	}
+
 	private void start() {
 
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
@@ -92,54 +94,51 @@ public class APVS implements EntryPoint {
 			Window.alert("Please define a <div> element with the id set to your view in the html you are starting from.");
 			return;
 		}
-		
-        // Turn off the browser scrollbars. 
-        Window.enableScrolling(false); 
+
+		// Turn off the browser scrollbars.
+		Window.enableScrolling(false);
 
 		settingsPersister = new SettingsPersister(remoteEventBus);
 
 		String view = divs.getItem(0).getId();
 		Panel p = new VerticalFlowPanel();
 		if (view.equals("workerView")) {
-			if (false) {
-				p.add(new WorkerView(remoteEventBus));
-			} else {
-				startWorker();
-				return;
-			}
-			
+			startWorker();
+			return;
+
 		} else if (view.equals("supervisorView")) {
 			RootLayoutPanel.get().add(new SupervisorView(remoteEventBus));
 			return;
-			
+
 		} else if (view.equals("clientView")) {
 			p.add(new ClientView(remoteEventBus));
-			
+
 		} else if (view.equals("dosimeterView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));
 			p.add(new DosimeterView(remoteEventBus));
-			
+
 		} else if (view.equals("ptuView")) {
 			p.add(new ServerSettingsView(remoteEventBus));
 			p.add(new SupervisorSettingsView(remoteEventBus));
 			p.add(new PtuView(remoteEventBus));
-			
+
 		} else if (view.equals("measurementView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
 			p.add(new SupervisorSettingsView(remoteEventBus));
 			p.add(new PtuSelector(remoteEventBus, localEventBus));
 			p.add(new MeasurementView(remoteEventBus, localEventBus));
-			
+
 		} else if (view.equals("procedureView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
-			ProcedureView procedureView = new ProcedureView(remoteEventBus, localEventBus);
+			ProcedureView procedureView = new ProcedureView(remoteEventBus,
+					localEventBus);
 			p.add(procedureView);
 			p.add(new ProcedureControls(remoteEventBus, localEventBus));
 			procedureView.setStep(1);
-			
+
 		} else if (view.equals("settingsView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));
-			
+
 		} else if (view.equals("cameraView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
 			p.add(new ServerSettingsView(remoteEventBus));
@@ -148,7 +147,7 @@ public class APVS implements EntryPoint {
 			p.add(new CameraView(remoteEventBus, localEventBus,
 					CameraView.HELMET));
 			p.add(new CameraView(remoteEventBus, localEventBus, CameraView.HAND));
-			
+
 		}
 
 		RootLayoutPanel.get().add(p);
@@ -170,8 +169,8 @@ public class APVS implements EntryPoint {
 
 		MGWTSettings settings = new MGWTSettings();
 		settings.setViewPort(viewPort);
-//		settings.setIconUrl("logo.png");
-//		settings.setAddGlosToIcon(true);
+		// settings.setIconUrl("logo.png");
+		// settings.setAddGlosToIcon(true);
 		settings.setFullscreen(true);
 		settings.setPreventScrolling(true);
 
@@ -193,7 +192,7 @@ public class APVS implements EntryPoint {
 		} else {
 
 			createTabletDisplay(clientFactory);
-//			createPhoneDisplay(clientFactory);
+			// createPhoneDisplay(clientFactory);
 
 		}
 
@@ -207,25 +206,24 @@ public class APVS implements EntryPoint {
 		historyHandler.handleCurrentHistory();
 	}
 
-/*
-	private void createPhoneDisplay(ClientFactory clientFactory) {
-		AnimatableDisplay display = GWT.create(AnimatableDisplay.class);
-
-		PhoneActivityMapper appActivityMapper = new PhoneActivityMapper(
-				clientFactory);
-
-		PhoneAnimationMapper appAnimationMapper = new PhoneAnimationMapper();
-
-		AnimatingActivityManager activityManager = new AnimatingActivityManager(
-				appActivityMapper, appAnimationMapper,
-				clientFactory.getEventBus());
-
-		activityManager.setDisplay(display);
-
-		RootPanel.get().add(display);
-
-	}
-*/
+	/*
+	 * private void createPhoneDisplay(ClientFactory clientFactory) {
+	 * AnimatableDisplay display = GWT.create(AnimatableDisplay.class);
+	 * 
+	 * PhoneActivityMapper appActivityMapper = new PhoneActivityMapper(
+	 * clientFactory);
+	 * 
+	 * PhoneAnimationMapper appAnimationMapper = new PhoneAnimationMapper();
+	 * 
+	 * AnimatingActivityManager activityManager = new AnimatingActivityManager(
+	 * appActivityMapper, appAnimationMapper, clientFactory.getEventBus());
+	 * 
+	 * activityManager.setDisplay(display);
+	 * 
+	 * RootPanel.get().add(display);
+	 * 
+	 * }
+	 */
 	private void createTabletDisplay(ClientFactory clientFactory) {
 		SimplePanel navContainer = new SimplePanel();
 		navContainer.getElement().setId("nav");

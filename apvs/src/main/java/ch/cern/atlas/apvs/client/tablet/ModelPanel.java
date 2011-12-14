@@ -2,6 +2,8 @@ package ch.cern.atlas.apvs.client.tablet;
 
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
+
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;
 import com.googlecode.mgwt.ui.client.MGWT;
@@ -19,7 +21,7 @@ public class ModelPanel implements ModelUI {
 	private HeaderButton headerBackButton;
 	private CellList<ModelItem> cellListWithHeader;
 
-	public ModelPanel() {
+	public ModelPanel(ClientFactory clientFactory) {
 		main = new LayoutPanel();
 
 //		main.getElement().setId("testdiv");
@@ -31,6 +33,8 @@ public class ModelPanel implements ModelUI {
 		headerBackButton.setBackButton(true);
 		headerPanel.setLeftWidget(headerBackButton);
 		headerBackButton.setVisible(!MGWT.getOsDetection().isAndroid());
+
+		main.add(clientFactory.getPtuSelector());
 
 		ScrollPanel scrollPanel = new ScrollPanel();
 
@@ -51,6 +55,8 @@ public class ModelPanel implements ModelUI {
 		scrollPanel.setScrollingEnabledX(false);
 
 		main.add(scrollPanel);
+		
+		main.add(clientFactory.getMeasurementView());
 	}
 
 	@Override

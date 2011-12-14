@@ -10,17 +10,19 @@ import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
 public class CameraActivity extends DetailActivity {
 
 	private final ClientFactory clientFactory;
+	private int type;
 
-	public CameraActivity(ClientFactory clientFactory) {
-		super(clientFactory.getCameraView(), "nav");
+	public CameraActivity(ClientFactory clientFactory, int type) {
+		super(clientFactory.getCameraView(type), "nav");
 		this.clientFactory = clientFactory;
+		this.type = type;
 	}
 
 	@Override
 	public void start(AcceptsOneWidget panel, final EventBus eventBus) {
 		super.start(panel, eventBus);
 		
-		CameraUI view = clientFactory.getCameraView();
+		CameraUI view = clientFactory.getCameraView(type);
 
 		view.getBackbuttonText().setText("Home");
 

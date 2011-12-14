@@ -48,7 +48,8 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 		}
 			
 		if (newPlace instanceof CameraPlace) {
-			return new CameraActivity(clientFactory);
+			CameraPlace place = (CameraPlace)newPlace;
+			return new CameraActivity(clientFactory, place.getType());
 		}
 			
 		if (newPlace instanceof ModelPlace) {

@@ -28,6 +28,8 @@ public class APVSClientFactory implements ClientFactory {
 	private MainMenuUI homeView;
 	private ModelUI modelView;
 	private ProcedureMenuUI procedureView;
+	private PtuSelector ptuSelector;
+	private MeasurementView measurementView;
 
 	public APVSClientFactory() {
 		// AtmosphereGWTSerializer serializer =
@@ -55,8 +57,7 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public MainMenuUI getHomeView() {
 		if (homeView== null) {
-			// FIXME BUS
-			homeView = new MainMenuList(eventBus, eventBus);
+			homeView = new MainMenuList(this);
 		}
 		return homeView;
 	}
@@ -64,20 +65,36 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public ModelUI getModelView() {
 		if (modelView == null) {
-			modelView = new ModelPanel();
+			modelView = new ModelPanel(this);
 		}
 		return modelView;
 	}
 
 	@Override
-	public CameraUI getCameraView() {
-		return new CameraPanel(eventBus, eventBus, ch.cern.atlas.apvs.client.CameraView.HELMET);
+	public PtuSelector getPtuSelector() {
+		if (ptuSelector == null) {
+			ptuSelector = new PtuSelector(eventBus, eventBus);
+		}
+		return ptuSelector;
+	}
+
+	@Override
+	public MeasurementView getMeasurementView() {
+		if (measurementView == null) {
+			measurementView = new MeasurementView(eventBus, eventBus);
+		}
+		return measurementView;
+	}
+
+	@Override
+	public CameraUI getCameraView(int type) {
+		return new CameraPanel(eventBus, eventBus, type);
 	}
 
 	@Override
 	public ProcedureMenuUI getProcedureMenuView() {
 		if (procedureView == null) {
-			procedureView = new ProcedureMenuPanel();
+			procedureView = new ProcedureMenuPanel(this);
 		}
 		return procedureView;
 	}

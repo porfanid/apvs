@@ -15,7 +15,7 @@ public class CameraView extends SimplePanel {
 
 	public static final int HELMET = 0;
 	public static final int HAND = 1;
-	
+
 	private static final int DEFAULT_WIDTH = 400;
 	private static final int DEFAULT_HEIGHT = 300;
 
@@ -44,9 +44,9 @@ public class CameraView extends SimplePanel {
 			RemoteEventBus localEventBus, int type) {
 		this(remoteEventBus, localEventBus, type, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
-	
+
 	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, int type, int width, int height) {	
+			RemoteEventBus localEventBus, int type, int width, int height) {
 		this.type = type;
 		this.videoWidth = width;
 		this.videoHeight = height;
@@ -105,6 +105,17 @@ public class CameraView extends SimplePanel {
 				video.setLoop(true);
 				video.addSource(cameraUrl);
 			}
+			System.err.println(video.toString());
+			setWidget(video);
+		} else if (cameraUrl.startsWith("rtsp://")) {
+			Widget video = new HTML(
+					"<embed width=\""
+							+ videoWidth
+							+ "\" height=\""
+							+ videoHeight
+							+ "\" src=\""
+							+ cameraUrl
+							+ "\" autoplay=\"true\" type=\"video/quicktime\" controller=\"true\" quitwhendone=\"false\" loop=\"false\"/></embed>");
 			System.err.println(video.toString());
 			setWidget(video);
 		} else {

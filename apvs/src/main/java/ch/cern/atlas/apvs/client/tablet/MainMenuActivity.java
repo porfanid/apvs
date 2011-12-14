@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client.tablet;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.CameraView;
 import ch.cern.atlas.apvs.client.ClientFactory;
 
 import com.google.gwt.event.shared.EventBus;
@@ -44,7 +45,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 					clientFactory.getPlaceController().goTo(new ProcedureMenuPlace());
 					break;
 				case 1:
-					clientFactory.getPlaceController().goTo(new CameraPlace());
+					clientFactory.getPlaceController().goTo(new CameraPlace(CameraView.HELMET));
 					break;
 				case 2:
 					clientFactory.getPlaceController().goTo(new ModelPlace());

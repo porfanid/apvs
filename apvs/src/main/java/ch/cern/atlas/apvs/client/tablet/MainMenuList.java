@@ -2,9 +2,7 @@ package ch.cern.atlas.apvs.client.tablet;
 
 import java.util.List;
 
-import ch.cern.atlas.apvs.client.MeasurementView;
-import ch.cern.atlas.apvs.client.PtuSelector;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.client.ClientFactory;
 
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Widget;
@@ -24,7 +22,7 @@ public class MainMenuList implements MainMenuUI {
 	private HeaderPanel headerPanel;
 	private CellListWithHeader<Topic> cellList;
 
-	public MainMenuList(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus) {
+	public MainMenuList(ClientFactory clientFactory) {
 		main = new LayoutPanel();
 
 		headerPanel = new HeaderPanel(); 
@@ -36,7 +34,7 @@ public class MainMenuList implements MainMenuUI {
 		}		
 		main.add(headerPanel);
 		
-		main.add(new PtuSelector(remoteEventBus, localEventBus));
+		main.add(clientFactory.getPtuSelector());
 		
 //		MListBox b = new MListBox();
 //		b.addItem("option 1");
@@ -63,7 +61,7 @@ public class MainMenuList implements MainMenuUI {
 		scrollPanel.setScrollingEnabledX(false);
 		main.add(scrollPanel);
 
-		main.add(new MeasurementView(remoteEventBus, localEventBus));
+		main.add(clientFactory.getMeasurementView());
 	}
 
 	@Override

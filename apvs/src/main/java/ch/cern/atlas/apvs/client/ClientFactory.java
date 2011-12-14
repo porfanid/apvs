@@ -23,11 +23,15 @@ public interface ClientFactory {
 
 	ModelUI getModelView();
 
-	CameraUI getCameraView();
+	CameraUI getCameraView(int type);
 
 	ProcedureMenuUI getProcedureMenuView();
 
 	ImageUI getImagePanel(String url);
 
 	ProcedureUI getProcedurePanel(String url, String name, String step);
+
+	PtuSelector getPtuSelector();
+
+	MeasurementView getMeasurementView();
 }
