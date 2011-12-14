@@ -4,6 +4,14 @@
     Author     : Mark Donszelmann
     Description: APVS iPad Styles
 */
+
+.apvs-procedure-status {
+	color: #75777B;
+	font-size: 16pt;
+	font-weight: bold;
+}
+
+/*
 body {
 	background-color: #ddd;
 	color: #222;
@@ -73,3 +81,4 @@ ul li a:active,ul li a:hover {
 #content a {
 	color: blue;
 }
+*/

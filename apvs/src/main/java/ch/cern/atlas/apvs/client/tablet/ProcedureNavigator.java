@@ -58,6 +58,7 @@ public class ProcedureNavigator extends ButtonBar {
 
 		add(new ButtonBarSpacer());
 
+		step.setStyleName("apvs-procedure-status");
 		add(step);
 
 		add(new ButtonBarSpacer());
