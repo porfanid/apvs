@@ -30,7 +30,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 	private ImageActivity getDefaultActivity() {
 		if (defaultActivity == null) {
 			defaultActivity = new ImageActivity(clientFactory,
-					"ATLAS Procedures Visualization System",
+					"APVS",
 					"Default-640x480.jpg");
 		}
 

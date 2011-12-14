@@ -72,17 +72,17 @@ public class APVSClientFactory implements ClientFactory {
 
 	@Override
 	public PtuSelector getPtuSelector() {
-		if (ptuSelector == null) {
+//		if (ptuSelector == null) {
 			ptuSelector = new PtuSelector(eventBus, eventBus);
-		}
+//		}
 		return ptuSelector;
 	}
 
 	@Override
 	public MeasurementView getMeasurementView() {
-		if (measurementView == null) {
+//		if (measurementView == null) {
 			measurementView = new MeasurementView(eventBus, eventBus);
-		}
+//		}
 		return measurementView;
 	}
 

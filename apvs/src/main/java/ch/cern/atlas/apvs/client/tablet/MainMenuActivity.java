@@ -27,7 +27,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
 		MainMenuUI view = clientFactory.getHomeView();
 
-		view.setTitle("APVS");
+		view.setTitle("Menu");
 		view.setRightButtonText("about");
 
 		view.getFirstHeader().setText("--Home");
