@@ -12,6 +12,7 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -24,8 +25,20 @@ public class SupervisorView extends DockPanel {
 
 	public SupervisorView(final RemoteEventBus remoteEventBus) {
 
-		add(new Label("Atlas Procedures Visualization System"), NORTH);
-		add(new Label("Version 0.1"), SOUTH);
+		HorizontalFlowPanel header = new HorizontalFlowPanel();
+		add(header, NORTH);
+		
+		Image logo = new Image("ATLASLogo2-64x48.jpg");
+		logo.addStyleName("apvs-logo");
+		header.add(logo);
+		
+		Label title = new Label("Atlas Procedures Visualization System");
+		title.addStyleName("apvs-title");
+		header.add(title);
+		
+		Label footer = new Label("Version 0.1");
+		footer.addStyleName("apvs-version");
+		add(footer, SOUTH);
 
 		TabPanel tabPanel = new TabPanel();
 		add(tabPanel, NORTH);
