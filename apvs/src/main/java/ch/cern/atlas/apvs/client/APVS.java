@@ -134,7 +134,9 @@ public class APVS implements EntryPoint {
 			p.add(new ProcedureControls(localEventBus));
 
 		} else if (view.equals("placeView")) {
-			p.add(new PlaceView(clientFactory));
+			RemoteEventBus localEventBus = new RemoteEventBus();
+			p.add(new PtuSelector(remoteEventBus, localEventBus));
+			p.add(new PlaceView(clientFactory, localEventBus));
 
 		} else if (view.equals("settingsView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));

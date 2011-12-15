@@ -69,7 +69,7 @@ public class ProcedureMenuActivity extends MGWTAbstractActivity {
 	private List<ProcedureMenuItem> createItems() {
 		ArrayList<ProcedureMenuItem> list = new ArrayList<ProcedureMenuItem>();
 		list.add(new ProcedureMenuItem("Tile Drawer Extraction", ProcedureEntry.TILE_DRAWER_EXTRACTION));
-		list.add(new ProcedureMenuItem("Mural Painting", ProcedureEntry.MURAL_PAINTING));
+//		list.add(new ProcedureMenuItem("Mural Painting", ProcedureEntry.MURAL_PAINTING));
 		return list;
 	}
 

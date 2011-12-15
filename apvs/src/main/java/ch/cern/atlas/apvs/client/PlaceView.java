@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.tablet.CameraPlace;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
 import ch.cern.atlas.apvs.client.tablet.ImagePlace;
@@ -14,23 +15,34 @@ import com.google.gwt.user.client.ui.SimplePanel;
 
 public class PlaceView extends SimplePanel {
 
-	private ClientFactory clientFactory;
 	private RemoteEventBus remoteEventBus;
 	private String defaultImage = "Default-640x480.jpg";
+	private Integer ptuId;
 
-	public PlaceView(ClientFactory clientFactory) {
-		this(clientFactory, 350, 300);
+	public PlaceView(ClientFactory clientFactory, RemoteEventBus localEventBus) {
+		this(clientFactory, localEventBus, 350, 300);
 	}
 
-	public PlaceView(final ClientFactory clientFactory, final int width, final int height) {
-		this.clientFactory = clientFactory;
+	public PlaceView(final ClientFactory clientFactory, final RemoteEventBus localEventBus, final int width, final int height) {
 		this.remoteEventBus = clientFactory.getEventBus();
+		
+		SelectPtuEvent.subscribe(localEventBus, new SelectPtuEvent.Handler() {
+			
+			@Override
+			public void onPtuSelected(SelectPtuEvent event) {
+				ptuId = event.getPtuId();
+			}
+		});
 
 		PlaceChangedEvent.subscribe(remoteEventBus,
 				new PlaceChangedEvent.Handler() {
 
 					@Override
 					public void onPlaceChanged(PlaceChangedEvent event) {
+						if (ptuId == null) return;
+						
+						if (!ptuId.equals(event.getPtuId())) return;
+						
 						System.out.println("PLACE CHANGED " + event);
 						Place place = event.getPlace();
 
@@ -52,15 +64,25 @@ public class PlaceView extends SimplePanel {
 						if (place instanceof CameraPlace) {
 							CameraPlace cameraPlace = (CameraPlace) place;
 							// FIXME should be local event bus
-							setWidget(new CameraView(remoteEventBus, remoteEventBus, cameraPlace.getType(), width, height));
+							setWidget(new CameraView(remoteEventBus, localEventBus, cameraPlace.getType(), width, height));
 							return;							
 						}
 						
 						if (place instanceof ProcedurePlace) {
 							ProcedurePlace procedurePlace = (ProcedurePlace)place;
 							setWidget(clientFactory.getProcedureView(width, height, procedurePlace.getUrl(), procedurePlace.getName(), procedurePlace.getStep()));
+							return;
 						}
+						
+						Image image = new Image(defaultImage);
+						image.setWidth(width+""+Unit.PX);
+						setWidget(image);
+						return;
 					}					
 				});
+		
+		Image image = new Image(defaultImage);
+		image.setWidth(width+""+Unit.PX);
+		setWidget(image);
 	}
 }

@@ -20,6 +20,8 @@ public class SupervisorWorkerView extends DockPanel {
 		p0.add(new PtuSelector(remoteEventBus, localEventBus));
 		p0.add(new Label("Name:"));
 		p0.add(new NameSelector(remoteEventBus, localEventBus));
+//		p0.add(new Label("Worker Id:"));
+//		p0.add(new WorkerId(remoteEventBus, localEventBus));
 		if (deleteButton != null) {
 			p0.add(deleteButton);
 		}
@@ -42,7 +44,7 @@ public class SupervisorWorkerView extends DockPanel {
 		VerticalFlowPanel p1 = new VerticalFlowPanel();
 		add(p1, EAST);
 		p1.add(new Label("Worker's View"));
-		p1.add(new PlaceView(clientFactory));
+		p1.add(new PlaceView(clientFactory, localEventBus));
 	}
 	
 	public String getName() {

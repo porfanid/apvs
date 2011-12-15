@@ -33,6 +33,8 @@ public class ProcedureView extends SimplePanel {
 	private RemoteEventBus remoteEventBus;
 	private RemoteEventBus localEventBus;
 
+	private Object oldSource;
+
 	public ProcedureView(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus) {
 		this(remoteEventBus, localEventBus, 350, 300);
 	}
@@ -88,6 +90,9 @@ public class ProcedureView extends SimplePanel {
 	private void update() {
 		String source = procedureURL + "/" + procedure + "/" + step
 				+ extension;
+		if (source.equals(oldSource)) return;
+		oldSource = source;
+		
 		Video video = Video.createIfSupported();
 		video.setWidth(videoWidth + Unit.PX.toString());
 		video.setHeight(videoHeight + Unit.PX.toString());
@@ -101,7 +106,7 @@ public class ProcedureView extends SimplePanel {
 		setWidget(video);
 			
 		System.err.println(source);
-		
+//		Thread.dumpStack();	
 	}
 
 	private void navigateStep(int step) {

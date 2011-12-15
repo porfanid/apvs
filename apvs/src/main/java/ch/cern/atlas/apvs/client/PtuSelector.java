@@ -55,6 +55,9 @@ public class PtuSelector extends VerticalFlowPanel {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
+				if (true) return;
+				
+				// NOTE: disabled, we do not have to set this...
 				if (localEventBus.getUUID() != event.getEventBusUUID())
 					return;
 
@@ -89,11 +92,18 @@ public class PtuSelector extends VerticalFlowPanel {
 		if (ptuIds != null) {
 			Collections.sort(ptuIds);
 		}
+		
+		int selectedIndex = list.getSelectedIndex();
+		String selectedItem = selectedIndex < 0 ? null : list.getItemText(selectedIndex);
 
 		list.clear();
 		List<String> items = new OptionList<Integer>(ptuIds, 0);
-		for (Iterator<String> i = items.iterator(); i.hasNext();) {
-			list.addItem(i.next());
+		for (int index = 0; index < items.size(); index++) {
+			String item = items.get(index);
+			list.addItem(item);
+			if ((selectedItem != null) && selectedItem.equals(item)) {
+				list.setSelectedIndex(index);
+			}
 		}
 
 		list.setEnabled(items.size() > 2);
