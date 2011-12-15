@@ -35,7 +35,7 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 			}
 		};
 		
-		image.setWidth("740");
+		image.setWidth("740px");
 
 		panel = new LayoutPanel();
 		panel.add(image);
