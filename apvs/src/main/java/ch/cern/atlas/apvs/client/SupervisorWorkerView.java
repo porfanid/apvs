@@ -10,8 +10,9 @@ import com.google.gwt.user.client.ui.Label;
 
 public class SupervisorWorkerView extends DockPanel {
 
-	public SupervisorWorkerView(RemoteEventBus remoteEventBus,
+	public SupervisorWorkerView(ClientFactory clientFactory,
 			Button deleteButton) {
+		RemoteEventBus remoteEventBus = clientFactory.getEventBus();
 		RemoteEventBus localEventBus = new RemoteEventBus();
 		HorizontalFlowPanel p0 = new HorizontalFlowPanel();
 		add(p0, NORTH);
@@ -40,12 +41,8 @@ public class SupervisorWorkerView extends DockPanel {
 
 		VerticalFlowPanel p1 = new VerticalFlowPanel();
 		add(p1, EAST);
-
-		ProcedureView procedureView = new ProcedureView(remoteEventBus,
-				localEventBus);
 		p1.add(new Label("Worker's View"));
-		p1.add(procedureView);
-		p1.add(new ProcedureControls(localEventBus));
+		p1.add(new PlaceView(clientFactory));
 	}
 	
 	public String getName() {

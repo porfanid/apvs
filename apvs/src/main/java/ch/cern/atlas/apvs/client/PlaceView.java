@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.client.tablet.ImagePlace;
 import ch.cern.atlas.apvs.client.tablet.ProcedurePlace;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -34,19 +35,24 @@ public class PlaceView extends SimplePanel {
 						Place place = event.getPlace();
 
 						if (place instanceof HomePlace) {
-							setWidget(new Image(defaultImage));
+							Image image = new Image(defaultImage);
+							image.setWidth(width+""+Unit.PX);
+							setWidget(image);
 							return;
 						}
 						
 						if (place instanceof ImagePlace) {
 							ImagePlace imagePlace = (ImagePlace) place;
-							setWidget(new Image(imagePlace.getUrl()));
+							Image image = new Image(imagePlace.getUrl());
+							image.setWidth(width+""+Unit.PX);
+							setWidget(image);
 							return;
 						}
 						
 						if (place instanceof CameraPlace) {
 							CameraPlace cameraPlace = (CameraPlace) place;
-							setWidget(clientFactory.getCameraView(cameraPlace.getType()));
+							// FIXME should be local event bus
+							setWidget(new CameraView(remoteEventBus, remoteEventBus, cameraPlace.getType(), width, height));
 							return;							
 						}
 						

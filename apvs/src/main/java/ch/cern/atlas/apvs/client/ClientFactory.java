@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.place.shared.PlaceController;
+import com.google.gwt.user.client.ui.Widget;
 
 public interface ClientFactory {
 

@@ -23,8 +23,9 @@ public class SupervisorView extends DockPanel {
 	private int windowWidth;
 	private int windowHeight;
 
-	public SupervisorView(final RemoteEventBus remoteEventBus) {
-
+	public SupervisorView(final ClientFactory clientFactory ) {
+		RemoteEventBus remoteEventBus = clientFactory.getEventBus();
+		
 		HorizontalFlowPanel header = new HorizontalFlowPanel();
 		add(header, NORTH);
 		
@@ -44,7 +45,7 @@ public class SupervisorView extends DockPanel {
 		add(tabPanel, NORTH);
 
 		final DockPanel mainPanel = new DockPanel();
-		mainPanel.add(new SupervisorWorkerView(remoteEventBus, null), NORTH);
+		mainPanel.add(new SupervisorWorkerView(clientFactory, null), NORTH);
 		// mainPanel.add(new SupervisorWorkerView(eventBus), NORTH);
 		
 		HorizontalFlowPanel buttonPanel = new HorizontalFlowPanel();
@@ -55,7 +56,7 @@ public class SupervisorView extends DockPanel {
 			@Override
 			public void onClick(ClickEvent event) {
 				Button deleteButton = new Button("Delete");
-				final SupervisorWorkerView workerView = new SupervisorWorkerView(remoteEventBus, deleteButton);
+				final SupervisorWorkerView workerView = new SupervisorWorkerView(clientFactory, deleteButton);
 
 				deleteButton.addClickHandler(new ClickHandler() {
 

@@ -107,7 +107,7 @@ public class APVS implements EntryPoint {
 			return;
 
 		} else if (view.equals("supervisorView")) {
-			RootLayoutPanel.get().add(new SupervisorView(remoteEventBus));
+			RootLayoutPanel.get().add(new SupervisorView(clientFactory));
 			return;
 
 		} else if (view.equals("clientView")) {

@@ -74,6 +74,7 @@ public class CameraView extends SimplePanel {
 	}
 
 	private String getCameraUrl(int type, int ptuId) {
+		if (settings == null) return null;
 		return type == HELMET ? settings.getHelmetCameraUrl(
 				Settings.DEFAULT_SUPERVISOR, ptuId) : settings
 				.getHandCameraUrl(Settings.DEFAULT_SUPERVISOR, ptuId);
