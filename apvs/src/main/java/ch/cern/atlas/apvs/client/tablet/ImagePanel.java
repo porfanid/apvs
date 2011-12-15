@@ -78,11 +78,11 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 		double panelRatio = (double) getWidth() / getHeight();
 
 		if (imageRatio > panelRatio) {
-			image.setWidth("100%");
+			image.setWidth("700");
 			image.setHeight("");
 		} else {
 			image.setWidth("");
-			image.setHeight("100%");
+			image.setHeight("700");
 		}
 	}
 
