@@ -35,8 +35,11 @@ public class CameraView extends SimplePanel {
 
 	private int type;
 
-	private SupervisorSettings settings;
 	private Integer ptuId;
+	
+	private SupervisorSettings settings;
+	
+	private String currentCameraUrl;
 
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
@@ -46,7 +49,7 @@ public class CameraView extends SimplePanel {
 	}
 
 	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, int type, int width, int height) {
+			RemoteEventBus localEventBus, final int type, int width, int height) {
 		this.type = type;
 		this.videoWidth = width;
 		this.videoHeight = height;
@@ -57,8 +60,9 @@ public class CameraView extends SimplePanel {
 					@Override
 					public void onSupervisorSettingsChanged(
 							SupervisorSettingsChangedEvent event) {
+						
 						settings = event.getSupervisorSettings();
-
+						
 						update();
 					}
 				});
@@ -68,6 +72,7 @@ public class CameraView extends SimplePanel {
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
 				ptuId = event.getPtuId();
+				
 				update();
 			}
 		});
@@ -75,6 +80,7 @@ public class CameraView extends SimplePanel {
 
 	private String getCameraUrl(int type, int ptuId) {
 		if (settings == null) return null;
+		
 		return type == HELMET ? settings.getHelmetCameraUrl(
 				Settings.DEFAULT_SUPERVISOR, ptuId) : settings
 				.getHandCameraUrl(Settings.DEFAULT_SUPERVISOR, ptuId);
@@ -86,6 +92,9 @@ public class CameraView extends SimplePanel {
 		image.setHeight(videoHeight + Unit.PX.toString());
 		setWidget(image);
 
+		if (settings == null) 
+			return;
+		
 		if (ptuId == null)
 			return;
 
@@ -93,6 +102,11 @@ public class CameraView extends SimplePanel {
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
 			return;
 		}
+		
+		if (cameraUrl.equals(currentCameraUrl)) 
+			return;
+		
+		currentCameraUrl = cameraUrl;
 
 		if (cameraUrl.startsWith("http://")) {
 			Video video = Video.createIfSupported();
