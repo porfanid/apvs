@@ -39,7 +39,7 @@ public class ClientSelector extends SimplePanel {
 				new RemoteEventBusIdsChangedEvent.Handler() {
 
 					@Override
-					public void onClientIdsChanged(RemoteEventBusIdsChangedEvent event) {
+					public void onRemoteIdsChanged(RemoteEventBusIdsChangedEvent event) {
 
 						clientIds = event.getClientIds();
 						update();

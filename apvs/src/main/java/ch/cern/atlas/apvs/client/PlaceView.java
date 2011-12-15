@@ -1,14 +1,11 @@
 package ch.cern.atlas.apvs.client;
 
-import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
-import ch.cern.atlas.apvs.client.event.SelectStepEvent;
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.StepStatusEvent;
+import ch.cern.atlas.apvs.client.tablet.ImagePlace;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.media.client.Video;
+import com.google.gwt.place.shared.Place;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class PlaceView extends SimplePanel {
@@ -21,13 +18,22 @@ public class PlaceView extends SimplePanel {
 
 	public PlaceView(final RemoteEventBus remoteEventBus, int width, int height) {
 		this.remoteEventBus = remoteEventBus;
-		
-		PlaceChangedEvent.subscribe(remoteEventBus, new PlaceChangedEvent.Handler() {
-			
-			@Override
-			public void onPlaceChanged(PlaceChangedEvent event) {
-				System.out.println("PLACE CHANGED "+event);
-			}
-		});
+
+		PlaceChangedEvent.subscribe(remoteEventBus,
+				new PlaceChangedEvent.Handler() {
+
+					@Override
+					public void onPlaceChanged(PlaceChangedEvent event) {
+						System.out.println("PLACE CHANGED " + event);
+						Place place = event.getPlace();
+
+						if (place instanceof ImagePlace) {
+							ImagePlace imagePlace = (ImagePlace) place;
+							setWidget(new Image(imagePlace.getUrl()));
+						}
+					}
+					
+					// FIXME more
+				});
 	}
 }

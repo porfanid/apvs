@@ -2,7 +2,6 @@ package ch.cern.atlas.apvs.eventbus.shared;
 
 import java.util.List;
 
-
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -17,7 +16,7 @@ public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIds
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onClientIdsChanged(RemoteEventBusIdsChangedEvent event);
+		void onRemoteIdsChanged(RemoteEventBusIdsChangedEvent event);
 	}
 
 	private static final Type<RemoteEventBusIdsChangedEvent.Handler> TYPE = new Type<RemoteEventBusIdsChangedEvent.Handler>();
@@ -45,13 +44,13 @@ public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIds
 	}
 
 	
-	private List<Long> clientIds;
+	private List<Long> remoteIds;
 	
 	public RemoteEventBusIdsChangedEvent() {
 	}
 
-	public RemoteEventBusIdsChangedEvent(List<Long> clientIds) {
-		this.clientIds = clientIds;
+	public RemoteEventBusIdsChangedEvent(List<Long> remoteIds) {
+		this.remoteIds = remoteIds;
 	}
 
 	@Override
@@ -60,16 +59,16 @@ public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIds
 	}
 
 	public List<Long> getClientIds() {
-		return clientIds;
+		return remoteIds;
 	}
 	
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onClientIdsChanged(this);
+		handler.onRemoteIdsChanged(this);
 	}
 	
 	@Override
 	public String toString() {
-		return "ClientIdsChangedEvent "+clientIds.size();
+		return "RemoteIdsChangedEvent "+remoteIds.size();
 	}
 }
