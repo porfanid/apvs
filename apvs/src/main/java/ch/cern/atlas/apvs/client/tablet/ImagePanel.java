@@ -34,6 +34,8 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 				resize();
 			}
 		};
+		
+		image.setWidth("740");
 
 		panel = new LayoutPanel();
 		panel.add(image);
@@ -68,6 +70,8 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 	}
 
 	private void resize() {
+		if (true) return;
+		
 		if (panel.getOffsetWidth() > 0) {
 			width = panel.getOffsetWidth();
 		}
@@ -78,11 +82,11 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 		double panelRatio = (double) getWidth() / getHeight();
 
 		if (imageRatio > panelRatio) {
-			image.setWidth("700");
+			image.setWidth("100%");
 			image.setHeight("");
 		} else {
 			image.setWidth("");
-			image.setHeight("700");
+			image.setHeight("100%");
 		}
 	}
 
@@ -95,10 +99,10 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 	}
 
 	private int getWidth() {
-		return 700; // panel.getOffsetWidth() > 0 ? panel.getOffsetWidth() : width;
+		return panel.getOffsetWidth() > 0 ? panel.getOffsetWidth() : width;
 	}
 
 	private int getHeight() {
-		return 700; // panel.getOffsetHeight() > 0 ? panel.getOffsetHeight() : height;
+		return panel.getOffsetHeight() > 0 ? panel.getOffsetHeight() : height;
 	}
 }
