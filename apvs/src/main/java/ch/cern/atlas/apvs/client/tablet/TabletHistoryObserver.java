@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.tablet;
 
+import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
+import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.tablet.ModelEntrySelectedEvent.ModelEntry;
 import ch.cern.atlas.apvs.client.tablet.ProcedureEntrySelectedEvent.ProcedureEntry;
 
@@ -41,7 +43,25 @@ public class TabletHistoryObserver implements HistoryObserver {
 	public HandlerRegistration bind(EventBus eventBus,
 			final HistoryHandler historyHandler) {
 
-		HandlerRegistration register4 = ProcedureEntrySelectedEvent.register(eventBus,
+		HandlerRegistration register4 = SelectStepEvent.register(eventBus, new SelectStepEvent.Handler() {
+			
+			@Override
+			public void onSelectStep(SelectStepEvent event) {
+				// FIXME should be some setStepEvent
+				System.err.println("STEP "+event.getStep());
+				
+				Place place = new ProcedurePlace("FIXME", "TileDrawerExtraction", Integer.toString(event.getStep()));
+				
+				if (MGWT.getOsDetection().isTablet()) {
+					historyHandler.replaceCurrentPlace(place);
+					historyHandler.goTo(place, true);
+				} else {
+					historyHandler.goTo(place);
+				}
+			}
+		});
+		
+		HandlerRegistration register3 = ProcedureEntrySelectedEvent.register(eventBus,
 				new ProcedureEntrySelectedEvent.Handler() {
 
 					@Override
@@ -73,7 +93,7 @@ public class TabletHistoryObserver implements HistoryObserver {
 					}
 				});
 
-		HandlerRegistration register3 = ModelEntrySelectedEvent.register(eventBus,
+		HandlerRegistration register2 = ModelEntrySelectedEvent.register(eventBus,
 				new ModelEntrySelectedEvent.Handler() {
 
 					@Override
@@ -108,7 +128,7 @@ public class TabletHistoryObserver implements HistoryObserver {
 					}
 				});
 
-		HandlerRegistration register2 = ActionEvent.register(eventBus,
+		HandlerRegistration register1 = ActionEvent.register(eventBus,
 				ActionNames.BACK, new ActionEvent.Handler() {
 
 					@Override
@@ -120,6 +140,7 @@ public class TabletHistoryObserver implements HistoryObserver {
 				});
 
 		HandlerRegistrationCollection col = new HandlerRegistrationCollection();
+		col.addHandlerRegistration(register1);
 		col.addHandlerRegistration(register2);
 		col.addHandlerRegistration(register3);
 		col.addHandlerRegistration(register4);

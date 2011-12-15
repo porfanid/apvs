@@ -15,7 +15,7 @@ public class ProcedurePanel extends DetailPanel implements ProcedureUI {
 	public ProcedurePanel(ClientFactory clientFactory, String url, String name, String step) {
 
 		panel = new LayoutPanel();
-		panel.add(clientFactory.getProcedureView(800, 600));
+		panel.add(clientFactory.getProcedureView(740, 555, url, name, step));
 
 		if (MGWT.getOsDetection().isPhone()) {
 			button = new Button("back");
@@ -29,6 +29,7 @@ public class ProcedurePanel extends DetailPanel implements ProcedureUI {
 
 		// width 100%
 		scrollPanel.setScrollingEnabledX(false);
+		scrollPanel.setScrollingEnabledY(false);
 
 		main.add(clientFactory.getProcedureNavigator());
 	}

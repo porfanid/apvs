@@ -51,7 +51,6 @@ public class ProcedureNavigator extends ButtonBar {
 
 			@Override
 			public void onTap(TapEvent event) {
-				System.err.println("NEXT");
 				localEventBus.fireEvent(new NavigateStepEvent(Navigation.NEXT));
 			}
 		});

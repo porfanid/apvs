@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
+import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -37,12 +38,19 @@ public class ProcedureView extends SimplePanel {
 	}
 
 	public ProcedureView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus, int width, int height) {
+		this(remoteEventBus, localEventBus, width, height, "FIXME", "FIXME", Integer.toString(1));
+	}
+	
+	public ProcedureView(RemoteEventBus remoteEventBus,
+			final RemoteEventBus localEventBus, int width, int height, String url,
+			String name, String step) {
+
 		this.remoteEventBus = remoteEventBus;
 		this.localEventBus = localEventBus;
 		this.videoWidth = width;
 		this.videoHeight = height;
 		
-		step = firstStep;
+		this.step = Integer.parseInt(step);
 
 		NavigateStepEvent.register(localEventBus, new NavigateStepEvent.Handler() {
 
@@ -69,15 +77,14 @@ public class ProcedureView extends SimplePanel {
 			@Override
 			public void onServerSettingsChanged(ServerSettingsChangedEvent event) {
 				procedureURL = event.getServerSettings().get(ServerSettings.settingNames[2]);
-				localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));
+				localEventBus.fireEvent(new StepStatusEvent(ProcedureView.this.step, lastStep, hasPrevious(), hasNext()));
 				update();
 			}
 		});
 		
 		update();
+}
 
-	}
-	
 	private void update() {
 		String source = procedureURL + "/" + procedure + "/" + step
 				+ extension;
@@ -100,6 +107,7 @@ public class ProcedureView extends SimplePanel {
 	private void navigateStep(int step) {
 		if ((firstStep <= step) && (step <= lastStep)) {
 			this.step = step;
+			remoteEventBus.fireEvent(new SelectStepEvent(step));
 			localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));
 			update();
 		}

@@ -58,8 +58,7 @@ public class PlaceView extends SimplePanel {
 						
 						if (place instanceof ProcedurePlace) {
 							ProcedurePlace procedurePlace = (ProcedurePlace)place;
-// FIXME need to get step, url, ...
-							setWidget(clientFactory.getProcedureView(width, height));
+							setWidget(clientFactory.getProcedureView(width, height, procedurePlace.getUrl(), procedurePlace.getName(), procedurePlace.getStep()));
 						}
 					}					
 				});
