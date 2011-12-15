@@ -95,10 +95,10 @@ public class ImagePanel extends DetailPanel implements ImageUI {
 	}
 
 	private int getWidth() {
-		return panel.getOffsetWidth() > 0 ? panel.getOffsetWidth() : width;
+		return 700; // panel.getOffsetWidth() > 0 ? panel.getOffsetWidth() : width;
 	}
 
 	private int getHeight() {
-		return panel.getOffsetHeight() > 0 ? panel.getOffsetHeight() : height;
+		return 700; // panel.getOffsetHeight() > 0 ? panel.getOffsetHeight() : height;
 	}
 }

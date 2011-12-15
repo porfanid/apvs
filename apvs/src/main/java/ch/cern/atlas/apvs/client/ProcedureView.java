@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
-import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -21,7 +20,7 @@ public class ProcedureView extends SimplePanel {
 	private String procedure = "TileDrawerExtraction";
 
 	private String procedureURL = "";
-	private int step = 1;
+	private int step;
 	private String extension = ".m4v";
 	private String videoType = "video/x-m4v"; // video/mp4
 	private int videoWidth = 350; // 640;
@@ -42,6 +41,8 @@ public class ProcedureView extends SimplePanel {
 		this.localEventBus = localEventBus;
 		this.videoWidth = width;
 		this.videoHeight = height;
+		
+		step = firstStep;
 
 		NavigateStepEvent.register(localEventBus, new NavigateStepEvent.Handler() {
 
@@ -72,20 +73,9 @@ public class ProcedureView extends SimplePanel {
 				update();
 			}
 		});
+		
+		update();
 
-		SelectStepEvent.register(remoteEventBus, new SelectStepEvent.Handler() {
-
-			@Override
-			public void onStepSelected(SelectStepEvent event) {
-				if (event.getEventBusUUID().equals(remoteEventBus.getUUID())) return;
-				
-				if ((firstStep <= step) && (step <= lastStep)) {
-					step = event.getStep();
-					localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));
-					update();
-				}				
-			}
-		});
 	}
 	
 	private void update() {
@@ -110,7 +100,6 @@ public class ProcedureView extends SimplePanel {
 	private void navigateStep(int step) {
 		if ((firstStep <= step) && (step <= lastStep)) {
 			this.step = step;
-			remoteEventBus.fireEvent(new SelectStepEvent(step));
 			localEventBus.fireEvent(new StepStatusEvent(step, lastStep, hasPrevious(), hasNext()));
 			update();
 		}

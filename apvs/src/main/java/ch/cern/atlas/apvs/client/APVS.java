@@ -2,16 +2,15 @@ package ch.cern.atlas.apvs.client;
 
 import java.util.logging.Logger;
 
-import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
+import ch.cern.atlas.apvs.client.tablet.HomePlace;
 import ch.cern.atlas.apvs.client.tablet.TabletHistoryObserver;
-import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletMenuActivityMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletMenuAnimationMapper;
-import ch.cern.atlas.apvs.client.tablet.HomePlace;
+import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
+import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
+import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -133,10 +132,9 @@ public class APVS implements EntryPoint {
 			RemoteEventBus localEventBus = new RemoteEventBus();
 			p.add(new ProcedureView(remoteEventBus, localEventBus));
 			p.add(new ProcedureControls(localEventBus));
-			localEventBus.fireEvent(new SelectStepEvent(1));
 
 		} else if (view.equals("placeView")) {
-			p.add(new PlaceView(remoteEventBus));
+			p.add(new PlaceView(clientFactory));
 
 		} else if (view.equals("settingsView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));
