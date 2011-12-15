@@ -1,10 +1,16 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import com.google.gwt.place.shared.Place;
+import ch.cern.atlas.apvs.client.places.SharedPlace;
+
 import com.google.gwt.place.shared.PlaceTokenizer;
 
-public class CameraPlace extends Place {
+public class CameraPlace extends SharedPlace {
+
+	private static final long serialVersionUID = 6851156765106620583L;
 	private int type;
+	
+	public CameraPlace() {
+	}
 	
 	public CameraPlace(int type) {
 		this.type = type;

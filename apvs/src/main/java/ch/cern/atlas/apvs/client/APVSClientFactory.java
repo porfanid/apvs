@@ -20,7 +20,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.PlaceController;
-import com.google.web.bindery.event.shared.SimpleEventBus;
 
 public class APVSClientFactory implements ClientFactory {
 	private RemoteEventBus remoteEventBus;

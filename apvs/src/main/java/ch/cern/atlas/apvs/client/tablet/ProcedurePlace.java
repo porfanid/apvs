@@ -1,13 +1,19 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import com.google.gwt.place.shared.Place;
+import ch.cern.atlas.apvs.client.places.SharedPlace;
+
 import com.google.gwt.place.shared.PlaceTokenizer;
 
-public class ProcedurePlace extends Place {
+public class ProcedurePlace extends SharedPlace {
 	
+	private static final long serialVersionUID = 4823064353051925869L;
+
 	private String url;
 	private String name;
 	private String step;
+	
+	public ProcedurePlace() {
+	}
 
 	public ProcedurePlace(String url, String name, String step) {
 		this.url = url;

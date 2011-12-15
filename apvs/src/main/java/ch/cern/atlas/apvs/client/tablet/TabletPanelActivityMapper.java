@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.client.tablet;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
+import ch.cern.atlas.apvs.client.places.SharedPlace;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -19,6 +21,10 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 
 	@Override
 	public Activity getActivity(Place place) {
+		if (place instanceof SharedPlace) {
+			System.err.println("New REMOTE place "+place.getClass());
+			clientFactory.getEventBus().fireEvent(new PlaceChangedEvent((SharedPlace)place));
+		}
 		Activity activity = getActivity(lastPlace, place);
 		lastPlace = place;
 		return activity;

@@ -1,9 +1,16 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import com.google.gwt.place.shared.Place;
+import ch.cern.atlas.apvs.client.places.SharedPlace;
+
 import com.google.gwt.place.shared.PlaceTokenizer;
 
-public class ProcedureMenuPlace extends Place {
+public class ProcedureMenuPlace extends SharedPlace {
+
+	private static final long serialVersionUID = 5771814036633594303L;
+	
+	public ProcedureMenuPlace() {
+	}
+
 	public static class ProcedureMenuPlaceTokenizer implements
 			PlaceTokenizer<ProcedureMenuPlace> {
 

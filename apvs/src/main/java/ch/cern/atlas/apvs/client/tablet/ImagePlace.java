@@ -1,13 +1,18 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import com.google.gwt.place.shared.Place;
+import ch.cern.atlas.apvs.client.places.SharedPlace;
+
 import com.google.gwt.place.shared.PlaceTokenizer;
 
-public class ImagePlace extends Place {
+public class ImagePlace extends SharedPlace {
 	
+	private static final long serialVersionUID = 6045295669718915907L;
 	private String name;
 	private String url;
 
+	public ImagePlace() {
+	}
+	
 	public ImagePlace(String name, String url) {
 		this.name = name;
 		this.url = url;
