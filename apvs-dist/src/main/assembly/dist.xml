@@ -9,7 +9,7 @@
   <fileSets>
     <fileSet>
       <directory>${project.basedir}</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>/${project.build.finalName}</outputDirectory>
       <includes>
         <include>README*</include>
         <include>LICENSE*</include>
@@ -18,24 +18,24 @@
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/src/main/bin</directory>
-      <outputDirectory>bin</outputDirectory>
+      <outputDirectory>/${project.build.finalName}/bin</outputDirectory>
     </fileSet>
   </fileSets>
 
   <files>
     <file>
       <source>${project.basedir}/../apvs/target/apvs.war</source>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
     </file>
     <file>
       <source>${project.basedir}/../apvs-ptu/target/apvs-ptu-jar-with-dependencies.jar</source>
       <destName>apvs-ptu.jar</destName>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
     </file>
     <file>
       <source>${project.basedir}/../apvs-dosimeter/target/apvs-dosimeter-jar-with-dependencies.jar</source>
       <destName>apvs-dosimeter.jar</destName>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
     </file>
   </files>
 <!-- does not seem to work (below)

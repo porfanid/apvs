@@ -1,39 +1,39 @@
 #!/usr/bin/env bash  
 #
-# Startup script for apvs under *nix systems (it works under NT/cygwin too).
+# Startup script for apvs-dosimeter under *nix systems (it works under NT/cygwin too).
 
 # To get the service to restart correctly on reboot, uncomment below (3 lines):
 # ========================
 # chkconfig: 3 99 99
-# description: Apvs webserver
-# processname: apvs
+# description: Apvs-Dosimeter webserver
+# processname: apvs-dosimeter
 # ========================
 
 # Configuration files
 #
-# /etc/default/apvs
+# /etc/default/apvs-dosimeter
 #   If it exists, this is read at the start of script. It may perform any 
 #   sequence of shell commands, like setting relevant environment variables.
 #
-# $HOME/.apvsrc
+# $HOME/.apvs-dosimeterrc
 #   If it exists, this is read at the start of script. It may perform any 
 #   sequence of shell commands, like setting relevant environment variables.
 #
-# /etc/apvs.conf
+# /etc/apvs-dosimeter.conf
 #   If found, and no configurations were given on the command line,
 #   the file will be used as this script's configuration. 
 #   Each line in the file may contain:
 #     - A comment denoted by the pound (#) sign as first non-blank character.
-#     - The path to a regular file, which will be passed to apvs as a 
+#     - The path to a regular file, which will be passed to apvs-dosimeter as a 
 #       config.xml file.
 #     - The path to a directory. Each *.xml file in the directory will be
-#       passed to apvs as a config.xml file.
+#       passed to apvs-dosimeter as a config.xml file.
 #
-#   The files will be checked for existence before being passed to apvs.
+#   The files will be checked for existence before being passed to apvs-dosimeter.
 #
-# $APVS_HOME/etc/apvs.xml
+# $APVS_DOSIMETER_HOME/etc/apvs-dosimeter.xml
 #   If found, used as this script's configuration file, but only if
-#   /etc/apvs.conf was not present. See above.
+#   /etc/apvs-dosimeter.conf was not present. See above.
 #   
 # Configuration variables
 #
@@ -43,40 +43,40 @@
 # JAVA_OPTIONS
 #   Extra options to pass to the JVM
 #
-# APVS_HOME
-#   Where Apvs is installed. If not set, the script will try go
+# APVS_DOSIMETER_HOME
+#   Where Apvs-Dosimeter is installed. If not set, the script will try go
 #   guess it by first looking at the invocation path for the script,
-#   and then by looking in standard locations as $HOME/opt/apvs
-#   and /opt/apvs. The java system property "apvs.home" will be
+#   and then by looking in standard locations as $HOME/opt/apvs-dosimeter
+#   and /opt/apvs-dosimeter. The java system property "apvs-dosimeter.home" will be
 #   set to this value for use by configure.xml files, f.e.:
 #
-#    <Arg><Property name="apvs.home" default="."/>/webapps/apvs.war</Arg>
+#    <Arg><Property name="apvs-dosimeter.home" default="."/>/webapps/apvs-dosimeter.jar</Arg>
 #
-# APVS_PORT
-#   Override the default port for Apvs servers. If not set then the
+# APVS_DOSIMETER_PORT
+#   Override the default port for Apvs-Dosimeter servers. If not set then the
 #   default value in the xml configuration file will be used. The java
-#   system property "apvs.port" will be set to this value for use in
+#   system property "apvs-dosimeter.port" will be set to this value for use in
 #   configure.xml files. For example, the following idiom is widely
 #   used in the demo config files to respect this property in Listener
 #   configuration elements:
 #
-#    <Set name="Port"><Property name="apvs.port" default="8080"/></Set>
+#    <Set name="Port"><Property name="apvs-dosimeter.port" default="8080"/></Set>
 #
 #   Note: that the config file could ignore this property simply by saying:
 #
 #    <Set name="Port">8080</Set>
 #
-# APVS_RUN
-#   Where the apvs.pid file should be stored. It defaults to the
+# APVS_DOSIMETER_RUN
+#   Where the apvs-dosimeter.pid file should be stored. It defaults to the
 #   first available of /var/run, /usr/var/run, and /tmp if not set.
 #  
-# APVS_PID
-#   The Apvs PID file, defaults to $APVS_RUN/apvs.pid
+# APVS_DOSIMETER_PID
+#   The Apvs-Dosimeter PID file, defaults to $APVS_DOSIMETER_RUN/apvs-dosimeter.pid
 #   
-# APVS_ARGS
-#   The default arguments to pass to apvs.
+# APVS_DOSIMETER_ARGS
+#   The default arguments to pass to apvs-dosimeter.
 #
-# APVS_USER
+# APVS_DOSIMETER_USER
 #   if set, then used as a username to run the server as
 #
 
@@ -136,7 +136,7 @@ shift
 ##################################################
 # Read any configuration files
 ##################################################
-for CONFIG in /etc/default/apvs{,1} $HOME/.apvsrc; do
+for CONFIG in /etc/default/apvs-dosimeter{,1} $HOME/.apvs-dosimeterrc; do
   if [ -f "$CONFIG" ] ; then 
     readConfig "$CONFIG"
   fi
@@ -149,35 +149,35 @@ done
 TMPDIR=${TMPDIR:-/tmp}
 
 ##################################################
-# Apvs's hallmark
+# Apvs-Dosimeter's hallmark
 ##################################################
-APVS_INSTALL_TRACE_FILE="lib/apvs.war"
+APVS_DOSIMETER_INSTALL_TRACE_FILE="lib/apvs-dosimeter.jar"
 
 
 ##################################################
-# Try to determine APVS_HOME if not set
+# Try to determine APVS_DOSIMETER_HOME if not set
 ##################################################
-if [ -z "$APVS_HOME" ] 
+if [ -z "$APVS_DOSIMETER_HOME" ] 
 then
-  APVS_SH=$0
-  case "$APVS_SH" in
+  APVS_DOSIMETER_SH=$0
+  case "$APVS_DOSIMETER_SH" in
     /*)   ;;
     ./*)  ;;
-    *)    APVS_SH=./$APVS_SH ;;
+    *)    APVS_DOSIMETER_SH=./$APVS_DOSIMETER_SH ;;
   esac
-  APVS_HOME=${APVS_SH%/*/*}
+  APVS_DOSIMETER_HOME=${APVS_DOSIMETER_SH%/*/*}
 
-  if [ ! -f "${APVS_SH%/*/*}/$APVS_INSTALL_TRACE_FILE" ]
+  if [ ! -f "${APVS_DOSIMETER_SH%/*/*}/$APVS_DOSIMETER_INSTALL_TRACE_FILE" ]
   then 
-    APVS_HOME=
+    APVS_DOSIMETER_HOME=
   fi
 fi
 
 
 ##################################################
-# if no APVS_HOME, search likely locations.
+# if no APVS_DOSIMETER_HOME, search likely locations.
 ##################################################
-if [ -z "$APVS_HOME" ] ; then
+if [ -z "$APVS_DOSIMETER_HOME" ] ; then
   STANDARD_LOCATIONS=(
         "/usr/share"
         "/usr/share/java"
@@ -191,40 +191,40 @@ if [ -z "$APVS_HOME" ] ; then
         "/usr/local/share/java"
         "/home"
         )
-  APVS_DIR_NAMES=(
-        "apvs-1"
-        "apvs1"
-        "apvs-1.*"
-        "apvs"
-        "Apvs-1"
-        "Apvs1"
-        "Apvs-1.*"
-        "Apvs"
+  APVS_DOSIMETER_DIR_NAMES=(
+        "apvs-dosimeter-1"
+        "apvs-dosimeter1"
+        "apvs-dosimeter-1.*"
+        "apvs-dosimeter"
+        "Apvs-Dosimeter-1"
+        "Apvs-Dosimeter1"
+        "Apvs-Dosimeter-1.*"
+        "Apvs-Dosimeter"
         )
         
   for L in "${STANDARD_LOCATIONS[@]}"
   do
-    for N in "${APVS_DIR_NAMES[@]}"
+    for N in "${APVS_DOSIMETER_DIR_NAMES[@]}"
     do
-      POSSIBLE_APVS_HOME=("$L/"$N)
-      if [ ! -d "$POSSIBLE_APVS_HOME" ]
+      POSSIBLE_APVS_DOSIMETER_HOME=("$L/"$N)
+      if [ ! -d "$POSSIBLE_APVS_DOSIMETER_HOME" ]
       then
         # Not a directory. skip.
-        unset POSSIBLE_APVS_HOME
-      elif [ ! -f "$POSSIBLE_APVS_HOME/$APVS_INSTALL_TRACE_FILE" ]
+        unset POSSIBLE_APVS_DOSIMETER_HOME
+      elif [ ! -f "$POSSIBLE_APVS_DOSIMETER_HOME/$APVS_DOSIMETER_INSTALL_TRACE_FILE" ]
       then
         # Trace file not found. skip.
-        unset POSSIBLE_APVS_HOME
+        unset POSSIBLE_APVS_DOSIMETER_HOME
       else
         # Good hit, Use it
-        APVS_HOME=$POSSIBLE_APVS_HOME
-        # Break out of APVS_DIR_NAMES loop
+        APVS_DOSIMETER_HOME=$POSSIBLE_APVS_DOSIMETER_HOME
+        # Break out of APVS_DOSIMETER_DIR_NAMES loop
         break
       fi
     done
-    if [ -n "$POSSIBLE_APVS_HOME" ]
+    if [ -n "$POSSIBLE_APVS_DOSIMETER_HOME" ]
     then
-      # We have found our APVS_HOME
+      # We have found our APVS_DOSIMETER_HOME
       # Break out of STANDARD_LOCATIONS loop
       break
     fi
@@ -233,24 +233,24 @@ fi
 
 
 ##################################################
-# No APVS_HOME yet? We're out of luck!
+# No APVS_DOSIMETER_HOME yet? We're out of luck!
 ##################################################
-if [ -z "$APVS_HOME" ]; then
-  echo "** ERROR: APVS_HOME not set, you need to set it or install in a standard location" 
+if [ -z "$APVS_DOSIMETER_HOME" ]; then
+  echo "** ERROR: APVS_DOSIMETER_HOME not set, you need to set it or install in a standard location" 
   exit 1
 fi
 
-cd "$APVS_HOME"
-APVS_HOME=$PWD
+cd "$APVS_DOSIMETER_HOME"
+APVS_DOSIMETER_HOME=$PWD
 
 
 #####################################################
-# Check that apvs is where we think it is
+# Check that apvs-dosimeter is where we think it is
 #####################################################
-if [ ! -r "$APVS_HOME/$APVS_INSTALL_TRACE_FILE" ] 
+if [ ! -r "$APVS_DOSIMETER_HOME/$APVS_DOSIMETER_INSTALL_TRACE_FILE" ] 
 then
-  echo "** ERROR: Oops! Apvs doesn't appear to be installed in $APVS_HOME"
-  echo "** ERROR:  $APVS_HOME/$APVS_INSTALL_TRACE_FILE is not readable!"
+  echo "** ERROR: Oops! Apvs-Dosimeter doesn't appear to be installed in $APVS_DOSIMETER_HOME"
+  echo "** ERROR:  $APVS_DOSIMETER_HOME/$APVS_DOSIMETER_INSTALL_TRACE_FILE is not readable!"
   exit 1
 fi
 
@@ -259,21 +259,21 @@ fi
 # but only if no configurations were given on the
 # command line.
 ##################################################
-if [ -z "$APVS_CONF" ] 
+if [ -z "$APVS_DOSIMETER_CONF" ] 
 then
-  if [ -f /etc/apvs.conf ]
+  if [ -f /etc/apvs-dosimeter.conf ]
   then
-    APVS_CONF=/etc/apvs.conf
-  elif [ -f "$APVS_HOME/etc/apvs.conf" ]
+    APVS_DOSIMETER_CONF=/etc/apvs-dosimeter.conf
+  elif [ -f "$APVS_DOSIMETER_HOME/etc/apvs-dosimeter.conf" ]
   then
-    APVS_CONF=$APVS_HOME/etc/apvs.conf
+    APVS_DOSIMETER_CONF=$APVS_DOSIMETER_HOME/etc/apvs-dosimeter.conf
   fi
 fi
 
 ##################################################
-# Get the list of config.xml files from apvs.conf
+# Get the list of config.xml files from apvs-dosimeter.conf
 ##################################################
-if [ -z "$CONFIGS" ] && [ -f "$APVS_CONF" ] && [ -r "$APVS_CONF" ] 
+if [ -z "$CONFIGS" ] && [ -f "$APVS_DOSIMETER_CONF" ] && [ -r "$APVS_DOSIMETER_CONF" ] 
 then
   while read -r CONF
   do
@@ -284,7 +284,7 @@ then
     if [ -d "$CONF" ] 
     then
       # assume it's a directory with configure.xml files
-      # for example: /etc/apvs.d/
+      # for example: /etc/apvs-dosimeter.d/
       # sort the files before adding them to the list of CONFIGS
       for XMLFILE in "$CONF/"*.xml
       do
@@ -292,30 +292,30 @@ then
         then
           CONFIGS+=("$XMLFILE")
         else
-          echo "** WARNING: Cannot read '$XMLFILE' specified in '$APVS_CONF'" 
+          echo "** WARNING: Cannot read '$XMLFILE' specified in '$APVS_DOSIMETER_CONF'" 
         fi
       done
     else
-      # assume it's a command line parameter (let apvs.jar deal with its validity)
+      # assume it's a command line parameter (let apvs-dosimeter.jar deal with its validity)
       CONFIGS+=("$CONF")
     fi
-  done < "$APVS_CONF"
+  done < "$APVS_DOSIMETER_CONF"
 fi
 
 #####################################################
 # Find a location for the pid file
 #####################################################
-if [ -z "$APVS_RUN" ] 
+if [ -z "$APVS_DOSIMETER_RUN" ] 
 then
-  APVS_RUN=$(findDirectory -w /var/run /usr/var/run /tmp)
+  APVS_DOSIMETER_RUN=$(findDirectory -w /var/run /usr/var/run /tmp)
 fi
 
 #####################################################
 # Find a PID for the pid file
 #####################################################
-if [ -z "$APVS_PID" ] 
+if [ -z "$APVS_DOSIMETER_PID" ] 
 then
-  APVS_PID="$APVS_RUN/apvs.pid"
+  APVS_DOSIMETER_PID="$APVS_DOSIMETER_RUN/apvs-dosimeter.pid"
 fi
 
 ##################################################
@@ -333,19 +333,19 @@ then
 fi
 
 #####################################################
-# See if APVS_PORT is defined
+# See if APVS_DOSIMETER_PORT is defined
 #####################################################
-if [ "$APVS_PORT" ] 
+if [ "$APVS_DOSIMETER_PORT" ] 
 then
-  JAVA_OPTIONS+=("-Dapvs.port=$APVS_PORT")
+  JAVA_OPTIONS+=("-Dapvs-dosimeter.port=$APVS_DOSIMETER_PORT")
 fi
 
 #####################################################
-# See if APVS_LOGS is defined
+# See if APVS_DOSIMETER_LOGS is defined
 #####################################################
-if [ "$APVS_LOGS" ]
+if [ "$APVS_DOSIMETER_LOGS" ]
 then
-  JAVA_OPTIONS+=("-Dapvs.logs=$APVS_LOGS")
+  JAVA_OPTIONS+=("-Dapvs-dosimeter.logs=$APVS_DOSIMETER_LOGS")
 fi
 
 #####################################################
@@ -358,26 +358,26 @@ esac
 
 
 #####################################################
-# Add apvs properties to Java VM options.
+# Add apvs-dosimeter properties to Java VM options.
 #####################################################
-JAVA_OPTIONS+=("-Dapvs.home=$APVS_HOME" "-Djava.io.tmpdir=$TMPDIR")
+JAVA_OPTIONS+=("-Dapvs-dosimeter.home=$APVS_DOSIMETER_HOME" "-Djava.io.tmpdir=$TMPDIR")
 
-[ -f "$APVS_HOME/etc/start.config" ] && JAVA_OPTIONS=("-DSTART=$APVS_HOME/etc/start.config" "${JAVA_OPTIONS[@]}")
+[ -f "$APVS_DOSIMETER_HOME/etc/start.config" ] && JAVA_OPTIONS=("-DSTART=$APVS_DOSIMETER_HOME/etc/start.config" "${JAVA_OPTIONS[@]}")
 
 #####################################################
-# This is how the Apvs server will be started
+# This is how the Apvs-Dosimeter server will be started
 #####################################################
 
-APVS_JAR=apvs.war
-APVS_LOG=apvs.log
+APVS_DOSIMETER_JAR=apvs-dosimeter.jar
+APVS_DOSIMETER_LOG=apvs-dosimeter.log
 
-APVS_START=$APVS_HOME/$APVS_JAR
-[ ! -f "$APVS_START" ] && APVS_START=$APVS_HOME/lib/$APVS_JAR
+APVS_DOSIMETER_START=$APVS_DOSIMETER_HOME/$APVS_DOSIMETER_JAR
+[ ! -f "$APVS_DOSIMETER_START" ] && APVS_DOSIMETER_START=$APVS_DOSIMETER_HOME/lib/$APVS_DOSIMETER_JAR
 
-START_INI=$(dirname $APVS_START)/start.ini
+START_INI=$(dirname $APVS_DOSIMETER_START)/start.ini
 [ -r "$START_INI" ] || START_INI=""
 
-RUN_ARGS=(${JAVA_OPTIONS[@]} -jar "$APVS_START" $APVS_ARGS "${CONFIGS[@]}")
+RUN_ARGS=(${JAVA_OPTIONS[@]} -jar "$APVS_DOSIMETER_START" $APVS_DOSIMETER_ARGS "${CONFIGS[@]}")
 RUN_CMD=("$JAVA" ${RUN_ARGS[@]})
 
 #####################################################
@@ -386,11 +386,11 @@ RUN_CMD=("$JAVA" ${RUN_ARGS[@]})
 #####################################################
 if (( DEBUG ))
 then
-  echo "APVS_HOME     =  $APVS_HOME"
-  echo "APVS_CONF     =  $APVS_CONF"
-  echo "APVS_RUN      =  $APVS_RUN"
-  echo "APVS_PID      =  $APVS_PID"
-  echo "APVS_ARGS     =  $APVS_ARGS"
+  echo "APVS_DOSIMETER_HOME     =  $APVS_DOSIMETER_HOME"
+  echo "APVS_DOSIMETER_CONF     =  $APVS_DOSIMETER_CONF"
+  echo "APVS_DOSIMETER_RUN      =  $APVS_DOSIMETER_RUN"
+  echo "APVS_DOSIMETER_PID      =  $APVS_DOSIMETER_PID"
+  echo "APVS_DOSIMETER_ARGS     =  $APVS_DOSIMETER_ARGS"
   echo "CONFIGS        =  ${CONFIGS[*]}"
   echo "JAVA_OPTIONS   =  ${JAVA_OPTIONS[*]}"
   echo "JAVA           =  $JAVA"
@@ -402,24 +402,24 @@ fi
 ##################################################
 case "$ACTION" in
   start)
-    echo -n "Starting Apvs: "
+    echo -n "Starting Apvs-Dosimeter: "
 
     if (( NO_START )); then 
-      echo "Not starting apvs - NO_START=1";
+      echo "Not starting apvs-dosimeter - NO_START=1";
       exit
     fi
 
     if type start-stop-daemon > /dev/null 2>&1 
     then
       unset CH_USER
-      if [ -n "$APVS_USER" ]
+      if [ -n "$APVS_DOSIMETER_USER" ]
       then
-        CH_USER="-c$APVS_USER"
+        CH_USER="-c$APVS_DOSIMETER_USER"
       fi
-      if start-stop-daemon -S -p"$APVS_PID" $CH_USER -d"$APVS_HOME" -b -m -a "$JAVA" -- "${RUN_ARGS[@]}" --daemon
+      if start-stop-daemon -S -p"$APVS_DOSIMETER_PID" $CH_USER -d"$APVS_DOSIMETER_HOME" -b -m -a "$JAVA" -- "${RUN_ARGS[@]}" --daemon
       then
         sleep 1
-        if running "$APVS_PID"
+        if running "$APVS_DOSIMETER_PID"
         then
           echo "OK"
         else
@@ -429,60 +429,60 @@ case "$ACTION" in
 
     else
 
-      if [ -f "$APVS_PID" ]
+      if [ -f "$APVS_DOSIMETER_PID" ]
       then
-        if running $APVS_PID
+        if running $APVS_DOSIMETER_PID
         then
           echo "Already Running!"
           exit 1
         else
           # dead pid file - remove
-          rm -f "$APVS_PID"
+          rm -f "$APVS_DOSIMETER_PID"
         fi
       fi
 
-      if [ "$APVS_USER" ] 
+      if [ "$APVS_DOSIMETER_USER" ] 
       then
-        touch "$APVS_PID"
-        chown "$APVS_USER" "$APVS_PID"
+        touch "$APVS_DOSIMETER_PID"
+        chown "$APVS_DOSIMETER_USER" "$APVS_DOSIMETER_PID"
         # FIXME: Broken solution: wordsplitting, pathname expansion, arbitrary command execution, etc.
-        su - "$APVS_USER" -c "
+        su - "$APVS_DOSIMETER_USER" -c "
           exec ${RUN_CMD[*]} --daemon &
           disown \$!
-          echo \$! > '$APVS_PID'"
+          echo \$! > '$APVS_DOSIMETER_PID'"
       else
-        "${RUN_CMD[@]}" > ${APVS_LOG} 2>&1 &
+        "${RUN_CMD[@]}" > ${APVS_DOSIMETER_LOG} 2>&1 &
         disown $!
-        echo $! > "$APVS_PID"
+        echo $! > "$APVS_DOSIMETER_PID"
       fi
 
-      echo "STARTED Apvs `date`" 
+      echo "STARTED Apvs-Dosimeter `date`" 
     fi
 
     ;;
 
   stop)
-    echo -n "Stopping Apvs: "
+    echo -n "Stopping Apvs-Dosimeter: "
     if type start-stop-daemon > /dev/null 2>&1; then
-      start-stop-daemon -K -p"$APVS_PID" -d"$APVS_HOME" -a "$JAVA" -s HUP
+      start-stop-daemon -K -p"$APVS_DOSIMETER_PID" -d"$APVS_DOSIMETER_HOME" -a "$JAVA" -s HUP
       
       TIMEOUT=30
-      while running "$APVS_PID"; do
+      while running "$APVS_DOSIMETER_PID"; do
         if (( TIMEOUT-- == 0 )); then
-          start-stop-daemon -K -p"$APVS_PID" -d"$APVS_HOME" -a "$JAVA" -s KILL
+          start-stop-daemon -K -p"$APVS_DOSIMETER_PID" -d"$APVS_DOSIMETER_HOME" -a "$JAVA" -s KILL
         fi
 
         sleep 1
       done
 
-      rm -f "$APVS_PID"
+      rm -f "$APVS_DOSIMETER_PID"
       echo OK
     else
-      PID=$(cat "$APVS_PID" 2>/dev/null)
+      PID=$(cat "$APVS_DOSIMETER_PID" 2>/dev/null)
       kill "$PID" 2>/dev/null
       
       TIMEOUT=30
-      while running $APVS_PID; do
+      while running $APVS_DOSIMETER_PID; do
         if (( TIMEOUT-- == 0 )); then
           kill -KILL "$PID" 2>/dev/null
         fi
@@ -490,24 +490,24 @@ case "$ACTION" in
         sleep 1
       done
 
-      rm -f "$APVS_PID"
+      rm -f "$APVS_DOSIMETER_PID"
       echo OK
     fi
 
     ;;
 
   restart)
-    APVS_SH=$0
-    if [ ! -f $APVS_SH ]; then
-      if [ ! -f $APVS_HOME/bin/apvs.sh ]; then
-        echo "$APVS_HOME/bin/apvs.sh does not exist."
+    APVS_DOSIMETER_SH=$0
+    if [ ! -f $APVS_DOSIMETER_SH ]; then
+      if [ ! -f $APVS_DOSIMETER_HOME/bin/apvs-dosimeter.sh ]; then
+        echo "$APVS_DOSIMETER_HOME/bin/apvs-dosimeter.sh does not exist."
         exit 1
       fi
-      APVS_SH=$APVS_HOME/bin/apvs.sh
+      APVS_DOSIMETER_SH=$APVS_DOSIMETER_HOME/bin/apvs-dosimeter.sh
     fi
 
-    "$APVS_SH" stop "$@"
-    "$APVS_SH" start "$@"
+    "$APVS_DOSIMETER_SH" stop "$@"
+    "$APVS_DOSIMETER_SH" start "$@"
 
     ;;
 
@@ -521,17 +521,17 @@ case "$ACTION" in
     ;;
 
   run|demo)
-    echo "Running Apvs: "
+    echo "Running Apvs-Dosimeter: "
 
-    if [ -f "$APVS_PID" ]
+    if [ -f "$APVS_DOSIMETER_PID" ]
     then
-      if running "$APVS_PID"
+      if running "$APVS_DOSIMETER_PID"
       then
         echo "Already Running!"
         exit 1
       else
         # dead pid file - remove
-        rm -f "$APVS_PID"
+        rm -f "$APVS_DOSIMETER_PID"
       fi
     fi
 
@@ -540,13 +540,13 @@ case "$ACTION" in
     ;;
 
   check)
-    echo "Checking arguments to Apvs: "
-    echo "APVS_HOME     =  $APVS_HOME"
-    echo "APVS_CONF     =  $APVS_CONF"
-    echo "APVS_RUN      =  $APVS_RUN"
-    echo "APVS_PID      =  $APVS_PID"
-    echo "APVS_PORT     =  $APVS_PORT"
-    echo "APVS_LOGS     =  $APVS_LOGS"
+    echo "Checking arguments to Apvs-Dosimeter: "
+    echo "APVS_DOSIMETER_HOME     =  $APVS_DOSIMETER_HOME"
+    echo "APVS_DOSIMETER_CONF     =  $APVS_DOSIMETER_CONF"
+    echo "APVS_DOSIMETER_RUN      =  $APVS_DOSIMETER_RUN"
+    echo "APVS_DOSIMETER_PID      =  $APVS_DOSIMETER_PID"
+    echo "APVS_DOSIMETER_PORT     =  $APVS_DOSIMETER_PORT"
+    echo "APVS_DOSIMETER_LOGS     =  $APVS_DOSIMETER_LOGS"
     echo "START_INI      =  $START_INI"
     echo "CONFIGS        =  ${CONFIGS[*]}"
     echo "JAVA_OPTIONS   =  ${JAVA_OPTIONS[*]}"
@@ -555,9 +555,9 @@ case "$ACTION" in
     echo "RUN_CMD        =  ${RUN_CMD[*]}"
     echo
     
-    if [ -f "$APVS_PID" ]
+    if [ -f "$APVS_DOSIMETER_PID" ]
     then
-      echo "Apvs running pid=$(< "$APVS_PID")"
+      echo "Apvs-Dosimeter running pid=$(< "$APVS_DOSIMETER_PID")"
       exit 0
     fi
     exit 1
