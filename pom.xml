@@ -10,6 +10,13 @@
 	<name>APVS project</name>
 	<description>ATLAS Procedure Visualizer System</description>
 
+	<scm>
+    		<connection>scm:git:git://github.com/CERN/apvs.git</connection>
+    		<developerConnection>scm:git:https://duns@github.com/CERN/apvs.git</developerConnection>
+    		<tag>HEAD</tag>
+    		<url>https://github.com/CERN/apvs</url>
+  	</scm>
+
 	<properties>
 		<atmosphere-version>0.8.1</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
