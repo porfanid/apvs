@@ -108,6 +108,20 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		<plugins>
+			<plugin>
+    				<artifactId>maven-release-plugin</artifactId>
+    				<version>2.2.1</version>
+    				<configuration>
+      					<!--
+        				During release:perform, enable the "release" profile
+       					-->
+      					<releaseProfiles>prod</releaseProfiles>
+      					<goals>install</goals>
+    				</configuration>
+  			</plugin>
+		</plugins>
+
 	</build>
 
 	<dependencyManagement>
