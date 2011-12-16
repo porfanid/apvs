@@ -47,12 +47,14 @@ public class PlaceChangedEvent extends RemoteEvent<PlaceChangedEvent.Handler> {
 		return registration;
 	}
 
+	private Integer ptuId;
 	private SharedPlace place;
 
 	public PlaceChangedEvent() {
 	}
 	
-	public PlaceChangedEvent(SharedPlace place) {
+	public PlaceChangedEvent(Integer ptuId, SharedPlace place) {
+		this.ptuId = ptuId;
 		this.place = place;
 	}
 
@@ -61,6 +63,10 @@ public class PlaceChangedEvent extends RemoteEvent<PlaceChangedEvent.Handler> {
 		return TYPE;
 	}
 
+	public Integer getPtuId() {
+		return ptuId;
+	}
+	
 	public SharedPlace getPlace() {
 		return place;
 	}

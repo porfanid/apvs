@@ -1,7 +1,9 @@
 package ch.cern.atlas.apvs.client.tablet;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.PtuSelector;
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.places.SharedPlace;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -16,10 +18,28 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 	private RemoteEventBus remoteEventBus;
 
 	private Place lastPlace;
+	private Integer ptuId;
 
 	public TabletPanelActivityMapper(final ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 		this.remoteEventBus = clientFactory.getEventBus();
+
+		SelectPtuEvent.subscribe(remoteEventBus, new SelectPtuEvent.Handler() {
+
+			@Override
+			public void onPtuSelected(SelectPtuEvent event) {
+				if (!event.getEventBusUUID().equals(remoteEventBus.getUUID()))
+					return;
+
+				System.err.println("PTU ID = " + event.getPtuId());
+				ptuId = event.getPtuId();
+				
+				if (lastPlace instanceof SharedPlace) {
+				clientFactory.getEventBus().fireEvent(
+						new PlaceChangedEvent(ptuId, (SharedPlace) lastPlace));
+				}
+			}
+		});
 
 		RequestRemoteEvent.register(remoteEventBus,
 				new RequestRemoteEvent.Handler() {
@@ -34,7 +54,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 								PlaceChangedEvent.class.getName())) {
 							if (lastPlace instanceof SharedPlace) {
 								remoteEventBus.fireEvent(new PlaceChangedEvent(
-										(SharedPlace) lastPlace));
+										ptuId, (SharedPlace) lastPlace));
 							}
 						}
 					}
@@ -46,7 +66,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 		if (place instanceof SharedPlace) {
 			System.err.println("New REMOTE place " + place.getClass());
 			clientFactory.getEventBus().fireEvent(
-					new PlaceChangedEvent((SharedPlace) place));
+					new PlaceChangedEvent(ptuId, (SharedPlace) place));
 		}
 		Activity activity = getActivity(lastPlace, place);
 		lastPlace = place;

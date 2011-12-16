@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.tablet.ModelEntrySelectedEvent.ModelEntry;
 import ch.cern.atlas.apvs.client.tablet.ProcedureEntrySelectedEvent.ProcedureEntry;

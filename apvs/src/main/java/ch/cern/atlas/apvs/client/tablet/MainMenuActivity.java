@@ -30,7 +30,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 		view.setTitle("Menu");
 		view.setRightButtonText("about");
 
-		view.getFirstHeader().setText("--Home");
+		view.getFirstHeader().setText("");
 
 		view.setTopics(createTopicsList());
 
