@@ -4,7 +4,7 @@
 
 	<groupId>ch.cern.atlas</groupId>
 	<artifactId>apvs-project</artifactId>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.2</version>
 	<packaging>pom</packaging>
 	<name>APVS project</name>
 	<description>ATLAS Procedure Visualizer System</description>
