@@ -33,6 +33,11 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 
 				System.err.println("PTU ID = " + event.getPtuId());
 				ptuId = event.getPtuId();
+				
+				if (lastPlace instanceof SharedPlace) {
+				clientFactory.getEventBus().fireEvent(
+						new PlaceChangedEvent(ptuId, (SharedPlace) lastPlace));
+				}
 			}
 		});
 

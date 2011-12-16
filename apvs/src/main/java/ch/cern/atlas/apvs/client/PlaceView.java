@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.client.tablet.HomePlace;
 import ch.cern.atlas.apvs.client.tablet.ImagePlace;
 import ch.cern.atlas.apvs.client.tablet.ProcedurePlace;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.place.shared.Place;
@@ -31,6 +32,8 @@ public class PlaceView extends SimplePanel {
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
 				ptuId = event.getPtuId();
+				
+				remoteEventBus.fireEvent(new RequestRemoteEvent(PlaceChangedEvent.class));
 			}
 		});
 
