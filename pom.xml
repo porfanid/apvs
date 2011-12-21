@@ -17,7 +17,7 @@
   	</scm>
 
 	<properties>
-		<atmosphere-version>0.8.1</atmosphere-version>
+		<atmosphere-version>0.8.2</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
 		<jdk-version>1.6</jdk-version>
 		<jetty-version>7.5.4.v20111024</jetty-version>
