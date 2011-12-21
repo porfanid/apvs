@@ -17,6 +17,8 @@
   	</scm>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
 		<atmosphere-version>0.8.2</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
 		<jdk-version>1.6</jdk-version>
