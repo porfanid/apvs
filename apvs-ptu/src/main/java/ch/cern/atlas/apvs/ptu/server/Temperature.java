@@ -7,8 +7,8 @@ import ch.cern.atlas.apvs.domain.Measurement;
 @SuppressWarnings("serial")
 public class Temperature extends Measurement<Double> {
 
-	public Temperature(int ptuId, double value) {
-		super(ptuId, "Temperature", value, "&deg;C", new Date());
+	public Temperature(int ptuId, double value, Date d) {
+		super(ptuId, "Temperature", value, "&deg;C", d);
 	}
 	
 }

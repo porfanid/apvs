@@ -17,6 +17,9 @@ public class PtuSocket implements Runnable {
 	private boolean json;
 	private Random random = new Random();
 	private int noOfPtus = 6;
+	private int defaultWait = 5000;
+	private int extraWait = 2000;
+	private int deltaStartTime = 12 * 3600 * 1000;
 
 	public PtuSocket(Socket socket, boolean json) {
 		this.socket = socket;
@@ -35,25 +38,37 @@ public class PtuSocket implements Runnable {
 	@Override
 	public void run() {
 		try {
+			long now = new Date().getTime();
+			long then = now - deltaStartTime;
+			Date start = new Date(then);
+
 			int[] ptuIds = { 78347, 82098, 37309, 27372, 39400, 88982 };
 			List<Ptu> ptus = new ArrayList<Ptu>(noOfPtus);
 			for (int i = 0; i < noOfPtus; i++) {
 				int ptuId = ptuIds[i];
 				Ptu ptu = new Ptu(ptuId);
 				ptus.add(ptu);
-				ptu.add(new Temperature(ptuId, 25.7 + random.nextGaussian()));
-				ptu.add(new Humidity(ptuId, 31.4 + random.nextGaussian()));
-				ptu.add(new CO2(ptuId, 2.5 + random.nextGaussian() / 10));
-				ptu.add(new BodyTemperature(ptuId, 37.2 + random.nextGaussian()));
-				ptu.add(new HeartBeat(ptuId, 120 + random.nextGaussian()));
-				ptu.add(new O2SkinSaturationRate(ptuId, 20.8 + random
-						.nextGaussian()));
-				ptu.add(new O2(ptuId, 85.2 + random.nextGaussian()));
+					
+				ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
+				ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
+				ptu.addMeasurement(new CO2(ptuId, 2.5, start));
+				ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
+				ptu.addMeasurement(new HeartBeat(ptuId, 120, start));
+				ptu.addMeasurement(new O2SkinSaturationRate(ptuId, 20.8, start));
+				ptu.addMeasurement(new O2(ptuId, 85.2, start));
 
 				System.out.println(ptus.get(i).getPtuId());
 			}
 
-			System.out.print("PTU Demo Server connected on: " + socket.getInetAddress());
+			then += defaultWait + random.nextInt(extraWait);
+			
+			while (then < now) {
+				next(ptus.get(random.nextInt(ptus.size())), new Date(then));
+				then += defaultWait + random.nextInt(extraWait);
+			}
+			
+			System.out.print("PTU Demo Server connected on: "
+					+ socket.getInetAddress());
 
 			OutputStream os = socket.getOutputStream();
 			ObjectWriter writer = json ? new PtuJsonWriter(os)
@@ -65,11 +80,14 @@ public class PtuSocket implements Runnable {
 			writer.flush();
 
 			while (true) {
-				next(ptus.get(random.nextInt(ptus.size())), writer);
+				writer.write(next(ptus.get(random.nextInt(ptus.size())),
+						new Date()));
+				writer.newLine();
+
 				writer.flush();
 
 				try {
-					Thread.sleep(5000 + random.nextInt(2000));
+					Thread.sleep(defaultWait + random.nextInt(extraWait));
 				} catch (InterruptedException e) {
 					// ignored
 				}
@@ -88,17 +106,16 @@ public class PtuSocket implements Runnable {
 		}
 	}
 
-	private void next(Ptu ptu, ObjectWriter writer) throws IOException {
+	private Measurement<Double> next(Ptu ptu, Date d) {
 		int index = random.nextInt(ptu.getSize());
 		String name = ptu.getMeasurementNames().get(index);
-		Measurement<Double> measurement = next(ptu.getMeasurement(name));
-		ptu.setMeasurement(name, measurement);
-		writer.write(measurement);
-		writer.newLine();
+		Measurement<Double> measurement = next(ptu.getMeasurement(name), d);
+		ptu.addMeasurement(measurement);
+		return measurement;
 	}
 
-	private Measurement<Double> next(Measurement<Double> m) {
+	private Measurement<Double> next(Measurement<Double> m, Date d) {
 		return new Measurement<Double>(m.getPtuId(), m.getName(), m.getValue()
-				+ random.nextGaussian(), m.getUnit(), new Date());
+				+ random.nextGaussian(), m.getUnit(), d);
 	}
 }

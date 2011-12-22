@@ -76,7 +76,7 @@ public class PtuReader implements Runnable {
 						ptus.put(ptuId, ptu);
 						ptuIdsChanged = true;
 					}
-					ptu.add((Measurement<Double>) measurement);
+					ptu.addMeasurement(measurement);
 
 					// fire all at the end
 					// FIXME we can still add MeasurementNamesChanged

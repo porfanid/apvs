@@ -158,10 +158,10 @@ public class PtuView extends VerticalFlowPanel {
 						String name = measurement.getName();
 						if (ptu.getMeasurement(name) == null) {
 							units.put(name, measurement.getUnit());
-							ptu.add(measurement);
+							ptu.addMeasurement(measurement);
 							last = measurement;
 						} else {
-							last = ptu.setMeasurement(name, measurement);
+							last = ptu.addMeasurement(measurement);
 						}
 
 						if (!dataProvider.getList().contains(name)) {

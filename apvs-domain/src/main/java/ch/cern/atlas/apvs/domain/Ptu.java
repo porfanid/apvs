@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +15,7 @@ public class Ptu implements Serializable {
 	private static final long serialVersionUID = 1933500417755260216L;
 
 	private int ptuId;
-	protected Map<String, Measurement<Double>> measurements = new HashMap<String, Measurement<Double>>();
+	protected Map<String, List<Measurement<Double>>> measurements = new HashMap<String, List<Measurement<Double>>>();
 		
 	public Ptu() {
 		ptuId = -1;
@@ -50,20 +52,33 @@ public class Ptu implements Serializable {
 	}
 	
 	public Measurement<Double> getMeasurement(String name) {
-		return measurements.get(name);
+		List<Measurement<Double>> m = measurements.get(name);
+		if ((m == null) || m.size() == 0) return null;
+		return m.get(m.size()-1);
 	}
-	
-	public Measurement<Double> setMeasurement(String name, Measurement<Double> measurement) {
-		return measurements.put(name, measurement);
-	}
-	
-	public Measurement<Double> add(Measurement<Double> measurement) {
-		// FIXME check ptuId
-		return setMeasurement(measurement.getName(), measurement);
+		
+	public Measurement<Double> addMeasurement(Measurement<Double> measurement) {
+		List<Measurement<Double>> m = measurements.get(measurement.getName());
+		Measurement<Double> r;
+		if (m == null) {
+			m = new LinkedList<Measurement<Double>>();
+			measurements.put(measurement.getName(), m);
+			r = null;
+		} else {
+			r = m.size() > 0 ? m.get(m.size()-1) : null;
+		}
+		// FIXME limit size
+		m.add(measurement);
+		return r;
 	}
 
 	public Collection<? extends Measurement<Double>> getMeasurements() {
-		return measurements.values();
+		List<Measurement<Double>> r = new ArrayList<Measurement<Double>>(measurements.size());
+		for (Iterator<String> i = measurements.keySet().iterator(); i.hasNext(); ) {
+			Measurement<Double> m = getMeasurement(i.next());
+			if (m != null) r.add(m);
+		}
+		return r;
 	}
 }
 

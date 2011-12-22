@@ -1,12 +1,10 @@
 package ch.cern.atlas.apvs.client;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 
 import com.google.gwt.user.client.ui.TextBox;
 

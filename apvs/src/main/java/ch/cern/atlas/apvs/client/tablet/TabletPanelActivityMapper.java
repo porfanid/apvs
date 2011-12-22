@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client.tablet;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.PtuSelector;
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.places.SharedPlace;
