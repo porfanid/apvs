@@ -1319,6 +1319,11 @@ public class JsonReader extends Reader
         {
         }
     }
+    
+    @Override
+    public boolean ready() throws IOException {
+    	return _in != null ? _in.ready() : false;
+    }
 
     private void patchUnresolvedReferences() throws IOException
     {
@@ -1509,7 +1514,7 @@ public class JsonReader extends Reader
             _pos--;
             _buf[--_idx] = c;
         }
-
+        
         /**
          * Closes the stream and releases any system resources associated with
          * it. Once the stream has been closed, further read(),

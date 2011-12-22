@@ -216,7 +216,7 @@ public class PtuView extends VerticalFlowPanel {
 		table.addColumn(column, new TextHeader("") {
 			@Override
 			public String getValue() {
-				String name = settings.getName(Settings.DEFAULT_SUPERVISOR, ptuId);
+				String name = settings != null ? settings.getName(Settings.DEFAULT_SUPERVISOR, ptuId) : null;
 				return name != null ? name + "<br/>(" + ptuId.toString() + ")"
 						: ptuId.toString();
 			}

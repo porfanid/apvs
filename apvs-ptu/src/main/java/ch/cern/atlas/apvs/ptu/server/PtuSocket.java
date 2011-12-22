@@ -61,24 +61,23 @@ public class PtuSocket implements Runnable {
 			}
 
 			then += defaultWait + random.nextInt(extraWait);
-			
-			while (then < now) {
-				next(ptus.get(random.nextInt(ptus.size())), new Date(then));
-				then += defaultWait + random.nextInt(extraWait);
-			}
-			
+
 			System.out.print("PTU Demo Server connected on: "
 					+ socket.getInetAddress());
 
 			OutputStream os = socket.getOutputStream();
 			ObjectWriter writer = json ? new PtuJsonWriter(os)
 					: new PtuXmlWriter(os);
-			for (int i = 0; i < ptus.size(); i++) {
-				Ptu ptu = ptus.get(i);
-				writer.write(ptu);
+
+			// loop in the past
+			while (then < now) {
+				writer.write(next(ptus.get(random.nextInt(ptus.size())), new Date(then)));
+				writer.newLine();
+				then += defaultWait + random.nextInt(extraWait);
 			}
 			writer.flush();
 
+			// now loop at current time
 			while (true) {
 				writer.write(next(ptus.get(random.nextInt(ptus.size())),
 						new Date()));
