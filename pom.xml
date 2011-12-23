@@ -19,13 +19,14 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<atmosphere-version>0.8.1</atmosphere-version>
+		<atmosphere-version>0.8.2</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
 		<jdk-version>1.6</jdk-version>
 		<jetty-version>7.5.4.v20111024</jetty-version>
 		<json-version>20090211</json-version>
 		<junit-version>4.10</junit-version>
 		<mgwt-version>1.0.1</mgwt-version>
+		<rcharts-version>1.1</rcharts-version>
 		<servlet-api-version>2.5</servlet-api-version>
 
 		<antrun-plugin-version>1.7</antrun-plugin-version>
@@ -57,6 +58,7 @@
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-ptu</module>
+		<module>apvs-rcharts</module>
 	</modules>
 
 	<build>
@@ -216,7 +218,17 @@
 				<artifactId>apvs-ptu</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-rcharts</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
+			<dependency>
+				<groupId>org.atmosphere</groupId>
+				<artifactId>atmosphere-compat-jetty</artifactId>
+				<version>${atmosphere-version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.atmosphere</groupId>
 				<artifactId>atmosphere-gwt-client</artifactId>
@@ -261,6 +273,11 @@
       				<groupId>com.googlecode.mgwt</groupId>
       				<artifactId>mgwt</artifactId>
       				<version>${mgwt-version}</version>
+			</dependency>
+			<dependency>
+      				<groupId>com.rcharts</groupId>
+      				<artifactId>gwt-rcharts</artifactId>
+      				<version>${rcharts-version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>

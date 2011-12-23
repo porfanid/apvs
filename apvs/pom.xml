@@ -189,6 +189,10 @@
 			<artifactId>apvs-ptu</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-rcharts</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-client</artifactId>
 		</dependency>
@@ -205,6 +209,10 @@
 			<artifactId>atmosphere-gwt-poll</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.atmosphere</groupId>
+			<artifactId>atmosphere-compat-jetty</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
 		</dependency>
@@ -219,6 +227,10 @@
 		<dependency>
 			<groupId>com.googlecode.mgwt</groupId>
 			<artifactId>mgwt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.rcharts</groupId>
+			<artifactId>gwt-rcharts</artifactId>
 		</dependency>
 		<!-- see http://wiki.eclipse.org/Jetty/Reference/Dependencies -->
 		<dependency>
@@ -260,14 +272,6 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.rcharts</groupId>
-			<artifactId>gwt-rcharts</artifactId>
- 			<version>1.1</version>
-			<scope>system</scope>
-      			<systemPath>${project.basedir}/lib/gwt-rcharts1.1.jar</systemPath>
 		</dependency>
 	</dependencies>
 
