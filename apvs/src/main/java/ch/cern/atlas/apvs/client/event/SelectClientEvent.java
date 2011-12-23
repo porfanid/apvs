@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.event;
 
+import java.io.Serializable;
+
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -10,7 +12,7 @@ public class SelectClientEvent extends RemoteEvent<SelectClientEvent.Handler> {
 
 	private static final long serialVersionUID = -7796935868246937748L;
 
-	public interface Handler {
+	public interface Handler extends Serializable {
 		/**
 		 * Called when an event is fired.
 		 * 

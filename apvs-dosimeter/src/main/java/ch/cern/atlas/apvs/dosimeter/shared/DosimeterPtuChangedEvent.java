@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.dosimeter.shared;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
@@ -13,7 +14,7 @@ public class DosimeterPtuChangedEvent extends RemoteEvent<DosimeterPtuChangedEve
 
 	private static final long serialVersionUID = 4835937679842945007L;
 
-	public interface Handler {
+	public interface Handler extends Serializable {
 		/**
 		 * Called when an event is fired.
 		 * 

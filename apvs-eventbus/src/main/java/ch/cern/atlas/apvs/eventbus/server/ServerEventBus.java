@@ -4,7 +4,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 public class ServerEventBus extends RemoteEventBus {
-	
+
 	private static ServerEventBus instance;
 
 	private EventBusServiceHandler eventBusServiceHandler;
@@ -15,12 +15,13 @@ public class ServerEventBus extends RemoteEventBus {
 		}
 		return instance;
 	}
-	
+
 	private ServerEventBus() {
 	}
-	
-	public void setEventBusServiceHandler(EventBusServiceHandler eventBusServiceHandler) {
-		this.eventBusServiceHandler = eventBusServiceHandler;		
+
+	public void setEventBusServiceHandler(
+			EventBusServiceHandler eventBusServiceHandler) {
+		this.eventBusServiceHandler = eventBusServiceHandler;
 	}
 
 	@Override
@@ -29,11 +30,12 @@ public class ServerEventBus extends RemoteEventBus {
 	}
 
 	@Override
-	public void fireEventFromSource(RemoteEvent<?> event, int uuid) {
+	public void fireEventFromSource(RemoteEvent<?> event,
+			int uuid) {
 		doFire(event);
 	}
 
-	private void doFire(RemoteEvent<?> event) {		
+	private void doFire(RemoteEvent<?> event) {
 		// send out locally
 		super.fireEvent(event);
 

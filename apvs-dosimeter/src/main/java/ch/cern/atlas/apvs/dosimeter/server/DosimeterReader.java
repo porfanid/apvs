@@ -29,6 +29,7 @@ public class DosimeterReader implements Runnable {
 
 	private Map<Integer, Integer> dosimeterToPtu;
 
+	@SuppressWarnings("serial")
 	public DosimeterReader(final RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;

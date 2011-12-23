@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.eventbus.shared;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.web.bindery.event.shared.EventBus;
@@ -44,12 +45,12 @@ public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIds
 	}
 
 	
-	private List<Long> remoteIds;
+	private ArrayList<Long> remoteIds;
 	
 	public RemoteEventBusIdsChangedEvent() {
 	}
 
-	public RemoteEventBusIdsChangedEvent(List<Long> remoteIds) {
+	public RemoteEventBusIdsChangedEvent(ArrayList<Long> remoteIds) {
 		this.remoteIds = remoteIds;
 	}
 

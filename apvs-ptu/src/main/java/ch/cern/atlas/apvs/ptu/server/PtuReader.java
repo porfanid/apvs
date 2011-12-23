@@ -18,7 +18,6 @@ import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.cedarsoftware.util.io.JsonReader;
@@ -33,6 +32,7 @@ public class PtuReader implements Runnable {
 	private boolean ptuIdsChanged = false;
 	private Map<Integer, Set<String>> measurementChanged = new HashMap<Integer, Set<String>>();
 
+	@SuppressWarnings("serial")
 	public PtuReader(final RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;
@@ -46,11 +46,6 @@ public class PtuReader implements Runnable {
 
 				if (type.equals(PtuIdsChangedEvent.class.getName())) {
 					eventBus.fireEvent(new PtuIdsChangedEvent(getPtuIds()));
-				} else if (type.equals(PtuChangedEvent.class.getName())) {
-					for (Iterator<Integer> i = ptus.keySet().iterator(); i
-							.hasNext();) {
-						eventBus.fireEvent(new PtuChangedEvent(getPtu(i.next())));
-					}
 				} else if (type.equals(MeasurementChangedEvent.class.getName())) {
 					List<Measurement<Double>> m = getMeasurements();
 					System.err.println("Getting all meas " + m.size());
@@ -123,20 +118,12 @@ public class PtuReader implements Runnable {
 	}
 
 	private synchronized void sendEvents() {
-		int t = 0;
 		// fire all at the end
 		// FIXME we can still add MeasurementNamesChanged
 		if (ptuIdsChanged) {
 			eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<Integer>(
 					ptus.keySet())));
 			ptuIdsChanged = false;
-			t++;
-		}
-
-		for (Iterator<Integer> i = measurementChanged.keySet().iterator(); i
-				.hasNext();) {
-			eventBus.fireEvent(new PtuChangedEvent(ptus.get(i.next())));
-			t++;
 		}
 
 		for (Iterator<Integer> i = measurementChanged.keySet().iterator(); i
@@ -146,13 +133,10 @@ public class PtuReader implements Runnable {
 					.hasNext();) {
 				Measurement<Double> m = ptus.get(id).getMeasurement(j.next());
 				eventBus.fireEvent(new MeasurementChangedEvent(m));
-				t++;
 			}
 		}
 
 		measurementChanged.clear();
-
-		System.err.println("Fired " + t);
 
 		ready = true;
 	}

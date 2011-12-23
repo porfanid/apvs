@@ -97,7 +97,8 @@ public class AtmosphereEventBus extends RemoteEventBus {
 			for (Iterator<? extends Serializable> i = messages.iterator(); i.hasNext(); ) {
 				Serializable message = i.next();
 				if (message instanceof RemoteEvent<?>) {
-					RemoteEvent<?> event = (RemoteEvent<?>)message;
+					@SuppressWarnings("unchecked")
+					RemoteEvent<? extends Serializable> event = (RemoteEvent<? extends Serializable>)message;
 					
 					// NOTE: also my own needs to be distributed locally
 					AtmosphereEventBus.super.fireEvent(event);
