@@ -111,4 +111,8 @@ public class PtuSelector extends VerticalFlowPanel {
 	private String toLabel(Integer ptuId) {
 		return ptuId != null ? Integer.toString(ptuId) : null;
 	}
+
+	public Integer getPtuId() {
+		return ptuId;
+	}
 }

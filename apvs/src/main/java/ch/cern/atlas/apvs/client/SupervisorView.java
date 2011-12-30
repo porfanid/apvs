@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -19,24 +22,29 @@ import com.google.gwt.user.client.ui.TabPanel;
 
 public class SupervisorView extends DockPanel {
 
+	private ClientFactory clientFactory;
 	private ScrollPanel mainScrollPanel;
 	private int windowWidth;
 	private int windowHeight;
 
-	public SupervisorView(final ClientFactory clientFactory ) {
+	private List<Button> deleteButtons = new ArrayList<Button>();
+	DockPanel mainPanel = new DockPanel();
+
+	public SupervisorView(final ClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
 		RemoteEventBus remoteEventBus = clientFactory.getEventBus();
-		
+
 		HorizontalFlowPanel header = new HorizontalFlowPanel();
 		add(header, NORTH);
-		
+
 		Image logo = new Image("ATLASLogo2-64x48.jpg");
 		logo.addStyleName("apvs-logo");
 		header.add(logo);
-		
+
 		Label title = new Label("Atlas Procedures Visualization System");
 		title.addStyleName("apvs-title");
 		header.add(title);
-		
+
 		Label footer = new Label("Version 0.1");
 		footer.addStyleName("apvs-version");
 		add(footer, SOUTH);
@@ -44,36 +52,21 @@ public class SupervisorView extends DockPanel {
 		TabPanel tabPanel = new TabPanel();
 		add(tabPanel, NORTH);
 
-		final DockPanel mainPanel = new DockPanel();
-		mainPanel.add(new SupervisorWorkerView(clientFactory, null), NORTH);
-		// mainPanel.add(new SupervisorWorkerView(eventBus), NORTH);
-		
+		createWorker();
+
 		HorizontalFlowPanel buttonPanel = new HorizontalFlowPanel();
 		mainPanel.add(buttonPanel, SOUTH);
 		Button addWorker = new Button("Add Worker");
 		addWorker.addClickHandler(new ClickHandler() {
-			
+
 			@Override
 			public void onClick(ClickEvent event) {
-				Button deleteButton = new Button("Delete");
-				final SupervisorWorkerView workerView = new SupervisorWorkerView(clientFactory, deleteButton);
-
-				deleteButton.addClickHandler(new ClickHandler() {
-
-					@Override
-					public void onClick(ClickEvent event) {
-						if (Window.confirm("Are you sure you want to delete the view of worker: "+workerView.getName())) {
-							mainPanel.remove(workerView);
-						}
-					}
-				});
-				
-				mainPanel.add(workerView, NORTH);
-				resize();
+				createWorker();
 			}
 		});
+
 		buttonPanel.add(addWorker);
-		
+
 		mainScrollPanel = new ScrollPanel(mainPanel);
 		tabPanel.add(mainScrollPanel, "Workers");
 
@@ -85,7 +78,7 @@ public class SupervisorView extends DockPanel {
 		tabPanel.add(new ServerSettingsView(remoteEventBus), "Server Settings");
 
 		tabPanel.selectTab(0);
-		
+
 		// Save the initial size of the browser.
 		windowWidth = Window.getClientWidth();
 		windowHeight = Window.getClientHeight();
@@ -102,9 +95,9 @@ public class SupervisorView extends DockPanel {
 				resize();
 			}
 		});
-		
+
 		mainScrollPanel.addAttachHandler(new Handler() {
-			
+
 			@Override
 			public void onAttachOrDetach(AttachEvent event) {
 				resize();
@@ -114,13 +107,50 @@ public class SupervisorView extends DockPanel {
 		resize();
 	}
 
+	private void createWorker() {
+		final Button deleteButton = new Button("Delete");
+		final SupervisorWorkerView workerView = new SupervisorWorkerView(
+				clientFactory, deleteButton);
+
+		deleteButtons.add(deleteButton);
+		deleteButton.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				String name = workerView.getName() == null ? "PtuId: "
+						+ workerView.getPtuId() : workerView.getName();
+				if ((workerView.getPtuId() == null)
+						|| Window
+								.confirm("Are you sure you want to delete the view of worker: "
+										+ name)) {
+					mainPanel.remove(workerView);
+					deleteButtons.remove(deleteButton);
+					updateDeleteButtons();
+				}
+			}
+		});
+
+		updateDeleteButtons();
+
+		mainPanel.add(workerView, NORTH);
+		resize();
+	}
+
+	private void updateDeleteButtons() {
+		for (Button button : deleteButtons) {
+			button.setEnabled(deleteButtons.size() > 1);
+		}
+	}
+
 	private void resize() {
+		if (mainScrollPanel == null)
+			return;
 		// Set the size of main body scroll panel so that it fills the
 		mainScrollPanel.setSize(
 				Math.max(windowWidth - mainScrollPanel.getAbsoluteLeft(), 0)
 						+ "px",
-				Math.max(windowHeight - mainScrollPanel.getAbsoluteTop() - 25, 0)
-						+ "px");
+				Math.max(windowHeight - mainScrollPanel.getAbsoluteTop() - 25,
+						0) + "px");
 	}
 
 }

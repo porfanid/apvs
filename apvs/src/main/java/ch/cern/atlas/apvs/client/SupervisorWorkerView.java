@@ -9,22 +9,25 @@ import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.Label;
 
 public class SupervisorWorkerView extends DockPanel {
-
-	public SupervisorWorkerView(ClientFactory clientFactory,
-			Button deleteButton) {
+	
+	private PtuSelector ptuSelector;
+	private NameSelector nameSelector;
+	
+	public SupervisorWorkerView(ClientFactory clientFactory, Button deleteButton) {
 		RemoteEventBus remoteEventBus = clientFactory.getEventBus();
 		RemoteEventBus localEventBus = new RemoteEventBus();
 		HorizontalFlowPanel p0 = new HorizontalFlowPanel();
 		add(p0, NORTH);
 		p0.add(new Label("PTU Id:"));
-		p0.add(new PtuSelector(remoteEventBus, localEventBus));
+		ptuSelector = new PtuSelector(remoteEventBus, localEventBus);
+		p0.add(ptuSelector);
 		p0.add(new Label("Name:"));
-		p0.add(new NameSelector(remoteEventBus, localEventBus));
+		nameSelector = new NameSelector(remoteEventBus, localEventBus);
+		p0.add(nameSelector);
 //		p0.add(new Label("Worker Id:"));
 //		p0.add(new WorkerId(remoteEventBus, localEventBus));
-		if (deleteButton != null) {
-			p0.add(deleteButton);
-		}
+		deleteButton.setEnabled(false);
+		p0.add(deleteButton);
 
 		VerticalFlowPanel p4 = new VerticalFlowPanel();
 		add(p4, EAST);
@@ -47,7 +50,11 @@ public class SupervisorWorkerView extends DockPanel {
 		p1.add(new PlaceView(clientFactory, localEventBus));
 	}
 	
-	public String getName() {
-		return "FIXME";
+	public Integer getPtuId() {
+		return ptuSelector.getPtuId();
 	}
+	
+	public String getName() {
+		return nameSelector.getName();
+	}	
 }

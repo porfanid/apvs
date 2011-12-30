@@ -10,7 +10,6 @@ public class NameSelector extends TextBox {
 
 	private SupervisorSettings settings;
 	private Integer ptuId;
-	private String name;
 
 	public NameSelector(RemoteEventBus remoteEventBus,
 			RemoteEventBus localEventBus) {
@@ -25,8 +24,6 @@ public class NameSelector extends TextBox {
 							SupervisorSettingsChangedEvent event) {
 						settings = event.getSupervisorSettings();
 
-						retrieveName();
-
 						update();
 					}
 				});
@@ -37,21 +34,19 @@ public class NameSelector extends TextBox {
 			public void onPtuSelected(SelectPtuEvent event) {
 				ptuId = event.getPtuId();
 
-				retrieveName();
-
 				update();
 			}
 		});
 	}
 
-	private void retrieveName() {
+	public String getName() {
 		if ((settings == null) || (ptuId == null))
-			return;
+			return "";
 
-		name = settings.getName(Settings.DEFAULT_SUPERVISOR, ptuId);
+		return settings.getName(Settings.DEFAULT_SUPERVISOR, ptuId);
 	}
 
 	private void update() {
-		setText(name);
+		setText(getName());
 	}
 }
