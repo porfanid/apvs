@@ -2,6 +2,8 @@ package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.service.FileService;
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
+import ch.cern.atlas.apvs.client.service.PtuService;
+import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.CameraPanel;
 import ch.cern.atlas.apvs.client.tablet.CameraUI;
 import ch.cern.atlas.apvs.client.tablet.ImagePanel;
@@ -26,6 +28,7 @@ public class APVSClientFactory implements ClientFactory {
 	private RemoteEventBus localEventBus;
 	private final PlaceController placeController;
 	private final FileServiceAsync fileService = GWT.create(FileService.class);
+	private PtuServiceAsync ptuService = GWT.create(PtuService.class);
 
 	private MainMenuUI homeView;
 	private ModelUI modelView;
@@ -58,6 +61,12 @@ public class APVSClientFactory implements ClientFactory {
 	public FileServiceAsync getFileService() {
 		return fileService;
 	}
+	
+	@Override
+	public PtuServiceAsync getPtuService() {
+		return ptuService;
+	}
+
 
 	@Override
 	public MainMenuUI getHomeView() {

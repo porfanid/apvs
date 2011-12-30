@@ -10,6 +10,8 @@ import javax.servlet.ServletException;
 
 import ch.cern.atlas.apvs.client.ServerSettings;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.service.PtuService;
+import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
 import ch.cern.atlas.apvs.ptu.server.PtuWriter;
@@ -18,7 +20,8 @@ import ch.cern.atlas.apvs.ptu.server.PtuWriter;
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class PtuServiceImpl extends ResponsePollService implements Runnable {
+public class PtuServiceImpl extends ResponsePollService implements PtuService,
+		Runnable {
 
 	private static final String name = "PtuSocket";
 	private static final int DEFAULT_PORT = 4005;
@@ -150,5 +153,12 @@ public class PtuServiceImpl extends ResponsePollService implements Runnable {
 		if (ptuReader != null) {
 			ptuReader.close();
 		}
+	}
+
+	@Override
+	public Ptu getPtu(int ptuId) {
+		if (ptuReader == null) return null;
+		
+		return ptuReader.getPtu(ptuId);
 	}
 }

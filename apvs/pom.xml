@@ -35,7 +35,7 @@
 					<strict>true</strict>
 					<module>${gwtDevModule}</module>
 					<gwtVersion>${gwt-version}</gwtVersion>
-					<runTarget>http://localhost:8888/apvs/APVS.jsp</runTarget>
+					<runTarget>http://localhost:8888/apvs/APVSSupervisor.html</runTarget>
 					<noServer>false</noServer>
 					<sourcesOnPath>true</sourcesOnPath>
 					<hostedWebapp>${war.target}</hostedWebapp>

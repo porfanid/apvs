@@ -139,7 +139,7 @@ public class APVS implements EntryPoint {
 			p.add(new PlaceView(clientFactory, localEventBus));
 
 		} else if (view.equals("traceView")) {
-			p.add(new TraceView());
+			p.add(new TraceView(clientFactory));
 
 		} else if (view.equals("settingsView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));

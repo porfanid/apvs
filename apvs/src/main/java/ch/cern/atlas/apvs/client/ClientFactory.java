@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client;
 
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
+import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.CameraUI;
 import ch.cern.atlas.apvs.client.tablet.ImageUI;
 import ch.cern.atlas.apvs.client.tablet.MainMenuUI;
@@ -19,6 +20,8 @@ public interface ClientFactory {
 	PlaceController getPlaceController();
 
 	FileServiceAsync getFileService();
+
+	PtuServiceAsync getPtuService();
 
 	MainMenuUI getHomeView();
 
@@ -41,4 +44,5 @@ public interface ClientFactory {
 	ProcedureView getProcedureView(int width, int height);
 
 	ProcedureView getProcedureView(int width, int height, String url, String name, String step);
+
 }
