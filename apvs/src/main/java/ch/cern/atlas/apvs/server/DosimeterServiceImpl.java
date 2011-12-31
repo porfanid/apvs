@@ -8,8 +8,8 @@ import java.net.UnknownHostException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import ch.cern.atlas.apvs.client.ServerSettings;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterWriter;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;

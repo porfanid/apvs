@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import ch.cern.atlas.apvs.client.CameraView;
+import ch.cern.atlas.apvs.client.ui.CameraView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;

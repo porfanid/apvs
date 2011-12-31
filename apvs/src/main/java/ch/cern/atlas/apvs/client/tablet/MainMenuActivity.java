@@ -3,8 +3,8 @@ package ch.cern.atlas.apvs.client.tablet;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.cern.atlas.apvs.client.CameraView;
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.ui.CameraView;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;

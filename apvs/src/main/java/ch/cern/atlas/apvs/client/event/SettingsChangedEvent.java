@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client.event;
 
-import ch.cern.atlas.apvs.client.Settings;
+import ch.cern.atlas.apvs.client.settings.Settings;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.web.bindery.event.shared.Event;

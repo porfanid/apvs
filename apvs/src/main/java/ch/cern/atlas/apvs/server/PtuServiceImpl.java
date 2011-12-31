@@ -8,9 +8,9 @@ import java.net.UnknownHostException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import ch.cern.atlas.apvs.client.ServerSettings;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.PtuService;
+import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;

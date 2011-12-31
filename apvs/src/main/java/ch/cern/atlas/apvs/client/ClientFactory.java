@@ -9,6 +9,9 @@ import ch.cern.atlas.apvs.client.tablet.ModelUI;
 import ch.cern.atlas.apvs.client.tablet.ProcedureMenuUI;
 import ch.cern.atlas.apvs.client.tablet.ProcedureNavigator;
 import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
+import ch.cern.atlas.apvs.client.ui.MeasurementView;
+import ch.cern.atlas.apvs.client.ui.ProcedureView;
+import ch.cern.atlas.apvs.client.ui.PtuSelector;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.place.shared.PlaceController;

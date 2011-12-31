@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client;
 import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
+import ch.cern.atlas.apvs.client.settings.SettingsPersister;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
 import ch.cern.atlas.apvs.client.tablet.TabletHistoryObserver;
@@ -11,6 +12,19 @@ import ch.cern.atlas.apvs.client.tablet.TabletMenuAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
+import ch.cern.atlas.apvs.client.ui.CameraView;
+import ch.cern.atlas.apvs.client.ui.ClientView;
+import ch.cern.atlas.apvs.client.ui.DosimeterView;
+import ch.cern.atlas.apvs.client.ui.MeasurementView;
+import ch.cern.atlas.apvs.client.ui.PlaceView;
+import ch.cern.atlas.apvs.client.ui.ProcedureControls;
+import ch.cern.atlas.apvs.client.ui.ProcedureView;
+import ch.cern.atlas.apvs.client.ui.PtuSelector;
+import ch.cern.atlas.apvs.client.ui.PtuView;
+import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
+import ch.cern.atlas.apvs.client.ui.SupervisorSettingsView;
+import ch.cern.atlas.apvs.client.ui.SupervisorView;
+import ch.cern.atlas.apvs.client.ui.TraceView;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 

@@ -17,6 +17,9 @@ import ch.cern.atlas.apvs.client.tablet.ProcedureMenuUI;
 import ch.cern.atlas.apvs.client.tablet.ProcedureNavigator;
 import ch.cern.atlas.apvs.client.tablet.ProcedurePanel;
 import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
+import ch.cern.atlas.apvs.client.ui.MeasurementView;
+import ch.cern.atlas.apvs.client.ui.ProcedureView;
+import ch.cern.atlas.apvs.client.ui.PtuSelector;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
