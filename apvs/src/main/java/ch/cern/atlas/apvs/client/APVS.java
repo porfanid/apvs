@@ -24,7 +24,7 @@ import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
 import ch.cern.atlas.apvs.client.ui.SupervisorSettingsView;
 import ch.cern.atlas.apvs.client.ui.SupervisorView;
-import ch.cern.atlas.apvs.client.ui.TraceView;
+import ch.cern.atlas.apvs.client.ui.TracePanel;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -153,7 +153,7 @@ public class APVS implements EntryPoint {
 			p.add(new PlaceView(clientFactory, localEventBus));
 
 		} else if (view.equals("traceView")) {
-			p.add(new TraceView(clientFactory));
+			p.add(new TracePanel(clientFactory));
 
 		} else if (view.equals("settingsView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));
