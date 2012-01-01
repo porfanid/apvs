@@ -10,7 +10,7 @@ public class LabelMaker {
 		List<Double> valueAxisLabels = new ArrayList<Double>();
 		max = getMaxValueForEvenDist(max, min, noOfPeriods);
 		// FIXME 
-		min = -3.0;
+//		min = -3.0;
 		if (valueInterval <= 0) {
 			valueInterval = (max - min) / noOfPeriods;
 		}

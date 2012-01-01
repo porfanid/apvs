@@ -114,7 +114,7 @@ public class TraceView extends SimplePanel {
 
 		};
 				
-		plot = new TracePlot(600, 400);
+		plot = new TracePlot(400, 200);
 		plot.setDataTable(dataTable);
 		
 		add(plot);
