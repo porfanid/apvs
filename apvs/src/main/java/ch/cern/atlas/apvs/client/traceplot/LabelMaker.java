@@ -24,6 +24,9 @@ public class LabelMaker {
 		}
 
 		System.err.println("# of Double labels "+valueAxisLabels.size());
+		for (Double x : valueAxisLabels) {
+			System.err.println("   "+x);
+		}
 		return valueAxisLabels;
 	}
 
@@ -41,7 +44,11 @@ public class LabelMaker {
 			}
 		}
 
-		long i = min;
+		// FIXME
+		min=0;
+		max=3;
+		
+		long i = min + valueInterval;
 		while (i <= max) {
 			valueAxisLabels.add(i);
 			i = i + valueInterval;

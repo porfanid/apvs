@@ -17,9 +17,9 @@ public class TracePanel extends DockPanel {
 
 	public TracePanel(ClientFactory clientFactory) {
 		
-		add(new TraceView(clientFactory), EAST);
+//		add(new TraceView(clientFactory), EAST);
 
-		TracePlot p1 = new TracePlot(400, 200);
+		TracePlot p1 = new TracePlot(600, 300);
 		p1.setDataTable(new DataSource<Long, Double>() {
 
 			@Override
@@ -61,7 +61,7 @@ public class TracePanel extends DockPanel {
 		
 		add(p1, NORTH);
 
-		TracePlot p2 = new TracePlot(400, 200);
+		TracePlot p2 = new TracePlot(600, 300);
 		p2.setDataTable(new DataSource<Long, Double>() {
 
 			@Override
@@ -101,9 +101,9 @@ public class TracePanel extends DockPanel {
 			}
 		});
 		
-		add(p2, NORTH);
+//		add(p2, NORTH);
 
-		TracePlot p3 = new TracePlot(400, 200);
+		TracePlot p3 = new TracePlot(600, 300);
 		p3.setDataTable(new DataSource<Long, Double>() {
 
 			@Override
@@ -143,7 +143,7 @@ public class TracePanel extends DockPanel {
 			}
 		});
 		
-		add(p3, NORTH);
+//		add(p3, NORTH);
 
 	}
 }

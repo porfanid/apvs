@@ -77,6 +77,8 @@ public class TracePlot extends Chart {
 		// add axes
 		List<Shape> list = xAxis.getAxisList();
 		for (Shape s : list) {
+			System.err.println("A: "+s.getBBox().x()+" "+s.getBBox().y()+" "+s.getBBox().width()+" "+s.getBBox().height());
+//			chartSet.push(new Rect(s.getBBox().x(), s.getBBox().y(), s.getBBox().width(), s.getBBox().height()));
 			chartSet.push(s);
 		}
 		list = yAxis.getAxisList();
@@ -150,7 +152,7 @@ public class TracePlot extends Chart {
 		
 		BBox xBox = xAxis.getAxisLine().getBBox();
 		double xDx = origin.getX() - xBox.x();
-		double xDy = origin.getY() - xBox.y() -xBox.height();
+		double xDy = origin.getY() - xBox.y() - xBox.height();
 		System.err.println("xD "+xDx+" "+xDy);
 		xAxis.get().translate(xDx, xDy);
 
@@ -179,7 +181,7 @@ public class TracePlot extends Chart {
 //		}
 
 		System.err.println("cD "+cDx+" "+cDy);
-		plotSet.translate(cDx, cDy);
+		plotSet.translate(xDx, yDy);
 		
 		// resize to view port
 		boolean rescale = true;
