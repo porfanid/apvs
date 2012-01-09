@@ -170,6 +170,10 @@
 	<dependencies>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-charts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-dosimeter</artifactId>
 		</dependency>
 		<dependency>
@@ -231,6 +235,10 @@
 		<dependency>
 			<groupId>com.rcharts</groupId>
 			<artifactId>gwt-rcharts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.moxie</groupId>
+			<artifactId>highcharts</artifactId>
 		</dependency>
 		<!-- see http://wiki.eclipse.org/Jetty/Reference/Dependencies -->
 		<dependency>
