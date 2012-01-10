@@ -57,6 +57,10 @@ public class Ptu implements Serializable {
 		return m.get(m.size()-1);
 	}
 	
+	public List<Measurement<Double>> getMeasurements(String name) {
+		return measurements.get(name);
+	}
+	
 	public int getNumberOfMeasurements(String name) {
 		List<Measurement<Double>> m = measurements.get(name);
 		if ((m == null) || m.size() == 0) return 0;

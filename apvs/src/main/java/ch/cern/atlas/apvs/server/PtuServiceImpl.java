@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -11,6 +15,7 @@ import javax.servlet.ServletException;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuReader;
@@ -157,8 +162,27 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 
 	@Override
 	public Ptu getPtu(int ptuId) {
-		if (ptuReader == null) return null;
+		return ptuReader != null ? ptuReader.getPtu(ptuId) : null;
+	}
+	
+	@Override
+	public List<Measurement<Double>> getMeasurements(int ptuId, String name) {
+		Ptu ptu = getPtu(ptuId);
 		
-		return ptuReader.getPtu(ptuId);
+		return ptu != null ? ptu.getMeasurements(name) : null;
+	}
+	
+	public Map<Integer, List<Measurement<Double>>> getMeasurements(String name) {
+		Map<Integer, List<Measurement<Double>>> result = new HashMap<Integer, List<Measurement<Double>>>();
+		if (ptuReader == null) return result;
+		
+		for (Iterator<Integer> i=ptuReader.getPtuIds().iterator(); i.hasNext(); ) {
+			int ptuId = i.next();
+			Ptu ptu = ptuReader.getPtu(ptuId);
+			if (ptu != null) {
+				result.put(ptuId, ptu.getMeasurements(name));
+			}
+		}
+		return result;
 	}
 }

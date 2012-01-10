@@ -10,10 +10,12 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.Settings;
 import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
-import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
+import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
+import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -22,6 +24,7 @@ import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -29,15 +32,16 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
-public class PtuView extends VerticalFlowPanel {
+public class PtuView extends VerticalPanel {
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
+	private RemoteEventBus eventBus;
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
@@ -46,21 +50,28 @@ public class PtuView extends VerticalFlowPanel {
 	private SortedMap<Integer, Ptu> ptus;
 	private Map<String, String> units;
 
-	protected SupervisorSettings settings;
-
+	private SupervisorSettings settings;
+	
+	private TimeView timeView;
+	
 	private void init() {
 		last = new Measurement<Double>();
 		ptus = new TreeMap<Integer, Ptu>();
 		units = new HashMap<String, String>();
 	}
 
-	public PtuView(final RemoteEventBus eventBus) {
+	public PtuView(ClientFactory clientFactory) {
+		eventBus = clientFactory.getEventBus();
+		
 		init();
 
+		timeView = new TimeView(clientFactory);
+		
 		add(table);
+		add(timeView);
 
 		// name column
-		TextColumn<String> name = new TextColumn<String>() {
+		ClickableTextColumn<String> name = new ClickableTextColumn<String>() {
 			@Override
 			public String getValue(String object) {
 				return object;
@@ -69,16 +80,24 @@ public class PtuView extends VerticalFlowPanel {
 			@Override
 			public void render(Context context, String object,
 					SafeHtmlBuilder sb) {
-				((TextCell) getCell()).render(context,
+				((ClickableTextCell) getCell()).render(context,
 						SafeHtmlUtils.fromSafeConstant(getValue(object)), sb);
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
+		name.setFieldUpdater(new FieldUpdater<String, String>() {
+			
+			@Override
+			public void update(int index, String name, String value) {
+				timeView.setMeasurement(name);
+			}
+		});
+
 		table.addColumn(name, "Name");
 
 		// unit column
-		TextColumn<String> unit = new TextColumn<String>() {
+		ClickableTextColumn<String> unit = new ClickableTextColumn<String>() {
 			@Override
 			public String getValue(String object) {
 				return units.get(object);
@@ -87,11 +106,19 @@ public class PtuView extends VerticalFlowPanel {
 			@Override
 			public void render(Context context, String object,
 					SafeHtmlBuilder sb) {
-				((TextCell) getCell()).render(context,
+				((ClickableTextCell) getCell()).render(context,
 						SafeHtmlUtils.fromSafeConstant(getValue(object)), sb);
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		unit.setFieldUpdater(new FieldUpdater<String, String>() {
+			
+			@Override
+			public void update(int index, String name, String value) {
+				timeView.setMeasurement(name);
+			}
+		});
+		
 		table.addColumn(unit, "Unit");
 
 		dataProvider.addDataDisplay(table);
@@ -185,7 +212,7 @@ public class PtuView extends VerticalFlowPanel {
 	}
 
 	private void addColumn(final Integer ptuId) {
-		TextColumn<String> column = new TextColumn<String>() {
+		ClickableTextColumn<String> column = new ClickableTextColumn<String>() {
 			@Override
 			public String getValue(String object) {
 				Ptu ptu = ptus.get(ptuId);
@@ -205,16 +232,24 @@ public class PtuView extends VerticalFlowPanel {
 					SafeHtmlBuilder sb) {
 				Ptu ptu = ptus.get(ptuId);
 				if (ptu == null) {
-					((TextCell) getCell()).render(context, "", sb);
+					((ClickableTextCell) getCell()).render(context, "", sb);
 				} else {
 					Measurement<Double> m = ptu.getMeasurement(object);
-					((TextCell) getCell()).render(context,
+					((ClickableTextCell) getCell()).render(context,
 							MeasurementView.decorate(getValue(object), m, last), sb);
 				}
 			}
 
 		};
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		column.setFieldUpdater(new FieldUpdater<String, String>() {
+			
+			@Override
+			public void update(int index, String name, String value) {
+				timeView.setMeasurement(ptuId, name);
+			}
+		});
+		
 		table.addColumn(column, new TextHeader("") {
 			@Override
 			public String getValue() {

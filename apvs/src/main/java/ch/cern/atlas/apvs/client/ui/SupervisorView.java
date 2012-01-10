@@ -72,7 +72,7 @@ public class SupervisorView extends DockPanel {
 		tabPanel.add(mainScrollPanel, "Workers");
 
 		tabPanel.add(new ProcedurePanel(remoteEventBus, 800, 600), "Procedures");
-		tabPanel.add(new PtuView(remoteEventBus), "PTUs");
+		tabPanel.add(new PtuView(clientFactory), "PTUs");
 		tabPanel.add(new DosimeterView(remoteEventBus), "Dosimeters");
 		tabPanel.add(new SupervisorSettingsView(remoteEventBus),
 				"Supervisor Settings");

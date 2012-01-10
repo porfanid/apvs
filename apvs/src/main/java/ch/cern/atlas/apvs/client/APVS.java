@@ -24,7 +24,7 @@ import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
 import ch.cern.atlas.apvs.client.ui.SupervisorSettingsView;
 import ch.cern.atlas.apvs.client.ui.SupervisorView;
-import ch.cern.atlas.apvs.client.ui.TraceView2;
+import ch.cern.atlas.apvs.client.ui.TimeView;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -134,7 +134,7 @@ public class APVS implements EntryPoint {
 		} else if (view.equals("ptuView")) {
 			p.add(new ServerSettingsView(remoteEventBus));
 			p.add(new SupervisorSettingsView(remoteEventBus));
-			p.add(new PtuView(remoteEventBus));
+			p.add(new PtuView(clientFactory));
 
 		} else if (view.equals("measurementView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
@@ -153,7 +153,7 @@ public class APVS implements EntryPoint {
 			p.add(new PlaceView(clientFactory, localEventBus));
 
 		} else if (view.equals("traceView")) {
-			p.add(new TraceView2(clientFactory));
+			p.add(new TimeView(clientFactory));
 
 		} else if (view.equals("settingsView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));

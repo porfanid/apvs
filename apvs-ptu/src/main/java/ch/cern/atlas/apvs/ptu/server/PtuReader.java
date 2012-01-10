@@ -32,7 +32,6 @@ public class PtuReader implements Runnable {
 	private boolean ptuIdsChanged = false;
 	private Map<Integer, Set<String>> measurementChanged = new HashMap<Integer, Set<String>>();
 
-	@SuppressWarnings("serial")
 	public PtuReader(final RemoteEventBus eventBus, Socket socket) {
 		this.eventBus = eventBus;
 		this.socket = socket;
