@@ -38,11 +38,14 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class TimeView extends SimplePanel {
 
+	private static final String[] color = { "#4572A7", "#AA4643", "#89A54E", "#80699B", "#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92" };
+	
 	private ClientFactory clientFactory;
 
 	private HandlerRegistration handler;
 	private Chart chart;
 	private Map<Integer, Series> seriesByPtuId;
+	private Map<Integer, String> colorsByPtuId;
 
 	private int height;
 	private boolean export;
@@ -55,6 +58,7 @@ public class TimeView extends SimplePanel {
 
 	public void setMeasurement(final String name) {
 		seriesByPtuId = new HashMap<Integer, Series>();
+		colorsByPtuId = new HashMap<Integer, String>();
 		
 		unsubscribe();
 		removeChart();
@@ -90,6 +94,7 @@ public class TimeView extends SimplePanel {
 
 						createChart(name, unit);
 
+						int k = 0;
 						for (Iterator<Integer> i = measurements.keySet()
 								.iterator(); i.hasNext();) {
 							int ptuId = i.next();
@@ -97,10 +102,12 @@ public class TimeView extends SimplePanel {
 							Series series = chart.createSeries().setName(
 									"" + ptuId);
 							seriesByPtuId.put(ptuId, series);
+							colorsByPtuId.put(ptuId, color[k]);
 
 							addHistory(series, measurements.get(ptuId));
 
 							chart.addSeries(series, true, false);
+							k++;
 						}
 
 						add(chart);
@@ -118,6 +125,7 @@ public class TimeView extends SimplePanel {
 
 	public void setMeasurement(final int ptuId, final String name) {
 		seriesByPtuId = new HashMap<Integer, Series>();
+		colorsByPtuId = new HashMap<Integer, String>();
 		
 		unsubscribe();
 		removeChart();
@@ -146,6 +154,7 @@ public class TimeView extends SimplePanel {
 						Series series = chart.createSeries()
 								.setName("" + ptuId);
 						seriesByPtuId.put(ptuId, series);
+						colorsByPtuId.put(ptuId, color[0]);
 
 						addHistory(series, measurements);
 
@@ -164,6 +173,10 @@ public class TimeView extends SimplePanel {
 				});
 	}
 	
+	public String getColor(int ptuId) {
+		return chart != null ? colorsByPtuId.get(ptuId) : null;
+	}
+	
 	private void removeChart() {
 		if (chart != null) {
 			remove(chart);
@@ -175,6 +188,7 @@ public class TimeView extends SimplePanel {
 		removeChart();
 		
 		chart = new Chart()
+				.setColors("#4572A7", "#AA4643", "#89A54E", "#80699B", "#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92")
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
 				.setWidth100()

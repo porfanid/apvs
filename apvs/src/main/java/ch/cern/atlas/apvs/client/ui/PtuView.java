@@ -239,9 +239,19 @@ public class PtuView extends VerticalPanel {
 				if (ptu == null) {
 					((ClickableTextCell) getCell()).render(context, "", sb);
 				} else {
+					String color = timeView.getColor(ptuId);
+					boolean isSelected = selectionModel.isSelected(object);
+					if ((color != null) && isSelected) {
+						sb.append(SafeHtmlUtils.fromSafeConstant("<div style=\"background:"+color+"\">"));
+					}
+
 					Measurement<Double> m = ptu.getMeasurement(object);
 					((ClickableTextCell) getCell()).render(context,
 							MeasurementView.decorate(getValue(object), m, last), sb);
+
+					if ((color != null) && isSelected) {
+						sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
+					}
 				}
 			}
 
