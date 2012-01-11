@@ -11,11 +11,17 @@ import org.moxieapps.gwt.highcharts.client.AxisTitle;
 import org.moxieapps.gwt.highcharts.client.Chart;
 import org.moxieapps.gwt.highcharts.client.ChartTitle;
 import org.moxieapps.gwt.highcharts.client.Credits;
+import org.moxieapps.gwt.highcharts.client.Exporting;
 import org.moxieapps.gwt.highcharts.client.Legend;
 import org.moxieapps.gwt.highcharts.client.Series;
 import org.moxieapps.gwt.highcharts.client.ToolTip;
 import org.moxieapps.gwt.highcharts.client.ToolTipData;
 import org.moxieapps.gwt.highcharts.client.ToolTipFormatter;
+import org.moxieapps.gwt.highcharts.client.labels.AxisLabelsData;
+import org.moxieapps.gwt.highcharts.client.labels.AxisLabelsFormatter;
+import org.moxieapps.gwt.highcharts.client.labels.DataLabels;
+import org.moxieapps.gwt.highcharts.client.labels.XAxisLabels;
+import org.moxieapps.gwt.highcharts.client.plotOptions.BarPlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 
@@ -147,13 +153,19 @@ public class TimeView extends SimplePanel {
 
 		chart = new Chart()
 				.setType(Series.Type.LINE)
+				.setZoomType(Chart.ZoomType.X)
 				.setWidth100()
 				.setHeight100()
 				.setChartTitle(new ChartTitle().setText(name))
 				.setMarginRight(10)
+				.setBarPlotOptions(
+						new BarPlotOptions().setDataLabels(new DataLabels()
+								.setEnabled(true)))
 				.setLinePlotOptions(
-						new LinePlotOptions().setMarker(new Marker()
-								.setEnabled(false)))
+						new LinePlotOptions()
+							.setMarker(new Marker()
+								.setEnabled(false))
+							.setShadow(false))
 				.setLegend(new Legend().setEnabled(false))
 				.setCredits(new Credits().setEnabled(false))
 				.setToolTip(
@@ -178,7 +190,16 @@ public class TimeView extends SimplePanel {
 									}
 								}));
 
-		chart.getXAxis().setType(Axis.Type.DATE_TIME);
+		chart.getXAxis().setType(Axis.Type.DATE_TIME).setLabels(
+		// Fix one hour offset in time labels...
+				new XAxisLabels().setFormatter(new AxisLabelsFormatter() {
+
+					@Override
+					public String format(AxisLabelsData axisLabelsData) {
+						return DateTimeFormat.getFormat("HH:mm").format(
+								new Date(axisLabelsData.getValueAsLong()));
+					}
+				}));
 
 		chart.getYAxis().setAllowDecimals(true)
 				.setAxisTitle(new AxisTitle().setText(unit));
