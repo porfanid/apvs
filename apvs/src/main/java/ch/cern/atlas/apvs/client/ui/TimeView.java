@@ -55,6 +55,11 @@ public class TimeView extends SimplePanel {
 
 	public void setMeasurement(final String name) {
 		seriesByPtuId = new HashMap<Integer, Series>();
+		
+		unsubscribe();
+		removeChart();
+		
+		if (name == null) return;
 
 		final long t0 = System.currentTimeMillis();
 		clientFactory.getPtuService().getMeasurements(name,
@@ -63,13 +68,14 @@ public class TimeView extends SimplePanel {
 					@Override
 					public void onSuccess(
 							Map<Integer, List<Measurement<Double>>> measurements) {
-						System.err.println("Measurement Map retrieval took "
-								+ (System.currentTimeMillis() - t0)
-								+ " ms for " + measurements.size());
-
 						if (measurements == null) {
 							return;
 						}
+
+
+						System.err.println("Measurement Map retrieval took "
+								+ (System.currentTimeMillis() - t0)
+								+ " ms for " + measurements.size());
 
 						String unit = "";
 
@@ -112,22 +118,25 @@ public class TimeView extends SimplePanel {
 
 	public void setMeasurement(final int ptuId, final String name) {
 		seriesByPtuId = new HashMap<Integer, Series>();
+		
+		unsubscribe();
+		removeChart();
+		
+		if ((ptuId == 0) || (name == null)) return;
 
 		final long t0 = System.currentTimeMillis();
 		clientFactory.getPtuService().getMeasurements(ptuId, name,
 				new AsyncCallback<List<Measurement<Double>>>() {
 
-					Series series;
-
 					@Override
 					public void onSuccess(List<Measurement<Double>> measurements) {
-						System.err.println("Measurement retrieval took "
-								+ (System.currentTimeMillis() - t0)
-								+ " ms for " + measurements.size());
-
 						if (measurements == null) {
 							return;
 						}
+
+						System.err.println("Measurement retrieval took "
+								+ (System.currentTimeMillis() - t0)
+								+ " ms for " + measurements.size());
 
 						String unit = measurements.size() > 0 ? measurements
 								.get(0).getUnit() : "";
@@ -154,13 +163,17 @@ public class TimeView extends SimplePanel {
 					}
 				});
 	}
-
-	private void createChart(String name, String unit) {
+	
+	private void removeChart() {
 		if (chart != null) {
 			remove(chart);
 			chart = null;
-		}
+		}		
+	}
 
+	private void createChart(String name, String unit) {
+		removeChart();
+		
 		chart = new Chart()
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
@@ -231,12 +244,17 @@ public class TimeView extends SimplePanel {
 		
 		series.setPoints(data, false);
 	}
-
-	private void subscribe(final Integer ptuId, final String name) {
+	
+	private void unsubscribe() {
 		if (handler != null) {
 			handler.removeHandler();
+			handler = null;
 		}
+	}
 
+	private void subscribe(final Integer ptuId, final String name) {
+		unsubscribe();
+		
 		handler = MeasurementChangedEvent.register(clientFactory.getEventBus(),
 				new MeasurementChangedEvent.Handler() {
 

@@ -36,6 +36,7 @@ import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SingleSelectionModel;
 
 public class PtuView extends VerticalPanel {
 
@@ -49,6 +50,7 @@ public class PtuView extends VerticalPanel {
 	private Measurement<Double> last;
 	private SortedMap<Integer, Ptu> ptus;
 	private Map<String, String> units;
+	private SingleSelectionModel<String> selectionModel;
 
 	private SupervisorSettings settings;
 	
@@ -132,6 +134,9 @@ public class PtuView extends VerticalPanel {
 		});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
+		
+		selectionModel = new SingleSelectionModel<String>();
+		table.setSelectionModel(selectionModel);
 
 		PtuIdsChangedEvent.subscribe(eventBus,
 				new PtuIdsChangedEvent.Handler() {
@@ -267,7 +272,19 @@ public class PtuView extends VerticalPanel {
 	}
 
 	private void update() {
-		ColumnSortEvent.fire(table, table.getColumnSortList());
+		ColumnSortEvent.fire(table, table.getColumnSortList());		
 		table.redraw();
+		
+		String selection = selectionModel.getSelectedObject();
+		if ((selection == null) && (dataProvider.getList().size() > 0)) {
+			selection = dataProvider.getList().get(0);
+			
+			timeView.setMeasurement(selection);
+		}
+			
+		// re-set the selection as the async update may have changed the rendering
+		if (selection != null) {
+			selectionModel.setSelected(selection, true);
+		}
 	}
 }

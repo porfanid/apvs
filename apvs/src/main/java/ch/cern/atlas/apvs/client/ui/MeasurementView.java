@@ -42,6 +42,7 @@ public class MeasurementView extends VerticalFlowPanel {
 	private CellTable<Measurement<Double>> table = new CellTable<Measurement<Double>>();
 	private ListHandler<Measurement<Double>> columnSortHandler;
 	private ClickableTextColumn<Measurement<Double>> name;
+	private SingleSelectionModel<Measurement<Double>> selectionModel;
 
 	private Integer ptuId = null;
 
@@ -105,6 +106,11 @@ public class MeasurementView extends VerticalFlowPanel {
 					dataProvider.getList().clear();
 				}
 
+				Measurement<Double> selection = selectionModel
+						.getSelectedObject();
+				if (selection != null) {
+					selectionModel.setSelected(selection, false);
+				}
 				update();
 			}
 		});
@@ -265,17 +271,19 @@ public class MeasurementView extends VerticalFlowPanel {
 				});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
-		
-		final SingleSelectionModel<Measurement<Double>> selectionModel = new SingleSelectionModel<Measurement<Double>>();
+
+		selectionModel = new SingleSelectionModel<Measurement<Double>>();
 		table.setSelectionModel(selectionModel);
-		selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-			
-			@Override
-			public void onSelectionChange(SelectionChangeEvent event) {
-				Measurement<Double> m = selectionModel.getSelectedObject();
-				System.err.println(m+" "+event.getSource());
-			}
-		});
+		selectionModel
+				.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+
+					@Override
+					public void onSelectionChange(SelectionChangeEvent event) {
+						Measurement<Double> m = selectionModel
+								.getSelectedObject();
+						System.err.println(m + " " + event.getSource());
+					}
+				});
 	}
 
 	public static SafeHtml decorate(String s, Measurement<Double> current,
@@ -295,6 +303,24 @@ public class MeasurementView extends VerticalFlowPanel {
 		// Re-sort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
+
+		Measurement<Double> selection = selectionModel.getSelectedObject();
+
+		if ((selection == null) && (dataProvider.getList().size() > 0)) {
+			selection = dataProvider.getList().get(0);
+
+			timeView.setMeasurement(ptuId, selection.getName());
+		}
+
+		if (ptuId == null) {
+			timeView.setMeasurement(0, null);
+		}
+
+		// re-set the selection as the async update may have changed the
+		// rendering
+		if (selection != null) {
+			selectionModel.setSelected(selection, true);
+		}
 	}
 
 	private Measurement<Double> replace(Measurement<Double> measurement) {
