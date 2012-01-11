@@ -33,7 +33,7 @@ public class SupervisorWorkerView extends DockPanel {
 		VerticalFlowPanel p4 = new VerticalFlowPanel();
 		add(p4, EAST);
 		p4.add(new Label("Measurements"));
-		p4.add(new MeasurementView(remoteEventBus, localEventBus));
+		p4.add(new MeasurementView(clientFactory, localEventBus));
 
 		VerticalFlowPanel p3 = new VerticalFlowPanel();
 		add(p3, EAST);

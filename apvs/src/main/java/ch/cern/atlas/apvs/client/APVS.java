@@ -140,7 +140,7 @@ public class APVS implements EntryPoint {
 			RemoteEventBus localEventBus = new RemoteEventBus();
 			p.add(new SupervisorSettingsView(remoteEventBus));
 			p.add(new PtuSelector(remoteEventBus, localEventBus));
-			p.add(new MeasurementView(remoteEventBus, localEventBus));
+			p.add(new MeasurementView(clientFactory, localEventBus));
 
 		} else if (view.equals("procedureView")) {
 			RemoteEventBus localEventBus = new RemoteEventBus();
@@ -153,7 +153,7 @@ public class APVS implements EntryPoint {
 			p.add(new PlaceView(clientFactory, localEventBus));
 
 		} else if (view.equals("traceView")) {
-			p.add(new TimeView(clientFactory));
+			p.add(new TimeView(clientFactory, 300, true));
 
 		} else if (view.equals("settingsView")) {
 			p.add(new SupervisorSettingsView(remoteEventBus));

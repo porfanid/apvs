@@ -14,6 +14,7 @@ import org.moxieapps.gwt.highcharts.client.Credits;
 import org.moxieapps.gwt.highcharts.client.Exporting;
 import org.moxieapps.gwt.highcharts.client.Legend;
 import org.moxieapps.gwt.highcharts.client.Series;
+import org.moxieapps.gwt.highcharts.client.Style;
 import org.moxieapps.gwt.highcharts.client.ToolTip;
 import org.moxieapps.gwt.highcharts.client.ToolTipData;
 import org.moxieapps.gwt.highcharts.client.ToolTipFormatter;
@@ -43,8 +44,13 @@ public class TimeView extends SimplePanel {
 	private Chart chart;
 	private Map<Integer, Series> seriesByPtuId;
 
-	public TimeView(final ClientFactory clientFactory) {
+	private int height;
+	private boolean export;
+
+	public TimeView(final ClientFactory clientFactory, int height, boolean export) {
 		this.clientFactory = clientFactory;
+		this.height = height;
+		this.export = export;
 	}
 
 	public void setMeasurement(final String name) {
@@ -91,6 +97,8 @@ public class TimeView extends SimplePanel {
 							chart.addSeries(series, true, false);
 						}
 
+						add(chart);
+
 						subscribe(null, name);
 					}
 
@@ -134,6 +142,8 @@ public class TimeView extends SimplePanel {
 
 						chart.addSeries(series, true, false);
 
+						add(chart);
+
 						subscribe(ptuId, name);
 					}
 
@@ -155,9 +165,10 @@ public class TimeView extends SimplePanel {
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
 				.setWidth100()
-				.setHeight100()
-				.setChartTitle(new ChartTitle().setText(name))
+				.setHeight(height)
+				.setChartTitle(new ChartTitle().setText(name).setStyle(new Style().setFontSize("12px")))
 				.setMarginRight(10)
+				.setExporting(new Exporting().setEnabled(export))
 				.setBarPlotOptions(
 						new BarPlotOptions().setDataLabels(new DataLabels()
 								.setEnabled(true)))
@@ -166,6 +177,7 @@ public class TimeView extends SimplePanel {
 							.setMarker(new Marker()
 								.setEnabled(false))
 							.setShadow(false))
+							.setAnimation(false)
 				.setLegend(new Legend().setEnabled(false))
 				.setCredits(new Credits().setEnabled(false))
 				.setToolTip(
@@ -203,18 +215,21 @@ public class TimeView extends SimplePanel {
 
 		chart.getYAxis().setAllowDecimals(true)
 				.setAxisTitle(new AxisTitle().setText(unit));
-
-		add(chart);
 	}
 
 	private void addHistory(Series series,
 			List<Measurement<Double>> measurements) {
 
-		for (int j = 0; j < measurements.size(); j++) {
-			Measurement<Double> m = measurements.get(j);
+		Number[][] data = new Number[measurements.size()][2];
+		
+		for (int i = 0; i < data.length; i++) {
+			Measurement<Double> m = measurements.get(i);
 
-			series.addPoint(m.getDate().getTime(), m.getValue());
+			data[i][0] = m.getDate().getTime();
+			data[i][1] = m.getValue();
 		}
+		
+		series.setPoints(data, false);
 	}
 
 	private void subscribe(final Integer ptuId, final String name) {

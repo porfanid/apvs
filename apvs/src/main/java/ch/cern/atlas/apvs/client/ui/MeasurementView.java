@@ -4,17 +4,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.Settings;
 import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
+import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
+import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -22,10 +25,11 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class MeasurementView extends VerticalFlowPanel {
@@ -37,23 +41,31 @@ public class MeasurementView extends VerticalFlowPanel {
 	private ListDataProvider<Measurement<Double>> dataProvider = new ListDataProvider<Measurement<Double>>();
 	private CellTable<Measurement<Double>> table = new CellTable<Measurement<Double>>();
 	private ListHandler<Measurement<Double>> columnSortHandler;
-	private TextColumn<Measurement<Double>> name;
+	private ClickableTextColumn<Measurement<Double>> name;
 
 	private Integer ptuId = null;
 
-	public MeasurementView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus) {
+	private TimeView timeView;
+
+	public MeasurementView(final ClientFactory clientFactory,
+			final RemoteEventBus localEventBus) {
+
+		timeView = new TimeView(clientFactory, 150, false);
 
 		add(table);
-		
-		SupervisorSettingsChangedEvent.subscribe(remoteEventBus, new SupervisorSettingsChangedEvent.Handler() {
-			
-			@Override
-			public void onSupervisorSettingsChanged(SupervisorSettingsChangedEvent event) {
-				settings = event.getSupervisorSettings();
-				
-				update();
-			}
-		});
+		add(timeView);
+
+		SupervisorSettingsChangedEvent.subscribe(clientFactory.getEventBus(),
+				new SupervisorSettingsChangedEvent.Handler() {
+
+					@Override
+					public void onSupervisorSettingsChanged(
+							SupervisorSettingsChangedEvent event) {
+						settings = event.getSupervisorSettings();
+
+						update();
+					}
+				});
 
 		SelectPtuEvent.register(localEventBus, new SelectPtuEvent.Handler() {
 
@@ -74,7 +86,8 @@ public class MeasurementView extends VerticalFlowPanel {
 
 				// register a new handler
 				if (ptuId != null) {
-					registration = MeasurementChangedEvent.subscribe(remoteEventBus,
+					registration = MeasurementChangedEvent.subscribe(
+							clientFactory.getEventBus(),
 							new MeasurementChangedEvent.Handler() {
 
 								@Override
@@ -91,12 +104,12 @@ public class MeasurementView extends VerticalFlowPanel {
 				} else {
 					dataProvider.getList().clear();
 				}
-				
+
 				update();
 			}
 		});
 
-		name = new TextColumn<Measurement<Double>>() {
+		name = new ClickableTextColumn<Measurement<Double>>() {
 			@Override
 			public String getValue(Measurement<Double> object) {
 				return object.getName();
@@ -107,29 +120,41 @@ public class MeasurementView extends VerticalFlowPanel {
 					SafeHtmlBuilder sb) {
 				String name = getValue(object);
 				if (name != null) {
-					((TextCell) getCell()).render(context,
+					((ClickableTextCell) getCell()).render(context,
 							SafeHtmlUtils.fromSafeConstant(name), sb);
 				}
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
+		name.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+
+			@Override
+			public void update(int index, Measurement<Double> object,
+					String value) {
+				timeView.setMeasurement(ptuId, object.getName());
+			}
+		});
+
 		table.addColumn(name, new TextHeader("") {
 			@Override
 			public String getValue() {
-				if (ptuId == null) return "Name";
-				
+				if (ptuId == null)
+					return "Name";
+
 				if (settings != null) {
-					String name = settings.getName(Settings.DEFAULT_SUPERVISOR, ptuId);
-					
-					if (name != null) return name;
+					String name = settings.getName(Settings.DEFAULT_SUPERVISOR,
+							ptuId);
+
+					if (name != null)
+						return name;
 				}
-				
-				return "PTU Id: "+ptuId;
-			}			
+
+				return "PTU Id: " + ptuId;
+			}
 		});
 
-		TextColumn<Measurement<Double>> value = new TextColumn<Measurement<Double>>() {
+		ClickableTextColumn<Measurement<Double>> value = new ClickableTextColumn<Measurement<Double>>() {
 			@Override
 			public String getValue(Measurement<Double> object) {
 				if (object == null) {
@@ -143,15 +168,23 @@ public class MeasurementView extends VerticalFlowPanel {
 					SafeHtmlBuilder sb) {
 				String s = getValue(object);
 				// FIXME does not work for dosimeter
-				((TextCell) getCell()).render(context,
+				((ClickableTextCell) getCell()).render(context,
 						decorate(s, object, last), sb);
 			}
 
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		value.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+
+			@Override
+			public void update(int index, Measurement<Double> object,
+					String value) {
+				timeView.setMeasurement(ptuId, object.getName());
+			}
+		});
 		table.addColumn(value, "Value");
 
-		TextColumn<Measurement<Double>> unit = new TextColumn<Measurement<Double>>() {
+		ClickableTextColumn<Measurement<Double>> unit = new ClickableTextColumn<Measurement<Double>>() {
 			@Override
 			public String getValue(Measurement<Double> object) {
 				return object.getUnit();
@@ -162,13 +195,21 @@ public class MeasurementView extends VerticalFlowPanel {
 					SafeHtmlBuilder sb) {
 				String unit = getValue(object);
 				if (unit != null) {
-					((TextCell) getCell()).render(context,
+					((ClickableTextCell) getCell()).render(context,
 							SafeHtmlUtils.fromSafeConstant(unit), sb);
 				}
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		unit.setSortable(true);
+		unit.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+
+			@Override
+			public void update(int index, Measurement<Double> object,
+					String value) {
+				timeView.setMeasurement(ptuId, object.getName());
+			}
+		});
 		table.addColumn(unit, "Unit");
 
 		List<Measurement<Double>> list = new ArrayList<Measurement<Double>>();
@@ -224,6 +265,17 @@ public class MeasurementView extends VerticalFlowPanel {
 				});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
+		
+		final SingleSelectionModel<Measurement<Double>> selectionModel = new SingleSelectionModel<Measurement<Double>>();
+		table.setSelectionModel(selectionModel);
+		selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+			
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				Measurement<Double> m = selectionModel.getSelectedObject();
+				System.err.println(m+" "+event.getSource());
+			}
+		});
 	}
 
 	public static SafeHtml decorate(String s, Measurement<Double> current,

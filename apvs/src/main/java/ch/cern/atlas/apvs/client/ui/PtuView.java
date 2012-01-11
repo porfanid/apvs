@@ -65,7 +65,7 @@ public class PtuView extends VerticalPanel {
 		
 		init();
 
-		timeView = new TimeView(clientFactory);
+		timeView = new TimeView(clientFactory, 300, true);
 		
 		add(table);
 		add(timeView);
