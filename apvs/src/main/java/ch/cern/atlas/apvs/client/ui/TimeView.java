@@ -188,6 +188,7 @@ public class TimeView extends SimplePanel {
 		removeChart();
 		
 		chart = new Chart()
+		// same as above
 				.setColors("#4572A7", "#AA4643", "#89A54E", "#80699B", "#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92")
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
@@ -235,8 +236,9 @@ public class TimeView extends SimplePanel {
 
 					@Override
 					public String format(AxisLabelsData axisLabelsData) {
-						return DateTimeFormat.getFormat("HH:mm").format(
-								new Date(axisLabelsData.getValueAsLong()));
+						Date date = new Date(axisLabelsData.getValueAsLong());
+						String pattern = date.getSeconds() == 0 ? "HH:mm" : "HH:mm:ss";
+						return DateTimeFormat.getFormat(pattern).format(date);
 					}
 				}));
 
