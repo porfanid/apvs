@@ -16,6 +16,7 @@ public class Ptu implements Serializable {
 
 	private int ptuId;
 	protected Map<String, List<Measurement<Double>>> measurements = new HashMap<String, List<Measurement<Double>>>();
+	protected Map<String, Integer> limitNoOfValues = new HashMap<String, Integer>();
 		
 	public Ptu() {
 		ptuId = -1;
@@ -58,6 +59,7 @@ public class Ptu implements Serializable {
 	}
 	
 	public List<Measurement<Double>> getMeasurements(String name) {
+		System.err.println(measurements.get(name).size());
 		return measurements.get(name);
 	}
 	
@@ -73,6 +75,11 @@ public class Ptu implements Serializable {
 		return m.get(index);
 	}
 	
+	public Measurement<Double> addMeasurement(Measurement<Double> measurement, int limitNoOfValues) {
+		this.limitNoOfValues.put(measurement.getName(), limitNoOfValues);
+		return addMeasurement(measurement);
+	}
+	
 	public Measurement<Double> addMeasurement(Measurement<Double> measurement) {
 		List<Measurement<Double>> m = measurements.get(measurement.getName());
 		Measurement<Double> r;
@@ -83,12 +90,19 @@ public class Ptu implements Serializable {
 		} else {
 			r = m.size() > 0 ? m.get(m.size()-1) : null;
 		}
-		// FIXME limit size
 		m.add(measurement);
+
+		// limit size
+		Integer limitNoOfValues = this.limitNoOfValues.get(measurement.getName());
+		while ((limitNoOfValues != null) && (m.size() > limitNoOfValues)) {
+			m.remove(0);
+			System.err.println("Removing value..."+m.size());
+		}
 		return r;
 	}
 
 	public Collection<? extends Measurement<Double>> getMeasurements() {
+		System.err.println("Get all meas");
 		List<Measurement<Double>> r = new ArrayList<Measurement<Double>>(measurements.size());
 		for (Iterator<String> i = measurements.keySet().iterator(); i.hasNext(); ) {
 			Measurement<Double> m = getMeasurement(i.next());

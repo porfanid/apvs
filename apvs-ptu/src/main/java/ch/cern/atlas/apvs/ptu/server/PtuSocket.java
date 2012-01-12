@@ -20,6 +20,7 @@ public class PtuSocket implements Runnable {
 	private int defaultWait = 5000;
 	private int extraWait = 2000;
 	private int deltaStartTime = 12 * 3600 * 1000;
+	private int limitNumberOfValues = 50;
 
 	public PtuSocket(Socket socket, boolean json) {
 		this.socket = socket;
@@ -49,13 +50,13 @@ public class PtuSocket implements Runnable {
 				Ptu ptu = new Ptu(ptuId);
 				ptus.add(ptu);
 					
-				ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
-				ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
-				ptu.addMeasurement(new CO2(ptuId, 2.5, start));
-				ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
-				ptu.addMeasurement(new HeartBeat(ptuId, 120, start));
-				ptu.addMeasurement(new O2SkinSaturationRate(ptuId, 20.8, start));
-				ptu.addMeasurement(new O2(ptuId, 85.2, start));
+				ptu.addMeasurement(new Temperature(ptuId, 25.7, start), limitNumberOfValues);
+				ptu.addMeasurement(new Humidity(ptuId, 31.4, start), limitNumberOfValues);
+				ptu.addMeasurement(new CO2(ptuId, 2.5, start), limitNumberOfValues);
+				ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start), limitNumberOfValues);
+				ptu.addMeasurement(new HeartBeat(ptuId, 120, start), limitNumberOfValues);
+				ptu.addMeasurement(new O2SkinSaturationRate(ptuId, 20.8, start), limitNumberOfValues);
+				ptu.addMeasurement(new O2(ptuId, 85.2, start), limitNumberOfValues);
 
 				System.out.println(ptus.get(i).getPtuId());
 			}
