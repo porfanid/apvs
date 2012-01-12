@@ -237,6 +237,7 @@ public class TimeView extends SimplePanel {
 					@Override
 					public String format(AxisLabelsData axisLabelsData) {
 						Date date = new Date(axisLabelsData.getValueAsLong());
+						@SuppressWarnings("deprecation")
 						String pattern = date.getSeconds() == 0 ? "HH:mm" : "HH:mm:ss";
 						return DateTimeFormat.getFormat(pattern).format(date);
 					}
