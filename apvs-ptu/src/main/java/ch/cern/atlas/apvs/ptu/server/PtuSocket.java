@@ -20,7 +20,7 @@ public class PtuSocket implements Runnable {
 	private int defaultWait = 5000;
 	private int extraWait = 2000;
 	private int deltaStartTime = 12 * 3600 * 1000;
-	private int limitNumberOfValues = 50;
+	static int limitNumberOfValues = 200;
 
 	public PtuSocket(Socket socket, boolean json) {
 		this.socket = socket;
