@@ -2,9 +2,11 @@ package ch.cern.atlas.apvs.dosimeter.server;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -35,13 +37,16 @@ public class DosimeterSocket implements Runnable {
 			List<Dosimeter> dosimeters = new ArrayList<Dosimeter>(
 					noOfDosimeters);
 			int[] serialNo = { 265, 4738, 202, 106, 395 };
+			Date now = new Date();
 			for (int i = 0; i < noOfDosimeters; i++) {
 				dosimeters.add(new Dosimeter(serialNo[i], random
-						.nextDouble()*500.0, random.nextDouble()*5.0));
+						.nextDouble()*500.0, random.nextDouble()*5.0, now));
 				System.out.println(dosimeters.get(i).getSerialNo());
 			}
 			
 			System.out.print("Dosimeter Demo Server connected on: "+socket.getInetAddress());
+			
+			devNull(socket.getInputStream());
 
 			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			while (true) {
@@ -77,7 +82,22 @@ public class DosimeterSocket implements Runnable {
 		double newDose = dosimeter.getDose() + dosimeter.getRate();
 		double newRate = Math.max(0.0,
 				dosimeter.getRate() + random.nextGaussian() * 0.5);
-		return new Dosimeter(dosimeter.getSerialNo(), newDose, newRate);
+		return new Dosimeter(dosimeter.getSerialNo(), newDose, newRate, new Date());
+	}
+
+	private void devNull(final InputStream is) {
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					while (is.read() > 0) {
+						// keep going
+					}
+				} catch (IOException e) {
+					// ignored
+				}
+			}
+		}.start();
 	}
 
 }

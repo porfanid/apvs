@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.ptu.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -65,6 +66,8 @@ public class PtuSocket implements Runnable {
 
 			System.out.print("PTU Demo Server connected on: "
 					+ socket.getInetAddress());
+			
+			devNull(socket.getInputStream());
 
 			OutputStream os = socket.getOutputStream();
 			ObjectWriter writer = json ? new PtuJsonWriter(os)
@@ -117,5 +120,20 @@ public class PtuSocket implements Runnable {
 	private Measurement<Double> next(Measurement<Double> m, Date d) {
 		return new Measurement<Double>(m.getPtuId(), m.getName(), m.getValue()
 				+ random.nextGaussian(), m.getUnit(), d);
+	}
+	
+	private void devNull(final InputStream is) {
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					while (is.read() > 0) {
+						// keep going
+					}
+				} catch (IOException e) {
+					// ignored
+				}
+			}
+		}.start();
 	}
 }

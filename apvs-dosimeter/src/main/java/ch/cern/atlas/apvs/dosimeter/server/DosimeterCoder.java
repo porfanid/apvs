@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.dosimeter.server;
 
+import java.util.Date;
+
 import ch.cern.atlas.apvs.domain.Dosimeter;
 
 public class DosimeterCoder {
@@ -21,7 +23,7 @@ public class DosimeterCoder {
 		return s + String.format("%02X", checksum);
 	}
 
-	public static Dosimeter decode(String encodedString) {
+	public static Dosimeter decode(String encodedString, Date date) {
 		if (encodedString.length() < 46) return null;
 		
 		int serialNo = Integer.parseInt(encodedString.substring(0, 6));
@@ -38,7 +40,7 @@ public class DosimeterCoder {
 			return null;
 		}
 
-		return new Dosimeter(serialNo, dose, rate);
+		return new Dosimeter(serialNo, dose, rate, date);
 	}
 
 	private static int getChecksum(String encodedString) {
