@@ -307,7 +307,7 @@ fi
 #####################################################
 if [ -z "$APVS_RUN" ] 
 then
-  APVS_RUN=$(findDirectory -w /var/run /usr/var/run /tmp)
+  APVS_RUN=$(findDirectory -w /tmp)
 fi
 
 #####################################################

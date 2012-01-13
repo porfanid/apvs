@@ -307,7 +307,7 @@ fi
 #####################################################
 if [ -z "$APVS_DOSIMETER_RUN" ] 
 then
-  APVS_DOSIMETER_RUN=$(findDirectory -w /var/run /usr/var/run /tmp)
+  APVS_DOSIMETER_RUN=$(findDirectory -w /tmp)
 fi
 
 #####################################################
