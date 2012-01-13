@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -27,7 +28,37 @@
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<outputDirectory>${outputDir}</outputDirectory>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
+			<plugin>
+			    <!-- Adds a Build.properties file to inject constants into GWT with build time and version number -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<target>
+								<property name="src.dir" value="${project.build.directory}/generated-sources/gwt" />
+								<property name="package.dir" value="ch/cern/atlas/apvs/client" />
+
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									message="version = ${project.version}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties" append="true"
+									message="build = ${buildNumber}${line.separator}" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>

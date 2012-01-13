@@ -38,6 +38,7 @@ import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -74,6 +75,9 @@ public class APVS implements EntryPoint {
 	public void onModuleLoad() {
 		GWT.setUncaughtExceptionHandler(new APVSUncaughtExceptionHandler());
 
+		Build build = GWT.create(Build.class);
+		System.out.println("Starting APVS Version: " + build.version() + " - " + build.build()); 
+		
 		ServerServiceAsync.Util.getInstance().isReady(
 				new AsyncCallback<Boolean>() {
 
@@ -96,7 +100,7 @@ public class APVS implements EntryPoint {
 	}
 
 	private void start() {
-
+		
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
 		remoteEventBus = clientFactory.getEventBus();

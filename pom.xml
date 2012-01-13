@@ -17,6 +17,9 @@
   	</scm>
 
 	<properties>
+		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+    		<buildNumber>${maven.build.timestamp}</buildNumber>
+			
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<atmosphere-version>0.8.1</atmosphere-version>

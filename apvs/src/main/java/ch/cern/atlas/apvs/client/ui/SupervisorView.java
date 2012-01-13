@@ -3,10 +3,12 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.Build;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
@@ -46,7 +48,8 @@ public class SupervisorView extends DockPanel {
 		title.addStyleName("apvs-title");
 		header.add(title);
 
-		Label footer = new Label("Version 0.1");
+		Build build = GWT.create(Build.class);
+		Label footer = new Label("Version: " + build.version() + " - " + build.build()); 
 		footer.addStyleName("apvs-version");
 		add(footer, SOUTH);
 
