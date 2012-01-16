@@ -36,7 +36,8 @@
 		</resources>
 		<plugins>
 			<plugin>
-			    <!-- Adds a Build.properties file to inject constants into GWT with build time and version number -->
+				<!-- Adds a Build.properties file to inject constants into GWT with build 
+					time and version number -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
@@ -47,13 +48,14 @@
 						<phase>validate</phase>
 						<configuration>
 							<target>
-								<property name="src.dir" value="${project.build.directory}/generated-sources/gwt" />
+								<property name="src.dir"
+									value="${project.build.directory}/generated-sources/gwt" />
 								<property name="package.dir" value="ch/cern/atlas/apvs/client" />
 
 								<echo file="${src.dir}/${package.dir}/Build.properties"
 									message="version = ${project.version}${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Build.properties" append="true"
-									message="build = ${buildNumber}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									append="true" message="build = ${buildNumber}${line.separator}" />
 							</target>
 						</configuration>
 					</execution>
@@ -323,9 +325,27 @@
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>gwt-maven-plugin</artifactId>
 						<configuration>
-							<module>${gwtModule}</module>
-							<draftCompile>true</draftCompile>
+                            <module>${gwtModule}</module>
+
+							<strict>true</strict>
+							<gwtVersion>${gwt-version}</gwtVersion>
+							<runTarget>http://localhost:8888/apvs/index.html</runTarget>
+							<noServer>false</noServer>
+							<sourcesOnPath>true</sourcesOnPath>
+							<hostedWebapp>${war.target}</hostedWebapp>
+							<encoding>UTF-8</encoding>
 						</configuration>
+						<executions>
+							<execution>
+								<configuration>
+									<extraJvmArgs>-Xmx512m</extraJvmArgs>
+								</configuration>
+								<goals>
+									<goal>generateAsync</goal>
+									<goal>compile</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>
