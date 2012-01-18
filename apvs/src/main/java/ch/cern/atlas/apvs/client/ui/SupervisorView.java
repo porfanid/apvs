@@ -44,7 +44,7 @@ public class SupervisorView extends DockPanel {
 		logo.addStyleName("apvs-logo");
 		header.add(logo);
 
-		Label title = new Label("Atlas Procedures Visualization System");
+		Label title = new Label("ATLAS Procedures Visualizer System");
 		title.addStyleName("apvs-title");
 		header.add(title);
 
