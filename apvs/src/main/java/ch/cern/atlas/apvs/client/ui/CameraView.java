@@ -38,9 +38,9 @@ public class CameraView extends SimplePanel {
 	private int type;
 
 	private Integer ptuId;
-	
+
 	private SupervisorSettings settings;
-	
+
 	private String currentCameraUrl;
 
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
@@ -62,9 +62,9 @@ public class CameraView extends SimplePanel {
 					@Override
 					public void onSupervisorSettingsChanged(
 							SupervisorSettingsChangedEvent event) {
-						
+
 						settings = event.getSupervisorSettings();
-						
+
 						update();
 					}
 				});
@@ -74,15 +74,16 @@ public class CameraView extends SimplePanel {
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
 				ptuId = event.getPtuId();
-				
+
 				update();
 			}
 		});
 	}
 
 	private String getCameraUrl(int type, int ptuId) {
-		if (settings == null) return null;
-		
+		if (settings == null)
+			return null;
+
 		return type == HELMET ? settings.getHelmetCameraUrl(
 				Settings.DEFAULT_SUPERVISOR, ptuId) : settings
 				.getHandCameraUrl(Settings.DEFAULT_SUPERVISOR, ptuId);
@@ -94,9 +95,9 @@ public class CameraView extends SimplePanel {
 		image.setHeight(videoHeight + Unit.PX.toString());
 		setWidget(image);
 
-		if (settings == null) 
+		if (settings == null)
 			return;
-		
+
 		if (ptuId == null)
 			return;
 
@@ -104,26 +105,31 @@ public class CameraView extends SimplePanel {
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
 			return;
 		}
-		
-		if (cameraUrl.equals(currentCameraUrl)) 
+
+		if (cameraUrl.equals(currentCameraUrl))
 			return;
-		
+
 		currentCameraUrl = cameraUrl;
 
 		if (cameraUrl.startsWith("http://")) {
-			Video video = Video.createIfSupported();
-			if (video != null) {
-				video.setWidth(videoWidth + Unit.PX.toString());
-				video.setHeight(videoHeight + Unit.PX.toString());
-				video.setControls(true);
-				video.setAutoplay(true);
-				video.setPoster(videoPoster);
-				video.setMuted(true);
-				video.setLoop(true);
-				video.addSource(cameraUrl);
+			if (cameraUrl.endsWith(".mjpg")) {
+				System.err.println(cameraUrl);
+				image.setUrl(cameraUrl);
+			} else {
+				Video video = Video.createIfSupported();
+				if (video != null) {
+					video.setWidth(videoWidth + Unit.PX.toString());
+					video.setHeight(videoHeight + Unit.PX.toString());
+					video.setControls(true);
+					video.setAutoplay(true);
+					video.setPoster(videoPoster);
+					video.setMuted(true);
+					video.setLoop(true);
+					video.addSource(cameraUrl);
+				}
+				System.err.println(video.toString());
+				setWidget(video);
 			}
-			System.err.println(video.toString());
-			setWidget(video);
 		} else if (cameraUrl.startsWith("rtsp://")) {
 			Widget video = new HTML(
 					"<embed width=\""
