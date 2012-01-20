@@ -1,28 +1,11 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.moxieapps.gwt.highcharts.client.Axis;
-import org.moxieapps.gwt.highcharts.client.AxisTitle;
-import org.moxieapps.gwt.highcharts.client.Chart;
-import org.moxieapps.gwt.highcharts.client.ChartTitle;
-import org.moxieapps.gwt.highcharts.client.Credits;
-import org.moxieapps.gwt.highcharts.client.Exporting;
-import org.moxieapps.gwt.highcharts.client.Legend;
 import org.moxieapps.gwt.highcharts.client.Series;
-import org.moxieapps.gwt.highcharts.client.Style;
-import org.moxieapps.gwt.highcharts.client.ToolTip;
-import org.moxieapps.gwt.highcharts.client.ToolTipData;
-import org.moxieapps.gwt.highcharts.client.ToolTipFormatter;
-import org.moxieapps.gwt.highcharts.client.labels.AxisLabelsData;
-import org.moxieapps.gwt.highcharts.client.labels.AxisLabelsFormatter;
-import org.moxieapps.gwt.highcharts.client.labels.DataLabels;
-import org.moxieapps.gwt.highcharts.client.labels.XAxisLabels;
-import org.moxieapps.gwt.highcharts.client.plotOptions.BarPlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 
@@ -30,29 +13,13 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class TimeView extends SimplePanel {
-
-	private static final String[] color = { "#4572A7", "#AA4643", "#89A54E",
-			"#80699B", "#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92" };
-	private static final int pointLimit = 200;
-
-	private ClientFactory clientFactory;
+public class TimeView extends AbstractTimeView {
 
 	private HandlerRegistration handler;
-	private Chart chart;
-	private Map<Integer, Integer> pointsByPtuId;
-	private Map<Integer, Series> seriesByPtuId;
-	private Map<Integer, String> colorsByPtuId;
-
-	private int height;
-	private boolean export;
-
+	
 	public TimeView(final ClientFactory clientFactory, int height,
 			boolean export) {
 		this.clientFactory = clientFactory;
@@ -61,9 +28,9 @@ public class TimeView extends SimplePanel {
 	}
 
 	public void setMeasurement(final String name) {
-		pointsByPtuId = new HashMap<Integer, Integer>();
-		seriesByPtuId = new HashMap<Integer, Series>();
-		colorsByPtuId = new HashMap<Integer, String>();
+		pointsById = new HashMap<Integer, Integer>();
+		seriesById = new HashMap<Integer, Series>();
+		colorsById = new HashMap<Integer, String>();
 
 		unsubscribe();
 		removeChart();
@@ -106,9 +73,9 @@ public class TimeView extends SimplePanel {
 
 							Series series = chart.createSeries().setName(
 									"" + ptuId);
-							pointsByPtuId.put(ptuId, 0);
-							seriesByPtuId.put(ptuId, series);
-							colorsByPtuId.put(ptuId, color[k]);
+							pointsById.put(ptuId, 0);
+							seriesById.put(ptuId, series);
+							colorsById.put(ptuId, color[k]);
 
 							addHistory(ptuId, series, measurements.get(ptuId));
 
@@ -130,9 +97,9 @@ public class TimeView extends SimplePanel {
 	}
 
 	public void setMeasurement(final int ptuId, final String name) {
-		pointsByPtuId = new HashMap<Integer, Integer>();
-		seriesByPtuId = new HashMap<Integer, Series>();
-		colorsByPtuId = new HashMap<Integer, String>();
+		pointsById = new HashMap<Integer, Integer>();
+		seriesById = new HashMap<Integer, Series>();
+		colorsById = new HashMap<Integer, String>();
 
 		unsubscribe();
 		removeChart();
@@ -161,9 +128,9 @@ public class TimeView extends SimplePanel {
 
 						Series series = chart.createSeries()
 								.setName("" + ptuId);
-						pointsByPtuId.put(ptuId, 0);
-						seriesByPtuId.put(ptuId, series);
-						colorsByPtuId.put(ptuId, color[0]);
+						pointsById.put(ptuId, 0);
+						seriesById.put(ptuId, series);
+						colorsById.put(ptuId, color[0]);
 
 						addHistory(ptuId, series, measurements);
 
@@ -182,83 +149,6 @@ public class TimeView extends SimplePanel {
 				});
 	}
 
-	public String getColor(int ptuId) {
-		return chart != null ? colorsByPtuId.get(ptuId) : null;
-	}
-
-	private void removeChart() {
-		if (chart != null) {
-			remove(chart);
-			chart = null;
-		}
-	}
-
-	private void createChart(String name, String unit) {
-		removeChart();
-
-		chart = new Chart()
-				// same as above
-				.setColors("#4572A7", "#AA4643", "#89A54E", "#80699B",
-						"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92")
-				.setType(Series.Type.LINE)
-				.setZoomType(Chart.ZoomType.X)
-				.setWidth100()
-				.setHeight(height)
-				.setChartTitle(
-						new ChartTitle().setText(name).setStyle(
-								new Style().setFontSize("12px")))
-				.setMarginRight(10)
-				.setExporting(new Exporting().setEnabled(export))
-				.setBarPlotOptions(
-						new BarPlotOptions().setDataLabels(new DataLabels()
-								.setEnabled(true)))
-				.setLinePlotOptions(
-						new LinePlotOptions().setMarker(
-								new Marker().setEnabled(false))
-								.setShadow(false))
-				.setAnimation(false)
-				.setLegend(new Legend().setEnabled(false))
-				.setCredits(new Credits().setEnabled(false))
-				.setToolTip(
-						new ToolTip().setCrosshairs(true, true).setFormatter(
-								new ToolTipFormatter() {
-									@Override
-									public String format(ToolTipData toolTipData) {
-										return "<b>"
-												+ toolTipData.getSeriesName()
-												+ "</b><br/>"
-												+ DateTimeFormat
-														.getFormat(
-																"yyyy-MM-dd HH:mm:ss")
-														.format(new Date(
-																toolTipData
-																		.getXAsLong()))
-												+ "<br/>"
-												+ NumberFormat
-														.getFormat("0.00")
-														.format(toolTipData
-																.getYAsDouble());
-									}
-								}));
-
-		chart.getXAxis().setType(Axis.Type.DATE_TIME).setLabels(
-		// Fix one hour offset in time labels...
-				new XAxisLabels().setFormatter(new AxisLabelsFormatter() {
-
-					@Override
-					public String format(AxisLabelsData axisLabelsData) {
-						Date date = new Date(axisLabelsData.getValueAsLong());
-						@SuppressWarnings("deprecation")
-						String pattern = date.getSeconds() == 0 ? "HH:mm"
-								: "HH:mm:ss";
-						return DateTimeFormat.getFormat(pattern).format(date);
-					}
-				}));
-
-		chart.getYAxis().setAllowDecimals(true)
-				.setAxisTitle(new AxisTitle().setText(unit));
-	}
-
 	private void addHistory(Integer ptuId, Series series,
 			List<Measurement<Double>> measurements) {
 		if (measurements == null)
@@ -274,7 +164,7 @@ public class TimeView extends SimplePanel {
 		}
 
 		series.setPoints(data, false);
-		pointsByPtuId.put(ptuId, data.length);
+		pointsById.put(ptuId, data.length);
 	}
 
 	private void unsubscribe() {
@@ -301,15 +191,15 @@ public class TimeView extends SimplePanel {
 
 						if (m.getName().equals(name)) {
 							System.err.println("New meas " + m);
-							Series series = seriesByPtuId.get(m.getPtuId());
+							Series series = seriesById.get(m.getPtuId());
 							if (series != null) {
-								Integer numberOfPoints = pointsByPtuId
+								Integer numberOfPoints = pointsById
 										.get(ptuId);
 								if (numberOfPoints == null)
 									numberOfPoints = 0;
 								boolean shift = numberOfPoints >= pointLimit;
 								if (!shift) {
-									pointsByPtuId
+									pointsById
 											.put(ptuId, numberOfPoints + 1);
 								}
 								chart.setLinePlotOptions(new LinePlotOptions()
@@ -322,11 +212,5 @@ public class TimeView extends SimplePanel {
 						}
 					}
 				});
-	}
-
-	public void redraw() {
-		if (chart != null) {
-			chart.redraw();
-		}
 	}
 }
