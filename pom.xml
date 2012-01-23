@@ -238,7 +238,7 @@
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
-				<artifactId>apvs-ptu-daq-raw</artifactId>
+				<artifactId>apvs-ptu-raw</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
