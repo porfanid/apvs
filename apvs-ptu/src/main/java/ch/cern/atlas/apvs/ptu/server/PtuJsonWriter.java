@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
@@ -64,4 +65,21 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 			newLine();
 		}
 	}
+
+	public static String toJson(Object item) {
+		try {
+			return objectToJson(item);
+		} catch (IOException ignored) {
+			return null;
+		}
+	}
+
+	public static String objectToJson(Object item) throws IOException {
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		PtuJsonWriter writer = new PtuJsonWriter(stream);
+		writer.write(item);
+		writer.close();
+		return new String(stream.toByteArray(), "UTF-8");
+	}
+
 }

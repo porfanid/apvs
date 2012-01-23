@@ -23,7 +23,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>ch.cern.atlas.apvs.ptu.daq.PtuDaq</mainClass>
+							<mainClass>ch.cern.atlas.apvs.ptu.daq.server.PtuDaqServer</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -48,10 +48,14 @@
             <groupId>ch.cern.atlas</groupId>
             <artifactId>apvs-domain</artifactId>
         </dependency>
-		<dependency>
-			<groupId>com.cedarsoftware</groupId>
-			<artifactId>apvs-json-io</artifactId>
-		</dependency>
+         <dependency>
+            <groupId>ch.cern.atlas</groupId>
+            <artifactId>apvs-ptu</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cedarsoftware</groupId>
+            <artifactId>apvs-json-io</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

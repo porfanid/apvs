@@ -1,0 +1,3 @@
+#!/bin/sh
+java -jar target/apvs-ptu-daq-jar-with-dependencies.jar
+
