@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.ptu.daq.server;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -31,8 +33,14 @@ public class PtuDaqQueue extends Thread {
 		while (true) {
 			try {
 				String item = queue.take();
-				for (PtuDaqListener listener: listeners) {
-					listener.itemAvailable(item);
+				for (Iterator<PtuDaqListener> i = listeners.iterator(); i.hasNext(); ) {
+					PtuDaqListener listener = i.next();
+					try {
+						listener.itemAvailable(item);
+					} catch (IOException e) {
+						System.err.println(e);
+						i.remove();
+					}
 				}
 			} catch (InterruptedException e) {
 				System.err.println(e);

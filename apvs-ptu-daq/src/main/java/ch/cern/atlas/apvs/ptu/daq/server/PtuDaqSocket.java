@@ -12,19 +12,18 @@ public class PtuDaqSocket implements PtuDaqListener {
 	public PtuDaqSocket(Socket socket, PtuDaqQueue queue) throws IOException {
 		System.out.print("PTU DAQ Server connected on: "
 				+ socket.getInetAddress());
-		os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-		
+		os = new BufferedWriter(
+				new OutputStreamWriter(socket.getOutputStream()));
+
 		queue.addListener(this);
 	}
-	
+
 	@Override
-	public void itemAvailable(String item) {
-		try {
+	public void itemAvailable(String item) throws IOException {
 		os.write(item);
 		os.newLine();
 		os.flush();
-		} catch (IOException e) {
-			System.err.println(e);
-		}
+
+		System.out.println(item);
 	}
 }

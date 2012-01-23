@@ -26,14 +26,18 @@ public class PtuDaqServer {
 
 		queue = new PtuDaqQueue();
 		queue.start();
-		
+
 		// start all the readers
 		BufferedReader in = new BufferedReader(new FileReader("PtuDaq.conf"));
 		String line;
 		while ((line = in.readLine()) != null) {
+			if (line.startsWith("#")) continue;
+			
 			String[] s = line.split(":", 2);
 
-			new PtuDaqReader(s[0], Integer.parseInt(s[1]), queue).start();
+			if (s.length > 1) {
+				new PtuDaqReader(s[0], Integer.parseInt(s[1]), queue).start();
+			}
 		}
 		in.close();
 	}

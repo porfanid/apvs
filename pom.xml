@@ -65,6 +65,7 @@
 		<module>apvs-json-io</module>
 		<module>apvs-ptu</module>
 		<module>apvs-ptu-daq</module>
+		<module>apvs-ptu-raw</module>
 		<module>apvs-rcharts</module>
 	</modules>
 
@@ -233,6 +234,11 @@
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-ptu-daq</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-ptu-daq-raw</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

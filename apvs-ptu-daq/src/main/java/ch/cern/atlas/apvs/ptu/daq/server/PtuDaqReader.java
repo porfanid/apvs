@@ -54,7 +54,7 @@ public class PtuDaqReader extends Thread {
 
 				String line;
 				while ((line = bis.readLine()) != null) {
-					System.out.println(line);
+//					System.out.println(line);
 					try {
 						queue.add(convert(line));
 					} catch (ConversionException e) {
@@ -78,7 +78,7 @@ public class PtuDaqReader extends Thread {
 
 	private String convert(String line) throws ConversionException {
 		Pattern pattern = Pattern
-				.compile("^\\$YXS(\\D+),(\\d+),(.*)\\*([0-9A-Fa-f]+)");
+				.compile("^\\$YXS(\\w+),(\\d+),(.*)\\*([0-9A-Fa-f]+)");
 		Matcher matcher = pattern.matcher(line);
 
 		if (!matcher.matches()) {
@@ -94,20 +94,28 @@ public class PtuDaqReader extends Thread {
 
 		StringBuffer s = new StringBuffer();
 		Date d = new Date();
-		double v = Double.parseDouble(values[0]);
-		int ptuId = getPtuId();
-		if (name.equals("O2")) {
-			s.append(PtuJsonWriter.toJson(new O2(ptuId, v, d)));
-		} else if (name.equals("CO")) {
-			s.append(PtuJsonWriter.toJson(new CO2(ptuId, v, d)));
-		} else if (name.equals("HT")) {
-			s.append(PtuJsonWriter.toJson(new Temperature(ptuId, v, d)));
-			s.append(PtuJsonWriter.toJson(new Humidity(ptuId, Double
-					.parseDouble(values[1]), d)));
-		} else if (name.equals("BT")) {
-			s.append(PtuJsonWriter.toJson(new BodyTemperature(ptuId, v, d)));
-		} else {
-			throw new ConversionException(name + " " + line);
+
+		try {
+			double v = Double.parseDouble(values[0]);
+			int ptuId = getPtuId();
+			if (name.equals("O2")) {
+				s.append(PtuJsonWriter.toJson(new O2(ptuId, v, d)));
+			} else if (name.equals("CO")) {
+				s.append(PtuJsonWriter.toJson(new CO2(ptuId, v, d)));
+			} else if (name.equals("HT")) {
+				s.append(PtuJsonWriter.toJson(new Temperature(ptuId, v, d)));
+				s.append(PtuJsonWriter.toJson(new Humidity(ptuId, Double
+						.parseDouble(values[1]), d)));
+			} else if (name.equals("BT")) {
+				s.append(PtuJsonWriter.toJson(new BodyTemperature(ptuId, v, d)));
+			} else if (name.equals("AC")) {
+				s.append("");
+				// FIXME
+			} else {
+				throw new ConversionException(name + " " + line);
+			}
+		} catch (NumberFormatException e) {
+			throw new ConversionException(line);
 		}
 
 		return s.toString();
