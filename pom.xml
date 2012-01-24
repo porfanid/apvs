@@ -65,7 +65,9 @@
 		<module>apvs-json-io</module>
 		<module>apvs-ptu</module>
 		<module>apvs-ptu-daq</module>
+<!--
 		<module>apvs-ptu-raw</module>
+-->
 		<module>apvs-rcharts</module>
 	</modules>
 
