@@ -34,6 +34,7 @@ public class CameraView extends SimplePanel {
 	private int videoWidth;
 	private int videoHeight;
 	private String videoPoster = "Default-640x480.jpg";
+	private Image image;
 
 	private int type;
 
@@ -55,6 +56,10 @@ public class CameraView extends SimplePanel {
 		this.type = type;
 		this.videoWidth = width;
 		this.videoHeight = height;
+		
+	    image = new Image();
+		image.setWidth(videoWidth + Unit.PX.toString());
+		image.setHeight(videoHeight + Unit.PX.toString());
 
 		SupervisorSettingsChangedEvent.subscribe(remoteEventBus,
 				new SupervisorSettingsChangedEvent.Handler() {
@@ -80,9 +85,10 @@ public class CameraView extends SimplePanel {
 		});
 	}
 
-	private String getCameraUrl(int type, int ptuId) {
-		if (settings == null)
+	private String getCameraUrl(int type, Integer ptuId) {
+		if ((settings == null) || (ptuId == null)) {
 			return null;
+		}
 
 		return type == HELMET ? settings.getHelmetCameraUrl(
 				Settings.DEFAULT_SUPERVISOR, ptuId) : settings
@@ -90,24 +96,16 @@ public class CameraView extends SimplePanel {
 	}
 
 	private void update() {
-		Image image = new Image(videoPoster);
-		image.setWidth(videoWidth + Unit.PX.toString());
-		image.setHeight(videoHeight + Unit.PX.toString());
-		setWidget(image);
-
-		if (settings == null)
-			return;
-
-		if (ptuId == null)
-			return;
-
 		String cameraUrl = getCameraUrl(type, ptuId);
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
+			image.setUrl(videoPoster);
+			setWidget(image);
 			return;
 		}
 
-		if (cameraUrl.equals(currentCameraUrl))
+		if (cameraUrl.equals(currentCameraUrl)) {
 			return;
+		}
 
 		currentCameraUrl = cameraUrl;
 
@@ -115,6 +113,7 @@ public class CameraView extends SimplePanel {
 			if (cameraUrl.endsWith(".mjpg")) {
 				System.err.println(cameraUrl);
 				image.setUrl(cameraUrl);
+				setWidget(image);
 			} else {
 				Video video = Video.createIfSupported();
 				if (video != null) {
