@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.client.widget.OptionList;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -35,6 +36,7 @@ public class PtuSelector extends VerticalFlowPanel {
 				} catch (NumberFormatException e) {
 					ptuId = null;
 				}
+				LocalStorage.getInstance().put(LocalStorage.PTU_ID, ptuId);
 				localEventBus.fireEvent(new SelectPtuEvent(ptuId));
 			}
 		});
@@ -51,30 +53,6 @@ public class PtuSelector extends VerticalFlowPanel {
 					}
 				});
 
-		SelectPtuEvent.register(localEventBus, new SelectPtuEvent.Handler() {
-
-			@Override
-			public void onPtuSelected(SelectPtuEvent event) {
-				if (true) return;
-				
-				// NOTE: disabled, we do not have to set this...
-				if (localEventBus.getUUID() != event.getEventBusUUID())
-					return;
-
-				int i = 0;
-				while (i < list.getItemCount()) {
-					if (list.getValue(i).equals(toLabel(event.getPtuId()))) {
-						list.setSelectedIndex(i);
-						break;
-					}
-					i++;
-				}
-				if (i == list.getItemCount()) {
-					list.setSelectedIndex(0);
-				}
-			}
-		});
-
 		PtuIdsChangedEvent.subscribe(remoteEventBus,
 				new PtuIdsChangedEvent.Handler() {
 
@@ -82,10 +60,30 @@ public class PtuSelector extends VerticalFlowPanel {
 					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
 
 						ptuIds = event.getPtuIds();
+						
+						ptuId = LocalStorage.getInstance().getInteger(LocalStorage.PTU_ID);
+						localEventBus.fireEvent(new SelectPtuEvent(ptuId));
 						update();
+						updateSelector();
 					}
 				});
 		update();
+	}
+	
+	private void updateSelector() {
+		int i = 0;
+		while (i < list.getItemCount()) {
+			if (list.getValue(i).equals(toLabel(ptuId))) {
+				list.setSelectedIndex(i);
+				break;
+			}
+			i++;
+		}
+		if (i == list.getItemCount()) {
+			list.setSelectedIndex(0);
+		}
+		System.err.println("Update selector..."+i);
+
 	}
 
 	private void update() {
