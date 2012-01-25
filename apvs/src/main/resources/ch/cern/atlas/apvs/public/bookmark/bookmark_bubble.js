@@ -550,7 +550,8 @@ google.bookmarkbubble.Bubble.prototype.build_ = function() {
   bubbleInner.style.width = '214px';
   //Test for iPad vs iPhone
   if (isIpad) {
-    bubbleInner.style.margin = isPortrait ? '0 0 0 142px' : '0 0 0 73px';     
+//    bubbleInner.style.margin = isPortrait ? '0 0 0 142px' : '0 0 0 73px'; 
+	  bubbleInner.style.margin = isPortrait ? '0 0 0 40px' : '0 0 0 40px';    
   } else {
   bubbleInner.style.margin = '0 auto';  
   }
@@ -570,7 +571,7 @@ google.bookmarkbubble.Bubble.prototype.build_ = function() {
   // The "Add to Home Screen" text is intended to be the exact same text
   // that is displayed in the menu of Mobile Safari.
   if (this.getIosVersion_() >= this.getVersion_(4, 2)) {
-    bubbleInner.innerHTML = 'Install this web app on your phone: ' +
+    bubbleInner.innerHTML = 'Install this web app on your ' + (isIpad ? 'tablet' : 'phone') +': ' +
         'tap on the arrow and then <b>\'Add to Home Screen\'</b>';
   } else {
     bubbleInner.innerHTML = 'Install this web app on your phone: ' +
