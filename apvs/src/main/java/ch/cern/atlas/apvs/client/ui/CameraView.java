@@ -7,6 +7,10 @@ import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.media.client.Video;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
@@ -60,6 +64,20 @@ public class CameraView extends SimplePanel {
 	    image = new Image();
 		image.setWidth(videoWidth + Unit.PX.toString());
 		image.setHeight(videoHeight + Unit.PX.toString());
+		image.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				update(true);
+			}
+		});
+		image.addDoubleClickHandler(new DoubleClickHandler() {
+			
+			@Override
+			public void onDoubleClick(DoubleClickEvent event) {
+				System.err.println("Double Click "+event+" enlarge");
+			}
+		});
 
 		SupervisorSettingsChangedEvent.subscribe(remoteEventBus,
 				new SupervisorSettingsChangedEvent.Handler() {
@@ -70,7 +88,7 @@ public class CameraView extends SimplePanel {
 
 						settings = event.getSupervisorSettings();
 
-						update();
+						update(false);
 					}
 				});
 
@@ -80,7 +98,7 @@ public class CameraView extends SimplePanel {
 			public void onPtuSelected(SelectPtuEvent event) {
 				ptuId = event.getPtuId();
 
-				update();
+				update(false);
 			}
 		});
 	}
@@ -95,7 +113,7 @@ public class CameraView extends SimplePanel {
 				.getHandCameraUrl(Settings.DEFAULT_SUPERVISOR, ptuId);
 	}
 
-	private void update() {
+	private void update(boolean force) {
 		String cameraUrl = getCameraUrl(type, ptuId);
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
 			image.setUrl(videoPoster);
@@ -103,7 +121,7 @@ public class CameraView extends SimplePanel {
 			return;
 		}
 
-		if (cameraUrl.equals(currentCameraUrl)) {
+		if (!force && (cameraUrl.equals(currentCameraUrl))) {
 			return;
 		}
 
