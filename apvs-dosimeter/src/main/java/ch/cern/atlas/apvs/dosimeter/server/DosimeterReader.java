@@ -88,7 +88,7 @@ public class DosimeterReader implements Runnable {
 		String dosimeterLogfile = "APVS-Dosimeter.log";
 		// setup the logger
 		try {
-			logHandler = new FileHandler(dosimeterLogfile, 1000000, 20, true);
+			logHandler = new FileHandler(dosimeterLogfile, 1000000, 1000, true);
 			logHandler.setLevel(Level.INFO);
 			logHandler.setFormatter(new Formatter() {
 				
