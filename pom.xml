@@ -4,7 +4,7 @@
 
 	<groupId>ch.cern.atlas</groupId>
 	<artifactId>apvs-project</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.2</version>
 	<packaging>pom</packaging>
 	<name>APVS project</name>
 	<description>ATLAS Procedure Visualizer System</description>
@@ -65,9 +65,6 @@
 		<module>apvs-json-io</module>
 		<module>apvs-ptu</module>
 		<module>apvs-ptu-daq</module>
-<!--
-		<module>apvs-ptu-raw</module>
--->
 		<module>apvs-rcharts</module>
 	</modules>
 
@@ -241,7 +238,7 @@
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-ptu-raw</artifactId>
-				<version>${project.version}</version>
+				<version>0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
