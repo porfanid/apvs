@@ -8,3 +8,4 @@
 /target
 /APVS.properties
 /APVS-Dosimeter.log.*
+/error.log
