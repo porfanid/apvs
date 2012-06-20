@@ -22,7 +22,7 @@
 			
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<atmosphere-version>0.9.5</atmosphere-version>
+		<atmosphere-version>1.0.0-SNAPSHOT</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
 		<highcharts-version>1.4.0</highcharts-version>
 		<jdk-version>1.6</jdk-version>
