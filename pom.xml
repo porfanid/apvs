@@ -22,17 +22,24 @@
 			
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<atmosphere-version>0.8.1</atmosphere-version>
+		<atmosphere-version>0.9.5</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
 		<highcharts-version>1.4.0</highcharts-version>
 		<jdk-version>1.6</jdk-version>
+<!--
 		<jetty-version>7.5.4.v20111024</jetty-version>
+-->
+		<jetty-version>8.1.4.v20120524</jetty-version>
 		<json-version>20090211</json-version>
 		<junit-version>4.10</junit-version>
 		<mgwt-version>1.0.1</mgwt-version>
 		<rcharts-version>1.1</rcharts-version>
+<!--
 		<servlet-api-version>2.5</servlet-api-version>
+-->
+		<servlet-api-version>3.0-alpha-1</servlet-api-version>
 		<validation-api-version>1.0.0.GA</validation-api-version>
+                <slf4j-jdk14-version>1.6.1</slf4j-jdk14-version>
 
 		<antrun-plugin-version>1.7</antrun-plugin-version>
 		<assembly-plugin-version>2.2.2</assembly-plugin-version>
@@ -296,6 +303,11 @@
 				<scope>runtime</scope>
 			</dependency>
 			<dependency>
+          			<groupId>org.slf4j</groupId>
+          			<artifactId>slf4j-jdk14</artifactId>
+          			<version>${slf4j-jdk14-version}</version>
+        		</dependency>
+			<dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
 				<version>${json-version}</version>
@@ -349,6 +361,11 @@
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-util</artifactId>
+				<version>${jetty-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-websocket</artifactId>
 				<version>${jetty-version}</version>
 			</dependency>
 			<dependency>

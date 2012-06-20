@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.atmosphere.gwt.server.AtmosphereGwtHandler;
@@ -49,8 +51,8 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
     }
 
     @Override
-    public void doPost(List<Serializable> messages, GwtAtmosphereResource resource) {
-    	super.doPost(messages, resource);
+    public void doPost(HttpServletRequest postRequest, HttpServletResponse postResponse, List<Serializable> messages, GwtAtmosphereResource resource) {
+    	super.doPost(postRequest, postResponse, messages, resource);
     	System.out.println("Post...");
     	for (Iterator<Serializable> i = messages.iterator(); i.hasNext(); ) {
     		System.out.println("-- "+i.next().getClass());

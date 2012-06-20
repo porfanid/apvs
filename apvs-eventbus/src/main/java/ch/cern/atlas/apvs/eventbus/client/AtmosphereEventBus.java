@@ -89,6 +89,11 @@ public class AtmosphereEventBus extends RemoteEventBus {
 
 		}
 
+		public void onAfterRefresh() {
+			// TODO Auto-generated method stub
+			
+		}
+
 		/**
 		 * handle broadcasted events from other clients
 		 */
