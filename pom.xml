@@ -68,6 +68,7 @@
 		<module>apvs-domain</module>
 		<module>apvs-dosimeter</module>
 		<module>apvs-eventbus</module>
+		<module>apvs-gwtprojsonserializer</module>
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-ptu</module>
@@ -230,6 +231,11 @@
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-eventbus</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-gwtprojsonserializer</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
