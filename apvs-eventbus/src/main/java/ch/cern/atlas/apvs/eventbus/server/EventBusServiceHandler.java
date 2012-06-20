@@ -117,6 +117,8 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 					System.err
 							.println("Server: Could not write and resume event "
 									+ e);
+					e.printStackTrace();
+					client.suspendInfo = null;
 				}
 			}
 		}
