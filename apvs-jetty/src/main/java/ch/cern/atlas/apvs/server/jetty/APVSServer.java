@@ -21,8 +21,8 @@ public class APVSServer {
 		// Create a handler for processing our GWT app
 		WebAppContext webapp = new WebAppContext();
 		webapp.setContextPath("/");
-		webapp.setDescriptor(location.toExternalForm() + "/WEB-INF/web.xml");
-		webapp.setServer(server);
+//		webapp.setDescriptor(location.toExternalForm() + "/WEB-INF/web.xml");
+//		webapp.setServer(server);
 		webapp.setWar(location.toExternalForm());
 
 		// (Optional) Set the directory the war will extract to.
@@ -40,7 +40,7 @@ public class APVSServer {
 		// And start it up
 		try {
 			server.start();
-			System.out.println("APVS started on port " + port);
+			System.out.println("APVS started on http://localhost:"+port+"/apvs/index.html");
 
 			server.join();
 		} catch (Exception e) {

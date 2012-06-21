@@ -49,6 +49,13 @@
 					</packagingExcludes>
 
 					<overlays>
+			            <overlay>
+                            <groupId>ch.cern.atlas</groupId>
+                            <artifactId>apvs</artifactId>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </overlay>
 						<overlay>
 							<groupId>org.eclipse.jetty</groupId>
 							<artifactId>jetty-server</artifactId>
@@ -103,10 +110,6 @@
 							<groupId>org.eclipse.jetty.orbit</groupId>
 							<artifactId>javax.servlet</artifactId>
 							<type>jar</type>
-						</overlay>
-						<overlay>
-							<groupId>ch.cern.atlas</groupId>
-							<artifactId>apvs</artifactId>
 						</overlay>
 					</overlays>
 				</configuration>

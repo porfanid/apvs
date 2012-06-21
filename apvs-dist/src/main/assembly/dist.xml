@@ -28,6 +28,14 @@
       <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
     </file>
     <file>
+      <source>${project.basedir}/../apvs-jetty/target/apvs-jetty.war</source>
+      <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
+    </file>
+    <file>
+      <source>${project.basedir}/../apvs-nettosphere/target/apvs-nettosphere.war</source>
+      <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
+    </file>
+    <file>
       <source>${project.basedir}/../apvs-ptu/target/apvs-ptu-jar-with-dependencies.jar</source>
       <destName>apvs-ptu.jar</destName>
       <outputDirectory>/${project.build.finalName}/lib</outputDirectory>

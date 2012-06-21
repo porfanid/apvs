@@ -51,8 +51,8 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
     }
 
     @Override
-    public void doPost(HttpServletRequest postRequest, HttpServletResponse postResponse, List<Serializable> messages, GwtAtmosphereResource resource) {
-    	super.doPost(postRequest, postResponse, messages, resource);
+    public void doPost(/*HttpServletRequest postRequest, HttpServletResponse postResponse, */List<Serializable> messages, GwtAtmosphereResource resource) {
+    	super.doPost(/* postRequest, postResponse, */messages, resource);
     	System.out.println("Post...");
     	for (Iterator<Serializable> i = messages.iterator(); i.hasNext(); ) {
     		System.out.println("-- "+i.next().getClass());

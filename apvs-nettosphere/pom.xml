@@ -32,11 +32,6 @@
 
 					<overlays>
 						<overlay>
-							<groupId>javax.servlet</groupId>
-							<artifactId>servlet-api</artifactId>
-							<type>jar</type>
-						</overlay>
-						<overlay>
 							<groupId>ch.cern.atlas</groupId>
 							<artifactId>apvs</artifactId>
 						</overlay>
@@ -54,10 +49,6 @@
 			<artifactId>apvs</artifactId>
 			<type>war</type>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
 		</dependency>
 	</dependencies>
 </project>

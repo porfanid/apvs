@@ -50,7 +50,7 @@
 #   and /opt/apvs. The java system property "apvs.home" will be
 #   set to this value for use by configure.xml files, f.e.:
 #
-#    <Arg><Property name="apvs.home" default="."/>/webapps/apvs.war</Arg>
+#    <Arg><Property name="apvs.home" default="."/>/webapps/apvs-jetty.war</Arg>
 #
 # APVS_PORT
 #   Override the default port for Apvs servers. If not set then the
@@ -151,7 +151,7 @@ TMPDIR=${TMPDIR:-/tmp}
 ##################################################
 # Apvs's hallmark
 ##################################################
-APVS_INSTALL_TRACE_FILE="lib/apvs.war"
+APVS_INSTALL_TRACE_FILE="lib/apvs-jetty.war"
 
 
 ##################################################

@@ -46,6 +46,16 @@
         </dependency>
         <dependency>
             <groupId>ch.cern.atlas</groupId>
+            <artifactId>apvs-jetty</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>ch.cern.atlas</groupId>
+            <artifactId>apvs-nettosphere</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>ch.cern.atlas</groupId>
             <artifactId>apvs-ptu</artifactId>
         </dependency>
         <dependency>

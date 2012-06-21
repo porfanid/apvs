@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.eventbus.client;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -97,7 +98,7 @@ public class AtmosphereEventBus extends RemoteEventBus {
 		 * handle broadcasted events from other clients
 		 */
 		@Override
-		public void onMessage(List<?> messages) {
+		public void onMessage(List<? extends Serializable> messages) {
 			for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
 				Object message = i.next();
 				if (message instanceof RemoteEvent<?>) {
