@@ -98,7 +98,7 @@ public class AtmosphereEventBus extends RemoteEventBus {
 		 * handle broadcasted events from other clients
 		 */
 		@Override
-		public void onMessage(List<? extends Serializable> messages) {
+		public void onMessage(List<?> messages) {
 			for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
 				Object message = i.next();
 				if (message instanceof RemoteEvent<?>) {
