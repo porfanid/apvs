@@ -50,6 +50,10 @@
 			<type>war</type>
 			<scope>runtime</scope>
 		</dependency>
+<dependency>
+	<groupId>org.atmosphere</groupId>
+	<artifactId>nettosphere</artifactId>
+</dependency>
 	</dependencies>
 </project>
 
