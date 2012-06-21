@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -9,17 +10,134 @@
 	</parent>
 
 	<artifactId>apvs-jetty</artifactId>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<name>APVS jetty</name>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>ch.cern.atlas.apvs.server.jetty.APVSServer</mainClass>
+						</manifest>
+					</archive>
+
+					<webResources>
+						<resource>
+							<directory>${project.build.directory}/classes</directory>
+							<targetPath>.</targetPath>
+						</resource>
+					</webResources>
+
+
+					<packagingExcludes>
+						WEB-INF/lib/javax.servlet-*.jar
+						WEB-INF/lib/jetty-continuation-*.jar,
+						WEB-INF/lib/jetty-http-*.jar,
+						WEB-INF/lib/jetty-io-*.jar,
+						WEB-INF/lib/jetty-security-*.jar,
+						WEB-INF/lib/jetty-server-*.jar,
+						WEB-INF/lib/jetty-servlet-*.jar,
+						WEB-INF/lib/jetty-util-*.jar,
+						WEB-INF/lib/jetty-webapp-*.jar,
+						WEB-INF/lib/jetty-websocket-*.jar
+						WEB-INF/lib/jetty-xml-*.jar
+					</packagingExcludes>
+
+					<overlays>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-server</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-webapp</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-servlet</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-security</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-xml</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-continuation</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-http</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-io</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-util</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty</groupId>
+							<artifactId>jetty-websocket</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.eclipse.jetty.orbit</groupId>
+							<artifactId>javax.servlet</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>ch.cern.atlas</groupId>
+							<artifactId>apvs</artifactId>
+						</overlay>
+					</overlays>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<configuration>
+					<connectors>
+						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+							<port>${jetty.port}</port>
+						</connector>
+					</connectors>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
 	</build>
 
 	<dependencies>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs</artifactId>
+			<type>war</type>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty.orbit</groupId>
+			<artifactId>javax.servlet</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -28,6 +146,40 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
+		</dependency>
+
+		<!-- see http://wiki.eclipse.org/Jetty/Reference/Dependencies -->
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-xml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-continuation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-http</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-websocket</artifactId>
 		</dependency>
 	</dependencies>
 </project>

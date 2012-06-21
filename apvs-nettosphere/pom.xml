@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ch.cern.atlas</groupId>
+		<artifactId>apvs-project</artifactId>
+		<version>0.3-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>apvs-nettosphere</artifactId>
+	<packaging>war</packaging>
+	<name>APVS nettosphere</name>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>ch.cern.atlas.apvs.server.nettosphere.APVSServer</mainClass>
+						</manifest>
+					</archive>
+
+					<packagingExcludes>
+						WEB-INF/lib/javax.servlet-*.jar
+					</packagingExcludes>
+
+					<overlays>
+						<overlay>
+							<groupId>javax.servlet</groupId>
+							<artifactId>servlet-api</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>ch.cern.atlas</groupId>
+							<artifactId>apvs</artifactId>
+						</overlay>
+					</overlays>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs</artifactId>
+			<type>war</type>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
+	</dependencies>
+</project>
+
+
+
+

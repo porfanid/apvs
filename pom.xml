@@ -37,7 +37,7 @@
 <!--
 		<servlet-api-version>2.5</servlet-api-version>
 -->
-		<servlet-api-version>3.0-alpha-1</servlet-api-version>
+		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
 		<validation-api-version>1.0.0.GA</validation-api-version>
                 <slf4j-jdk14-version>1.6.1</slf4j-jdk14-version>
 
@@ -71,6 +71,7 @@
 		<module>apvs-gwtprojsonserializer</module>
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
+		<module>apvs-nettosphere</module>
 		<module>apvs-ptu</module>
 		<module>apvs-ptu-daq</module>
 		<module>apvs-rcharts</module>
@@ -220,6 +221,11 @@
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-eventbus</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-jetty</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -230,7 +236,7 @@
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
-				<artifactId>apvs-eventbus</artifactId>
+				<artifactId>apvs-nettosphere</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -375,8 +381,8 @@
 				<version>${jetty-version}</version>
 			</dependency>
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>servlet-api</artifactId>
+				<groupId>org.eclipse.jetty.orbit</groupId>
+				<artifactId>javax.servlet</artifactId>
 				<version>${servlet-api-version}</version>
 			</dependency>
 			<dependency>
