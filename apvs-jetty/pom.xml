@@ -33,9 +33,8 @@
 						</resource>
 					</webResources>
 
-
 					<packagingExcludes>
-						WEB-INF/lib/javax.servlet-*.jar
+						WEB-INF/lib/javax.servlet-*.jar,
 						WEB-INF/lib/jetty-continuation-*.jar,
 						WEB-INF/lib/jetty-http-*.jar,
 						WEB-INF/lib/jetty-io-*.jar,
@@ -44,7 +43,7 @@
 						WEB-INF/lib/jetty-servlet-*.jar,
 						WEB-INF/lib/jetty-util-*.jar,
 						WEB-INF/lib/jetty-webapp-*.jar,
-						WEB-INF/lib/jetty-websocket-*.jar
+						WEB-INF/lib/jetty-websocket-*.jar,
 						WEB-INF/lib/jetty-xml-*.jar
 					</packagingExcludes>
 

@@ -26,14 +26,50 @@
 						</manifest>
 					</archive>
 
+					<webResources>
+						<resource>
+							<directory>${project.build.directory}/classes</directory>
+							<targetPath>.</targetPath>
+						</resource>
+					</webResources>
+
 					<packagingExcludes>
-						WEB-INF/lib/javax.servlet-*.jar
+						WEB-INF/lib/javax.servlet-*.jar,
+						WEB-INF/lib/nettosphere-*.jar
 					</packagingExcludes>
 
 					<overlays>
 						<overlay>
 							<groupId>ch.cern.atlas</groupId>
 							<artifactId>apvs</artifactId>
+							<includes>
+								<include>**/*</include>
+							</includes>
+						</overlay>
+						<overlay>
+							<groupId>org.atmosphere</groupId>
+							<artifactId>nettosphere</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-api</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-jdk14</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>io.netty</groupId>
+							<artifactId>netty</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>javax.servlet</groupId>
+							<artifactId>servlet-api</artifactId>
+                            <type>jar</type>
 						</overlay>
 					</overlays>
 				</configuration>
@@ -50,10 +86,27 @@
 			<type>war</type>
 			<scope>runtime</scope>
 		</dependency>
-<dependency>
-	<groupId>org.atmosphere</groupId>
-	<artifactId>nettosphere</artifactId>
-</dependency>
+		<dependency>
+			<groupId>org.atmosphere</groupId>
+			<artifactId>nettosphere</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+		</dependency>
 	</dependencies>
 </project>
 

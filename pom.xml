@@ -36,6 +36,7 @@
 		<json-version>20090211</json-version>
 		<junit-version>4.10</junit-version>
 		<mgwt-version>1.0.1</mgwt-version>
+      		<netty-version>3.5.0.Final</netty-version>
 		<nettosphere-version>1.4.0</nettosphere-version>
 		<rcharts-version>1.1</rcharts-version>
 <!--
@@ -43,7 +44,7 @@
 -->
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
 		<validation-api-version>1.0.0.GA</validation-api-version>
-                <slf4j-jdk14-version>1.6.1</slf4j-jdk14-version>
+                <slf4j-version>1.6.6</slf4j-version>
 
 		<antrun-plugin-version>1.7</antrun-plugin-version>
 		<assembly-plugin-version>2.3</assembly-plugin-version>
@@ -322,8 +323,13 @@
 			</dependency>
 			<dependency>
           			<groupId>org.slf4j</groupId>
+          			<artifactId>slf4j-api</artifactId>
+          			<version>${slf4j-version}</version>
+        		</dependency>
+			<dependency>
+          			<groupId>org.slf4j</groupId>
           			<artifactId>slf4j-jdk14</artifactId>
-          			<version>${slf4j-jdk14-version}</version>
+          			<version>${slf4j-version}</version>
         		</dependency>
 			<dependency>
 				<groupId>org.json</groupId>
@@ -391,11 +397,16 @@
 				<artifactId>javax.servlet</artifactId>
 				<version>${servlet-api-version}</version>
 			</dependency>
-<dependency>
-	<groupId>org.atmosphere</groupId>
-	<artifactId>nettosphere</artifactId>
-	<version>${nettosphere-version}</version>
-</dependency>
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty</artifactId>
+				<version>${netty-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.atmosphere</groupId>
+				<artifactId>nettosphere</artifactId>
+				<version>${nettosphere-version}</version>
+			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
