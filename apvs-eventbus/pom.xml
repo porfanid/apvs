@@ -41,6 +41,10 @@
 			<artifactId>gwt-user</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-gwtprojsonserializer</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-client</artifactId>
 		</dependency>
