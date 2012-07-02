@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client;
 
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
@@ -105,6 +106,11 @@ public class APVS implements EntryPoint {
 		remoteEventBus = clientFactory.getEventBus();
 		placeController = clientFactory.getPlaceController();
 
+		// Turn off the browser scrollbars.
+		Window.enableScrolling(false);
+
+		settingsPersister = new SettingsPersister(remoteEventBus);
+
 		// get first div element
 		NodeList<Element> divs = Document.get().getElementsByTagName("div");
 		if (divs.getLength() == 0) {
@@ -112,10 +118,20 @@ public class APVS implements EntryPoint {
 			return;
 		}
 
-		// Turn off the browser scrollbars.
-		Window.enableScrolling(false);
+		// On a tab basis
+		RemoteEventBus workerEventBus = new RemoteEventBus();
+		
+		// NEW CODE, (all ids without the View name)
+		for(int i=0; i<divs.getLength(); i++) {
+			Element element = divs.getItem(i);
+			String id = element.getId();
+			if (id.equals("measurements")) {
+//				RootPanel.get("measurements").add(new MeasurementView(clientFactory, workerEventBus));
+			}
+		}
 
-		settingsPersister = new SettingsPersister(remoteEventBus);
+		//** OLD CODE BELOW
+		
 
 		String view = divs.getItem(0).getId();
 		Panel p = new VerticalFlowPanel();
