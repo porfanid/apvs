@@ -23,15 +23,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<atmosphere-version>1.0.0.beta1</atmosphere-version>
-<!--
-		<atmosphere-version>0.8.1</atmosphere-version>
--->
 		<gwt-version>2.4.0</gwt-version>
 		<highcharts-version>1.4.0</highcharts-version>
 		<jdk-version>1.6</jdk-version>
-<!--
-		<jetty-version>7.5.4.v20111024</jetty-version>
--->
 		<jetty-version>8.1.4.v20120524</jetty-version>
 		<json-version>20090211</json-version>
 		<junit-version>4.10</junit-version>
