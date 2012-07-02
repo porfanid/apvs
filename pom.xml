@@ -24,6 +24,9 @@
 
 		<atmosphere-version>1.0.0.beta1</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
+<!--
+		<gwt-version>2.5.0-rc1</gwt-version>
+-->
 		<highcharts-version>1.4.0</highcharts-version>
 		<jdk-version>1.6</jdk-version>
 		<jetty-version>8.1.4.v20120524</jetty-version>
@@ -306,6 +309,12 @@
 			<dependency>
 				<groupId>com.google.gwt</groupId>
 				<artifactId>gwt-user</artifactId>
+				<version>${gwt-version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.google.gwt</groupId>
+				<artifactId>gwt-dev</artifactId>
 				<version>${gwt-version}</version>
 				<scope>provided</scope>
 			</dependency>
