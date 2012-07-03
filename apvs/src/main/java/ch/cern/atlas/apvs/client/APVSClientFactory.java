@@ -132,13 +132,13 @@ public class APVSClientFactory implements ClientFactory {
 	}
 
 	@Override
-	public ProcedureView getProcedureView(int width, int height) {
+	public ProcedureView getProcedureView(String width, String height) {
 		return new ProcedureView(remoteEventBus, localEventBus, width, height);
 	}
 
 	@Override
 	public ProcedureView getProcedureView(
-			int width, int height, String url, String name, String step) {
+			String width, String height, String url, String name, String step) {
 		return new ProcedureView(remoteEventBus, localEventBus, width, height, url, name, step);
 	}
 }

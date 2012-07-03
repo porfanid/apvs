@@ -44,8 +44,8 @@ public interface ClientFactory {
 
 	ProcedureNavigator getProcedureNavigator();
 
-	ProcedureView getProcedureView(int width, int height);
+	ProcedureView getProcedureView(String width, String height);
 
-	ProcedureView getProcedureView(int width, int height, String url, String name, String step);
+	ProcedureView getProcedureView(String width, String height, String url, String name, String step);
 
 }

@@ -25,7 +25,11 @@ public class PlaceView extends SimplePanel {
 		this(clientFactory, localEventBus, 350, 300);
 	}
 
-	public PlaceView(final ClientFactory clientFactory, final RemoteEventBus localEventBus, final int width, final int height) {
+	public PlaceView(ClientFactory clientFactory, RemoteEventBus localEventBus, int width, int height) {
+		this(clientFactory, localEventBus, width+Unit.PX.toString(), height+Unit.PX.toString());
+	}
+
+	public PlaceView(final ClientFactory clientFactory, final RemoteEventBus localEventBus, final String width, final String height) {
 		this.remoteEventBus = clientFactory.getEventBus();
 		
 		SelectPtuEvent.subscribe(localEventBus, new SelectPtuEvent.Handler() {
@@ -60,7 +64,7 @@ public class PlaceView extends SimplePanel {
 						if (place instanceof ImagePlace) {
 							ImagePlace imagePlace = (ImagePlace) place;
 							Image image = new Image(imagePlace.getUrl());
-							image.setWidth(width+""+Unit.PX);
+							image.setWidth(width);
 							setWidget(image);
 							return;
 						}
@@ -79,14 +83,14 @@ public class PlaceView extends SimplePanel {
 						}
 						
 						Image image = new Image(defaultImage);
-						image.setWidth(width+""+Unit.PX);
+						image.setWidth(width);
 						setWidget(image);
 						return;
 					}					
 				});
 		
 		Image image = new Image(defaultImage);
-		image.setWidth(width+""+Unit.PX);
+		image.setWidth(width);
 		setWidget(image);
 	}
 }

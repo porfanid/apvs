@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
@@ -74,7 +75,7 @@ public class SupervisorView extends DockPanel {
 		mainScrollPanel = new ScrollPanel(mainPanel);
 		tabPanel.add(mainScrollPanel, "Workers");
 
-		tabPanel.add(new ProcedurePanel(remoteEventBus, 800, 600), "Procedures");
+		tabPanel.add(new ProcedurePanel(remoteEventBus, 800+Unit.PX.toString(), 600+Unit.PX.toString()), "Procedures");
 		tabPanel.add(new PtuView(clientFactory), "PTUs");
 		tabPanel.add(new DosimeterView(remoteEventBus), "Dosimeters");
 		tabPanel.add(new SupervisorSettingsView(remoteEventBus),

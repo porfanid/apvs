@@ -7,15 +7,22 @@ import com.googlecode.mgwt.ui.client.MGWT;
 import com.googlecode.mgwt.ui.client.widget.Button;
 import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
 
+import com.google.gwt.dom.client.Style.Unit;
+
 public class ProcedurePanel extends DetailPanel implements ProcedureUI {
 
 	private LayoutPanel panel;
 	private Button button;
 
 	public ProcedurePanel(ClientFactory clientFactory, String url, String name, String step) {
+		this(clientFactory, url, name, step, 740 + Unit.PX.toString(),
+				555 + Unit.PX.toString());
+	}
+		
+	public ProcedurePanel(ClientFactory clientFactory, String url, String name, String step, String width, String height) {
 
 		panel = new LayoutPanel();
-		panel.add(clientFactory.getProcedureView(740, 555, url, name, step));
+		panel.add(clientFactory.getProcedureView(width, height, url, name, step));
 
 		if (MGWT.getOsDetection().isPhone()) {
 			button = new Button("back");

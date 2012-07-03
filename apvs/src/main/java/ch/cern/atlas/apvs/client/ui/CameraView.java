@@ -35,8 +35,8 @@ public class CameraView extends SimplePanel {
 	// "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
 	// private final String cameraURL =
 	// "rtsp://quicktime.tc.columbia.edu:554/users/lrf10/movies/sixties.mov";
-	private int videoWidth;
-	private int videoHeight;
+	private String videoWidth;
+	private String videoHeight;
 	private String videoPoster = "Default-640x480.jpg";
 	private Image image;
 
@@ -56,14 +56,19 @@ public class CameraView extends SimplePanel {
 	}
 
 	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, final int type, int width, int height) {
+			RemoteEventBus localEventBus, int type, int width, int height) {
+		this(remoteEventBus, localEventBus, type, width + Unit.PX.toString(), height + Unit.PX.toString());
+	}
+
+	public CameraView(RemoteEventBus remoteEventBus,
+			RemoteEventBus localEventBus, final int type, String width, String height) {
 		this.type = type;
 		this.videoWidth = width;
 		this.videoHeight = height;
 		
 	    image = new Image();
-		image.setWidth(videoWidth + Unit.PX.toString());
-		image.setHeight(videoHeight + Unit.PX.toString());
+		image.setWidth(videoWidth);
+		image.setHeight(videoHeight);
 		image.addClickHandler(new ClickHandler() {
 			
 			@Override
@@ -135,8 +140,8 @@ public class CameraView extends SimplePanel {
 			} else {
 				Video video = Video.createIfSupported();
 				if (video != null) {
-					video.setWidth(videoWidth + Unit.PX.toString());
-					video.setHeight(videoHeight + Unit.PX.toString());
+					video.setWidth(videoWidth);
+					video.setHeight(videoHeight);
 					video.setControls(true);
 					video.setAutoplay(true);
 					video.setPoster(videoPoster);

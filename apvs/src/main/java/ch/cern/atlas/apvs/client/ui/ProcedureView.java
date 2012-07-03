@@ -25,8 +25,8 @@ public class ProcedureView extends SimplePanel {
 	private int step;
 	private String extension = ".m4v";
 	private String videoType = "video/x-m4v"; // video/mp4
-	private int videoWidth = 350; // 640;
-	private int videoHeight = 300;
+	private String videoWidth = 350+Unit.PX.toString(); // 640;
+	private String videoHeight = 300+Unit.PX.toString();
 //	private String videoPoster = "Default-640x480.jpg";
 	// FIXME...
 	private final int firstStep = 1;
@@ -37,15 +37,15 @@ public class ProcedureView extends SimplePanel {
 	private Object oldSource;
 
 	public ProcedureView(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus) {
-		this(remoteEventBus, localEventBus, 350, 300);
+		this(remoteEventBus, localEventBus, 350+Unit.PX.toString(), 300+Unit.PX.toString());
 	}
 
-	public ProcedureView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus, int width, int height) {
+	public ProcedureView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus, String width, String height) {
 		this(remoteEventBus, localEventBus, width, height, "FIXME", "FIXME", Integer.toString(1));
 	}
 	
 	public ProcedureView(RemoteEventBus remoteEventBus,
-			final RemoteEventBus localEventBus, int width, int height, String url,
+			final RemoteEventBus localEventBus, String width, String height, String url,
 			String name, String step) {
 
 		this.remoteEventBus = remoteEventBus;
@@ -95,8 +95,8 @@ public class ProcedureView extends SimplePanel {
 		oldSource = source;
 		
 		Video video = Video.createIfSupported();
-		video.setWidth(videoWidth + Unit.PX.toString());
-		video.setHeight(videoHeight + Unit.PX.toString());
+		video.setWidth(videoWidth);
+		video.setHeight(videoHeight);
 // Annoying
 // 		video.setPoster(videoPoster);
 		video.setAutoplay(true);

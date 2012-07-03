@@ -60,14 +60,6 @@
         </dependency>
         <dependency>
             <groupId>ch.cern.atlas</groupId>
-            <artifactId>apvs-ptu-daq</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.cern.atlas</groupId>
-            <artifactId>apvs-ptu-raw</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.cern.atlas</groupId>
             <artifactId>apvs-dosimeter</artifactId>
         </dependency>
 	</dependencies>

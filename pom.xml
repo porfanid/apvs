@@ -66,16 +66,19 @@
 	<modules>
 		<module>apvs</module>
 		<module>apvs-charts</module>
+<!--
 		<module>apvs-dist</module>
+-->
 		<module>apvs-domain</module>
 		<module>apvs-dosimeter</module>
 		<module>apvs-eventbus</module>
 		<module>apvs-gwtprojsonserializer</module>
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
+<!--
 		<module>apvs-nettosphere</module>
+-->
 		<module>apvs-ptu</module>
-		<module>apvs-ptu-daq</module>
 		<module>apvs-rcharts</module>
 	</modules>
 
