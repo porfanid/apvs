@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client;
 
 import java.util.logging.Logger;
 
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
@@ -38,7 +39,6 @@ import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -106,6 +106,11 @@ public class APVS implements EntryPoint {
 		remoteEventBus = clientFactory.getEventBus();
 		placeController = clientFactory.getPlaceController();
 
+		// Turn off the browser scrollbars.
+		Window.enableScrolling(false);
+
+		settingsPersister = new SettingsPersister(remoteEventBus);
+
 		// get first div element
 		NodeList<Element> divs = Document.get().getElementsByTagName("div");
 		if (divs.getLength() == 0) {
@@ -113,10 +118,42 @@ public class APVS implements EntryPoint {
 			return;
 		}
 
-		// Turn off the browser scrollbars.
-		Window.enableScrolling(false);
+		// On a tab basis
+		RemoteEventBus workerEventBus = new RemoteEventBus();
+		
+		// NEW CODE, (all ids without the View name)
+		boolean newCode = false;
+		for(int i=0; i<divs.getLength(); i++) {
+			String id = divs.getItem(i).getId();
+			
+			if (id.equals("Measurements")) {
+				newCode = true;
+				RootPanel.get("Measurements").add(new MeasurementView(clientFactory, workerEventBus));
+			}
+			
+			if (id.equals("HelmetCamera")) {
+				newCode = true;
+				RootPanel.get("HelmetCamera").add(new CameraView(remoteEventBus, workerEventBus, CameraView.HELMET, "100%", "100%"));
+			}
 
-		settingsPersister = new SettingsPersister(remoteEventBus);
+			if (id.equals("HandCamera")) {
+				newCode = true;
+				RootPanel.get("HandCamera").add(new CameraView(remoteEventBus, workerEventBus, CameraView.HAND, "100%", "100%"));
+			}
+
+			if (id.equals("Worker")) {
+				newCode = true;
+				RootPanel.get("Worker").add(new PlaceView(clientFactory, workerEventBus, "100%", "100%"));
+			}
+		}
+		
+		// FIXME create tab buttons for each, select default one
+		workerEventBus.fireEvent(new SelectPtuEvent(27372));
+		
+		if (newCode) return;
+
+		//** OLD CODE BELOW
+		// Remove Defaults for Camera View and set to 100%
 
 		String view = divs.getItem(0).getId();
 		Panel p = new VerticalFlowPanel();
