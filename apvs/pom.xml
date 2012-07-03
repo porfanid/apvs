@@ -73,6 +73,7 @@
 					<sourcesOnPath>true</sourcesOnPath>
 					<hostedWebapp>${war.target}</hostedWebapp>
 					<encoding>UTF-8</encoding>
+					<bindAddress>0.0.0.0</bindAddress>
 				</configuration>
 				<executions>
 					<execution>
@@ -156,10 +157,6 @@
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-dev</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>
