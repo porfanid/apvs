@@ -20,7 +20,7 @@ public class APVSServer {
 		builder.resource(".")
             .port(port)
             .host("127.0.0.1")
-            .configFile("META-INF/atmosphere.xml")
+//            .configFile("META-INF/atmosphere.xml")
             .build();
         Nettosphere server = new Nettosphere.Builder().config(builder.build()).build();
 
