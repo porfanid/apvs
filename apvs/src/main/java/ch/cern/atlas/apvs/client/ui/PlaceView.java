@@ -22,11 +22,7 @@ public class PlaceView extends SimplePanel {
 	private Integer ptuId;
 
 	public PlaceView(ClientFactory clientFactory, RemoteEventBus localEventBus) {
-		this(clientFactory, localEventBus, 350, 300);
-	}
-
-	public PlaceView(ClientFactory clientFactory, RemoteEventBus localEventBus, int width, int height) {
-		this(clientFactory, localEventBus, width+Unit.PX.toString(), height+Unit.PX.toString());
+		this(clientFactory, localEventBus, "100%", "100%");
 	}
 
 	public PlaceView(final ClientFactory clientFactory, final RemoteEventBus localEventBus, final String width, final String height) {

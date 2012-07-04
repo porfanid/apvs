@@ -6,7 +6,6 @@ import ch.cern.atlas.apvs.client.settings.Settings;
 import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
@@ -21,9 +20,6 @@ public class CameraView extends SimplePanel {
 
 	public static final int HELMET = 0;
 	public static final int HAND = 1;
-
-	private static final int DEFAULT_WIDTH = 400;
-	private static final int DEFAULT_HEIGHT = 300;
 
 	// FIXME
 	// private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
@@ -52,12 +48,7 @@ public class CameraView extends SimplePanel {
 
 	public CameraView(RemoteEventBus remoteEventBus,
 			RemoteEventBus localEventBus, int type) {
-		this(remoteEventBus, localEventBus, type, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-	}
-
-	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, int type, int width, int height) {
-		this(remoteEventBus, localEventBus, type, width + Unit.PX.toString(), height + Unit.PX.toString());
+		this(remoteEventBus, localEventBus, type, "100%", "100%");
 	}
 
 	public CameraView(RemoteEventBus remoteEventBus,

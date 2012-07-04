@@ -16,7 +16,7 @@ public class CameraPanel extends DetailPanel implements CameraUI {
 	public CameraPanel(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus, int type) {
 
 		panel = new LayoutPanel();
-		panel.add(new CameraView(remoteEventBus, localEventBus, type, 800, 600));
+		panel.add(new CameraView(remoteEventBus, localEventBus, type, "800px", "600px"));
 
 		if (MGWT.getOsDetection().isPhone()) {
 			button = new Button("back");

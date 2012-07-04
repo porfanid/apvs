@@ -37,7 +37,7 @@ public class ProcedureView extends SimplePanel {
 	private Object oldSource;
 
 	public ProcedureView(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus) {
-		this(remoteEventBus, localEventBus, 350+Unit.PX.toString(), 300+Unit.PX.toString());
+		this(remoteEventBus, localEventBus, "100%", "100%");
 	}
 
 	public ProcedureView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus, String width, String height) {

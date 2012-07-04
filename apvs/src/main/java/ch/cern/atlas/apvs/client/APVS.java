@@ -115,7 +115,6 @@ public class APVS implements EntryPoint {
 		// On a tab basis
 		RemoteEventBus workerEventBus = new RemoteEventBus();
 		
-		// FIXME Remove Defaults for Camera View and set to 100%
 		boolean newCode = false;
 		for(int i=0; i<divs.getLength(); i++) {
 			String id = divs.getItem(i).getId();
@@ -127,17 +126,12 @@ public class APVS implements EntryPoint {
 			
 			if (id.equals("HelmetCamera")) {
 				newCode = true;
-				RootPanel.get("HelmetCamera").add(new CameraView(remoteEventBus, workerEventBus, CameraView.HELMET, "100%", "100%"));
+				RootPanel.get("HelmetCamera").add(new CameraView(remoteEventBus, workerEventBus, CameraView.HELMET));
 			}
 
 			if (id.equals("HandCamera")) {
 				newCode = true;
-				RootPanel.get("HandCamera").add(new CameraView(remoteEventBus, workerEventBus, CameraView.HAND, "100%", "100%"));
-			}
-
-			if (id.equals("Worker")) {
-				newCode = true;
-				RootPanel.get("Worker").add(new PlaceView(clientFactory, workerEventBus, "100%", "100%"));
+				RootPanel.get("HandCamera").add(new CameraView(remoteEventBus, workerEventBus, CameraView.HAND));
 			}
 			
 			if (id.equals("Ptu")) {
@@ -147,7 +141,7 @@ public class APVS implements EntryPoint {
 			
 			if (id.equals("Procedure")) {
 				newCode = true;
-				RootPanel.get("Procedure").add(new ProcedureView(remoteEventBus, workerEventBus, "100%", "100%"));				
+				RootPanel.get("Procedure").add(new ProcedureView(remoteEventBus, workerEventBus));				
 			}
 			
 			if (id.equals("ProcedureControls")) {
@@ -157,7 +151,7 @@ public class APVS implements EntryPoint {
 			
 			if (id.equals("Place")) {
 				newCode = true;
-				RootPanel.get("Place").add(new PlaceView(clientFactory, workerEventBus, "100%", "100%"));				
+				RootPanel.get("Place").add(new PlaceView(clientFactory, workerEventBus));				
 			}
 			
 			if (id.equals("SupervisorSettings")) {
