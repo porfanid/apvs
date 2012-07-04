@@ -14,19 +14,15 @@ import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
 import ch.cern.atlas.apvs.client.ui.CameraView;
-import ch.cern.atlas.apvs.client.ui.ClientView;
 import ch.cern.atlas.apvs.client.ui.DosimeterView;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.PlaceView;
 import ch.cern.atlas.apvs.client.ui.ProcedureControls;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
-import ch.cern.atlas.apvs.client.ui.PtuSelector;
 import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
 import ch.cern.atlas.apvs.client.ui.SupervisorSettingsView;
-import ch.cern.atlas.apvs.client.ui.SupervisorView;
 import ch.cern.atlas.apvs.client.ui.TimeView;
-import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -39,8 +35,6 @@ import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.mgwt.mvp.client.AnimatableDisplay;
@@ -121,7 +115,7 @@ public class APVS implements EntryPoint {
 		// On a tab basis
 		RemoteEventBus workerEventBus = new RemoteEventBus();
 		
-		// NEW CODE, (all ids without the View name)
+		// FIXME Remove Defaults for Camera View and set to 100%
 		boolean newCode = false;
 		for(int i=0; i<divs.getLength(); i++) {
 			String id = divs.getItem(i).getId();
@@ -175,6 +169,16 @@ public class APVS implements EntryPoint {
 				newCode = true;
 				RootPanel.get("ServerSettings").add(new ServerSettingsView(remoteEventBus));				
 			}
+			
+			if (id.equals("Dosimeter")) {
+				newCode = true;
+				RootPanel.get("Dosimeter").add(new DosimeterView(remoteEventBus));				
+			}
+			
+			if (id.equals("Trace")) {
+				newCode = true;
+				RootPanel.get("Trace").add(new TimeView(clientFactory, 300, false));				
+			}
 		}
 		
 		// FIXME create tab buttons for each, select default one
@@ -182,65 +186,9 @@ public class APVS implements EntryPoint {
 		
 		if (newCode) return;
 
-		//** OLD CODE BELOW
-		// Remove Defaults for Camera View and set to 100%
 
-		String view = divs.getItem(0).getId();
-		Panel p = new VerticalFlowPanel();
-		if (view.equals("workerView")) {
-			startWorker();
-			return;
-
-		} else if (view.equals("supervisorView")) {
-			RootLayoutPanel.get().add(new SupervisorView(clientFactory));
-			return;
-
-		} else if (view.equals("clientView")) {
-			p.add(new ClientView(remoteEventBus));
-
-		} else if (view.equals("dosimeterView")) {
-			p.add(new SupervisorSettingsView(remoteEventBus));
-			p.add(new DosimeterView(remoteEventBus));
-
-		} else if (view.equals("ptuView")) {
-			p.add(new ServerSettingsView(remoteEventBus));
-			p.add(new SupervisorSettingsView(remoteEventBus));
-			p.add(new PtuView(clientFactory));
-
-		} else if (view.equals("measurementView")) {
-			RemoteEventBus localEventBus = new RemoteEventBus();
-			p.add(new SupervisorSettingsView(remoteEventBus));
-			p.add(new PtuSelector(remoteEventBus, localEventBus));
-			p.add(new MeasurementView(clientFactory, localEventBus));
-
-		} else if (view.equals("procedureView")) {
-			RemoteEventBus localEventBus = new RemoteEventBus();
-			p.add(new ProcedureView(remoteEventBus, localEventBus));
-			p.add(new ProcedureControls(localEventBus));
-
-		} else if (view.equals("placeView")) {
-			RemoteEventBus localEventBus = new RemoteEventBus();
-			p.add(new PtuSelector(remoteEventBus, localEventBus));
-			p.add(new PlaceView(clientFactory, localEventBus));
-
-		} else if (view.equals("traceView")) {
-			p.add(new TimeView(clientFactory, 300, true));
-
-		} else if (view.equals("settingsView")) {
-			p.add(new SupervisorSettingsView(remoteEventBus));
-
-		} else if (view.equals("cameraView")) {
-			RemoteEventBus localEventBus = new RemoteEventBus();
-			p.add(new ServerSettingsView(remoteEventBus));
-			p.add(new SupervisorSettingsView(remoteEventBus));
-			p.add(new PtuSelector(remoteEventBus, localEventBus));
-			p.add(new CameraView(remoteEventBus, localEventBus,
-					CameraView.HELMET));
-			p.add(new CameraView(remoteEventBus, localEventBus, CameraView.HAND));
-
-		}
-
-		RootLayoutPanel.get().add(p);
+		startWorker();
+		return;
 	}
 
 	private void startWorker() {
