@@ -145,6 +145,36 @@ public class APVS implements EntryPoint {
 				newCode = true;
 				RootPanel.get("Worker").add(new PlaceView(clientFactory, workerEventBus, "100%", "100%"));
 			}
+			
+			if (id.equals("Ptu")) {
+				newCode = true;
+				RootPanel.get("Ptu").add(new PtuView(clientFactory));				
+			}
+			
+			if (id.equals("Procedure")) {
+				newCode = true;
+				RootPanel.get("Procedure").add(new ProcedureView(remoteEventBus, workerEventBus, "100%", "100%"));				
+			}
+			
+			if (id.equals("ProcedureControls")) {
+				newCode = true;
+				RootPanel.get("ProcedureControls").add(new ProcedureControls(workerEventBus));				
+			}
+			
+			if (id.equals("Place")) {
+				newCode = true;
+				RootPanel.get("Place").add(new PlaceView(clientFactory, workerEventBus, "100%", "100%"));				
+			}
+			
+			if (id.equals("SupervisorSettings")) {
+				newCode = true;
+				RootPanel.get("SupervisorSettings").add(new SupervisorSettingsView(remoteEventBus));				
+			}
+			
+			if (id.equals("ServerSettings")) {
+				newCode = true;
+				RootPanel.get("ServerSettings").add(new ServerSettingsView(remoteEventBus));				
+			}
 		}
 		
 		// FIXME create tab buttons for each, select default one
