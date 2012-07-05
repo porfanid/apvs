@@ -19,6 +19,7 @@ import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.PlaceView;
 import ch.cern.atlas.apvs.client.ui.ProcedureControls;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
+import ch.cern.atlas.apvs.client.ui.PtuSettingsView;
 import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
 import ch.cern.atlas.apvs.client.ui.SupervisorSettingsView;
@@ -154,6 +155,11 @@ public class APVS implements EntryPoint {
 				RootPanel.get("Place").add(new PlaceView(clientFactory, workerEventBus));				
 			}
 			
+			if (id.equals("PtuSettings")) {
+				newCode = true;
+				RootPanel.get("PtuSettings").add(new PtuSettingsView(remoteEventBus));				
+			}
+			
 			if (id.equals("SupervisorSettings")) {
 				newCode = true;
 				RootPanel.get("SupervisorSettings").add(new SupervisorSettingsView(remoteEventBus));				
@@ -172,6 +178,11 @@ public class APVS implements EntryPoint {
 			if (id.equals("Trace")) {
 				newCode = true;
 				RootPanel.get("Trace").add(new TimeView(clientFactory, 300, false));				
+			}
+
+			if (id.equals("Tabs")) {
+				newCode = true;
+//				RootPanel.get("Tabs").add(new Tabs(remoteEventBus));				
 			}
 		}
 		
