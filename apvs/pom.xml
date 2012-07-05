@@ -96,7 +96,10 @@
 							<directory>${outputDir}</directory>
 						</fileset>
 						<fileset>
-							<directory>${war.target}/APVS</directory>
+							<directory>${war.target}/apvs</directory>
+						</fileset>
+						<fileset>
+							<directory>${war.target}/WEB-INF/classes</directory>
 						</fileset>
 						<fileset>
 							<directory>${war.target}/WEB-INF/lib</directory>
