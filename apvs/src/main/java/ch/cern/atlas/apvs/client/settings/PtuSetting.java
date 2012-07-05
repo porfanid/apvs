@@ -8,13 +8,44 @@ public class PtuSetting implements Serializable, Comparable<PtuSetting> {
 
 	private int ptuId;
 	private String name;
+	private int dosimeterSerialNumber;
+	private boolean enabled;
+
+	private String helmetUrl;
+
+	private String handUrl;
 	
+	public PtuSetting(int ptuId) {
+		this.ptuId = ptuId;
+		this.name = "";
+		this.dosimeterSerialNumber = 0;
+		this.enabled = true;
+		this.helmetUrl = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
+		this.handUrl = "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
+	}
+
 	public int getPtuId() {
 		return ptuId;
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public Integer getDosimeterSerialNumber() {
+		return dosimeterSerialNumber;
+	}
+
+	public Boolean isEnabled() {
+		return enabled;
+	}
+
+	public String getHelmetUrl() {
+		return helmetUrl;
+	}
+
+	public String getHandUrl() {
+		return handUrl;
 	}
 
 	@Override
