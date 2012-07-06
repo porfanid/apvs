@@ -53,6 +53,11 @@ public class PollEventBus extends RemoteEventBus {
 			public void onFailure(Throwable caught) {
 				System.err.println("Failed to send event " + event + " "
 						+ caught);
+				caught.printStackTrace();
+				if (caught.getCause() != null) {
+					System.err.println("Caused by...");
+					caught.getCause().printStackTrace();
+				}
 			}
 		});
 	}
