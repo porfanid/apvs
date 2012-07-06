@@ -23,6 +23,7 @@ import com.google.gwt.cell.client.TextInputCell;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
@@ -42,6 +43,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 
 	protected PtuSettings settings = new PtuSettings();
 	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
+	protected List<Integer> activePtuIds = new ArrayList<Integer>();
 
 	public PtuSettingsView(final RemoteEventBus eventBus) {
 		add(table);
@@ -51,7 +53,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 				new ActiveCheckboxCell()) {
 			@Override
 			public Boolean getValue(Integer object) {
-				return settings.isEnabled(object);
+				return activePtuIds.contains(object);
 			}			
 		};
 		active.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -183,6 +185,11 @@ public class PtuSettingsView extends VerticalFlowPanel {
 				return o1 != null ? o1.compareTo(o2) : -1;
 			}
 		});
+		columnSortHandler.setComparator(active, new Comparator<Integer>() {
+			public int compare(Integer o1, Integer o2) {
+				return activePtuIds.contains(o1) ? activePtuIds.contains(o2) ? 0 : 1 : -1;
+			}
+		});
 		columnSortHandler.setComparator(enabled, new Comparator<Integer>() {
 			public int compare(Integer o1, Integer o2) {
 				return settings.isEnabled(o1).compareTo(settings.isEnabled(o2));
@@ -234,16 +241,17 @@ public class PtuSettingsView extends VerticalFlowPanel {
 					@Override
 					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
 						System.err.println("PTU IDS changed");
-						List<Integer> newPtuIds = mergeList(event.getPtuIds());
+						activePtuIds = event.getPtuIds();
+
+						List<Integer> newPtuIds = mergeList(activePtuIds);
 						for (Iterator<Integer> i = newPtuIds.iterator(); i
 								.hasNext();) {
 							settings.add(i.next());
 						}
-
+						
 						if (!newPtuIds.isEmpty()) {
 							fireSettingsChangedEvent(eventBus, settings);
 						}
-
 						update();
 					}
 				});
@@ -264,6 +272,8 @@ public class PtuSettingsView extends VerticalFlowPanel {
 						update();
 					}
 				});
+		
+		update();
 	}
 
 	private List<Integer> mergeList(List<Integer> newList) {
@@ -280,6 +290,9 @@ public class PtuSettingsView extends VerticalFlowPanel {
 	}
 
 	private void update() {
+		// Resort the table
+		ColumnSortEvent.fire(table, table.getColumnSortList());
+
 		table.redraw();
 	}
 
