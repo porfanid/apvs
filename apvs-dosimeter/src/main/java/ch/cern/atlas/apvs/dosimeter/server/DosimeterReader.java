@@ -158,7 +158,7 @@ public class DosimeterReader implements Runnable {
 			// ignored
 		}
 		init();
-		eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(null));
+		eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(new ArrayList<Integer>()));
 	}
 
 	public List<Integer> getDosimeterSerialNumbers() {

@@ -218,11 +218,11 @@ public class DosimeterView extends VerticalFlowPanel {
 		if ((object == null) || (settings == null))
 			return "";
 
-		String ptuId = settings.getPtuId(object.getSerialNo());
+		Integer ptuId = settings.getPtuId(object.getSerialNo());
 		if (ptuId == null)
 			return "";
 
-		String name = settings.getName(Integer.parseInt(ptuId));
+		String name = settings.getName(ptuId);
 		return name != null ? name : "";
 	}
 

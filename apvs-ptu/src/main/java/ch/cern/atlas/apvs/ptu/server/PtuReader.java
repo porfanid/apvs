@@ -149,7 +149,7 @@ public class PtuReader implements Runnable {
 		}
 		System.err.println("Closed PTU socket, invalidated PTUids");
 		init();
-		eventBus.fireEvent(new PtuIdsChangedEvent(null));
+		eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<Integer>()));
 	}
 
 	public Ptu getPtu(int ptuId) {

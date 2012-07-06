@@ -107,4 +107,9 @@ public class PtuSettings implements Serializable {
 			entries.put(ptuId, new Entry());
 		}
 	}
+
+	// Returns ptuId associated to docimeterSerialNo
+	public Integer getPtuId(Integer dosimeterSerialNo) {
+		return getDosimeterToPtuMap().get(dosimeterSerialNo);
+	}
 }
