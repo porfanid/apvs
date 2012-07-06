@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.settings.Settings;
-import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
@@ -36,7 +36,7 @@ import com.google.gwt.view.client.ListDataProvider;
 
 public class DosimeterView extends VerticalFlowPanel {
 
-	private SupervisorSettings settings;
+	private PtuSettings settings;
 	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
 	private ListHandler<Dosimeter> columnSortHandler;
@@ -174,13 +174,13 @@ public class DosimeterView extends VerticalFlowPanel {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(serialNo);
 
-		SupervisorSettingsChangedEvent.subscribe(remoteEventBus,
-				new SupervisorSettingsChangedEvent.Handler() {
+		PtuSettingsChangedEvent.subscribe(remoteEventBus,
+				new PtuSettingsChangedEvent.Handler() {
 
 					@Override
-					public void onSupervisorSettingsChanged(
-							SupervisorSettingsChangedEvent event) {
-						settings = event.getSupervisorSettings();
+					public void onPtuSettingsChanged(
+							PtuSettingsChangedEvent event) {
+						settings = event.getPtuSettings();
 
 						update();
 					}
@@ -217,14 +217,12 @@ public class DosimeterView extends VerticalFlowPanel {
 	private String getName(Dosimeter object) {
 		if ((object == null) || (settings == null))
 			return "";
-		
-		String ptuId = settings.getPtuId(Settings.DEFAULT_SUPERVISOR,
-				object.getSerialNo());
+
+		String ptuId = settings.getPtuId(object.getSerialNo());
 		if (ptuId == null)
 			return "";
 
-		String name = settings.getName(Settings.DEFAULT_SUPERVISOR,
-				Integer.parseInt(ptuId));
+		String name = settings.getName(Integer.parseInt(ptuId));
 		return name != null ? name : "";
 	}
 

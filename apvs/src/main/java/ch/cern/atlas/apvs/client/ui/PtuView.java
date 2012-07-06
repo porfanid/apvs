@@ -11,9 +11,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.settings.Settings;
-import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -52,7 +52,7 @@ public class PtuView extends VerticalPanel {
 	private Map<String, String> units;
 	private SingleSelectionModel<String> selectionModel;
 
-	private SupervisorSettings settings;
+	private PtuSettings settings;
 	
 	private TimeView timeView;
 	
@@ -205,12 +205,12 @@ public class PtuView extends VerticalPanel {
 					}
 				});
 
-		SupervisorSettingsChangedEvent.subscribe(eventBus,
-				new SupervisorSettingsChangedEvent.Handler() {
+		PtuSettingsChangedEvent.subscribe(eventBus,
+				new PtuSettingsChangedEvent.Handler() {
 
 					@Override
-					public void onSupervisorSettingsChanged(SupervisorSettingsChangedEvent event) {
-						settings = event.getSupervisorSettings();
+					public void onPtuSettingsChanged(PtuSettingsChangedEvent event) {
+						settings = event.getPtuSettings();
 						update();
 					}
 				});
@@ -268,7 +268,7 @@ public class PtuView extends VerticalPanel {
 		table.addColumn(column, new TextHeader("") {
 			@Override
 			public String getValue() {
-				String name = settings != null ? settings.getName(Settings.DEFAULT_SUPERVISOR, ptuId) : null;
+				String name = settings != null ? settings.getName(ptuId) : null;
 				return name != null ? name + "<br/>(" + ptuId.toString() + ")"
 						: ptuId.toString();
 			}

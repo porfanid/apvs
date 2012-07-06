@@ -27,7 +27,6 @@ public class ServerServiceImpl extends ResponsePollService implements
 		System.out.println("Starting ServerService...");
 
 		ServerSettingsStorage.getInstance(eventBus);
-		SupervisorSettingsStorage.getInstance(eventBus);
 		PtuSettingsStorage.getInstance(eventBus);
 	}
 

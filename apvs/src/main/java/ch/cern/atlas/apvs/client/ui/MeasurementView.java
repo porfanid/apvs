@@ -5,10 +5,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.settings.Settings;
-import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
@@ -36,7 +36,7 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
-	private SupervisorSettings settings;
+	private PtuSettings settings;
 	private Measurement<Double> last = new Measurement<Double>();
 	private ListDataProvider<Measurement<Double>> dataProvider = new ListDataProvider<Measurement<Double>>();
 	private CellTable<Measurement<Double>> table = new CellTable<Measurement<Double>>();
@@ -56,13 +56,13 @@ public class MeasurementView extends VerticalFlowPanel {
 		add(table);
 		add(timeView);
 
-		SupervisorSettingsChangedEvent.subscribe(clientFactory.getEventBus(),
-				new SupervisorSettingsChangedEvent.Handler() {
+		PtuSettingsChangedEvent.subscribe(clientFactory.getEventBus(),
+				new PtuSettingsChangedEvent.Handler() {
 
 					@Override
-					public void onSupervisorSettingsChanged(
-							SupervisorSettingsChangedEvent event) {
-						settings = event.getSupervisorSettings();
+					public void onPtuSettingsChanged(
+							PtuSettingsChangedEvent event) {
+						settings = event.getPtuSettings();
 
 						update();
 					}
@@ -149,8 +149,7 @@ public class MeasurementView extends VerticalFlowPanel {
 					return "Name";
 
 				if (settings != null) {
-					String name = settings.getName(Settings.DEFAULT_SUPERVISOR,
-							ptuId);
+					String name = settings.getName(ptuId);
 
 					if (name != null)
 						return name;

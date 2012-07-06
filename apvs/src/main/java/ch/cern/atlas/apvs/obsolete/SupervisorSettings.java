@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client.settings;
+package ch.cern.atlas.apvs.obsolete;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import ch.cern.atlas.apvs.client.settings.Settings;
 
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.EditTextCell;

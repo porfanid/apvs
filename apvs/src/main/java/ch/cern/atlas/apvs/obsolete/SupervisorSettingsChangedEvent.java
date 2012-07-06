@@ -1,6 +1,5 @@
-package ch.cern.atlas.apvs.client.event;
+package ch.cern.atlas.apvs.obsolete;
 
-import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;

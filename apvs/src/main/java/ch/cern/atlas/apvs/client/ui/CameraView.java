@@ -1,9 +1,8 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.settings.Settings;
-import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
+import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -40,7 +39,7 @@ public class CameraView extends SimplePanel {
 
 	private Integer ptuId;
 
-	private SupervisorSettings settings;
+	private PtuSettings settings;
 
 	private String currentCameraUrl;
 
@@ -52,37 +51,38 @@ public class CameraView extends SimplePanel {
 	}
 
 	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, final int type, String width, String height) {
+			RemoteEventBus localEventBus, final int type, String width,
+			String height) {
 		this.type = type;
 		this.videoWidth = width;
 		this.videoHeight = height;
-		
-	    image = new Image();
+
+		image = new Image();
 		image.setWidth(videoWidth);
 		image.setHeight(videoHeight);
 		image.addClickHandler(new ClickHandler() {
-			
+
 			@Override
 			public void onClick(ClickEvent event) {
 				update(true);
 			}
 		});
 		image.addDoubleClickHandler(new DoubleClickHandler() {
-			
+
 			@Override
 			public void onDoubleClick(DoubleClickEvent event) {
-				System.err.println("Double Click "+event+" enlarge");
+				System.err.println("Double Click " + event + " enlarge");
 			}
 		});
 
-		SupervisorSettingsChangedEvent.subscribe(remoteEventBus,
-				new SupervisorSettingsChangedEvent.Handler() {
+		PtuSettingsChangedEvent.subscribe(remoteEventBus,
+				new PtuSettingsChangedEvent.Handler() {
 
 					@Override
-					public void onSupervisorSettingsChanged(
-							SupervisorSettingsChangedEvent event) {
+					public void onPtuSettingsChanged(
+							PtuSettingsChangedEvent event) {
 
-						settings = event.getSupervisorSettings();
+						settings = event.getPtuSettings();
 
 						update(false);
 					}
@@ -104,9 +104,8 @@ public class CameraView extends SimplePanel {
 			return null;
 		}
 
-		return type == HELMET ? settings.getHelmetCameraUrl(
-				Settings.DEFAULT_SUPERVISOR, ptuId) : settings
-				.getHandCameraUrl(Settings.DEFAULT_SUPERVISOR, ptuId);
+		return type == HELMET ? settings.getHelmetUrl(ptuId) : settings
+				.getHandUrl(ptuId);
 	}
 
 	private void update(boolean force) {

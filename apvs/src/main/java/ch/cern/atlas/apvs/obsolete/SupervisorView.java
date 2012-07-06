@@ -1,10 +1,14 @@
-package ch.cern.atlas.apvs.client.ui;
+package ch.cern.atlas.apvs.obsolete;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.Build;
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.ui.DosimeterView;
+import ch.cern.atlas.apvs.client.ui.ProcedurePanel;
+import ch.cern.atlas.apvs.client.ui.PtuView;
+import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
 import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 

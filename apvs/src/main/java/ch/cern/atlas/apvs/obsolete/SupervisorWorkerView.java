@@ -1,6 +1,10 @@
-package ch.cern.atlas.apvs.client.ui;
+package ch.cern.atlas.apvs.obsolete;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.ui.CameraView;
+import ch.cern.atlas.apvs.client.ui.MeasurementView;
+import ch.cern.atlas.apvs.client.ui.PlaceView;
+import ch.cern.atlas.apvs.client.ui.PtuSelector;
 import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;

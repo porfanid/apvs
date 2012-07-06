@@ -1,9 +1,8 @@
-package ch.cern.atlas.apvs.server;
+package ch.cern.atlas.apvs.obsolete;
 
-import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.server.ServerStorage;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;

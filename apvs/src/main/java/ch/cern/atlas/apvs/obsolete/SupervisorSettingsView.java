@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client.ui;
+package ch.cern.atlas.apvs.obsolete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,9 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.Settings;
-import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;

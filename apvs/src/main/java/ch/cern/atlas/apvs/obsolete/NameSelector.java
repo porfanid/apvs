@@ -1,9 +1,7 @@
-package ch.cern.atlas.apvs.client.ui;
+package ch.cern.atlas.apvs.obsolete;
 
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.event.SupervisorSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.Settings;
-import ch.cern.atlas.apvs.client.settings.SupervisorSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.user.client.ui.TextBox;

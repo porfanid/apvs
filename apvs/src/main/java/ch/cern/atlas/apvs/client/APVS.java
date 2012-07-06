@@ -22,7 +22,6 @@ import ch.cern.atlas.apvs.client.ui.ProcedureView;
 import ch.cern.atlas.apvs.client.ui.PtuSettingsView;
 import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
-import ch.cern.atlas.apvs.client.ui.SupervisorSettingsView;
 import ch.cern.atlas.apvs.client.ui.TimeView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -159,12 +158,7 @@ public class APVS implements EntryPoint {
 				newCode = true;
 				RootPanel.get("PtuSettings").add(new PtuSettingsView(remoteEventBus));				
 			}
-			
-			if (id.equals("SupervisorSettings")) {
-				newCode = true;
-				RootPanel.get("SupervisorSettings").add(new SupervisorSettingsView(remoteEventBus));				
-			}
-			
+						
 			if (id.equals("ServerSettings")) {
 				newCode = true;
 				RootPanel.get("ServerSettings").add(new ServerSettingsView(remoteEventBus));				
