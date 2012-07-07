@@ -33,7 +33,7 @@
 		<json-version>20090211</json-version>
 		<junit-version>4.10</junit-version>
 		<mgwt-version>1.0.1</mgwt-version>
-      		<netty-version>3.5.0.Final</netty-version>
+      		<netty-version>3.5.2.Final</netty-version>
 		<nettosphere-version>1.4.0</nettosphere-version>
 		<rcharts-version>1.1</rcharts-version>
 <!--
