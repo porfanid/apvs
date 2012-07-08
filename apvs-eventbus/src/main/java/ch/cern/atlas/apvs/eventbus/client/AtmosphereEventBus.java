@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.eventbus.client;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 

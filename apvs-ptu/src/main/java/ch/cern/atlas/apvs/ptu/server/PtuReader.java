@@ -97,7 +97,7 @@ public class PtuReader implements Runnable {
 						ptuIdsChanged = true;
 					}
 					// FIXME, limit should come from server ???
-					ptu.addMeasurement(measurement, PtuSocket.limitNumberOfValues);
+					ptu.addMeasurement(measurement, PtuSimulator.limitNumberOfValues);
 					Set<String> changed = measurementChanged.get(ptuId);
 					if (changed == null) {
 						changed = new HashSet<String>();
