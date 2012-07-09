@@ -1,52 +1,35 @@
 package ch.cern.atlas.apvs.dosimeter.server;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
+
+import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 public class DosimeterServer {
 
-	private final static int portNo = 4001;
-	private ServerSocket server;
-	
-	private DosimeterServer() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() { 
-				try {
-					finalize();
-				} catch (Throwable e) {
-					// ignored
-				}
-			}
-		});
-	}
-	
-	private void run() throws IOException {
-		server = new ServerSocket(portNo);
-		System.out.println("Dosimeter Demo Server open at "+portNo);
+	private final int port = 4001;
 
-		while (true) {
-			try {
-				DosimeterSocket socket = new DosimeterSocket(server.accept());
-				Thread writer = new Thread(socket);				
-				writer.start();
-			} catch (IOException e) {
-				System.out.println("Accept failed: "+portNo);
-				System.exit(-1);
-			}
-		}
-	}
-	
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-		System.out.println("Closing server");
-		if (server != null) {
-			System.out.println("Closing server");
-			server.close();
-		}
+	public DosimeterServer() {
 	}
 
-	public static void main(String[] args) throws IOException {
+	public void run() {
+		// Configure the server.
+		ServerBootstrap bootstrap = new ServerBootstrap(
+				new NioServerSocketChannelFactory(
+						Executors.newCachedThreadPool(),
+						Executors.newCachedThreadPool()));
+
+		// Set up the pipeline factory.
+		bootstrap.setPipelineFactory(new DosimeterServerPipelineFactory());
+
+		// Bind and start to accept incoming connections.
+		bootstrap.bind(new InetSocketAddress(port));
+
+		System.out.println("Dosimeter Demo Server open at " + port);
+	}
+
+	public static void main(String[] args) {
 		new DosimeterServer().run();
 	}
 }

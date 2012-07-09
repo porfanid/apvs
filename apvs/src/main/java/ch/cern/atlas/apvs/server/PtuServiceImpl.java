@@ -1,16 +1,17 @@
 package ch.cern.atlas.apvs.server;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.PtuService;
@@ -18,28 +19,24 @@ import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.server.PtuReader;
-import ch.cern.atlas.apvs.ptu.server.PtuWriter;
+import ch.cern.atlas.apvs.ptu.server.PtuClientHandler;
+import ch.cern.atlas.apvs.ptu.server.PtuClientPipelineFactory;
 
 /**
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class PtuServiceImpl extends ResponsePollService implements PtuService,
-		Runnable {
+public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
-	private static final String name = "PtuSocket";
 	private static final int DEFAULT_PORT = 4005;
-	private static final int RECONNECT_INTERVAL = 20000;
 
-	private String host = null;
+	private String host = "localhost";
 	private int port = DEFAULT_PORT;
-	private boolean stopped = false;
-	private Socket socket;
 	private String ptuUrl;
-	private PtuReader ptuReader;
 
 	private RemoteEventBus eventBus;
+	private PtuClientHandler ptuClientHandler;
+	private ClientBootstrap bootstrap;
 
 	public PtuServiceImpl() {
 		System.out.println("Creating PtuService...");
@@ -69,116 +66,52 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService,
 								port = s.length > 1 ? Integer.parseInt(s[1])
 										: DEFAULT_PORT;
 
-								if (socket != null) {
-									System.err.println("Interrupting PTU");
-									try {
-										socket.close();
-									} catch (IOException e) {
-										// ignored
-									}
-								}
+								System.err.println("Reconnecting PTU "+host+":"+port);
+								ptuClientHandler.connect();
 							}
 						}
 					}
 				});
 
-		Thread t = new Thread(this);
-		t.start();
-	}
+		// Configure the client.
+		bootstrap = new ClientBootstrap(
+				new NioClientSocketChannelFactory(
+						Executors.newCachedThreadPool(),
+						Executors.newCachedThreadPool()));
 
-	@Override
-	public void run() {
+		ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
 
-		boolean showError = true;
+		// Configure the pipeline factory.
+		bootstrap.setPipelineFactory(new PtuClientPipelineFactory(
+				ptuClientHandler));
 
-		while (!stopped) {
-			if ((ptuReader == null) && (host != null)) {
-				try {
-					if (showError) {
-						System.out.println("Trying to connect to " + name
-								+ " on " + host + ":" + port);
-					}
-					socket = new Socket(host, port);
-					showError = true;
-					System.out.println("Connected to " + name + " on " + host
-							+ ":" + port);
-
-					PtuWriter ptuWriter = new PtuWriter(socket);
-					Thread writerThread = new Thread(ptuWriter);
-					writerThread.start();
-
-					ptuReader = new PtuReader(eventBus, socket);
-
-					Thread readerThread = new Thread(ptuReader);
-					readerThread.start();
-					readerThread.join();
-					socket = null;
-				} catch (UnknownHostException e) {
-					if (showError) {
-						System.err.println(getClass() + " " + e);
-						showError = false;
-					}
-				} catch (ConnectException e) {
-					if (showError) {
-						System.err.println("Could not connect to " + name
-								+ " on " + host + ":" + port
-								+ ", retrying in a while...");
-						showError = false;
-					}
-				} catch (IOException e) {
-					if (showError) {
-						System.err.println(getClass() + " " + e);
-						showError = false;
-					}
-				} catch (InterruptedException e) {
-					System.err.println(getClass() + " " + e);
-				}
-
-				if (ptuReader != null) {
-					ptuReader.close();
-				}
-				ptuReader = null;
-			}
-
-			// System.err.println("Sleep");
-			try {
-				Thread.sleep(RECONNECT_INTERVAL);
-			} catch (InterruptedException e) {
-				// ignored
-			}
-		}
-	}
-
-	@Override
-	public void destroy() {
-		super.destroy();
-
-		stopped = true;
-
-		if (ptuReader != null) {
-			ptuReader.close();
-		}
+		bootstrap.setOption(
+                "remoteAddress", new InetSocketAddress(host, port));
+		
+		ptuClientHandler.connect();
 	}
 
 	@Override
 	public Ptu getPtu(int ptuId) {
-		return ptuReader != null ? ptuReader.getPtu(ptuId) : null;
+		return ptuClientHandler != null ? ptuClientHandler.getPtu(ptuId) : null;
 	}
-	
+
 	@Override
 	public List<Measurement<Double>> getMeasurements(int ptuId, String name) {
 		Ptu ptu = getPtu(ptuId);
-		
+
 		return ptu != null ? ptu.getMeasurements(name) : null;
 	}
-	
+
 	public Map<Integer, List<Measurement<Double>>> getMeasurements(String name) {
 		Map<Integer, List<Measurement<Double>>> result = new HashMap<Integer, List<Measurement<Double>>>();
-		if (ptuReader == null) return result;
-		
-		for (Iterator<Integer> i=ptuReader.getPtuIds().iterator(); i.hasNext(); ) {
+		if (ptuClientHandler == null)
+			return result;
+
+		for (Iterator<Integer> i = ptuClientHandler.getPtuIds().iterator(); i
+				.hasNext();) {
 			int ptuId = i.next();
-			Ptu ptu = ptuReader.getPtu(ptuId);
+			Ptu ptu = ptuClientHandler.getPtu(ptuId);
 			if (ptu != null) {
 				result.put(ptuId, ptu.getMeasurements(name));
 			}
