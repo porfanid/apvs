@@ -16,6 +16,7 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
             PtuServerHandler.class.getName());
 
 	private final boolean json;
+	private PtuSimulator simulator;
 
     public PtuServerHandler(boolean json) {
 		this.json = json;
@@ -26,8 +27,8 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
             ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
     	System.err.println("Connected from "+e.getChannel().getRemoteAddress());
     	
-    	Thread thread = new Thread(new PtuSimulator(e.getChannel(), json));
-    	thread.start();
+    	simulator = new PtuSimulator(e.getChannel(), json);
+    	simulator.start();
     	
     	super.channelConnected(ctx, e);
     }
@@ -36,6 +37,11 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
     public void channelDisconnected(ChannelHandlerContext ctx,
     		ChannelStateEvent e) throws Exception {
     	System.err.println("Disconnected from "+e.getChannel().getRemoteAddress());
+    	if (simulator != null) {
+    		System.err.println("Interrupting Thread...");
+    		simulator.interrupt();
+    	}
+    	
     	super.channelDisconnected(ctx, e);
     }
     

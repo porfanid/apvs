@@ -14,7 +14,7 @@ import org.jboss.netty.channel.Channel;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 
-public class PtuSimulator implements Runnable {
+public class PtuSimulator extends Thread {
 
 	private final Channel channel;
 	private final boolean json;
@@ -23,7 +23,7 @@ public class PtuSimulator implements Runnable {
 	private final int defaultWait = 5000;
 	private final int extraWait = 2000;
 	private final int deltaStartTime = 12 * 3600 * 1000;
-    static final int limitNumberOfValues = 200;
+	static final int limitNumberOfValues = 200;
 
 	public PtuSimulator(Channel channel, boolean json) {
 		this.channel = channel;
@@ -32,7 +32,6 @@ public class PtuSimulator implements Runnable {
 
 	@Override
 	public void run() {
-		ObjectWriter writer = null;
 		try {
 			long now = new Date().getTime();
 			long then = now - deltaStartTime;
@@ -70,7 +69,8 @@ public class PtuSimulator implements Runnable {
 			ChannelBufferOutputStream cos = new ChannelBufferOutputStream(
 					buffer);
 
-			writer = json ? new PtuJsonWriter(cos) : new PtuXmlWriter(cos);
+			ObjectWriter writer = json ? new PtuJsonWriter(cos)
+					: new PtuXmlWriter(cos);
 
 			// loop in the past
 			while (then < now) {
@@ -78,7 +78,7 @@ public class PtuSimulator implements Runnable {
 						new Date(then)));
 				writer.newLine();
 				writer.flush();
-				
+
 				channel.write(cos.buffer()).awaitUninterruptibly();
 				cos.buffer().clear();
 
@@ -88,34 +88,30 @@ public class PtuSimulator implements Runnable {
 			cos.buffer().clear();
 
 			// now loop at current time
-			while (true) {
-				writer.write(next(ptus.get(random.nextInt(ptus.size())),
-						new Date()));
-				writer.newLine();
-				writer.flush();
+			try {
+				while (!isInterrupted()) {
+					writer.write(next(ptus.get(random.nextInt(ptus.size())),
+							new Date()));
+					writer.newLine();
+					writer.flush();
 
-				channel.write(cos.buffer()).awaitUninterruptibly();
-				cos.buffer().clear();
+					channel.write(cos.buffer()).awaitUninterruptibly();
+					cos.buffer().clear();
 
-				try {
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
-				} catch (InterruptedException e) {
-					// ignored
+					System.out.print(".");
+					System.out.flush();
 				}
-				System.out.print(".");
-				System.out.flush();
+			} catch (InterruptedException e) {
+				// ignored
 			}
+			System.err.print("*");
+			System.out.flush();
+			writer.close();
 		} catch (IOException e) {
 			// ignored
 		} finally {
 			System.out.println("Closing");
-			try {
-				if (writer != null) {
-					writer.close();
-				}
-			} catch (IOException e) {
-				// ignored
-			}
 			channel.close();
 		}
 	}
