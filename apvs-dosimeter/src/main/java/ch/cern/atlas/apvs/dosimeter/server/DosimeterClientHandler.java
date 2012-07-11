@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.dosimeter.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +16,12 @@ import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.util.Timer;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -23,24 +30,34 @@ import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.ptu.server.PtuClientHandler;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.cedarsoftware.util.io.JsonWriter;
 
-public class DosimeterReader implements Runnable {
+public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	
-	private RemoteEventBus eventBus;
-	private Socket socket;
-	private Map<Integer, Dosimeter> dosimeters;
+	private static final int RECONNECT_DELAY = 20;
 
+	private static final Logger logger = Logger
+			.getLogger(PtuClientHandler.class.getName());
+	private final ClientBootstrap bootstrap;
+	private final RemoteEventBus eventBus;
+	
+	private InetSocketAddress address;
+	private Channel channel;
+	private Timer timer;
+	private boolean reconnectNow;
+
+	private Map<Integer, Dosimeter> dosimeters;
 	private Map<Integer, Integer> dosimeterToPtu;
 	
 	private FileHandler logHandler;
 
 	@SuppressWarnings("serial")
-	public DosimeterReader(final RemoteEventBus eventBus, Socket socket) {
+	public DosimeterClientHandler(ClientBootstrap bootstrap, final RemoteEventBus eventBus) {
+		this.bootstrap = bootstrap;
 		this.eventBus = eventBus;
-		this.socket = socket;
 		init();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {

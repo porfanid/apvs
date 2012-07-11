@@ -2,35 +2,35 @@ package ch.cern.atlas.apvs.server;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.Executors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
-import ch.cern.atlas.apvs.dosimeter.server.DosimeterReader;
-import ch.cern.atlas.apvs.dosimeter.server.DosimeterWriter;
+import ch.cern.atlas.apvs.dosimeter.server.DosimeterClientHandler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.ptu.server.PtuClientHandler;
+import ch.cern.atlas.apvs.ptu.server.PtuClientPipelineFactory;
 
 /**
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class DosimeterServiceImpl extends ResponsePollService implements
-		Runnable {
+public class DosimeterServiceImpl extends ResponsePollService {
 
-	private static final int RECONNECT_INTERVAL = 20000;
 	private static final int DEFAULT_PORT = 4001;
-	private static final String name = "Dosimeter Server";
 	
-	private String host = null;
-	private int port = DEFAULT_PORT;
-	private boolean stopped = false;
-	private Socket socket;
 	private String dosimeterUrl;
-	private DosimeterReader dosimeterReader;
+	
+	private DosimeterClientHandler dosimeterClientHandler;
 	private RemoteEventBus eventBus;
 
 	public DosimeterServiceImpl() {
@@ -53,98 +53,28 @@ public class DosimeterServiceImpl extends ResponsePollService implements
 					if ((url != null) && !url.equals(dosimeterUrl)) {
 						dosimeterUrl = url;
 						String[] s = dosimeterUrl.split(":", 2);
-						host = s[0];
-						port = s.length > 1 ? Integer.parseInt(s[1]) : DEFAULT_PORT;
+						String host = s[0];
+						int port = s.length > 1 ? Integer.parseInt(s[1]) : DEFAULT_PORT;
 						
-						if (socket != null) {
-							try {
-								socket.close();
-							} catch (IOException e) {
-								// ignored
-							}
-						}
+						System.err.println("Setting DOSIMETER to " + host
+								+ ":" + port);
+						dosimeterClientHandler.connect(new InetSocketAddress(
+								host, port));
 					}
 				}
 			}
 		});
 
-		Thread t = new Thread(this);
-		t.start();
+		// Configure the client.
+		ClientBootstrap bootstrap = new ClientBootstrap(
+				new NioClientSocketChannelFactory(
+						Executors.newCachedThreadPool(),
+						Executors.newCachedThreadPool()));
+
+		dosimeterClientHandler = new DosimeterClientHandler(bootstrap, eventBus);
+
+		// Configure the pipeline factory.
+		bootstrap.setPipelineFactory(new PtuClientPipelineFactory(
+				dosimeterClientHandler));
 	}
-
-	@Override
-	public void run() {
-		
-		boolean showError = true;
-
-		while (!stopped) {
-			if ((dosimeterReader == null) && (host != null)) {
-				try {
-					if (showError) {
-						System.out.println("Trying to connect to "+ name + " on " + host
-							+ ":" + port);
-					}
-				    socket = new Socket(host, port);
-					showError = true;
-					System.out.println("Connected to " + name + " on " + host
-							+ ":" + port);
-
-					DosimeterWriter dosimeterWriter = new DosimeterWriter(
-							socket);
-				    Thread writerThread = new Thread(dosimeterWriter);
-				    writerThread.start();
-
-					dosimeterReader = new DosimeterReader(eventBus, socket);
-
-					Thread readerThread = new Thread(dosimeterReader);
-					readerThread.start();
-					readerThread.join();
-					socket = null;
-				} catch (UnknownHostException e) {
-					if (showError) {
-						System.err.println(getClass() + " " + e);
-						showError = false;
-					}
-				} catch (ConnectException e) {
-					if (showError) {
-						System.err.println("Could not connect to " + name
-								+ " on " + host + ":" + port
-								+ ", retrying in a while...");
-						showError = false;
-					}
-				} catch (IOException e) {
-					if (showError) {
-						System.err.println(getClass() + " " + e);
-						showError = false;
-					}
-				} catch (InterruptedException e) {
-					System.err.println(getClass() + " " + e);
-				}
-
-				if (dosimeterReader != null) {
-					dosimeterReader.close();
-				}
-				dosimeterReader = null;
-			}
-
-			// System.err.println("Sleep");
-			try {
-				Thread.sleep(RECONNECT_INTERVAL);
-			} catch (InterruptedException e) {
-				// ignored
-			}
-		}
-	}
-
-	@Override
-	public void destroy() {
-		super.destroy();
-
-		stopped = true;
-
-		if (dosimeterReader != null) {
-			dosimeterReader.close();
-		}
-	}
-
 }
