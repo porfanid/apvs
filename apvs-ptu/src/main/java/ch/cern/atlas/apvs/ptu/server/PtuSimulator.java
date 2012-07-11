@@ -71,7 +71,7 @@ public class PtuSimulator extends Thread {
 
 			ObjectWriter writer = json ? new PtuJsonWriter(cos)
 					: new PtuXmlWriter(cos);
-
+/** FIXME should be interruptable
 			// loop in the past
 			while (then < now) {
 				writer.write(next(ptus.get(random.nextInt(ptus.size())),
@@ -86,7 +86,7 @@ public class PtuSimulator extends Thread {
 			}
 			channel.write(cos.buffer()).awaitUninterruptibly();
 			cos.buffer().clear();
-
+*/
 			// now loop at current time
 			try {
 				while (!isInterrupted()) {
