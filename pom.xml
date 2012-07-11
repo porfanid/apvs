@@ -22,7 +22,7 @@
 			
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<atmosphere-version>1.0.0.beta2a</atmosphere-version>
+		<atmosphere-version>1.0.0.beta3</atmosphere-version>
 		<gwt-version>2.4.0</gwt-version>
 <!--
 		<gwt-version>2.5.0-rc1</gwt-version>
