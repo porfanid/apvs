@@ -71,24 +71,26 @@ public class PtuSimulator extends Thread {
 
 			ObjectWriter writer = json ? new PtuJsonWriter(cos)
 					: new PtuXmlWriter(cos);
-/** FIXME should be interruptable
-			// loop in the past
-			while (then < now) {
-				writer.write(next(ptus.get(random.nextInt(ptus.size())),
-						new Date(then)));
-				writer.newLine();
-				writer.flush();
 
-				channel.write(cos.buffer()).awaitUninterruptibly();
-				cos.buffer().clear();
-
-				then += defaultWait + random.nextInt(extraWait);
-			}
-			channel.write(cos.buffer()).awaitUninterruptibly();
-			cos.buffer().clear();
-*/
-			// now loop at current time
 			try {
+				// loop in the past
+				while (then < now && !isInterrupted()) {
+					writer.write(next(ptus.get(random.nextInt(ptus.size())),
+							new Date(then)));
+					writer.newLine();
+					writer.flush();
+
+					channel.write(cos.buffer()).awaitUninterruptibly();
+					cos.buffer().clear();
+
+					then += defaultWait + random.nextInt(extraWait);
+				}
+				if (!isInterrupted()) {
+					channel.write(cos.buffer()).awaitUninterruptibly();
+					cos.buffer().clear();
+				}
+				
+				// now loop at current time
 				while (!isInterrupted()) {
 					writer.write(next(ptus.get(random.nextInt(ptus.size())),
 							new Date()));

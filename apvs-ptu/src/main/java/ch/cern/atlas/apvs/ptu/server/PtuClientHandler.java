@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,8 +19,6 @@ import java.util.logging.Logger;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
@@ -39,21 +39,25 @@ import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 public class PtuClientHandler extends SimpleChannelUpstreamHandler {
 
 	private static final int RECONNECT_DELAY = 20;
-	private final Timer timer = new HashedWheelTimer();
 
 	private static final Logger logger = Logger
 			.getLogger(PtuClientHandler.class.getName());
 	private final ClientBootstrap bootstrap;
 	private final RemoteEventBus eventBus;
-	
+
+	private InetSocketAddress address;
+	private Channel channel;
+	private Timer timer;
+	private boolean reconnectNow;
+
 	private SortedMap<Integer, Ptu> ptus;
-	private boolean ready = false;
 
 	private boolean ptuIdsChanged = false;
 	private Map<Integer, Set<String>> measurementChanged = new HashMap<Integer, Set<String>>();
-	private Channel channel;
 
-	public PtuClientHandler(ClientBootstrap bootstrap, final RemoteEventBus eventBus) {
+
+	public PtuClientHandler(ClientBootstrap bootstrap,
+			final RemoteEventBus eventBus) {
 		this.bootstrap = bootstrap;
 		this.eventBus = eventBus;
 
@@ -87,7 +91,7 @@ public class PtuClientHandler extends SimpleChannelUpstreamHandler {
 		}
 		super.handleUpstream(ctx, e);
 	}
-	
+
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
@@ -98,20 +102,29 @@ public class PtuClientHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
+		// handle closed connection
 		System.err.println("Closed PTU socket, invalidated PTUids");
 		init();
 		eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<Integer>()));
 
-		System.err.println("Sleeping for: " + RECONNECT_DELAY + "s");
-		timer.newTimeout(new TimerTask() {
-			public void run(Timeout timeout) throws Exception {
-				System.err.println("Reconnecting to PTU");
-				connect();
-			}
-		}, RECONNECT_DELAY, TimeUnit.SECONDS);
-
-		super.channelClosed(ctx, e);
+		// handle (re)connection
 		channel = null;
+		if (reconnectNow) {
+			System.err.println("Immediate Reconnecting to PTU on "+address);
+			bootstrap.connect(address);
+			reconnectNow = false;
+		} else {
+			System.err.println("Sleeping for: " + RECONNECT_DELAY + "s");
+			timer = new HashedWheelTimer();
+			timer.newTimeout(new TimerTask() {
+				public void run(Timeout timeout) throws Exception {
+					System.err.println("Reconnecting to PTU on "+address);
+					bootstrap.connect(address);
+				}
+			}, RECONNECT_DELAY, TimeUnit.SECONDS);
+		}
+		
+		super.channelClosed(ctx, e);
 	}
 
 	@Override
@@ -139,39 +152,45 @@ public class PtuClientHandler extends SimpleChannelUpstreamHandler {
 			}
 			changed.add(measurement.getName());
 
-			if (ready) {
-				sendEvents();
-			}
+			sendEvents();
 		}
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-		logger.log(Level.WARNING, "Unexpected exception from downstream.",
-				e.getCause());
+		if (e.getCause() instanceof ConnectException) {
+			logger.log(Level.WARNING, "Connection Refused");
+		} else {
+			logger.log(Level.WARNING, "Unexpected exception from downstream.",
+					e.getCause());
+		}
 		e.getChannel().close();
 	}
-	
-	public ChannelFuture connect() {
-		ChannelFuture future = disconnect();
-		if (future != null) {
-			future.addListener(new ChannelFutureListener() {
-				
-				@Override
-				public void operationComplete(ChannelFuture future) throws Exception {
-					bootstrap.connect();
-				}
-			});
-			return future;
-		}
-		return bootstrap.connect();
-	}
-	
-	public ChannelFuture disconnect() {
+
+	public void connect(InetSocketAddress newAddress) {
+		if (newAddress.equals(address)) return;
+		
+		address = newAddress;
+
 		if (channel != null) {
-			return channel.disconnect();
+			reconnect(true);
+		} else {
+			bootstrap.connect(address);
 		}
-		return null;
+	}
+
+	public void reconnect(boolean reconnectNow) {
+		this.reconnectNow = reconnectNow;
+		
+		if (timer != null) {
+			timer.stop();
+			timer = null;
+		}
+		
+		if (channel != null) {
+			channel.disconnect();
+			channel = null;
+		}
 	}
 
 	private void init() {
@@ -198,8 +217,6 @@ public class PtuClientHandler extends SimpleChannelUpstreamHandler {
 		}
 
 		measurementChanged.clear();
-
-		ready = true;
 	}
 
 	public Ptu getPtu(int ptuId) {

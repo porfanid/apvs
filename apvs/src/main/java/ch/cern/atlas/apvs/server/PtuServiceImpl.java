@@ -30,13 +30,10 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	private static final int DEFAULT_PORT = 4005;
 
-	private String host = "localhost";
-	private int port = DEFAULT_PORT;
 	private String ptuUrl;
 
 	private RemoteEventBus eventBus;
 	private PtuClientHandler ptuClientHandler;
-	private ClientBootstrap bootstrap;
 
 	public PtuServiceImpl() {
 		System.out.println("Creating PtuService...");
@@ -62,19 +59,21 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 							if ((url != null) && !url.equals(ptuUrl)) {
 								ptuUrl = url;
 								String[] s = ptuUrl.split(":", 2);
-								host = s[0];
-								port = s.length > 1 ? Integer.parseInt(s[1])
-										: DEFAULT_PORT;
+								String host = s[0];
+								int port = s.length > 1 ? Integer
+										.parseInt(s[1]) : DEFAULT_PORT;
 
-								System.err.println("Reconnecting PTU "+host+":"+port);
-								ptuClientHandler.connect();
+								System.err.println("Setting PTU to " + host
+										+ ":" + port);
+								ptuClientHandler.connect(new InetSocketAddress(
+										host, port));
 							}
 						}
 					}
 				});
 
 		// Configure the client.
-		bootstrap = new ClientBootstrap(
+		ClientBootstrap bootstrap = new ClientBootstrap(
 				new NioClientSocketChannelFactory(
 						Executors.newCachedThreadPool(),
 						Executors.newCachedThreadPool()));
@@ -84,11 +83,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		// Configure the pipeline factory.
 		bootstrap.setPipelineFactory(new PtuClientPipelineFactory(
 				ptuClientHandler));
-
-		bootstrap.setOption(
-                "remoteAddress", new InetSocketAddress(host, port));
-		
-		ptuClientHandler.connect();
 	}
 
 	@Override
