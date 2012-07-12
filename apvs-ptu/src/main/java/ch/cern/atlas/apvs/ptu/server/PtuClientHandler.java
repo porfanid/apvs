@@ -130,8 +130,9 @@ public class PtuClientHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 		// Print out the line received from the server.
-		System.err.println(e.getMessage());
-		Object object = PtuJsonReader.toJava((String) e.getMessage());
+		String line = (String)e.getMessage();
+		System.err.println(line);
+		Object object = PtuJsonReader.toJava(line);
 		if (object instanceof Measurement<?>) {
 			@SuppressWarnings("unchecked")
 			Measurement<Double> measurement = (Measurement<Double>) object;

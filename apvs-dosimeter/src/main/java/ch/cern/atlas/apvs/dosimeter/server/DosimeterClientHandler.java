@@ -1,10 +1,8 @@
 package ch.cern.atlas.apvs.dosimeter.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -20,8 +19,16 @@ import java.util.logging.Logger;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelEvent;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.TimerTask;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -122,41 +129,115 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	}
 
 	@Override
-	public void run() {
+	public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e)
+			throws Exception {
+		if (e instanceof ChannelStateEvent) {
+			logger.info(e.toString());
+		}
+		super.handleUpstream(ctx, e);
+	}
 
-		try {
-			while (true) {
-				BufferedReader is = new BufferedReader(new InputStreamReader(
-						socket.getInputStream()));
-				String line;
-				while ((line = is.readLine()) != null) {
-					Dosimeter dosimeter = DosimeterCoder.decode(line, new Date());
-					if (dosimeter == null) continue;
-					
-					if (dosimeters.put(dosimeter.getSerialNo(), dosimeter) == null) {
-						eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(
-								getDosimeterSerialNumbers()));
-					}
-					eventBus.fireEvent(new DosimeterChangedEvent(dosimeter));
-					
-					String jsonDosimeter = JsonWriter.objectToJson(dosimeter);
-					
-					if (logHandler != null) {
-						logHandler.publish(new LogRecord(Level.INFO, jsonDosimeter));
-					}
-					
-					Integer ptuId = dosimeterToPtu.get(dosimeter.getSerialNo());
-					if (ptuId != null) {
-						sendMeasurements(ptuId, dosimeter);
-					}
+	@Override
+	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
+			throws Exception {
+		channel = e.getChannel();
+		super.channelConnected(ctx, e);
+	}
+
+	@Override
+	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
+			throws Exception {
+		// handle closed connection
+		System.err.println("Closed Dosimeter socket, invalidated DosiIds");
+		init();
+		eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(new ArrayList<Integer>()));
+
+		// handle (re)connection
+		channel = null;
+		if (reconnectNow) {
+			System.err.println("Immediate Reconnecting to Dosimeter on "+address);
+			bootstrap.connect(address);
+			reconnectNow = false;
+		} else {
+			System.err.println("Sleeping for: " + RECONNECT_DELAY + "s");
+			timer = new HashedWheelTimer();
+			timer.newTimeout(new TimerTask() {
+				public void run(Timeout timeout) throws Exception {
+					System.err.println("Reconnecting to Dosimeter on "+address);
+					bootstrap.connect(address);
 				}
+			}, RECONNECT_DELAY, TimeUnit.SECONDS);
+		}
+		
+		super.channelClosed(ctx, e);
+	}
+
+	@Override
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+		// Print out the line received from the server.
+		String line = (String)e.getMessage();
+		System.err.println(line);
+		Dosimeter dosimeter = DosimeterCoder.decode(line, new Date());
+		if (dosimeter == null) return;
+		
+		if (dosimeters.put(dosimeter.getSerialNo(), dosimeter) == null) {
+			eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(
+					getDosimeterSerialNumbers()));
+		}
+		eventBus.fireEvent(new DosimeterChangedEvent(dosimeter));
+		
+		try {
+			String jsonDosimeter = JsonWriter.objectToJson(dosimeter);
+		
+			if (logHandler != null) {
+				logHandler.publish(new LogRecord(Level.INFO, jsonDosimeter));
 			}
-		} catch (IOException e) {
-			System.err.println(getClass() + " " + e);
-		} finally {
-			close();
+		} catch (IOException ex) {
+			logger.warning(DosimeterClientHandler.class+" cannot convert to JSON "+ex.getMessage());
+		}
+		
+		Integer ptuId = dosimeterToPtu.get(dosimeter.getSerialNo());
+		if (ptuId != null) {
+			sendMeasurements(ptuId, dosimeter);
+		}		
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+		if (e.getCause() instanceof ConnectException) {
+			logger.log(Level.WARNING, "Connection Refused");
+		} else {
+			logger.log(Level.WARNING, "Unexpected exception from downstream.",
+					e.getCause());
+		}
+		e.getChannel().close();
+	}
+
+	public void connect(InetSocketAddress newAddress) {
+		if (newAddress.equals(address)) return;
+		
+		address = newAddress;
+
+		if (channel != null) {
+			reconnect(true);
+		} else {
+			bootstrap.connect(address);
 		}
 	}
+
+	public void reconnect(boolean reconnectNow) {
+		this.reconnectNow = reconnectNow;
+		
+		if (timer != null) {
+			timer.stop();
+			timer = null;
+		}
+		
+		if (channel != null) {
+			channel.disconnect();
+			channel = null;
+		}
+	}	
 
 	private void sendMeasurements(int ptuId, Dosimeter dosimeter) {
 		Measurement<Double> rate = new Measurement<Double>(
@@ -166,16 +247,6 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 				ptuId, "Dosimeter Dose", dosimeter.getDose(), "&micro;Sv", dosimeter.getDate());
 		eventBus.fireEvent(new MeasurementChangedEvent(rate));
 		eventBus.fireEvent(new MeasurementChangedEvent(dose));
-	}
-
-	public void close() {
-		try {
-			socket.close();
-		} catch (IOException e) {
-			// ignored
-		}
-		init();
-		eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(new ArrayList<Integer>()));
 	}
 
 	public List<Integer> getDosimeterSerialNumbers() {

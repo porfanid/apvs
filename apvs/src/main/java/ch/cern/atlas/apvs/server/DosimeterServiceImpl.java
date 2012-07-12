@@ -1,10 +1,6 @@
 package ch.cern.atlas.apvs.server;
 
-import java.io.IOException;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.concurrent.Executors;
 
 import javax.servlet.ServletConfig;
@@ -17,7 +13,6 @@ import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterClientHandler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.server.PtuClientHandler;
 import ch.cern.atlas.apvs.ptu.server.PtuClientPipelineFactory;
 
 /**
