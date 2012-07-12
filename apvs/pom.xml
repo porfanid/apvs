@@ -155,8 +155,6 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-poll</artifactId>
 		</dependency>
-		<!-- 0.8.1 <dependency> <groupId>org.atmosphere</groupId> <artifactId>atmosphere-compat-jetty</artifactId> 
-			</dependency> -->
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
