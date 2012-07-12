@@ -24,7 +24,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
-	private ServerSettings settings;
+	private ServerSettings settings = new ServerSettings();
 
 	public ServerSettingsView(final RemoteEventBus eventBus) {
 
@@ -55,7 +55,6 @@ public class ServerSettingsView extends VerticalFlowPanel {
 				new EditableCell(ServerSettings.cellClass)) {
 			@Override
 			public Object getValue(String name) {
-				if (settings == null) return null;
 				return settings.get(name);
 			}
 
@@ -76,8 +75,6 @@ public class ServerSettingsView extends VerticalFlowPanel {
 
 			@Override
 			public void update(int index, String name, Object value) {
-				if (settings == null) return;
-				
 				System.err.println("Updated " + index + " " + name + " "
 						+ value+" "+value.getClass());
 				settings.put(name, value.toString());
