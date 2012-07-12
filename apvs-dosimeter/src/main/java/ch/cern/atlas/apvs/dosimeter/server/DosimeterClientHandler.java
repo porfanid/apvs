@@ -37,7 +37,6 @@ import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-import ch.cern.atlas.apvs.ptu.server.PtuClientHandler;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.cedarsoftware.util.io.JsonWriter;
@@ -47,7 +46,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	private static final int RECONNECT_DELAY = 20;
 
 	private static final Logger logger = Logger
-			.getLogger(PtuClientHandler.class.getName());
+			.getLogger(DosimeterClientHandler.class.getName());
 	private final ClientBootstrap bootstrap;
 	private final RemoteEventBus eventBus;
 	
@@ -176,7 +175,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 		// Print out the line received from the server.
 		String line = (String)e.getMessage();
-		System.err.println(line);
+//		System.err.println(line);
 		Dosimeter dosimeter = DosimeterCoder.decode(line, new Date());
 		if (dosimeter == null) return;
 		
