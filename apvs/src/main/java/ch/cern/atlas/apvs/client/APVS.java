@@ -22,7 +22,7 @@ import ch.cern.atlas.apvs.client.ui.ProcedureView;
 import ch.cern.atlas.apvs.client.ui.PtuSettingsView;
 import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
-import ch.cern.atlas.apvs.client.ui.TimeView;
+import ch.cern.atlas.apvs.client.ui.SingleTimeView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -119,6 +119,9 @@ public class APVS implements EntryPoint {
 		for(int i=0; i<divs.getLength(); i++) {
 			String id = divs.getItem(i).getId();
 			
+			System.err.println(i+" "+id);
+			System.err.println(i+" "+divs.getItem(i).getClassName());
+			
 			if (id.equals("Measurements")) {
 				newCode = true;
 				RootPanel.get("Measurements").add(new MeasurementView(clientFactory, workerEventBus));
@@ -169,9 +172,9 @@ public class APVS implements EntryPoint {
 				RootPanel.get("Dosimeter").add(new DosimeterView(remoteEventBus));				
 			}
 			
-			if (id.equals("Trace")) {
+			if (id.equals("SingleTimeView")) {
 				newCode = true;
-				RootPanel.get("Trace").add(new TimeView(clientFactory, 300, false));				
+				RootPanel.get("SingleTimeView").add(new SingleTimeView(clientFactory, 300, false));				
 			}
 
 			if (id.equals("Tabs")) {

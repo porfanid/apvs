@@ -62,7 +62,9 @@ public class AbstractTimeView extends SimplePanel {
 
 		chart = new Chart()
 				// same as above
-				.setColors("#4572A7", "#AA4643", "#89A54E", "#80699B",
+			// FIXME String.format not supported
+				.setColors(// String.format("%s, ", (Object[])color))
+						"#4572A7", "#AA4643", "#89A54E", "#80699B",
 						"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92")
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
