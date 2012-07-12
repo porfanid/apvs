@@ -2,7 +2,6 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
@@ -14,7 +13,6 @@ import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -40,7 +38,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 	private ListDataProvider<Integer> dataProvider = new ListDataProvider<Integer>();
 	private CellTable<Integer> table = new CellTable<Integer>();
 	private ListHandler<Integer> columnSortHandler;
-
+	
 	protected PtuSettings settings = new PtuSettings();
 	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
 	protected List<Integer> activePtuIds = new ArrayList<Integer>();
@@ -229,12 +227,14 @@ public class PtuSettingsView extends VerticalFlowPanel {
 						System.err.println("PTU Settings changed");
 						settings = event.getPtuSettings();
 
-						mergeList(settings.getPtuIds());
+//						mergeList(settings.getPtuIds());
 
 						update();
 					}
 				});
-
+		
+		// NOTE: Ids change settings itself and are forwarded by PtuSettingsChangedEvents
+/*
 		PtuIdsChangedEvent.subscribe(eventBus,
 				new PtuIdsChangedEvent.Handler() {
 
@@ -255,7 +255,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 						update();
 					}
 				});
-
+*/
 		DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
 				new DosimeterSerialNumbersChangedEvent.Handler() {
 
@@ -276,6 +276,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 		update();
 	}
 
+	/*
 	private List<Integer> mergeList(List<Integer> newList) {
 		List<Integer> currentPtuIds = dataProvider.getList();
 		List<Integer> newPtuIds = new ArrayList<Integer>();
@@ -288,7 +289,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 		currentPtuIds.addAll(newPtuIds);
 		return newPtuIds;
 	}
-
+*/
 	private void update() {
 		// Resort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());

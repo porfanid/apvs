@@ -102,10 +102,13 @@ public class PtuSettings implements Serializable {
 		return list;
 	}
 
-	public void add(Integer ptuId) {
+	public boolean add(Integer ptuId) {
+		System.err.println("Adding "+ptuId);
 		if (!entries.containsKey(ptuId)) {
 			entries.put(ptuId, new Entry());
+			return true;
 		}
+		return false;
 	}
 
 	// Returns ptuId associated to docimeterSerialNo

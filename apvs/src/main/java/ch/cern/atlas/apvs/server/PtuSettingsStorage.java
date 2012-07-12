@@ -1,9 +1,13 @@
 package ch.cern.atlas.apvs.server;
 
+import java.util.Iterator;
+import java.util.List;
+
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
@@ -27,6 +31,27 @@ public class PtuSettingsStorage {
 						settings = event.getPtuSettings();
 
 						store();
+					}
+				});
+		
+		PtuIdsChangedEvent.subscribe(eventBus,
+				new PtuIdsChangedEvent.Handler() {
+
+					@Override
+					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
+						System.err.println("PTU Setting Storage: PTU IDS changed");
+						List<Integer> activePtuIds = event.getPtuIds();
+
+						boolean changed = false;
+						for (Iterator<Integer> i = activePtuIds.iterator(); i
+								.hasNext();) {
+							boolean added = settings.add(i.next());
+							changed |= added;
+						}
+						
+						if (changed) {
+							eventBus.fireEvent(new PtuSettingsChangedEvent(settings));
+						}
 					}
 				});
 
@@ -54,7 +79,7 @@ public class PtuSettingsStorage {
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {
-			System.err.println("Supervisor Settings will not be stored");
+			System.err.println("Ptu Settings will not be stored");
 			return;
 		}
 
