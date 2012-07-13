@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.dosimeter.server;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -205,6 +206,8 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
 		if (e.getCause() instanceof ConnectException) {
 			logger.log(Level.WARNING, "Connection Refused");
+		} else if (e.getCause() instanceof SocketException) {
+			logger.log(Level.WARNING, "Network is unreachable");
 		} else {
 			logger.log(Level.WARNING, "Unexpected exception from downstream.",
 					e.getCause());
