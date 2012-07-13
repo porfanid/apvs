@@ -10,7 +10,9 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -18,13 +20,30 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class TimeView extends AbstractTimeView {
 
-	private HandlerRegistration handler;
-	
-	public TimeView(final ClientFactory clientFactory, int height,
-			boolean export, String args) {
+	private HandlerRegistration measurementHandler;
+	private final RemoteEventBus localEventBus;
+
+	private Integer ptuId = null;
+	private String measurementName = null;
+
+	public TimeView(final ClientFactory clientFactory,
+			RemoteEventBus workerEventBus, int height, boolean export,
+			String args) {
 		this.clientFactory = clientFactory;
+		this.localEventBus = workerEventBus;
 		this.height = height;
 		this.export = export;
+
+		SelectPtuEvent.subscribe(localEventBus, new SelectPtuEvent.Handler() {
+
+			@Override
+			public void onPtuSelected(final SelectPtuEvent event) {
+				if (!localEventBus.getUUID().equals(event.getEventBusUUID()))
+					return;
+				ptuId = event.getPtuId();
+				updateChart();
+			}
+		});
 		
 		if (args != null) {
 			setMeasurement(args);
@@ -32,6 +51,12 @@ public class TimeView extends AbstractTimeView {
 	}
 
 	public void setMeasurement(final String name) {
+		this.measurementName = name;
+
+		updateChart();
+	}
+
+	private void updateChart() {
 		pointsById = new HashMap<Integer, Integer>();
 		seriesById = new HashMap<Integer, Series>();
 		colorsById = new HashMap<Integer, String>();
@@ -39,118 +64,118 @@ public class TimeView extends AbstractTimeView {
 		unsubscribe();
 		removeChart();
 
-		if (name == null)
+		if (measurementName == null)
 			return;
 
-		final long t0 = System.currentTimeMillis();
-		clientFactory.getPtuService().getMeasurements(name,
-				new AsyncCallback<Map<Integer, List<Measurement<Double>>>>() {
+		if ((ptuId == null) || (ptuId == 0)) {
+			// Subscribe to all PTUs
+			final long t0 = System.currentTimeMillis();
+			clientFactory
+					.getPtuService()
+					.getMeasurements(
+							measurementName,
+							new AsyncCallback<Map<Integer, List<Measurement<Double>>>>() {
 
-					@Override
-					public void onSuccess(
-							Map<Integer, List<Measurement<Double>>> measurements) {
-						if (measurements == null) {
-							return;
-						}
+								@Override
+								public void onSuccess(
+										Map<Integer, List<Measurement<Double>>> measurements) {
+									if (measurements == null) {
+										return;
+									}
 
-						System.err.println("Measurement Map retrieval took "
-								+ (System.currentTimeMillis() - t0)
-								+ " ms for " + measurements.size());
+									System.err.println("Measurement Map retrieval took "
+											+ (System.currentTimeMillis() - t0)
+											+ " ms for " + measurements.size());
 
-						String unit = "";
+									String unit = "";
 
-						if (measurements.keySet().size() > 0) {
-							List<Measurement<Double>> m = measurements
-									.get(measurements.keySet().iterator()
-											.next());
-							if ((m != null) && (m.size() > 0)) {
-								unit = m.get(0).getUnit();
+									if (measurements.keySet().size() > 0) {
+										List<Measurement<Double>> m = measurements
+												.get(measurements.keySet()
+														.iterator().next());
+										if ((m != null) && (m.size() > 0)) {
+											unit = m.get(0).getUnit();
+										}
+									}
+
+									createChart(measurementName, unit);
+
+									int k = 0;
+									for (Iterator<Integer> i = measurements
+											.keySet().iterator(); i.hasNext();) {
+										int ptuId = i.next();
+
+										Series series = chart.createSeries()
+												.setName("" + ptuId);
+										pointsById.put(ptuId, 0);
+										seriesById.put(ptuId, series);
+										colorsById.put(ptuId, color[k]);
+
+										addHistory(ptuId, series,
+												measurements.get(ptuId));
+
+										chart.addSeries(series, true, false);
+										k++;
+									}
+
+									add(chart);
+
+									subscribe(null, measurementName);
+								}
+
+								@Override
+								public void onFailure(Throwable caught) {
+									System.err
+											.println("Cannot retrieve Measurements "
+													+ caught);
+								}
+							});
+		} else {
+			// subscribe to single PTU
+			final long t0 = System.currentTimeMillis();
+			clientFactory.getPtuService().getMeasurements(ptuId,
+					measurementName,
+					new AsyncCallback<List<Measurement<Double>>>() {
+
+						@Override
+						public void onSuccess(
+								List<Measurement<Double>> measurements) {
+							if (measurements == null) {
+								return;
 							}
-						}
 
-						createChart(name, unit);
+							System.err.println("Measurement retrieval took "
+									+ (System.currentTimeMillis() - t0)
+									+ " ms for " + measurements.size());
 
-						int k = 0;
-						for (Iterator<Integer> i = measurements.keySet()
-								.iterator(); i.hasNext();) {
-							int ptuId = i.next();
+							String unit = measurements.size() > 0 ? measurements
+									.get(0).getUnit() : "";
+
+							createChart(measurementName + " (" + ptuId + ")",
+									unit);
 
 							Series series = chart.createSeries().setName(
 									"" + ptuId);
 							pointsById.put(ptuId, 0);
 							seriesById.put(ptuId, series);
-							colorsById.put(ptuId, color[k]);
+							colorsById.put(ptuId, color[0]);
 
-							addHistory(ptuId, series, measurements.get(ptuId));
+							addHistory(ptuId, series, measurements);
 
 							chart.addSeries(series, true, false);
-							k++;
+
+							add(chart);
+
+							subscribe(ptuId, measurementName);
 						}
 
-						add(chart);
-
-						subscribe(null, name);
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						System.err.println("Cannot retrieve Measurements "
-								+ caught);
-					}
-				});
-	}
-
-	public void setMeasurement(final int ptuId, final String name) {
-		pointsById = new HashMap<Integer, Integer>();
-		seriesById = new HashMap<Integer, Series>();
-		colorsById = new HashMap<Integer, String>();
-
-		unsubscribe();
-		removeChart();
-
-		if ((ptuId == 0) || (name == null))
-			return;
-
-		final long t0 = System.currentTimeMillis();
-		clientFactory.getPtuService().getMeasurements(ptuId, name,
-				new AsyncCallback<List<Measurement<Double>>>() {
-
-					@Override
-					public void onSuccess(List<Measurement<Double>> measurements) {
-						if (measurements == null) {
-							return;
+						@Override
+						public void onFailure(Throwable caught) {
+							System.err.println("Cannot retrieve Measurements "
+									+ caught);
 						}
-
-						System.err.println("Measurement retrieval took "
-								+ (System.currentTimeMillis() - t0)
-								+ " ms for " + measurements.size());
-
-						String unit = measurements.size() > 0 ? measurements
-								.get(0).getUnit() : "";
-
-						createChart(name + " (" + ptuId + ")", unit);
-
-						Series series = chart.createSeries()
-								.setName("" + ptuId);
-						pointsById.put(ptuId, 0);
-						seriesById.put(ptuId, series);
-						colorsById.put(ptuId, color[0]);
-
-						addHistory(ptuId, series, measurements);
-
-						chart.addSeries(series, true, false);
-
-						add(chart);
-
-						subscribe(ptuId, name);
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						System.err.println("Cannot retrieve Measurements "
-								+ caught);
-					}
-				});
+					});
+		}
 	}
 
 	private void addHistory(Integer ptuId, Series series,
@@ -172,16 +197,17 @@ public class TimeView extends AbstractTimeView {
 	}
 
 	private void unsubscribe() {
-		if (handler != null) {
-			handler.removeHandler();
-			handler = null;
+		if (measurementHandler != null) {
+			measurementHandler.removeHandler();
+			measurementHandler = null;
 		}
 	}
 
 	private void subscribe(final Integer ptuId, final String name) {
 		unsubscribe();
 
-		handler = MeasurementChangedEvent.register(clientFactory.getEventBus(),
+		measurementHandler = MeasurementChangedEvent.register(
+				clientFactory.getEventBus(),
 				new MeasurementChangedEvent.Handler() {
 
 					@Override
@@ -197,14 +223,12 @@ public class TimeView extends AbstractTimeView {
 							System.err.println("New meas " + m);
 							Series series = seriesById.get(m.getPtuId());
 							if (series != null) {
-								Integer numberOfPoints = pointsById
-										.get(ptuId);
+								Integer numberOfPoints = pointsById.get(ptuId);
 								if (numberOfPoints == null)
 									numberOfPoints = 0;
 								boolean shift = numberOfPoints >= pointLimit;
 								if (!shift) {
-									pointsById
-											.put(ptuId, numberOfPoints + 1);
+									pointsById.put(ptuId, numberOfPoints + 1);
 								}
 								chart.setLinePlotOptions(new LinePlotOptions()
 										.setMarker(new Marker()

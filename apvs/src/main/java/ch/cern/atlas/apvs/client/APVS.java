@@ -22,7 +22,7 @@ import ch.cern.atlas.apvs.client.ui.ProcedureView;
 import ch.cern.atlas.apvs.client.ui.PtuSettingsView;
 import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
-import ch.cern.atlas.apvs.client.ui.SingleTimeView;
+import ch.cern.atlas.apvs.client.ui.TimeView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -118,12 +118,14 @@ public class APVS implements EntryPoint {
 		boolean newCode = false;
 		for(int i=0; i<divs.getLength(); i++) {
 			String id = divs.getItem(i).getId();
-			String[] parts = id.split("\\(",2);
-			String className = parts[0];
-			String args = parts.length > 1 ? parts[1].substring(0, parts[1].length()-1) : null;
 			
-			System.err.println(args);
-									
+			String[] parts = id.split("\\(",2);
+			if (parts.length != 2) continue;
+			
+			String className = parts[0];
+			String args = parts[1].length() > 0 ? parts[1].substring(0, parts[1].length()-1) : null;
+			
+			// FIXME handle generically
 			if (id.startsWith("MeasurementView")) {
 				newCode = true;
 				RootPanel.get(id).add(new MeasurementView(clientFactory, workerEventBus, args));
@@ -169,14 +171,9 @@ public class APVS implements EntryPoint {
 				RootPanel.get(id).add(new DosimeterView(remoteEventBus));				
 			}
 			
-			if (id.startsWith("SingleTimeView")) {
-				newCode = true;
-				RootPanel.get(id).add(new SingleTimeView(clientFactory, 300, false, args));				
-			}
-
 			if (id.startsWith("TimeView")) {
 				newCode = true;
-				RootPanel.get(id).add(new SingleTimeView(clientFactory, 300, false, args));				
+				RootPanel.get(id).add(new TimeView(clientFactory, workerEventBus, 300, false, args));				
 			}
 		}
 		

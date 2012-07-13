@@ -66,7 +66,7 @@ public class PtuView extends VerticalPanel {
 		
 		init();
 
-		timeView = new TimeView(clientFactory, 300, true, null);
+		timeView = new TimeView(clientFactory, new RemoteEventBus(), 300, true, null);
 		
 		add(table);
 		add(timeView);
@@ -260,7 +260,8 @@ public class PtuView extends VerticalPanel {
 			
 			@Override
 			public void update(int index, String name, String value) {
-				timeView.setMeasurement(ptuId, name);
+				// FIXME should have ptuID set... via SelectPtuEvent
+				timeView.setMeasurement(name);
 			}
 		});
 		

@@ -51,12 +51,11 @@ public class MeasurementView extends VerticalFlowPanel {
 	private TimeView timeView;
 
 	public MeasurementView(final ClientFactory clientFactory,
-			final RemoteEventBus localEventBus, String id) {
+			final RemoteEventBus localEventBus, String args) {
 		
-		show = Arrays.asList(id.split(";"));
-		System.err.println("SSS "+show.size());
+		show = args != null ? Arrays.asList(args.split(";")) : new ArrayList<String>();
 		
-		timeView = new TimeView(clientFactory, 150, false, null);
+		timeView = new TimeView(clientFactory, localEventBus, 150, false, null);
 
 		add(table);
 		add(timeView);
@@ -102,7 +101,7 @@ public class MeasurementView extends VerticalFlowPanel {
 									Measurement<Double> measurement = event
 											.getMeasurement();
 									if (measurement.getPtuId() == ptuId) {
-										last = replace(measurement);
+										last = replace(measurement, last);
 										update();
 									}
 								}
@@ -143,7 +142,7 @@ public class MeasurementView extends VerticalFlowPanel {
 			@Override
 			public void update(int index, Measurement<Double> object,
 					String value) {
-				timeView.setMeasurement(ptuId, object.getName());
+				timeView.setMeasurement(object.getName());
 			}
 		});
 
@@ -189,7 +188,7 @@ public class MeasurementView extends VerticalFlowPanel {
 			@Override
 			public void update(int index, Measurement<Double> object,
 					String value) {
-				timeView.setMeasurement(ptuId, object.getName());
+				timeView.setMeasurement(object.getName());
 			}
 		});
 		table.addColumn(value, "Value");
@@ -217,7 +216,7 @@ public class MeasurementView extends VerticalFlowPanel {
 			@Override
 			public void update(int index, Measurement<Double> object,
 					String value) {
-				timeView.setMeasurement(ptuId, object.getName());
+				timeView.setMeasurement(object.getName());
 			}
 		});
 		table.addColumn(unit, "Unit");
@@ -313,11 +312,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		if ((selection == null) && (dataProvider.getList().size() > 0)) {
 			selection = dataProvider.getList().get(0);
 
-			timeView.setMeasurement(ptuId, selection.getName());
-		}
-
-		if (ptuId == null) {
-			timeView.setMeasurement(0, null);
+			timeView.setMeasurement(selection.getName());
 		}
 
 		// re-set the selection as the async update may have changed the
@@ -327,7 +322,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		}
 	}
 
-	private Measurement<Double> replace(Measurement<Double> measurement) {
+	private Measurement<Double> replace(Measurement<Double> measurement, Measurement<Double> lastValue) {
 		List<Measurement<Double>> list = dataProvider.getList();
 
 		int i = 0;
@@ -338,10 +333,11 @@ public class MeasurementView extends VerticalFlowPanel {
 			i++;
 		}
 
-		Measurement<Double> lastValue;
 		if (i == list.size()) {
-			list.add(measurement);
-			lastValue = measurement;
+			if ((show == null) || show.contains(measurement.getName())) {
+				list.add(measurement);
+				lastValue = measurement;
+			}
 		} else {
 			lastValue = list.set(i, measurement);
 		}
