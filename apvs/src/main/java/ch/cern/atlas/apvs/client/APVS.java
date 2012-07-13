@@ -117,62 +117,66 @@ public class APVS implements EntryPoint {
 		
 		boolean newCode = false;
 		for(int i=0; i<divs.getLength(); i++) {
-			String className = divs.getItem(i).getClassName();
 			String id = divs.getItem(i).getId();
+			String[] parts = id.split("\\(",2);
+			String className = parts[0];
+			String args = parts.length > 1 ? parts[1].substring(0, parts[1].length()-1) : null;
+			
+			System.err.println(args);
+									
+			if (id.startsWith("MeasurementView")) {
+				newCode = true;
+				RootPanel.get(id).add(new MeasurementView(clientFactory, workerEventBus, args));
+			}
+			
+			if (id.startsWith("CameraView")) {
+				newCode = true;
+				RootPanel.get(id).add(new CameraView(remoteEventBus, workerEventBus, args));
+			}
+			
+			if (id.startsWith("PtuView")) {
+				newCode = true;
+				RootPanel.get(id).add(new PtuView(clientFactory));				
+			}
+			
+			if (id.startsWith("ProcedureView")) {
+				newCode = true;
+				RootPanel.get(id).add(new ProcedureView(remoteEventBus, workerEventBus));				
+			}
+			
+			if (id.startsWith("ProcedureControls")) {
+				newCode = true;
+				RootPanel.get(id).add(new ProcedureControls(workerEventBus));				
+			}
+			
+			if (id.startsWith("PlaceView")) {
+				newCode = true;
+				RootPanel.get(id).add(new PlaceView(clientFactory, workerEventBus));				
+			}
+			
+			if (id.startsWith("PtuSettingsView")) {
+				newCode = true;
+				RootPanel.get(id).add(new PtuSettingsView(remoteEventBus));				
+			}
 						
-			if (className.equals("MeasurementView")) {
+			if (id.startsWith("ServerSettingsView")) {
 				newCode = true;
-				RootPanel.get("MeasurementView").add(new MeasurementView(clientFactory, workerEventBus));
+				RootPanel.get(id).add(new ServerSettingsView(remoteEventBus));				
 			}
 			
-			if (className.equals("CameraView")) {
+			if (id.startsWith("DosimeterView")) {
 				newCode = true;
-				RootPanel.get("CameraView").add(new CameraView(remoteEventBus, workerEventBus, id));
+				RootPanel.get(id).add(new DosimeterView(remoteEventBus));				
 			}
 			
-			if (className.equals("PtuView")) {
+			if (id.startsWith("SingleTimeView")) {
 				newCode = true;
-				RootPanel.get("PtuView").add(new PtuView(clientFactory));				
-			}
-			
-			if (className.equals("ProcedureView")) {
-				newCode = true;
-				RootPanel.get("ProcedureView").add(new ProcedureView(remoteEventBus, workerEventBus));				
-			}
-			
-			if (className.equals("ProcedureControls")) {
-				newCode = true;
-				RootPanel.get("ProcedureControls").add(new ProcedureControls(workerEventBus));				
-			}
-			
-			if (className.equals("PlaceView")) {
-				newCode = true;
-				RootPanel.get("PlaceView").add(new PlaceView(clientFactory, workerEventBus));				
-			}
-			
-			if (id.equals("PtuSettingsView")) {
-				newCode = true;
-				RootPanel.get("PtuSettingsView").add(new PtuSettingsView(remoteEventBus));				
-			}
-						
-			if (className.equals("ServerSettingsView")) {
-				newCode = true;
-				RootPanel.get("ServerSettingsView").add(new ServerSettingsView(remoteEventBus));				
-			}
-			
-			if (className.equals("DosimeterView")) {
-				newCode = true;
-				RootPanel.get("DosimeterView").add(new DosimeterView(remoteEventBus));				
-			}
-			
-			if (className.equals("SingleTimeView")) {
-				newCode = true;
-				RootPanel.get("SingleTimeView").add(new SingleTimeView(clientFactory, 300, false));				
+				RootPanel.get(id).add(new SingleTimeView(clientFactory, 300, false, args));				
 			}
 
-			if (className.equals("TimeView")) {
+			if (id.startsWith("TimeView")) {
 				newCode = true;
-				RootPanel.get("TimeView").add(new SingleTimeView(clientFactory, 300, false));				
+				RootPanel.get(id).add(new SingleTimeView(clientFactory, 300, false, args));				
 			}
 		}
 		
@@ -180,7 +184,6 @@ public class APVS implements EntryPoint {
 		workerEventBus.fireEvent(new SelectPtuEvent(27372));
 		
 		if (newCode) return;
-
 
 		startWorker();
 		return;

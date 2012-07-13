@@ -13,6 +13,7 @@ import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -226,15 +227,13 @@ public class PtuSettingsView extends VerticalFlowPanel {
 							PtuSettingsChangedEvent event) {
 						System.err.println("PTU Settings changed");
 						settings = event.getPtuSettings();
-
-//						mergeList(settings.getPtuIds());
+						dataProvider.getList().clear();
+						dataProvider.getList().addAll(settings.getPtuIds());
 
 						update();
 					}
 				});
 		
-		// NOTE: Ids change settings itself and are forwarded by PtuSettingsChangedEvents
-/*
 		PtuIdsChangedEvent.subscribe(eventBus,
 				new PtuIdsChangedEvent.Handler() {
 
@@ -243,19 +242,10 @@ public class PtuSettingsView extends VerticalFlowPanel {
 						System.err.println("PTU IDS changed");
 						activePtuIds = event.getPtuIds();
 
-						List<Integer> newPtuIds = mergeList(activePtuIds);
-						for (Iterator<Integer> i = newPtuIds.iterator(); i
-								.hasNext();) {
-							settings.add(i.next());
-						}
-						
-						if (!newPtuIds.isEmpty()) {
-							fireSettingsChangedEvent(eventBus, settings);
-						}
 						update();
 					}
 				});
-*/
+
 		DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
 				new DosimeterSerialNumbersChangedEvent.Handler() {
 
@@ -276,20 +266,6 @@ public class PtuSettingsView extends VerticalFlowPanel {
 		update();
 	}
 
-	/*
-	private List<Integer> mergeList(List<Integer> newList) {
-		List<Integer> currentPtuIds = dataProvider.getList();
-		List<Integer> newPtuIds = new ArrayList<Integer>();
-		for (Iterator<Integer> i = newList.iterator(); i.hasNext();) {
-			Integer ptuId = i.next();
-			if (!currentPtuIds.contains(ptuId)) {
-				newPtuIds.add(ptuId);
-			}
-		}
-		currentPtuIds.addAll(newPtuIds);
-		return newPtuIds;
-	}
-*/
 	private void update() {
 		// Resort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());

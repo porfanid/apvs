@@ -5,8 +5,8 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 public class SingleTimeView extends TimeView {
 
 	public SingleTimeView(ClientFactory clientFactory, int height,
-			boolean export) {
-		super(clientFactory, height, export);
+			boolean export, String args) {
+		super(clientFactory, height, export, args);
 	}
 
 }

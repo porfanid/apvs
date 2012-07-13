@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -43,14 +44,19 @@ public class MeasurementView extends VerticalFlowPanel {
 	private ClickableTextColumn<Measurement<Double>> name;
 	private SingleSelectionModel<Measurement<Double>> selectionModel;
 
+	private List<String> show = null;
+	
 	private Integer ptuId = null;
 
 	private TimeView timeView;
 
 	public MeasurementView(final ClientFactory clientFactory,
-			final RemoteEventBus localEventBus) {
-
-		timeView = new TimeView(clientFactory, 150, false);
+			final RemoteEventBus localEventBus, String id) {
+		
+		show = Arrays.asList(id.split(";"));
+		System.err.println("SSS "+show.size());
+		
+		timeView = new TimeView(clientFactory, 150, false, null);
 
 		add(table);
 		add(timeView);

@@ -98,7 +98,7 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public MeasurementView getMeasurementView() {
 //		if (measurementView == null) {
-			measurementView = new MeasurementView(this, remoteEventBus);
+			measurementView = new MeasurementView(this, remoteEventBus, "");
 //		}
 		return measurementView;
 	}

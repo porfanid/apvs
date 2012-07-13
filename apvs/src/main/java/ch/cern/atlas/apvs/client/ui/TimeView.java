@@ -21,10 +21,14 @@ public class TimeView extends AbstractTimeView {
 	private HandlerRegistration handler;
 	
 	public TimeView(final ClientFactory clientFactory, int height,
-			boolean export) {
+			boolean export, String args) {
 		this.clientFactory = clientFactory;
 		this.height = height;
 		this.export = export;
+		
+		if (args != null) {
+			setMeasurement(args);
+		}
 	}
 
 	public void setMeasurement(final String name) {
