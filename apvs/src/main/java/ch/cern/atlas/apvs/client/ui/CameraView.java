@@ -17,9 +17,9 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class CameraView extends SimplePanel {
 
-	public static final int HELMET = 0;
-	public static final int HAND = 1;
-
+	public static final String HELMET = "Helmet";
+	public static final String HAND = "Hand";
+	
 	// FIXME
 	// private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
 	// private final String cameraURL =
@@ -35,7 +35,7 @@ public class CameraView extends SimplePanel {
 	private String videoPoster = "Default-640x480.jpg";
 	private Image image;
 
-	private int type;
+	private String type;
 
 	private Integer ptuId;
 
@@ -46,12 +46,12 @@ public class CameraView extends SimplePanel {
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
 	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, int type) {
+			RemoteEventBus localEventBus, String type) {
 		this(remoteEventBus, localEventBus, type, "100%", "100%");
 	}
 
 	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, final int type, String width,
+			RemoteEventBus localEventBus, final String type, String width,
 			String height) {
 		this.type = type;
 		this.videoWidth = width;
@@ -99,13 +99,12 @@ public class CameraView extends SimplePanel {
 		});
 	}
 
-	private String getCameraUrl(int type, Integer ptuId) {
+	private String getCameraUrl(String type, Integer ptuId) {
 		if ((settings == null) || (ptuId == null)) {
 			return null;
 		}
 
-		return type == HELMET ? settings.getHelmetUrl(ptuId) : settings
-				.getHandUrl(ptuId);
+		return settings.getCameraUrl(ptuId, type);
 	}
 
 	private void update(boolean force) {

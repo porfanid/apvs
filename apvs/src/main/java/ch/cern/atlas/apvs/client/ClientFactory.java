@@ -30,7 +30,7 @@ public interface ClientFactory {
 
 	ModelUI getModelView();
 
-	CameraUI getCameraView(int type);
+	CameraUI getCameraView(String type);
 
 	ProcedureMenuUI getProcedureMenuView();
 

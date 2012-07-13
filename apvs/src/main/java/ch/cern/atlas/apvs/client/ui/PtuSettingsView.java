@@ -138,14 +138,14 @@ public class PtuSettingsView extends VerticalFlowPanel {
 				new TextInputCell()) {
 			@Override
 			public String getValue(Integer object) {
-				return settings.getHelmetUrl(object);
+				return settings.getCameraUrl(object, CameraView.HELMET);
 			}
 		};
 		helmetUrl.setFieldUpdater(new FieldUpdater<Integer, String>() {
 
 			@Override
 			public void update(int index, Integer object, String value) {
-				settings.setHelmetUrl(object, value);
+				settings.setCameraUrl(object, CameraView.HELMET, value);
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
@@ -158,14 +158,14 @@ public class PtuSettingsView extends VerticalFlowPanel {
 				new TextInputCell()) {
 			@Override
 			public String getValue(Integer object) {
-				return settings.getHandUrl(object);
+				return settings.getCameraUrl(object, CameraView.HAND);
 			}
 		};
 		handUrl.setFieldUpdater(new FieldUpdater<Integer, String>() {
 
 			@Override
 			public void update(int index, Integer object, String value) {
-				settings.setHandUrl(object, value);
+				settings.setCameraUrl(object, CameraView.HAND, value);
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
@@ -206,14 +206,14 @@ public class PtuSettingsView extends VerticalFlowPanel {
 		});
 		columnSortHandler.setComparator(helmetUrl, new Comparator<Integer>() {
 			public int compare(Integer o1, Integer o2) {
-				return settings.getHelmetUrl(o1).compareTo(
-						settings.getHelmetUrl(o2));
+				return settings.getCameraUrl(o1, CameraView.HELMET).compareTo(
+						settings.getCameraUrl(o2, CameraView.HELMET));
 			}
 		});
 		columnSortHandler.setComparator(handUrl, new Comparator<Integer>() {
 			public int compare(Integer o1, Integer o2) {
-				return settings.getHandUrl(o1).compareTo(
-						settings.getHandUrl(o2));
+				return settings.getCameraUrl(o1, CameraView.HAND).compareTo(
+						settings.getCameraUrl(o2, CameraView.HAND));
 			}
 		});
 		table.addColumnSortHandler(columnSortHandler);

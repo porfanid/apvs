@@ -13,7 +13,7 @@ public class CameraPanel extends DetailPanel implements CameraUI {
 	private LayoutPanel panel;
 	private Button button;
 
-	public CameraPanel(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus, int type) {
+	public CameraPanel(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus, String type) {
 
 		panel = new LayoutPanel();
 		panel.add(new CameraView(remoteEventBus, localEventBus, type, "800px", "600px"));

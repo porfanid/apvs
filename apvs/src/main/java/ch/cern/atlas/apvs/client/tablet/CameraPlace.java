@@ -7,12 +7,12 @@ import com.google.gwt.place.shared.PlaceTokenizer;
 public class CameraPlace extends SharedPlace {
 
 	private static final long serialVersionUID = 6851156765106620583L;
-	private int type;
+	private String type;
 	
 	public CameraPlace() {
 	}
 	
-	public CameraPlace(int type) {
+	public CameraPlace(String type) {
 		this.type = type;
 	}
 	
@@ -21,16 +21,16 @@ public class CameraPlace extends SharedPlace {
 
 		@Override
 		public CameraPlace getPlace(String token) {
-			return new CameraPlace(Integer.parseInt(token));
+			return new CameraPlace(token);
 		}
 
 		@Override
 		public String getToken(CameraPlace place) {
-			return Integer.toString(place.getType());
+			return place.getType();
 		}
 	}
 
-	public int getType() {
+	public String getType() {
 		return type;
 	}
 }

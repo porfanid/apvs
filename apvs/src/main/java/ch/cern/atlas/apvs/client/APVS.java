@@ -108,7 +108,7 @@ public class APVS implements EntryPoint {
 		// get first div element
 		NodeList<Element> divs = Document.get().getElementsByTagName("div");
 		if (divs.getLength() == 0) {
-			Window.alert("Please define a <div> element with the id set to your view in the html you are starting from.");
+			Window.alert("Please define a <div> element with the class set to your view you want to show.");
 			return;
 		}
 
@@ -117,69 +117,62 @@ public class APVS implements EntryPoint {
 		
 		boolean newCode = false;
 		for(int i=0; i<divs.getLength(); i++) {
+			String className = divs.getItem(i).getClassName();
 			String id = divs.getItem(i).getId();
-			
-			System.err.println(i+" "+id);
-			System.err.println(i+" "+divs.getItem(i).getClassName());
-			
-			if (id.equals("Measurements")) {
+						
+			if (className.equals("MeasurementView")) {
 				newCode = true;
-				RootPanel.get("Measurements").add(new MeasurementView(clientFactory, workerEventBus));
+				RootPanel.get("MeasurementView").add(new MeasurementView(clientFactory, workerEventBus));
 			}
 			
-			if (id.equals("HelmetCamera")) {
+			if (className.equals("CameraView")) {
 				newCode = true;
-				RootPanel.get("HelmetCamera").add(new CameraView(remoteEventBus, workerEventBus, CameraView.HELMET));
-			}
-
-			if (id.equals("HandCamera")) {
-				newCode = true;
-				RootPanel.get("HandCamera").add(new CameraView(remoteEventBus, workerEventBus, CameraView.HAND));
+				RootPanel.get("CameraView").add(new CameraView(remoteEventBus, workerEventBus, id));
 			}
 			
-			if (id.equals("Ptu")) {
+			if (className.equals("PtuView")) {
 				newCode = true;
-				RootPanel.get("Ptu").add(new PtuView(clientFactory));				
+				RootPanel.get("PtuView").add(new PtuView(clientFactory));				
 			}
 			
-			if (id.equals("Procedure")) {
+			if (className.equals("ProcedureView")) {
 				newCode = true;
-				RootPanel.get("Procedure").add(new ProcedureView(remoteEventBus, workerEventBus));				
+				RootPanel.get("ProcedureView").add(new ProcedureView(remoteEventBus, workerEventBus));				
 			}
 			
-			if (id.equals("ProcedureControls")) {
+			if (className.equals("ProcedureControls")) {
 				newCode = true;
 				RootPanel.get("ProcedureControls").add(new ProcedureControls(workerEventBus));				
 			}
 			
-			if (id.equals("Place")) {
+			if (className.equals("PlaceView")) {
 				newCode = true;
-				RootPanel.get("Place").add(new PlaceView(clientFactory, workerEventBus));				
+				RootPanel.get("PlaceView").add(new PlaceView(clientFactory, workerEventBus));				
 			}
 			
-			if (id.equals("PtuSettings")) {
+			if (id.equals("PtuSettingsView")) {
 				newCode = true;
-				RootPanel.get("PtuSettings").add(new PtuSettingsView(remoteEventBus));				
+				RootPanel.get("PtuSettingsView").add(new PtuSettingsView(remoteEventBus));				
 			}
 						
-			if (id.equals("ServerSettings")) {
+			if (className.equals("ServerSettingsView")) {
 				newCode = true;
-				RootPanel.get("ServerSettings").add(new ServerSettingsView(remoteEventBus));				
+				RootPanel.get("ServerSettingsView").add(new ServerSettingsView(remoteEventBus));				
 			}
 			
-			if (id.equals("Dosimeter")) {
+			if (className.equals("DosimeterView")) {
 				newCode = true;
-				RootPanel.get("Dosimeter").add(new DosimeterView(remoteEventBus));				
+				RootPanel.get("DosimeterView").add(new DosimeterView(remoteEventBus));				
 			}
 			
-			if (id.equals("SingleTimeView")) {
+			if (className.equals("SingleTimeView")) {
 				newCode = true;
 				RootPanel.get("SingleTimeView").add(new SingleTimeView(clientFactory, 300, false));				
 			}
 
-			if (id.equals("Tabs")) {
+			if (className.equals("TimeView")) {
 				newCode = true;
-//				RootPanel.get("Tabs").add(new Tabs(remoteEventBus));				
+				RootPanel.get("TimeView").add(new SingleTimeView(clientFactory, 300, false));				
 			}
 		}
 		

@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ch.cern.atlas.apvs.client.ui.CameraView;
+
 /**
  * 
  * @author duns
@@ -43,8 +45,7 @@ public class PtuSettings implements Serializable {
 		HashMap<Integer, Integer> dosimeterToPtu = new HashMap<Integer, Integer>();
 
 		// takes the last proper value
-		for (Iterator<Integer> i = entries.keySet().iterator(); i
-				.hasNext();) {
+		for (Iterator<Integer> i = entries.keySet().iterator(); i.hasNext();) {
 			Integer ptuId = i.next();
 			Integer serialNo = entries.get(ptuId).dosimeterSerialNo;
 			if ((ptuId != null) && (serialNo != null)) {
@@ -58,7 +59,7 @@ public class PtuSettings implements Serializable {
 	public Boolean isEnabled(Integer object) {
 		return entries.get(object).enabled;
 	}
-	
+
 	public void setEnabled(Integer object, Boolean value) {
 		entries.get(object).enabled = value;
 	}
@@ -74,27 +75,23 @@ public class PtuSettings implements Serializable {
 	public Integer getDosimeterSerialNumber(Integer object) {
 		return entries.get(object).dosimeterSerialNo;
 	}
-	
+
 	public void setDosimeterSerialNumber(Integer object, Integer value) {
 		entries.get(object).dosimeterSerialNo = value;
 	}
 
-	public String getHelmetUrl(Integer object) {
-		return entries.get(object).helmetUrl;
-	}
-	
-	public void setHelmetUrl(Integer object, String value) {
-		entries.get(object).helmetUrl = value;
+	public String getCameraUrl(Integer object, String type) {
+		return type.equals(CameraView.HELMET) ? entries.get(object).helmetUrl
+				: entries.get(object).handUrl;
 	}
 
-	public String getHandUrl(Integer object) {
-		return entries.get(object).handUrl;
+	public void setCameraUrl(Integer object, String type, String value) {
+		if (type.equals(CameraView.HELMET)) {
+			entries.get(object).helmetUrl = value;
+		} else {
+			entries.get(object).handUrl = value;
+		}
 	}
-	
-	public void setHandUrl(Integer object, String value) {
-		entries.get(object).handUrl = value;
-	}
-
 
 	public List<Integer> getPtuIds() {
 		List<Integer> list = new ArrayList<Integer>();
@@ -103,7 +100,7 @@ public class PtuSettings implements Serializable {
 	}
 
 	public boolean add(Integer ptuId) {
-		System.err.println("Adding "+ptuId);
+		System.err.println("Adding " + ptuId);
 		if (!entries.containsKey(ptuId)) {
 			entries.put(ptuId, new Entry());
 			return true;

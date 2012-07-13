@@ -104,7 +104,7 @@ public class APVSClientFactory implements ClientFactory {
 	}
 
 	@Override
-	public CameraUI getCameraView(int type) {
+	public CameraUI getCameraView(String type) {
 		return new CameraPanel(remoteEventBus, remoteEventBus, type);
 	}
 

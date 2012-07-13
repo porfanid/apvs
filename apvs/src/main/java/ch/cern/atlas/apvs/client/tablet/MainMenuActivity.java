@@ -45,7 +45,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 					clientFactory.getPlaceController().goTo(new ProcedureMenuPlace());
 					break;
 				case 1:
-					clientFactory.getPlaceController().goTo(new CameraPlace(CameraView.HELMET));
+					clientFactory.getPlaceController().goTo(new CameraPlace("Helmet"));
 					break;
 				case 2:
 					clientFactory.getPlaceController().goTo(new ModelPlace());

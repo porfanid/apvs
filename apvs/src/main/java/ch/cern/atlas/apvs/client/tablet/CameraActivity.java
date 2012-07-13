@@ -10,9 +10,9 @@ import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
 public class CameraActivity extends DetailActivity {
 
 	private final ClientFactory clientFactory;
-	private int type;
+	private String type;
 
-	public CameraActivity(ClientFactory clientFactory, int type) {
+	public CameraActivity(ClientFactory clientFactory, String type) {
 		super(clientFactory.getCameraView(type), "nav");
 		this.clientFactory = clientFactory;
 		this.type = type;
