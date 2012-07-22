@@ -49,25 +49,27 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
         }
         return NO_TIMEOUT;
     }
-    
-    public void doPost(HttpServletRequest postRequest, HttpServletResponse postResponse, List<Serializable> messages, GwtAtmosphereResource resource) {
+
+    @Override    
+    public void doPost(HttpServletRequest postRequest, HttpServletResponse postResponse, List<?> messages, GwtAtmosphereResource resource) {
     	super.doPost(postRequest, postResponse, messages, resource);
     	System.out.println("Post...");
-    	for (Iterator<Serializable> i = messages.iterator(); i.hasNext(); ) {
+    	for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
     		System.out.println("-- "+i.next().getClass());
     	}
     }
+
     @Override
-    public void broadcast(List<Serializable> messages, GwtAtmosphereResource resource) {
+    public void broadcast(List<?> messages, GwtAtmosphereResource resource) {
     	super.broadcast(messages, resource);
     	System.out.println("bCast...");
-    	for (Iterator<Serializable> i = messages.iterator(); i.hasNext(); ) {
+    	for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
     		System.out.println("-- "+i.next().getClass());
     	}
     }
     
     @Override
-    public void broadcast(Serializable message, GwtAtmosphereResource resource) {
+    public void broadcast(Object message, GwtAtmosphereResource resource) {
     	super.broadcast(message, resource);
     	System.out.println("bCast..."+message.getClass());
     }
