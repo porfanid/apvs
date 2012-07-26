@@ -46,8 +46,8 @@ public class CameraView extends SimplePanel {
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
 	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, String type) {
-		this(remoteEventBus, localEventBus, type, "100%", "100%");
+			RemoteEventBus localEventBus, Arguments args) {
+		this(remoteEventBus, localEventBus, args.getArg(0), "100%", "100%");
 	}
 
 	public CameraView(RemoteEventBus remoteEventBus,

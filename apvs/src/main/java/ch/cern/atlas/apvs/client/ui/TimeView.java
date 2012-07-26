@@ -16,6 +16,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class TimeView extends AbstractTimeView {
@@ -25,10 +26,11 @@ public class TimeView extends AbstractTimeView {
 
 	private Integer ptuId = null;
 	private String measurementName = null;
+	private EventBus cmdBus;
 
 	public TimeView(final ClientFactory clientFactory,
 			RemoteEventBus workerEventBus, int height, boolean export,
-			String args) {
+			Arguments args) {
 		this.clientFactory = clientFactory;
 		this.localEventBus = workerEventBus;
 		this.height = height;
@@ -45,15 +47,18 @@ public class TimeView extends AbstractTimeView {
 			}
 		});
 		
-		if (args != null) {
-			setMeasurement(args);
-		}
-	}
-
-	public void setMeasurement(final String name) {
-		this.measurementName = name;
-
-		updateChart();
+		cmdBus = NamedEventBus.get(args.getArg(0));
+		measurementName = args.getArg(1);
+		
+		SelectMeasurementEvent.register(cmdBus, MeasurementView.source, new SelectMeasurementEvent.Handler() {
+			
+			@Override
+			public void onSelection(SelectMeasurementEvent event) {
+				measurementName = event.getName();
+				updateChart();				
+			}
+		});
+		
 	}
 
 	private void updateChart() {
@@ -64,8 +69,9 @@ public class TimeView extends AbstractTimeView {
 		unsubscribe();
 		removeChart();
 
-		if (measurementName == null)
+		if (measurementName.equals("")) {
 			return;
+		}
 
 		if ((ptuId == null) || (ptuId == 0)) {
 			// Subscribe to all PTUs

@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuView extends VerticalPanel {
 
@@ -52,24 +53,22 @@ public class PtuView extends VerticalPanel {
 	private SingleSelectionModel<String> selectionModel;
 
 	private PtuSettings settings;
-	
-	private TimeView timeView;
-	
+	private EventBus cmdBus;
+		
 	private void init() {
 		last = new Measurement<Double>();
 		ptus = new TreeMap<Integer, Ptu>();
 		units = new HashMap<String, String>();
 	}
 
-	public PtuView(ClientFactory clientFactory) {
+	public PtuView(ClientFactory clientFactory, Arguments args) {
 		eventBus = clientFactory.getEventBus();
 		
 		init();
-
-		timeView = new TimeView(clientFactory, new RemoteEventBus(), 300, true, null);
+		
+		cmdBus = NamedEventBus.get(args.getArg(0));
 		
 		add(table);
-		add(timeView);
 
 		// name column
 		ClickableTextColumn<String> name = new ClickableTextColumn<String>() {
@@ -91,7 +90,7 @@ public class PtuView extends VerticalPanel {
 			
 			@Override
 			public void update(int index, String name, String value) {
-				timeView.setMeasurement(name);
+				selectMeasurement(name);
 			}
 		});
 
@@ -116,7 +115,7 @@ public class PtuView extends VerticalPanel {
 			
 			@Override
 			public void update(int index, String name, String value) {
-				timeView.setMeasurement(name);
+				selectMeasurement(name);
 			}
 		});
 		
@@ -238,7 +237,7 @@ public class PtuView extends VerticalPanel {
 				if (ptu == null) {
 					((ClickableTextCell) getCell()).render(context, "", sb);
 				} else {
-					String color = timeView.getColor(ptuId);
+					String color = ""; // FIXME timeView.getColor(ptuId);
 					boolean isSelected = selectionModel.isSelected(object);
 					if ((color != null) && isSelected) {
 						sb.append(SafeHtmlUtils.fromSafeConstant("<div style=\"background:"+color+"\">"));
@@ -261,7 +260,7 @@ public class PtuView extends VerticalPanel {
 			@Override
 			public void update(int index, String name, String value) {
 				// FIXME should have ptuID set... via SelectPtuEvent
-				timeView.setMeasurement(name);
+				selectMeasurement(name);
 			}
 		});
 		
@@ -289,12 +288,16 @@ public class PtuView extends VerticalPanel {
 		if ((selection == null) && (dataProvider.getList().size() > 0)) {
 			selection = dataProvider.getList().get(0);
 			
-			timeView.setMeasurement(selection);
+			selectMeasurement(selection);
 		}
 			
 		// re-set the selection as the async update may have changed the rendering
 		if (selection != null) {
 			selectionModel.setSelected(selection, true);
 		}
+	}
+
+	private void selectMeasurement(String name) {
+		SelectMeasurementEvent.fire(cmdBus, MeasurementView.source, name);
 	}
 }

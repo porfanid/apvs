@@ -13,6 +13,7 @@ import ch.cern.atlas.apvs.client.tablet.TabletMenuAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
+import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.CameraView;
 import ch.cern.atlas.apvs.client.ui.DosimeterView;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
@@ -123,7 +124,7 @@ public class APVS implements EntryPoint {
 			if (parts.length != 2) continue;
 			
 			String className = parts[0];
-			String args = parts[1].length() > 0 ? parts[1].substring(0, parts[1].length()-1) : null;
+			Arguments args = new Arguments(parts[1].length() > 0 ? parts[1].substring(0, parts[1].length()-1) : null);
 			
 			// FIXME handle generically
 			if (id.startsWith("MeasurementView")) {
@@ -138,7 +139,7 @@ public class APVS implements EntryPoint {
 			
 			if (id.startsWith("PtuView")) {
 				newCode = true;
-				RootPanel.get(id).add(new PtuView(clientFactory));				
+				RootPanel.get(id).add(new PtuView(clientFactory, args));				
 			}
 			
 			if (id.startsWith("ProcedureView")) {

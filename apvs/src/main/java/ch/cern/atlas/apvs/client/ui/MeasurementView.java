@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -30,11 +29,13 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class MeasurementView extends VerticalFlowPanel {
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
+	public static String source = "MeasurementView";
 
 	private PtuSettings settings;
 	private Measurement<Double> last = new Measurement<Double>();
@@ -47,18 +48,16 @@ public class MeasurementView extends VerticalFlowPanel {
 	private List<String> show = null;
 	
 	private Integer ptuId = null;
-
-	private TimeView timeView;
+	
+	private EventBus cmdBus;
 
 	public MeasurementView(final ClientFactory clientFactory,
-			final RemoteEventBus localEventBus, String args) {
+			final RemoteEventBus localEventBus, Arguments args) {
 		
-		show = args != null ? Arrays.asList(args.split(";")) : new ArrayList<String>();
+		cmdBus = NamedEventBus.get(args.getArg(0));
+		show = args.getArgs(1);
 		
-		timeView = new TimeView(clientFactory, localEventBus, 150, false, null);
-
 		add(table);
-		add(timeView);
 
 		PtuSettingsChangedEvent.subscribe(clientFactory.getEventBus(),
 				new PtuSettingsChangedEvent.Handler() {
@@ -142,7 +141,7 @@ public class MeasurementView extends VerticalFlowPanel {
 			@Override
 			public void update(int index, Measurement<Double> object,
 					String value) {
-				timeView.setMeasurement(object.getName());
+				selectMeasurement(object.getName());
 			}
 		});
 
@@ -188,7 +187,7 @@ public class MeasurementView extends VerticalFlowPanel {
 			@Override
 			public void update(int index, Measurement<Double> object,
 					String value) {
-				timeView.setMeasurement(object.getName());
+				selectMeasurement(object.getName());
 			}
 		});
 		table.addColumn(value, "Value");
@@ -216,7 +215,7 @@ public class MeasurementView extends VerticalFlowPanel {
 			@Override
 			public void update(int index, Measurement<Double> object,
 					String value) {
-				timeView.setMeasurement(object.getName());
+				selectMeasurement(object.getName());
 			}
 		});
 		table.addColumn(unit, "Unit");
@@ -312,7 +311,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		if ((selection == null) && (dataProvider.getList().size() > 0)) {
 			selection = dataProvider.getList().get(0);
 
-			timeView.setMeasurement(selection.getName());
+			selectMeasurement(selection.getName());
 		}
 
 		// re-set the selection as the async update may have changed the
@@ -334,7 +333,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		}
 
 		if (i == list.size()) {
-			if ((show == null) || show.contains(measurement.getName())) {
+			if ((show.size() == 0) || show.contains(measurement.getName())) {
 				list.add(measurement);
 				lastValue = measurement;
 			}
@@ -344,5 +343,9 @@ public class MeasurementView extends VerticalFlowPanel {
 
 		return lastValue;
 	}
+
+	private void selectMeasurement(String name) {
+		SelectMeasurementEvent.fire(cmdBus, source, name);	
+	}	
 
 }

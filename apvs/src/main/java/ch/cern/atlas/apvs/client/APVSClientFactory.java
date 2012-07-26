@@ -17,6 +17,7 @@ import ch.cern.atlas.apvs.client.tablet.ProcedureMenuUI;
 import ch.cern.atlas.apvs.client.tablet.ProcedureNavigator;
 import ch.cern.atlas.apvs.client.tablet.ProcedurePanel;
 import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
+import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
 import ch.cern.atlas.apvs.client.ui.PtuSelector;
@@ -98,7 +99,7 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public MeasurementView getMeasurementView() {
 //		if (measurementView == null) {
-			measurementView = new MeasurementView(this, remoteEventBus, "");
+			measurementView = new MeasurementView(this, remoteEventBus, new Arguments());
 //		}
 		return measurementView;
 	}
