@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -12,7 +13,6 @@ import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
@@ -35,7 +35,6 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 public class MeasurementView extends VerticalFlowPanel {
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
-	public static String source = "MeasurementView";
 
 	private PtuSettings settings;
 	private Measurement<Double> last = new Measurement<Double>();
@@ -50,16 +49,16 @@ public class MeasurementView extends VerticalFlowPanel {
 	private Integer ptuId = null;
 	
 	private EventBus cmdBus;
+	private boolean showHeader = false;
 
-	public MeasurementView(final ClientFactory clientFactory,
-			final RemoteEventBus localEventBus, Arguments args) {
+	public MeasurementView(final ClientFactory clientFactory, Arguments args) {
 		
 		cmdBus = NamedEventBus.get(args.getArg(0));
 		show = args.getArgs(1);
 		
 		add(table);
 
-		PtuSettingsChangedEvent.subscribe(clientFactory.getEventBus(),
+		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
 				new PtuSettingsChangedEvent.Handler() {
 
 					@Override
@@ -71,14 +70,15 @@ public class MeasurementView extends VerticalFlowPanel {
 					}
 				});
 
-		SelectPtuEvent.register(localEventBus, new SelectPtuEvent.Handler() {
+		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
 			private HandlerRegistration registration;
 
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {
-				if (!localEventBus.getUUID().equals(event.getEventBusUUID()))
-					return;
+				// FIXME still needed ?
+//				if (!cmdBus.getUUID().equals(event.getEventBusUUID()))
+//					return;
 
 				// unregister any remaining handler
 				if (registration != null) {
@@ -91,7 +91,7 @@ public class MeasurementView extends VerticalFlowPanel {
 				// register a new handler
 				if (ptuId != null) {
 					registration = MeasurementChangedEvent.subscribe(
-							clientFactory.getEventBus(),
+							clientFactory.getRemoteEventBus(),
 							new MeasurementChangedEvent.Handler() {
 
 								@Override
@@ -145,7 +145,7 @@ public class MeasurementView extends VerticalFlowPanel {
 			}
 		});
 
-		table.addColumn(name, new TextHeader("") {
+		table.addColumn(name, showHeader ? new TextHeader("") {
 			@Override
 			public String getValue() {
 				if (ptuId == null)
@@ -160,7 +160,7 @@ public class MeasurementView extends VerticalFlowPanel {
 
 				return "PTU Id: " + ptuId;
 			}
-		});
+		} : null);
 
 		ClickableTextColumn<Measurement<Double>> value = new ClickableTextColumn<Measurement<Double>>() {
 			@Override
@@ -190,7 +190,7 @@ public class MeasurementView extends VerticalFlowPanel {
 				selectMeasurement(object.getName());
 			}
 		});
-		table.addColumn(value, "Value");
+		table.addColumn(value, showHeader ? "Value" : null);
 
 		ClickableTextColumn<Measurement<Double>> unit = new ClickableTextColumn<Measurement<Double>>() {
 			@Override
@@ -218,7 +218,7 @@ public class MeasurementView extends VerticalFlowPanel {
 				selectMeasurement(object.getName());
 			}
 		});
-		table.addColumn(unit, "Unit");
+		table.addColumn(unit, showHeader ? "Unit" : null);
 
 		List<Measurement<Double>> list = new ArrayList<Measurement<Double>>();
 		dataProvider.addDataDisplay(table);
@@ -345,7 +345,7 @@ public class MeasurementView extends VerticalFlowPanel {
 	}
 
 	private void selectMeasurement(String name) {
-		SelectMeasurementEvent.fire(cmdBus, source, name);	
+		SelectMeasurementEvent.fire(cmdBus, name);	
 	}	
 
 }

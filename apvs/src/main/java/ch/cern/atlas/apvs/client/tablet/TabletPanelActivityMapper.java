@@ -10,32 +10,37 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.place.shared.Place;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class TabletPanelActivityMapper implements ActivityMapper {
 
 	private final ClientFactory clientFactory;
 	private RemoteEventBus remoteEventBus;
+	private EventBus eventBus;
 
 	private Place lastPlace;
 	private Integer ptuId;
 
 	public TabletPanelActivityMapper(final ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
-		this.remoteEventBus = clientFactory.getEventBus();
+		this.remoteEventBus = clientFactory.getRemoteEventBus();
+		this.eventBus = clientFactory.getEventBus("local");
 
-		SelectPtuEvent.subscribe(remoteEventBus, new SelectPtuEvent.Handler() {
+		SelectPtuEvent.subscribe(eventBus, new SelectPtuEvent.Handler() {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
-				if (!event.getEventBusUUID().equals(remoteEventBus.getUUID()))
-					return;
+				// FIXME needed ?
+				// if
+				// (!event.getEventBusUUID().equals(remoteEventBus.getUUID()))
+				// return;
 
 				System.err.println("PTU ID = " + event.getPtuId());
 				ptuId = event.getPtuId();
-				
+
 				if (lastPlace instanceof SharedPlace) {
-				clientFactory.getEventBus().fireEvent(
-						new PlaceChangedEvent(ptuId, (SharedPlace) lastPlace));
+					remoteEventBus.fireEvent(new PlaceChangedEvent(ptuId,
+							(SharedPlace) lastPlace));
 				}
 			}
 		});
@@ -52,8 +57,9 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 						if (event.getRequestedClassName().equals(
 								PlaceChangedEvent.class.getName())) {
 							if (lastPlace instanceof SharedPlace) {
-								remoteEventBus.fireEvent(new PlaceChangedEvent(
-										ptuId, (SharedPlace) lastPlace));
+								remoteEventBus
+										.fireEvent(new PlaceChangedEvent(ptuId,
+												(SharedPlace) lastPlace));
 							}
 						}
 					}
@@ -64,7 +70,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 	public Activity getActivity(Place place) {
 		if (place instanceof SharedPlace) {
 			System.err.println("New REMOTE place " + place.getClass());
-			clientFactory.getEventBus().fireEvent(
+			remoteEventBus.fireEvent(
 					new PlaceChangedEvent(ptuId, (SharedPlace) place));
 		}
 		Activity activity = getActivity(lastPlace, place);

@@ -1,15 +1,16 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent.Navigation;
 import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class ProcedureControls extends HorizontalFlowPanel {
 
@@ -19,13 +20,15 @@ public class ProcedureControls extends HorizontalFlowPanel {
 	Label step = new Label("-");
 
 	// Note only a local event bus
-	public ProcedureControls(final RemoteEventBus localEventBus) {
+	public ProcedureControls(ClientFactory factory, Arguments args) {
+		final EventBus eventBus = factory.getEventBus(args.getArg(0));
+		
 		add(start);
 		start.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				localEventBus.fireEvent(new NavigateStepEvent(Navigation.START));
+				eventBus.fireEvent(new NavigateStepEvent(Navigation.START));
 			}
 		});
 		add(previous);
@@ -33,7 +36,7 @@ public class ProcedureControls extends HorizontalFlowPanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				localEventBus.fireEvent(new NavigateStepEvent(Navigation.PREVIOUS));
+				eventBus.fireEvent(new NavigateStepEvent(Navigation.PREVIOUS));
 			}
 		});
 		add(next);
@@ -41,13 +44,13 @@ public class ProcedureControls extends HorizontalFlowPanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				localEventBus.fireEvent(new NavigateStepEvent(Navigation.NEXT));
+				eventBus.fireEvent(new NavigateStepEvent(Navigation.NEXT));
 			}
 		});
 		
 		add(step);
 
-		StepStatusEvent.register(localEventBus, new StepStatusEvent.Handler() {
+		StepStatusEvent.register(eventBus, new StepStatusEvent.Handler() {
 			@Override
 			public void onStepStatus(StepStatusEvent event) {
 				previous.setEnabled(event.hasPrevious());

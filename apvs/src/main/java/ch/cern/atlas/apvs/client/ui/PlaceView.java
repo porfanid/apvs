@@ -14,6 +14,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class PlaceView extends SimplePanel {
 
@@ -21,14 +22,16 @@ public class PlaceView extends SimplePanel {
 	private String defaultImage = "Default-640x480.jpg";
 	private Integer ptuId;
 
-	public PlaceView(ClientFactory clientFactory, RemoteEventBus localEventBus) {
-		this(clientFactory, localEventBus, "100%", "100%");
+	public PlaceView(ClientFactory clientFactory, Arguments args) {
+		this(clientFactory, args, "100%", "100%");
 	}
 
-	public PlaceView(final ClientFactory clientFactory, final RemoteEventBus localEventBus, final String width, final String height) {
-		this.remoteEventBus = clientFactory.getEventBus();
+	public PlaceView(final ClientFactory clientFactory, final Arguments args, final String width, final String height) {
+		this.remoteEventBus = clientFactory.getRemoteEventBus();
 		
-		SelectPtuEvent.subscribe(localEventBus, new SelectPtuEvent.Handler() {
+		EventBus eventBus = clientFactory.getEventBus(args.getArg(0));
+		
+		SelectPtuEvent.subscribe(eventBus, new SelectPtuEvent.Handler() {
 			
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
@@ -67,8 +70,7 @@ public class PlaceView extends SimplePanel {
 						
 						if (place instanceof CameraPlace) {
 							CameraPlace cameraPlace = (CameraPlace) place;
-							// FIXME should be local event bus
-							setWidget(new CameraView(remoteEventBus, localEventBus, cameraPlace.getType(), width, height));
+							setWidget(new CameraView(clientFactory, cameraPlace.getType(), width, height));
 							return;							
 						}
 						

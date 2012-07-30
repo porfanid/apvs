@@ -10,9 +10,9 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -22,43 +22,40 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 public class TimeView extends AbstractTimeView {
 
 	private HandlerRegistration measurementHandler;
-	private final RemoteEventBus localEventBus;
 
 	private Integer ptuId = null;
 	private String measurementName = null;
 	private EventBus cmdBus;
 
-	public TimeView(final ClientFactory clientFactory,
-			RemoteEventBus workerEventBus, int height, boolean export,
-			Arguments args) {
+	public TimeView(final ClientFactory clientFactory, Arguments args) {
 		this.clientFactory = clientFactory;
-		this.localEventBus = workerEventBus;
-		this.height = height;
-		this.export = export;
+		// FIXME hardcoded
+		this.height = 300;
+		this.title = false;
+		this.export = false;
 
-		SelectPtuEvent.subscribe(localEventBus, new SelectPtuEvent.Handler() {
+		cmdBus = NamedEventBus.get(args.getArg(0));
+		measurementName = args.getArg(1);
+
+		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {
-				if (!localEventBus.getUUID().equals(event.getEventBusUUID()))
-					return;
 				ptuId = event.getPtuId();
 				updateChart();
 			}
 		});
-		
-		cmdBus = NamedEventBus.get(args.getArg(0));
-		measurementName = args.getArg(1);
-		
-		SelectMeasurementEvent.register(cmdBus, MeasurementView.source, new SelectMeasurementEvent.Handler() {
-			
-			@Override
-			public void onSelection(SelectMeasurementEvent event) {
-				measurementName = event.getName();
-				updateChart();				
-			}
-		});
-		
+
+		SelectMeasurementEvent.subscribe(cmdBus,
+				new SelectMeasurementEvent.Handler() {
+
+					@Override
+					public void onSelection(SelectMeasurementEvent event) {
+						measurementName = event.getName();
+						updateChart();
+					}
+				});
+
 	}
 
 	private void updateChart() {
@@ -89,9 +86,9 @@ public class TimeView extends AbstractTimeView {
 										return;
 									}
 
-									System.err.println("Measurement Map retrieval took "
+									System.err.println("Measurement Map retrieval of "+measurementName+" took "
 											+ (System.currentTimeMillis() - t0)
-											+ " ms for " + measurements.size());
+											+ " ms for " + measurements.size()+" elements");
 
 									String unit = "";
 
@@ -147,12 +144,13 @@ public class TimeView extends AbstractTimeView {
 						public void onSuccess(
 								List<Measurement<Double>> measurements) {
 							if (measurements == null) {
+								System.err.println("Cannot find "+measurementName);
 								return;
 							}
 
-							System.err.println("Measurement retrieval took "
+							System.err.println("Measurement retrieval of "+measurementName+" of "+ptuId+" took "
 									+ (System.currentTimeMillis() - t0)
-									+ " ms for " + measurements.size());
+									+ " ms for " + measurements.size()+" elements");
 
 							String unit = measurements.size() > 0 ? measurements
 									.get(0).getUnit() : "";
@@ -182,6 +180,8 @@ public class TimeView extends AbstractTimeView {
 						}
 					});
 		}
+		
+//		ColorMapChangedEvent.fire(cmdBus, getColors());
 	}
 
 	private void addHistory(Integer ptuId, Series series,
@@ -213,7 +213,7 @@ public class TimeView extends AbstractTimeView {
 		unsubscribe();
 
 		measurementHandler = MeasurementChangedEvent.register(
-				clientFactory.getEventBus(),
+				clientFactory.getRemoteEventBus(),
 				new MeasurementChangedEvent.Handler() {
 
 					@Override

@@ -1,9 +1,9 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -45,13 +45,11 @@ public class CameraView extends SimplePanel {
 
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
-	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, Arguments args) {
-		this(remoteEventBus, localEventBus, args.getArg(0), "100%", "100%");
+	public CameraView(ClientFactory factory, Arguments args) {
+		this(factory, args.getArg(0), "100%", "100%");
 	}
 
-	public CameraView(RemoteEventBus remoteEventBus,
-			RemoteEventBus localEventBus, final String type, String width,
+	public CameraView(ClientFactory factory, final String type, String width,
 			String height) {
 		this.type = type;
 		this.videoWidth = width;
@@ -75,7 +73,7 @@ public class CameraView extends SimplePanel {
 			}
 		});
 
-		PtuSettingsChangedEvent.subscribe(remoteEventBus,
+		PtuSettingsChangedEvent.subscribe(factory.getRemoteEventBus(),
 				new PtuSettingsChangedEvent.Handler() {
 
 					@Override
@@ -88,7 +86,7 @@ public class CameraView extends SimplePanel {
 					}
 				});
 
-		SelectPtuEvent.subscribe(localEventBus, new SelectPtuEvent.Handler() {
+		SelectPtuEvent.subscribe(factory.getEventBus("local"), new SelectPtuEvent.Handler() {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {

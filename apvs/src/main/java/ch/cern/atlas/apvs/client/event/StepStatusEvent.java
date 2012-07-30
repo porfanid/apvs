@@ -1,7 +1,5 @@
 package ch.cern.atlas.apvs.client.event;
 
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -29,7 +27,7 @@ public class StepStatusEvent extends Event<StepStatusEvent.Handler> {
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(RemoteEventBus eventBus,
+	public static HandlerRegistration register(EventBus eventBus,
 			StepStatusEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}

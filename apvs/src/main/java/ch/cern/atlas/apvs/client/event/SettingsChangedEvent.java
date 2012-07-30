@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.event;
 
 import ch.cern.atlas.apvs.client.settings.Settings;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.web.bindery.event.shared.Event;
@@ -30,12 +31,12 @@ public class SettingsChangedEvent extends Event<SettingsChangedEvent.Handler> {
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(EventBus eventBus,
+	public static HandlerRegistration register(RemoteEventBus eventBus,
 			SettingsChangedEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(EventBus eventBus,
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
 			SettingsChangedEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		

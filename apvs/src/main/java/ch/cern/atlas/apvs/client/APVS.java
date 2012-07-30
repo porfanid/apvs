@@ -98,7 +98,7 @@ public class APVS implements EntryPoint {
 		
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
-		remoteEventBus = clientFactory.getEventBus();
+		remoteEventBus = clientFactory.getRemoteEventBus();
 		placeController = clientFactory.getPlaceController();
 
 		// Turn off the browser scrollbars.
@@ -112,9 +112,6 @@ public class APVS implements EntryPoint {
 			Window.alert("Please define a <div> element with the class set to your view you want to show.");
 			return;
 		}
-
-		// On a tab basis
-		RemoteEventBus workerEventBus = new RemoteEventBus();
 		
 		boolean newCode = false;
 		for(int i=0; i<divs.getLength(); i++) {
@@ -126,15 +123,17 @@ public class APVS implements EntryPoint {
 			String className = parts[0];
 			Arguments args = new Arguments(parts[1].length() > 0 ? parts[1].substring(0, parts[1].length()-1) : null);
 			
+			System.err.println("Creating "+className+" with args ("+args+")");
+			
 			// FIXME handle generically
 			if (id.startsWith("MeasurementView")) {
 				newCode = true;
-				RootPanel.get(id).add(new MeasurementView(clientFactory, workerEventBus, args));
+				RootPanel.get(id).add(new MeasurementView(clientFactory, args));
 			}
 			
 			if (id.startsWith("CameraView")) {
 				newCode = true;
-				RootPanel.get(id).add(new CameraView(remoteEventBus, workerEventBus, args));
+				RootPanel.get(id).add(new CameraView(clientFactory, args));
 			}
 			
 			if (id.startsWith("PtuView")) {
@@ -144,42 +143,44 @@ public class APVS implements EntryPoint {
 			
 			if (id.startsWith("ProcedureView")) {
 				newCode = true;
-				RootPanel.get(id).add(new ProcedureView(remoteEventBus, workerEventBus));				
+				RootPanel.get(id).add(new ProcedureView(clientFactory, args));				
 			}
 			
 			if (id.startsWith("ProcedureControls")) {
 				newCode = true;
-				RootPanel.get(id).add(new ProcedureControls(workerEventBus));				
+				RootPanel.get(id).add(new ProcedureControls(clientFactory, args));				
 			}
 			
 			if (id.startsWith("PlaceView")) {
 				newCode = true;
-				RootPanel.get(id).add(new PlaceView(clientFactory, workerEventBus));				
+				RootPanel.get(id).add(new PlaceView(clientFactory, args));				
 			}
 			
 			if (id.startsWith("PtuSettingsView")) {
 				newCode = true;
-				RootPanel.get(id).add(new PtuSettingsView(remoteEventBus));				
+				RootPanel.get(id).add(new PtuSettingsView(clientFactory, args));				
 			}
 						
 			if (id.startsWith("ServerSettingsView")) {
 				newCode = true;
-				RootPanel.get(id).add(new ServerSettingsView(remoteEventBus));				
+				RootPanel.get(id).add(new ServerSettingsView(clientFactory, args));				
 			}
 			
 			if (id.startsWith("DosimeterView")) {
 				newCode = true;
-				RootPanel.get(id).add(new DosimeterView(remoteEventBus));				
+				RootPanel.get(id).add(new DosimeterView(clientFactory, args));				
 			}
 			
 			if (id.startsWith("TimeView")) {
 				newCode = true;
-				RootPanel.get(id).add(new TimeView(clientFactory, workerEventBus, 300, false, args));				
+				RootPanel.get(id).add(new TimeView(clientFactory, args));				
 			}
 		}
 		
 		// FIXME create tab buttons for each, select default one
-		workerEventBus.fireEvent(new SelectPtuEvent(27372));
+		clientFactory.getEventBus("local").fireEvent(new SelectPtuEvent(27372));
+		clientFactory.getEventBus("private").fireEvent(new SelectPtuEvent(27372));
+		clientFactory.getEventBus("private2").fireEvent(new SelectPtuEvent(27372));
 		
 		if (newCode) return;
 
@@ -236,7 +237,7 @@ public class APVS implements EntryPoint {
 				historyMapper, historyObserver);
 
 		historyHandler.register(clientFactory.getPlaceController(),
-				clientFactory.getEventBus(), new HomePlace());
+				clientFactory.getRemoteEventBus(), new HomePlace());
 		historyHandler.handleCurrentHistory();
 	}
 
@@ -268,7 +269,7 @@ public class APVS implements EntryPoint {
 
 		new OrientationRegionHandler(navContainer, tabletPortraitOverlay,
 				navDisplay);
-		new MasterRegionHandler(clientFactory.getEventBus(), "nav",
+		new MasterRegionHandler(clientFactory.getRemoteEventBus(), "nav",
 				tabletPortraitOverlay);
 
 		ActivityMapper navActivityMapper = new TabletMenuActivityMapper(
@@ -278,7 +279,7 @@ public class APVS implements EntryPoint {
 
 		AnimatingActivityManager navActivityManager = new AnimatingActivityManager(
 				navActivityMapper, navAnimationMapper,
-				clientFactory.getEventBus());
+				clientFactory.getRemoteEventBus());
 
 		navActivityManager.setDisplay(navDisplay);
 
@@ -295,7 +296,7 @@ public class APVS implements EntryPoint {
 
 		AnimatingActivityManager mainActivityManager = new AnimatingActivityManager(
 				tabletMainActivityMapper, tabletMainAnimationMapper,
-				clientFactory.getEventBus());
+				clientFactory.getRemoteEventBus());
 
 		mainActivityManager.setDisplay(mainDisplay);
 		mainContainer.setWidget(mainDisplay);

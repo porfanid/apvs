@@ -34,15 +34,15 @@ public class DosimeterSerialNumbersChangedEvent extends RemoteEvent<DosimeterSer
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(RemoteEventBus eventBus,
+	public static HandlerRegistration register(EventBus eventBus,
 			DosimeterSerialNumbersChangedEvent.Handler handler) {
-		return eventBus.addHandler(TYPE, handler);
+		return ((RemoteEventBus)eventBus).addHandler(TYPE, handler);
 	}
 	
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) {
+	public static HandlerRegistration subscribe(EventBus eventBus, Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(DosimeterSerialNumbersChangedEvent.class));
+		((RemoteEventBus)eventBus).fireEvent(new RequestRemoteEvent(DosimeterSerialNumbersChangedEvent.class));
 		
 		return registration;
 	}

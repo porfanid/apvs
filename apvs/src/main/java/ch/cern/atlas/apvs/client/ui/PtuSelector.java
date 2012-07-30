@@ -8,12 +8,13 @@ import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.client.widget.OptionList;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuSelector extends VerticalFlowPanel {
 
@@ -22,8 +23,8 @@ public class PtuSelector extends VerticalFlowPanel {
 	private List<Integer> ptuIds;
 	private Integer ptuId;
 
-	public PtuSelector(final RemoteEventBus remoteEventBus,
-			final RemoteEventBus localEventBus) {
+	public PtuSelector(final EventBus remoteEventBus,
+			final EventBus localEventBus) {
 		add(list);
 
 		list.addChangeHandler(new ChangeHandler() {
@@ -41,11 +42,11 @@ public class PtuSelector extends VerticalFlowPanel {
 			}
 		});
 
-		RequestRemoteEvent.register(localEventBus,
-				new RequestRemoteEvent.Handler() {
+		RequestEvent.register(localEventBus,
+				new RequestEvent.Handler() {
 
 					@Override
-					public void onRequestEvent(RequestRemoteEvent event) {
+					public void onRequestEvent(RequestEvent event) {
 						if (event.getRequestedClassName().equals(
 								SelectPtuEvent.class.getName())) {
 							localEventBus.fireEvent(new SelectPtuEvent(ptuId));
@@ -60,16 +61,18 @@ public class PtuSelector extends VerticalFlowPanel {
 					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
 
 						ptuIds = event.getPtuIds();
-						
-						ptuId = LocalStorage.getInstance().getInteger(LocalStorage.PTU_ID);
-						localEventBus.fireEvent(new SelectPtuEvent(ptuId));
+
+						ptuId = LocalStorage.getInstance().getInteger(
+								LocalStorage.PTU_ID);
+						((RemoteEventBus) localEventBus)
+								.fireEvent(new SelectPtuEvent(ptuId));
 						update();
 						updateSelector();
 					}
 				});
 		update();
 	}
-	
+
 	private void updateSelector() {
 		int i = 0;
 		while (i < list.getItemCount()) {
@@ -82,7 +85,7 @@ public class PtuSelector extends VerticalFlowPanel {
 		if (i == list.getItemCount()) {
 			list.setSelectedIndex(0);
 		}
-		System.err.println("Update selector..."+i);
+		System.err.println("Update selector..." + i);
 
 	}
 
@@ -90,9 +93,10 @@ public class PtuSelector extends VerticalFlowPanel {
 		if (ptuIds != null) {
 			Collections.sort(ptuIds);
 		}
-		
+
 		int selectedIndex = list.getSelectedIndex();
-		String selectedItem = selectedIndex < 0 ? null : list.getItemText(selectedIndex);
+		String selectedItem = selectedIndex < 0 ? null : list
+				.getItemText(selectedIndex);
 
 		list.clear();
 		List<String> items = new OptionList<Integer>(ptuIds, 0);

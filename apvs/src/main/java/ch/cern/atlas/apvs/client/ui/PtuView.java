@@ -11,6 +11,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
@@ -51,7 +52,8 @@ public class PtuView extends VerticalPanel {
 	private SortedMap<Integer, Ptu> ptus;
 	private Map<String, String> units;
 	private SingleSelectionModel<String> selectionModel;
-
+	private Map<Integer, String> colorMap = new HashMap<Integer, String>();
+ 
 	private PtuSettings settings;
 	private EventBus cmdBus;
 		
@@ -62,7 +64,7 @@ public class PtuView extends VerticalPanel {
 	}
 
 	public PtuView(ClientFactory clientFactory, Arguments args) {
-		eventBus = clientFactory.getEventBus();
+		eventBus = clientFactory.getRemoteEventBus();
 		
 		init();
 		
@@ -161,7 +163,7 @@ public class PtuView extends VerticalPanel {
 								addColumn(i.next());
 							}
 
-							eventBus.fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));
+							((RemoteEventBus)eventBus).fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));
 							
 						} else {
 							init();
@@ -212,6 +214,15 @@ public class PtuView extends VerticalPanel {
 						update();
 					}
 				});
+		
+		ColorMapChangedEvent.subscribe(cmdBus, new ColorMapChangedEvent.Handler() {
+			@Override
+			public void onColorMapChanged(ColorMapChangedEvent event) {
+				colorMap = event.getColorMap();
+				update();
+			}
+			
+		});
 	}
 
 	private void addColumn(final Integer ptuId) {
@@ -237,7 +248,7 @@ public class PtuView extends VerticalPanel {
 				if (ptu == null) {
 					((ClickableTextCell) getCell()).render(context, "", sb);
 				} else {
-					String color = ""; // FIXME timeView.getColor(ptuId);
+					String color = colorMap.get(ptuId);
 					boolean isSelected = selectionModel.isSelected(object);
 					if ((color != null) && isSelected) {
 						sb.append(SafeHtmlUtils.fromSafeConstant("<div style=\"background:"+color+"\">"));
@@ -298,6 +309,6 @@ public class PtuView extends VerticalPanel {
 	}
 
 	private void selectMeasurement(String name) {
-		SelectMeasurementEvent.fire(cmdBus, MeasurementView.source, name);
+		SelectMeasurementEvent.fire(cmdBus, name);
 	}
 }

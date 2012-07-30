@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
@@ -10,6 +11,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.media.client.Video;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class ProcedureView extends SimplePanel {
 
@@ -32,24 +34,23 @@ public class ProcedureView extends SimplePanel {
 	private final int firstStep = 1;
 	private final int lastStep = 34;
 	private RemoteEventBus remoteEventBus;
-	private RemoteEventBus localEventBus;
+	private EventBus localEventBus;
 
 	private Object oldSource;
 
-	public ProcedureView(RemoteEventBus remoteEventBus, RemoteEventBus localEventBus) {
-		this(remoteEventBus, localEventBus, "100%", "100%");
+	public ProcedureView(ClientFactory factory, Arguments args) {
+		this(factory, args, "100%", "100%");
 	}
 
-	public ProcedureView(final RemoteEventBus remoteEventBus, final RemoteEventBus localEventBus, String width, String height) {
-		this(remoteEventBus, localEventBus, width, height, "FIXME", "FIXME", Integer.toString(1));
+	public ProcedureView(ClientFactory factory, Arguments args, String width, String height) {
+		this(factory, args, width, height, "FIXME", "FIXME", Integer.toString(1));
 	}
 	
-	public ProcedureView(RemoteEventBus remoteEventBus,
-			final RemoteEventBus localEventBus, String width, String height, String url,
+	public ProcedureView(ClientFactory factory, Arguments args, String width, String height, String url,
 			String name, String step) {
 
-		this.remoteEventBus = remoteEventBus;
-		this.localEventBus = localEventBus;
+		this.remoteEventBus = factory.getRemoteEventBus();
+		this.localEventBus = factory.getEventBus(args.getArg(0));
 		this.videoWidth = width;
 		this.videoHeight = height;
 		

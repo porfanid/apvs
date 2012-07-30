@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.moxieapps.gwt.highcharts.client.Axis;
@@ -41,13 +42,14 @@ public class AbstractTimeView extends SimplePanel {
 	protected Map<Integer, String> colorsById;
 	protected int height;
 	protected boolean export;
+	protected boolean title;
 
 	public AbstractTimeView() {
 		super();
 	}
 
-	public String getColor(int id) {
-		return chart != null ? colorsById.get(id) : null;
+	public Map<Integer, String> getColors() {
+		return chart != null ? colorsById : new HashMap<Integer, String>();
 	}
 
 	protected void removeChart() {
@@ -70,9 +72,9 @@ public class AbstractTimeView extends SimplePanel {
 				.setZoomType(Chart.ZoomType.X)
 				.setWidth100()
 				.setHeight(height)
-				.setChartTitle(
+				.setChartTitle(title ? 
 						new ChartTitle().setText(name).setStyle(
-								new Style().setFontSize("12px")))
+								new Style().setFontSize("12px")) : null)
 				.setMarginRight(10)
 				.setExporting(new Exporting().setEnabled(export))
 				.setBarPlotOptions(
@@ -120,7 +122,8 @@ public class AbstractTimeView extends SimplePanel {
 						return DateTimeFormat.getFormat(pattern).format(date);
 					}
 				}));
-
+		chart.getXAxis().setAxisTitle(new AxisTitle().setText("Time"));
+		
 		chart.getYAxis().setAllowDecimals(true)
 				.setAxisTitle(new AxisTitle().setText(unit));
 	}

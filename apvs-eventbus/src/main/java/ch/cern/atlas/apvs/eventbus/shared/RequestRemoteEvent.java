@@ -30,9 +30,9 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(RemoteEventBus eventBus,
+	public static HandlerRegistration register(EventBus eventBus,
 			RequestRemoteEvent.Handler handler) {
-		return eventBus.addHandler(TYPE, handler);
+		return ((RemoteEventBus)eventBus).addHandler(TYPE, handler);
 	}
 
 	private String requestedClassName;

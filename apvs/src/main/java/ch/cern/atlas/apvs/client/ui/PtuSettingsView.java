@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
@@ -26,6 +27,7 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * Shows a list of PTU settings which are alive. A list of ever alive PTU
@@ -44,7 +46,9 @@ public class PtuSettingsView extends VerticalFlowPanel {
 	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
 	protected List<Integer> activePtuIds = new ArrayList<Integer>();
 
-	public PtuSettingsView(final RemoteEventBus eventBus) {
+	public PtuSettingsView(ClientFactory clientFactory, Arguments args) {
+		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
+		
 		add(table);
 
 		// ACTIVE
@@ -273,11 +277,11 @@ public class PtuSettingsView extends VerticalFlowPanel {
 		table.redraw();
 	}
 
-	private void fireSettingsChangedEvent(RemoteEventBus eventBus,
+	private void fireSettingsChangedEvent(EventBus eventBus,
 			PtuSettings settings) {
 
-		eventBus.fireEvent(new PtuSettingsChangedEvent(settings));
-		eventBus.fireEvent(new DosimeterPtuChangedEvent(settings
+		((RemoteEventBus)eventBus).fireEvent(new PtuSettingsChangedEvent(settings));
+		((RemoteEventBus)eventBus).fireEvent(new DosimeterPtuChangedEvent(settings
 				.getDosimeterToPtuMap()));
 	}
 }

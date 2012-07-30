@@ -15,10 +15,12 @@ import ch.cern.atlas.apvs.client.ui.PtuSelector;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.place.shared.PlaceController;
+import com.google.web.bindery.event.shared.EventBus;
 
 public interface ClientFactory {
 
-	RemoteEventBus getEventBus();
+	EventBus getEventBus(String name);
+	RemoteEventBus getRemoteEventBus();
 
 	PlaceController getPlaceController();
 

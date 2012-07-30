@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class Arguments {
@@ -18,15 +19,23 @@ public class Arguments {
 
 	public String getArg(int index) {
 		if ((index < 0) || (index >= list.size())) return "";
-		return list.get(index);
+		return list.get(index).trim();
 	}
 	
 	public List<String> getArgs(int index) {
 		if ((index < 0) || (index >= list.size())) return new ArrayList<String>();
 		List<String> args = new ArrayList<String>();
 		for (int i=index; i<list.size(); i++) {
-			args.add(list.get(i));
+			args.add(list.get(i).trim());
 		}
 		return args;
+	}
+	
+	public String toString() {
+		StringBuffer s = new StringBuffer();
+		for (Iterator<String> i = list.iterator(); i.hasNext(); ) {
+			s.append(i.next().trim()+(i.hasNext() ? ";" : ""));
+		}
+		return s.toString();
 	}
 }

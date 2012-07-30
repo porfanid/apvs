@@ -1,12 +1,15 @@
 package ch.cern.atlas.apvs.client.event;
 
-import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
-import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
+public class SelectPtuRemoteEvent extends RemoteEvent<SelectPtuRemoteEvent.Handler> {
+
+	private static final long serialVersionUID = 4782769296921555320L;
 
 	public interface Handler {
 		/**
@@ -15,15 +18,11 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onPtuSelected(SelectPtuEvent event);
+		void onPtuSelected(SelectPtuRemoteEvent event);
 	}
 
-	private static final Type<SelectPtuEvent.Handler> TYPE = new Type<SelectPtuEvent.Handler>();
+	private static final Type<SelectPtuRemoteEvent.Handler> TYPE = new Type<SelectPtuRemoteEvent.Handler>();
 
-	public static void fire(EventBus eventBus, Integer ptuId) {
-		eventBus.fireEvent(new SelectPtuEvent(ptuId));
-	}	
-	
 	/**
 	 * Register a handler for events on the eventbus.
 	 * 
@@ -34,30 +33,30 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(EventBus eventBus,
-			SelectPtuEvent.Handler handler) {
-		return eventBus.addHandler(TYPE, handler);
+			SelectPtuRemoteEvent.Handler handler) {
+		return ((RemoteEventBus)eventBus).addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(EventBus eventBus,
-			SelectPtuEvent.Handler handler) {
+			SelectPtuRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestEvent(SelectPtuEvent.class));
+		((RemoteEventBus)eventBus).fireEvent(new RequestRemoteEvent(SelectPtuRemoteEvent.class));
 		
 		return registration;
 	}
 
 	private Integer ptuId;
 
-	public SelectPtuEvent() {
+	public SelectPtuRemoteEvent() {
 	}
 	
-	public SelectPtuEvent(Integer ptuId) {
+	public SelectPtuRemoteEvent(Integer ptuId) {
 		this.ptuId = ptuId;
 	}
 
 	@Override
-	public Type<SelectPtuEvent.Handler> getAssociatedType() {
+	public Type<SelectPtuRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
@@ -72,7 +71,7 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 	
 	@Override
 	public String toString() {
-		return "SelectPtuEvent "+ptuId;
+		return "SelectPtuRemoteEvent "+ptuId;
 	}
 
 }

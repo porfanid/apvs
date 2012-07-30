@@ -26,9 +26,10 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.PlaceController;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class APVSClientFactory implements ClientFactory {
-	private RemoteEventBus remoteEventBus;
+
 	private RemoteEventBus localEventBus;
 	private final PlaceController placeController;
 	private final FileServiceAsync fileService = GWT.create(FileService.class);
@@ -44,7 +45,8 @@ public class APVSClientFactory implements ClientFactory {
 		// AtmosphereGWTSerializer serializer =
 		// GWT.create(EventSerializer.class);
 		// eventBus = new AtmosphereEventBus(serializer);
-		remoteEventBus = new PollEventBus();
+		RemoteEventBus remoteEventBus = new PollEventBus();
+		NamedEventBus.put("remote", remoteEventBus);
 		placeController = new PlaceController(remoteEventBus);
 		
 		// specially for now in iPad app
@@ -52,8 +54,13 @@ public class APVSClientFactory implements ClientFactory {
 	}
 
 	@Override
-	public RemoteEventBus getEventBus() {
-		return remoteEventBus;
+	public EventBus getEventBus(String name) {
+		return NamedEventBus.get(name);
+	}
+
+	@Override
+	public RemoteEventBus getRemoteEventBus() {
+		return (RemoteEventBus)NamedEventBus.get("remote");
 	}
 
 	@Override
@@ -91,7 +98,7 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public PtuSelector getPtuSelector() {
 //		if (ptuSelector == null) {
-			ptuSelector = new PtuSelector(remoteEventBus, remoteEventBus);
+			ptuSelector = new PtuSelector(getRemoteEventBus(), getEventBus("remote"));
 //		}
 		return ptuSelector;
 	}
@@ -99,14 +106,14 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public MeasurementView getMeasurementView() {
 //		if (measurementView == null) {
-			measurementView = new MeasurementView(this, remoteEventBus, new Arguments());
+			measurementView = new MeasurementView(this, new Arguments());
 //		}
 		return measurementView;
 	}
 
 	@Override
 	public CameraUI getCameraView(String type) {
-		return new CameraPanel(remoteEventBus, remoteEventBus, type);
+		return new CameraPanel(this, type);
 	}
 
 	@Override
@@ -134,12 +141,12 @@ public class APVSClientFactory implements ClientFactory {
 
 	@Override
 	public ProcedureView getProcedureView(String width, String height) {
-		return new ProcedureView(remoteEventBus, localEventBus, width, height);
+		return new ProcedureView(this, new Arguments(), width, height);
 	}
 
 	@Override
 	public ProcedureView getProcedureView(
 			String width, String height, String url, String name, String step) {
-		return new ProcedureView(remoteEventBus, localEventBus, width, height, url, name, step);
+		return new ProcedureView(this, new Arguments(), width, height, url, name, step);
 	}
 }

@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
+
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -12,14 +14,23 @@ public class SelectMeasurementEvent extends Event<SelectMeasurementEvent.Handler
 
 	private static final Type<SelectMeasurementEvent.Handler> TYPE = new Type<SelectMeasurementEvent.Handler>();
 
-	public static void fire(EventBus eventBus, String sourceName, String name) {
-		eventBus.fireEventFromSource(new SelectMeasurementEvent(name), sourceName);
+	public static void fire(EventBus eventBus, String name) {
+		eventBus.fireEvent(new SelectMeasurementEvent(name));
 	}
 
-	public static HandlerRegistration register(EventBus eventBus,
-			String sourceName, Handler handler) {
-		return eventBus.addHandlerToSource(TYPE, sourceName, handler);
+	public static HandlerRegistration register(EventBus eventBus, Handler handler) {
+		return eventBus.addHandler(TYPE, handler);
 	}
+	
+	public static HandlerRegistration subscribe(EventBus eventBus,
+			SelectMeasurementEvent.Handler handler) {
+		HandlerRegistration registration = register(eventBus, handler);
+		
+		eventBus.fireEvent(new RequestEvent(SelectMeasurementEvent.class));
+		
+		return registration;
+	}
+
 
 	private String name;
 

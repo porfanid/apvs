@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
@@ -73,8 +74,9 @@ public class DosimeterView extends VerticalFlowPanel {
 		}
 	};
 
-	public DosimeterView(RemoteEventBus remoteEventBus) {
-
+	public DosimeterView(ClientFactory factory, Arguments args) {
+		RemoteEventBus remoteEventBus = factory.getRemoteEventBus();
+		
 		add(table);
 
 		// create class "disconected" pane
