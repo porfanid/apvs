@@ -6,7 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
@@ -25,6 +27,7 @@ public class PtuTabSelector extends HorizontalPanel implements ClickHandler {
 	
 	private List<Integer> ptuIds;
 	private Integer ptuId;
+	private PtuSettings settings;
 
 	public PtuTabSelector(ClientFactory clientFactory,
 			 Arguments args) {
@@ -37,6 +40,18 @@ public class PtuTabSelector extends HorizontalPanel implements ClickHandler {
 		for (int i=0; i<busNames.length; i++) {
 			eventBusses.add(clientFactory.getEventBus(busNames[i].trim()));
 		}
+		
+		PtuSettingsChangedEvent.subscribe(remoteEventBus,
+				new PtuSettingsChangedEvent.Handler() {
+
+					@Override
+					public void onPtuSettingsChanged(
+							PtuSettingsChangedEvent event) {
+						settings = event.getPtuSettings();
+
+						update();
+					}
+				});
 		
 		PtuIdsChangedEvent.subscribe(remoteEventBus,
 				new PtuIdsChangedEvent.Handler() {
@@ -54,20 +69,30 @@ public class PtuTabSelector extends HorizontalPanel implements ClickHandler {
 					}
 				});
 	}
+	
+	private String getName(Integer id) {
+		return (settings != null) && !settings.getName(id).equals("") ? settings.getName(id) + " ("+id.toString()+")" : id.toString();
+	}
+	
+	private Integer getId(String name) {
+		int open = name.indexOf('(');
+		int close = name.lastIndexOf(')');
+		if  ((open >= 0) && (close >= 0)) {
+			name = name.substring(open+1, close);
+		}
+		System.err.println(name);
+		return Integer.parseInt(name);
+	}
 
 	private void update() {
-		if (ptuIds != null) {
-			Collections.sort(ptuIds);
-		}
-
-//		int selectedIndex = getSelectedIndex();
-		// FIXME
-//		String selectedItem = selectedIndex < 0 ? null : getTabWidget(selectedIndex).toString();
-
 		clear();
+		if (ptuIds == null) return;
+		
+		Collections.sort(ptuIds);
+
 		for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext(); ) {
 			Integer id = i.next();
-			ToggleButton b = new ToggleButton(id.toString());
+			ToggleButton b = new ToggleButton(getName(id));
 			if (id.equals(ptuId)) {
 				b.setDown(true);
 			}
@@ -85,8 +110,7 @@ public class PtuTabSelector extends HorizontalPanel implements ClickHandler {
 		ptuId = null;
 
 		ToggleButton b = (ToggleButton)event.getSource();
-		System.err.println("Selected "+b.getText());
-		ptuId = Integer.parseInt(b.getText());
+		ptuId = getId(b.getText());
 		
 		for (int i=0; i<getWidgetCount(); i++) {
 			Widget w = getWidget(i);
