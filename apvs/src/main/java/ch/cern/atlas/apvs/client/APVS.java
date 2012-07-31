@@ -21,6 +21,7 @@ import ch.cern.atlas.apvs.client.ui.PlaceView;
 import ch.cern.atlas.apvs.client.ui.ProcedureControls;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
 import ch.cern.atlas.apvs.client.ui.PtuSettingsView;
+import ch.cern.atlas.apvs.client.ui.PtuTabSelector;
 import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
 import ch.cern.atlas.apvs.client.ui.TimeView;
@@ -156,6 +157,11 @@ public class APVS implements EntryPoint {
 				RootPanel.get(id).add(new PlaceView(clientFactory, args));				
 			}
 			
+			if (id.startsWith("PtuTabSelector")) {
+				newCode = true;
+				RootPanel.get(id).add(new PtuTabSelector(clientFactory, args));				
+			}
+						
 			if (id.startsWith("PtuSettingsView")) {
 				newCode = true;
 				RootPanel.get(id).add(new PtuSettingsView(clientFactory, args));				

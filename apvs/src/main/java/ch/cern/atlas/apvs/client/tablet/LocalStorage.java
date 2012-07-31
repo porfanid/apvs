@@ -40,6 +40,6 @@ public class LocalStorage {
 	
 	public Integer getInteger(String key) {
 		String s = get(key);
-		return s == null ? null : Integer.parseInt(s);
+		return s == null || s.equals("null") ? null : Integer.parseInt(s);
 	}
 }

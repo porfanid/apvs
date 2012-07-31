@@ -42,7 +42,7 @@ public class MeasurementView extends VerticalFlowPanel {
 	private CellTable<Measurement<Double>> table = new CellTable<Measurement<Double>>();
 	private ListHandler<Measurement<Double>> columnSortHandler;
 	private ClickableTextColumn<Measurement<Double>> name;
-	private SingleSelectionModel<Measurement<Double>> selectionModel;
+	private SingleSelectionModel<Measurement<Double>> selectionModel = new SingleSelectionModel<Measurement<Double>>();;
 
 	private List<String> show = null;
 	
@@ -274,7 +274,6 @@ public class MeasurementView extends VerticalFlowPanel {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
 
-		selectionModel = new SingleSelectionModel<Measurement<Double>>();
 		table.setSelectionModel(selectionModel);
 		selectionModel
 				.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
