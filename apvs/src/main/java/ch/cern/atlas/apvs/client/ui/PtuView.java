@@ -160,7 +160,10 @@ public class PtuView extends VerticalPanel {
 							}
 														
 							for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext(); ) {
-								addColumn(i.next());
+								Integer id = i.next();
+								if (settings.isEnabled(id)) {
+									addColumn(id);
+								}
 							}
 
 							((RemoteEventBus)eventBus).fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));

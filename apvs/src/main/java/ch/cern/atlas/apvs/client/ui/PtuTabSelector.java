@@ -95,6 +95,8 @@ public class PtuTabSelector extends HorizontalPanel {
 
 			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext();) {
 				Integer id = i.next();
+				if (!settings.isEnabled(id)) continue;
+				
 				ToggleButton b = new ToggleButton(getName(id));
 				if (id.equals(ptuId)) {
 					b.setDown(true);
