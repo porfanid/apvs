@@ -57,7 +57,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		show = args.getArgs(1);
 		
 		add(table);
-
+		
 		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
 				new PtuSettingsChangedEvent.Handler() {
 

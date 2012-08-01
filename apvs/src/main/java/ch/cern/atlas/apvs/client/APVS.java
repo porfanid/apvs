@@ -24,6 +24,7 @@ import ch.cern.atlas.apvs.client.ui.PtuSettingsView;
 import ch.cern.atlas.apvs.client.ui.PtuTabSelector;
 import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
+import ch.cern.atlas.apvs.client.ui.Tabs;
 import ch.cern.atlas.apvs.client.ui.TimeView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -72,8 +73,9 @@ public class APVS implements EntryPoint {
 		GWT.setUncaughtExceptionHandler(new APVSUncaughtExceptionHandler());
 
 		Build build = GWT.create(Build.class);
-		System.out.println("Starting APVS Version: " + build.version() + " - " + build.build()); 
-		
+		System.out.println("Starting APVS Version: " + build.version() + " - "
+				+ build.build());
+
 		ServerServiceAsync.Util.getInstance().isReady(
 				new AsyncCallback<Boolean>() {
 
@@ -96,7 +98,7 @@ public class APVS implements EntryPoint {
 	}
 
 	private void start() {
-		
+
 		ClientFactory clientFactory = GWT.create(ClientFactory.class);
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
@@ -113,82 +115,82 @@ public class APVS implements EntryPoint {
 			Window.alert("Please define a <div> element with the class set to your view you want to show.");
 			return;
 		}
-		
+
 		boolean newCode = false;
-		for(int i=0; i<divs.getLength(); i++) {
-			String id = divs.getItem(i).getId();
-			
-			String[] parts = id.split("\\(",2);
-			if (parts.length != 2) continue;
-			
-			String className = parts[0];
-			Arguments args = new Arguments(parts[1].length() > 0 ? parts[1].substring(0, parts[1].length()-1) : null);
-			
-			System.err.println("Creating "+className+" with args ("+args+")");
-			
-			// FIXME handle generically
-			if (id.startsWith("MeasurementView")) {
-				newCode = true;
-				RootPanel.get(id).add(new MeasurementView(clientFactory, args));
-			}
-			
-			if (id.startsWith("CameraView")) {
-				newCode = true;
-				RootPanel.get(id).add(new CameraView(clientFactory, args));
-			}
-			
-			if (id.startsWith("PtuView")) {
-				newCode = true;
-				RootPanel.get(id).add(new PtuView(clientFactory, args));				
-			}
-			
-			if (id.startsWith("ProcedureView")) {
-				newCode = true;
-				RootPanel.get(id).add(new ProcedureView(clientFactory, args));				
-			}
-			
-			if (id.startsWith("ProcedureControls")) {
-				newCode = true;
-				RootPanel.get(id).add(new ProcedureControls(clientFactory, args));				
-			}
-			
-			if (id.startsWith("PlaceView")) {
-				newCode = true;
-				RootPanel.get(id).add(new PlaceView(clientFactory, args));				
-			}
-			
-			if (id.startsWith("PtuTabSelector")) {
-				newCode = true;
-				RootPanel.get(id).add(new PtuTabSelector(clientFactory, args));				
-			}
-						
-			if (id.startsWith("PtuSettingsView")) {
-				newCode = true;
-				RootPanel.get(id).add(new PtuSettingsView(clientFactory, args));				
-			}
-						
-			if (id.startsWith("ServerSettingsView")) {
-				newCode = true;
-				RootPanel.get(id).add(new ServerSettingsView(clientFactory, args));				
-			}
-			
-			if (id.startsWith("DosimeterView")) {
-				newCode = true;
-				RootPanel.get(id).add(new DosimeterView(clientFactory, args));				
-			}
-			
-			if (id.startsWith("TimeView")) {
-				newCode = true;
-				RootPanel.get(id).add(new TimeView(clientFactory, args));				
+		for (int i = 0; i < divs.getLength(); i++) {
+			Element element = divs.getItem(i);
+			String id = element.getId();
+
+			String[] parts = id.split("\\(", 2);
+			if (parts.length != 2) {
+				// tab div
+				if (element.getClassName().equals("tab")) {
+					Tabs.add(id, element);
+				}
+			} else {
+
+				String className = parts[0];
+				Arguments args = new Arguments(
+						parts[1].length() > 0 ? parts[1].substring(0,
+								parts[1].length() - 1) : null);
+
+				System.err.println("Creating " + className + " with args ("
+						+ args + ")");
+								
+				// FIXME handle generically
+				if (id.startsWith("MeasurementView")) {
+					newCode = true;
+					RootPanel.get(id).add(
+							new MeasurementView(clientFactory, args));
+				} else if (id.startsWith("CameraView")) {
+					newCode = true;
+					RootPanel.get(id).add(new CameraView(clientFactory, args));
+				} else if (id.startsWith("PtuView")) {
+					newCode = true;
+					RootPanel.get(id).add(new PtuView(clientFactory, args));
+				} else if (id.startsWith("ProcedureView")) {
+					newCode = true;
+					RootPanel.get(id).add(
+							new ProcedureView(clientFactory, args));
+				} else if (id.startsWith("ProcedureControls")) {
+					newCode = true;
+					RootPanel.get(id).add(
+							new ProcedureControls(clientFactory, args));
+				} else if (id.startsWith("PlaceView")) {
+					newCode = true;
+					RootPanel.get(id).add(new PlaceView(clientFactory, args));
+				} else if (id.startsWith("PtuTabSelector")) {
+					newCode = true;
+					RootPanel.get(id).add(
+							new PtuTabSelector(clientFactory, args));
+				} else if (id.startsWith("PtuSettingsView")) {
+					newCode = true;
+					RootPanel.get(id).add(
+							new PtuSettingsView(clientFactory, args));
+				} else if (id.startsWith("ServerSettingsView")) {
+					newCode = true;
+					RootPanel.get(id).add(
+							new ServerSettingsView(clientFactory, args));
+				} else if (id.startsWith("DosimeterView")) {
+					newCode = true;
+					RootPanel.get(id).add(
+							new DosimeterView(clientFactory, args));
+				} else if (id.startsWith("TimeView")) {
+					newCode = true;
+					RootPanel.get(id).add(new TimeView(clientFactory, args));
+				}
 			}
 		}
-		
+
 		// FIXME create tab buttons for each, select default one
 		clientFactory.getEventBus("local").fireEvent(new SelectPtuEvent(27372));
-		clientFactory.getEventBus("private").fireEvent(new SelectPtuEvent(27372));
-		clientFactory.getEventBus("private2").fireEvent(new SelectPtuEvent(27372));
-		
-		if (newCode) return;
+		clientFactory.getEventBus("private").fireEvent(
+				new SelectPtuEvent(27372));
+		clientFactory.getEventBus("private2").fireEvent(
+				new SelectPtuEvent(27372));
+
+		if (newCode)
+			return;
 
 		startWorker();
 		return;

@@ -73,7 +73,7 @@
 <!-- be added before this line.                -->
 <!--                                           -->
 <script type="text/javascript" language="javascript"
-    src="apvs.nocache.js"></script>
+	src="apvs.nocache.js"></script>
 </head>
 
 <!--                                           -->
@@ -112,49 +112,74 @@
 		<div class="panel_12 main">
 
 			<div class="grid_12 item">
-				<div id="PtuTabSelector(local, private1, private2; Summary; Settings)"></div>
+				<div
+					id="PtuTabSelector(local, private1, private2; Summary; Settings)"></div>
 			</div>
 
-			<div class="grid_3 item">
-				<h3>Measurements</h3>
-				<div id="MeasurementView(local)"></div>
-				<div id="TimeView(local)"></div>
-			</div>
-
-			<div class="grid_6 item">
-				<h3>Helmet Camera</h3>
-                <div id="CameraView(local; Helmet)"></div>
-			</div>
-
-			<div class="panel_3">
+			<div class="tab" id="Ptu">
 				<div class="grid_3 item">
-					<h3>Hand-held Camera</h3>
-                    <div id="CameraView(local; Hand)"></div>
+					<h3>Measurements</h3>
+					<div id="MeasurementView(local)"></div>
+					<div id="TimeView(local)"></div>
+				</div>
+
+				<div class="grid_6 item">
+					<h3>Helmet Camera</h3>
+					<div id="CameraView(local; Helmet)"></div>
+				</div>
+
+				<div class="panel_3">
+					<div class="grid_3 item">
+						<h3>Hand-held Camera</h3>
+						<div id="CameraView(local; Hand)"></div>
+					</div>
+
+					<div class="grid_3 item">
+						<h3>Worker View</h3>
+						<div id="PlaceView()"></div>
+					</div>
 				</div>
 
 				<div class="grid_3 item">
-					<h3>Worker View</h3>
-                    <div id="PlaceView()"></div>
+					<h3>General Info</h3>
+				</div>
+
+				<div class="grid_3 item">
+					<h3>Dosimeter</h3>
+					<div id="MeasurementView(private1; Humidity; Temperature)"></div>
+				</div>
+
+				<div class="grid_3 item">
+					<h3>Dose Rate</h3>
+					<div id="TimeView(private2; Temperature)"></div>
+				</div>
+
+				<div class="grid_3 item">
+					<h3>Accumulated Dose</h3>
+					<div id="TimeView(private2; Humidity)"></div>
 				</div>
 			</div>
 
-			<div class="grid_3 item">
-				<h3>General Info</h3>
+			<div class="tab" id="Summary">
+				<div class="grid_12 item">
+					<h3>All PTUs</h3>
+					<div id="PtuView()"></div>
+				</div>
+				<div class="grid_12 item">
+					<h3>All Dosimeters</h3>
+					<div id="DosimeterView()"></div>
+				</div>
 			</div>
 
-			<div class="grid_3 item">
-				<h3>Dosimeter</h3>
-				<div id="MeasurementView(private1; Humidity; Temperature)"></div>
-			</div>
-
-			<div class="grid_3 item">
-				<h3>Dose Rate</h3>
-				<div id="TimeView(private2; Temperature)"></div>
-			</div>
-
-			<div class="grid_3 item">
-				<h3>Accumulated Dose</h3>
-				<div id="TimeView(private2; Humidity)"></div>
+			<div class="tab" id="Settings">
+				<div class="grid_12 item">
+					<h3>PTU Settings</h3>
+					<div id="PtuSettingsView()"></div>
+				</div>
+				<div class="grid_12 item">
+					<h3>Server Settings</h3>
+					<div id="ServerSettingsView()"></div>
+				</div>
 			</div>
 
 			<div class="panel_12 footer">
