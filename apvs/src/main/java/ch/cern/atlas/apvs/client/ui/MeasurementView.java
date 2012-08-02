@@ -49,7 +49,7 @@ public class MeasurementView extends VerticalFlowPanel {
 	private Integer ptuId = null;
 	
 	private EventBus cmdBus;
-	private boolean showHeader = false;
+	private boolean showHeader = true;
 
 	public MeasurementView(final ClientFactory clientFactory, Arguments args) {
 		

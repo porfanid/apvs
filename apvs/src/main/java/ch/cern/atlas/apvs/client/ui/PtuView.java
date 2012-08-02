@@ -144,33 +144,7 @@ public class PtuView extends VerticalPanel {
 					@Override
 					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
 						ptuIds = event.getPtuIds();
-			
-						while (table.getColumnCount() > 2) {
-							table.removeColumn(table.getColumnCount()-1);
-						}
-
-						if (ptuIds != null) {
-							Collections.sort(ptuIds);
-
-							for (Iterator<Map.Entry<Integer, Ptu>> i=ptus.entrySet().iterator(); i.hasNext(); ) {
-								Map.Entry<Integer, Ptu> entry = i.next();
-								if (ptuIds.contains(entry.getKey())) continue;
-								
-								i.remove();
-							}
-														
-							for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext(); ) {
-								Integer id = i.next();
-								if (settings.isEnabled(id)) {
-									addColumn(id);
-								}
-							}
-
-							((RemoteEventBus)eventBus).fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));
-							
-						} else {
-							init();
-						}
+						configChanged();
 						update();
 					}
 				});
@@ -214,6 +188,7 @@ public class PtuView extends VerticalPanel {
 					@Override
 					public void onPtuSettingsChanged(PtuSettingsChangedEvent event) {
 						settings = event.getPtuSettings();
+						configChanged();
 						update();
 					}
 				});
@@ -292,6 +267,35 @@ public class PtuView extends VerticalPanel {
 						SafeHtmlUtils.fromSafeConstant(getValue()), sb);
 			}
 		});
+	}
+	
+	private void configChanged() {
+		while (table.getColumnCount() > 2) {
+			table.removeColumn(table.getColumnCount()-1);
+		}
+
+		if (ptuIds != null) {
+			Collections.sort(ptuIds);
+
+			for (Iterator<Map.Entry<Integer, Ptu>> i=ptus.entrySet().iterator(); i.hasNext(); ) {
+				Map.Entry<Integer, Ptu> entry = i.next();
+				if (ptuIds.contains(entry.getKey())) continue;
+				
+				i.remove();
+			}
+										
+			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext(); ) {
+				Integer id = i.next();
+				if (settings.isEnabled(id)) {
+					addColumn(id);
+				}
+			}
+
+			eventBus.fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));
+			
+		} else {
+			init();
+		}
 	}
 
 	private void update() {
