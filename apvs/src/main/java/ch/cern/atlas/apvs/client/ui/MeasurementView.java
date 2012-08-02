@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
@@ -42,22 +43,30 @@ public class MeasurementView extends VerticalFlowPanel {
 	private CellTable<Measurement<Double>> table = new CellTable<Measurement<Double>>();
 	private ListHandler<Measurement<Double>> columnSortHandler;
 	private ClickableTextColumn<Measurement<Double>> name;
-	private SingleSelectionModel<Measurement<Double>> selectionModel = new SingleSelectionModel<Measurement<Double>>();;
+	private SingleSelectionModel<Measurement<Double>> selectionModel;
 
 	private List<String> show = null;
-	
+
 	private Integer ptuId = null;
-	
+
 	private EventBus cmdBus;
+
 	private boolean showHeader = true;
+	private boolean showName = false; // true
+	private boolean sortable = false; // true
+	private boolean selectable = false; // true
 
 	public MeasurementView(final ClientFactory clientFactory, Arguments args) {
-		
+
 		cmdBus = NamedEventBus.get(args.getArg(0));
 		show = args.getArgs(1);
-		
+
+		if (selectable) {
+			selectionModel = new SingleSelectionModel<Measurement<Double>>();
+		}
+
 		add(table);
-		
+
 		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
 				new PtuSettingsChangedEvent.Handler() {
 
@@ -77,8 +86,8 @@ public class MeasurementView extends VerticalFlowPanel {
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {
 				// FIXME still needed ?
-//				if (!cmdBus.getUUID().equals(event.getEventBusUUID()))
-//					return;
+				// if (!cmdBus.getUUID().equals(event.getEventBusUUID()))
+				// return;
 
 				// unregister any remaining handler
 				if (registration != null) {
@@ -109,11 +118,14 @@ public class MeasurementView extends VerticalFlowPanel {
 					dataProvider.getList().clear();
 				}
 
-				Measurement<Double> selection = selectionModel
-						.getSelectedObject();
-				if (selection != null) {
-					selectionModel.setSelected(selection, false);
+				if (selectable) {
+					Measurement<Double> selection = selectionModel
+							.getSelectedObject();
+					if (selection != null) {
+						selectionModel.setSelected(selection, false);
+					}
 				}
+
 				update();
 			}
 		});
@@ -135,19 +147,24 @@ public class MeasurementView extends VerticalFlowPanel {
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		name.setSortable(true);
-		name.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+		name.setSortable(sortable);
+		if (selectable) {
+			name.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
 
-			@Override
-			public void update(int index, Measurement<Double> object,
-					String value) {
-				selectMeasurement(object.getName());
-			}
-		});
+				@Override
+				public void update(int index, Measurement<Double> object,
+						String value) {
+					selectMeasurement(object.getName());
+				}
+			});
+		}
 
 		table.addColumn(name, showHeader ? new TextHeader("") {
 			@Override
 			public String getValue() {
+				if (!showName)
+					return null;
+
 				if (ptuId == null)
 					return "Name";
 
@@ -182,14 +199,16 @@ public class MeasurementView extends VerticalFlowPanel {
 
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		value.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+		if (selectable) {
+			value.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
 
-			@Override
-			public void update(int index, Measurement<Double> object,
-					String value) {
-				selectMeasurement(object.getName());
-			}
-		});
+				@Override
+				public void update(int index, Measurement<Double> object,
+						String value) {
+					selectMeasurement(object.getName());
+				}
+			});
+		}
 		table.addColumn(value, showHeader ? "Value" : null);
 
 		ClickableTextColumn<Measurement<Double>> unit = new ClickableTextColumn<Measurement<Double>>() {
@@ -209,15 +228,17 @@ public class MeasurementView extends VerticalFlowPanel {
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		unit.setSortable(true);
-		unit.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+		unit.setSortable(sortable);
+		if (selectable) {
+			unit.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
 
-			@Override
-			public void update(int index, Measurement<Double> object,
-					String value) {
-				selectMeasurement(object.getName());
-			}
-		});
+				@Override
+				public void update(int index, Measurement<Double> object,
+						String value) {
+					selectMeasurement(object.getName());
+				}
+			});
+		}
 		table.addColumn(unit, showHeader ? "Unit" : null);
 
 		List<Measurement<Double>> list = new ArrayList<Measurement<Double>>();
@@ -274,17 +295,26 @@ public class MeasurementView extends VerticalFlowPanel {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
 
-		table.setSelectionModel(selectionModel);
-		selectionModel
-				.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+		if (selectable) {
+			table.setSelectionModel(selectionModel);
+			selectionModel
+					.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
 
-					@Override
-					public void onSelectionChange(SelectionChangeEvent event) {
-						Measurement<Double> m = selectionModel
-								.getSelectedObject();
-						System.err.println(m + " " + event.getSource());
-					}
-				});
+						@Override
+						public void onSelectionChange(SelectionChangeEvent event) {
+							Measurement<Double> m = selectionModel
+									.getSelectedObject();
+							System.err.println(m + " " + event.getSource());
+						}
+					});
+		}
+
+		// fill initial list
+		for (Iterator<String> i = show.iterator(); i.hasNext();) {
+			String name = i.next();
+			System.err.println("Added " + name);
+			list.add(new NullMeasurement(0, name));
+		}
 	}
 
 	public static SafeHtml decorate(String s, Measurement<Double> current,
@@ -302,28 +332,34 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	private void update() {
 		// Re-sort the table
-		ColumnSortEvent.fire(table, table.getColumnSortList());
+		if (sortable) {
+			ColumnSortEvent.fire(table, table.getColumnSortList());
+		}
 		table.redraw();
 
-		Measurement<Double> selection = selectionModel.getSelectedObject();
+		if (selectable) {
+			Measurement<Double> selection = selectionModel.getSelectedObject();
 
-		if ((selection == null) && (dataProvider.getList().size() > 0)) {
-			selection = dataProvider.getList().get(0);
+			if ((selection == null) && (dataProvider.getList().size() > 0)) {
+				selection = dataProvider.getList().get(0);
 
-			selectMeasurement(selection.getName());
-		}
+				selectMeasurement(selection.getName());
+			}
 
-		// re-set the selection as the async update may have changed the
-		// rendering
-		if (selection != null) {
-			selectionModel.setSelected(selection, true);
+			// re-set the selection as the async update may have changed the
+			// rendering
+			if (selection != null) {
+				selectionModel.setSelected(selection, true);
+			}
 		}
 	}
 
-	private Measurement<Double> replace(Measurement<Double> measurement, Measurement<Double> lastValue) {
+	private Measurement<Double> replace(Measurement<Double> measurement,
+			Measurement<Double> lastValue) {
 		List<Measurement<Double>> list = dataProvider.getList();
 
 		int i = 0;
+		System.err.println("Looking for " + measurement.getName());
 		while (i < list.size()) {
 			if (list.get(i).getName().equals(measurement.getName())) {
 				break;
@@ -332,7 +368,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		}
 
 		if (i == list.size()) {
-			if ((show.size() == 0) || show.contains(measurement.getName())) {
+			if (show.size() == 0) {
 				list.add(measurement);
 				lastValue = measurement;
 			}
@@ -344,7 +380,7 @@ public class MeasurementView extends VerticalFlowPanel {
 	}
 
 	private void selectMeasurement(String name) {
-		SelectMeasurementEvent.fire(cmdBus, name);	
-	}	
+		SelectMeasurementEvent.fire(cmdBus, name);
+	}
 
 }

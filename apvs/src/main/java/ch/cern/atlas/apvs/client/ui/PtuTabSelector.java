@@ -65,8 +65,12 @@ public class PtuTabSelector extends HorizontalPanel {
 						ptuId = LocalStorage.getInstance().getInteger(
 								LocalStorage.PTU_ID);
 						fireEvent(new SelectPtuEvent(ptuId));
-
-						update();
+						
+						if (ptuId != null) {
+							Tabs.setCurrentTab("Ptu");
+						}
+						
+						update();						
 					}
 				});
 	}
@@ -95,7 +99,7 @@ public class PtuTabSelector extends HorizontalPanel {
 
 			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext();) {
 				Integer id = i.next();
-				if (!settings.isEnabled(id)) continue;
+				if ((settings != null) && !settings.isEnabled(id)) continue;
 				
 				ToggleButton b = new ToggleButton(getName(id));
 				if (id.equals(ptuId)) {
@@ -118,7 +122,7 @@ public class PtuTabSelector extends HorizontalPanel {
 						fireEvent(new SelectPtuEvent(ptuId));
 					}
 				});
-				add(b);
+				add(b);				
 			}
 		}
 		

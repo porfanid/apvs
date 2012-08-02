@@ -286,7 +286,7 @@ public class PtuView extends VerticalPanel {
 										
 			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext(); ) {
 				Integer id = i.next();
-				if (settings.isEnabled(id)) {
+				if ((settings == null) || settings.isEnabled(id)) {
 					addColumn(id);
 				}
 			}

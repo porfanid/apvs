@@ -75,11 +75,11 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 		if ((obj != null) && (obj instanceof Measurement<?>)) {
 			Measurement<?> m = (Measurement<?>) obj;
 			return (getPtuId() == m.getPtuId())
-					&& (getName().equals(m.getName()))
-					&& (getValue().equals(m.getValue()))
-					&& (getUnit().equals(m.getUnit()))
-					&& (getDate().equals(m.getDate()))
-					&& (getType().equals(m.getType()));
+					&& (getName() == null ? m.getName() == null : getName().equals(m.getName()))
+					&& (getValue() == null ? m.getValue() == null : getValue().equals(m.getValue()))
+					&& (getUnit() == null ? m.getUnit() == null : getUnit().equals(m.getUnit()))
+					&& (getDate() == null ? m.getDate() == null : getDate().equals(m.getDate()))
+					&& (getType() == null ? m.getType() == null : getType().equals(m.getType()));
 		}
 		return super.equals(obj);
 	}
