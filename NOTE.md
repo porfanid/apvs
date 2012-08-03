@@ -23,6 +23,13 @@ Build AWSS
 
 Run `mvn clean install`
 
+Run in demo-mode ???
+--------------------
+
+in apvs run `mvn clean gwt:run`
+
+install the proper gwt plugin in firefox
+
 
 
 Run the Jetty version
