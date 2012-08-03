@@ -77,12 +77,17 @@
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-ptu</module>
-		<module>apvs-rcharts</module>
-<!--
+	</modules>
+
+        <profiles>
+                <profile>
+                        <id>prod</id>
+	<modules>
 		<module>apvs-dist</module>
 		<module>apvs-nettosphere</module>
--->
-	</modules>
+        </modules>
+        	</profile>
+        </profiles>
 
 	<build>
 		<defaultGoal>install</defaultGoal>
