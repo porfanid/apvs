@@ -20,7 +20,6 @@
     <inherits name="ch.cern.atlas.apvs.ptu.Ptu" />
     
     <inherits name="com.googlecode.mgwt.MGWT"/>
-    <inherits name="com.rcharts.Gwt_rcharts1_1"/>
     
     <inherits name="org.moxieapps.gwt.highcharts.Highcharts"/>
 
