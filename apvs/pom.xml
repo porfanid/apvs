@@ -132,10 +132,6 @@
 			<artifactId>apvs-ptu</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-rcharts</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-client</artifactId>
 		</dependency>
@@ -170,10 +166,6 @@
 		<dependency>
 			<groupId>com.googlecode.mgwt</groupId>
 			<artifactId>mgwt</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.rcharts</groupId>
-			<artifactId>gwt-rcharts</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.moxie</groupId>
