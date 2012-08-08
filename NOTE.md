@@ -29,7 +29,7 @@ Run in demo-mode ???
 in apvs run `mvn clean gwt:run`
 
 install the proper gwt plugin in firefox
-
+http://acleung.com/ff14-mac.xpi
 
 
 Run the Jetty version
