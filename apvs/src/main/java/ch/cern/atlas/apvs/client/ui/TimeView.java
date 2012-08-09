@@ -26,17 +26,20 @@ public class TimeView extends AbstractTimeView {
 	private Integer ptuId = null;
 	private String measurementName = null;
 	private EventBus cmdBus;
+	private String options;
 
 	public TimeView(final ClientFactory clientFactory, Arguments args) {
 		this.clientFactory = clientFactory;
-		// FIXME hardcoded
-		this.height = 300;
-		this.title = false;
-		this.export = false;
 
 		cmdBus = NamedEventBus.get(args.getArg(0));
-		measurementName = args.getArg(1);
+		options = args.getArg(1);
+		measurementName = args.getArg(2);
 
+		// FIXME handle height
+		
+		this.title = !options.contains("NoTitle");
+		this.export = !options.contains("NoExport");
+		
 		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
 			@Override

@@ -52,14 +52,22 @@ public class MeasurementView extends VerticalFlowPanel {
 	private EventBus cmdBus;
 
 	private boolean showHeader = true;
-	private boolean showName = false; // true
-	private boolean sortable = false; // true
-	private boolean selectable = false; // true
+	private boolean showName = true;
+	private boolean sortable = true;
+	private boolean selectable = true;
+	
+	private String options;
 
 	public MeasurementView(final ClientFactory clientFactory, Arguments args) {
 
 		cmdBus = NamedEventBus.get(args.getArg(0));
-		show = args.getArgs(1);
+		options = args.getArg(1);
+		show = args.getArgs(2);
+		
+		showHeader = !options.contains("NoHeader");
+		showName = !options.contains("NoName");
+		sortable = !options.contains("NoSort");
+		selectable = !options.contains("NoSelection");
 
 		if (selectable) {
 			selectionModel = new SingleSelectionModel<Measurement<Double>>();
@@ -182,7 +190,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		ClickableTextColumn<Measurement<Double>> value = new ClickableTextColumn<Measurement<Double>>() {
 			@Override
 			public String getValue(Measurement<Double> object) {
-				if (object == null) {
+				if ((object == null) || (object.getValue() == null)) {
 					return "";
 				}
 				return format.format(object.getValue());

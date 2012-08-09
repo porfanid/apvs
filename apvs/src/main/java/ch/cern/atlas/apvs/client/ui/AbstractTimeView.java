@@ -40,9 +40,9 @@ public class AbstractTimeView extends SimplePanel {
 	protected Map<Integer, Integer> pointsById;
 	protected Map<Integer, Series> seriesById;
 	protected Map<Integer, String> colorsById;
-	protected int height;
-	protected boolean export;
-	protected boolean title;
+	protected int height = 300;
+	protected boolean export = true;
+	protected boolean title = true;
 
 	public AbstractTimeView() {
 		super();
