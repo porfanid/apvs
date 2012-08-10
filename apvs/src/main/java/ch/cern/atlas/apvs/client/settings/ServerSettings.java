@@ -1,7 +1,7 @@
 package ch.cern.atlas.apvs.client.settings;
 
-import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.TextInputCell;
 
 public class ServerSettings extends AbstractServerSettings {
 
@@ -10,8 +10,8 @@ public class ServerSettings extends AbstractServerSettings {
 	public static final String[] settingNames = { "PTU URL", "Dosimeter URL",
 			"Procedure URL" };
 	@SuppressWarnings("rawtypes")
-	public static final Class[] cellClass = { EditTextCell.class,
-			EditTextCell.class, EditTextCell.class };
+	public static final Class[] cellClass = { TextInputCell.class,
+		TextInputCell.class, TextInputCell.class };
 	@SuppressWarnings("rawtypes")
 	public static final Class[] nameClass = { TextCell.class, TextCell.class,
 			TextCell.class };

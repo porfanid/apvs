@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell;
@@ -12,6 +11,7 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.TextInputCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
@@ -19,6 +19,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
 public class EditableCell extends AbstractCell<Object> {
+	private MyTextInputCell textInputCell;
 	private MyEditTextCell editCell;
 	private MySelectionCell selectionCell;
 	private MyCheckboxCell checkboxCell;
@@ -30,6 +31,7 @@ public class EditableCell extends AbstractCell<Object> {
 	public EditableCell(Class<? extends Cell<Object>>[] cellClass) {
 		this.cellClass = cellClass;
 
+		textInputCell = new MyTextInputCell();
 		editCell = new MyEditTextCell();
 		selectionCell = new MySelectionCell();
 		checkboxCell = new MyCheckboxCell();
@@ -45,7 +47,9 @@ public class EditableCell extends AbstractCell<Object> {
 	public boolean isEditing(Context context, Element parent, Object value) {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
-		if (cellClass.equals(EditTextCell.class)) {
+		if (cellClass.equals(TextInputCell.class)) {
+			return textInputCell.isEditing(context, parent, (String) value);
+		} else if (cellClass.equals(EditTextCell.class)) {
 			return editCell.isEditing(context, parent, (String) value);
 		} else if (cellClass.equals(SelectionCell.class)) {
 			return selectionCell.isEditing(context, parent, (String) value);
@@ -65,7 +69,17 @@ public class EditableCell extends AbstractCell<Object> {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
 				
-		if (cellClass.equals(EditTextCell.class)) {
+		if (cellClass.equals(TextInputCell.class)) {
+			textInputCell.onBrowserEvent(context, parent, (String) value, event,
+					new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
+		} else if (cellClass.equals(EditTextCell.class)) {
 			editCell.onBrowserEvent(context, parent, (String) value, event,
 					new ValueUpdater<String>() {
 						@Override
@@ -123,7 +137,9 @@ public class EditableCell extends AbstractCell<Object> {
 	public void render(Context context, Object value, SafeHtmlBuilder sb) {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
-		if (cellClass.equals(EditTextCell.class)) {
+		if (cellClass.equals(TextInputCell.class)) {
+			textInputCell.render(context, (String) value, sb);				
+		} else if (cellClass.equals(EditTextCell.class)) {
 			editCell.render(context, (String) value, sb);
 		} else if (cellClass.equals(SelectionCell.class)) {
 			selectionCell.render(context, (String) value, sb);
@@ -153,6 +169,10 @@ public class EditableCell extends AbstractCell<Object> {
 	public Set<String> getConsumedEvents() {
 		Set<String> events = new HashSet<String>();
 
+		Set<String> textInputCellEvents = textInputCell.getConsumedEvents();
+		if (textInputCellEvents != null) {
+			events.addAll(textInputCellEvents);
+		}
 		Set<String> editCellEvents = editCell.getConsumedEvents();
 		if (editCellEvents != null) {
 			events.addAll(editCellEvents);
@@ -187,7 +207,17 @@ public class EditableCell extends AbstractCell<Object> {
 			final ValueUpdater<Object> valueUpdater) {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
-		if (cellClass.equals(EditTextCell.class)) {
+		if (cellClass.equals(TextInputCell.class)) {
+			textInputCell.onEnterKeyDown(context, parent, (String) value, event,
+					new ValueUpdater<String>() {
+						@Override
+						public void update(String value) {
+							if (valueUpdater != null) {
+								valueUpdater.update(value);
+							}
+						}
+					});
+		} else if (cellClass.equals(EditTextCell.class)) {
 			editCell.onEnterKeyDown(context, parent, (String) value, event,
 					new ValueUpdater<String>() {
 						@Override
@@ -245,7 +275,9 @@ public class EditableCell extends AbstractCell<Object> {
 	public boolean resetFocus(Context context, Element parent, Object value) {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
-		if (cellClass.equals(EditTextCell.class)) {
+		if (cellClass.equals(TextInputCell.class)) {
+			return textInputCell.resetFocus(context, parent, (String) value);
+		} else if (cellClass.equals(EditTextCell.class)) {
 			return editCell.resetFocus(context, parent, (String) value);
 		} else if (cellClass.equals(SelectionCell.class)) {
 			return selectionCell.resetFocus(context, parent, (String) value);
@@ -263,7 +295,9 @@ public class EditableCell extends AbstractCell<Object> {
 	public void setValue(Context context, Element parent, Object value) {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
-		if (cellClass.equals(EditTextCell.class)) {
+		if (cellClass.equals(TextInputCell.class)) {
+			textInputCell.setValue(context, parent, (String) value);
+		} else if (cellClass.equals(EditTextCell.class)) {
 			editCell.setValue(context, parent, (String) value);
 		} else if (cellClass.equals(SelectionCell.class)) {
 			selectionCell.setValue(context, parent, (String) value);
@@ -284,6 +318,25 @@ public class EditableCell extends AbstractCell<Object> {
 		return TextCell.class;
 	}
 
+	private class MyTextInputCell extends TextInputCell {
+		@Override
+		protected void onEnterKeyDown(
+				com.google.gwt.cell.client.Cell.Context context,
+				Element parent, String value, NativeEvent event,
+				ValueUpdater<String> valueUpdater) {
+			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
+		}
+		
+		@Override
+		public void render(com.google.gwt.cell.client.Cell.Context context,
+				String value, SafeHtmlBuilder sb) {
+//			if ((value !=  null) && (value.length() > 20)) {
+//				value = value.substring(0, 10)+"..."+value.substring(value.length()-10);
+//			}
+			super.render(context, value, sb);
+		}
+	}
+	
 	private class MyEditTextCell extends EditTextCell {
 		@Override
 		protected void onEnterKeyDown(
