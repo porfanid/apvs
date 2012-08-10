@@ -61,6 +61,9 @@ public class AbstractTimeView extends SimplePanel {
 
 	protected void createChart(String name, String unit) {
 		removeChart();
+		
+		// fix #96 to put unicode in place of &deg;
+		unit = unit.replaceAll("\\&deg\\;", "\u00B0");
 
 		chart = new Chart()
 				// same as above
