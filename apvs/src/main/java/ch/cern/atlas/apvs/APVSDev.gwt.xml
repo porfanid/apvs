@@ -11,6 +11,8 @@
 	<inherits name="com.google.gwt.json.JSON" />
     <inherits name="com.google.gwt.resources.Resources" />
 	<inherits name="com.google.web.bindery.autobean.AutoBean"/>
+	
+	<inherits name="com.google.gwt.safehtml.SafeHtml"/>
 
 	<inherits name="org.atmosphere.gwt.Client" />
 

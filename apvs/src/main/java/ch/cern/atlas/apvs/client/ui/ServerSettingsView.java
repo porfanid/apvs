@@ -35,7 +35,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 		// name column
 		@SuppressWarnings("unchecked")
 		Column<String, Object> name = new Column<String, Object>(
-				new EditableCell(ServerSettings.nameClass)) {
+				new EditableCell(ServerSettings.nameClass, 30)) {
 			@Override
 			public Object getValue(String object) {
 				return object;
@@ -54,7 +54,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 
 		@SuppressWarnings("unchecked")
 		Column<String, Object> column = new Column<String, Object>(
-				new EditableCell(ServerSettings.cellClass)) {
+				new EditableCell(ServerSettings.cellClass, 50)) {
 			@Override
 			public Object getValue(String name) {
 				return settings.get(name);

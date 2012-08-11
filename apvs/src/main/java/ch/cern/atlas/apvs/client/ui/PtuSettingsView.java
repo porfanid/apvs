@@ -10,6 +10,7 @@ import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.StringList;
+import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
@@ -19,7 +20,6 @@ import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
-import com.google.gwt.cell.client.TextInputCell;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
@@ -97,7 +97,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 
 		// NAME
 		Column<Integer, String> name = new Column<Integer, String>(
-				new TextInputCell()) {
+				new TextInputSizeCell(30)) {
 			@Override
 			public String getValue(Integer object) {
 				return settings.getName(object);
@@ -140,7 +140,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 
 		// HELMET URL
 		Column<Integer, String> helmetUrl = new Column<Integer, String>(
-				new TextInputCell()) {
+				new TextInputSizeCell(50)) {
 			@Override
 			public String getValue(Integer object) {
 				return settings.getCameraUrl(object, CameraView.HELMET);
@@ -160,7 +160,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 
 		// HAND URL
 		Column<Integer, String> handUrl = new Column<Integer, String>(
-				new TextInputCell()) {
+				new TextInputSizeCell(50)) {
 			@Override
 			public String getValue(Integer object) {
 				return settings.getCameraUrl(object, CameraView.HAND);

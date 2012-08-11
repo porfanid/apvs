@@ -19,7 +19,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
 public class EditableCell extends AbstractCell<Object> {
-	private MyTextInputCell textInputCell;
+	private TextInputSizeCell textInputCell;
 	private MyEditTextCell editCell;
 	private MySelectionCell selectionCell;
 	private MyCheckboxCell checkboxCell;
@@ -28,10 +28,10 @@ public class EditableCell extends AbstractCell<Object> {
 
 	private Class<? extends Cell<Object>>[] cellClass;
 
-	public EditableCell(Class<? extends Cell<Object>>[] cellClass) {
+	public EditableCell(Class<? extends Cell<Object>>[] cellClass, int size) {
 		this.cellClass = cellClass;
 
-		textInputCell = new MyTextInputCell();
+		textInputCell = new TextInputSizeCell(size);
 		editCell = new MyEditTextCell();
 		selectionCell = new MySelectionCell();
 		checkboxCell = new MyCheckboxCell();
@@ -40,7 +40,7 @@ public class EditableCell extends AbstractCell<Object> {
 	}
 
 	public void setOptions(List<String> options) {
-		selectionCell.setOptions(options);	
+		selectionCell.setOptions(options);
 	}
 
 	@Override
@@ -68,10 +68,10 @@ public class EditableCell extends AbstractCell<Object> {
 			NativeEvent event, final ValueUpdater<Object> valueUpdater) {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
-				
+
 		if (cellClass.equals(TextInputCell.class)) {
-			textInputCell.onBrowserEvent(context, parent, (String) value, event,
-					new ValueUpdater<String>() {
+			textInputCell.onBrowserEvent(context, parent, (String) value,
+					event, new ValueUpdater<String>() {
 						@Override
 						public void update(String value) {
 							if (valueUpdater != null) {
@@ -138,7 +138,7 @@ public class EditableCell extends AbstractCell<Object> {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
 		if (cellClass.equals(TextInputCell.class)) {
-			textInputCell.render(context, (String) value, sb);				
+			textInputCell.render(context, (String) value, sb);
 		} else if (cellClass.equals(EditTextCell.class)) {
 			editCell.render(context, (String) value, sb);
 		} else if (cellClass.equals(SelectionCell.class)) {
@@ -208,8 +208,8 @@ public class EditableCell extends AbstractCell<Object> {
 		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
 				.getIndex());
 		if (cellClass.equals(TextInputCell.class)) {
-			textInputCell.onEnterKeyDown(context, parent, (String) value, event,
-					new ValueUpdater<String>() {
+			textInputCell.onEnterKeyDown(context, parent, (String) value,
+					event, new ValueUpdater<String>() {
 						@Override
 						public void update(String value) {
 							if (valueUpdater != null) {
@@ -318,25 +318,6 @@ public class EditableCell extends AbstractCell<Object> {
 		return TextCell.class;
 	}
 
-	private class MyTextInputCell extends TextInputCell {
-		@Override
-		protected void onEnterKeyDown(
-				com.google.gwt.cell.client.Cell.Context context,
-				Element parent, String value, NativeEvent event,
-				ValueUpdater<String> valueUpdater) {
-			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
-		}
-		
-		@Override
-		public void render(com.google.gwt.cell.client.Cell.Context context,
-				String value, SafeHtmlBuilder sb) {
-//			if ((value !=  null) && (value.length() > 20)) {
-//				value = value.substring(0, 10)+"..."+value.substring(value.length()-10);
-//			}
-			super.render(context, value, sb);
-		}
-	}
-	
 	private class MyEditTextCell extends EditTextCell {
 		@Override
 		protected void onEnterKeyDown(
@@ -345,12 +326,13 @@ public class EditableCell extends AbstractCell<Object> {
 				ValueUpdater<String> valueUpdater) {
 			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
 		}
-		
+
 		@Override
 		public void render(com.google.gwt.cell.client.Cell.Context context,
 				String value, SafeHtmlBuilder sb) {
-			if ((value !=  null) && (value.length() > 20)) {
-				value = value.substring(0, 10)+"..."+value.substring(value.length()-10);
+			if ((value != null) && (value.length() > 20)) {
+				value = value.substring(0, 10) + "..."
+						+ value.substring(value.length() - 10);
 			}
 			super.render(context, value, sb);
 		}
