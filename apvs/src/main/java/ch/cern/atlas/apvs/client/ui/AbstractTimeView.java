@@ -46,16 +46,22 @@ public class AbstractTimeView extends SimplePanel {
 
 	public AbstractTimeView() {
 		super();
+		pointsById = new HashMap<Integer, Integer>();
+		seriesById = new HashMap<Integer, Series>();
+		colorsById = new HashMap<Integer, String>();
 	}
 
 	public Map<Integer, String> getColors() {
-		return chart != null ? colorsById : new HashMap<Integer, String>();
+		return colorsById;
 	}
 
 	protected void removeChart() {
 		if (chart != null) {
 			remove(chart);
 			chart = null;
+			pointsById.clear();
+			seriesById.clear();
+			colorsById.clear();
 		}
 	}
 

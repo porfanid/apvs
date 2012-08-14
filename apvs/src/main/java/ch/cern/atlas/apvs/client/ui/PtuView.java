@@ -53,10 +53,10 @@ public class PtuView extends VerticalPanel {
 	private Map<String, String> units;
 	private SingleSelectionModel<String> selectionModel;
 	private Map<Integer, String> colorMap = new HashMap<Integer, String>();
- 
+
 	private PtuSettings settings;
 	private EventBus cmdBus;
-		
+
 	private void init() {
 		last = new Measurement<Double>();
 		ptus = new TreeMap<Integer, Ptu>();
@@ -65,11 +65,11 @@ public class PtuView extends VerticalPanel {
 
 	public PtuView(ClientFactory clientFactory, Arguments args) {
 		eventBus = clientFactory.getRemoteEventBus();
-		
+
 		init();
-		
+
 		cmdBus = NamedEventBus.get(args.getArg(0));
-		
+
 		add(table);
 
 		// name column
@@ -89,7 +89,7 @@ public class PtuView extends VerticalPanel {
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
 		name.setFieldUpdater(new FieldUpdater<String, String>() {
-			
+
 			@Override
 			public void update(int index, String name, String value) {
 				selectMeasurement(name);
@@ -114,19 +114,20 @@ public class PtuView extends VerticalPanel {
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		unit.setFieldUpdater(new FieldUpdater<String, String>() {
-			
+
 			@Override
 			public void update(int index, String name, String value) {
 				selectMeasurement(name);
 			}
 		});
-		
+
 		table.addColumn(unit, "Unit");
 
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(new ArrayList<String>());
 
-		ListHandler<String> columnSortHandler = new ListHandler<String>(dataProvider.getList());
+		ListHandler<String> columnSortHandler = new ListHandler<String>(
+				dataProvider.getList());
 		columnSortHandler.setComparator(name, new Comparator<String>() {
 			public int compare(String o1, String o2) {
 				return o1 != null ? o1.compareTo(o2) : -1;
@@ -134,7 +135,7 @@ public class PtuView extends VerticalPanel {
 		});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
-		
+
 		selectionModel = new SingleSelectionModel<String>();
 		table.setSelectionModel(selectionModel);
 
@@ -158,8 +159,9 @@ public class PtuView extends VerticalPanel {
 						Measurement<Double> measurement = event
 								.getMeasurement();
 						Integer ptuId = measurement.getPtuId();
-						if ((ptuIds == null) || !ptuIds.contains(ptuId)) return;
-						
+						if ((ptuIds == null) || !ptuIds.contains(ptuId))
+							return;
+
 						Ptu ptu = ptus.get(ptuId);
 						if (ptu == null) {
 							ptu = new Ptu(ptuId);
@@ -186,21 +188,23 @@ public class PtuView extends VerticalPanel {
 				new PtuSettingsChangedEvent.Handler() {
 
 					@Override
-					public void onPtuSettingsChanged(PtuSettingsChangedEvent event) {
+					public void onPtuSettingsChanged(
+							PtuSettingsChangedEvent event) {
 						settings = event.getPtuSettings();
 						configChanged();
 						update();
 					}
 				});
-		
-		ColorMapChangedEvent.subscribe(cmdBus, new ColorMapChangedEvent.Handler() {
-			@Override
-			public void onColorMapChanged(ColorMapChangedEvent event) {
-				colorMap = event.getColorMap();
-				update();
-			}
-			
-		});
+
+		ColorMapChangedEvent.subscribe(cmdBus,
+				new ColorMapChangedEvent.Handler() {
+					@Override
+					public void onColorMapChanged(ColorMapChangedEvent event) {
+						colorMap = event.getColorMap();
+						update();
+					}
+
+				});
 	}
 
 	private void addColumn(final Integer ptuId) {
@@ -211,7 +215,7 @@ public class PtuView extends VerticalPanel {
 				if (ptu == null) {
 					return "";
 				}
-				
+
 				Measurement<Double> m = ptu.getMeasurement(object);
 				if (m == null) {
 					return "";
@@ -229,12 +233,15 @@ public class PtuView extends VerticalPanel {
 					String color = colorMap.get(ptuId);
 					boolean isSelected = selectionModel.isSelected(object);
 					if ((color != null) && isSelected) {
-						sb.append(SafeHtmlUtils.fromSafeConstant("<div style=\"background:"+color+"\">"));
+						sb.append(SafeHtmlUtils
+								.fromSafeConstant("<div style=\"background:"
+										+ color + "\">"));
 					}
 
 					Measurement<Double> m = ptu.getMeasurement(object);
-					((ClickableTextCell) getCell()).render(context,
-							MeasurementView.decorate(getValue(object), m, last), sb);
+					((ClickableTextCell) getCell())
+							.render(context, MeasurementView.decorate(
+									getValue(object), m, last), sb);
 
 					if ((color != null) && isSelected) {
 						sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
@@ -245,14 +252,14 @@ public class PtuView extends VerticalPanel {
 		};
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		column.setFieldUpdater(new FieldUpdater<String, String>() {
-			
+
 			@Override
 			public void update(int index, String name, String value) {
 				// FIXME should have ptuID set... via SelectPtuEvent
 				selectMeasurement(name);
 			}
 		});
-		
+
 		table.addColumn(column, new TextHeader("") {
 			@Override
 			public String getValue() {
@@ -268,48 +275,52 @@ public class PtuView extends VerticalPanel {
 			}
 		});
 	}
-	
+
 	private void configChanged() {
 		while (table.getColumnCount() > 2) {
-			table.removeColumn(table.getColumnCount()-1);
+			table.removeColumn(table.getColumnCount() - 1);
 		}
 
 		if (ptuIds != null) {
 			Collections.sort(ptuIds);
 
-			for (Iterator<Map.Entry<Integer, Ptu>> i=ptus.entrySet().iterator(); i.hasNext(); ) {
+			for (Iterator<Map.Entry<Integer, Ptu>> i = ptus.entrySet()
+					.iterator(); i.hasNext();) {
 				Map.Entry<Integer, Ptu> entry = i.next();
-				if (ptuIds.contains(entry.getKey())) continue;
-				
+				if (ptuIds.contains(entry.getKey()))
+					continue;
+
 				i.remove();
 			}
-										
-			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext(); ) {
+
+			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext();) {
 				Integer id = i.next();
 				if ((settings == null) || settings.isEnabled(id)) {
 					addColumn(id);
 				}
 			}
 
-			eventBus.fireEvent(new RequestRemoteEvent(MeasurementChangedEvent.class));
-			
+			eventBus.fireEvent(new RequestRemoteEvent(
+					MeasurementChangedEvent.class));
+
 		} else {
 			init();
 		}
 	}
 
 	private void update() {
-		ColumnSortEvent.fire(table, table.getColumnSortList());		
+		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
-		
+
 		String selection = selectionModel.getSelectedObject();
 		if ((selection == null) && (dataProvider.getList().size() > 0)) {
 			selection = dataProvider.getList().get(0);
-			
+
 			selectMeasurement(selection);
 		}
-			
-		// re-set the selection as the async update may have changed the rendering
+
+		// re-set the selection as the async update may have changed the
+		// rendering
 		if (selection != null) {
 			selectionModel.setSelected(selection, true);
 		}

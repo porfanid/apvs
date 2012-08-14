@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +10,11 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.NamedEventBus;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -24,6 +26,7 @@ public class TimeView extends AbstractTimeView {
 	private HandlerRegistration measurementHandler;
 
 	private Integer ptuId = null;
+	private PtuSettings settings;
 	private String measurementName = null;
 	private EventBus cmdBus;
 	private String options;
@@ -36,10 +39,10 @@ public class TimeView extends AbstractTimeView {
 		measurementName = args.getArg(2);
 
 		// FIXME handle height
-		
+
 		this.title = !options.contains("NoTitle");
 		this.export = !options.contains("NoExport");
-		
+
 		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
 			@Override
@@ -59,13 +62,31 @@ public class TimeView extends AbstractTimeView {
 					}
 				});
 
+		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
+				new PtuSettingsChangedEvent.Handler() {
+
+					@Override
+					public void onPtuSettingsChanged(
+							PtuSettingsChangedEvent event) {
+						settings = event.getPtuSettings();
+						updateChart();
+					}
+				});
+
+		RequestEvent.register(cmdBus, new RequestEvent.Handler() {
+
+			@Override
+			public void onRequestEvent(RequestEvent event) {
+				System.err.println("Request " + event.getRequestedClassName());
+				if (event.getRequestedClassName().equals(
+						ColorMapChangedEvent.class.getName())) {
+					cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));
+				}
+			}
+		});
 	}
 
 	private void updateChart() {
-		pointsById = new HashMap<Integer, Integer>();
-		seriesById = new HashMap<Integer, Series>();
-		colorsById = new HashMap<Integer, String>();
-
 		unsubscribe();
 		removeChart();
 
@@ -89,9 +110,13 @@ public class TimeView extends AbstractTimeView {
 										return;
 									}
 
-									System.err.println("Measurement Map retrieval of "+measurementName+" took "
+									System.err.println("Measurement Map retrieval of "
+											+ measurementName
+											+ " took "
 											+ (System.currentTimeMillis() - t0)
-											+ " ms for " + measurements.size()+" elements");
+											+ " ms for "
+											+ measurements.size()
+											+ " elements");
 
 									String unit = "";
 
@@ -111,20 +136,34 @@ public class TimeView extends AbstractTimeView {
 											.keySet().iterator(); i.hasNext();) {
 										int ptuId = i.next();
 
-										Series series = chart.createSeries()
-												.setName("" + ptuId);
-										pointsById.put(ptuId, 0);
-										seriesById.put(ptuId, series);
-										colorsById.put(ptuId, color[k]);
+										if ((settings == null)
+												|| settings.isEnabled(ptuId)) {
 
-										addHistory(ptuId, series,
-												measurements.get(ptuId));
+											Series series = chart
+													.createSeries()
+													.setName(
+															(settings != null ? settings
+																	.getName(ptuId)
+																	+ " - "
+																	: "")
+																	+ ""
+																	+ ptuId);
+											pointsById.put(ptuId, 0);
+											seriesById.put(ptuId, series);
+											colorsById.put(ptuId, color[k]);
 
-										chart.addSeries(series, true, false);
-										k++;
+											addHistory(ptuId, series,
+													measurements.get(ptuId));
+
+											chart.addSeries(series, true, false);
+											k++;
+										}
 									}
 
 									add(chart);
+
+									cmdBus.fireEvent(new ColorMapChangedEvent(
+											getColors()));
 
 									subscribe(null, measurementName);
 								}
@@ -138,53 +177,64 @@ public class TimeView extends AbstractTimeView {
 							});
 		} else {
 			// subscribe to single PTU
-			final long t0 = System.currentTimeMillis();
-			clientFactory.getPtuService().getMeasurements(ptuId,
-					measurementName,
-					new AsyncCallback<List<Measurement<Double>>>() {
+			if ((settings == null) || settings.isEnabled(ptuId)) {
 
-						@Override
-						public void onSuccess(
-								List<Measurement<Double>> measurements) {
-							if (measurements == null) {
-								System.err.println("Cannot find "+measurementName);
-								return;
+				final long t0 = System.currentTimeMillis();
+				clientFactory.getPtuService().getMeasurements(ptuId,
+						measurementName,
+						new AsyncCallback<List<Measurement<Double>>>() {
+
+							@Override
+							public void onSuccess(
+									List<Measurement<Double>> measurements) {
+								if (measurements == null) {
+									System.err.println("Cannot find "
+											+ measurementName);
+									return;
+								}
+
+								System.err.println("Measurement retrieval of "
+										+ measurementName + " of " + ptuId
+										+ " took "
+										+ (System.currentTimeMillis() - t0)
+										+ " ms for " + measurements.size()
+										+ " elements");
+
+								String unit = measurements.size() > 0 ? measurements
+										.get(0).getUnit() : "";
+
+								createChart(measurementName + " (" + ptuId
+										+ ")", unit);
+
+								Series series = chart.createSeries().setName(
+										(settings != null ? settings
+												.getName(ptuId) + " - " : "")
+												+ "" + ptuId);
+								pointsById.put(ptuId, 0);
+								seriesById.put(ptuId, series);
+								colorsById.put(ptuId, color[0]);
+
+								addHistory(ptuId, series, measurements);
+
+								chart.addSeries(series, true, false);
+
+								add(chart);
+
+								cmdBus.fireEvent(new ColorMapChangedEvent(
+										getColors()));
+
+								subscribe(ptuId, measurementName);
 							}
 
-							System.err.println("Measurement retrieval of "+measurementName+" of "+ptuId+" took "
-									+ (System.currentTimeMillis() - t0)
-									+ " ms for " + measurements.size()+" elements");
-
-							String unit = measurements.size() > 0 ? measurements
-									.get(0).getUnit() : "";
-
-							createChart(measurementName + " (" + ptuId + ")",
-									unit);
-
-							Series series = chart.createSeries().setName(
-									"" + ptuId);
-							pointsById.put(ptuId, 0);
-							seriesById.put(ptuId, series);
-							colorsById.put(ptuId, color[0]);
-
-							addHistory(ptuId, series, measurements);
-
-							chart.addSeries(series, true, false);
-
-							add(chart);
-
-							subscribe(ptuId, measurementName);
-						}
-
-						@Override
-						public void onFailure(Throwable caught) {
-							System.err.println("Cannot retrieve Measurements "
-									+ caught);
-						}
-					});
+							@Override
+							public void onFailure(Throwable caught) {
+								System.err
+										.println("Cannot retrieve Measurements "
+												+ caught);
+							}
+						});
+			}
 		}
-		
-//		ColorMapChangedEvent.fire(cmdBus, getColors());
 	}
 
 	private void addHistory(Integer ptuId, Series series,

@@ -20,7 +20,7 @@
 <!-- If you add any GWT meta tags, they must   -->
 <!-- be added before this line.                -->
 <!--                                           -->
-<script type="text/javascript" language="javascript"
+<script type="text/javascript"
 	src="apvs.nocache.js"></script>
 </head>
 

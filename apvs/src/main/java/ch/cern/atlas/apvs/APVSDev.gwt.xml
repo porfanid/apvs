@@ -12,8 +12,6 @@
     <inherits name="com.google.gwt.resources.Resources" />
 	<inherits name="com.google.web.bindery.autobean.AutoBean"/>
 	
-	<inherits name="com.google.gwt.safehtml.SafeHtml"/>
-
 	<inherits name="org.atmosphere.gwt.Client" />
 
 	<inherits name="ch.cern.atlas.apvs.Domain" />
