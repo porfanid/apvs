@@ -6,4 +6,5 @@ bin
 ._.DS_Store
 /target
 /release.properties
+pom.xml.releaseBackup
 
