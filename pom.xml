@@ -40,6 +40,7 @@
       		<netty-version>3.5.3.Final</netty-version>
 		<nettosphere-version>1.4.1</nettosphere-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
+		<javax.servlet-api-version>3.0.1</javax.servlet-api-version>
 		<validation-api-version>1.0.0.GA</validation-api-version>
                 <slf4j-version>1.6.6</slf4j-version>
 
@@ -436,6 +437,11 @@
 				<artifactId>nettosphere</artifactId>
 				<version>${nettosphere-version}</version>
 			</dependency>
+	                <dependency>
+        	                <groupId>javax.servlet</groupId>
+                	        <artifactId>javax.servlet-api</artifactId>
+				<version>${javax.servlet-api-version}</version>
+                	</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
