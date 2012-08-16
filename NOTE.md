@@ -5,7 +5,7 @@ Author: Mark Donszelmann
 
 Copy a version of AWSS
 ----------------------
-
+edited by aalvesdo in HP
    git clone .....
 
 Setting up Nexus
