@@ -11,7 +11,7 @@ Copy a version of AWSS
 Setting up Nexus
 ----------------
 
-Download nexus from ... and install. Start up the nexus server, and configure it.
+Download nexus oss from sonatype from ... and install. Start up the nexus server, and configure it.
 Create file settings.xml for maven in ~/.m2/settings.xml
 
 	<settings>
@@ -70,6 +70,7 @@ in apvs run `mvn clean gwt:run`
 
 install the proper gwt plugin in firefox
 http://acleung.com/ff14-mac.xpi
+http://acleung.com/ff14-win.xpi
 
 
 Run the Jetty version
