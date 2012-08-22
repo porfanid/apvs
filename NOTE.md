@@ -18,7 +18,7 @@ Setting up Nexus
 
 To install nexus run the command "nexus install" under the folder ".../nexus-<version number>/bin"
 
-REMARK
+Remark: 
 Windows users should be running command prompt with administrator priviledges(Right mouse click on application->Run as Administrator)
 
 
