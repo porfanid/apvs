@@ -21,7 +21,7 @@
     		<buildNumber>${maven.build.timestamp}</buildNumber>
 			
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-		<atmosphere-version>1.0.0.beta5</atmosphere-version>
+		<atmosphere-version>1.0.0-SNAPSHOT</atmosphere-version>
 
 		<gwt-version>2.4.0</gwt-version>
 		<gwt-plugin-version>2.4.0</gwt-plugin-version> 
