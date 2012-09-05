@@ -1,6 +1,9 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +22,7 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
             PtuServerHandler.class.getName());
 
 	private final boolean json;
-	private Map<Channel, PtuSimulator> simulators = new HashMap<Channel, PtuSimulator>();
+	private Map<Channel, List<PtuSimulator>> simulators = new HashMap<Channel, List<PtuSimulator>>();
 
     public PtuServerHandler(boolean json) {
 		this.json = json;
@@ -29,11 +32,21 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
     public void channelConnected(
             ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
     	System.err.println("Connected from "+e.getChannel().getRemoteAddress());
+
+    	int noOfPtus = 6;
     	
-    	PtuSimulator simulator = new PtuSimulator(e.getChannel(), json);
-    	simulators.put(e.getChannel(), simulator);
-    	simulator.start();
-    	
+		int[] ptuIds = { 78347, 82098, 37309, 27372, 39400, 88982 };
+		List<PtuSimulator> listOfSimulators = new ArrayList<PtuSimulator>(noOfPtus);
+		for (int i = 0; i < noOfPtus; i++) {
+			int ptuId = ptuIds[i];
+
+			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId, true, json);
+			listOfSimulators.add(simulator);
+			simulator.start();
+		}
+
+		simulators.put(e.getChannel(), listOfSimulators);
+		
     	super.channelConnected(ctx, e);
     }
     
@@ -41,10 +54,12 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
     public void channelDisconnected(ChannelHandlerContext ctx,
     		ChannelStateEvent e) throws Exception {
     	System.err.println("Disconnected from "+e.getChannel().getRemoteAddress());
-    	PtuSimulator simulator = simulators.get(e.getChannel());
-    	if (simulator != null) {
-    		System.err.println("Interrupting Thread...");
-    		simulator.interrupt();
+    	List<PtuSimulator> listOfSimulators = simulators.get(e.getChannel());
+    	if (listOfSimulators != null) {
+    		System.err.println("Interrupting Threads...");
+    		for (Iterator<PtuSimulator> i = listOfSimulators.iterator(); i.hasNext(); ) {
+    			i.next().interrupt();
+    		}
     		simulators.remove(e.getChannel());
     	}
     	
