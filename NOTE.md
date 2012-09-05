@@ -16,11 +16,32 @@ Setting up Nexus
 
 1. Download nexus from http://www.sonatype.org/nexus/ and install.
 
+On Windows:
 To install nexus run the command "nexus install" under the folder ".../nexus-<version number>/bin"
 
 Remark: 
 Windows users should be running command prompt with administrator priviledges(Right mouse click on application->Run as Administrator)
 
+On MacOS:
+in ~/Library/LaunchAgents create a file nexus.plist with the following content:
+
+	<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+	<plist version="1.0">
+	<dict>
+		<key>KeepAlive</key>
+		<false/>
+		<key>Label</key>
+		<string>nexus</string>
+		<key>ProgramArguments</key>
+		<array>
+			<string>/...absolute directory to nexus installation.../nexus/bin/nexus</string>
+			<string>start</string>
+		</array>
+		<key>RunAtLoad</key>
+		<true/>
+	</dict>
+	</plist>
 
 2. Start up the nexus server (run the command "nexus start").
 
