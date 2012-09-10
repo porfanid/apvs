@@ -21,11 +21,9 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
     private static final Logger logger = Logger.getLogger(
             PtuServerHandler.class.getName());
 
-	private final boolean json;
 	private Map<Channel, List<PtuSimulator>> simulators = new HashMap<Channel, List<PtuSimulator>>();
 
-    public PtuServerHandler(boolean json) {
-		this.json = json;
+    public PtuServerHandler() {
 	}
     
     @Override
@@ -40,7 +38,7 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
 		for (int i = 0; i < noOfPtus; i++) {
 			int ptuId = ptuIds[i];
 
-			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId, true, json);
+			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId, true);
 			listOfSimulators.add(simulator);
 			simulator.start();
 		}

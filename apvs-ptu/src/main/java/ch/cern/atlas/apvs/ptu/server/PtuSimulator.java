@@ -15,7 +15,6 @@ import ch.cern.atlas.apvs.domain.Ptu;
 public class PtuSimulator extends Thread {
 
 	private final Channel channel;
-	private final boolean json;
 	private final Random random = new Random();
 	private final int defaultWait = 5000;
 	private final int extraWait = 2000;
@@ -26,12 +25,10 @@ public class PtuSimulator extends Thread {
 
 	static final int limitNumberOfValues = 200;
 
-	public PtuSimulator(Channel channel, int ptuId, boolean history,
-			boolean json) {
+	public PtuSimulator(Channel channel, int ptuId, boolean history) {
 		this.channel = channel;
 		this.ptuId = ptuId;
 		this.history = history;
-		this.json = json;
 	}
 
 	@Override
@@ -64,8 +61,7 @@ public class PtuSimulator extends Thread {
 			ChannelBufferOutputStream cos = new ChannelBufferOutputStream(
 					buffer);
 
-			ObjectWriter writer = json ? new PtuJsonWriter(cos)
-					: new PtuXmlWriter(cos);
+			ObjectWriter writer = new PtuJsonWriter(cos);
 
 			try {
 				if (history) {

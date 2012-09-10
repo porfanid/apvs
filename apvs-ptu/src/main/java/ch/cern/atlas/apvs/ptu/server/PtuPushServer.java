@@ -7,12 +7,12 @@ import java.util.concurrent.Executors;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
-public class PtuPusher {
+public class PtuPushServer {
 
     private final String host;
     private final int port;
 
-    public PtuPusher(String host, int port) {
+    public PtuPushServer(String host, int port) {
         this.host = host;
         this.port = port;
     }
@@ -37,7 +37,7 @@ public class PtuPusher {
         // Print usage if no argument is specified.
         if (args.length != 2) {
             System.err.println(
-                    "Usage: " + PtuPusher.class.getSimpleName() +
+                    "Usage: " + PtuPushServer.class.getSimpleName() +
                     " <host> <port>");
             return;
         }
@@ -46,6 +46,6 @@ public class PtuPusher {
         String host = args[0];
         int port = Integer.parseInt(args[1]);
 
-        new PtuPusher(host, port).run();
+        new PtuPushServer(host, port).run();
     }
 }
