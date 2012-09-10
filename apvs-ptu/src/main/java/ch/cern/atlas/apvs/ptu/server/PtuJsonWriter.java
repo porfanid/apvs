@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.Iterator;
 
+import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 
 import com.cedarsoftware.util.io.JsonWriter;
@@ -28,11 +29,7 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 
 	@Override
 	protected void writeFieldName(String name) throws IOException {
-		if (name.equals("name")) {
-			write("\"sensor\"");
-		} else {
-			super.writeFieldName(name);
-		}
+		super.writeFieldName(Character.toUpperCase(name.charAt(0)) + name.substring(1));
 	}
 
 	@Override
@@ -56,6 +53,7 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 		_out.append("\n");
 	}
 
+	// FIXME could be optimized with multi messages in one header
 	@Override
 	public void write(Ptu ptu) throws IOException {
 		for (Iterator<String> i = ptu.getMeasurementNames().iterator(); i
@@ -64,6 +62,11 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 			write(ptu.getMeasurement(name));
 			newLine();
 		}
+	}
+	
+	@Override
+	public void write(Measurement<Double> measurement) throws IOException {
+		writeImpl(new Header(measurement), false);
 	}
 
 	public static String toJson(Object item) {

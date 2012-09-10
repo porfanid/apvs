@@ -12,8 +12,7 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 	private T value;
 	private String unit;
 	private Date date;
-	// FIXME constant
-	private String type = "average";
+	private String type = "measurement";
 
 	public Measurement() {
 	}

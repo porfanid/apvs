@@ -27,7 +27,8 @@ public class PtuPushHandler extends PtuReconnectHandler {
 			throws Exception {
 		super.channelConnected(ctx, e);
 		
-		String[] ptuIds = { "PTU_78", "PTU_82", "PTU_37", "PTU_27", "PTU_39", "PTU_88" };
+		String[] ptuIds = { "PTU_78" };
+		//, "PTU_82", "PTU_37", "PTU_27", "PTU_39", "PTU_88" };
 		List<PtuSimulator> listOfSimulators = new ArrayList<PtuSimulator>(ptuIds.length);
 		for (int i = 0; i < ptuIds.length; i++) {
 			String ptuId = ptuIds[i];

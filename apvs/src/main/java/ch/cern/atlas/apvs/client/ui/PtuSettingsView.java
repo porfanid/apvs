@@ -220,8 +220,8 @@ public class PtuSettingsView extends VerticalFlowPanel {
 						settings.getCameraUrl(o2, CameraView.HAND));
 			}
 		});
-//		table.addColumnSortHandler(columnSortHandler);
-//		table.getColumnSortList().push(ptuId);
+		table.addColumnSortHandler(columnSortHandler);
+		table.getColumnSortList().push(ptuId);
 
 		PtuSettingsChangedEvent.subscribe(eventBus,
 				new PtuSettingsChangedEvent.Handler() {
