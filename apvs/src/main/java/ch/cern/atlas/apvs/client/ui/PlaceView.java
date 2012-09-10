@@ -20,7 +20,7 @@ public class PlaceView extends SimplePanel {
 
 	private RemoteEventBus remoteEventBus;
 	private String defaultImage = "Default-640x480.jpg";
-	private Integer ptuId;
+	private String ptuId;
 
 	public PlaceView(ClientFactory clientFactory, Arguments args) {
 		this(clientFactory, args, "100%", "100%");

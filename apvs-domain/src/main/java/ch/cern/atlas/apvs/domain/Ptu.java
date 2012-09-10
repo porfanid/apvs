@@ -14,21 +14,21 @@ public class Ptu implements Serializable {
 	
 	private static final long serialVersionUID = 1933500417755260216L;
 
-	private int ptuId;
+	private String ptuId;
 	protected Map<String, List<Measurement<Double>>> measurements = new HashMap<String, List<Measurement<Double>>>();
 	protected Map<String, Integer> limitNoOfValues = new HashMap<String, Integer>();
 		
 	public Ptu() {
-		ptuId = -1;
+		ptuId = null;
 	}
 	
-	public Ptu(int ptuId) {
+	public Ptu(String ptuId) {
 		this.ptuId = ptuId;
 	}
 	
 	@Override
 	public int hashCode() {
-		return ptuId + measurements.hashCode();
+		return ptuId.hashCode() + measurements.hashCode();
 	}
 	
 	@Override
@@ -40,7 +40,7 @@ public class Ptu implements Serializable {
 		return super.equals(obj);
 	}
 			
-	public int getPtuId() {
+	public String getPtuId() {
 		return ptuId;
 	}
 	

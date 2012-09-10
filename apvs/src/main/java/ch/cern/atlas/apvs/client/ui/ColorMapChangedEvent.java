@@ -16,7 +16,7 @@ public class ColorMapChangedEvent extends Event<ColorMapChangedEvent.Handler> {
 
 	private static final Type<ColorMapChangedEvent.Handler> TYPE = new Type<ColorMapChangedEvent.Handler>();
 
-	public static void fire(EventBus eventBus, Map<Integer, String> colorMap) {
+	public static void fire(EventBus eventBus, Map<String, String> colorMap) {
 		eventBus.fireEvent(new ColorMapChangedEvent(colorMap));
 	}
 
@@ -34,18 +34,18 @@ public class ColorMapChangedEvent extends Event<ColorMapChangedEvent.Handler> {
 		return registration;
 	}
 	
-	private Map<Integer, String> colorMap;
+	private Map<String, String> colorMap;
 
 	@Override
 	public Event.Type<Handler> getAssociatedType() {
 		return TYPE;
 	}
 	
-	public Map<Integer, String> getColorMap() {
+	public Map<String, String> getColorMap() {
 		return colorMap;
 	}
 
-	protected ColorMapChangedEvent(Map<Integer, String> colorMap) {
+	protected ColorMapChangedEvent(Map<String, String> colorMap) {
 		this.colorMap = colorMap;
 	}
 

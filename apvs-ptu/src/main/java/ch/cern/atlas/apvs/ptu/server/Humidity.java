@@ -7,7 +7,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 @SuppressWarnings("serial")
 public class Humidity extends Measurement<Double> {
 
-	public Humidity(int ptuId, double value, Date d) {
+	public Humidity(String ptuId, double value, Date d) {
 		super(ptuId, "Humidity", value, "ppm", d);
 	}
 	

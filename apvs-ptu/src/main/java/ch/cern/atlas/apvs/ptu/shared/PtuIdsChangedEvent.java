@@ -48,13 +48,13 @@ public class PtuIdsChangedEvent extends RemoteEvent<PtuIdsChangedEvent.Handler> 
 	}
 
 	
-	private List<Integer> ptuIds;
+	private List<String> ptuIds;
 	
 	public PtuIdsChangedEvent() {
 	}
 
-	public PtuIdsChangedEvent(List<Integer> ptuIds) {
-		this.ptuIds = ptuIds;
+	public PtuIdsChangedEvent(List<String> list) {
+		this.ptuIds = list;
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class PtuIdsChangedEvent extends RemoteEvent<PtuIdsChangedEvent.Handler> 
 		return TYPE;
 	}
 
-	public List<Integer> getPtuIds() {
+	public List<String> getPtuIds() {
 		return ptuIds;
 	}
 	

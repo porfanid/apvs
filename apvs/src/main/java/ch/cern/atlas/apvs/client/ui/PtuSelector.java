@@ -20,8 +20,8 @@ public class PtuSelector extends VerticalFlowPanel {
 
 	private ListBox list = new ListBox();
 
-	private List<Integer> ptuIds;
-	private Integer ptuId;
+	private List<String> ptuIds;
+	private String ptuId;
 
 	public PtuSelector(final EventBus remoteEventBus,
 			final EventBus localEventBus) {
@@ -32,8 +32,7 @@ public class PtuSelector extends VerticalFlowPanel {
 			public void onChange(ChangeEvent event) {
 				ptuId = null;
 				try {
-					ptuId = Integer.parseInt(list.getItemText(list
-							.getSelectedIndex()));
+					ptuId = list.getItemText(list.getSelectedIndex());
 				} catch (NumberFormatException e) {
 					ptuId = null;
 				}
@@ -42,17 +41,16 @@ public class PtuSelector extends VerticalFlowPanel {
 			}
 		});
 
-		RequestEvent.register(localEventBus,
-				new RequestEvent.Handler() {
+		RequestEvent.register(localEventBus, new RequestEvent.Handler() {
 
-					@Override
-					public void onRequestEvent(RequestEvent event) {
-						if (event.getRequestedClassName().equals(
-								SelectPtuEvent.class.getName())) {
-							localEventBus.fireEvent(new SelectPtuEvent(ptuId));
-						}
-					}
-				});
+			@Override
+			public void onRequestEvent(RequestEvent event) {
+				if (event.getRequestedClassName().equals(
+						SelectPtuEvent.class.getName())) {
+					localEventBus.fireEvent(new SelectPtuEvent(ptuId));
+				}
+			}
+		});
 
 		PtuIdsChangedEvent.subscribe(remoteEventBus,
 				new PtuIdsChangedEvent.Handler() {
@@ -62,7 +60,7 @@ public class PtuSelector extends VerticalFlowPanel {
 
 						ptuIds = event.getPtuIds();
 
-						ptuId = LocalStorage.getInstance().getInteger(
+						ptuId = LocalStorage.getInstance().get(
 								LocalStorage.PTU_ID);
 						((RemoteEventBus) localEventBus)
 								.fireEvent(new SelectPtuEvent(ptuId));
@@ -76,7 +74,7 @@ public class PtuSelector extends VerticalFlowPanel {
 	private void updateSelector() {
 		int i = 0;
 		while (i < list.getItemCount()) {
-			if (list.getValue(i).equals(toLabel(ptuId))) {
+			if (list.getValue(i).equals(ptuId)) {
 				list.setSelectedIndex(i);
 				break;
 			}
@@ -99,7 +97,7 @@ public class PtuSelector extends VerticalFlowPanel {
 				.getItemText(selectedIndex);
 
 		list.clear();
-		List<String> items = new OptionList<Integer>(ptuIds, 0);
+		List<String> items = new OptionList<String>(ptuIds, ptuIds.get(0));
 		for (int index = 0; index < items.size(); index++) {
 			String item = items.get(index);
 			list.addItem(item);
@@ -111,11 +109,7 @@ public class PtuSelector extends VerticalFlowPanel {
 		list.setEnabled(items.size() > 2);
 	}
 
-	private String toLabel(Integer ptuId) {
-		return ptuId != null ? Integer.toString(ptuId) : null;
-	}
-
-	public Integer getPtuId() {
+	public String getPtuId() {
 		return ptuId;
 	}
 }

@@ -18,7 +18,7 @@ public class PtuSettings implements Serializable {
 
 	private static final long serialVersionUID = -5390424254145424045L;
 
-	private Map<Integer, Entry> entries = new HashMap<Integer, Entry>();
+	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
 	public static class Entry implements Serializable {
 		private static final long serialVersionUID = 1L;
@@ -41,12 +41,12 @@ public class PtuSettings implements Serializable {
 	public PtuSettings() {
 	}
 
-	public HashMap<Integer, Integer> getDosimeterToPtuMap() {
-		HashMap<Integer, Integer> dosimeterToPtu = new HashMap<Integer, Integer>();
+	public HashMap<Integer, String> getDosimeterToPtuMap() {
+		HashMap<Integer, String> dosimeterToPtu = new HashMap<Integer, String>();
 
 		// takes the last proper value
-		for (Iterator<Integer> i = entries.keySet().iterator(); i.hasNext();) {
-			Integer ptuId = i.next();
+		for (Iterator<String> i = entries.keySet().iterator(); i.hasNext();) {
+			String ptuId = i.next();
 			Integer serialNo = entries.get(ptuId).dosimeterSerialNo;
 			if ((ptuId != null) && (serialNo != null)) {
 				dosimeterToPtu.put(serialNo, ptuId);
@@ -56,50 +56,50 @@ public class PtuSettings implements Serializable {
 		return dosimeterToPtu;
 	}
 
-	public Boolean isEnabled(Integer object) {
+	public Boolean isEnabled(String object) {
 		return entries.get(object).enabled;
 	}
 
-	public void setEnabled(Integer object, Boolean value) {
+	public void setEnabled(String object, Boolean value) {
 		entries.get(object).enabled = value;
 	}
 
-	public String getName(Integer object) {
+	public String getName(String object) {
 		return entries.get(object).name;
 	}
 
-	public void setName(Integer object, String value) {
+	public void setName(String object, String value) {
 		entries.get(object).name = value;
 	}
 
-	public Integer getDosimeterSerialNumber(Integer object) {
+	public Integer getDosimeterSerialNumber(String object) {
 		return entries.get(object).dosimeterSerialNo;
 	}
 
-	public void setDosimeterSerialNumber(Integer object, Integer value) {
+	public void setDosimeterSerialNumber(String object, Integer value) {
 		entries.get(object).dosimeterSerialNo = value;
 	}
 
-	public String getCameraUrl(Integer object, String type) {
-		return type.equals(CameraView.HELMET) ? entries.get(object).helmetUrl
-				: entries.get(object).handUrl;
+	public String getCameraUrl(String ptuId, String type) {
+		return type.equals(CameraView.HELMET) ? entries.get(ptuId).helmetUrl
+				: entries.get(ptuId).handUrl;
 	}
 
-	public void setCameraUrl(Integer object, String type, String value) {
+	public void setCameraUrl(String ptuId, String type, String value) {
 		if (type.equals(CameraView.HELMET)) {
-			entries.get(object).helmetUrl = value;
+			entries.get(ptuId).helmetUrl = value;
 		} else {
-			entries.get(object).handUrl = value;
+			entries.get(ptuId).handUrl = value;
 		}
 	}
 
-	public List<Integer> getPtuIds() {
-		List<Integer> list = new ArrayList<Integer>();
+	public List<String> getPtuIds() {
+		List<String> list = new ArrayList<String>();
 		list.addAll(entries.keySet());
 		return list;
 	}
 
-	public boolean add(Integer ptuId) {
+	public boolean add(String ptuId) {
 		System.err.println("Adding " + ptuId);
 		if (!entries.containsKey(ptuId)) {
 			entries.put(ptuId, new Entry());
@@ -108,8 +108,8 @@ public class PtuSettings implements Serializable {
 		return false;
 	}
 
-	// Returns ptuId associated to docimeterSerialNo
-	public Integer getPtuId(Integer dosimeterSerialNo) {
+	// Returns ptuId associated to dosimeterSerialNo
+	public String getPtuId(Integer dosimeterSerialNo) {
 		return getDosimeterToPtuMap().get(dosimeterSerialNo);
 	}
 }

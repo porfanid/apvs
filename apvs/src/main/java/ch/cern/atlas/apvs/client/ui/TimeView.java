@@ -25,7 +25,7 @@ public class TimeView extends AbstractTimeView {
 
 	private HandlerRegistration measurementHandler;
 
-	private Integer ptuId = null;
+	private String ptuId = null;
 	private PtuSettings settings;
 	private String measurementName = null;
 	private EventBus cmdBus;
@@ -94,18 +94,18 @@ public class TimeView extends AbstractTimeView {
 			return;
 		}
 
-		if ((ptuId == null) || (ptuId == 0)) {
+		if (ptuId == null) {
 			// Subscribe to all PTUs
 			final long t0 = System.currentTimeMillis();
 			clientFactory
 					.getPtuService()
 					.getMeasurements(
 							measurementName,
-							new AsyncCallback<Map<Integer, List<Measurement<Double>>>>() {
+							new AsyncCallback<Map<String, List<Measurement<Double>>>>() {
 
 								@Override
 								public void onSuccess(
-										Map<Integer, List<Measurement<Double>>> measurements) {
+										Map<String, List<Measurement<Double>>> measurements) {
 									if (measurements == null) {
 										return;
 									}
@@ -132,9 +132,9 @@ public class TimeView extends AbstractTimeView {
 									createChart(measurementName, unit);
 
 									int k = 0;
-									for (Iterator<Integer> i = measurements
+									for (Iterator<String> i = measurements
 											.keySet().iterator(); i.hasNext();) {
-										int ptuId = i.next();
+										String ptuId = i.next();
 
 										if ((settings == null)
 												|| settings.isEnabled(ptuId)) {
@@ -237,7 +237,7 @@ public class TimeView extends AbstractTimeView {
 		}
 	}
 
-	private void addHistory(Integer ptuId, Series series,
+	private void addHistory(String ptuId, Series series,
 			List<Measurement<Double>> measurements) {
 		if (measurements == null)
 			return;
@@ -262,7 +262,7 @@ public class TimeView extends AbstractTimeView {
 		}
 	}
 
-	private void subscribe(final Integer ptuId, final String name) {
+	private void subscribe(final String ptuId, final String name) {
 		unsubscribe();
 
 		measurementHandler = MeasurementChangedEvent.register(
@@ -274,7 +274,7 @@ public class TimeView extends AbstractTimeView {
 							MeasurementChangedEvent event) {
 						Measurement<Double> m = event.getMeasurement();
 
-						if ((ptuId != null) && (m.getPtuId() != ptuId)) {
+						if ((ptuId != null) && (!m.getPtuId().equals(ptuId))) {
 							return;
 						}
 

@@ -19,7 +19,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 	private EventBus eventBus;
 
 	private Place lastPlace;
-	private Integer ptuId;
+	private String ptuId;
 
 	public TabletPanelActivityMapper(final ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;

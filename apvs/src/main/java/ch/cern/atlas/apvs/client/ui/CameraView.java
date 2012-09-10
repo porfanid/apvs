@@ -37,7 +37,7 @@ public class CameraView extends SimplePanel {
 
 	private String type;
 
-	private Integer ptuId;
+	private String ptuId;
 
 	private PtuSettings settings;
 
@@ -97,7 +97,7 @@ public class CameraView extends SimplePanel {
 		});
 	}
 
-	private String getCameraUrl(String type, Integer ptuId) {
+	private String getCameraUrl(String type, String ptuId) {
 		if ((settings == null) || (ptuId == null)) {
 			return null;
 		}

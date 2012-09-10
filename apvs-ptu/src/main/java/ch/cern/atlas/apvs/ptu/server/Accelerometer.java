@@ -7,7 +7,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 @SuppressWarnings("serial")
 public class Accelerometer extends Measurement<Double[]> {
 
-	public Accelerometer(int ptuId, Double[] value) {
+	public Accelerometer(String ptuId, Double[] value) {
 		super(ptuId, "Accelerometer", value, "mg", new Date());
 	}
 }

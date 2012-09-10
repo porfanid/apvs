@@ -31,10 +31,10 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			.getLogger(PtuClientHandler.class.getName());
 	private final RemoteEventBus eventBus;
 
-	private SortedMap<Integer, Ptu> ptus;
+	private SortedMap<String, Ptu> ptus;
 
 	private boolean ptuIdsChanged = false;
-	private Map<Integer, Set<String>> measurementChanged = new HashMap<Integer, Set<String>>();
+	private Map<String, Set<String>> measurementChanged = new HashMap<String, Set<String>>();
 
 
 	public PtuClientHandler(ClientBootstrap bootstrap,
@@ -78,7 +78,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			throws Exception {
 		// handle closed connection
 		init();
-		eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<Integer>()));
+		eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<String>()));
 
 		super.channelClosed(ctx, e);		
 	}
@@ -93,7 +93,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			@SuppressWarnings("unchecked")
 			Measurement<Double> measurement = (Measurement<Double>) object;
 
-			int ptuId = measurement.getPtuId();
+			String ptuId = measurement.getPtuId();
 			Ptu ptu = ptus.get(ptuId);
 			if (ptu == null) {
 				ptu = new Ptu(ptuId);
@@ -114,21 +114,21 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	private void init() {
-		ptus = new TreeMap<Integer, Ptu>();
+		ptus = new TreeMap<String, Ptu>();
 	}
 
 	private synchronized void sendEvents() {
 		// fire all at the end
 		// FIXME we can still add MeasurementNamesChanged
 		if (ptuIdsChanged) {
-			eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<Integer>(
+			eventBus.fireEvent(new PtuIdsChangedEvent(new ArrayList<String>(
 					ptus.keySet())));
 			ptuIdsChanged = false;
 		}
 
-		for (Iterator<Integer> i = measurementChanged.keySet().iterator(); i
+		for (Iterator<String> i = measurementChanged.keySet().iterator(); i
 				.hasNext();) {
-			int id = i.next();
+			String id = i.next();
 			for (Iterator<String> j = measurementChanged.get(id).iterator(); j
 					.hasNext();) {
 				Measurement<Double> m = ptus.get(id).getMeasurement(j.next());
@@ -139,12 +139,12 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		measurementChanged.clear();
 	}
 
-	public Ptu getPtu(int ptuId) {
+	public Ptu getPtu(String ptuId) {
 		return ptus.get(ptuId);
 	}
 
-	public List<Integer> getPtuIds() {
-		List<Integer> list = new ArrayList<Integer>(ptus.keySet());
+	public List<String> getPtuIds() {
+		List<String> list = new ArrayList<String>(ptus.keySet());
 		Collections.sort(list);
 		return list;
 	}

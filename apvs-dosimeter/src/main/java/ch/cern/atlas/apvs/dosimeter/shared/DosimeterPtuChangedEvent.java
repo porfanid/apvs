@@ -50,12 +50,12 @@ public class DosimeterPtuChangedEvent extends RemoteEvent<DosimeterPtuChangedEve
 	}
 
 	
-	private HashMap<Integer, Integer> dosimeterToPtu;
+	private HashMap<Integer, String> dosimeterToPtu;
 	
 	public DosimeterPtuChangedEvent() {
 	}
 
-	public DosimeterPtuChangedEvent(HashMap<Integer, Integer> dosimeterToPtu) {
+	public DosimeterPtuChangedEvent(HashMap<Integer, String> dosimeterToPtu) {
 		this.dosimeterToPtu = dosimeterToPtu;
 	}
 
@@ -64,7 +64,7 @@ public class DosimeterPtuChangedEvent extends RemoteEvent<DosimeterPtuChangedEve
 		return TYPE;
 	}
 
-	public HashMap<Integer, Integer> getDosimeterToPtu() {
+	public HashMap<Integer, String> getDosimeterToPtu() {
 		return dosimeterToPtu;
 	}
 	

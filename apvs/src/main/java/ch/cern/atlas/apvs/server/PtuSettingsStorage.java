@@ -33,24 +33,26 @@ public class PtuSettingsStorage {
 						store();
 					}
 				});
-		
+
 		PtuIdsChangedEvent.subscribe(eventBus,
 				new PtuIdsChangedEvent.Handler() {
 
 					@Override
 					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-						System.err.println("PTU Setting Storage: PTU IDS changed");
-						List<Integer> activePtuIds = event.getPtuIds();
+						System.err
+								.println("PTU Setting Storage: PTU IDS changed");
+						List<String> activePtuIds = event.getPtuIds();
 
 						boolean changed = false;
-						for (Iterator<Integer> i = activePtuIds.iterator(); i
+						for (Iterator<String> i = activePtuIds.iterator(); i
 								.hasNext();) {
 							boolean added = settings.add(i.next());
 							changed |= added;
 						}
-						
+
 						if (changed) {
-							eventBus.fireEvent(new PtuSettingsChangedEvent(settings));
+							eventBus.fireEvent(new PtuSettingsChangedEvent(
+									settings));
 						}
 					}
 				});
@@ -89,8 +91,7 @@ public class PtuSettingsStorage {
 		}
 
 		if (settings == null) {
-			System.err
-					.println("Could not read Ptu Settings, using defaults");
+			System.err.println("Could not read Ptu Settings, using defaults");
 			settings = new PtuSettings();
 		}
 	}

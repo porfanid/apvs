@@ -19,13 +19,13 @@ public class PtuSimulator extends Thread {
 	private final int defaultWait = 5000;
 	private final int extraWait = 2000;
 	private final int deltaStartTime = 12 * 3600 * 1000;
-	private final int ptuId;
+	private final String ptuId;
 	private final boolean history;
 	private Ptu ptu;
 
 	static final int limitNumberOfValues = 200;
 
-	public PtuSimulator(Channel channel, int ptuId, boolean history) {
+	public PtuSimulator(Channel channel, String ptuId, boolean history) {
 		this.channel = channel;
 		this.ptuId = ptuId;
 		this.history = history;

@@ -47,7 +47,7 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	private List<String> show = null;
 
-	private Integer ptuId = null;
+	private String ptuId = null;
 
 	private EventBus cmdBus;
 
@@ -116,7 +116,7 @@ public class MeasurementView extends VerticalFlowPanel {
 										MeasurementChangedEvent event) {
 									Measurement<Double> measurement = event
 											.getMeasurement();
-									if (measurement.getPtuId() == ptuId) {
+									if (measurement.getPtuId().equals(ptuId)) {
 										last = replace(measurement, last);
 										update();
 									}
@@ -321,7 +321,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		for (Iterator<String> i = show.iterator(); i.hasNext();) {
 			String name = i.next();
 			System.err.println("Added " + name);
-			list.add(new NullMeasurement(0, name));
+			list.add(new NullMeasurement(null, name));
 		}
 	}
 

@@ -37,21 +37,21 @@ public class AbstractTimeView extends SimplePanel {
 	protected static final int pointLimit = 200;
 	protected ClientFactory clientFactory;
 	protected Chart chart;
-	protected Map<Integer, Integer> pointsById;
-	protected Map<Integer, Series> seriesById;
-	protected Map<Integer, String> colorsById;
+	protected Map<String, Integer> pointsById;
+	protected Map<String, Series> seriesById;
+	protected Map<String, String> colorsById;
 	protected int height = 300;
 	protected boolean export = true;
 	protected boolean title = true;
 
 	public AbstractTimeView() {
 		super();
-		pointsById = new HashMap<Integer, Integer>();
-		seriesById = new HashMap<Integer, Series>();
-		colorsById = new HashMap<Integer, String>();
+		pointsById = new HashMap<String, Integer>();
+		seriesById = new HashMap<String, Series>();
+		colorsById = new HashMap<String, String>();
 	}
 
-	public Map<Integer, String> getColors() {
+	public Map<String, String> getColors() {
 		return colorsById;
 	}
 

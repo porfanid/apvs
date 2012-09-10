@@ -57,7 +57,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	private boolean reconnectNow;
 
 	private Map<Integer, Dosimeter> dosimeters;
-	private Map<Integer, Integer> dosimeterToPtu;
+	private Map<Integer, String> dosimeterToPtu;
 	
 	private FileHandler logHandler;
 
@@ -87,7 +87,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 					for (Iterator<Integer> i = dosimeters.keySet().iterator(); i
 							.hasNext();) {
 						Dosimeter dosimeter = getDosimeter(i.next());
-						Integer ptuId = dosimeterToPtu.get(dosimeter.getSerialNo());
+						String ptuId = dosimeterToPtu.get(dosimeter.getSerialNo());
 						if (ptuId != null) {
 							sendMeasurements(ptuId, dosimeter);
 						}
@@ -107,7 +107,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	
 	private void init() {
 		dosimeters = new HashMap<Integer, Dosimeter>();
-		dosimeterToPtu = new HashMap<Integer, Integer>();
+		dosimeterToPtu = new HashMap<Integer, String>();
 		
 		String dosimeterLogfile = "APVS-Dosimeter.log";
 		// setup the logger
@@ -196,7 +196,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 			logger.warning(DosimeterClientHandler.class+" cannot convert to JSON "+ex.getMessage());
 		}
 		
-		Integer ptuId = dosimeterToPtu.get(dosimeter.getSerialNo());
+		String ptuId = dosimeterToPtu.get(dosimeter.getSerialNo());
 		if (ptuId != null) {
 			sendMeasurements(ptuId, dosimeter);
 		}		
@@ -241,7 +241,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 		}
 	}	
 
-	private void sendMeasurements(int ptuId, Dosimeter dosimeter) {
+	private void sendMeasurements(String ptuId, Dosimeter dosimeter) {
 		Measurement<Double> rate = new Measurement<Double>(
 				ptuId, "Dosimeter Rate", dosimeter.getRate(), "&micro;Sv/h",
 				dosimeter.getDate());

@@ -47,19 +47,19 @@ public class PtuView extends VerticalPanel {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
-	private List<Integer> ptuIds;
+	private List<String> ptuIds;
 	private Measurement<Double> last;
-	private SortedMap<Integer, Ptu> ptus;
+	private SortedMap<String, Ptu> ptus;
 	private Map<String, String> units;
 	private SingleSelectionModel<String> selectionModel;
-	private Map<Integer, String> colorMap = new HashMap<Integer, String>();
+	private Map<String, String> colorMap = new HashMap<String, String>();
 
 	private PtuSettings settings;
 	private EventBus cmdBus;
 
 	private void init() {
 		last = new Measurement<Double>();
-		ptus = new TreeMap<Integer, Ptu>();
+		ptus = new TreeMap<String, Ptu>();
 		units = new HashMap<String, String>();
 	}
 
@@ -158,7 +158,7 @@ public class PtuView extends VerticalPanel {
 							MeasurementChangedEvent event) {
 						Measurement<Double> measurement = event
 								.getMeasurement();
-						Integer ptuId = measurement.getPtuId();
+						String ptuId = measurement.getPtuId();
 						if ((ptuIds == null) || !ptuIds.contains(ptuId))
 							return;
 
@@ -207,7 +207,7 @@ public class PtuView extends VerticalPanel {
 				});
 	}
 
-	private void addColumn(final Integer ptuId) {
+	private void addColumn(final String ptuId) {
 		ClickableTextColumn<String> column = new ClickableTextColumn<String>() {
 			@Override
 			public String getValue(String object) {
@@ -284,17 +284,17 @@ public class PtuView extends VerticalPanel {
 		if (ptuIds != null) {
 			Collections.sort(ptuIds);
 
-			for (Iterator<Map.Entry<Integer, Ptu>> i = ptus.entrySet()
+			for (Iterator<Map.Entry<String, Ptu>> i = ptus.entrySet()
 					.iterator(); i.hasNext();) {
-				Map.Entry<Integer, Ptu> entry = i.next();
+				Map.Entry<String, Ptu> entry = i.next();
 				if (ptuIds.contains(entry.getKey()))
 					continue;
 
 				i.remove();
 			}
 
-			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext();) {
-				Integer id = i.next();
+			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
+				String id = i.next();
 				if ((settings == null) || settings.isEnabled(id)) {
 					addColumn(id);
 				}

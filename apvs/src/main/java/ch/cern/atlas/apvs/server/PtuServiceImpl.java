@@ -86,25 +86,25 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	}
 
 	@Override
-	public Ptu getPtu(int ptuId) {
+	public Ptu getPtu(String ptuId) {
 		return ptuClientHandler != null ? ptuClientHandler.getPtu(ptuId) : null;
 	}
 
 	@Override
-	public List<Measurement<Double>> getMeasurements(int ptuId, String name) {
+	public List<Measurement<Double>> getMeasurements(String ptuId, String name) {
 		Ptu ptu = getPtu(ptuId);
 
 		return ptu != null ? ptu.getMeasurements(name) : null;
 	}
 
-	public Map<Integer, List<Measurement<Double>>> getMeasurements(String name) {
-		Map<Integer, List<Measurement<Double>>> result = new HashMap<Integer, List<Measurement<Double>>>();
+	public Map<String, List<Measurement<Double>>> getMeasurements(String name) {
+		Map<String, List<Measurement<Double>>> result = new HashMap<String, List<Measurement<Double>>>();
 		if (ptuClientHandler == null)
 			return result;
 
-		for (Iterator<Integer> i = ptuClientHandler.getPtuIds().iterator(); i
+		for (Iterator<String> i = ptuClientHandler.getPtuIds().iterator(); i
 				.hasNext();) {
-			int ptuId = i.next();
+			String ptuId = i.next();
 			Ptu ptu = ptuClientHandler.getPtu(ptuId);
 			if (ptu != null) {
 				result.put(ptuId, ptu.getMeasurements(name));

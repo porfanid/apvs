@@ -20,7 +20,7 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 
 	private static final Type<SelectPtuEvent.Handler> TYPE = new Type<SelectPtuEvent.Handler>();
 
-	public static void fire(EventBus eventBus, Integer ptuId) {
+	public static void fire(EventBus eventBus, String ptuId) {
 		eventBus.fireEvent(new SelectPtuEvent(ptuId));
 	}	
 	
@@ -47,12 +47,12 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 		return registration;
 	}
 
-	private Integer ptuId;
+	private String ptuId;
 
 	public SelectPtuEvent() {
 	}
 	
-	public SelectPtuEvent(Integer ptuId) {
+	public SelectPtuEvent(String ptuId) {
 		this.ptuId = ptuId;
 	}
 
@@ -61,7 +61,7 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 		return TYPE;
 	}
 
-	public Integer getPtuId() {
+	public String getPtuId() {
 		return ptuId;
 	}
 	

@@ -7,7 +7,7 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 
 	private static final long serialVersionUID = -906069262585850986L;
 
-	private int ptuId;
+	private String ptuId;
 	private String name;
 	private T value;
 	private String unit;
@@ -19,10 +19,10 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 	}
 
 	public Measurement(String name, T value, String unit) {
-		this(0, name, value, unit, new Date());
+		this(null, name, value, unit, new Date());
 	}
 
-	public Measurement(int ptuId, String name, T value, String unit, Date date) {
+	public Measurement(String ptuId, String name, T value, String unit, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
 		this.value = value;
@@ -30,7 +30,7 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 		this.date = date;
 	}
 
-	public int getPtuId() {
+	public String getPtuId() {
 		return ptuId;
 	}
 

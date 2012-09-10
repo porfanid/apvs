@@ -25,8 +25,8 @@ public class PtuTabSelector extends HorizontalPanel {
 	private RemoteEventBus remoteEventBus;
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
 
-	private List<Integer> ptuIds;
-	private Integer ptuId;
+	private List<String> ptuIds;
+	private String ptuId;
 	private PtuSettings settings;
 	private List<String> extraTabs;
 
@@ -62,7 +62,7 @@ public class PtuTabSelector extends HorizontalPanel {
 
 						ptuIds = event.getPtuIds();
 
-						ptuId = LocalStorage.getInstance().getInteger(
+						ptuId = LocalStorage.getInstance().get(
 								LocalStorage.PTU_ID);
 						fireEvent(new SelectPtuEvent(ptuId));
 						
@@ -75,20 +75,20 @@ public class PtuTabSelector extends HorizontalPanel {
 				});
 	}
 
-	private String getName(Integer id) {
+	private String getName(String id) {
 		return (settings != null) && !settings.getName(id).equals("") ? settings
 				.getName(id) + " (" + id.toString() + ")"
 				: id.toString();
 	}
 
-	private Integer getId(String name) {
+	private String getId(String name) {
 		int open = name.indexOf('(');
 		int close = name.lastIndexOf(')');
 		if ((open >= 0) && (close >= 0)) {
 			name = name.substring(open + 1, close);
 		}
 		System.err.println(name);
-		return Integer.parseInt(name);
+		return name;
 	}
 
 	private void update() {
@@ -97,8 +97,8 @@ public class PtuTabSelector extends HorizontalPanel {
 
 			Collections.sort(ptuIds);
 
-			for (Iterator<Integer> i = ptuIds.iterator(); i.hasNext();) {
-				Integer id = i.next();
+			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
+				String id = i.next();
 				if ((settings != null) && !settings.isEnabled(id)) continue;
 				
 				ToggleButton b = new ToggleButton(getName(id));
@@ -147,7 +147,7 @@ public class PtuTabSelector extends HorizontalPanel {
 		}
 	}
 
-	public Integer getPtuId() {
+	public String getPtuId() {
 		return ptuId;
 	}
 
