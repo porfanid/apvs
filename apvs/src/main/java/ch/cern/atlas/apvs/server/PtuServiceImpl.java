@@ -20,7 +20,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuClientHandler;
-import ch.cern.atlas.apvs.ptu.server.PtuClientPipelineFactory;
+import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 
 /**
  * @author Mark Donszelmann
@@ -81,7 +81,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
 
 		// Configure the pipeline factory.
-		bootstrap.setPipelineFactory(new PtuClientPipelineFactory(
+		bootstrap.setPipelineFactory(new PtuPipelineFactory(
 				ptuClientHandler));
 	}
 

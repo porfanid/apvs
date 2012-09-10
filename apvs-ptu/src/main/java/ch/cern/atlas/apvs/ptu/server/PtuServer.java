@@ -24,7 +24,7 @@ public class PtuServer {
                         Executors.newCachedThreadPool()));
 
         // Set up the pipeline factory.
-        bootstrap.setPipelineFactory(new PtuServerPipelineFactory(json));
+        bootstrap.setPipelineFactory(new PtuPipelineFactory(new PtuServerHandler(json)));
 
         // Bind and start to accept incoming connections.
         bootstrap.bind(new InetSocketAddress(port));

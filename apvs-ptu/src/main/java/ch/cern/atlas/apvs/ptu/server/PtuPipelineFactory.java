@@ -9,11 +9,11 @@ import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 
-public class PtuClientPipelineFactory implements ChannelPipelineFactory {
+public class PtuPipelineFactory implements ChannelPipelineFactory {
 
 	private final ChannelHandler handler;
 
-	public PtuClientPipelineFactory(ChannelHandler handler) {
+	public PtuPipelineFactory(ChannelHandler handler) {
 		this.handler = handler;
 	}
 	

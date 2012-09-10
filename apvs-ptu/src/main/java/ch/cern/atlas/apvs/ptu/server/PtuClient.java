@@ -31,7 +31,7 @@ public class PtuClient {
                         Executors.newCachedThreadPool()));
 
         // Configure the pipeline factory.
-        bootstrap.setPipelineFactory(new PtuClientPipelineFactory(new PtuClientHandler(bootstrap, ServerEventBus.getInstance())));
+        bootstrap.setPipelineFactory(new PtuPipelineFactory(new PtuClientHandler(bootstrap, ServerEventBus.getInstance())));
 
         // Start the connection attempt.
         ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));

@@ -13,7 +13,7 @@ import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterClientHandler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.server.PtuClientPipelineFactory;
+import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 
 /**
  * @author Mark Donszelmann
@@ -69,7 +69,7 @@ public class DosimeterServiceImpl extends ResponsePollService {
 		dosimeterClientHandler = new DosimeterClientHandler(bootstrap, eventBus);
 
 		// Configure the pipeline factory.
-		bootstrap.setPipelineFactory(new PtuClientPipelineFactory(
+		bootstrap.setPipelineFactory(new PtuPipelineFactory(
 				dosimeterClientHandler));
 	}
 }
