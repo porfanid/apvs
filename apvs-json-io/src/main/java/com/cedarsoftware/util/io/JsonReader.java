@@ -607,7 +607,7 @@ public class JsonReader extends Reader
 
     // Parser code
 
-    private Object readIntoJsonMaps() throws IOException
+    protected Object readIntoJsonMaps() throws IOException
     {
         final int STATE_READ_START_OBJECT = 0;
         final int STATE_READ_FIELD = 1;

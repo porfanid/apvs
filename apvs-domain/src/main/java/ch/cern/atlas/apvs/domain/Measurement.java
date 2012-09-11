@@ -3,7 +3,7 @@ package ch.cern.atlas.apvs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Measurement<T> implements Serializable, Comparable<Measurement<T>> {
+public class Measurement<T> implements Message, Serializable, Comparable<Measurement<T>> {
 
 	private static final long serialVersionUID = -906069262585850986L;
 
@@ -12,7 +12,6 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 	private T value;
 	private String unit;
 	private Date date;
-	private String type = "measurement";
 
 	public Measurement() {
 	}
@@ -50,7 +49,7 @@ public class Measurement<T> implements Serializable, Comparable<Measurement<T>> 
 	}
 
 	public String getType() {
-		return type;
+		return "measurement";
 	}
 
 	@Override

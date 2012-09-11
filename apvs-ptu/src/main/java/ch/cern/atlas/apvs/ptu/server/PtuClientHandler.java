@@ -19,6 +19,7 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -88,34 +89,37 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		// Print out the line received from the server.
 		String line = (String)e.getMessage();
 //		System.err.println(line);
-		Object object = PtuJsonReader.toJava(line);
-		if (object instanceof Measurement<?>) {
-			@SuppressWarnings("unchecked")
-			Measurement<Double> measurement = (Measurement<Double>) object;
+		List<Message> list = PtuJsonReader.toJava(line);
+		for (Iterator<Message> i = list.iterator(); i.hasNext(); ) {
+			Message message = i.next();
+			if (message instanceof Measurement<?>) {
+				@SuppressWarnings("unchecked")
+				Measurement<Double> measurement = (Measurement<Double>) message;
 
-			String ptuId = measurement.getPtuId();
-			Ptu ptu = ptus.get(ptuId);
-			if (ptu == null) {
-				ptu = new Ptu(ptuId);
-				ptus.put(ptuId, ptu);
-				ptuIdsChanged = true;				
-			}
-			
-			// FIXME here we need to read the DB and get the history
-			if (!ptu.isHistoryCached()) {
-				// we read all the history for the past 8 hours or so and add all of it to the ptu
-			}
-			
-			// FIXME, limit should come from server ???
-			ptu.addMeasurement(measurement, PtuSimulator.limitNumberOfValues);
-			Set<String> changed = measurementChanged.get(ptuId);
-			if (changed == null) {
-				changed = new HashSet<String>();
-				measurementChanged.put(ptuId, changed);
-			}
-			changed.add(measurement.getName());
+				String ptuId = measurement.getPtuId();
+				Ptu ptu = ptus.get(ptuId);
+				if (ptu == null) {
+					ptu = new Ptu(ptuId);
+					ptus.put(ptuId, ptu);
+					ptuIdsChanged = true;				
+				}
+				
+				// FIXME here we need to read the DB and get the history
+				if (!ptu.isHistoryCached()) {
+					// we read all the history for the past 8 hours or so and add all of it to the ptu
+				}
+				
+				// FIXME, limit should come from server ???
+				ptu.addMeasurement(measurement, PtuSimulator.limitNumberOfValues);
+				Set<String> changed = measurementChanged.get(ptuId);
+				if (changed == null) {
+					changed = new HashSet<String>();
+					measurementChanged.put(ptuId, changed);
+				}
+				changed.add(measurement.getName());
 
-			sendEvents();
+				sendEvents();
+			}
 		}
 	}
 

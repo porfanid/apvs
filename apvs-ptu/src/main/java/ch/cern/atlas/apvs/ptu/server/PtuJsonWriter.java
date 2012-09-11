@@ -66,7 +66,7 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 	
 	@Override
 	public void write(Measurement<Double> measurement) throws IOException {
-		writeImpl(new Header(measurement), false);
+		writeImpl(new JsonHeader(measurement), false);
 	}
 
 	public static String toJson(Object item) {

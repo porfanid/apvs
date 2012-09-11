@@ -4,8 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Message;
 
 import com.cedarsoftware.util.io.JsonReader;
 
@@ -19,26 +23,34 @@ public class PtuJsonReader extends JsonReader {
 		super(in, noObjects);
 	}
 
-	protected Object createJavaObjectInstance(Class clazz, JsonObject jsonObj)
-			throws IOException {
-		System.err.println("XXX Reading "+jsonObj);
-		
-		String sender = (String)jsonObj.get("Sender");
-		if (sender == null) {
-			return super.createJavaObjectInstance(clazz, jsonObj);
+	@Override
+	public Object readObject() throws IOException {
+		List<Message> result = new ArrayList<Message>();
+
+		JsonObject jsonObj = (JsonObject) readIntoJsonMaps();
+
+		String sender = (String) jsonObj.get("Sender");
+//		String receiver = (String) jsonObj.get("Receiver");
+//		String frameID = (String) jsonObj.get("FrameID");
+//		String acknowledge = (String) jsonObj.get("Acknowledge");
+
+		List<JsonObject> msgs = (List<JsonObject>) jsonObj.get("Messages");
+		JsonMessage[] messages = new JsonMessage[msgs.size()];
+
+		for (int i = 0; i < messages.length; i++) {
+			JsonObject msg = msgs.get(i);
+			String type = (String) msg.get("Type");
+			if (type.equals("measurement")) {
+				result.add(new Measurement<Double>(sender, (String) msg
+						.get("Sensor"), Double.parseDouble((String) msg
+						.get("Value")), (String) msg.get("Unit"),
+						convertToDate(msg.get("Time"))));
+			}
+			// FIXME add other types of messages
 		}
-		String receiver = (String)jsonObj.get("Receiver");
-		
-		Header header = new Header();
-		
-		List messages = (List)jsonObj.get("Messages");
-		
-		System.err.println("Y"+jsonObj.get("Messages").getClass());
-		System.err.println("Z"+messages.size());
-		jsonObj.put("@type", "ch.cern.atlas.apvs.ptu.server.Header");
-//		jsonObj.put("name", jsonObj.get("sensor"));
-//		jsonObj.remove("sensor");
-		return null;
+
+		// returns a list of messages
+		return result;
 	}
 
 	@Override
@@ -50,16 +62,16 @@ public class PtuJsonReader extends JsonReader {
 		}
 	}
 
-	public static Object jsonToJava(String json) throws IOException {
+	public static List<Message> jsonToJava(String json) throws IOException {
 		ByteArrayInputStream ba = new ByteArrayInputStream(
 				json.getBytes("UTF-8"));
 		PtuJsonReader jr = new PtuJsonReader(ba, false);
-		Object result = jr.readObject();
+		List<Message> result = (List<Message>) jr.readObject();
 		jr.close();
 		return result;
 	}
 
-	public static Object toJava(String json) {
+	public static List<Message> toJava(String json) {
 		try {
 			return jsonToJava(json);
 		} catch (Exception ignored) {
