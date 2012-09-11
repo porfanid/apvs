@@ -15,11 +15,13 @@ public class Ptu implements Serializable {
 	private static final long serialVersionUID = 1933500417755260216L;
 
 	private String ptuId;
+	private boolean historyChached;
 	protected Map<String, List<Measurement<Double>>> measurements = new HashMap<String, List<Measurement<Double>>>();
 	protected Map<String, Integer> limitNoOfValues = new HashMap<String, Integer>();
 		
 	public Ptu() {
 		ptuId = null;
+		historyChached = false;
 	}
 	
 	public Ptu(String ptuId) {
@@ -106,6 +108,14 @@ public class Ptu implements Serializable {
 			if (m != null) r.add(m);
 		}
 		return r;
+	}
+	
+	public void setHistoryCached(boolean historyChached) {
+		this.historyChached = historyChached;
+	}
+	
+	public boolean isHistoryCached() {
+		return historyChached;
 	}
 }
 

@@ -1,0 +1,19 @@
+{
+	"Sender":"PTU_88",
+	"Receiver":"Broadcast",
+	"FrameID":"0",
+	"Acknowledge":"False",
+	"Messages":
+	[
+		{
+			"Type":"measurement",
+			"Sensor":"Humidity",
+			"Time":"11/9/2012 10:02:25",
+			"Method":"OneShoot",
+			"Value":"33.19684099267707",
+			"Samplerate":"",
+			"Unit":"ppm"
+		}
+	]
+}
+

@@ -98,8 +98,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			if (ptu == null) {
 				ptu = new Ptu(ptuId);
 				ptus.put(ptuId, ptu);
-				ptuIdsChanged = true;
+				ptuIdsChanged = true;				
 			}
+			
+			// FIXME here we need to read the DB and get the history
+			if (!ptu.isHistoryCached()) {
+				// we read all the history for the past 8 hours or so and add all of it to the ptu
+			}
+			
 			// FIXME, limit should come from server ???
 			ptu.addMeasurement(measurement, PtuSimulator.limitNumberOfValues);
 			Set<String> changed = measurementChanged.get(ptuId);

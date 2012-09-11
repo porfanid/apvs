@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 import com.cedarsoftware.util.io.JsonReader;
 
@@ -20,10 +21,24 @@ public class PtuJsonReader extends JsonReader {
 
 	protected Object createJavaObjectInstance(Class clazz, JsonObject jsonObj)
 			throws IOException {
-		jsonObj.put("@type", "ch.cern.atlas.apvs.domain.Measurement");
-		jsonObj.put("name", jsonObj.get("sensor"));
-		jsonObj.remove("sensor");
-		return super.createJavaObjectInstance(clazz, jsonObj);
+		System.err.println("XXX Reading "+jsonObj);
+		
+		String sender = (String)jsonObj.get("Sender");
+		if (sender == null) {
+			return super.createJavaObjectInstance(clazz, jsonObj);
+		}
+		String receiver = (String)jsonObj.get("Receiver");
+		
+		Header header = new Header();
+		
+		List messages = (List)jsonObj.get("Messages");
+		
+		System.err.println("Y"+jsonObj.get("Messages").getClass());
+		System.err.println("Z"+messages.size());
+		jsonObj.put("@type", "ch.cern.atlas.apvs.ptu.server.Header");
+//		jsonObj.put("name", jsonObj.get("sensor"));
+//		jsonObj.remove("sensor");
+		return null;
 	}
 
 	@Override

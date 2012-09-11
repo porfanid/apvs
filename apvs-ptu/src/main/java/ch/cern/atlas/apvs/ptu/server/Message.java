@@ -10,7 +10,7 @@ public class Message {
 	String sensor;
 	Date time;
 	String method = "OneShoot";
-	Double value;
+	String value;
 	String samplerate = "";
 	String unit;
 	
@@ -18,7 +18,7 @@ public class Message {
 		type = measurement.getType();
 		sensor = measurement.getName();
 		time = measurement.getDate();
-		value = measurement.getValue();
+		value = Double.toString(measurement.getValue());
 		unit = measurement.getUnit();
 	}
 }

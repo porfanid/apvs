@@ -6,9 +6,12 @@ public class Header {
 
 	String sender;
 	String receiver = "Broadcast";
-	Integer frameID = 0;
-	boolean acknowledge = false; 
+	String frameID = "0";
+	String acknowledge = "False"; 
 	Message[] messages;
+	
+	public Header() {
+	}
 	
 	public Header(Measurement<Double> measurement) {
 		sender = measurement.getPtuId();
