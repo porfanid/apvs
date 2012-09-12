@@ -11,10 +11,12 @@ public class PtuPushServer {
 
     private final String host;
     private final int port;
+	private final String[] ids;
 
-    public PtuPushServer(String host, int port) {
+    public PtuPushServer(String host, int port, String[] ids) {
         this.host = host;
         this.port = port;
+        this.ids = ids;
     }
 
     public void run() throws IOException {
@@ -24,7 +26,7 @@ public class PtuPushServer {
                         Executors.newCachedThreadPool(),
                         Executors.newCachedThreadPool()));
 
-        PtuPushHandler handler = new PtuPushHandler(bootstrap);
+        PtuPushHandler handler = new PtuPushHandler(bootstrap, ids);
         
         // Configure the pipeline factory.
         bootstrap.setPipelineFactory(new PtuPipelineFactory(handler));
@@ -46,6 +48,6 @@ public class PtuPushServer {
         String host = args[0];
         int port = Integer.parseInt(args[1]);
 
-        new PtuPushServer(host, port).run();
+        new PtuPushServer(host, port, null).run();
     }
 }
