@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -230,7 +231,7 @@ public class TimeView extends AbstractTimeView {
 	}
 
 	private String getName(String ptuId) {
-		return (settings != null && settings.getName(ptuId) != null ? settings
+		return (settings != null && settings.getName(ptuId) != null && !settings.getName(ptuId).equals("") ? settings
 				.getName(ptuId) + " - " : "")
 				+ "" + ptuId;
 	}
@@ -242,10 +243,18 @@ public class TimeView extends AbstractTimeView {
 
 		Number[][] data = new Number[measurements.size()][2];
 
+		long lastTime = 0;
 		for (int i = 0; i < data.length; i++) {
 			Measurement<Double> m = measurements.get(i);
-
-			data[i][0] = m.getDate().getTime();
+			
+			// check if time is increasing
+			long time = m.getDate().getTime();
+			if (lastTime <= time) {
+				lastTime = time;
+			} else {
+				System.err.println("WARNING... Going back in time "+i+" "+m.getDate()+" < "+(new Date(lastTime)));
+			}
+			data[i][0] = time;
 			data[i][1] = m.getValue();
 		}
 
