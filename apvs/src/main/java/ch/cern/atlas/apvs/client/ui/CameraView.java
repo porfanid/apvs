@@ -62,6 +62,7 @@ public class CameraView extends SimplePanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
+				System.err.println("Single Click Update");
 				update(true);
 			}
 		});
