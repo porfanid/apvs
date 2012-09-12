@@ -140,14 +140,8 @@ public class TimeView extends AbstractTimeView {
 												|| settings.isEnabled(ptuId)) {
 
 											Series series = chart
-													.createSeries()
-													.setName(
-															(settings != null ? settings
-																	.getName(ptuId)
-																	+ " - "
-																	: "")
-																	+ ""
-																	+ ptuId);
+													.createSeries().setName(
+															getName(ptuId));
 											pointsById.put(ptuId, 0);
 											seriesById.put(ptuId, series);
 											colorsById.put(ptuId, color[k]);
@@ -207,9 +201,7 @@ public class TimeView extends AbstractTimeView {
 										+ ")", unit);
 
 								Series series = chart.createSeries().setName(
-										(settings != null ? settings
-												.getName(ptuId) + " - " : "")
-												+ "" + ptuId);
+										getName(ptuId));
 								pointsById.put(ptuId, 0);
 								seriesById.put(ptuId, series);
 								colorsById.put(ptuId, color[0]);
@@ -235,6 +227,12 @@ public class TimeView extends AbstractTimeView {
 						});
 			}
 		}
+	}
+
+	private String getName(String ptuId) {
+		return (settings != null && settings.getName(ptuId) != null ? settings
+				.getName(ptuId) + " - " : "")
+				+ "" + ptuId;
 	}
 
 	private void addHistory(String ptuId, Series series,
