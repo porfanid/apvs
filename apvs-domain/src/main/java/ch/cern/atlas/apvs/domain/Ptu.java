@@ -91,8 +91,13 @@ public class Ptu implements Serializable {
 		} else {
 			r = m.size() > 0 ? m.get(m.size()-1) : null;
 		}
-		m.add(measurement);
-
+		// check if we try to store an older measurement
+		if ((r != null) && (r.getDate().getTime() > measurement.getDate().getTime())) {
+			System.err.println("WARNING, addMeasurement out of order for "+ptuId+" "+measurement.getName());
+		} else {
+			m.add(measurement);
+		}
+		
 		// limit size
 		Integer limitNoOfValues = this.limitNoOfValues.get(measurement.getName());
 		while ((limitNoOfValues != null) && (m.size() > limitNoOfValues)) {

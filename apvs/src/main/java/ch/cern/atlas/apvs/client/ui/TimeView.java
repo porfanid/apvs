@@ -18,6 +18,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -249,11 +250,11 @@ public class TimeView extends AbstractTimeView {
 			
 			// check if time is increasing
 			long time = m.getDate().getTime();
-			if (lastTime <= time) {
-				lastTime = time;
-			} else {
-				System.err.println("WARNING... Going back in time "+i+" "+m.getDate()+" < "+(new Date(lastTime)));
+			if (time < lastTime) {
+//				System.err.println("WARNING... Going back in time "+i+" "+m.getDate()+" < "+(new Date(lastTime)));
+//				Window.alert("WARNING... Going back in time "+i+" "+m.getDate()+" < "+(new Date(lastTime)));
 			}
+			lastTime = time;
 			data[i][0] = time;
 			data[i][1] = m.getValue();
 		}

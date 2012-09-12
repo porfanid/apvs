@@ -60,7 +60,7 @@ public class Measurement<T> implements Message, Serializable, Comparable<Measure
 
 	@Override
 	public int hashCode() {
-		return Integer.valueOf(getPtuId()).hashCode() 
+		return (getPtuId() != null ? getPtuId().hashCode() : 0)
 				+ (getName() != null ? getName().hashCode() : 0)
 				+ (getValue() != null ? getValue().hashCode() : 0)
 				+ (getUnit() != null ? getUnit().hashCode() : 0)
@@ -72,7 +72,7 @@ public class Measurement<T> implements Message, Serializable, Comparable<Measure
 	public boolean equals(Object obj) {
 		if ((obj != null) && (obj instanceof Measurement<?>)) {
 			Measurement<?> m = (Measurement<?>) obj;
-			return (getPtuId() == m.getPtuId())
+			return (getPtuId() == null ? m.getPtuId() == null : getPtuId().equals(m.getPtuId()))
 					&& (getName() == null ? m.getName() == null : getName().equals(m.getName()))
 					&& (getValue() == null ? m.getValue() == null : getValue().equals(m.getValue()))
 					&& (getUnit() == null ? m.getUnit() == null : getUnit().equals(m.getUnit()))

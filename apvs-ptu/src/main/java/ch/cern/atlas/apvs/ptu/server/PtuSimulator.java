@@ -16,8 +16,8 @@ public class PtuSimulator extends Thread {
 
 	private final Channel channel;
 	private final Random random = new Random();
-	private final int defaultWait = 5000;
-	private final int extraWait = 2000;
+	private final int defaultWait = 30000;
+	private final int extraWait = 20000;
 	private final int deltaStartTime = 12 * 3600 * 1000;
 	private final String ptuId;
 	private final boolean history;
@@ -70,15 +70,17 @@ public class PtuSimulator extends Thread {
 						writer.write(next(ptu, new Date(then)));
 						writer.newLine();
 						writer.flush();
-
-						channel.write(cos.buffer()).awaitUninterruptibly();
-						cos.buffer().clear();
-
+						synchronized (channel) {
+							channel.write(cos.buffer()).awaitUninterruptibly();
+							cos.buffer().clear();
+						}
 						then += defaultWait + random.nextInt(extraWait);
 					}
 					if (!isInterrupted()) {
-						channel.write(cos.buffer()).awaitUninterruptibly();
-						cos.buffer().clear();
+						synchronized (channel) {
+							channel.write(cos.buffer()).awaitUninterruptibly();
+							cos.buffer().clear();
+						}
 					}
 				}
 
@@ -88,9 +90,10 @@ public class PtuSimulator extends Thread {
 					writer.newLine();
 					writer.flush();
 
-					channel.write(cos.buffer()).awaitUninterruptibly();
-					cos.buffer().clear();
-
+					synchronized (channel) {
+						channel.write(cos.buffer()).awaitUninterruptibly();
+						cos.buffer().clear();
+					}
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
 					System.out.print(".");
 					System.out.flush();
