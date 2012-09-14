@@ -27,7 +27,7 @@ public class AtmosphereEventBus extends RemoteEventBus {
 	}
 
 	private void getServerEvent() {
-		// FIXME do an async call, server implements suspend, and answers eventually when a remote even needs
+		// FIXME do an async call, server implements suspend, and answers eventually when a remote event needs
 		// to be sent.
 	}
 
@@ -54,43 +54,30 @@ public class AtmosphereEventBus extends RemoteEventBus {
 
 		@Override
 		public void onConnected(int heartbeat, int connectionID) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onBeforeDisconnected() {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onDisconnected() {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onError(Throwable exception, boolean connected) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onHeartbeat() {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onRefresh() {
-			// TODO Auto-generated method stub
-
 		}
 
+		@Override
 		public void onAfterRefresh() {
-			// TODO Auto-generated method stub
-			
 		}
 
 		/**

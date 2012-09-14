@@ -175,6 +175,7 @@
 			<groupId>com.moxie</groupId>
 			<artifactId>highcharts</artifactId>
 		</dependency>
+
 	</dependencies>
 
 	<profiles>

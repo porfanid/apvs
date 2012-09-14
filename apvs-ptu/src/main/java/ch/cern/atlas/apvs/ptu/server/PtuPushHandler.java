@@ -35,7 +35,7 @@ public class PtuPushHandler extends PtuReconnectHandler {
 		for (int i = 0; i < ptuIds.length; i++) {
 			String ptuId = ptuIds[i];
 
-			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId, false);
+			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId);
 			listOfSimulators.add(simulator);
 			simulator.start();
 		}

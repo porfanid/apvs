@@ -1,8 +1,8 @@
 package ch.cern.atlas.apvs.client.service;
 
-import java.util.List;
 import java.util.Map;
 
+import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 
@@ -15,6 +15,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("apvsPtu")
 public interface PtuService extends RemoteService {
 	public Ptu getPtu(String ptuId);
-	public List<Measurement<Double>> getMeasurements(String ptuId, String name);
-	public Map<String, List<Measurement<Double>>> getMeasurements(String name);
+	public Measurement<Double> getMeasurement(String ptuId, String name);
+	public History getHistory(String ptuId, String name);
+	public Map<String, History> getHistories(String name);	
 }

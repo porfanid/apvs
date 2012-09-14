@@ -65,24 +65,22 @@ public class AbstractTimeView extends SimplePanel {
 		}
 	}
 
-	protected void createChart(String name, String unit) {
+	protected void createChart(String name) {
 		removeChart();
-		
-		// fix #96 to put unicode in place of &deg;
-		unit = unit.replaceAll("\\&deg\\;", "\u00B0");
 
 		chart = new Chart()
 				// same as above
-			// FIXME String.format not supported
-				.setColors(// String.format("%s, ", (Object[])color))
-						"#4572A7", "#AA4643", "#89A54E", "#80699B",
-						"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92")
+				// FIXME String.format not supported
+				.setColors(
+						// String.format("%s, ", (Object[])color))
+						"#4572A7", "#AA4643", "#89A54E", "#80699B", "#3D96AE",
+						"#DB843D", "#92A8CD", "#A47D7C", "#B5CA92")
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
 				.setWidth100()
 				.setHeight(height)
-				.setChartTitle(title ? 
-						new ChartTitle().setText(name).setStyle(
+				.setChartTitle(
+						title ? new ChartTitle().setText(name).setStyle(
 								new Style().setFontSize("12px")) : null)
 				.setMarginRight(10)
 				.setExporting(new Exporting().setEnabled(export))
@@ -132,9 +130,19 @@ public class AbstractTimeView extends SimplePanel {
 					}
 				}));
 		chart.getXAxis().setAxisTitle(new AxisTitle().setText("Time"));
+
+		chart.getYAxis().setAllowDecimals(true);
+	}
+
+	protected void setUnit(String unit) {
+		if (chart == null) {
+			return;
+		}
 		
-		chart.getYAxis().setAllowDecimals(true)
-				.setAxisTitle(new AxisTitle().setText(unit));
+		// fix #96 to put unicode in place of &deg;
+		unit = unit.replaceAll("\\&deg\\;", "\u00B0");
+
+		chart.getYAxis().setAxisTitle(new AxisTitle().setText(unit));
 	}
 
 	public void redraw() {

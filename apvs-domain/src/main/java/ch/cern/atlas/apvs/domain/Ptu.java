@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +14,11 @@ public class Ptu implements Serializable {
 	private static final long serialVersionUID = 1933500417755260216L;
 
 	private String ptuId;
-	private boolean historyChached;
-	protected Map<String, List<Measurement<Double>>> measurements = new HashMap<String, List<Measurement<Double>>>();
-	protected Map<String, Integer> limitNoOfValues = new HashMap<String, Integer>();
+	protected Map<String, Measurement<Double>> measurements = new HashMap<String, Measurement<Double>>();
+	protected Map<String, History> histories = new HashMap<String, History>();
 		
 	public Ptu() {
 		ptuId = null;
-		historyChached = false;
 	}
 	
 	public Ptu(String ptuId) {
@@ -55,54 +52,28 @@ public class Ptu implements Serializable {
 	}
 	
 	public Measurement<Double> getMeasurement(String name) {
-		List<Measurement<Double>> m = measurements.get(name);
-		if ((m == null) || m.size() == 0) return null;
-		return m.get(m.size()-1);
-	}
-	
-	public List<Measurement<Double>> getMeasurements(String name) {
 		return measurements.get(name);
 	}
-	
-	public int getNumberOfMeasurements(String name) {
-		List<Measurement<Double>> m = measurements.get(name);
-		if ((m == null) || m.size() == 0) return 0;
-		return m.size();
-	}
-
-	public Measurement<Double> getMeasurement(String name, int index) {
-		List<Measurement<Double>> m = measurements.get(name);
-		if ((m == null) || m.size() == 0) return null;
-		return m.get(index);
-	}
-	
-	public Measurement<Double> addMeasurement(Measurement<Double> measurement, int limitNoOfValues) {
-		this.limitNoOfValues.put(measurement.getName(), limitNoOfValues);
-		return addMeasurement(measurement);
-	}
-	
+			
 	public Measurement<Double> addMeasurement(Measurement<Double> measurement) {
-		List<Measurement<Double>> m = measurements.get(measurement.getName());
-		Measurement<Double> r;
-		if (m == null) {
-			m = new LinkedList<Measurement<Double>>();
-			measurements.put(measurement.getName(), m);
-			r = null;
-		} else {
-			r = m.size() > 0 ? m.get(m.size()-1) : null;
-		}
+		String name = measurement.getName();
+		Measurement<Double> r = measurements.get(name);
+		// FIXME move history and add measurement
+		
 		// check if we try to store an older measurement
 		if ((r != null) && (r.getDate().getTime() > measurement.getDate().getTime())) {
 			System.err.println("WARNING, addMeasurement out of order for "+ptuId+" "+measurement.getName());
 		} else {
-			m.add(measurement);
+			measurements.put(name, measurement);
 		}
 		
-		// limit size
+		// FIXME limit size
+		/*
 		Integer limitNoOfValues = this.limitNoOfValues.get(measurement.getName());
 		while ((limitNoOfValues != null) && (m.size() > limitNoOfValues)) {
 			m.remove(0);
 		}
+		*/
 		return r;
 	}
 
@@ -115,12 +86,12 @@ public class Ptu implements Serializable {
 		return r;
 	}
 	
-	public void setHistoryCached(boolean historyChached) {
-		this.historyChached = historyChached;
+	public History getHistory(String name) {
+		return histories.get(name);
 	}
 	
-	public boolean isHistoryCached() {
-		return historyChached;
-	}
+	public History setHistory(String sensor, History history) {
+		return histories.put(sensor, history);
+	}	
 }
 

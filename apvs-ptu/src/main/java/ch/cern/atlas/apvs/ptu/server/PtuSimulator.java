@@ -16,19 +16,15 @@ public class PtuSimulator extends Thread {
 
 	private final Channel channel;
 	private final Random random = new Random();
-	private final int defaultWait = 30000;
-	private final int extraWait = 20000;
+	private final int defaultWait = 5000;
+	private final int extraWait = 2000;
 	private final int deltaStartTime = 12 * 3600 * 1000;
 	private final String ptuId;
-	private final boolean history;
 	private Ptu ptu;
 
-	static final int limitNumberOfValues = 200;
-
-	public PtuSimulator(Channel channel, String ptuId, boolean history) {
+	public PtuSimulator(Channel channel, String ptuId) {
 		this.channel = channel;
 		this.ptuId = ptuId;
-		this.history = history;
 	}
 
 	@Override
@@ -40,18 +36,13 @@ public class PtuSimulator extends Thread {
 
 			ptu = new Ptu(ptuId);
 
-			ptu.addMeasurement(new Temperature(ptuId, 25.7, start),
-					limitNumberOfValues);
-			ptu.addMeasurement(new Humidity(ptuId, 31.4, start),
-					limitNumberOfValues);
-			ptu.addMeasurement(new CO2(ptuId, 2.5, start), limitNumberOfValues);
-			ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start),
-					limitNumberOfValues);
-			ptu.addMeasurement(new HeartBeat(ptuId, 120, start),
-					limitNumberOfValues);
-			ptu.addMeasurement(new O2SkinSaturationRate(ptuId, 20.8, start),
-					limitNumberOfValues);
-			ptu.addMeasurement(new O2(ptuId, 85.2, start), limitNumberOfValues);
+			ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
+			ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
+			ptu.addMeasurement(new CO2(ptuId, 2.5, start));
+			ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
+			ptu.addMeasurement(new HeartBeat(ptuId, 120, start));
+			ptu.addMeasurement(new O2SkinSaturationRate(ptuId, 20.8, start));
+			ptu.addMeasurement(new O2(ptuId, 85.2, start));
 
 			System.out.println(ptuId);
 
@@ -64,26 +55,6 @@ public class PtuSimulator extends Thread {
 			ObjectWriter writer = new PtuJsonWriter(cos);
 
 			try {
-				if (history) {
-					// loop in the past
-					while (then < now && !isInterrupted()) {
-						writer.write(next(ptu, new Date(then)));
-						writer.newLine();
-						writer.flush();
-						synchronized (channel) {
-							channel.write(cos.buffer()).awaitUninterruptibly();
-							cos.buffer().clear();
-						}
-						then += defaultWait + random.nextInt(extraWait);
-					}
-					if (!isInterrupted()) {
-						synchronized (channel) {
-							channel.write(cos.buffer()).awaitUninterruptibly();
-							cos.buffer().clear();
-						}
-					}
-				}
-
 				// now loop at current time
 				while (!isInterrupted()) {
 					writer.write(next(ptu, new Date()));

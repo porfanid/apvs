@@ -3,7 +3,6 @@ package ch.cern.atlas.apvs.server;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
@@ -16,6 +15,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -28,9 +28,11 @@ import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 @SuppressWarnings("serial")
 public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
-	private static final int DEFAULT_PORT = 4005;
+	private static final int DEFAULT_PTU_PORT = 4005;
+//	private static final int DEFAULT_DB_PORT = 1521;
 
 	private String ptuUrl;
+	private String dbUrl;
 
 	private RemoteEventBus eventBus;
 	private PtuClientHandler ptuClientHandler;
@@ -61,12 +63,19 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 								String[] s = ptuUrl.split(":", 2);
 								String host = s[0];
 								int port = s.length > 1 ? Integer
-										.parseInt(s[1]) : DEFAULT_PORT;
+										.parseInt(s[1]) : DEFAULT_PTU_PORT;
 
 								System.err.println("Setting PTU to " + host
 										+ ":" + port);
 								ptuClientHandler.connect(new InetSocketAddress(
 										host, port));
+							}
+
+							url = settings.get(ServerSettings.settingNames[3]);
+							if ((url != null) && !url.equals(dbUrl)) {
+								dbUrl = url;
+								
+								ptuClientHandler.connect("jdbc:oracle:thin:"+dbUrl);
 							}
 						}
 					}
@@ -81,8 +90,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
 
 		// Configure the pipeline factory.
-		bootstrap.setPipelineFactory(new PtuPipelineFactory(
-				ptuClientHandler));
+		bootstrap.setPipelineFactory(new PtuPipelineFactory(ptuClientHandler));
 	}
 
 	@Override
@@ -91,23 +99,30 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	}
 
 	@Override
-	public List<Measurement<Double>> getMeasurements(String ptuId, String name) {
+	public Measurement<Double> getMeasurement(String ptuId, String name) {
 		Ptu ptu = getPtu(ptuId);
 
-		return ptu != null ? ptu.getMeasurements(name) : null;
+		return ptu != null ? ptu.getMeasurement(name) : null;
 	}
 
-	public Map<String, List<Measurement<Double>>> getMeasurements(String name) {
-		Map<String, List<Measurement<Double>>> result = new HashMap<String, List<Measurement<Double>>>();
-		if (ptuClientHandler == null)
+	public History getHistory(String ptuId, String name) {
+		Ptu ptu = getPtu(ptuId);
+
+		return ptu != null ? ptu.getHistory(name) : null;
+	}
+
+	public Map<String, History> getHistories(String name) {
+		Map<String, History> result = new HashMap<String, History>();
+		if (ptuClientHandler == null) {
 			return result;
+		}
 
 		for (Iterator<String> i = ptuClientHandler.getPtuIds().iterator(); i
 				.hasNext();) {
 			String ptuId = i.next();
 			Ptu ptu = ptuClientHandler.getPtu(ptuId);
 			if (ptu != null) {
-				result.put(ptuId, ptu.getMeasurements(name));
+				result.put(ptuId, ptu.getHistory(name));
 			}
 		}
 		return result;

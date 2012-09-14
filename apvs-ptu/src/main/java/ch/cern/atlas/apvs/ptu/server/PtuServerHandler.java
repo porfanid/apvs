@@ -22,8 +22,12 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
             PtuServerHandler.class.getName());
 
 	private Map<Channel, List<PtuSimulator>> simulators = new HashMap<Channel, List<PtuSimulator>>();
+	private String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309", "PTU_27372", "PTU_39400", "PTU_88982" };
 
-    public PtuServerHandler() {
+    public PtuServerHandler(String[] ids) {
+		if (ids != null) {
+			ptuIds = ids;
+		}
 	}
     
     @Override
@@ -31,12 +35,11 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
             ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
     	System.err.println("Connected from "+e.getChannel().getRemoteAddress());
     	
-		String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309", "PTU_27372", "PTU_39400", "PTU_88982" };
 		List<PtuSimulator> listOfSimulators = new ArrayList<PtuSimulator>(ptuIds.length);
 		for (int i = 0; i < ptuIds.length; i++) {
 			String ptuId = ptuIds[i];
 
-			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId, true);
+			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId);
 			listOfSimulators.add(simulator);
 			simulator.start();
 		}

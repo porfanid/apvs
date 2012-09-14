@@ -1,8 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.moxieapps.gwt.highcharts.client.Series;
@@ -14,11 +12,11 @@ import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -99,93 +97,71 @@ public class TimeView extends AbstractTimeView {
 		if (ptuId == null) {
 			// Subscribe to all PTUs
 			final long t0 = System.currentTimeMillis();
-			clientFactory
-					.getPtuService()
-					.getMeasurements(
-							measurementName,
-							new AsyncCallback<Map<String, List<Measurement<Double>>>>() {
+			clientFactory.getPtuService().getHistories(measurementName,
+					new AsyncCallback<Map<String, History>>() {
 
-								@Override
-								public void onSuccess(
-										Map<String, List<Measurement<Double>>> measurements) {
-									if (measurements == null) {
-										return;
-									}
+						@Override
+						public void onSuccess(Map<String, History> histories) {
+							if (histories == null) {
+								return;
+							}
 
-									System.err.println("Measurement Map retrieval of "
-											+ measurementName
-											+ " took "
-											+ (System.currentTimeMillis() - t0)
-											+ " ms for "
-											+ measurements.size()
-											+ " elements");
+							System.err.println("Histories Map retrieval of "
+									+ measurementName + " took "
+									+ (System.currentTimeMillis() - t0) + " ms");
 
-									String unit = "";
+							createChart(measurementName);
 
-									if (measurements.keySet().size() > 0) {
-										List<Measurement<Double>> m = measurements
-												.get(measurements.keySet()
-														.iterator().next());
-										if ((m != null) && (m.size() > 0)) {
-											unit = m.get(0).getUnit();
-										}
-									}
+							int k = 0;
+							for (Iterator<String> i = histories.keySet()
+									.iterator(); i.hasNext();) {
+								String ptuId = i.next();
 
-									createChart(measurementName, unit);
+								if ((settings == null)
+										|| settings.isEnabled(ptuId)) {
 
-									int k = 0;
-									for (Iterator<String> i = measurements
-											.keySet().iterator(); i.hasNext();) {
-										String ptuId = i.next();
+									Series series = chart.createSeries()
+											.setName(getName(ptuId));
+									pointsById.put(ptuId, 0);
+									seriesById.put(ptuId, series);
+									colorsById.put(ptuId, color[k]);
 
-										if ((settings == null)
-												|| settings.isEnabled(ptuId)) {
+									addHistory(ptuId, series,
+											histories.get(ptuId));
 
-											Series series = chart
-													.createSeries().setName(
-															getName(ptuId));
-											pointsById.put(ptuId, 0);
-											seriesById.put(ptuId, series);
-											colorsById.put(ptuId, color[k]);
-
-											addHistory(ptuId, series,
-													measurements.get(ptuId));
-
-											chart.addSeries(series, true, false);
-											k++;
-										}
-									}
-
-									add(chart);
-
-									cmdBus.fireEvent(new ColorMapChangedEvent(
-											getColors()));
-
-									subscribe(null, measurementName);
+									chart.addSeries(series, true, false);
+									k++;
 								}
+							}
 
-								@Override
-								public void onFailure(Throwable caught) {
-									System.err
-											.println("Cannot retrieve Measurements "
-													+ caught);
-								}
-							});
+							add(chart);
+
+							cmdBus.fireEvent(new ColorMapChangedEvent(
+									getColors()));
+
+							subscribe(null, measurementName);
+						}
+
+						@Override
+						public void onFailure(Throwable caught) {
+							System.err.println("Cannot retrieve Measurements "
+									+ caught);
+						}
+					});
 		} else {
 			// subscribe to single PTU
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
 				final long t0 = System.currentTimeMillis();
-				clientFactory.getPtuService().getMeasurements(ptuId,
-						measurementName,
-						new AsyncCallback<List<Measurement<Double>>>() {
+				clientFactory.getPtuService().getHistory(ptuId,
+						measurementName, new AsyncCallback<History>() {
 
 							@Override
-							public void onSuccess(
-									List<Measurement<Double>> measurements) {
-								if (measurements == null) {
-									System.err.println("Cannot find "
-											+ measurementName);
+							public void onSuccess(History history) {
+								if (history == null) {
+									System.err
+											.println("Cannot find history for "
+													+ measurementName);
 									return;
 								}
 
@@ -193,14 +169,10 @@ public class TimeView extends AbstractTimeView {
 										+ measurementName + " of " + ptuId
 										+ " took "
 										+ (System.currentTimeMillis() - t0)
-										+ " ms for " + measurements.size()
-										+ " elements");
-
-								String unit = measurements.size() > 0 ? measurements
-										.get(0).getUnit() : "";
+										+ " ms");
 
 								createChart(measurementName + " (" + ptuId
-										+ ")", unit);
+										+ ")");
 
 								Series series = chart.createSeries().setName(
 										getName(ptuId));
@@ -208,7 +180,7 @@ public class TimeView extends AbstractTimeView {
 								seriesById.put(ptuId, series);
 								colorsById.put(ptuId, color[0]);
 
-								addHistory(ptuId, series, measurements);
+								addHistory(ptuId, series, history);
 
 								chart.addSeries(series, true, false);
 
@@ -232,35 +204,21 @@ public class TimeView extends AbstractTimeView {
 	}
 
 	private String getName(String ptuId) {
-		return (settings != null && settings.getName(ptuId) != null && !settings.getName(ptuId).equals("") ? settings
+		return (settings != null && settings.getName(ptuId) != null
+				&& !settings.getName(ptuId).equals("") ? settings
 				.getName(ptuId) + " - " : "")
 				+ "" + ptuId;
 	}
 
-	private void addHistory(String ptuId, Series series,
-			List<Measurement<Double>> measurements) {
-		if (measurements == null)
+	private void addHistory(String ptuId, Series series, History history) {
+		if (history == null)
 			return;
-
-		Number[][] data = new Number[measurements.size()][2];
-
-		long lastTime = 0;
-		for (int i = 0; i < data.length; i++) {
-			Measurement<Double> m = measurements.get(i);
-			
-			// check if time is increasing
-			long time = m.getDate().getTime();
-			if (time < lastTime) {
-//				System.err.println("WARNING... Going back in time "+i+" "+m.getDate()+" < "+(new Date(lastTime)));
-//				Window.alert("WARNING... Going back in time "+i+" "+m.getDate()+" < "+(new Date(lastTime)));
-			}
-			lastTime = time;
-			data[i][0] = time;
-			data[i][1] = m.getValue();
-		}
-
-		series.setPoints(data, false);
-		pointsById.put(ptuId, data.length);
+		
+		Number[][] data = history.getData();
+		series.setPoints(data != null ? data : new Number[0][2], false);
+		pointsById.put(ptuId, data != null ? data.length : 0);
+		
+		setUnit(history.getUnit());
 	}
 
 	private void unsubscribe() {
@@ -300,6 +258,8 @@ public class TimeView extends AbstractTimeView {
 								chart.setLinePlotOptions(new LinePlotOptions()
 										.setMarker(new Marker()
 												.setEnabled(!shift)));
+
+								setUnit(m.getUnit());
 
 								series.addPoint(m.getDate().getTime(),
 										m.getValue(), true, shift, true);
