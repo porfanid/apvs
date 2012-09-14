@@ -1,3 +1,5 @@
+Origin: http://www.moxiegroup.com/moxieapps/gwt-highcharts/
+
 One needs to copy the "js" directory from the Highcharts-x.x.zip file over
 ../apvs/src/main/resources/ch/cern/atlas/apvs/public/highcharts
 
