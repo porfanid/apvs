@@ -12,16 +12,7 @@ public class JsonHeader {
 	String acknowledge = "False"; 
 	JsonMessage[] messages;
 	
-/*
-	public JsonHeader(String sender, String receiver, String frameID, String acknowledge, JsonMessage[] messages) {
-		this.sender = sender;
-		this.receiver = receiver;
-		this.frameID = frameID;
-		this.acknowledge = acknowledge;
-		this.messages = messages;
-	}
-*/	
-	public JsonHeader(Measurement<Double> measurement) {
+	public JsonHeader(Measurement measurement) {
 		currentFrameID++;
 		frameID = String.valueOf(currentFrameID);
 		sender = measurement.getPtuId();

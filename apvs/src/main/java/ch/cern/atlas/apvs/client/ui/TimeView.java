@@ -238,7 +238,7 @@ public class TimeView extends AbstractTimeView {
 					@Override
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
-						Measurement<Double> m = event.getMeasurement();
+						Measurement m = event.getMeasurement();
 
 						if ((ptuId != null) && (!m.getPtuId().equals(ptuId))) {
 							return;

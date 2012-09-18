@@ -3,24 +3,24 @@ package ch.cern.atlas.apvs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Measurement<T> implements Message, Serializable, Comparable<Measurement<T>> {
+public class Measurement implements Message, Serializable, Comparable<Measurement> {
 
 	private static final long serialVersionUID = -906069262585850986L;
 
 	private String ptuId;
 	private String name;
-	private T value;
+	private Number value;
 	private String unit;
 	private Date date;
 
 	public Measurement() {
 	}
 
-	public Measurement(String name, T value, String unit) {
+	public Measurement(String name, Number value, String unit) {
 		this(null, name, value, unit, new Date());
 	}
 
-	public Measurement(String ptuId, String name, T value, String unit, Date date) {
+	public Measurement(String ptuId, String name, Number value, String unit, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
 		this.value = value;
@@ -28,6 +28,7 @@ public class Measurement<T> implements Message, Serializable, Comparable<Measure
 		this.date = date;
 	}
 
+	@Override
 	public String getPtuId() {
 		return ptuId;
 	}
@@ -36,7 +37,7 @@ public class Measurement<T> implements Message, Serializable, Comparable<Measure
 		return name;
 	}
 
-	public T getValue() {
+	public Number getValue() {
 		return value;
 	}
 
@@ -48,12 +49,13 @@ public class Measurement<T> implements Message, Serializable, Comparable<Measure
 		return date;
 	}
 
+	@Override
 	public String getType() {
 		return "measurement";
 	}
 
 	@Override
-	public int compareTo(Measurement<T> o) {
+	public int compareTo(Measurement o) {
 		// FIXME include PTU
 		return (o != null) ? getName().compareTo(o.getName()) : 1;
 	}
@@ -70,8 +72,8 @@ public class Measurement<T> implements Message, Serializable, Comparable<Measure
 
 	@Override
 	public boolean equals(Object obj) {
-		if ((obj != null) && (obj instanceof Measurement<?>)) {
-			Measurement<?> m = (Measurement<?>) obj;
+		if ((obj != null) && (obj instanceof Measurement)) {
+			Measurement m = (Measurement) obj;
 			return (getPtuId() == null ? m.getPtuId() == null : getPtuId().equals(m.getPtuId()))
 					&& (getName() == null ? m.getName() == null : getName().equals(m.getName()))
 					&& (getValue() == null ? m.getValue() == null : getValue().equals(m.getValue()))

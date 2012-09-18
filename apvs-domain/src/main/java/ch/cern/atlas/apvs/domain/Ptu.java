@@ -14,7 +14,7 @@ public class Ptu implements Serializable {
 	private static final long serialVersionUID = 1933500417755260216L;
 
 	private String ptuId;
-	protected Map<String, Measurement<Double>> measurements = new HashMap<String, Measurement<Double>>();
+	protected Map<String, Measurement> measurements = new HashMap<String, Measurement>();
 	protected Map<String, History> histories = new HashMap<String, History>();
 		
 	public Ptu() {
@@ -51,13 +51,13 @@ public class Ptu implements Serializable {
 		return measurements.size();
 	}
 	
-	public Measurement<Double> getMeasurement(String name) {
+	public Measurement getMeasurement(String name) {
 		return measurements.get(name);
 	}
 			
-	public Measurement<Double> addMeasurement(Measurement<Double> measurement) {
+	public Measurement addMeasurement(Measurement measurement) {
 		String name = measurement.getName();
-		Measurement<Double> r = measurements.get(name);
+		Measurement r = measurements.get(name);
 		// FIXME move history and add measurement
 		
 		// check if we try to store an older measurement
@@ -77,10 +77,10 @@ public class Ptu implements Serializable {
 		return r;
 	}
 
-	public Collection<? extends Measurement<Double>> getMeasurements() {
-		List<Measurement<Double>> r = new ArrayList<Measurement<Double>>(measurements.size());
+	public Collection<? extends Measurement> getMeasurements() {
+		List<Measurement> r = new ArrayList<Measurement>(measurements.size());
 		for (Iterator<String> i = measurements.keySet().iterator(); i.hasNext(); ) {
-			Measurement<Double> m = getMeasurement(i.next());
+			Measurement m = getMeasurement(i.next());
 			if (m != null) r.add(m);
 		}
 		return r;

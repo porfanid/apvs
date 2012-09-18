@@ -99,7 +99,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	}
 
 	@Override
-	public Measurement<Double> getMeasurement(String ptuId, String name) {
+	public Measurement getMeasurement(String ptuId, String name) {
 		Ptu ptu = getPtu(ptuId);
 
 		return ptu != null ? ptu.getMeasurement(name) : null;

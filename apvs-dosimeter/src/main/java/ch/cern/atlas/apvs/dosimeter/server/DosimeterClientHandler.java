@@ -242,10 +242,10 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	}	
 
 	private void sendMeasurements(String ptuId, Dosimeter dosimeter) {
-		Measurement<Double> rate = new Measurement<Double>(
+		Measurement rate = new Measurement(
 				ptuId, "Dosimeter Rate", dosimeter.getRate(), "&micro;Sv/h",
 				dosimeter.getDate());
-		Measurement<Double> dose = new Measurement<Double>(
+		Measurement dose = new Measurement(
 				ptuId, "Dosimeter Dose", dosimeter.getDose(), "&micro;Sv", dosimeter.getDate());
 		eventBus.fireEvent(new MeasurementChangedEvent(rate));
 		eventBus.fireEvent(new MeasurementChangedEvent(dose));

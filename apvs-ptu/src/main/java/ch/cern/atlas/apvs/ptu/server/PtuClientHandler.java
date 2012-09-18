@@ -65,9 +65,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 				if (type.equals(PtuIdsChangedEvent.class.getName())) {
 					eventBus.fireEvent(new PtuIdsChangedEvent(getPtuIds()));
 				} else if (type.equals(MeasurementChangedEvent.class.getName())) {
-					List<Measurement<Double>> m = getMeasurements();
+					List<Measurement> m = getMeasurements();
 					System.err.println("Getting all meas " + m.size());
-					for (Iterator<Measurement<Double>> i = m.iterator(); i
+					for (Iterator<Measurement> i = m.iterator(); i
 							.hasNext();) {
 						eventBus.fireEvent(new MeasurementChangedEvent(i.next()));
 					}
@@ -103,9 +103,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		List<Message> list = PtuJsonReader.toJava(line);
 		for (Iterator<Message> i = list.iterator(); i.hasNext();) {
 			Message message = i.next();
-			if (message instanceof Measurement<?>) {
+			if (message instanceof Measurement) {
 				@SuppressWarnings("unchecked")
-				Measurement<Double> measurement = (Measurement<Double>) message;
+				Measurement measurement = (Measurement) message;
 
 				String ptuId = measurement.getPtuId();
 				Ptu ptu = ptus.get(ptuId);
@@ -222,7 +222,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			String id = i.next();
 			for (Iterator<String> j = measurementChanged.get(id).iterator(); j
 					.hasNext();) {
-				Measurement<Double> m = ptus.get(id).getMeasurement(j.next());
+				Measurement m = ptus.get(id).getMeasurement(j.next());
 				eventBus.fireEvent(new MeasurementChangedEvent(m));
 			}
 		}
@@ -240,8 +240,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		return list;
 	}
 
-	public List<Measurement<Double>> getMeasurements() {
-		List<Measurement<Double>> m = new ArrayList<Measurement<Double>>();
+	public List<Measurement> getMeasurements() {
+		List<Measurement> m = new ArrayList<Measurement>();
 		for (Iterator<Ptu> i = ptus.values().iterator(); i.hasNext();) {
 			m.addAll(i.next().getMeasurements());
 		}

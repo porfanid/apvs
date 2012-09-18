@@ -15,7 +15,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("apvsPtu")
 public interface PtuService extends RemoteService {
 	public Ptu getPtu(String ptuId);
-	public Measurement<Double> getMeasurement(String ptuId, String name);
+	public Measurement getMeasurement(String ptuId, String name);
 	public History getHistory(String ptuId, String name);
 	public Map<String, History> getHistories(String name);	
 }

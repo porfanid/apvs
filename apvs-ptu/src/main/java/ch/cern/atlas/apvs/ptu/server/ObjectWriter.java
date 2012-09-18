@@ -11,7 +11,7 @@ public interface ObjectWriter {
 	
 	public void write(Ptu ptu) throws IOException;
 
-	public void write(Measurement<Double> ptu) throws IOException;
+	public void write(Measurement ptu) throws IOException;
 
 	public void flush() throws IOException;
 

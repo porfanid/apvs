@@ -48,7 +48,7 @@ public class PtuView extends VerticalPanel {
 	private CellTable<String> table = new CellTable<String>();
 
 	private List<String> ptuIds;
-	private Measurement<Double> last;
+	private Measurement last;
 	private SortedMap<String, Ptu> ptus;
 	private Map<String, String> units;
 	private SingleSelectionModel<String> selectionModel;
@@ -58,7 +58,7 @@ public class PtuView extends VerticalPanel {
 	private EventBus cmdBus;
 
 	private void init() {
-		last = new Measurement<Double>();
+		last = new Measurement();
 		ptus = new TreeMap<String, Ptu>();
 		units = new HashMap<String, String>();
 	}
@@ -156,7 +156,7 @@ public class PtuView extends VerticalPanel {
 					@Override
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
-						Measurement<Double> measurement = event
+						Measurement measurement = event
 								.getMeasurement();
 						String ptuId = measurement.getPtuId();
 						if ((ptuIds == null) || !ptuIds.contains(ptuId))
@@ -216,7 +216,7 @@ public class PtuView extends VerticalPanel {
 					return "";
 				}
 
-				Measurement<Double> m = ptu.getMeasurement(object);
+				Measurement m = ptu.getMeasurement(object);
 				if (m == null) {
 					return "";
 				}
@@ -238,7 +238,7 @@ public class PtuView extends VerticalPanel {
 										+ color + "\">"));
 					}
 
-					Measurement<Double> m = ptu.getMeasurement(object);
+					Measurement m = ptu.getMeasurement(object);
 					((ClickableTextCell) getCell())
 							.render(context, MeasurementView.decorate(
 									getValue(object), m, last), sb);

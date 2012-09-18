@@ -38,12 +38,12 @@ public class MeasurementView extends VerticalFlowPanel {
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
 	private PtuSettings settings;
-	private Measurement<Double> last = new Measurement<Double>();
-	private ListDataProvider<Measurement<Double>> dataProvider = new ListDataProvider<Measurement<Double>>();
-	private CellTable<Measurement<Double>> table = new CellTable<Measurement<Double>>();
-	private ListHandler<Measurement<Double>> columnSortHandler;
-	private ClickableTextColumn<Measurement<Double>> name;
-	private SingleSelectionModel<Measurement<Double>> selectionModel;
+	private Measurement last = new Measurement();
+	private ListDataProvider<Measurement> dataProvider = new ListDataProvider<Measurement>();
+	private CellTable<Measurement> table = new CellTable<Measurement>();
+	private ListHandler<Measurement> columnSortHandler;
+	private ClickableTextColumn<Measurement> name;
+	private SingleSelectionModel<Measurement> selectionModel;
 
 	private List<String> show = null;
 
@@ -55,7 +55,7 @@ public class MeasurementView extends VerticalFlowPanel {
 	private boolean showName = true;
 	private boolean sortable = true;
 	private boolean selectable = true;
-	
+
 	private String options;
 
 	public MeasurementView(final ClientFactory clientFactory, Arguments args) {
@@ -63,14 +63,14 @@ public class MeasurementView extends VerticalFlowPanel {
 		cmdBus = NamedEventBus.get(args.getArg(0));
 		options = args.getArg(1);
 		show = args.getArgs(2);
-		
+
 		showHeader = !options.contains("NoHeader");
 		showName = !options.contains("NoName");
 		sortable = !options.contains("NoSort");
 		selectable = !options.contains("NoSelection");
 
 		if (selectable) {
-			selectionModel = new SingleSelectionModel<Measurement<Double>>();
+			selectionModel = new SingleSelectionModel<Measurement>();
 		}
 
 		add(table);
@@ -114,7 +114,7 @@ public class MeasurementView extends VerticalFlowPanel {
 								@Override
 								public void onMeasurementChanged(
 										MeasurementChangedEvent event) {
-									Measurement<Double> measurement = event
+									Measurement measurement = event
 											.getMeasurement();
 									if (measurement.getPtuId().equals(ptuId)) {
 										last = replace(measurement, last);
@@ -127,8 +127,7 @@ public class MeasurementView extends VerticalFlowPanel {
 				}
 
 				if (selectable) {
-					Measurement<Double> selection = selectionModel
-							.getSelectedObject();
+					Measurement selection = selectionModel.getSelectedObject();
 					if (selection != null) {
 						selectionModel.setSelected(selection, false);
 					}
@@ -138,14 +137,14 @@ public class MeasurementView extends VerticalFlowPanel {
 			}
 		});
 
-		name = new ClickableTextColumn<Measurement<Double>>() {
+		name = new ClickableTextColumn<Measurement>() {
 			@Override
-			public String getValue(Measurement<Double> object) {
+			public String getValue(Measurement object) {
 				return object.getName();
 			}
 
 			@Override
-			public void render(Context context, Measurement<Double> object,
+			public void render(Context context, Measurement object,
 					SafeHtmlBuilder sb) {
 				String name = getValue(object);
 				if (name != null) {
@@ -157,11 +156,10 @@ public class MeasurementView extends VerticalFlowPanel {
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(sortable);
 		if (selectable) {
-			name.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+			name.setFieldUpdater(new FieldUpdater<Measurement, String>() {
 
 				@Override
-				public void update(int index, Measurement<Double> object,
-						String value) {
+				public void update(int index, Measurement object, String value) {
 					selectMeasurement(object.getName());
 				}
 			});
@@ -187,9 +185,9 @@ public class MeasurementView extends VerticalFlowPanel {
 			}
 		} : null);
 
-		ClickableTextColumn<Measurement<Double>> value = new ClickableTextColumn<Measurement<Double>>() {
+		ClickableTextColumn<Measurement> value = new ClickableTextColumn<Measurement>() {
 			@Override
-			public String getValue(Measurement<Double> object) {
+			public String getValue(Measurement object) {
 				if ((object == null) || (object.getValue() == null)) {
 					return "";
 				}
@@ -197,7 +195,7 @@ public class MeasurementView extends VerticalFlowPanel {
 			}
 
 			@Override
-			public void render(Context context, Measurement<Double> object,
+			public void render(Context context, Measurement object,
 					SafeHtmlBuilder sb) {
 				String s = getValue(object);
 				// FIXME does not work for dosimeter
@@ -208,25 +206,24 @@ public class MeasurementView extends VerticalFlowPanel {
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		if (selectable) {
-			value.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+			value.setFieldUpdater(new FieldUpdater<Measurement, String>() {
 
 				@Override
-				public void update(int index, Measurement<Double> object,
-						String value) {
+				public void update(int index, Measurement object, String value) {
 					selectMeasurement(object.getName());
 				}
 			});
 		}
 		table.addColumn(value, showHeader ? "Value" : null);
 
-		ClickableTextColumn<Measurement<Double>> unit = new ClickableTextColumn<Measurement<Double>>() {
+		ClickableTextColumn<Measurement> unit = new ClickableTextColumn<Measurement>() {
 			@Override
-			public String getValue(Measurement<Double> object) {
+			public String getValue(Measurement object) {
 				return object.getUnit();
 			}
 
 			@Override
-			public void render(Context context, Measurement<Double> object,
+			public void render(Context context, Measurement object,
 					SafeHtmlBuilder sb) {
 				String unit = getValue(object);
 				if (unit != null) {
@@ -238,68 +235,64 @@ public class MeasurementView extends VerticalFlowPanel {
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		unit.setSortable(sortable);
 		if (selectable) {
-			unit.setFieldUpdater(new FieldUpdater<Measurement<Double>, String>() {
+			unit.setFieldUpdater(new FieldUpdater<Measurement, String>() {
 
 				@Override
-				public void update(int index, Measurement<Double> object,
-						String value) {
+				public void update(int index, Measurement object, String value) {
 					selectMeasurement(object.getName());
 				}
 			});
 		}
 		table.addColumn(unit, showHeader ? "Unit" : null);
 
-		List<Measurement<Double>> list = new ArrayList<Measurement<Double>>();
+		List<Measurement> list = new ArrayList<Measurement>();
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(list);
 
-		columnSortHandler = new ListHandler<Measurement<Double>>(
-				dataProvider.getList());
-		columnSortHandler.setComparator(name,
-				new Comparator<Measurement<Double>>() {
-					public int compare(Measurement<Double> o1,
-							Measurement<Double> o2) {
-						if (o1 == o2) {
-							return 0;
-						}
+		columnSortHandler = new ListHandler<Measurement>(dataProvider.getList());
+		columnSortHandler.setComparator(name, new Comparator<Measurement>() {
+			public int compare(Measurement o1, Measurement o2) {
+				if (o1 == o2) {
+					return 0;
+				}
 
-						if (o1 != null) {
-							return (o2 != null) ? o1.getName().compareTo(
-									o2.getName()) : 1;
-						}
-						return -1;
-					}
-				});
-		columnSortHandler.setComparator(value,
-				new Comparator<Measurement<Double>>() {
-					public int compare(Measurement<Double> o1,
-							Measurement<Double> o2) {
-						if (o1 == o2) {
-							return 0;
-						}
+				if (o1 != null) {
+					return (o2 != null) ? o1.getName().compareTo(o2.getName())
+							: 1;
+				}
+				return -1;
+			}
+		});
+		columnSortHandler.setComparator(value, new Comparator<Measurement>() {
+			public int compare(Measurement o1, Measurement o2) {
+				if (o1 == o2) {
+					return 0;
+				}
 
-						if (o1 != null) {
-							return (o2 != null) ? o1.getValue().compareTo(
-									o2.getValue()) : 1;
-						}
-						return -1;
+				if ((o1 != null) && (o1.getValue() != null)) {
+					if ((o2 != null) && (o2.getValue() != null)) {
+						double d1 = o1.getValue().doubleValue();
+						double d2 = o2.getValue().doubleValue();
+						return d1 < d2 ? -1 : d1 == d2 ? 0 : 1;
 					}
-				});
-		columnSortHandler.setComparator(unit,
-				new Comparator<Measurement<Double>>() {
-					public int compare(Measurement<Double> o1,
-							Measurement<Double> o2) {
-						if (o1 == o2) {
-							return 0;
-						}
+					return 1;
+				}
+				return -1;
+			}
+		});
+		columnSortHandler.setComparator(unit, new Comparator<Measurement>() {
+			public int compare(Measurement o1, Measurement o2) {
+				if (o1 == o2) {
+					return 0;
+				}
 
-						if (o1 != null) {
-							return (o2 != null) ? o1.getUnit().compareTo(
-									o2.getUnit()) : 1;
-						}
-						return -1;
-					}
-				});
+				if (o1 != null) {
+					return (o2 != null) ? o1.getUnit().compareTo(o2.getUnit())
+							: 1;
+				}
+				return -1;
+			}
+		});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
 
@@ -310,8 +303,7 @@ public class MeasurementView extends VerticalFlowPanel {
 
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
-							Measurement<Double> m = selectionModel
-									.getSelectedObject();
+							Measurement m = selectionModel.getSelectedObject();
 							System.err.println(m + " " + event.getSource());
 						}
 					});
@@ -325,13 +317,13 @@ public class MeasurementView extends VerticalFlowPanel {
 		}
 	}
 
-	public static SafeHtml decorate(String s, Measurement<Double> current,
-			Measurement<Double> last) {
+	public static SafeHtml decorate(String s, Measurement current,
+			Measurement last) {
 		if ((current != null) && (last != null)
 				&& (current.getPtuId() == last.getPtuId())
 				&& current.getName().equals(last.getName())) {
-			double c = current.getValue();
-			double l = last.getValue();
+			double c = current.getValue().doubleValue();
+			double l = last.getValue().doubleValue();
 			String a = (c == l) ? "&larr;" : (c > l) ? "&uarr;" : "&darr;";
 			s = a + "&nbsp;<b>" + s + "</b>";
 		}
@@ -346,7 +338,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		table.redraw();
 
 		if (selectable) {
-			Measurement<Double> selection = selectionModel.getSelectedObject();
+			Measurement selection = selectionModel.getSelectedObject();
 
 			if ((selection == null) && (dataProvider.getList().size() > 0)) {
 				selection = dataProvider.getList().get(0);
@@ -362,9 +354,8 @@ public class MeasurementView extends VerticalFlowPanel {
 		}
 	}
 
-	private Measurement<Double> replace(Measurement<Double> measurement,
-			Measurement<Double> lastValue) {
-		List<Measurement<Double>> list = dataProvider.getList();
+	private Measurement replace(Measurement measurement, Measurement lastValue) {
+		List<Measurement> list = dataProvider.getList();
 
 		int i = 0;
 		System.err.println("Looking for " + measurement.getName());

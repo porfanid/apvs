@@ -15,11 +15,11 @@ public class JsonMessage {
 	String samplerate = "";
 	String unit;
 	
-	public JsonMessage(Measurement<Double> measurement) {
+	public JsonMessage(Measurement measurement) {
 		type = measurement.getType();
 		sensor = measurement.getName();
 		time = measurement.getDate();
-		value = Double.toString(measurement.getValue());
+		value = measurement.getValue().toString();
 		unit = measurement.getUnit();
 	}
 

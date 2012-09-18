@@ -5,7 +5,7 @@ import java.util.Date;
 import ch.cern.atlas.apvs.domain.Measurement;
 
 @SuppressWarnings("serial")
-public class O2 extends Measurement<Double> {
+public class O2 extends Measurement {
 
 	public O2(String ptuId, double value, Date d) {
 		super(ptuId, "O<sub>2</sub> Sensor", value, "ppm", d);

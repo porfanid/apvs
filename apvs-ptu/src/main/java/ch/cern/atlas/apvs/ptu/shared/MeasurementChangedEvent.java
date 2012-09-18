@@ -47,12 +47,12 @@ public class MeasurementChangedEvent extends RemoteEvent<MeasurementChangedEvent
 	}
 
 	
-	private Measurement<Double> measurement;
+	private Measurement measurement;
 	
 	public MeasurementChangedEvent() {
 	}
 
-	public MeasurementChangedEvent(Measurement<Double> measurement) {
+	public MeasurementChangedEvent(Measurement measurement) {
 		this.measurement = measurement;
 	}
 
@@ -61,7 +61,7 @@ public class MeasurementChangedEvent extends RemoteEvent<MeasurementChangedEvent
 		return TYPE;
 	}
 
-	public Measurement<Double> getMeasurement() {
+	public Measurement getMeasurement() {
 		return measurement;
 	}
 	

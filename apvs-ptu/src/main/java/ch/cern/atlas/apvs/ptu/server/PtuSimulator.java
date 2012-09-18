@@ -83,16 +83,16 @@ public class PtuSimulator extends Thread {
 		}
 	}
 
-	private Measurement<Double> next(Ptu ptu, Date d) {
+	private Measurement next(Ptu ptu, Date d) {
 		int index = random.nextInt(ptu.getSize());
 		String name = ptu.getMeasurementNames().get(index);
-		Measurement<Double> measurement = next(ptu.getMeasurement(name), d);
+		Measurement measurement = next(ptu.getMeasurement(name), d);
 		ptu.addMeasurement(measurement);
 		return measurement;
 	}
 
-	private Measurement<Double> next(Measurement<Double> m, Date d) {
-		return new Measurement<Double>(m.getPtuId(), m.getName(), m.getValue()
+	private Measurement next(Measurement m, Date d) {
+		return new Measurement(m.getPtuId(), m.getName(), m.getValue().doubleValue()
 				+ random.nextGaussian(), m.getUnit(), d);
 	}
 }
