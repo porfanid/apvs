@@ -59,6 +59,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	private Map<Integer, Dosimeter> dosimeters;
 	private Map<Integer, String> dosimeterToPtu;
 	
+	private boolean LOG_TO_FILE = false;
 	private FileHandler logHandler;
 
 	@SuppressWarnings("serial")
@@ -108,6 +109,8 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	private void init() {
 		dosimeters = new HashMap<Integer, Dosimeter>();
 		dosimeterToPtu = new HashMap<Integer, String>();
+		
+		if (!LOG_TO_FILE) return;
 		
 		String dosimeterLogfile = "APVS-Dosimeter.log";
 		// setup the logger
