@@ -11,6 +11,7 @@ import org.jboss.netty.channel.Channel;
 
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
+import ch.cern.atlas.apvs.domain.Report;
 
 public class PtuSimulator extends Thread {
 
@@ -54,10 +55,16 @@ public class PtuSimulator extends Thread {
 
 			ObjectWriter writer = new PtuJsonWriter(cos);
 
+			int i = 0;
+			
 			try {
 				// now loop at current time
 				while (!isInterrupted()) {
-					writer.write(next(ptu, new Date()));
+					if (i % 5 == 0) {
+						writer.write(nextReport(ptu, new Date()));
+					} else {
+						writer.write(nextMeasurement(ptu, new Date()));
+					}
 					writer.newLine();
 					writer.flush();
 
@@ -68,6 +75,7 @@ public class PtuSimulator extends Thread {
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
 					System.out.print(".");
 					System.out.flush();
+					i++;
 				}
 			} catch (InterruptedException e) {
 				// ignored
@@ -83,16 +91,20 @@ public class PtuSimulator extends Thread {
 		}
 	}
 
-	private Measurement next(Ptu ptu, Date d) {
+	private Measurement nextMeasurement(Ptu ptu, Date d) {
 		int index = random.nextInt(ptu.getSize());
 		String name = ptu.getMeasurementNames().get(index);
-		Measurement measurement = next(ptu.getMeasurement(name), d);
+		Measurement measurement = nextMeasurement(ptu.getMeasurement(name), d);
 		ptu.addMeasurement(measurement);
 		return measurement;
 	}
 
-	private Measurement next(Measurement m, Date d) {
+	private Measurement nextMeasurement(Measurement m, Date d) {
 		return new Measurement(m.getPtuId(), m.getName(), m.getValue().doubleValue()
 				+ random.nextGaussian(), m.getUnit(), d);
+	}
+	
+	private Report nextReport(Ptu ptu, Date d) {
+		return new Report(ptu.getPtuId(), random.nextGaussian(), random.nextBoolean(), random.nextBoolean(), random.nextBoolean(), d);
 	}
 }
