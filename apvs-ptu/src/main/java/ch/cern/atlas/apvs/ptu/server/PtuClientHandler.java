@@ -121,11 +121,17 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					// check on history and load from DB
 					if ((historyQuery != null) && (historyQueryCount != null)) {
 
+						long PERIOD = 36; // hours
+						Date then = new Date(new Date().getTime() - (PERIOD * 3600000));
+						String timestamp = PtuConstants.timestampFormat.format(then);
+						
 						try {
 							historyQueryCount.setString(1, sensor);
 							historyQueryCount.setString(2, ptuId);
+							historyQueryCount.setString(3, timestamp);
 							historyQuery.setString(1, sensor);
 							historyQuery.setString(2, ptuId);
+							historyQuery.setString(3, timestamp);
 
 							ResultSet result = historyQueryCount.executeQuery();
 							result.next();
@@ -251,13 +257,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			historyQueryCount = connection
 					.prepareStatement("select count(*) from tbl_measurements "
 							+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
-							+ "where sensor = ? " + "and name = ?");
+							+ "where sensor = ? " + "and name = ? " + "and datetime > timestamp ?");
 
 			historyQuery = connection
 					.prepareStatement("select DATETIME, VALUE from tbl_measurements "
 							+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
 							+ "where SENSOR = ? "
 							+ "and NAME = ? "
+							+ "and DATETIME > timestamp ? "
 							+ "order by DATETIME desc");
 		} catch (SQLException e) {
 			System.err.println(e);
