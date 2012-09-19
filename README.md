@@ -1,15 +1,17 @@
-#Installation and Build Notes
+# APVS
 
-______________________________________________________________
---------------------------- STEP 1 ---------------------------
-##Copy a version of AWSS
-----------------------
-   git clone .....
+The APVS system, written with gwt interfaces a web portal to the APVS DAQ system.
+It uses atmosphere to keep values read by the DAQ system up to date on a supervisor
+portal and using mgwt on a number of worker iPad systems. The system contains a number
+of simulators to mimic the DAQ behaviour and run the system without APVS DAQ.
+
+##Installation and Build Notes
+
+###Copy a version of AWSS
+
+   git clone git://github.com/CERN/apvs.git
    
-______________________________________________________________
---------------------------- STEP 2 ---------------------------	
-Setting up Nexus
-----------------
+###Setup Nexus
 
 1. Download nexus from http://www.sonatype.org/nexus/ and install.
 
