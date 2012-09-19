@@ -1,9 +1,9 @@
-Installation and Build Notes
+#Installation and Build Notes
 ============================
 
 ______________________________________________________________
 --------------------------- STEP 1 ---------------------------
-Copy a version of AWSS
+##Copy a version of AWSS
 ----------------------
    git clone .....
    
