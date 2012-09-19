@@ -17,7 +17,7 @@ of simulators to mimic the DAQ behaviour and run the system without APVS DAQ.
 
 On Windows:
 	
-	To install nexus run the command "nexus install" from the folder ".../nexus-<version number>/bin"
+    To install nexus run the command "nexus install" from the folder ".../nexus-<version number>/bin"
 	
 	Windows users should be running command prompt with administrator privileges (Right mouse click on application->Run as Administrator)
 
