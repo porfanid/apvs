@@ -75,7 +75,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 							if ((url != null) && !url.equals(dbUrl)) {
 								dbUrl = url;
 								
-								ptuClientHandler.connect("jdbc:oracle:thin:"+dbUrl);
+								ptuClientHandler.connect("jdbc:log4jdbc:oracle:thin:"+dbUrl);
 							}
 						}
 					}

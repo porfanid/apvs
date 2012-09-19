@@ -282,7 +282,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	public void connect(String dbUrl) {
 		System.err.println("Connecting to DB " + dbUrl);
 		try {
-			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
+//			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
+			DriverManager.registerDriver(new net.sf.log4jdbc.DriverSpy());
 			Connection connection = DriverManager.getConnection(dbUrl);
 
 			historyQueryCount = connection
@@ -299,7 +300,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 							+ "and DATETIME > timestamp ? "
 							+ "order by DATETIME desc");
 		} catch (SQLException e) {
-			e.printStackTrace();
 			System.err.println(e);
 		}
 	}

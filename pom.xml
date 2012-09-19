@@ -33,6 +33,7 @@
 		<jetty-plugin-version>${jetty-version}</jetty-plugin-version>
 		<json-version>20090211</json-version>
 		<junit-version>4.10</junit-version>
+                <log4jdbc-version>1.2</log4jdbc-version>
 		<mgwt-version>1.0.1</mgwt-version>
 		<netty-version>3.5.3.Final</netty-version>
 		<nettosphere-version>1.4.2</nettosphere-version>
@@ -40,7 +41,7 @@
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
 		<javax.servlet-api-version>3.0.1</javax.servlet-api-version>
 		<validation-api-version>1.0.0.GA</validation-api-version>
-		<slf4j-version>1.6.6</slf4j-version>
+		<slf4j-version>1.7.1</slf4j-version>
 
 		<!-- in order on http://maven.apache.org/plugins/index.html -->
 		<clean-plugin-version>2.5</clean-plugin-version>
@@ -72,6 +73,7 @@
 		<module>apvs-eventbus</module>
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
+		<module>apvs-log4jdbc</module>
 		<module>apvs-ptu</module>
 	</modules>
 
@@ -287,6 +289,11 @@
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-log4jdbc</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-nettosphere</artifactId>
 				<version>${project.version}</version>
 				<type>war</type>
@@ -346,6 +353,16 @@
 				<artifactId>gwt-servlet</artifactId>
 				<version>${gwt-version}</version>
 				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>net.sf</groupId>
+				<artifactId>log4jdbc4</artifactId>
+				<version>${log4jdbc-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sf</groupId>
+				<artifactId>log4jdbc3</artifactId>
+				<version>${log4jdbc-version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
