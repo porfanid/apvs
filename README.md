@@ -5,7 +5,7 @@ It uses atmosphere to keep values read by the DAQ system up to date on a supervi
 portal and using mgwt on a number of worker iPad systems. The system contains a number
 of simulators to mimic the DAQ behaviour and run the system without APVS DAQ.
 
-## Installation and Build Notes
+## Preparation
 
 ### Copy a version of AWSS
 
@@ -13,14 +13,14 @@ of simulators to mimic the DAQ behaviour and run the system without APVS DAQ.
    
 ### Setup Nexus
 
-#### Download nexus from http://www.sonatype.org/nexus/ and install.
+Download nexus from http://www.sonatype.org/nexus/ and install.
 
-On Windows install nexus by running the command using admin privileges, (Right mouse click on application->Run as Administrator):
+* On Windows install and start nexus by running the command using admin privileges, (Right mouse click on application->Run as Administrator):
 	
-    _.../nexus-<version number>/bin_ > nexus install	
+    .../nexus-<version number>/bin > nexus install
+    .../nexus-<version number>/bin > nexus start
 
-On MacOS:
-in ~/Library/LaunchAgents create a file nexus.plist with the following content:
+* On MacOS install and start nexus by creating a file ~/Library/LaunchAgents/nexus.plist with the following content:
 
 ```xml
 	<?xml version="1.0" encoding="UTF-8"?>
@@ -42,9 +42,13 @@ in ~/Library/LaunchAgents create a file nexus.plist with the following content:
 	</plist>
 ```
 
-2. Start up the nexus server (run the command "nexus start").
+then reboot to start up nexus.
 
-3.Create file settings.xml for maven in ~/.m2/settings.xml. PLEASE READ REMARK AT THE END OF THIS STEP.
+Nexus will be availble under: http://localhost:8081/nexus, log in with admin/admin123, go to Users, right click admin, and set a password.
+
+### Setup Maven
+
+* Create file settings.xml for maven in ~/.m2/settings.xml with the following content:
 
 ```xml
 	<settings>
@@ -89,50 +93,55 @@ in ~/Library/LaunchAgents create a file nexus.plist with the following content:
 	</settings>
 ```
 
-Remark: 
-WINDOWS USERS USING CERN DFS AS HOME DIRECTORY MIGHT EXPERIENCE SOME ISSUES DURING BUILD PROCESS. THEREFORE, THEY SHOULD CHANGE THE LOCAL REPOSITORY TO A LOCAL DIRECTORY BY ADDING A SPECIFIED LOCATION ON "setting.xml" FILE 
+Note: Windows users should make sure the .m2 directory is on a local disk (and not DFS) by changing the system settings.xml to point to aa local repo directory
 
 	<localRepository>/path/to/local/repo/</localRepository>
 
 Further info in: http://maven.apache.org/guides/mini/guide-configuring-maven.html
-If using a network drive (e.g. CERN DFS) as a home directory and still want to be able to compile when the network is not available, you must make sure these files are available offline. To enable this feature for CERN DFS please follow the following tutorial: http://www.sevenforums.com/tutorials/48852-offline-files-make-files-folders-available-offline.html
 
-4. Url http://localhost:8081/nexus admin, admin123 go to Users, right click admin, set password
+More info on maven: http://maven.apache.org/guides/getting-started/index.html 
 
-______________________________________________________________
---------------------------- STEP 3 ---------------------------
-Build AWSS
-----------
+## Building
 
-1. Readers without any experience with maven are strongly recommended to follow the start guide before continue to the next step: http://maven.apache.org/guides/getting-started/index.html 
+Change directory to the project and run:
 
-2. Run `mvn clean install`
-______________________________________________________________
---------------------------- STEP 4 ---------------------------
-Run in demo-mode ???
---------------------
+	 <apvs project directory> > mvn clean install
+	
+the project should be built in a couple of minutes, after downloading all the dependencies and plugins. 
 
-1. In <apvs project directory>/apvs  run `mvn clean gwt:run`
 
-install the proper gwt plugin in firefox
-http://acleung.com/ff14-mac.xpi -> Mac Version
-http://acleung.com/ff14-win.xpi -> Windows Version
-______________________________________________________________
---------------------------- STEP 5 ---------------------------
-Run the Jetty version
----------------------
+## Running
 
-1. In the <apvs project directory>/apvs-jetty  run `java -jar target/apvs-jetty.war`
+There are two ways to run APVS: demo-mode where a plugin is needed in the browser and which is typically used 
+to have a quick edit-compile-debug cycle, and normal-mode, which runs in jetty, is faster but takes more time
+to compile. 
 
-______________________________________________________________
---------------------------- STEP 6 ---------------------------
-Release a version
------------------
+### Run in demo-mode
 
-1. Set JAVA_HOME to the proper java installation otherwise `mvn release:perform` will fail on calling `javadoc`
+Run:
 
-Remarks:
-For Windows users: 
-Go to control panel->System->Advanced System Settings->(Tab Advanced) Environment Variables->User Variable
-Name: JAVA_HOME
-Value: <path to java installation>
+	<apvs project directory>/apvs > mvn clean gwt:run
+	
+Using FireFox open 
+
+	http://localhost:8888/apvs/index.html?gwt.codesvr=localhost:9997
+	install the proper gwt plugin in firefox
+
+Mac: http://acleung.com/ff14-mac.xpi
+Windows: http://acleung.com/ff14-win.xpi
+
+These plugins change all the time, just use any higher version number when needed. 
+
+### Run the Jetty version
+
+Run:
+	<apvs project directory>/apvs-jetty > java -jar target/apvs-jetty.war
+
+Using any browser open
+
+	http://localhost:8095/apvs/index.html
+
+
+## Release a version
+
+Set JAVA_HOME to the proper java installation otherwise `mvn release:perform` will fail on calling `javadoc`
