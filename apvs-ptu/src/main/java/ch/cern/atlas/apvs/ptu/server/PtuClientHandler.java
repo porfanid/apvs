@@ -290,14 +290,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					.prepareStatement("select count(*) from tbl_measurements "
 							+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
 							+ "where sensor = ? " + "and name = ? "
-							+ "and datetime > timestamp ?");
+							+ "and datetime > to_timestamp(?,"+PtuConstants.oracleFormat+")");
 
 			historyQuery = connection
 					.prepareStatement("select DATETIME, VALUE from tbl_measurements "
 							+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
 							+ "where SENSOR = ? "
 							+ "and NAME = ? "
-							+ "and DATETIME > timestamp ? "
+							+ "and DATETIME > to_timestamp(?,"+PtuConstants.oracleFormat+") "
 							+ "order by DATETIME desc");
 		} catch (SQLException e) {
 			System.err.println(e);
