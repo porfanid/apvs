@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -102,21 +103,29 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		// Print out the line received from the server.
 		String line = (String) e.getMessage();
 		// System.err.println(line);
-		List<Message> list = PtuJsonReader.toJava(line);
-		for (Iterator<Message> i = list.iterator(); i.hasNext();) {
-			Message message = i.next();
-			if (message instanceof Measurement) {
-				handleMessage((Measurement)message); 
-			} else if (message instanceof Report) {
-				handleMessage((Report)message); 				
-			} else if (message instanceof Event) {
-				handleMessage((Event)message); 								
-			} else if (message instanceof Error) {
-				handleMessage((Error)message); 								
-			} else {
-				System.err.println("Error: unknown Message Type: "+message.getType());
+		List<Message> list;
+		try {
+			list = PtuJsonReader.jsonToJava(line);
+			for (Iterator<Message> i = list.iterator(); i.hasNext();) {
+				Message message = i.next();
+				if (message instanceof Measurement) {
+					handleMessage((Measurement) message);
+				} else if (message instanceof Report) {
+					handleMessage((Report) message);
+				} else if (message instanceof Event) {
+					handleMessage((Event) message);
+				} else if (message instanceof Error) {
+					handleMessage((Error) message);
+				} else {
+					System.err.println("Error: unknown Message Type: "
+							+ message.getType());
+				}
 			}
+		} catch (IOException ioe) {
+			// TODO Auto-generated catch block
+			ioe.printStackTrace();
 		}
+
 	}
 
 	private void handleMessage(Measurement measurement) {
@@ -215,17 +224,17 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	private void handleMessage(Report report) {
-		System.err.println(report.getType()+" NOT YET IMPLEMENTED");
+		System.err.println(report.getType() + " NOT YET IMPLEMENTED");
 	}
-	
+
 	private void handleMessage(Event event) {
-		System.err.println(event.getType()+" NOT YET IMPLEMENTED");
+		System.err.println(event.getType() + " NOT YET IMPLEMENTED");
 	}
-	
+
 	private void handleMessage(Error error) {
-		System.err.println(error.getType()+" NOT YET IMPLEMENTED");
+		System.err.println(error.getType() + " NOT YET IMPLEMENTED");
 	}
-	
+
 	private void init() {
 		ptus = new TreeMap<String, Ptu>();
 	}
@@ -290,6 +299,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 							+ "and DATETIME > timestamp ? "
 							+ "order by DATETIME desc");
 		} catch (SQLException e) {
+			e.printStackTrace();
 			System.err.println(e);
 		}
 	}

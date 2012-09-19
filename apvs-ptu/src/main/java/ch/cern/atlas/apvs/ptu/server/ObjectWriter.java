@@ -2,7 +2,7 @@ package ch.cern.atlas.apvs.ptu.server;
 
 import java.io.IOException;
 
-import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Ptu;
 
 public interface ObjectWriter {
@@ -11,7 +11,7 @@ public interface ObjectWriter {
 	
 	public void write(Ptu ptu) throws IOException;
 
-	public void write(Measurement ptu) throws IOException;
+	public void write(Message message) throws IOException;
 
 	public void flush() throws IOException;
 

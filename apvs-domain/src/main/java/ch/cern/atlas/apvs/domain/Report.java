@@ -8,7 +8,7 @@ public class Report implements Message, Serializable {
 	private static final long serialVersionUID = -2218198847285152101L;
 
 	private String ptuId;
-	private double batteryLevel;
+	private Number batteryLevel;
 	private boolean cameraHandheld;
 	private boolean cameraHelmet;
 	private boolean audio;
@@ -31,7 +31,7 @@ public class Report implements Message, Serializable {
 		return ptuId;
 	}
 
-	public double getBatteryLevel() {
+	public Number getBatteryLevel() {
 		return batteryLevel;
 	}
 
