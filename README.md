@@ -13,17 +13,18 @@ of simulators to mimic the DAQ behaviour and run the system without APVS DAQ.
    
 ###Setup Nexus
 
-1. Download nexus from http://www.sonatype.org/nexus/ and install.
+#### Download nexus from http://www.sonatype.org/nexus/ and install.
 
 On Windows:
-To install nexus run the command "nexus install" under the folder ".../nexus-<version number>/bin"
-
-Remark: 
-Windows users should be running command prompt with administrator priviledges(Right mouse click on application->Run as Administrator)
+	
+	To install nexus run the command "nexus install" from the folder ".../nexus-<version number>/bin"
+	
+	Windows users should be running command prompt with administrator privileges (Right mouse click on application->Run as Administrator)
 
 On MacOS:
 in ~/Library/LaunchAgents create a file nexus.plist with the following content:
 
+```xml
 	<?xml version="1.0" encoding="UTF-8"?>
 	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 	<plist version="1.0">
@@ -41,11 +42,13 @@ in ~/Library/LaunchAgents create a file nexus.plist with the following content:
 		<true/>
 	</dict>
 	</plist>
+```
 
 2. Start up the nexus server (run the command "nexus start").
 
 3.Create file settings.xml for maven in ~/.m2/settings.xml. PLEASE READ REMARK AT THE END OF THIS STEP.
 
+```xml
 	<settings>
 	
 	  <mirrors>
@@ -86,6 +89,7 @@ in ~/Library/LaunchAgents create a file nexus.plist with the following content:
 	    <activeProfile>nexus</activeProfile>
 	  </activeProfiles>
 	</settings>
+```
 
 Remark: 
 WINDOWS USERS USING CERN DFS AS HOME DIRECTORY MIGHT EXPERIENCE SOME ISSUES DURING BUILD PROCESS. THEREFORE, THEY SHOULD CHANGE THE LOCAL REPOSITORY TO A LOCAL DIRECTORY BY ADDING A SPECIFIED LOCATION ON "setting.xml" FILE 
