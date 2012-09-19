@@ -22,54 +22,67 @@ import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 public class DosimeterServiceImpl extends ResponsePollService {
 
 	private static final int DEFAULT_PORT = 4001;
-	
+
 	private String dosimeterUrl;
-	
+
 	private DosimeterClientHandler dosimeterClientHandler;
 	private RemoteEventBus eventBus;
 
+	private boolean ENABLE_DOSIMETER = false;
+
 	public DosimeterServiceImpl() {
-		System.out.println("Creating DosimeterService...");
-		eventBus = APVSServerFactory.getInstance().getEventBus();
+		if (ENABLE_DOSIMETER) {
+			System.out.println("Creating DosimeterService...");
+			eventBus = APVSServerFactory.getInstance().getEventBus();
+		}
 	}
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		System.out.println("Starting DosimeterService...");
-		
-		ServerSettingsChangedEvent.subscribe(eventBus, new ServerSettingsChangedEvent.Handler() {
-			
-			@Override
-			public void onServerSettingsChanged(ServerSettingsChangedEvent event) {
-				ServerSettings settings = event.getServerSettings();
-				if (settings != null) {
-					String url = settings.get(ServerSettings.settingNames[1]);
-					if ((url != null) && !url.equals(dosimeterUrl)) {
-						dosimeterUrl = url;
-						String[] s = dosimeterUrl.split(":", 2);
-						String host = s[0];
-						int port = s.length > 1 ? Integer.parseInt(s[1]) : DEFAULT_PORT;
-						
-						System.err.println("Setting DOSIMETER to " + host
-								+ ":" + port);
-						dosimeterClientHandler.connect(new InetSocketAddress(
-								host, port));
-					}
-				}
-			}
-		});
+		if (ENABLE_DOSIMETER) {
 
-		// Configure the client.
-		ClientBootstrap bootstrap = new ClientBootstrap(
-				new NioClientSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
+			System.out.println("Starting DosimeterService...");
 
-		dosimeterClientHandler = new DosimeterClientHandler(bootstrap, eventBus);
+			ServerSettingsChangedEvent.subscribe(eventBus,
+					new ServerSettingsChangedEvent.Handler() {
 
-		// Configure the pipeline factory.
-		bootstrap.setPipelineFactory(new PtuPipelineFactory(
-				dosimeterClientHandler));
+						@Override
+						public void onServerSettingsChanged(
+								ServerSettingsChangedEvent event) {
+							ServerSettings settings = event.getServerSettings();
+							if (settings != null) {
+								String url = settings
+										.get(ServerSettings.settingNames[1]);
+								if ((url != null) && !url.equals(dosimeterUrl)) {
+									dosimeterUrl = url;
+									String[] s = dosimeterUrl.split(":", 2);
+									String host = s[0];
+									int port = s.length > 1 ? Integer
+											.parseInt(s[1]) : DEFAULT_PORT;
+
+									System.err.println("Setting DOSIMETER to "
+											+ host + ":" + port);
+									dosimeterClientHandler
+											.connect(new InetSocketAddress(
+													host, port));
+								}
+							}
+						}
+					});
+
+			// Configure the client.
+			ClientBootstrap bootstrap = new ClientBootstrap(
+					new NioClientSocketChannelFactory(
+							Executors.newCachedThreadPool(),
+							Executors.newCachedThreadPool()));
+
+			dosimeterClientHandler = new DosimeterClientHandler(bootstrap,
+					eventBus);
+
+			// Configure the pipeline factory.
+			bootstrap.setPipelineFactory(new PtuPipelineFactory(
+					dosimeterClientHandler));
+		}
 	}
 }
