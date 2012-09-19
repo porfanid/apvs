@@ -5,21 +5,19 @@ It uses atmosphere to keep values read by the DAQ system up to date on a supervi
 portal and using mgwt on a number of worker iPad systems. The system contains a number
 of simulators to mimic the DAQ behaviour and run the system without APVS DAQ.
 
-##Installation and Build Notes
+## Installation and Build Notes
 
-###Copy a version of AWSS
+### Copy a version of AWSS
 
    git clone git://github.com/CERN/apvs.git
    
-###Setup Nexus
+### Setup Nexus
 
 #### Download nexus from http://www.sonatype.org/nexus/ and install.
 
-On Windows:
+On Windows install nexus by running the command using admin privileges, (Right mouse click on application->Run as Administrator):
 	
-    To install nexus run the command "nexus install" from the folder ".../nexus-<version number>/bin"
-	
-	Windows users should be running command prompt with administrator privileges (Right mouse click on application->Run as Administrator)
+    _.../nexus-<version number>/bin_ > nexus install	
 
 On MacOS:
 in ~/Library/LaunchAgents create a file nexus.plist with the following content:
