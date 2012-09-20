@@ -53,6 +53,6 @@ public class Report implements Message, Serializable {
 
 	@Override
 	public String getType() {
-		return "report";
+		return "Report";
 	}
 }

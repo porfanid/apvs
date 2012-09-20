@@ -51,7 +51,7 @@ public class Measurement implements Message, Serializable, Comparable<Measuremen
 
 	@Override
 	public String getType() {
-		return "measurement";
+		return "Measurement";
 	}
 
 	@Override

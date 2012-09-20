@@ -40,6 +40,6 @@ public class Order implements Message, Serializable {
 
 	@Override
 	public String getType() {
-		return "order";
+		return "Order";
 	}
 }

@@ -47,6 +47,6 @@ public class Event implements Message, Serializable {
 
 	@Override
 	public String getType() {
-		return "event";
+		return "Event";
 	}
 }

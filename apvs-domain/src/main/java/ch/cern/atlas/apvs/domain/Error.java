@@ -48,6 +48,6 @@ public class Error implements Message, Serializable {
 
 	@Override
 	public String getType() {
-		return "error";
+		return "Error";
 	}
 }
