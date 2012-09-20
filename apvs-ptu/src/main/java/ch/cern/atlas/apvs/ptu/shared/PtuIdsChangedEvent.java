@@ -53,8 +53,8 @@ public class PtuIdsChangedEvent extends RemoteEvent<PtuIdsChangedEvent.Handler> 
 	public PtuIdsChangedEvent() {
 	}
 
-	public PtuIdsChangedEvent(List<String> list) {
-		this.ptuIds = list;
+	public PtuIdsChangedEvent(List<String> set) {
+		this.ptuIds = set;
 	}
 
 	@Override

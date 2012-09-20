@@ -19,7 +19,6 @@ import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.server.PtuClientHandler;
 import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 
 /**
@@ -29,10 +28,8 @@ import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	private static final int DEFAULT_PTU_PORT = 4005;
-//	private static final int DEFAULT_DB_PORT = 1521;
 
 	private String ptuUrl;
-	private String dbUrl;
 
 	private RemoteEventBus eventBus;
 	private PtuClientHandler ptuClientHandler;
@@ -69,13 +66,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 										+ ":" + port);
 								ptuClientHandler.connect(new InetSocketAddress(
 										host, port));
-							}
-
-							url = settings.get(ServerSettings.settingNames[3]);
-							if ((url != null) && !url.equals(dbUrl)) {
-								dbUrl = url;
-								
-								ptuClientHandler.connect("jdbc:log4jdbc:oracle:thin:"+dbUrl);
 							}
 						}
 					}
