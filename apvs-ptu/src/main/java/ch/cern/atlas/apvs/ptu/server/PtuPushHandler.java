@@ -15,23 +15,27 @@ import org.jboss.netty.channel.MessageEvent;
 public class PtuPushHandler extends PtuReconnectHandler {
 
 	private Map<Channel, List<PtuSimulator>> simulators = new HashMap<Channel, List<PtuSimulator>>();
-	private String[] ptuIds = { "PTU_78", "PTU_82", "PTU_37", "PTU_27", "PTU_39", "PTU_88" };
+	// private String[] ptuIds = { "PTU_78", "PTU_82", "PTU_37", "PTU_27",
+	// "PTU_39", "PTU_88" };
+	private String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309",
+			"PTU_27372", "PTU_39400", "PTU_88982" };
 
 	public PtuPushHandler(ClientBootstrap bootstrap, String[] ids) {
 		super(bootstrap);
-		
+
 		if (ids != null) {
 			ptuIds = ids;
 		}
 		init();
 	}
-	
+
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
 		super.channelConnected(ctx, e);
-		
-		List<PtuSimulator> listOfSimulators = new ArrayList<PtuSimulator>(ptuIds.length);
+
+		List<PtuSimulator> listOfSimulators = new ArrayList<PtuSimulator>(
+				ptuIds.length);
 		for (int i = 0; i < ptuIds.length; i++) {
 			String ptuId = ptuIds[i];
 
@@ -40,25 +44,25 @@ public class PtuPushHandler extends PtuReconnectHandler {
 			simulator.start();
 		}
 
-		simulators.put(e.getChannel(), listOfSimulators);	
+		simulators.put(e.getChannel(), listOfSimulators);
 	}
-	
-    @Override
-    public void channelDisconnected(ChannelHandlerContext ctx,
-    		ChannelStateEvent e) throws Exception {
-    	super.channelDisconnected(ctx, e);
 
-    	List<PtuSimulator> listOfSimulators = simulators.get(e.getChannel());
-    	if (listOfSimulators != null) {
-    		System.err.println("Interrupting Threads...");
-    		for (Iterator<PtuSimulator> i = listOfSimulators.iterator(); i.hasNext(); ) {
-    			i.next().interrupt();
-    		}
-    		simulators.remove(e.getChannel());
-    	}   	
-    }
+	@Override
+	public void channelDisconnected(ChannelHandlerContext ctx,
+			ChannelStateEvent e) throws Exception {
+		super.channelDisconnected(ctx, e);
 
-	
+		List<PtuSimulator> listOfSimulators = simulators.get(e.getChannel());
+		if (listOfSimulators != null) {
+			System.err.println("Interrupting Threads...");
+			for (Iterator<PtuSimulator> i = listOfSimulators.iterator(); i
+					.hasNext();) {
+				i.next().interrupt();
+			}
+			simulators.remove(e.getChannel());
+		}
+	}
+
 	@Override
 	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
@@ -67,13 +71,13 @@ public class PtuPushHandler extends PtuReconnectHandler {
 
 		super.channelClosed(ctx, e);
 	}
-	
+
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
 		super.messageReceived(ctx, e);
 	}
-	
+
 	private void init() {
 	}
 }

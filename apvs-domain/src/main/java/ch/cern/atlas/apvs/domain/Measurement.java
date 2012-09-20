@@ -12,18 +12,24 @@ public class Measurement implements Message, Serializable, Comparable<Measuremen
 	private Number value;
 	private String unit;
 	private Date date;
+	private Integer samplingRate;
 
 	public Measurement() {
 	}
 
 	public Measurement(String name, Number value, String unit) {
-		this(null, name, value, unit, new Date());
+		this(null, name, value, 10000, unit, new Date());
 	}
 
 	public Measurement(String ptuId, String name, Number value, String unit, Date date) {
+		this(ptuId, name, value, 10000, unit, date);
+	}
+		
+	public Measurement(String ptuId, String name, Number value, Integer samplingRate, String unit, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
 		this.value = value;
+		this.samplingRate = samplingRate;
 		this.unit = unit;
 		this.date = date;
 	}
@@ -39,6 +45,10 @@ public class Measurement implements Message, Serializable, Comparable<Measuremen
 
 	public Number getValue() {
 		return value;
+	}
+	
+	public Integer getSamplingRate() {
+		return samplingRate;
 	}
 
 	public String getUnit() {
@@ -65,6 +75,7 @@ public class Measurement implements Message, Serializable, Comparable<Measuremen
 		return (getPtuId() != null ? getPtuId().hashCode() : 0)
 				+ (getName() != null ? getName().hashCode() : 0)
 				+ (getValue() != null ? getValue().hashCode() : 0)
+				+ (getSamplingRate() != null ? getSamplingRate().hashCode() : 0)
 				+ (getUnit() != null ? getUnit().hashCode() : 0)
 				+ (getDate() != null ? getDate().hashCode() : 0)
 				+ (getType() != null ? getType().hashCode() : 0);
@@ -77,6 +88,7 @@ public class Measurement implements Message, Serializable, Comparable<Measuremen
 			return (getPtuId() == null ? m.getPtuId() == null : getPtuId().equals(m.getPtuId()))
 					&& (getName() == null ? m.getName() == null : getName().equals(m.getName()))
 					&& (getValue() == null ? m.getValue() == null : getValue().equals(m.getValue()))
+					&& (getSamplingRate() == null ? m.getSamplingRate() == null : getSamplingRate().equals(m.getSamplingRate()))
 					&& (getUnit() == null ? m.getUnit() == null : getUnit().equals(m.getUnit()))
 					&& (getDate() == null ? m.getDate() == null : getDate().equals(m.getDate()))
 					&& (getType() == null ? m.getType() == null : getType().equals(m.getType()));
@@ -87,7 +99,7 @@ public class Measurement implements Message, Serializable, Comparable<Measuremen
 	@Override
 	public String toString() {
 		return "Measurement(" + getPtuId() + "): name=" + getName() + " value="
-				+ getValue() + " unit=" + getUnit() + " date: " + getDate();
+				+ getValue() + " sampling rate="+getSamplingRate()+" unit=" + getUnit() + " date: " + getDate();
 	}
 
 }

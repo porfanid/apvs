@@ -5,10 +5,10 @@ import java.util.Date;
 import ch.cern.atlas.apvs.domain.Measurement;
 
 @SuppressWarnings("serial")
-public class O2 extends Measurement {
+public class HeartRate extends Measurement {
 
-	public O2(String ptuId, double value, Date d) {
-		super(ptuId, "O2", value, "ppm", d);
+	public HeartRate(String ptuId, double value, Date d) {
+		super(ptuId, "HeartRate", value, "bpm", d);
 	}
 	
 }

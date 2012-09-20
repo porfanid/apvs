@@ -12,7 +12,7 @@ public class JsonMeasurement implements JsonMessage {
 	Date time;
 	String method = "OneShoot";
 	String value;
-	String samplerate = "";
+	String samplingRate;
 	String unit;
 	
 	public JsonMeasurement(Message message) {
@@ -21,19 +21,7 @@ public class JsonMeasurement implements JsonMessage {
 		sensor = measurement.getName();
 		time = measurement.getDate();
 		value = measurement.getValue().toString();
+		samplingRate = measurement.getSamplingRate().toString();
 		unit = measurement.getUnit();
 	}
-
-/*
-	public JsonMessage(String type, String sensor, String time,
-			String method, String value, String samplerate, String unit) throws ParseException {
-		this.type = type;
-		this.sensor = sensor;
-		this.time = PtuConstants.dateFormat.parse(time);
-		this.method = method;
-		this.value = value;
-		this.samplerate = samplerate;
-		this.unit = unit;
-	}
-	*/
 }

@@ -5,26 +5,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import ch.cern.atlas.apvs.domain.Error;
-import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
-import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
-import ch.cern.atlas.apvs.domain.Report;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuConstants;
@@ -38,11 +29,10 @@ public class DbHandler extends DbReconnectHandler {
 
 	private Ptus ptus = Ptus.getInstance();
 
-	private boolean ptuIdsChanged = false;
-
-	PreparedStatement historyQueryCount;
-	PreparedStatement historyQuery;
-	PreparedStatement deviceQuery;
+	private PreparedStatement historyQueryCount;
+	private PreparedStatement historyQuery;
+	private PreparedStatement deviceQuery;
+	private PreparedStatement userQuery;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super();
@@ -73,6 +63,13 @@ public class DbHandler extends DbReconnectHandler {
 				} catch (SQLException e) {
 					System.err
 							.println("Could not regularly-update device list: "
+									+ e);
+				}
+				try {
+					updateUsers();
+				} catch (SQLException e) {
+					System.err
+							.println("Could not regularly-update user list: "
 									+ e);
 				}
 			}
@@ -143,13 +140,6 @@ public class DbHandler extends DbReconnectHandler {
 		return history;
 	}
 
-	private void sendEvents() {
-		if (ptuIdsChanged) {
-			eventBus.fireEvent(new PtuIdsChangedEvent(ptus.getPtuIds()));
-			ptuIdsChanged = false;
-		}
-	}
-
 	@Override
 	public void dbConnected(Connection connection) throws SQLException {
 		super.dbConnected(connection);
@@ -175,8 +165,11 @@ public class DbHandler extends DbReconnectHandler {
 
 		deviceQuery = connection
 				.prepareStatement("select ID, NAME from tbl_devices");
+		
+		userQuery = connection.prepareStatement("select ID, FNAME, LNAME from tbl_users");
 
 		updateDevices();
+		updateUsers();
 	}
 
 	private void updateDevices() throws SQLException {
@@ -186,6 +179,7 @@ public class DbHandler extends DbReconnectHandler {
 		Set<String> prune = new HashSet<String>();
 		prune.addAll(ptus.getPtuIds());
 
+		boolean ptuIdsChanged = false;
 		ResultSet result = deviceQuery.executeQuery();
 		while (result.next()) {
 			// int id = result.getInt(1);
@@ -207,6 +201,16 @@ public class DbHandler extends DbReconnectHandler {
 			ptuIdsChanged = true;
 		}
 
-		sendEvents();
+		if (ptuIdsChanged) {
+			eventBus.fireEvent(new PtuIdsChangedEvent(ptus.getPtuIds()));
+			ptuIdsChanged = false;
+		}
+	}
+	
+	private void updateUsers() throws SQLException {
+		if (userQuery == null)
+			return;
+
+		// FIXME...
 	}
 }
