@@ -219,6 +219,9 @@
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>${surefire-plugin-version}</version>
+				        <configuration>
+      						<testFailureIgnore>false</testFailureIgnore>
+    					</configuration>
 				</plugin>
 
 				<plugin>

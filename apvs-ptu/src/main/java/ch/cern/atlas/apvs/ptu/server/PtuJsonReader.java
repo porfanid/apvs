@@ -40,7 +40,7 @@ public class PtuJsonReader extends JsonReader {
 		for (int i = 0; i < messages.length; i++) {
 			JsonObject msg = msgs.get(i);
 			String type = (String) msg.get("Type");
-			if (type.equals("measurement")) {
+			if (type.equals("Measurement")) {
 				result.add(new Measurement(sender, (String) msg
 						.get("Sensor"), Double.parseDouble((String) msg
 						.get("Value")), (String) msg.get("Unit"),
