@@ -5,7 +5,7 @@ import java.util.Date;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 
-public class JsonMeasurement implements JsonMessage {
+public class JsonMeasurement extends JsonMessage {
 	
 	String type;
 	String sensor;
@@ -18,10 +18,10 @@ public class JsonMeasurement implements JsonMessage {
 	public JsonMeasurement(Message message) {
 		Measurement measurement = (Measurement)message;
 		type = measurement.getType();
-		sensor = measurement.getName();
+		sensor = limit(measurement.getName(), 50);
 		time = measurement.getDate();
-		value = measurement.getValue().toString();
-		samplingRate = measurement.getSamplingRate().toString();
+		value = limit(measurement.getValue().toString(), 1024);
+		samplingRate = limit(measurement.getSamplingRate().toString(), 20);
 		unit = measurement.getUnit();
 	}
 }

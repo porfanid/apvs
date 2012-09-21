@@ -39,7 +39,7 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
 		for (int i = 0; i < ptuIds.length; i++) {
 			String ptuId = ptuIds[i];
 
-			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId);
+			PtuSimulator simulator = new PtuSimulator(ptuId, e.getChannel());
 			listOfSimulators.add(simulator);
 			simulator.start();
 		}

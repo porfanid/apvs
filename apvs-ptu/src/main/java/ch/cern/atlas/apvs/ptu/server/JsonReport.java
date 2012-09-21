@@ -5,7 +5,7 @@ import java.util.Date;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Report;
 
-public class JsonReport implements JsonMessage {
+public class JsonReport extends JsonMessage {
 	
 	String type;
 	String batteryLevel;
@@ -18,7 +18,7 @@ public class JsonReport implements JsonMessage {
 		Report report = (Report)message;
 		type = report.getType();
 		time = report.getDate();
-		batteryLevel = report.getBatteryLevel().toString();
+		batteryLevel = limit(report.getBatteryLevel().toString(), 5);
 		cameraHandheld = report.getCameraHandheld() ? "1" : "0";
 		cameraHelmet = report.getCameraHelmet() ? "1" : "0";
 		audio = report.getAudio() ? "1" : "0";

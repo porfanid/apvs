@@ -3,7 +3,7 @@ package ch.cern.atlas.apvs.ptu.server;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
 
-public class JsonOrder implements JsonMessage {
+public class JsonOrder extends JsonMessage {
 	
 	String type;
 	String sensor;
@@ -13,9 +13,9 @@ public class JsonOrder implements JsonMessage {
 	public JsonOrder(Message message) {
 		Order order = (Order)message;
 		type = order.getType();
-		sensor = order.getName();
-		parameter = order.getParameter();
-		value = order.getValue().toString();
+		sensor = limit(order.getName(), 50);
+		parameter = order.getParameter(); // FIXME limit
+		value = limit(order.getValue().toString(), 1024);
 	}
 
 }

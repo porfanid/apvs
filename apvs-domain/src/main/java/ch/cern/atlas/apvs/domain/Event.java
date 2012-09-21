@@ -11,17 +11,19 @@ public class Event implements Message, Serializable {
 	private String name;
 	private String eventType;
 	private Number value;
+	private Number threshold;
 	private Date date;
 
 	public Event() {
 	}
 
-	public Event(String ptuId, String name, String eventType, Number value, Date date) {
+	public Event(String ptuId, String name, String eventType, Number value, Number threshold, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
 		this.eventType = eventType;
 		this.value = value;
 		this.date = date;
+		this.threshold = threshold;
 	}
 
     @Override
@@ -48,5 +50,9 @@ public class Event implements Message, Serializable {
 	@Override
 	public String getType() {
 		return "Event";
+	}
+
+	public Number getTheshold() {
+		return threshold;
 	}
 }

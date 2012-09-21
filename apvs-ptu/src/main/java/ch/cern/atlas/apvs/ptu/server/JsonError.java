@@ -5,7 +5,7 @@ import java.util.Date;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Message;
 
-public class JsonError implements JsonMessage {
+public class JsonError extends JsonMessage {
 	
 	String type;
 	String errorNo;
@@ -16,10 +16,10 @@ public class JsonError implements JsonMessage {
 	public JsonError(Message message) {
 		Error error = (Error)message;
 		type = error.getType();
-		errorNo = Integer.toString(error.getErrorNo());
+		errorNo = limit(error.getErrorNo().toString(), 20);
 		time = error.getDate();
-		description = error.getDescription();
-		criticality = error.getCriticality();
+		description = limit(error.getDescription(), 500);
+		criticality = limit(error.getCriticality(), 20);
 	}
 
 }

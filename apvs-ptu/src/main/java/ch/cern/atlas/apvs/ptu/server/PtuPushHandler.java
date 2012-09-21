@@ -15,8 +15,6 @@ import org.jboss.netty.channel.MessageEvent;
 public class PtuPushHandler extends PtuReconnectHandler {
 
 	private Map<Channel, List<PtuSimulator>> simulators = new HashMap<Channel, List<PtuSimulator>>();
-	// private String[] ptuIds = { "PTU_78", "PTU_82", "PTU_37", "PTU_27",
-	// "PTU_39", "PTU_88" };
 	private String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309",
 			"PTU_27372", "PTU_39400", "PTU_88982" };
 
@@ -26,7 +24,6 @@ public class PtuPushHandler extends PtuReconnectHandler {
 		if (ids != null) {
 			ptuIds = ids;
 		}
-		init();
 	}
 
 	@Override
@@ -39,7 +36,7 @@ public class PtuPushHandler extends PtuReconnectHandler {
 		for (int i = 0; i < ptuIds.length; i++) {
 			String ptuId = ptuIds[i];
 
-			PtuSimulator simulator = new PtuSimulator(e.getChannel(), ptuId);
+			PtuSimulator simulator = new PtuSimulator(ptuId, e.getChannel());
 			listOfSimulators.add(simulator);
 			simulator.start();
 		}
@@ -67,7 +64,6 @@ public class PtuPushHandler extends PtuReconnectHandler {
 	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
 		// handle closed connection
-		init();
 
 		super.channelClosed(ctx, e);
 	}
@@ -76,8 +72,5 @@ public class PtuPushHandler extends PtuReconnectHandler {
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
 		super.messageReceived(ctx, e);
-	}
-
-	private void init() {
 	}
 }

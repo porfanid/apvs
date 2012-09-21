@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.Random;
 
@@ -23,7 +25,11 @@ public class PtuSimulator extends Thread {
 	private final String ptuId;
 	private Ptu ptu;
 
-	public PtuSimulator(Channel channel, String ptuId) {
+	public PtuSimulator(String ptuId) {
+		this(ptuId, null);
+	}
+	
+	public PtuSimulator(String ptuId, Channel channel) {
 		this.channel = channel;
 		this.ptuId = ptuId;
 	}
@@ -50,17 +56,21 @@ public class PtuSimulator extends Thread {
 
 			then += defaultWait + random.nextInt(extraWait);
 
-			ChannelBuffer buffer = ChannelBuffers.buffer(8192);
-			ChannelBufferOutputStream cos = new ChannelBufferOutputStream(
-					buffer);
+			OutputStream os;
+			if (channel != null) {
+				ChannelBuffer buffer = ChannelBuffers.buffer(8192);
+				os = new ChannelBufferOutputStream(
+						buffer);
+			} else {
+				os = new ByteArrayOutputStream();
+			}
 
-			ObjectWriter writer = new PtuJsonWriter(cos);
+			int i = 1;
 
-			int i = 0;
-			
 			try {
 				// now loop at current time
 				while (!isInterrupted()) {
+					ObjectWriter writer = new PtuJsonWriter(os);
 					if (i % 5 == 0) {
 						writer.write(nextReport(ptu, new Date()));
 					} else {
@@ -69,10 +79,7 @@ public class PtuSimulator extends Thread {
 					writer.newLine();
 					writer.flush();
 
-					synchronized (channel) {
-						channel.write(cos.buffer()).awaitUninterruptibly();
-						cos.buffer().clear();
-					}
+					os = sendBufferAndClear(os);
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
 					System.out.print(".");
 					System.out.flush();
@@ -83,13 +90,25 @@ public class PtuSimulator extends Thread {
 			}
 			System.err.print("*");
 			System.out.flush();
-			writer.close();
 		} catch (IOException e) {
 			// ignored
 		} finally {
-			System.out.println("Closing");
-			channel.close();
+			if (channel != null) {
+				System.out.println("Closing");
+				channel.close();
+			}
 		}
+	}
+
+	protected synchronized OutputStream sendBufferAndClear(OutputStream os) {
+		if (channel != null) {
+			ChannelBufferOutputStream cos = (ChannelBufferOutputStream)os;
+			channel.write(cos.buffer()).awaitUninterruptibly();
+			cos.buffer().clear();
+		} else {
+			os = new ByteArrayOutputStream();
+		}
+		return os;
 	}
 
 	private Measurement nextMeasurement(Ptu ptu, Date d) {
@@ -101,11 +120,13 @@ public class PtuSimulator extends Thread {
 	}
 
 	private Measurement nextMeasurement(Measurement m, Date d) {
-		return new Measurement(m.getPtuId(), m.getName(), m.getValue().doubleValue()
-				+ random.nextGaussian(), m.getUnit(), d);
+		return new Measurement(m.getPtuId(), m.getName(), m.getValue()
+				.doubleValue() + random.nextGaussian(), m.getUnit(), d);
 	}
-	
+
 	private Report nextReport(Ptu ptu, Date d) {
-		return new Report(ptu.getPtuId(), random.nextGaussian(), random.nextBoolean(), random.nextBoolean(), random.nextBoolean(), d);
+		return new Report(ptu.getPtuId(), random.nextGaussian(),
+				random.nextBoolean(), random.nextBoolean(),
+				random.nextBoolean(), d);
 	}
 }

@@ -27,5 +27,4 @@ public class PtuJsonReaderTest {
 		Assert.assertEquals(msg0, list.get(0).toString());
 		Assert.assertEquals(msg1, list.get(1).toString());
 	}
-
 }
