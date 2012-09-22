@@ -21,12 +21,12 @@
 		<buildNumber>${maven.build.timestamp}</buildNumber>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<atmosphere-version>1.0.0</atmosphere-version>
 
 		<gwt-version>2.4.0</gwt-version>
 		<gwt-plugin-version>2.4.0</gwt-plugin-version>
 		<!-- <gwt-version>2.5.0-rc1</gwt-version> <gwt-plugin-version>2.5.0-rc1</gwt-plugin-version> -->
 
+		<atmosphere-version>1.0.1</atmosphere-version>
 		<highcharts-version>1.4.0</highcharts-version>
 		<jdk-version>1.6</jdk-version>
 		<jetty-version>8.1.6.v20120903</jetty-version>
