@@ -1,30 +1,17 @@
 package ch.cern.atlas.apvs.server;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -36,13 +23,12 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.domain.Report;
+import ch.cern.atlas.apvs.eventbus.shared.DummyEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-import ch.cern.atlas.apvs.ptu.server.PtuConstants;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 public class PtuClientHandler extends PtuReconnectHandler {
 
@@ -74,6 +60,16 @@ public class PtuClientHandler extends PtuReconnectHandler {
 				}
 			}
 		});
+	}
+	
+	@Override
+	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
+			throws Exception {
+		// handle closed connection, send extra event... see, #133 and #139
+		eventBus.fireEvent(new DummyEvent());
+
+		super.channelClosed(ctx, e);
+
 	}
 
 	@Override
