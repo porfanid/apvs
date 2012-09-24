@@ -34,6 +34,7 @@ public class ServerSettingsStorage {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
+				System.err.println("!!! Requested "+event.getRequestedClassName());
 				if (event.getRequestedClassName().equals(
 						ServerSettingsChangedEvent.class.getName())) {
 					eventBus.fireEvent(new ServerSettingsChangedEvent(settings));
@@ -67,6 +68,9 @@ public class ServerSettingsStorage {
 			System.err
 					.println("Could not read Server Settings, using defaults");
 			settings = new ServerSettings(true);
+		} else {
+			System.err
+			.println("Server Settings Read");			
 		}
 	}
 

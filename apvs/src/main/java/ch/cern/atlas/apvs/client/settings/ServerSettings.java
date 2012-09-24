@@ -28,4 +28,12 @@ public class ServerSettings extends AbstractServerSettings {
 		put(settingNames[2], "http://localhost:8890/apvs-procs/procedures");
 		put(settingNames[3], "PTU/atlas@//pcatlaswpss03.cern.ch:1521/XE");
 	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer("ServerSettings: ");
+		for (int i=0; i<settingNames.length; i++) {
+			sb.append(settingNames[i]+"="+get(settingNames[i])+"; ");
+		}
+		return sb.toString();
+	}
 }
