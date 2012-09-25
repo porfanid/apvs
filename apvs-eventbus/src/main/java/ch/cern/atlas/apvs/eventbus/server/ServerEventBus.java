@@ -1,11 +1,14 @@
 package ch.cern.atlas.apvs.eventbus.server;
 
+import java.util.logging.Logger;
+
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 public class ServerEventBus extends RemoteEventBus {
 
 	private static ServerEventBus instance;
+	private static Logger log = Logger.getLogger(ServerEventBus.class.getName());
 
 	private EventBusServiceHandler eventBusServiceHandler;
 
@@ -26,12 +29,14 @@ public class ServerEventBus extends RemoteEventBus {
 
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
+		log.info("Fire event "+event.getClass());
 		doFire(event);
 	}
 
 	@Override
 	public void fireEventFromSource(RemoteEvent<?> event,
 			int uuid) {
+		log.info("Fire event "+event.getClass()+" "+uuid);
 		doFire(event);
 	}
 

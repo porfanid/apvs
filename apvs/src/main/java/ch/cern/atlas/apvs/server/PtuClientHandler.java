@@ -63,16 +63,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 	
 	@Override
-	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
-			throws Exception {
-		// handle closed connection, send extra event... see, #133 and #139
-		eventBus.fireEvent(new DummyEvent());
-
-		super.channelClosed(ctx, e);
-
-	}
-
-	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 		// Print out the line received from the server.
 		String line = (String) e.getMessage();

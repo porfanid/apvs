@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.google.web.bindery.event.shared.SimpleEventBus;
@@ -20,6 +21,8 @@ import com.google.web.bindery.event.shared.UmbrellaException;
  */
 public class RemoteEventBus extends SimpleEventBus {
 
+	private static Logger log = Logger.getLogger(RemoteEventBus.class.getName());
+	
 	protected static <H> void dispatchEvent(RemoteEvent<H> event, H handler) {
 		event.dispatch(handler);
 	}
@@ -66,6 +69,7 @@ public class RemoteEventBus extends SimpleEventBus {
 	}
 
 	public void fireEvent(RemoteEvent<?> event) {
+		log.info("Fire event "+event.getClass());
 		doFire(event, 0);
 	}
 
@@ -73,6 +77,7 @@ public class RemoteEventBus extends SimpleEventBus {
 		if (uuid == 0) {
 			throw new NullPointerException("Cannot fire from a 0 uuid");
 		}
+		log.info("Fire event "+event.getClass()+" "+uuid);
 		doFire(event, uuid);
 	}
 
