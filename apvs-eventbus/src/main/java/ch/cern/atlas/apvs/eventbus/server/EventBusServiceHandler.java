@@ -75,9 +75,19 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	 */
 	@Override
 	public List<RemoteEvent<?>> getQueuedEvents(Long eventBusUUID) {
-		log.info("Suspend "+Long.toHexString(eventBusUUID).toUpperCase());
-		getClientInfo(eventBusUUID).suspendInfo = suspend();
-		return null;
+		ClientInfo info = getClientInfo(eventBusUUID);
+		
+		List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
+		int d = info.eventQueue.drainTo(events);
+		if (d > 0) {
+			log.info("Returning "+events.size()+" for uuid "+Long.toHexString(eventBusUUID).toUpperCase());
+			return events;
+		} else {		
+
+			log.info("Suspend "+Long.toHexString(eventBusUUID).toUpperCase());
+			info.suspendInfo = suspend();
+			return null;
+	    }
 	}
 
 	/**
