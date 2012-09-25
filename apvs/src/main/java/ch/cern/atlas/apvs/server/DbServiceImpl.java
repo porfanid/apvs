@@ -40,7 +40,7 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 							ServerSettingsChangedEvent event) {
 						ServerSettings settings = event.getServerSettings();
 						if (settings != null) {
-							String url = settings.get(ServerSettings.settingNames[3]);
+							String url = settings.get(ServerSettings.Key.databaseUrl.toString());
 							if ((url != null) && !url.equals(dbUrl)) {
 								dbUrl = url;
 								

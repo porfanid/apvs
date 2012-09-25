@@ -54,7 +54,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 						ServerSettings settings = event.getServerSettings();
 						if (settings != null) {
 							String url = settings
-									.get(ServerSettings.settingNames[0]);
+									.get(ServerSettings.Key.ptuUrl.toString());
 							if ((url != null) && !url.equals(ptuUrl)) {
 								ptuUrl = url;
 								String[] s = ptuUrl.split(":", 2);

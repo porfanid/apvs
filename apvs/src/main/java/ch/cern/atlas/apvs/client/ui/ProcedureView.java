@@ -80,7 +80,7 @@ public class ProcedureView extends SimplePanel {
 			
 			@Override
 			public void onServerSettingsChanged(ServerSettingsChangedEvent event) {
-				procedureURL = event.getServerSettings().get(ServerSettings.settingNames[2]);
+				procedureURL = event.getServerSettings().get(ServerSettings.Key.procedureUrl.toString());
 				localEventBus.fireEvent(new StepStatusEvent(ProcedureView.this.step, lastStep, hasPrevious(), hasNext()));
 				update();
 			}

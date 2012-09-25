@@ -1,7 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Arrays;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -88,7 +86,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 		table.addColumn(column, "Value");
 
 		dataProvider.addDataDisplay(table);
-		dataProvider.setList(Arrays.asList(ServerSettings.settingNames));
+		dataProvider.setList(ServerSettings.Key.getKeys());
 		
 		ServerSettingsChangedEvent.subscribe(eventBus,
 				new ServerSettingsChangedEvent.Handler() {
