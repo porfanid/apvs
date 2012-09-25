@@ -90,7 +90,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 				return object;
 			}
 		};
-		ptuId.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		ptuId.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		ptuId.setSortable(true);
 		table.addColumn(ptuId, "PTU ID");
 
