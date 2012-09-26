@@ -18,7 +18,7 @@ import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-import ch.cern.atlas.apvs.ptu.server.PtuConstants;
+import ch.cern.atlas.apvs.ptu.server.PtuServerConstants;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 public class DbHandler extends DbReconnectHandler {
@@ -83,7 +83,7 @@ public class DbHandler extends DbReconnectHandler {
 
 			long PERIOD = 36; // hours
 			Date then = new Date(new Date().getTime() - (PERIOD * 3600000));
-			String timestamp = PtuConstants.timestampFormat.format(then);
+			String timestamp = PtuServerConstants.timestampFormat.format(then);
 
 			try {
 				historyQueryCount.setString(1, sensor);
@@ -151,7 +151,7 @@ public class DbHandler extends DbReconnectHandler {
 						+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
 						+ "where sensor = ? " + "and name = ? "
 						+ "and datetime > to_timestamp(?,"
-						+ PtuConstants.oracleFormat + ")");
+						+ PtuServerConstants.oracleFormat + ")");
 
 		historyQuery = connection
 				.prepareStatement("select DATETIME, VALUE from tbl_measurements "
@@ -159,7 +159,7 @@ public class DbHandler extends DbReconnectHandler {
 						+ "where SENSOR = ? "
 						+ "and NAME = ? "
 						+ "and DATETIME > to_timestamp(?,"
-						+ PtuConstants.oracleFormat
+						+ PtuServerConstants.oracleFormat
 						+ ") "
 						+ "order by DATETIME desc");
 

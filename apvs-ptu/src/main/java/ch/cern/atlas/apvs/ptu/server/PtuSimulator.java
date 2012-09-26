@@ -5,18 +5,22 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 
+import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.domain.Report;
 
 public class PtuSimulator extends Thread {
 
+	private static final Logger log = Logger.getLogger(PtuSimulator.class.getName());
+	
 	private final Channel channel;
 	private final Random random = new Random();
 	private final int defaultWait = 5000;
@@ -28,7 +32,7 @@ public class PtuSimulator extends Thread {
 	public PtuSimulator(String ptuId) {
 		this(ptuId, null);
 	}
-	
+
 	public PtuSimulator(String ptuId, Channel channel) {
 		this.channel = channel;
 		this.ptuId = ptuId;
@@ -59,8 +63,7 @@ public class PtuSimulator extends Thread {
 			OutputStream os;
 			if (channel != null) {
 				ChannelBuffer buffer = ChannelBuffers.buffer(8192);
-				os = new ChannelBufferOutputStream(
-						buffer);
+				os = new ChannelBufferOutputStream(buffer);
 			} else {
 				os = new ByteArrayOutputStream();
 			}
@@ -70,9 +73,12 @@ public class PtuSimulator extends Thread {
 			try {
 				// now loop at current time
 				while (!isInterrupted()) {
+					@SuppressWarnings("resource")
 					ObjectWriter writer = new PtuJsonWriter(os);
-					if (i % 5 == 0) {
-						writer.write(nextReport(ptu, new Date()));
+					if (i % 5 != 0) {
+						Event event = nextEvent(ptu, new Date());
+						log.info(event.toString());
+						writer.write(event);
 					} else {
 						writer.write(nextMeasurement(ptu, new Date()));
 					}
@@ -102,7 +108,7 @@ public class PtuSimulator extends Thread {
 
 	protected synchronized OutputStream sendBufferAndClear(OutputStream os) {
 		if (channel != null) {
-			ChannelBufferOutputStream cos = (ChannelBufferOutputStream)os;
+			ChannelBufferOutputStream cos = (ChannelBufferOutputStream) os;
 			channel.write(cos.buffer()).awaitUninterruptibly();
 			cos.buffer().clear();
 		} else {
@@ -124,9 +130,20 @@ public class PtuSimulator extends Thread {
 				.doubleValue() + random.nextGaussian(), m.getUnit(), d);
 	}
 
+	@SuppressWarnings("unused")
 	private Report nextReport(Ptu ptu, Date d) {
 		return new Report(ptu.getPtuId(), random.nextGaussian(),
 				random.nextBoolean(), random.nextBoolean(),
 				random.nextBoolean(), d);
+	}
+
+	private Event nextEvent(Ptu ptu, Date d) {
+		int index = random.nextInt(ptu.getSize());
+		String name = ptu.getMeasurementNames().get(index);
+		double d1 = random.nextDouble();
+		double d2 = random.nextDouble();
+
+		return new Event(ptu.getPtuId(), name, "UpLevel", Math.max(d1, d2),
+				Math.min(d1, d2), d);
 	}
 }

@@ -14,6 +14,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -73,17 +74,10 @@ public class PtuView extends VerticalPanel {
 		add(table);
 
 		// name column
-		ClickableTextColumn<String> name = new ClickableTextColumn<String>() {
+		ClickableHtmlColumn<String> name = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String object) {
 				return object;
-			}
-
-			@Override
-			public void render(Context context, String object,
-					SafeHtmlBuilder sb) {
-				((ClickableTextCell) getCell()).render(context,
-						SafeHtmlUtils.fromSafeConstant(getValue(object)), sb);
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -99,17 +93,10 @@ public class PtuView extends VerticalPanel {
 		table.addColumn(name, "Name");
 
 		// unit column
-		ClickableTextColumn<String> unit = new ClickableTextColumn<String>() {
+		ClickableHtmlColumn<String> unit = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String object) {
 				return units.get(object);
-			}
-
-			@Override
-			public void render(Context context, String object,
-					SafeHtmlBuilder sb) {
-				((ClickableTextCell) getCell()).render(context,
-						SafeHtmlUtils.fromSafeConstant(getValue(object)), sb);
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);

@@ -55,4 +55,8 @@ public class Event implements Message, Serializable {
 	public Number getTheshold() {
 		return threshold;
 	}
+	
+	public String toString() {
+		return getDate()+"PTU: "+getPtuId()+" Sensor: "+getName()+" Type: "+getEventType()+" Value: "+getValue()+" Threshold: "+getTheshold();
+	}
 }

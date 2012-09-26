@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 
 import ch.cern.atlas.apvs.domain.Error;
@@ -23,16 +22,16 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.domain.Report;
-import ch.cern.atlas.apvs.eventbus.shared.DummyEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
+import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 public class PtuClientHandler extends PtuReconnectHandler {
 
-	private static final Logger logger = Logger
+	private static final Logger log = Logger
 			.getLogger(PtuClientHandler.class.getName());
 	private final RemoteEventBus eventBus;
 
@@ -57,6 +56,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					for (Iterator<Measurement> i = m.iterator(); i.hasNext();) {
 						eventBus.fireEvent(new MeasurementChangedEvent(i.next()));
 					}
+				} else if (type.equals(EventChangedEvent.class.getName())) {
+					eventBus.fireEvent(new EventChangedEvent(null));
 				}
 			}
 		});
@@ -119,16 +120,21 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		sendEvents();
 	}
 
-	private void handleMessage(Ptu ptu, Report report) {
-		System.err.println(report.getType() + " NOT YET IMPLEMENTED");
+	private void handleMessage(Ptu ptu, Event message) {
+		String ptuId = message.getPtuId();
+		String sensor = message.getName();
+		
+		log.info("EVENT "+message);
+		
+		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor, message.getEventType(), message.getValue(), message.getTheshold(), message.getDate())));
 	}
 
-	private void handleMessage(Ptu ptu, Event event) {
-		System.err.println(event.getType() + " NOT YET IMPLEMENTED");
+	private void handleMessage(Ptu ptu, Report report) {
+		System.err.println(report.getType() + " NOT YET IMPLEMENTED, see #23 and #112");
 	}
 
 	private void handleMessage(Ptu ptu, Error error) {
-		System.err.println(error.getType() + " NOT YET IMPLEMENTED");
+		System.err.println(error.getType() + " NOT YET IMPLEMENTED, see #114");
 	}
 
 	private synchronized void sendEvents() {

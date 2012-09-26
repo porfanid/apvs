@@ -34,7 +34,7 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 
 	@Override
 	protected void writeDate(Object obj, boolean showType) throws IOException {
-		String value = "\"" + PtuConstants.dateFormat.format((Date) obj) + "\"";
+		String value = "\"" + PtuServerConstants.dateFormat.format((Date) obj) + "\"";
 
 		if (showType) {
 			_out.write('{');

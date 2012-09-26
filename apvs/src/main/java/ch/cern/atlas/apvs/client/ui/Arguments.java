@@ -31,6 +31,10 @@ public class Arguments {
 		return args;
 	}
 	
+	public int size() {
+		return list.size();
+	}
+	
 	public String toString() {
 		StringBuffer s = new StringBuffer();
 		for (Iterator<String> i = list.iterator(); i.hasNext(); ) {
