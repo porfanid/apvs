@@ -36,6 +36,14 @@ public class PtuSettings implements Serializable {
 			helmetUrl = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
 			handUrl = "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
 		}
+
+		@Override
+		public String toString() {
+			return "PtuSetting: name=" + name + " enabled="
+					+ enabled + " dosimeterNo=" + dosimeterSerialNo
+					+ " helmetUrl=" + helmetUrl + " handUrl=" + handUrl;
+		}
+
 	}
 
 	public PtuSettings() {
@@ -56,24 +64,27 @@ public class PtuSettings implements Serializable {
 		return dosimeterToPtu;
 	}
 
-	public Boolean isEnabled(String object) {
-		return entries.get(object).enabled;
+	public Boolean isEnabled(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return entry != null ? entry.enabled : false;
 	}
 
 	public void setEnabled(String object, Boolean value) {
 		entries.get(object).enabled = value;
 	}
 
-	public String getName(String object) {
-		return entries.get(object).name;
+	public String getName(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return entry != null ? entry.name : "";
 	}
 
 	public void setName(String object, String value) {
 		entries.get(object).name = value;
 	}
 
-	public Integer getDosimeterSerialNumber(String object) {
-		return entries.get(object).dosimeterSerialNo;
+	public Integer getDosimeterSerialNumber(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return entry != null ? entry.dosimeterSerialNo : 0;
 	}
 
 	public void setDosimeterSerialNumber(String object, Integer value) {
@@ -81,8 +92,9 @@ public class PtuSettings implements Serializable {
 	}
 
 	public String getCameraUrl(String ptuId, String type) {
-		return type.equals(CameraView.HELMET) ? entries.get(ptuId).helmetUrl
-				: entries.get(ptuId).handUrl;
+		Entry entry = entries.get(ptuId);
+		return entry != null ? type.equals(CameraView.HELMET) ? entry.helmetUrl
+				: entry.handUrl : "";
 	}
 
 	public void setCameraUrl(String ptuId, String type, String value) {

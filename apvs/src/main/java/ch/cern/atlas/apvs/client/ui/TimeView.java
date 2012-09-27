@@ -150,6 +150,7 @@ public class TimeView extends AbstractTimeView {
 					});
 		} else {
 			// subscribe to single PTU
+			System.err.println("***** "+ptuId);
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
 				final long t0 = System.currentTimeMillis();
