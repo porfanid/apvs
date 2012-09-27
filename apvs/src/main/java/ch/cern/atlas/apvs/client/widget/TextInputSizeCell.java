@@ -13,9 +13,9 @@ public class TextInputSizeCell extends TextInputCell {
 
 	/* for running inside the plugin needs to be public */
     interface MyTextInputCellTemplate extends SafeHtmlTemplates {
-		@Template("<input type=\"text\" value=\"{0}\" tabindex=\"-1\" size=\"{1}\"></input>")
+		@Template("<input style=\"width: 100%\" type=\"text\" value=\"{0}\" tabindex=\"-1\" size=\"{1}\"></input>")
 		SafeHtml input(String value, Integer size);
-	}
+	} 
 
 	private static MyTextInputCellTemplate textInputCellTemplate;
 	private int size;
