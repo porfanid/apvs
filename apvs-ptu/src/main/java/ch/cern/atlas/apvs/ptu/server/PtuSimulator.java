@@ -75,9 +75,8 @@ public class PtuSimulator extends Thread {
 				while (!isInterrupted()) {
 					@SuppressWarnings("resource")
 					ObjectWriter writer = new PtuJsonWriter(os);
-					if (i % 5 != 0) {
+					if (i % 5 == 0) {
 						Event event = nextEvent(ptu, new Date());
-						log.info(event.toString());
 						writer.write(event);
 					} else {
 						writer.write(nextMeasurement(ptu, new Date()));
