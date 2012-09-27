@@ -14,9 +14,10 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 public class CameraView extends SimplePanel {
-
+	
 	public static final String HELMET = "Helmet";
 	public static final String HAND = "Hand";
 	
@@ -45,13 +46,28 @@ public class CameraView extends SimplePanel {
 
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
-	public CameraView(ClientFactory factory, Arguments args) {
-		this(factory, args.getArg(0), "100%", "100%");
-	}
-
+	private EventBus cmdBus;
+	
+	// FIXME needs to change when we redo the iPad version
 	public CameraView(ClientFactory factory, final String type, String width,
 			String height) {
+		
+	    cmdBus = factory.getEventBus("ptu");
 		this.type = type;
+		
+		init(factory, width, height);
+	}
+	
+	public CameraView(ClientFactory factory, Arguments args) {
+		
+	    cmdBus = factory.getEventBus(args.getArg(0));
+		type = args.getArg(1);
+		
+		init(factory, "100%", "100%");
+	}
+		
+	private void init(ClientFactory factory, String width, String height) {
+		
 		this.videoWidth = width;
 		this.videoHeight = height;
 
@@ -87,7 +103,7 @@ public class CameraView extends SimplePanel {
 					}
 				});
 
-		SelectPtuEvent.subscribe(factory.getEventBus("local"), new SelectPtuEvent.Handler() {
+		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
