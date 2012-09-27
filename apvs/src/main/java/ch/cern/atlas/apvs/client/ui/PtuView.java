@@ -11,7 +11,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
@@ -69,7 +68,7 @@ public class PtuView extends VerticalPanel {
 
 		init();
 
-		cmdBus = NamedEventBus.get(args.getArg(0));
+		cmdBus = clientFactory.getEventBus(args.getArg(0));
 
 		add(table);
 
@@ -143,8 +142,7 @@ public class PtuView extends VerticalPanel {
 					@Override
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
-						Measurement measurement = event
-								.getMeasurement();
+						Measurement measurement = event.getMeasurement();
 						String ptuId = measurement.getPtuId();
 						if ((ptuIds == null) || !ptuIds.contains(ptuId))
 							return;
@@ -183,15 +181,17 @@ public class PtuView extends VerticalPanel {
 					}
 				});
 
-		ColorMapChangedEvent.subscribe(cmdBus,
-				new ColorMapChangedEvent.Handler() {
-					@Override
-					public void onColorMapChanged(ColorMapChangedEvent event) {
-						colorMap = event.getColorMap();
-						update();
-					}
+		if (cmdBus != null) {
+			ColorMapChangedEvent.subscribe(cmdBus,
+					new ColorMapChangedEvent.Handler() {
+						@Override
+						public void onColorMapChanged(ColorMapChangedEvent event) {
+							colorMap = event.getColorMap();
+							update();
+						}
 
-				});
+					});
+		}
 	}
 
 	private void addColumn(final String ptuId) {

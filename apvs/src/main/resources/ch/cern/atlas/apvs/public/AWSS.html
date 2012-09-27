@@ -104,25 +104,25 @@
 
 			<div class="grid_12 item">
 				<div
-					id="PtuTabSelector(local, private1, private2; Summary; Settings)"></div>
+					id="PtuTabSelector(ptu, measurements, dosimeter; Summary; Settings)"></div>
 			</div>
 
 			<div class="tab" id="Ptu">
 				<div class="grid_3 item">
 					<h3>Measurements</h3>
-					<div id="MeasurementView(local; NoName, NoSort)"></div>
-					<div id="TimeView(local; NoExport)"></div>
+					<div id="MeasurementView(measurements; NoHeader, NoSort)"></div>
+					<div id="TimeView(300; measurements; NoExport)"></div>
 				</div>
 
 				<div class="grid_6 item">
 					<h3>Helmet Camera</h3>
-					<div id="CameraView(local; Helmet)"></div>
+					<div id="CameraView(ptu; Helmet)"></div>
 				</div>
 
 				<div class="panel_3">
 					<div class="grid_3 item">
 						<h3>Hand-held Camera</h3>
-						<div id="CameraView(local; Hand)"></div>
+						<div id="CameraView(ptu; Hand)"></div>
 					</div>
 
 					<div class="grid_3 item">
@@ -138,30 +138,30 @@
 				<div class="grid_3 item">
 					<h3>Dosimeter</h3>
 					<div
-						id="MeasurementView(private1; NoName, NoSort, NoSelection; DoseRate; DoseAccum)"></div>
+						id="MeasurementView(dosimeter; NoSort, NoSelection; DoseRate; DoseAccum)"></div>
 				</div>
 
 				<div class="grid_3 item">
 					<h3>Dose Rate</h3>
-					<div id="TimeView(private2; NoTitle, NoExport; DoseRate"></div>
+					<div id="TimeView(200; ptu; NoTitle, NoExport; DoseRate)"></div>
 				</div>
 
 				<div class="grid_3 item">
 					<h3>Accumulated Dose</h3>
-					<div id="TimeView(private2; NoTitle, NoExport; DoseAccum"></div>
+					<div id="TimeView(200; ptu; NoTitle, NoExport; DoseAccum)"></div>
 				</div>
 				
 				<div class="grid_12 item">
 					<h3>Events</h3>
-					<div id="EventView(200px; local)"></div>
+					<div id="EventView(200px; ptu)"></div>
 				</div>
 			</div>
 
 			<div class="tab" id="Summary">
 				<div class="grid_12 item">
 					<h3>All PTUs</h3>
-					<div id="PtuView(private3)"></div>
-					<div id="TimeView(private3)"></div>
+					<div id="PtuView(allPtus)"></div>
+					<div id="TimeView(200; allPtus)"></div>
 					<h3>All Events</h3>
 					<div id="EventView(200px)"></div>
 				</div>

@@ -3,8 +3,6 @@ package ch.cern.atlas.apvs.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.ui.DummyEventBus;
-
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 
@@ -14,10 +12,11 @@ public class NamedEventBus {
 	
 	static {
 		busses = new HashMap<String, EventBus>();
-		busses.put("", new DummyEventBus());
 	}
 
-	public static EventBus get(String name) {
+    static EventBus get(String name) {
+		if (name.trim().equals("")) return null;
+		
 		EventBus bus = busses.get(name);
 		if (bus == null) {
 			bus = new SimpleEventBus();

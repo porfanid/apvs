@@ -8,7 +8,6 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -34,33 +33,34 @@ public class TimeView extends AbstractTimeView {
 	public TimeView(final ClientFactory clientFactory, Arguments args) {
 		this.clientFactory = clientFactory;
 
-		cmdBus = NamedEventBus.get(args.getArg(0));
-		options = args.getArg(1);
-		measurementName = args.getArg(2);
-
-		// FIXME handle height
+		height = Integer.parseInt(args.getArg(0));
+		cmdBus = clientFactory.getEventBus(args.getArg(1));
+		options = args.getArg(2);
+		measurementName = args.getArg(3);
 
 		this.title = !options.contains("NoTitle");
 		this.export = !options.contains("NoExport");
 
-		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+		if (cmdBus != null) {
+			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
-			@Override
-			public void onPtuSelected(final SelectPtuEvent event) {
-				ptuId = event.getPtuId();
-				updateChart();
-			}
-		});
+				@Override
+				public void onPtuSelected(final SelectPtuEvent event) {
+					ptuId = event.getPtuId();
+					updateChart();
+				}
+			});
 
-		SelectMeasurementEvent.subscribe(cmdBus,
-				new SelectMeasurementEvent.Handler() {
+			SelectMeasurementEvent.subscribe(cmdBus,
+					new SelectMeasurementEvent.Handler() {
 
-					@Override
-					public void onSelection(SelectMeasurementEvent event) {
-						measurementName = event.getName();
-						updateChart();
-					}
-				});
+						@Override
+						public void onSelection(SelectMeasurementEvent event) {
+							measurementName = event.getName();
+							updateChart();
+						}
+					});
+		}
 
 		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
 				new PtuSettingsChangedEvent.Handler() {
@@ -150,7 +150,7 @@ public class TimeView extends AbstractTimeView {
 					});
 		} else {
 			// subscribe to single PTU
-			System.err.println("***** "+ptuId);
+			System.err.println("***** " + ptuId);
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
 				final long t0 = System.currentTimeMillis();
@@ -163,7 +163,6 @@ public class TimeView extends AbstractTimeView {
 									System.err
 											.println("Cannot find history for "
 													+ measurementName);
-									return;
 								}
 
 								System.err.println("Measurement retrieval of "
@@ -214,11 +213,11 @@ public class TimeView extends AbstractTimeView {
 	private void addHistory(String ptuId, Series series, History history) {
 		if (history == null)
 			return;
-		
+
 		Number[][] data = history.getData();
 		series.setPoints(data != null ? data : new Number[0][2], false);
 		pointsById.put(ptuId, data != null ? data.length : 0);
-		
+
 		setUnit(history.getUnit());
 	}
 
@@ -232,7 +231,7 @@ public class TimeView extends AbstractTimeView {
 	private void subscribe(final String ptuId, final String name) {
 		unsubscribe();
 
-		measurementHandler = MeasurementChangedEvent.register(
+		measurementHandler = MeasurementChangedEvent.subscribe(
 				clientFactory.getRemoteEventBus(),
 				new MeasurementChangedEvent.Handler() {
 

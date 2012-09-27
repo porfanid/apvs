@@ -47,7 +47,7 @@ public class EventView extends SimplePanel {
 		String height = args.getArg(0);
 
 		if (args.size() > 1) {
-			cmdBus = NamedEventBus.get(args.getArg(1));
+			cmdBus = clientFactory.getEventBus(args.getArg(1));
 		}
 
 		table.setSize("100%", height);

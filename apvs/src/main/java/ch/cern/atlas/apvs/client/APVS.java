@@ -132,13 +132,17 @@ public class APVS implements EntryPoint {
 			} else {
 
 				String className = parts[0];
+				if ((parts[1].length() > 0) && !parts[1].endsWith(")")) {
+					System.err.println("Missing closing parenthesis on '"+id+"'");
+					parts[1] += ")";
+				}
 				Arguments args = new Arguments(
 						parts[1].length() > 0 ? parts[1].substring(0,
 								parts[1].length() - 1) : null);
 
 				System.err.println("Creating " + className + " with args ("
 						+ args + ")");
-								
+
 				// FIXME handle generically
 				if (id.startsWith("MeasurementView")) {
 					newCode = true;
@@ -191,7 +195,7 @@ public class APVS implements EntryPoint {
 		}
 
 		// FIXME create tab buttons for each, select default one
-		String defaultPtuId = "PTU_27372";
+		String defaultPtuId = "PTU1234";
 		clientFactory.getEventBus("local").fireEvent(new SelectPtuEvent(defaultPtuId));
 		clientFactory.getEventBus("private").fireEvent(
 				new SelectPtuEvent(defaultPtuId));

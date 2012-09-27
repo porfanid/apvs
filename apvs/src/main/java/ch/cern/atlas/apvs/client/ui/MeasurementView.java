@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -31,7 +30,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class MeasurementView extends VerticalFlowPanel {
 
@@ -60,7 +58,7 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	public MeasurementView(final ClientFactory clientFactory, Arguments args) {
 
-		cmdBus = NamedEventBus.get(args.getArg(0));
+		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		options = args.getArg(1);
 		show = args.getArgs(2);
 
@@ -89,53 +87,30 @@ public class MeasurementView extends VerticalFlowPanel {
 
 		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
-			private HandlerRegistration registration;
-
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {
-				// FIXME still needed ?
-				// if (!cmdBus.getUUID().equals(event.getEventBusUUID()))
-				// return;
-
-				// unregister any remaining handler
-				if (registration != null) {
-					registration.removeHandler();
-					registration = null;
-				}
-
 				ptuId = event.getPtuId();
 
-				// register a new handler
-				if (ptuId != null) {
-					registration = MeasurementChangedEvent.subscribe(
-							clientFactory.getRemoteEventBus(),
-							new MeasurementChangedEvent.Handler() {
-
-								@Override
-								public void onMeasurementChanged(
-										MeasurementChangedEvent event) {
-									Measurement measurement = event
-											.getMeasurement();
-									if (measurement.getPtuId().equals(ptuId)) {
-										last = replace(measurement, last);
-										update();
-									}
-								}
-							});
-				} else {
+				if (ptuId == null) {
 					dataProvider.getList().clear();
 				}
-
-				if (selectable) {
-					Measurement selection = selectionModel.getSelectedObject();
-					if (selection != null) {
-						selectionModel.setSelected(selection, false);
-					}
-				}
-
 				update();
 			}
 		});
+
+		MeasurementChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
+				new MeasurementChangedEvent.Handler() {
+
+					@Override
+					public void onMeasurementChanged(
+							MeasurementChangedEvent event) {
+						Measurement measurement = event.getMeasurement();
+						if (measurement.getPtuId().equals(ptuId)) {
+							last = replace(measurement, last);
+							update();
+						}
+					}
+				});
 
 		name = new ClickableTextColumn<Measurement>() {
 			@Override

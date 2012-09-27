@@ -132,6 +132,8 @@ public class AbstractTimeView extends SimplePanel {
 		chart.getXAxis().setAxisTitle(new AxisTitle().setText("Time"));
 
 		chart.getYAxis().setAllowDecimals(true);
+		
+		chart.getYAxis().setAxisTitle(new AxisTitle().setText(""));
 	}
 
 	protected void setUnit(String unit) {

@@ -26,40 +26,46 @@ public class PlaceView extends SimplePanel {
 		this(clientFactory, args, "100%", "100%");
 	}
 
-	public PlaceView(final ClientFactory clientFactory, final Arguments args, final String width, final String height) {
+	public PlaceView(final ClientFactory clientFactory, final Arguments args,
+			final String width, final String height) {
 		this.remoteEventBus = clientFactory.getRemoteEventBus();
-		
+
 		EventBus eventBus = clientFactory.getEventBus(args.getArg(0));
-		
-		SelectPtuEvent.subscribe(eventBus, new SelectPtuEvent.Handler() {
-			
-			@Override
-			public void onPtuSelected(SelectPtuEvent event) {
-				ptuId = event.getPtuId();
-				
-				remoteEventBus.fireEvent(new RequestRemoteEvent(PlaceChangedEvent.class));
-			}
-		});
+
+		if (eventBus != null) {
+			SelectPtuEvent.subscribe(eventBus, new SelectPtuEvent.Handler() {
+
+				@Override
+				public void onPtuSelected(SelectPtuEvent event) {
+					ptuId = event.getPtuId();
+
+					remoteEventBus.fireEvent(new RequestRemoteEvent(
+							PlaceChangedEvent.class));
+				}
+			});
+		}
 
 		PlaceChangedEvent.subscribe(remoteEventBus,
 				new PlaceChangedEvent.Handler() {
 
 					@Override
 					public void onPlaceChanged(PlaceChangedEvent event) {
-						if (ptuId == null) return;
-						
-						if (!ptuId.equals(event.getPtuId())) return;
-						
+						if (ptuId == null)
+							return;
+
+						if (!ptuId.equals(event.getPtuId()))
+							return;
+
 						System.out.println("PLACE CHANGED " + event);
 						Place place = event.getPlace();
 
 						if (place instanceof HomePlace) {
 							Image image = new Image(defaultImage);
-							image.setWidth(width+""+Unit.PX);
+							image.setWidth(width + "" + Unit.PX);
 							setWidget(image);
 							return;
 						}
-						
+
 						if (place instanceof ImagePlace) {
 							ImagePlace imagePlace = (ImagePlace) place;
 							Image image = new Image(imagePlace.getUrl());
@@ -67,26 +73,30 @@ public class PlaceView extends SimplePanel {
 							setWidget(image);
 							return;
 						}
-						
+
 						if (place instanceof CameraPlace) {
 							CameraPlace cameraPlace = (CameraPlace) place;
-							setWidget(new CameraView(clientFactory, cameraPlace.getType(), width, height));
-							return;							
-						}
-						
-						if (place instanceof ProcedurePlace) {
-							ProcedurePlace procedurePlace = (ProcedurePlace)place;
-							setWidget(clientFactory.getProcedureView(width, height, procedurePlace.getUrl(), procedurePlace.getName(), procedurePlace.getStep()));
+							setWidget(new CameraView(clientFactory, cameraPlace
+									.getType(), width, height));
 							return;
 						}
-						
+
+						if (place instanceof ProcedurePlace) {
+							ProcedurePlace procedurePlace = (ProcedurePlace) place;
+							setWidget(clientFactory.getProcedureView(width,
+									height, procedurePlace.getUrl(),
+									procedurePlace.getName(),
+									procedurePlace.getStep()));
+							return;
+						}
+
 						Image image = new Image(defaultImage);
 						image.setWidth(width);
 						setWidget(image);
 						return;
-					}					
+					}
 				});
-		
+
 		Image image = new Image(defaultImage);
 		image.setWidth(width);
 		setWidget(image);
