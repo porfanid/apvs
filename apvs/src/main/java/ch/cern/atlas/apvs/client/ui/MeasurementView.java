@@ -275,7 +275,7 @@ public class MeasurementView extends VerticalFlowPanel {
 	public static SafeHtml decorate(String s, Measurement current,
 			Measurement last) {
 		if ((current != null) && (last != null)
-				&& (current.getPtuId() == last.getPtuId())
+				&& (current.getPtuId().equals(last.getPtuId()))
 				&& current.getName().equals(last.getName())) {
 			double c = current.getValue().doubleValue();
 			double l = last.getValue().doubleValue();
