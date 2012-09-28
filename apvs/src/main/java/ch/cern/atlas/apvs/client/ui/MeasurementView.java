@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
@@ -40,12 +41,12 @@ public class MeasurementView extends VerticalFlowPanel {
 	private ListDataProvider<Measurement> dataProvider = new ListDataProvider<Measurement>();
 	private CellTable<Measurement> table = new CellTable<Measurement>();
 	private ListHandler<Measurement> columnSortHandler;
-	private ClickableTextColumn<Measurement> name;
+	private ClickableHtmlColumn<Measurement> name;
 	private SingleSelectionModel<Measurement> selectionModel;
 
 	private List<String> show = null;
 
-	private String ptuId = null;
+	private String ptuId = "PTU1234";
 
 	private EventBus cmdBus;
 
@@ -112,20 +113,10 @@ public class MeasurementView extends VerticalFlowPanel {
 					}
 				});
 
-		name = new ClickableTextColumn<Measurement>() {
+		name = new ClickableHtmlColumn<Measurement>() {
 			@Override
 			public String getValue(Measurement object) {
 				return object.getDisplayName();
-			}
-
-			@Override
-			public void render(Context context, Measurement object,
-					SafeHtmlBuilder sb) {
-				String name = getValue(object);
-				if (name != null) {
-					((ClickableTextCell) getCell()).render(context,
-							SafeHtmlUtils.fromSafeConstant(name), sb);
-				}
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -190,20 +181,10 @@ public class MeasurementView extends VerticalFlowPanel {
 		}
 		table.addColumn(value, showHeader ? "Value" : null);
 
-		ClickableTextColumn<Measurement> unit = new ClickableTextColumn<Measurement>() {
+		ClickableHtmlColumn<Measurement> unit = new ClickableHtmlColumn<Measurement>() {
 			@Override
 			public String getValue(Measurement object) {
 				return object.getUnit();
-			}
-
-			@Override
-			public void render(Context context, Measurement object,
-					SafeHtmlBuilder sb) {
-				String unit = getValue(object);
-				if (unit != null) {
-					((ClickableTextCell) getCell()).render(context,
-							SafeHtmlUtils.fromSafeConstant(unit), sb);
-				}
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
