@@ -80,7 +80,7 @@ public class ServerSettings extends AbstractServerSettings {
 		put(Entry.dosimeterUrl.toString(), "localhost:4001");
 		put(Entry.procedureUrl.toString(), "http://localhost:8890/apvs-procs/procedures");
 		put(Entry.databaseUrl.toString(), "PTU/atlas@//pcatlaswpss03.cern.ch:1521/XE");
-		put(Entry.audioUrl.toString(), "pcatlaswpss02.cern.ch");
+		put(Entry.audioUrl.toString(), "pcatlaswpss02.cern.ch:5038");
 	}
 	
 	public String toString() {

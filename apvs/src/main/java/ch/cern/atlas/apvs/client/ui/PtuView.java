@@ -89,7 +89,6 @@ public class PtuView extends VerticalPanel {
 				selectMeasurementAndPtu(name, null);
 			}
 		});
-
 		table.addColumn(name, "Name");
 
 		// unit column
@@ -107,7 +106,6 @@ public class PtuView extends VerticalPanel {
 				selectMeasurementAndPtu(name, null);
 			}
 		});
-
 		table.addColumn(unit, "Unit");
 
 		dataProvider.addDataDisplay(table);
@@ -163,8 +161,9 @@ public class PtuView extends VerticalPanel {
 							last = ptu.addMeasurement(measurement);
 						}
 
-						if (!dataProvider.getList().contains(name)) {
-							dataProvider.getList().add(name);
+						String displayName = measurement.getDisplayName();
+						if (!dataProvider.getList().contains(displayName)) {
+							dataProvider.getList().add(displayName);
 						}
 						update();
 					}

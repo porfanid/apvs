@@ -115,7 +115,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		name = new ClickableTextColumn<Measurement>() {
 			@Override
 			public String getValue(Measurement object) {
-				return object.getName();
+				return object.getDisplayName();
 			}
 
 			@Override
