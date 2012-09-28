@@ -37,7 +37,9 @@ public class EventView extends SimplePanel {
 	private ListHandler<Event> columnSortHandler;
 	private SingleSelectionModel<Event> selectionModel;
 
+	private String ptuHeader;
 	private ClickableTextColumn<Event> ptu;
+	private String nameHeader;
 	private ClickableHtmlColumn<Event> name;
 
 	private Map<String, String> units = new HashMap<String, String>();
@@ -178,7 +180,8 @@ public class EventView extends SimplePanel {
 				}
 			});
 		}
-		table.addColumn(ptu, "PTU ID");
+		ptuHeader = "PTU ID";
+		table.addColumn(ptu, ptuHeader);
 		columnSortHandler.setComparator(ptu, new Comparator<Event>() {
 			public int compare(Event o1, Event o2) {
 				if (o1 == o2) {
@@ -212,7 +215,8 @@ public class EventView extends SimplePanel {
 				}
 			});
 		}
-		table.addColumn(name, "Name");
+		nameHeader = "Name";
+		table.addColumn(name, nameHeader);
 		columnSortHandler.setComparator(name, new Comparator<Event>() {
 			public int compare(Event o1, Event o2) {
 				if (o1 == o2) {
@@ -339,18 +343,22 @@ public class EventView extends SimplePanel {
 	}
 
 	private void update() {
-		table.removeColumn(ptu);
-		table.removeColumn(name);
-
+		// enable / disable columns
+		if (table.getColumnIndex(ptu) >= 0) {
+			table.removeColumn(ptu);
+		}
 		if (ptuId == null) {
 			// add Ptu Column
-			table.insertColumn(2, ptu);
+			table.insertColumn(1, ptu, ptuHeader);
 		}
 
+		if (table.getColumnIndex(name) >= 0) {
+			table.removeColumn(name);
+		}
 		if (measurementName == null) {
 			// add Name column
-			table.insertColumn(3, name);
-		}
+			table.insertColumn(2, name, nameHeader);
+		} 
 
 		// Re-sort the table
 		if (sortable) {
