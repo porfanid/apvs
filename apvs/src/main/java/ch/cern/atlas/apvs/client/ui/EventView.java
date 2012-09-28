@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.NamedEventBus;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
@@ -31,11 +30,15 @@ public class EventView extends SimplePanel {
 
 	private EventBus cmdBus;
 	private String ptuId;
+	private String measurementName;
 
 	private ListDataProvider<Event> dataProvider = new ListDataProvider<Event>();
 	private DataGrid<Event> table = new DataGrid<Event>();
 	private ListHandler<Event> columnSortHandler;
 	private SingleSelectionModel<Event> selectionModel;
+
+	private ClickableTextColumn<Event> ptu;
+	private ClickableHtmlColumn<Event> name;
 
 	private Map<String, String> units = new HashMap<String, String>();
 
@@ -68,7 +71,12 @@ public class EventView extends SimplePanel {
 					@Override
 					public void onEventChanged(EventChangedEvent e) {
 						Event event = e.getEvent();
-						if ((event != null) && ((cmdBus == null) || (event.getPtuId().equals(ptuId)))) {
+						if (event == null)
+							return;
+
+						if (((ptuId == null) || event.getPtuId().equals(ptuId))
+								&& ((measurementName == null) || event
+										.getName().equals(measurementName))) {
 							dataProvider.getList().add(event);
 						}
 
@@ -97,12 +105,27 @@ public class EventView extends SimplePanel {
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
 
+					dataProvider.getList().clear();
+
 					update();
 				}
 			});
+
+			SelectMeasurementEvent.subscribe(cmdBus,
+					new SelectMeasurementEvent.Handler() {
+
+						@Override
+						public void onSelection(SelectMeasurementEvent event) {
+							measurementName = event.getName();
+
+							dataProvider.getList().clear();
+
+							update();
+						}
+					});
 		}
 
-		// DATE and TIME
+		// DATE and TIME (1)
 		ClickableTextColumn<Event> date = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
@@ -136,44 +159,42 @@ public class EventView extends SimplePanel {
 		});
 		table.getColumnSortList().push(date);
 
-		// PtuID
-		if (cmdBus == null) {
-			ClickableTextColumn<Event> ptuId = new ClickableTextColumn<Event>() {
-				@Override
-				public String getValue(Event object) {
-					return object.getPtuId();
-				}
-
-			};
-			ptuId.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-			ptuId.setSortable(sortable);
-			if (selectable) {
-				ptuId.setFieldUpdater(new FieldUpdater<Event, String>() {
-
-					@Override
-					public void update(int index, Event object, String value) {
-						selectEvent(object);
-					}
-				});
+		// PtuID (2)
+		ptu = new ClickableTextColumn<Event>() {
+			@Override
+			public String getValue(Event object) {
+				return object.getPtuId();
 			}
-			table.addColumn(ptuId, "PTU ID");
-			columnSortHandler.setComparator(ptuId, new Comparator<Event>() {
-				public int compare(Event o1, Event o2) {
-					if (o1 == o2) {
-						return 0;
-					}
 
-					if (o1 != null) {
-						return (o2 != null) ? o1.getPtuId().compareTo(
-								o2.getPtuId()) : 1;
-					}
-					return -1;
+		};
+		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		ptu.setSortable(sortable);
+		if (selectable) {
+			ptu.setFieldUpdater(new FieldUpdater<Event, String>() {
+
+				@Override
+				public void update(int index, Event object, String value) {
+					selectEvent(object);
 				}
 			});
 		}
-		
-		// Name
-		ClickableHtmlColumn<Event> name = new ClickableHtmlColumn<Event>() {
+		table.addColumn(ptu, "PTU ID");
+		columnSortHandler.setComparator(ptu, new Comparator<Event>() {
+			public int compare(Event o1, Event o2) {
+				if (o1 == o2) {
+					return 0;
+				}
+
+				if (o1 != null) {
+					return (o2 != null) ? o1.getPtuId()
+							.compareTo(o2.getPtuId()) : 1;
+				}
+				return -1;
+			}
+		});
+
+		// Name (3)
+		name = new ClickableHtmlColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
 				return object.getName();
@@ -318,6 +339,19 @@ public class EventView extends SimplePanel {
 	}
 
 	private void update() {
+		table.removeColumn(ptu);
+		table.removeColumn(name);
+
+		if (ptuId == null) {
+			// add Ptu Column
+			table.insertColumn(2, ptu);
+		}
+
+		if (measurementName == null) {
+			// add Name column
+			table.insertColumn(3, name);
+		}
+
 		// Re-sort the table
 		if (sortable) {
 			ColumnSortEvent.fire(table, table.getColumnSortList());

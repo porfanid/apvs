@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
@@ -85,7 +86,7 @@ public class PtuView extends VerticalPanel {
 
 			@Override
 			public void update(int index, String name, String value) {
-				selectMeasurement(name);
+				selectMeasurementAndPtu(name, null);
 			}
 		});
 
@@ -103,7 +104,7 @@ public class PtuView extends VerticalPanel {
 
 			@Override
 			public void update(int index, String name, String value) {
-				selectMeasurement(name);
+				selectMeasurementAndPtu(name, null);
 			}
 		});
 
@@ -242,8 +243,7 @@ public class PtuView extends VerticalPanel {
 
 			@Override
 			public void update(int index, String name, String value) {
-				// FIXME should have ptuID set... via SelectPtuEvent
-				selectMeasurement(name);
+				selectMeasurementAndPtu(name, ptuId);
 			}
 		});
 
@@ -303,7 +303,7 @@ public class PtuView extends VerticalPanel {
 		if ((selection == null) && (dataProvider.getList().size() > 0)) {
 			selection = dataProvider.getList().get(0);
 
-			selectMeasurement(selection);
+			selectMeasurementAndPtu(selection, null);
 		}
 
 		// re-set the selection as the async update may have changed the
@@ -313,7 +313,8 @@ public class PtuView extends VerticalPanel {
 		}
 	}
 
-	private void selectMeasurement(String name) {
+	private void selectMeasurementAndPtu(String name, String ptuId) {
 		SelectMeasurementEvent.fire(cmdBus, name);
+		SelectPtuEvent.fire(cmdBus, ptuId);
 	}
 }
