@@ -34,7 +34,6 @@ public class ServerSettingsStorage {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
-				System.err.println("!!! Requested "+event.getRequestedClassName()+" "+eventBus.getClass());
 				if (event.getRequestedClassName().equals(
 						ServerSettingsChangedEvent.class.getName())) {
 					eventBus.fireEvent(new ServerSettingsChangedEvent(settings));

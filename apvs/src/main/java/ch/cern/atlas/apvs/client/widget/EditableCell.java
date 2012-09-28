@@ -26,10 +26,10 @@ public class EditableCell extends AbstractCell<Object> {
 	private MyButtonCell buttonCell;
 	private MyTextCell textCell;
 
-	private Class<? extends Cell<Object>>[] cellClass;
+	private List<Class<? extends Cell<Object>>> cellClasses;
 
-	public EditableCell(Class<? extends Cell<Object>>[] cellClass, int size) {
-		this.cellClass = cellClass;
+	public EditableCell(List<Class<? extends Cell<Object>>> cellClasses, int size) {
+		this.cellClasses = cellClasses;
 
 		textInputCell = new TextInputSizeCell(size);
 		editCell = new MyEditTextCell();
@@ -312,8 +312,8 @@ public class EditableCell extends AbstractCell<Object> {
 	}
 
 	private Class<? extends Cell<? extends Object>> getCellClass(int row) {
-		if ((0 <= row) && (row < cellClass.length)) {
-			return cellClass[row];
+		if ((0 <= row) && (row < cellClasses.size())) {
+			return cellClasses.get(row);
 		}
 		return TextCell.class;
 	}

@@ -173,7 +173,6 @@ public class MeasurementView extends VerticalFlowPanel {
 			public void render(Context context, Measurement object,
 					SafeHtmlBuilder sb) {
 				String s = getValue(object);
-				// FIXME does not work for dosimeter
 				((ClickableTextCell) getCell()).render(context,
 						decorate(s, object, last), sb);
 			}
@@ -333,7 +332,6 @@ public class MeasurementView extends VerticalFlowPanel {
 		List<Measurement> list = dataProvider.getList();
 
 		int i = 0;
-		System.err.println("Looking for " + measurement.getName());
 		while (i < list.size()) {
 			if (list.get(i).getName().equals(measurement.getName())) {
 				break;

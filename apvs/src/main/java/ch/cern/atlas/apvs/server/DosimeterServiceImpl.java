@@ -53,7 +53,7 @@ public class DosimeterServiceImpl extends ResponsePollService {
 							ServerSettings settings = event.getServerSettings();
 							if (settings != null) {
 								String url = settings
-										.get(ServerSettings.Key.dosimeterUrl.toString());
+										.get(ServerSettings.Entry.dosimeterUrl.toString());
 								if ((url != null) && !url.equals(dosimeterUrl)) {
 									dosimeterUrl = url;
 									String[] s = dosimeterUrl.split(":", 2);

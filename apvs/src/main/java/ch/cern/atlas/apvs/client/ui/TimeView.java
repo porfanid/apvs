@@ -77,7 +77,6 @@ public class TimeView extends AbstractTimeView {
 
 			@Override
 			public void onRequestEvent(RequestEvent event) {
-				System.err.println("Request " + event.getRequestedClassName());
 				if (event.getRequestedClassName().equals(
 						ColorMapChangedEvent.class.getName())) {
 					cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));

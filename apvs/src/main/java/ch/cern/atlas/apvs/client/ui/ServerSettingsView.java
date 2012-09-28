@@ -33,7 +33,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 		// name column
 		@SuppressWarnings("unchecked")
 		Column<String, Object> name = new Column<String, Object>(
-				new EditableCell(ServerSettings.nameClass, 30)) {
+				new EditableCell(ServerSettings.Entry.getNameClasses(), 30)) {
 			@Override
 			public Object getValue(String object) {
 				return object;
@@ -52,7 +52,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 
 		@SuppressWarnings("unchecked")
 		Column<String, Object> column = new Column<String, Object>(
-				new EditableCell(ServerSettings.cellClass, 50)) {
+				new EditableCell(ServerSettings.Entry.getCellClasses(), 50)) {
 			@Override
 			public Object getValue(String name) {
 				return settings.get(name);
@@ -86,15 +86,14 @@ public class ServerSettingsView extends VerticalFlowPanel {
 		table.addColumn(column, "Value");
 
 		dataProvider.addDataDisplay(table);
-		dataProvider.setList(ServerSettings.Key.getKeys());
+		dataProvider.setList(ServerSettings.Entry.getKeys());
 		
 		ServerSettingsChangedEvent.subscribe(eventBus,
 				new ServerSettingsChangedEvent.Handler() {
 					@Override
 					public void onServerSettingsChanged(
 							ServerSettingsChangedEvent event) {
-						System.err.println("Server Settings !!!");
-						
+
 						settings = event.getServerSettings();
 						
 						System.err.println(settings);

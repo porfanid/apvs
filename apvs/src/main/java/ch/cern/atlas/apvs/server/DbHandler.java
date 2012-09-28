@@ -114,8 +114,7 @@ public class DbHandler extends DbReconnectHandler {
 					while (result.next() && (data.size() <= n)) {
 						long time = result.getTimestamp(1).getTime();
 
-						// limit entry separation (reverse order
-						// !!!)
+						// limit entry separation (reverse order)
 						if (lastTime - time > MIN_INTERVAL) {
 							lastTime = time;
 
