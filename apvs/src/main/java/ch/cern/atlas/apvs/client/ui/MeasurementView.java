@@ -93,7 +93,7 @@ public class MeasurementView extends VerticalFlowPanel {
 				ptuId = event.getPtuId();
 
 				if (ptuId == null) {
-					dataProvider.getList().clear();
+					refillList();
 				}
 				update();
 			}
@@ -265,10 +265,14 @@ public class MeasurementView extends VerticalFlowPanel {
 		}
 
 		// fill initial list
+		refillList();
+	}
+	
+	private void refillList() {
+		dataProvider.getList().clear();
 		for (Iterator<String> i = show.iterator(); i.hasNext();) {
 			String name = i.next();
-			System.err.println("Added " + name);
-			list.add(new NullMeasurement(null, name));
+			dataProvider.getList().add(new NullMeasurement(null, name));
 		}
 	}
 
