@@ -41,6 +41,17 @@ public class TimeView extends AbstractTimeView {
 		this.title = !options.contains("NoTitle");
 		this.export = !options.contains("NoExport");
 
+		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
+				new PtuSettingsChangedEvent.Handler() {
+
+					@Override
+					public void onPtuSettingsChanged(
+							PtuSettingsChangedEvent event) {
+						settings = event.getPtuSettings();
+						updateChart();
+					}
+				});
+
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
@@ -60,29 +71,18 @@ public class TimeView extends AbstractTimeView {
 							updateChart();
 						}
 					});
-		}
 
-		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
-				new PtuSettingsChangedEvent.Handler() {
+			RequestEvent.register(cmdBus, new RequestEvent.Handler() {
 
-					@Override
-					public void onPtuSettingsChanged(
-							PtuSettingsChangedEvent event) {
-						settings = event.getPtuSettings();
-						updateChart();
+				@Override
+				public void onRequestEvent(RequestEvent event) {
+					if (event.getRequestedClassName().equals(
+							ColorMapChangedEvent.class.getName())) {
+						cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));
 					}
-				});
-
-		RequestEvent.register(cmdBus, new RequestEvent.Handler() {
-
-			@Override
-			public void onRequestEvent(RequestEvent event) {
-				if (event.getRequestedClassName().equals(
-						ColorMapChangedEvent.class.getName())) {
-					cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));
 				}
-			}
-		});
+			});
+		}
 	}
 
 	private void updateChart() {
@@ -135,8 +135,9 @@ public class TimeView extends AbstractTimeView {
 
 							add(chart);
 
-							cmdBus.fireEvent(new ColorMapChangedEvent(
-									getColors()));
+							if (cmdBus != null) {
+								ColorMapChangedEvent.fire(cmdBus, getColors());
+							}
 
 							subscribe(null, measurementName);
 						}
