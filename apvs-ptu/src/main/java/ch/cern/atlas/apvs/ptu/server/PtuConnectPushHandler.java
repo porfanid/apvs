@@ -15,8 +15,8 @@ public class PtuConnectPushHandler  {
 	}
 	
 
-	public void run(final String host, final int port) {
-		PtuSimulator simulator = new PtuSimulator("PTU1234") {
+	public void run(final String host, final int port, final int refresh) {
+		PtuSimulator simulator = new PtuSimulator("PTU1234", refresh) {
 			@Override
 			protected synchronized OutputStream sendBufferAndClear(
 					OutputStream os) {

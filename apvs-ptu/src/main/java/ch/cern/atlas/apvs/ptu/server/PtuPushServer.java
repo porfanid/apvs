@@ -11,13 +11,15 @@ public class PtuPushServer {
 
 	private final String host;
 	private final int port;
+	private final int refresh;
 	private final String[] ids;
 
 	private boolean CONNECT_FOR_EVERY_MESSAGE = true;
 
-	public PtuPushServer(String host, int port, String[] ids) {
+	public PtuPushServer(String host, int port, int refresh, String[] ids) {
 		this.host = host;
 		this.port = port;
+		this.refresh = refresh;
 		this.ids = ids;
 	}
 
@@ -31,9 +33,9 @@ public class PtuPushServer {
 		if (CONNECT_FOR_EVERY_MESSAGE) {
 			PtuConnectPushHandler handler = new PtuConnectPushHandler();
 			
-			handler.run(host, port);
+			handler.run(host, port, refresh);
 		} else {
-			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids);
+			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
 
 			// Configure the pipeline factory.
 			bootstrap.setPipelineFactory(new PtuPipelineFactory(handler));
@@ -47,14 +49,15 @@ public class PtuPushServer {
 		// Print usage if no argument is specified.
 		if (args.length != 2) {
 			System.err.println("Usage: " + PtuPushServer.class.getSimpleName()
-					+ " <host> <port>");
+					+ " <host> <port> <refresh>");
 			return;
 		}
 
 		// Parse options.
 		String host = args[0];
 		int port = Integer.parseInt(args[1]);
+		int refresh = Integer.parseInt(args[2]);
 
-		new PtuPushServer(host, port, null).run();
+		new PtuPushServer(host, port, refresh, null).run();
 	}
 }

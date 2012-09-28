@@ -23,17 +23,19 @@ public class PtuSimulator extends Thread {
 	
 	private final Channel channel;
 	private final Random random = new Random();
-	private final int defaultWait = 5000;
-	private final int extraWait = 2000;
+	private final int defaultWait;
+	private final int extraWait;
 	private final int deltaStartTime = 12 * 3600 * 1000;
 	private final String ptuId;
 	private Ptu ptu;
 
-	public PtuSimulator(String ptuId) {
-		this(ptuId, null);
+	public PtuSimulator(String ptuId, int refresh) {
+		this(ptuId, refresh, null);
 	}
 
-	public PtuSimulator(String ptuId, Channel channel) {
+	public PtuSimulator(String ptuId, int refresh, Channel channel) {
+		this.defaultWait = refresh;
+		this.extraWait = refresh / 3;
 		this.channel = channel;
 		this.ptuId = ptuId;
 	}

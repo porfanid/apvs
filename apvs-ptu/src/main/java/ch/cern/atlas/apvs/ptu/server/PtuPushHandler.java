@@ -17,13 +17,16 @@ public class PtuPushHandler extends PtuReconnectHandler {
 	private Map<Channel, List<PtuSimulator>> simulators = new HashMap<Channel, List<PtuSimulator>>();
 	private String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309",
 			"PTU_27372", "PTU_39400", "PTU_88982" };
+	private final int refresh;
 
-	public PtuPushHandler(ClientBootstrap bootstrap, String[] ids) {
+	public PtuPushHandler(ClientBootstrap bootstrap, String[] ids, int refresh) {
 		super(bootstrap);
 
 		if (ids != null) {
 			ptuIds = ids;
 		}
+		
+		this.refresh = refresh;
 	}
 
 	@Override
@@ -36,7 +39,7 @@ public class PtuPushHandler extends PtuReconnectHandler {
 		for (int i = 0; i < ptuIds.length; i++) {
 			String ptuId = ptuIds[i];
 
-			PtuSimulator simulator = new PtuSimulator(ptuId, e.getChannel());
+			PtuSimulator simulator = new PtuSimulator(ptuId, refresh, e.getChannel());
 			listOfSimulators.add(simulator);
 			simulator.start();
 		}

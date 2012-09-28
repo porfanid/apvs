@@ -9,9 +9,11 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 public class PtuPullServer {
 
     private final int port;
+	private final int refresh;
     private final String[] ids;
 
-    public PtuPullServer(int port, String[] ids) {
+    public PtuPullServer(int port, int refresh, String[] ids) {
+    	this.refresh = refresh;
         this.port = port;
         this.ids = ids;
     }
@@ -24,7 +26,7 @@ public class PtuPullServer {
                         Executors.newCachedThreadPool()));
 
         // Set up the pipeline factory.
-        bootstrap.setPipelineFactory(new PtuPipelineFactory(new PtuServerHandler(ids)));
+        bootstrap.setPipelineFactory(new PtuPipelineFactory(new PtuServerHandler(refresh, ids)));
 
         // Bind and start to accept incoming connections.
         bootstrap.bind(new InetSocketAddress(port));
@@ -33,6 +35,6 @@ public class PtuPullServer {
     }
 
     public static void main(String[] args) {
-        new PtuPullServer(4005, null).run();
+        new PtuPullServer(4005, 5000, null).run();
     }
 }
