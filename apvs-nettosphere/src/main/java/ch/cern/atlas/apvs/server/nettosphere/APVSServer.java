@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.server.nettosphere;
 
+import java.util.logging.Logger;
+
 import org.atmosphere.nettosphere.Config;
 import org.atmosphere.nettosphere.Nettosphere;
 
@@ -9,6 +11,8 @@ import org.atmosphere.nettosphere.Nettosphere;
  *
  */
 public class APVSServer {
+	private static final Logger log = Logger.getLogger(APVSServer.class.getName());
+	
 	private static final int DEFAULT_PORT_NO = 8095;
 //    private static final Logger logger = Logger.getLogger(APVSServer.class);
 
@@ -27,7 +31,7 @@ public class APVSServer {
         server.start();
 
 //        logger.info("Server started on port: " + port);
-		System.out.println("APVS started on http://localhost:"+port+"/apvs/index.html");
+		log.info("APVS started on http://localhost:"+port+"/apvs/index.html");
     }
 }
 

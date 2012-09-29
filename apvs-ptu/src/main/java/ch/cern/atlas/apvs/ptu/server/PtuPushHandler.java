@@ -5,14 +5,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
 
 public class PtuPushHandler extends PtuReconnectHandler {
+
+	private final Logger log = Logger.getLogger(getClass().getName());
 
 	private Map<Channel, List<PtuSimulator>> simulators = new HashMap<Channel, List<PtuSimulator>>();
 	private String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309",
@@ -54,26 +56,12 @@ public class PtuPushHandler extends PtuReconnectHandler {
 
 		List<PtuSimulator> listOfSimulators = simulators.get(e.getChannel());
 		if (listOfSimulators != null) {
-			System.err.println("Interrupting Threads...");
+			log.info("Interrupting Threads...");
 			for (Iterator<PtuSimulator> i = listOfSimulators.iterator(); i
 					.hasNext();) {
 				i.next().interrupt();
 			}
 			simulators.remove(e.getChannel());
 		}
-	}
-
-	@Override
-	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
-			throws Exception {
-		// handle closed connection
-
-		super.channelClosed(ctx, e);
-	}
-
-	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
-			throws Exception {
-		super.messageReceived(ctx, e);
 	}
 }

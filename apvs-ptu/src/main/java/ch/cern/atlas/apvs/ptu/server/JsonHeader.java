@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import java.util.logging.Logger;
+
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -8,6 +10,8 @@ import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Report;
 
 public class JsonHeader {
+
+	private final Logger log = Logger.getLogger(getClass().getName());
 
 	transient static int currentFrameID = 0;
 	
@@ -33,7 +37,7 @@ public class JsonHeader {
 		} else if (message instanceof Order) {
 			messages[0] = new JsonOrder(message);
 		} else {
-			System.err.println("ERROR: do not know how to write message of type: "+message.getClass());
+			log.warning("ERROR: do not know how to write message of type: "+message.getClass());
 		}
 	}
 }

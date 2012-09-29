@@ -19,8 +19,9 @@ import ch.cern.atlas.apvs.domain.Report;
 
 public class PtuSimulator extends Thread {
 
-	private static final Logger log = Logger.getLogger(PtuSimulator.class.getName());
-	
+	private static final Logger log = Logger.getLogger(PtuSimulator.class
+			.getName());
+
 	private final Channel channel;
 	private final Random random = new Random();
 	private final int defaultWait;
@@ -47,7 +48,7 @@ public class PtuSimulator extends Thread {
 			long then = now - deltaStartTime;
 			Date start = new Date(then);
 
-			ptu = new Ptu(ptuId);
+			ptu = new Ptu(ptuId.toString());
 
 			ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
 			ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
@@ -58,7 +59,7 @@ public class PtuSimulator extends Thread {
 			ptu.addMeasurement(new DoseRate(ptuId, 0.1, start));
 			ptu.addMeasurement(new O2(ptuId, 85.2, start));
 
-			System.out.println(ptuId);
+			log.info(ptuId);
 
 			then += defaultWait + random.nextInt(extraWait);
 
@@ -101,7 +102,7 @@ public class PtuSimulator extends Thread {
 			// ignored
 		} finally {
 			if (channel != null) {
-				System.out.println("Closing");
+				log.info("Closing");
 				channel.close();
 			}
 		}

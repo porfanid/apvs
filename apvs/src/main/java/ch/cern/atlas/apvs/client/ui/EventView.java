@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -28,6 +29,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class EventView extends SimplePanel {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private EventBus cmdBus;
 	private String ptuId;
 	private String measurementName;
@@ -333,7 +336,7 @@ public class EventView extends SimplePanel {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							Event m = selectionModel.getSelectedObject();
-							System.err.println(m + " " + event.getSource());
+							log.info(m + " " + event.getSource());
 						}
 					});
 		}

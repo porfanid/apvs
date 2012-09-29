@@ -18,8 +18,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 public class PtuServerHandler extends SimpleChannelUpstreamHandler {
 
-    private static final Logger logger = Logger.getLogger(
-            PtuServerHandler.class.getName());
+    private final Logger log = Logger.getLogger(getClass().getName());
 
 	private Map<Channel, List<PtuSimulator>> simulators = new HashMap<Channel, List<PtuSimulator>>();
 	private String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309", "PTU_27372", "PTU_39400", "PTU_88982" };
@@ -37,7 +36,7 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void channelConnected(
             ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-    	System.err.println("Connected from "+e.getChannel().getRemoteAddress());
+    	log.info("Connected from "+e.getChannel().getRemoteAddress());
     	
 		List<PtuSimulator> listOfSimulators = new ArrayList<PtuSimulator>(ptuIds.length);
 		for (int i = 0; i < ptuIds.length; i++) {
@@ -56,10 +55,10 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx,
     		ChannelStateEvent e) throws Exception {
-    	System.err.println("Disconnected from "+e.getChannel().getRemoteAddress());
+    	log.info("Disconnected from "+e.getChannel().getRemoteAddress());
     	List<PtuSimulator> listOfSimulators = simulators.get(e.getChannel());
     	if (listOfSimulators != null) {
-    		System.err.println("Interrupting Threads...");
+    		log.info("Interrupting Threads...");
     		for (Iterator<PtuSimulator> i = listOfSimulators.iterator(); i.hasNext(); ) {
     			i.next().interrupt();
     		}
@@ -74,7 +73,7 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
             ChannelHandlerContext ctx, MessageEvent e) {
 
     	String request = (String) e.getMessage();
-    	System.err.println(request);
+    	log.info(request);
     	String response = request;
     	e.getChannel().write(response);
     }
@@ -83,7 +82,7 @@ public class PtuServerHandler extends SimpleChannelUpstreamHandler {
     public void exceptionCaught(
             ChannelHandlerContext ctx, ExceptionEvent e) {
         // Close the connection when an exception is raised.
-        logger.log(
+        log.log(
                 Level.WARNING,
                 "Unexpected exception from downstream.",
                 e.getCause());

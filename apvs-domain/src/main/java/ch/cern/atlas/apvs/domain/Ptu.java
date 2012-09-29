@@ -7,12 +7,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 
 public class Ptu implements Serializable {
 	
 	private static final long serialVersionUID = 1933500417755260216L;
-
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private String ptuId;
 	protected Map<String, Measurement> measurements = new HashMap<String, Measurement>();
 	protected Map<String, History> histories = new HashMap<String, History>();
@@ -62,7 +64,7 @@ public class Ptu implements Serializable {
 		
 		// check if we try to store an older measurement
 		if ((r != null) && (r.getDate().getTime() > measurement.getDate().getTime())) {
-			System.err.println("WARNING, addMeasurement out of order for "+ptuId+" "+measurement.getName());
+			log.warning("addMeasurement out of order for "+ptuId+" "+measurement.getName());
 		} else {
 			measurements.put(name, measurement);
 		}

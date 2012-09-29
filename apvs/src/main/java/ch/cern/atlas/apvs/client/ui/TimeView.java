@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.moxieapps.gwt.highcharts.client.Series;
 import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
@@ -21,6 +22,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class TimeView extends AbstractTimeView {
+
+	private final Logger log = Logger.getLogger(getClass().getName());
 
 	private HandlerRegistration measurementHandler;
 
@@ -105,7 +108,7 @@ public class TimeView extends AbstractTimeView {
 								return;
 							}
 
-							System.err.println("Histories Map retrieval of "
+							log.info("Histories Map retrieval of "
 									+ measurementName + " took "
 									+ (System.currentTimeMillis() - t0) + " ms");
 
@@ -144,13 +147,13 @@ public class TimeView extends AbstractTimeView {
 
 						@Override
 						public void onFailure(Throwable caught) {
-							System.err.println("Cannot retrieve Measurements "
+							log.warning("Cannot retrieve Measurements "
 									+ caught);
 						}
 					});
 		} else {
 			// subscribe to single PTU
-			System.err.println("***** " + ptuId);
+			log.info("***** " + ptuId);
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
 				final long t0 = System.currentTimeMillis();
@@ -160,12 +163,11 @@ public class TimeView extends AbstractTimeView {
 							@Override
 							public void onSuccess(History history) {
 								if (history == null) {
-									System.err
-											.println("Cannot find history for "
-													+ measurementName);
+									log.warning("Cannot find history for "
+											+ measurementName);
 								}
 
-								System.err.println("Measurement retrieval of "
+								log.info("Measurement retrieval of "
 										+ measurementName + " of " + ptuId
 										+ " took "
 										+ (System.currentTimeMillis() - t0)
@@ -194,9 +196,8 @@ public class TimeView extends AbstractTimeView {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								System.err
-										.println("Cannot retrieve Measurements "
-												+ caught);
+								log.warning("Cannot retrieve Measurements "
+										+ caught);
 							}
 						});
 			}
@@ -245,7 +246,7 @@ public class TimeView extends AbstractTimeView {
 						}
 
 						if (m.getName().equals(name)) {
-							System.err.println("New meas " + m);
+							log.info("New meas " + m);
 							Series series = seriesById.get(m.getPtuId());
 							if (series != null) {
 								Integer numberOfPoints = pointsById.get(ptuId);

@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.server;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -21,6 +22,7 @@ import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 @SuppressWarnings("serial")
 public class DosimeterServiceImpl extends ResponsePollService {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
 	private static final int DEFAULT_PORT = 4001;
 
 	private String dosimeterUrl;
@@ -32,7 +34,7 @@ public class DosimeterServiceImpl extends ResponsePollService {
 
 	public DosimeterServiceImpl() {
 		if (ENABLE_DOSIMETER) {
-			System.out.println("Creating DosimeterService...");
+			log.info("Creating DosimeterService...");
 			eventBus = APVSServerFactory.getInstance().getEventBus();
 		}
 	}
@@ -42,7 +44,7 @@ public class DosimeterServiceImpl extends ResponsePollService {
 		super.init(config);
 		if (ENABLE_DOSIMETER) {
 
-			System.out.println("Starting DosimeterService...");
+			log.info("Starting DosimeterService...");
 
 			ServerSettingsChangedEvent.subscribe(eventBus,
 					new ServerSettingsChangedEvent.Handler() {
@@ -61,7 +63,7 @@ public class DosimeterServiceImpl extends ResponsePollService {
 									int port = s.length > 1 ? Integer
 											.parseInt(s[1]) : DEFAULT_PORT;
 
-									System.err.println("Setting DOSIMETER to "
+									log.info("Setting DOSIMETER to "
 											+ host + ":" + port);
 									dosimeterClientHandler
 											.connect(new InetSocketAddress(

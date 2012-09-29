@@ -52,7 +52,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 				if (type.equals(MeasurementChangedEvent.class.getName())) {
 					List<Measurement> m = getMeasurements();
-					System.err.println("Getting all meas " + m.size());
+					log.info("Getting all meas " + m.size());
 					for (Iterator<Measurement> i = m.iterator(); i.hasNext();) {
 						eventBus.fireEvent(new MeasurementChangedEvent(i.next()));
 					}
@@ -67,7 +67,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 		// Print out the line received from the server.
 		String line = (String) e.getMessage();
-		// System.err.println(line);
+		// log.info(line);
 
 		List<Message> list;
 		try {
@@ -86,7 +86,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					} else if (message instanceof Error) {
 						handleMessage(ptu, (Error) message);
 					} else {
-						System.err.println("Error: unknown Message Type: "
+						log.warning("Error: unknown Message Type: "
 								+ message.getType());
 					}
 				}
@@ -130,11 +130,11 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	private void handleMessage(Ptu ptu, Report report) {
-		System.err.println(report.getType() + " NOT YET IMPLEMENTED, see #23 and #112");
+		log.warning(report.getType() + " NOT YET IMPLEMENTED, see #23 and #112");
 	}
 
 	private void handleMessage(Ptu ptu, Error error) {
-		System.err.println(error.getType() + " NOT YET IMPLEMENTED, see #114");
+		log.warning(error.getType() + " NOT YET IMPLEMENTED, see #114");
 	}
 
 	private synchronized void sendEvents() {

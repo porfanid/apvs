@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.settings;
 
+import java.util.logging.Logger;
+
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -14,6 +16,8 @@ import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 
 public class SettingsPersister extends VerticalFlowPanel {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private final static String APVS_SETTINGS = "APVS.settings";
 	private SettingsFactory settingsFactory = GWT.create(SettingsFactory.class);
 	private Settings settings;
@@ -47,7 +51,7 @@ public class SettingsPersister extends VerticalFlowPanel {
 
 			@Override
 			public void onRequestEvent(RequestEvent event) {
-				System.err.println("Request " + event.getRequestedClassName());
+				log.info("Request " + event.getRequestedClassName());
 				if (event.getRequestedClassName().equals(
 						SettingsChangedEvent.class.getName())) {
 					eventBus.fireEvent(new SettingsChangedEvent(settings));
@@ -64,11 +68,11 @@ public class SettingsPersister extends VerticalFlowPanel {
 		}
 		for (int i = 0; i < store.getLength(); i++) {
 			String key = store.key(i);
-			System.err.println(key + " " + store.getItem(key));
+			log.info(key + " " + store.getItem(key));
 		}
 		String json = store.getItem(APVS_SETTINGS);
 		// String json = null;
-		System.err.println("get " + json);
+		log.info("get " + json);
 
 		settings = settingsFactory.settings().as();
 		if (json != null) {
@@ -88,8 +92,8 @@ public class SettingsPersister extends VerticalFlowPanel {
 		AutoBean<Settings> bean = AutoBeanUtils.getAutoBean(settings);
 		String json = AutoBeanCodex.encode(bean).getPayload();
 
-		System.err.println("set " + json);
+		log.info("set " + json);
 		store.setItem(APVS_SETTINGS, json);
-		System.err.println(store.getLength());
+		log.info(""+store.getLength());
 	}
 }

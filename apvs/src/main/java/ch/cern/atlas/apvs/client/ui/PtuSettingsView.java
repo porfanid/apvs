@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
@@ -37,17 +38,19 @@ import com.google.web.bindery.event.shared.EventBus;
  */
 public class PtuSettingsView extends VerticalFlowPanel {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 	private ListHandler<String> columnSortHandler;
-	
+
 	protected PtuSettings settings = new PtuSettings();
 	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
 	protected List<String> activePtuIds = new ArrayList<String>();
 
 	public PtuSettingsView(ClientFactory clientFactory, Arguments args) {
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
-		
+
 		add(table);
 
 		// ACTIVE
@@ -56,7 +59,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 			@Override
 			public Boolean getValue(String object) {
 				return activePtuIds.contains(object);
-			}			
+			}
 		};
 		active.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		active.setSortable(true);
@@ -189,7 +192,9 @@ public class PtuSettingsView extends VerticalFlowPanel {
 		});
 		columnSortHandler.setComparator(active, new Comparator<String>() {
 			public int compare(String o1, String o2) {
-				return activePtuIds.contains(o1) ? activePtuIds.contains(o2) ? 0 : 1 : -1;
+				return activePtuIds.contains(o1) ? activePtuIds.contains(o2) ? 0
+						: 1
+						: -1;
 			}
 		});
 		columnSortHandler.setComparator(enabled, new Comparator<String>() {
@@ -228,7 +233,7 @@ public class PtuSettingsView extends VerticalFlowPanel {
 					@Override
 					public void onPtuSettingsChanged(
 							PtuSettingsChangedEvent event) {
-						System.err.println("PTU Settings changed");
+						log.info("PTU Settings changed");
 						settings = event.getPtuSettings();
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(settings.getPtuIds());
@@ -236,13 +241,13 @@ public class PtuSettingsView extends VerticalFlowPanel {
 						update();
 					}
 				});
-		
+
 		PtuIdsChangedEvent.subscribe(eventBus,
 				new PtuIdsChangedEvent.Handler() {
 
 					@Override
 					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-						System.err.println("PTU IDS changed");
+						log.info("PTU IDS changed");
 						activePtuIds = event.getPtuIds();
 
 						update();
@@ -258,14 +263,14 @@ public class PtuSettingsView extends VerticalFlowPanel {
 						dosimeterSerialNumbers.clear();
 						dosimeterSerialNumbers.addAll(event
 								.getDosimeterSerialNumbers());
-						System.err.println("DOSI changed "
+						log.info("DOSI changed "
 								+ dosimeterSerialNumbers.size());
 
 						// FIXME, allow for setting not available as DOSI #
 						update();
 					}
 				});
-		
+
 		update();
 	}
 
@@ -279,8 +284,9 @@ public class PtuSettingsView extends VerticalFlowPanel {
 	private void fireSettingsChangedEvent(EventBus eventBus,
 			PtuSettings settings) {
 
-		((RemoteEventBus)eventBus).fireEvent(new PtuSettingsChangedEvent(settings));
-		((RemoteEventBus)eventBus).fireEvent(new DosimeterPtuChangedEvent(settings
-				.getDosimeterToPtuMap()));
+		((RemoteEventBus) eventBus).fireEvent(new PtuSettingsChangedEvent(
+				settings));
+		((RemoteEventBus) eventBus).fireEvent(new DosimeterPtuChangedEvent(
+				settings.getDosimeterToPtuMap()));
 	}
 }

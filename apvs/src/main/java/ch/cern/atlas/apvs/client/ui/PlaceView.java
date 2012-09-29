@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.logging.Logger;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -18,6 +20,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PlaceView extends SimplePanel {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private RemoteEventBus remoteEventBus;
 	private String defaultImage = "Default-640x480.jpg";
 	private String ptuId;
@@ -56,7 +60,7 @@ public class PlaceView extends SimplePanel {
 						if (!ptuId.equals(event.getPtuId()))
 							return;
 
-						System.out.println("PLACE CHANGED " + event);
+						log.info("PLACE CHANGED " + event);
 						Place place = event.getPlace();
 
 						if (place instanceof HomePlace) {

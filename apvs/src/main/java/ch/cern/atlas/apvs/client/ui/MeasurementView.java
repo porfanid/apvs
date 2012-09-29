@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
@@ -34,6 +35,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class MeasurementView extends VerticalFlowPanel {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
 	private PtuSettings settings;
@@ -259,7 +262,7 @@ public class MeasurementView extends VerticalFlowPanel {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							Measurement m = selectionModel.getSelectedObject();
-							System.err.println(m + " " + event.getSource());
+							log.info(m + " " + event.getSource());
 						}
 					});
 		}

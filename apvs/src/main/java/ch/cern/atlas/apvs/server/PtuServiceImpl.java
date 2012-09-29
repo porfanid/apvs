@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,6 +28,8 @@ import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 @SuppressWarnings("serial")
 public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private static final int DEFAULT_PTU_PORT = 4005;
 
 	private String ptuUrl;
@@ -35,7 +38,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	private PtuClientHandler ptuClientHandler;
 
 	public PtuServiceImpl() {
-		System.out.println("Creating PtuService...");
+		log.info("Creating PtuService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
 
@@ -43,7 +46,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		System.out.println("Starting PtuService...");
+		log.info("Starting PtuService...");
 
 		ServerSettingsChangedEvent.subscribe(eventBus,
 				new ServerSettingsChangedEvent.Handler() {
@@ -62,7 +65,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 								int port = s.length > 1 ? Integer
 										.parseInt(s[1]) : DEFAULT_PTU_PORT;
 
-								System.err.println("Setting PTU to " + host
+								log.info("Setting PTU to " + host
 										+ ":" + port);
 								ptuClientHandler.connect(new InetSocketAddress(
 										host, port));

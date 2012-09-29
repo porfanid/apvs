@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.server;
 
+import java.util.logging.Logger;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
@@ -16,13 +18,15 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 
 //	private static final int DEFAULT_DB_PORT = 1521;
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private String dbUrl;
 
 	private RemoteEventBus eventBus;
 	private DbHandler dbHandler;
 
 	public DbServiceImpl() {
-		System.out.println("Creating DbService...");
+		log.info("Creating DbService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
 
@@ -30,7 +34,7 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		System.out.println("Starting DbService...");
+		log.info("Starting DbService...");
 
 		ServerSettingsChangedEvent.subscribe(eventBus,
 				new ServerSettingsChangedEvent.Handler() {

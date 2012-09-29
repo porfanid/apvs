@@ -23,8 +23,7 @@ import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 public class DbHandler extends DbReconnectHandler {
 
-	private static final Logger logger = Logger.getLogger(DbHandler.class
-			.getName());
+	private final Logger log = Logger.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
 
 	private Ptus ptus = Ptus.getInstance();
@@ -61,16 +60,14 @@ public class DbHandler extends DbReconnectHandler {
 				try {
 					updateDevices();
 				} catch (SQLException e) {
-					System.err
-							.println("Could not regularly-update device list: "
+					log.warning("Could not regularly-update device list: "
 									+ e);
 				}
 				try {
 					updateUsers();
 				} catch (SQLException e) {
-					System.err
-							.println("Could not regularly-update user list: "
-									+ e);
+					log.warning("Could not regularly-update user list: "
+							+ e);
 				}
 			}
 		}, 30, 30, TimeUnit.SECONDS);
@@ -126,14 +123,14 @@ public class DbHandler extends DbReconnectHandler {
 					}
 					result.close();
 
-					System.err.println("Creating history for " + ptuId + " "
+					log.info("Creating history for " + ptuId + " "
 							+ sensor + " " + data.size() + " entries");
 					history = new History(
 							data.toArray(new Number[data.size()][]), unit);
 
 				}
 			} catch (SQLException ex) {
-				System.err.println(ex);
+				log.warning(ex.getMessage());
 			}
 		}
 		return history;
@@ -164,8 +161,9 @@ public class DbHandler extends DbReconnectHandler {
 
 		deviceQuery = connection
 				.prepareStatement("select ID, NAME from tbl_devices");
-		
-		userQuery = connection.prepareStatement("select ID, FNAME, LNAME from tbl_users");
+
+		userQuery = connection
+				.prepareStatement("select ID, FNAME, LNAME from tbl_users");
 
 		updateDevices();
 		updateUsers();
@@ -194,7 +192,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		}
 
-		System.err.println("Pruning " + prune.size() + " devices...");
+		log.info("Pruning " + prune.size() + " devices...");
 		for (Iterator<String> i = prune.iterator(); i.hasNext();) {
 			ptus.remove(i.next());
 			ptuIdsChanged = true;
@@ -205,7 +203,7 @@ public class DbHandler extends DbReconnectHandler {
 			ptuIdsChanged = false;
 		}
 	}
-	
+
 	private void updateUsers() throws SQLException {
 		if (userQuery == null)
 			return;

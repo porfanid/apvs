@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * Test cases for JsonReader / JsonWriter
@@ -49,6 +50,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TestJsonReaderWriter extends TestCase
 {
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
     public static boolean _debug = true;    // Change to 'false' to "hush" output
     public static Date _testDate = new Date();
     public static Character _CONST_CHAR = new Character('j');
@@ -2439,7 +2442,7 @@ public class TestJsonReaderWriter extends TestCase
             }
             catch (UnsupportedEncodingException e)
             {
-                System.out.println("Get a new JVM that supports UTF-8");
+                log.info("Get a new JVM that supports UTF-8");
             }
 
             _strArray = new String[]{"1st", "2nd", _null, null, new String("3rd")};
@@ -2853,7 +2856,7 @@ public class TestJsonReaderWriter extends TestCase
         {
             for (Object arg : args)
             {
-                System.out.println(arg);
+                log.info(arg);
             }
         }
     }

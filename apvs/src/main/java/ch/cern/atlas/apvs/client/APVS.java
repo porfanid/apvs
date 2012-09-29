@@ -59,8 +59,7 @@ import com.googlecode.mgwt.ui.client.layout.OrientationRegionHandler;
  */
 public class APVS implements EntryPoint {
 
-	@SuppressWarnings("unused")
-	private Logger logger = Logger.getLogger(getClass().getName());
+	private Logger log = Logger.getLogger(getClass().getName());
 	@SuppressWarnings("unused")
 	private Window screen;
 
@@ -75,7 +74,7 @@ public class APVS implements EntryPoint {
 		GWT.setUncaughtExceptionHandler(new APVSUncaughtExceptionHandler());
 
 		Build build = GWT.create(Build.class);
-		System.out.println("Starting APVS Version: " + build.version() + " - "
+		log.info("Starting APVS Version: " + build.version() + " - "
 				+ build.build());
 
 		ServerServiceAsync.Util.getInstance().isReady(
@@ -84,7 +83,7 @@ public class APVS implements EntryPoint {
 					@Override
 					public void onSuccess(Boolean result) {
 						if (result) {
-							System.err.println("Server ready");
+							log.info("Server ready");
 							start();
 						} else {
 							onFailure(null);
@@ -133,14 +132,14 @@ public class APVS implements EntryPoint {
 
 				String className = parts[0];
 				if ((parts[1].length() > 0) && !parts[1].endsWith(")")) {
-					System.err.println("Missing closing parenthesis on '"+id+"'");
+					log.warning("Missing closing parenthesis on '"+id+"'");
 					parts[1] += ")";
 				}
 				Arguments args = new Arguments(
 						parts[1].length() > 0 ? parts[1].substring(0,
 								parts[1].length() - 1) : null);
 
-				System.err.println("Creating " + className + " with args ("
+				log.info("Creating " + className + " with args ("
 						+ args + ")");
 
 				// FIXME handle generically

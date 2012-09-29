@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
@@ -22,6 +23,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuTabSelector extends HorizontalPanel {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private RemoteEventBus remoteEventBus;
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
 
@@ -87,7 +90,7 @@ public class PtuTabSelector extends HorizontalPanel {
 		if ((open >= 0) && (close >= 0)) {
 			name = name.substring(open + 1, close);
 		}
-		System.err.println(name);
+		log.info(name);
 		return name;
 	}
 

@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client.tablet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 
@@ -15,6 +16,8 @@ import com.googlecode.mgwt.ui.client.widget.celllist.CellSelectedHandler;
 
 public class MainMenuActivity extends MGWTAbstractActivity {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private final ClientFactory clientFactory;
 
 	public MainMenuActivity(ClientFactory clientFactory) {
@@ -38,7 +41,7 @@ public class MainMenuActivity extends MGWTAbstractActivity {
 			@Override
 			public void onCellSelected(CellSelectedEvent event) {
 				int index = event.getIndex();
-				System.err.println(index);
+				log.info(""+index);
 				switch(index) {
 				case 0:
 					clientFactory.getPlaceController().goTo(new ProcedureMenuPlace());

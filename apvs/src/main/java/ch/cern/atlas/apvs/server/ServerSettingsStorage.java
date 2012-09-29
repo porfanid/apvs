@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.server;
 
+import java.util.logging.Logger;
+
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -10,6 +12,8 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 public class ServerSettingsStorage {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private static final String APVS_SERVER_SETTINGS = "APVS.server.settings";
 	private static ServerSettingsStorage instance;
 	private ServerSettings settings;
@@ -54,7 +58,7 @@ public class ServerSettingsStorage {
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {
-			System.err.println("Server Settings will not be stored");
+			log.warning("Server Settings will not be stored");
 			return;
 		}
 
@@ -64,12 +68,10 @@ public class ServerSettingsStorage {
 		}
 
 		if (settings == null) {
-			System.err
-					.println("Could not read Server Settings, using defaults");
+			log.warning("Could not read Server Settings, using defaults");
 			settings = new ServerSettings(true);
 		} else {
-			System.err
-			.println("Server Settings Read");			
+			log.info("Server Settings Read");			
 		}
 	}
 
@@ -80,7 +82,7 @@ public class ServerSettingsStorage {
 		}
 
 		String json = JsonWriter.toJson(settings);
-		System.err.println("Storing json " + json);
+		log.info("Storing json " + json);
 
 		if (json != null) {
 			store.setItem(APVS_SERVER_SETTINGS, json);

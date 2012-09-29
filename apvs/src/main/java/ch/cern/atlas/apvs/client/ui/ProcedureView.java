@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.logging.Logger;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
@@ -15,6 +17,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class ProcedureView extends SimplePanel {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	// FIXME
 	// private final String procedureURL =
 	// "http://localhost:8890/apvs-procs/procedures/Demo";
@@ -107,7 +111,7 @@ public class ProcedureView extends SimplePanel {
 		video.addSource(source, videoType);
 		setWidget(video);
 			
-		System.err.println(source);
+		log.info(source);
 //		Thread.dumpStack();	
 	}
 

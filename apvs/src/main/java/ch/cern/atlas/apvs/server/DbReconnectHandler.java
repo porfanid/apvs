@@ -11,8 +11,7 @@ import org.jboss.netty.util.TimerTask;
 
 public class DbReconnectHandler extends DbCallback {
 	private static final int RECONNECT_DELAY = 20;
-	private static final Logger logger = Logger
-			.getLogger(DbReconnectHandler.class.getName());
+	private final Logger log = Logger.getLogger(getClass().getName());
 
 	private String url;
 	private Timer timer;
@@ -25,25 +24,25 @@ public class DbReconnectHandler extends DbCallback {
 	public void dbDisconnected() throws SQLException {
 		// handle reconnection
 		if (reconnectNow) {
-			System.err.println("Immediate Reconnecting to DB on " + url);
+			log.info("Immediate Reconnecting to DB on " + url);
 			super.connect(url);
 			reconnectNow = false;
 		} else {
-			System.err.println("Sleeping for: " + RECONNECT_DELAY + "s");
+			log.info("Sleeping for: " + RECONNECT_DELAY + "s");
 			timer = new HashedWheelTimer();
 			timer.newTimeout(new TimerTask() {
 				public void run(Timeout timeout) throws Exception {
-					System.err.println("Reconnecting to DB on " + url);
+					log.info("Reconnecting to DB on " + url);
 					DbReconnectHandler.super.connect(url);
 				}
 			}, RECONNECT_DELAY, TimeUnit.SECONDS);
 		}
-		
+
 		super.dbDisconnected();
 	}
 
 	public void exceptionCaught(Exception e) {
-		System.err.println(e);
+		log.warning(e.getMessage());
 		super.exceptionCaught(e);
 	}
 

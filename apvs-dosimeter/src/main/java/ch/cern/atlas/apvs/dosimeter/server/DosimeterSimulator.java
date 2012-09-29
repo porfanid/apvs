@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
@@ -17,6 +18,8 @@ import ch.cern.atlas.apvs.domain.Dosimeter;
 
 public class DosimeterSimulator extends Thread {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private final Channel channel;
 	private final Random random = new Random();
 	private int noOfDosimeters = 5;
@@ -36,7 +39,7 @@ public class DosimeterSimulator extends Thread {
 				dosimeters.add(new Dosimeter(serialNo[i],
 						random.nextDouble() * 500.0, random.nextDouble() * 5.0,
 						now));
-				System.out.println(dosimeters.get(i).getSerialNo());
+				log.info(Integer.toString(dosimeters.get(i).getSerialNo()));
 			}
 
 			ChannelBuffer buffer = ChannelBuffers.buffer(8192);

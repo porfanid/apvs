@@ -5,11 +5,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class ServerStorage {
 	private static final String APVS_SERVER_SETTINGS_FILE = "APVS.properties";
 	private static final String comment = "APVS Server Settings";
-
+	private static final Logger log = Logger.getLogger(ServerStorage.class.getName());
+	
 	private static ServerStorage instance;
 	private Properties properties = new Properties();
 	
@@ -17,7 +19,7 @@ public class ServerStorage {
 		try {
 			properties.load(new FileReader(APVS_SERVER_SETTINGS_FILE));
 		} catch (FileNotFoundException e) {
-			System.out.println("File "+APVS_SERVER_SETTINGS_FILE+" not found, created one.");
+			log.info("File "+APVS_SERVER_SETTINGS_FILE+" not found, created one.");
 		} 
 		properties.store(new FileWriter(APVS_SERVER_SETTINGS_FILE), comment);
 	}
@@ -29,7 +31,7 @@ public class ServerStorage {
 			}
 			return instance;
 		} catch (IOException e) {
-			System.err.println("Server Settings Storage problem "+e);
+			log.warning("Server Settings Storage problem "+e);
 		}
 		return null;
 	}
@@ -44,7 +46,7 @@ public class ServerStorage {
 		try {
 			properties.store(new FileWriter(APVS_SERVER_SETTINGS_FILE), comment);
 		} catch (IOException e) {
-			System.err.println("Server Settings Storage write problem "+e);
+			log.warning("Server Settings Storage write problem "+e);
 		}
 	}
 	

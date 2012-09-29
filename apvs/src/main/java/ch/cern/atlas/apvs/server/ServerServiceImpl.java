@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.server;
 
+import java.util.logging.Logger;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
@@ -13,10 +15,12 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 public class ServerServiceImpl extends ResponsePollService implements
 		ServerService {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private RemoteEventBus eventBus;
 
 	public ServerServiceImpl() {
-		System.out.println("Creating ServerService...");
+		log.info("Creating ServerService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
 
@@ -24,7 +28,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		System.out.println("Starting ServerService...");
+		log.info("Starting ServerService...");
 
 		ServerSettingsStorage.getInstance(eventBus);
 		PtuSettingsStorage.getInstance(eventBus);

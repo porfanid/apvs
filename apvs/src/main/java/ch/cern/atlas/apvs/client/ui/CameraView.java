@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.logging.Logger;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -17,6 +19,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class CameraView extends SimplePanel {
+	
+	private final Logger log = Logger.getLogger(getClass().getName());
 	
 	public static final String HELMET = "Helmet";
 	public static final String HAND = "Hand";
@@ -78,7 +82,7 @@ public class CameraView extends SimplePanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				System.err.println("Single Click Update");
+				log.info("Single Click Update");
 				update(true);
 			}
 		});
@@ -86,7 +90,7 @@ public class CameraView extends SimplePanel {
 
 			@Override
 			public void onDoubleClick(DoubleClickEvent event) {
-				System.err.println("Double Click " + event + " enlarge");
+				log.info("Double Click " + event + " enlarge");
 			}
 		});
 
@@ -138,7 +142,7 @@ public class CameraView extends SimplePanel {
 
 		if (cameraUrl.startsWith("http://")) {
 			if (cameraUrl.endsWith(".mjpg")) {
-				System.err.println(cameraUrl);
+				log.info(cameraUrl);
 				image.setUrl(cameraUrl);
 				setWidget(image);
 			} else {
@@ -153,7 +157,7 @@ public class CameraView extends SimplePanel {
 					video.setLoop(true);
 					video.addSource(cameraUrl);
 				}
-				System.err.println(video.toString());
+				log.info(video.toString());
 				setWidget(video);
 			}
 		} else if (cameraUrl.startsWith("rtsp://")) {
@@ -165,7 +169,7 @@ public class CameraView extends SimplePanel {
 							+ "\" src=\""
 							+ cameraUrl
 							+ "\" autoplay=\"true\" type=\"video/quicktime\" controller=\"true\" quitwhendone=\"false\" loop=\"false\"/></embed>");
-			System.err.println(video.toString());
+			log.info(video.toString());
 			setWidget(video);
 		} else {
 			Widget video = new HTML(
@@ -180,7 +184,7 @@ public class CameraView extends SimplePanel {
 							+ "', '', 'href', '"
 							+ cameraUrl
 							+ "', 'autohref', 'true', 'target', 'myself', 'controller', 'true', 'autoplay', 'true');</script>");
-			System.err.println(video.toString());
+			log.info(video.toString());
 			setWidget(video);
 		}
 	}

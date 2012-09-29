@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import ch.cern.atlas.apvs.client.ui.CameraView;
 
@@ -16,6 +17,8 @@ import ch.cern.atlas.apvs.client.ui.CameraView;
  */
 public class PtuSettings implements Serializable {
 
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private static final long serialVersionUID = -5390424254145424045L;
 
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
@@ -112,7 +115,7 @@ public class PtuSettings implements Serializable {
 	}
 
 	public boolean add(String ptuId) {
-		System.err.println("Adding " + ptuId);
+		log.info("Adding " + ptuId);
 		if (!entries.containsKey(ptuId)) {
 			entries.put(ptuId, new Entry());
 			return true;
