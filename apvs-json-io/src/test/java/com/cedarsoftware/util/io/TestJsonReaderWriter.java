@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestJsonReaderWriter extends TestCase
 {
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private static Logger log = LoggerFactory.getLogger(TestJsonReaderWriter.class.getName());
 	
     public static boolean _debug = true;    // Change to 'false' to "hush" output
     public static Date _testDate = new Date();
@@ -2444,7 +2444,7 @@ public class TestJsonReaderWriter extends TestCase
             }
             catch (UnsupportedEncodingException e)
             {
-                log.info("Get a new JVM that supports UTF-8");
+                log.debug("Get a new JVM that supports UTF-8");
             }
 
             _strArray = new String[]{"1st", "2nd", _null, null, new String("3rd")};
@@ -2858,7 +2858,7 @@ public class TestJsonReaderWriter extends TestCase
         {
             for (Object arg : args)
             {
-                log.info(arg);
+                log.debug(arg.toString());
             }
         }
     }
