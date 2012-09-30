@@ -1,8 +1,5 @@
 package com.cedarsoftware.util.io;
 
-import junit.framework.TestCase;
-
-import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,6 +25,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+
+import junit.framework.TestCase;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2763,8 +2763,8 @@ public class TestJsonReaderWriter extends TestCase
             _christBday = c.getTime();
             _cost = 57.0;
             _x = 3.14159f;
-            _klass = Rectangle.class;
-            _letter = 'j';
+            _klass = Dictionary.class;
+            _letter = 'j'; 
         }
 
         public void _writeJson(Writer writer) throws IOException
