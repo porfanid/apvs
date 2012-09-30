@@ -16,7 +16,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -30,6 +29,8 @@ import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -46,7 +47,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 
 	private static final int RECONNECT_DELAY = 20;
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final ClientBootstrap bootstrap;
 	private final RemoteEventBus eventBus;
 
@@ -129,9 +130,9 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 				}
 			});
 		} catch (SecurityException e) {
-			log.warning("Cannot open " + dosimeterLogfile);
+			log.warn("Cannot open " + dosimeterLogfile);
 		} catch (IOException e) {
-			log.warning("Cannot open " + dosimeterLogfile);
+			log.warn("Cannot open " + dosimeterLogfile);
 		}
 	}
 
@@ -202,7 +203,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 				logHandler.publish(new LogRecord(Level.INFO, jsonDosimeter));
 			}
 		} catch (IOException ex) {
-			log.warning(DosimeterClientHandler.class
+			log.warn(DosimeterClientHandler.class
 					+ " cannot convert to JSON " + ex.getMessage());
 		}
 
@@ -215,11 +216,11 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
 		if (e.getCause() instanceof ConnectException) {
-			log.log(Level.WARNING, "Connection Refused");
+			log.warn("Connection Refused");
 		} else if (e.getCause() instanceof SocketException) {
-			log.log(Level.WARNING, "Network is unreachable");
+			log.warn("Network is unreachable");
 		} else {
-			log.log(Level.WARNING, "Unexpected exception from downstream.",
+			log.warn("Unexpected exception from downstream.",
 					e.getCause());
 		}
 		e.getChannel().close();

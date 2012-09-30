@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.tablet.ModelEntrySelectedEvent.ModelEntry;
@@ -17,7 +18,7 @@ import com.googlecode.mgwt.ui.client.MGWT;
 
 public class TabletHistoryObserver implements HistoryObserver {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	@Override
 	public void onPlaceChange(Place place, HistoryHandler handler) {

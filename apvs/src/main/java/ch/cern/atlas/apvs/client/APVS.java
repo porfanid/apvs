@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
@@ -59,7 +60,7 @@ import com.googlecode.mgwt.ui.client.layout.OrientationRegionHandler;
  */
 public class APVS implements EntryPoint {
 
-	private Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	@SuppressWarnings("unused")
 	private Window screen;
 
@@ -132,7 +133,7 @@ public class APVS implements EntryPoint {
 
 				String className = parts[0];
 				if ((parts[1].length() > 0) && !parts[1].endsWith(")")) {
-					log.warning("Missing closing parenthesis on '"+id+"'");
+					log.warn("Missing closing parenthesis on '"+id+"'");
 					parts[1] += ")";
 				}
 				Arguments args = new Arguments(

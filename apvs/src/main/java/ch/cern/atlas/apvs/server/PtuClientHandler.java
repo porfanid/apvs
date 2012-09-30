@@ -9,12 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
@@ -31,8 +33,7 @@ import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 public class PtuClientHandler extends PtuReconnectHandler {
 
-	private static final Logger log = Logger
-			.getLogger(PtuClientHandler.class.getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
 
 	private Ptus ptus = Ptus.getInstance();
@@ -62,11 +63,11 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			}
 		});
 	}
-	
+
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
 		// Print out the line received from the server.
-		String line = (String) e.getMessage();
+		String line = (String) event.getMessage();
 		// log.info(line);
 
 		List<Message> list;
@@ -77,17 +78,21 @@ public class PtuClientHandler extends PtuReconnectHandler {
 				String ptuId = message.getPtuId();
 				Ptu ptu = ptus.get(ptuId);
 				if (ptu != null) {
-					if (message instanceof Measurement) {
-						handleMessage(ptu, (Measurement) message);
-					} else if (message instanceof Report) {
-						handleMessage(ptu, (Report) message);
-					} else if (message instanceof Event) {
-						handleMessage(ptu, (Event) message);
-					} else if (message instanceof Error) {
-						handleMessage(ptu, (Error) message);
-					} else {
-						log.warning("Error: unknown Message Type: "
-								+ message.getType());
+					try {
+						if (message instanceof Measurement) {
+							handleMessage(ptu, (Measurement) message);
+						} else if (message instanceof Report) {
+							handleMessage(ptu, (Report) message);
+						} else if (message instanceof Event) {
+							handleMessage(ptu, (Event) message);
+						} else if (message instanceof Error) {
+							handleMessage(ptu, (Error) message);
+						} else {
+							log.warn("Error: unknown Message Type: "
+									+ message.getType());
+						}
+					} catch (APVSException e) {
+						log.warn("Could not add measurement", e);
 					}
 				}
 			}
@@ -98,12 +103,13 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	}
 
-	private void handleMessage(Ptu ptu, Measurement message) {
+	private void handleMessage(Ptu ptu, Measurement message)
+			throws APVSException {
 
 		String ptuId = message.getPtuId();
 		String sensor = message.getName();
 		History history = ptus.setHistory(ptuId, sensor, message.getUnit());
-		
+
 		ptu.addMeasurement(message);
 		Set<String> changed = measurementChanged.get(ptuId);
 		if (changed == null) {
@@ -123,18 +129,20 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private void handleMessage(Ptu ptu, Event message) {
 		String ptuId = message.getPtuId();
 		String sensor = message.getName();
-		
-		log.info("EVENT "+message);
-		
-		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor, message.getEventType(), message.getValue(), message.getTheshold(), message.getDate())));
+
+		log.info("EVENT " + message);
+
+		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
+				message.getEventType(), message.getValue(), message
+						.getTheshold(), message.getDate())));
 	}
 
 	private void handleMessage(Ptu ptu, Report report) {
-		log.warning(report.getType() + " NOT YET IMPLEMENTED, see #23 and #112");
+		log.warn(report.getType() + " NOT YET IMPLEMENTED, see #23 and #112");
 	}
 
 	private void handleMessage(Ptu ptu, Error error) {
-		log.warning(error.getType() + " NOT YET IMPLEMENTED, see #114");
+		log.warn(error.getType() + " NOT YET IMPLEMENTED, see #114");
 	}
 
 	private synchronized void sendEvents() {

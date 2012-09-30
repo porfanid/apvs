@@ -2,11 +2,12 @@ package ch.cern.atlas.apvs.eventbus.client;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.atmosphere.gwt.client.AtmosphereClient;
 import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
 import org.atmosphere.gwt.client.AtmosphereListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -15,6 +16,8 @@ import com.google.gwt.core.client.GWT;
 
 public class AtmosphereEventBus extends RemoteEventBus {
 	
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	private AtmosphereClient client;
 
 	public AtmosphereEventBus(AtmosphereGWTSerializer serializer) {

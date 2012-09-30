@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.user.client.DOM;
@@ -8,7 +9,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 
 public class APVSUncaughtExceptionHandler implements UncaughtExceptionHandler {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	@Override
 	public void onUncaughtException(Throwable throwable) {
@@ -27,7 +28,7 @@ public class APVSUncaughtExceptionHandler implements UncaughtExceptionHandler {
 		DialogBox dialogBox = new DialogBox(true, false);
 		DOM.setStyleAttribute(dialogBox.getElement(), "backgroundColor",
 				"#ABCDEF");
-		log.warning(text);
+		log.warn(text);
 		text = text.replaceAll(" ", "&nbsp;");
 		dialogBox.setHTML("<pre>" + text + "</pre>");
 		dialogBox.center();

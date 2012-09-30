@@ -1,14 +1,17 @@
 package ch.cern.atlas.apvs.eventbus.server;
 
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 public class ServerEventBus extends RemoteEventBus {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	private static ServerEventBus instance;
-	private static Logger log = Logger.getLogger(ServerEventBus.class.getName());
 
 	private EventBusServiceHandler eventBusServiceHandler;
 

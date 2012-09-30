@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ch.cern.atlas</groupId>
@@ -33,7 +34,7 @@
 		<jetty-plugin-version>${jetty-version}</jetty-plugin-version>
 		<json-version>20090211</json-version>
 		<junit-version>4.10</junit-version>
-                <log4jdbc-version>1.2</log4jdbc-version>
+		<log4jdbc-version>1.2</log4jdbc-version>
 		<mgwt-version>1.0.1</mgwt-version>
 		<mockito-version>1.9.5-rc1</mockito-version>
 		<netty-version>3.5.3.Final</netty-version>
@@ -43,6 +44,8 @@
 		<javax.servlet-api-version>3.0.1</javax.servlet-api-version>
 		<validation-api-version>1.0.0.GA</validation-api-version>
 		<slf4j-version>1.7.1</slf4j-version>
+		<hudson-gwt-slf4j-version>2.1.2</hudson-gwt-slf4j-version>
+
 
 		<!-- in order on http://maven.apache.org/plugins/index.html -->
 		<clean-plugin-version>2.5</clean-plugin-version>
@@ -220,9 +223,9 @@
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>${surefire-plugin-version}</version>
-				        <configuration>
-      						<testFailureIgnore>false</testFailureIgnore>
-    					</configuration>
+					<configuration>
+						<testFailureIgnore>false</testFailureIgnore>
+					</configuration>
 				</plugin>
 
 				<plugin>
@@ -368,12 +371,12 @@
 				<artifactId>log4jdbc3</artifactId>
 				<version>${log4jdbc-version}</version>
 			</dependency>
-		       <dependency>
-            			<groupId>org.mockito</groupId>
-            			<artifactId>mockito-all</artifactId>
-		                <version>${mockito-version}</version>
-            			<scope>test</scope>
-        		</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>${mockito-version}</version>
+				<scope>test</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -384,6 +387,12 @@
 				<artifactId>slf4j-jdk14</artifactId>
 				<version>${slf4j-version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.jvnet.hudson.main</groupId>
+				<artifactId>hudson-gwt-slf4j</artifactId>
+				<version>${hudson-gwt-slf4j-version}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>

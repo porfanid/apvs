@@ -2,16 +2,17 @@ package ch.cern.atlas.apvs.server;
 
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DbReconnectHandler extends DbCallback {
 	private static final int RECONNECT_DELAY = 20;
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private String url;
 	private Timer timer;
@@ -42,7 +43,7 @@ public class DbReconnectHandler extends DbCallback {
 	}
 
 	public void exceptionCaught(Exception e) {
-		log.warning(e.getMessage());
+		log.warn("Exception", e);
 		super.exceptionCaught(e);
 	}
 

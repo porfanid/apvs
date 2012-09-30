@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.settings;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
@@ -16,7 +17,7 @@ import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 
 public class SettingsPersister extends VerticalFlowPanel {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private final static String APVS_SETTINGS = "APVS.settings";
 	private SettingsFactory settingsFactory = GWT.create(SettingsFactory.class);

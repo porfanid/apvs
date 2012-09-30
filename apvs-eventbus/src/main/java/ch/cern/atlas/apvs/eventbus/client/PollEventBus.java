@@ -2,7 +2,9 @@ package ch.cern.atlas.apvs.eventbus.client;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -12,7 +14,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class PollEventBus extends RemoteEventBus {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private EventBusServiceAsync eventBusService;
 
@@ -54,11 +56,11 @@ public class PollEventBus extends RemoteEventBus {
 
 			@Override
 			public void onFailure(Throwable caught) {
-				log.warning("Failed to send event " + event + " "
+				log.warn("Failed to send event " + event + " "
 						+ caught);
 				caught.printStackTrace();
 				if (caught.getCause() != null) {
-					log.warning("Caused by...");
+					log.warn("Caused by...");
 					caught.getCause().printStackTrace();
 				}
 			}
@@ -90,7 +92,7 @@ public class PollEventBus extends RemoteEventBus {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						log.warning("Failed to get next event " + caught);
+						log.warn("Failed to get next event " + caught);
 
 						getQueuedEvents();
 					}

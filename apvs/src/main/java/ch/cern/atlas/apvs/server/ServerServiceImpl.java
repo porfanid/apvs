@@ -1,9 +1,10 @@
 package ch.cern.atlas.apvs.server;
 
-import java.util.logging.Logger;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.service.ServerService;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -15,7 +16,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 public class ServerServiceImpl extends ResponsePollService implements
 		ServerService {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private RemoteEventBus eventBus;
 

@@ -1,9 +1,10 @@
 package ch.cern.atlas.apvs.server.nettosphere;
 
-import java.util.logging.Logger;
 
 import org.atmosphere.nettosphere.Config;
 import org.atmosphere.nettosphere.Nettosphere;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Start the Netty server.
@@ -11,7 +12,7 @@ import org.atmosphere.nettosphere.Nettosphere;
  *
  */
 public class APVSServer {
-	private static final Logger log = Logger.getLogger(APVSServer.class.getName());
+	private static Logger log = LoggerFactory.getLogger(APVSServer.class.getName());
 	
 	private static final int DEFAULT_PORT_NO = 8095;
 //    private static final Logger logger = Logger.getLogger(APVSServer.class);

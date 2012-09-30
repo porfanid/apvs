@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -17,6 +20,7 @@ import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -41,6 +45,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuView extends VerticalPanel {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
@@ -153,12 +159,16 @@ public class PtuView extends VerticalPanel {
 						}
 
 						String name = measurement.getName();
-						if (ptu.getMeasurement(name) == null) {
-							units.put(name, measurement.getUnit());
-							ptu.addMeasurement(measurement);
-							last = measurement;
-						} else {
-							last = ptu.addMeasurement(measurement);
+						try {
+							if (ptu.getMeasurement(name) == null) {
+								units.put(name, measurement.getUnit());
+								ptu.addMeasurement(measurement);
+								last = measurement;
+							} else {
+								last = ptu.addMeasurement(measurement);
+							}
+						} catch (APVSException e) {
+							log.warn("Could not add measurement", e);
 						}
 
 						String displayName = measurement.getDisplayName();

@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ui.CameraView;
 
@@ -17,7 +19,7 @@ import ch.cern.atlas.apvs.client.ui.CameraView;
  */
 public class PtuSettings implements Serializable {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private static final long serialVersionUID = -5390424254145424045L;
 

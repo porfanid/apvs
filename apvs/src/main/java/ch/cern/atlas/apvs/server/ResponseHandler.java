@@ -3,9 +3,10 @@ package ch.cern.atlas.apvs.server;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 import org.atmosphere.gwt.poll.AtmospherePollService.SuspendInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -15,7 +16,7 @@ public class ResponseHandler<T, V> implements ValueChangeHandler<T> {
 	private ResponsePollService service;
 	// Synchronized !!
 	private Vector<InfoAndResponse<T, V>> delayedResponses = new Vector<InfoAndResponse<T, V>>();
-	private Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	public interface Response<T, V> {
 		public V getValue(T object);
@@ -69,7 +70,7 @@ public class ResponseHandler<T, V> implements ValueChangeHandler<T> {
 				return object;
 			}
 		} catch (NullPointerException e) {
-			log.warning("We assume the call does not work due to a disconnect, we keep you waiting...");
+			log.warn("We assume the call does not work due to a disconnect, we keep you waiting...");
 			e.printStackTrace();
 		}
 
@@ -90,7 +91,7 @@ public class ResponseHandler<T, V> implements ValueChangeHandler<T> {
 					try {
 						d.getInfo().writeAndResume(o);
 					} catch (IOException e) {
-						log.warning("Failed to write and resume: " + e);
+						log.warn("Failed to write and resume: ", e);
 					}
 					i.remove();
 				}
@@ -108,7 +109,7 @@ public class ResponseHandler<T, V> implements ValueChangeHandler<T> {
 					try {
 						d.getInfo().writeAndResume(o);
 					} catch (IOException e) {
-						log.warning("Failed to write and resume: " + e);
+						log.warn("Failed to write and resume: ", e);
 					}
 					i.remove();
 				}

@@ -2,8 +2,6 @@ package ch.cern.atlas.apvs.dosimeter.server;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -11,10 +9,12 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DosimeterServerHandler extends SimpleChannelUpstreamHandler {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private Map<Channel, DosimeterSimulator> simulators = new HashMap<Channel, DosimeterSimulator>();
 
@@ -59,8 +59,7 @@ public class DosimeterServerHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
 		// Close the connection when an exception is raised.
-		log.log(Level.WARNING, "Unexpected exception from downstream.",
-				e.getCause());
+		log.warn("Unexpected exception from downstream.", e.getCause());
 		e.getChannel().close();
 	}
 }

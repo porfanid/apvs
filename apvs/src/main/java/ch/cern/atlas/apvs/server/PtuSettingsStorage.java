@@ -2,7 +2,9 @@ package ch.cern.atlas.apvs.server;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -15,7 +17,7 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 public class PtuSettingsStorage {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private static final String APVS_PTU_SETTINGS = "APVS.ptu.settings";
 	private static PtuSettingsStorage instance;
@@ -83,7 +85,7 @@ public class PtuSettingsStorage {
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {
-			log.warning("Ptu Settings will not be stored");
+			log.warn("Ptu Settings will not be stored");
 			return;
 		}
 
@@ -93,7 +95,7 @@ public class PtuSettingsStorage {
 		}
 
 		if (settings == null) {
-			log.warning("Could not read Ptu Settings, using defaults");
+			log.warn("Could not read Ptu Settings, using defaults");
 			settings = new PtuSettings();
 		}
 	}

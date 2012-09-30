@@ -4,8 +4,6 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -17,10 +15,12 @@ import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
 	private static final int RECONNECT_DELAY = 20;
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ClientBootstrap bootstrap;
 
@@ -44,8 +44,7 @@ public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void channelDisconnected(ChannelHandlerContext ctx,
 			ChannelStateEvent e) throws Exception {
-		log.info("Disconnected from "
-				+ e.getChannel().getRemoteAddress());
+		log.info("Disconnected from " + e.getChannel().getRemoteAddress());
 		super.channelDisconnected(ctx, e);
 	}
 
@@ -77,12 +76,11 @@ public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
 
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
 		if (e.getCause() instanceof ConnectException) {
-			log.log(Level.WARNING, "Connection Refused");
+			log.warn("Connection Refused");
 		} else if (e.getCause() instanceof SocketException) {
-			log.log(Level.WARNING, "Network is unreachable");
+			log.warn("Network is unreachable");
 		} else {
-			log.log(Level.WARNING, "Unexpected exception from downstream.",
-					e.getCause());
+			log.warn("Unexpected exception from downstream.", e.getCause());
 		}
 		e.getChannel().close();
 	}

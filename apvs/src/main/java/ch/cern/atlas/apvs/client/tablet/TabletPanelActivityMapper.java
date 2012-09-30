@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.tablet;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
@@ -16,7 +17,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class TabletPanelActivityMapper implements ActivityMapper {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private final ClientFactory clientFactory;
 	private RemoteEventBus remoteEventBus;
@@ -125,7 +126,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 					place.getUrl());
 		}
 
-		log.warning("Tablet Activity not handled " + newPlace);
+		log.warn("Tablet Activity not handled " + newPlace);
 
 		return null;
 	}

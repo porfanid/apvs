@@ -27,7 +27,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test cases for JsonReader / JsonWriter
@@ -50,7 +52,7 @@ import java.util.logging.Logger;
  */
 public class TestJsonReaderWriter extends TestCase
 {
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
     public static boolean _debug = true;    // Change to 'false' to "hush" output
     public static Date _testDate = new Date();

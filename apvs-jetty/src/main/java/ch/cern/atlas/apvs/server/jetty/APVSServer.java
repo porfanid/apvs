@@ -2,14 +2,15 @@ package ch.cern.atlas.apvs.server.jetty;
 
 import java.net.URL;
 import java.security.ProtectionDomain;
-import java.util.logging.Logger;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class APVSServer {
-	private static final Logger log = Logger.getLogger(APVSServer.class.getName());
+	private static Logger log = LoggerFactory.getLogger(APVSServer.class.getName());
 	
 	private static final int DEFAULT_PORT_NO = 8095;
 
@@ -49,7 +50,7 @@ public class APVSServer {
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e.getCause() != null) {
-				log.warning("Caused by:");
+				log.warn("Caused by:",e.getCause());
 				e.getCause().printStackTrace();
 			}
 		}

@@ -2,7 +2,9 @@ package ch.cern.atlas.apvs.client.tablet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 
@@ -16,7 +18,7 @@ import com.googlecode.mgwt.ui.client.widget.celllist.CellSelectedHandler;
 
 public class MainMenuActivity extends MGWTAbstractActivity {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private final ClientFactory clientFactory;
 

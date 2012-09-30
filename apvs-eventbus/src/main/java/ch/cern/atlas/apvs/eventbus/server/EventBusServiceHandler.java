@@ -9,12 +9,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.atmosphere.gwt.poll.AtmospherePollService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.eventbus.client.EventBusService;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
@@ -24,7 +25,8 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 public class EventBusServiceHandler extends AtmospherePollService implements
 		EventBusService {
 
-	private Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	private ServerEventBus eventBus;
 	private Map<Long, ClientInfo> clients = new HashMap<Long, EventBusServiceHandler.ClientInfo>();
 
@@ -104,7 +106,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 
 	private synchronized void sendToRemote(RemoteEvent<?> event) {
 		if (event == null) {
-			log.warning("EBSH: sentToRemote event is null");
+			log.warn("EBSH: sentToRemote event is null");
 			return;
 		}
 
@@ -154,7 +156,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 					client.suspendInfo.writeAndResume(events);
 					client.suspendInfo = null;
 				} catch (IOException e) {
-					log.warning("Server: Could not write and resume event on queue "
+					log.warn("Server: Could not write and resume event on queue "
 							+ n + e);
 					client.suspendInfo = null;
 				}

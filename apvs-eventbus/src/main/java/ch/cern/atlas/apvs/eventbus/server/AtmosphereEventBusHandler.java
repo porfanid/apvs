@@ -1,11 +1,9 @@
 package ch.cern.atlas.apvs.eventbus.server;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -15,22 +13,24 @@ import javax.servlet.http.HttpSession;
 
 import org.atmosphere.gwt.server.AtmosphereGwtHandler;
 import org.atmosphere.gwt.server.GwtAtmosphereResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Mark Donszelmann
  */
 public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         log.info("AtmosphereEventBusHandler started...");
-        Logger.getLogger("").setLevel(Level.INFO);
-        Logger.getLogger("gwtcomettest").setLevel(Level.ALL);
-        Logger.getLogger("").getHandlers()[0].setLevel(Level.ALL);
-        logger.trace("Updated logging levels");
+        java.util.logging.Logger.getLogger("").setLevel(Level.INFO);
+        java.util.logging.Logger.getLogger("gwtcomettest").setLevel(Level.ALL);
+        java.util.logging.Logger.getLogger("").getHandlers()[0].setLevel(Level.ALL);
+        log.trace("Updated logging levels");
     }
 
     @Override

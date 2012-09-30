@@ -2,11 +2,12 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.moxieapps.gwt.highcharts.client.Series;
 import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
@@ -23,7 +24,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class TimeView extends AbstractTimeView {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private HandlerRegistration measurementHandler;
 
@@ -147,8 +148,7 @@ public class TimeView extends AbstractTimeView {
 
 						@Override
 						public void onFailure(Throwable caught) {
-							log.warning("Cannot retrieve Measurements "
-									+ caught);
+							log.warn("Cannot retrieve Measurements ", caught);
 						}
 					});
 		} else {
@@ -163,7 +163,7 @@ public class TimeView extends AbstractTimeView {
 							@Override
 							public void onSuccess(History history) {
 								if (history == null) {
-									log.warning("Cannot find history for "
+									log.warn("Cannot find history for "
 											+ measurementName);
 								}
 
@@ -196,8 +196,8 @@ public class TimeView extends AbstractTimeView {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warning("Cannot retrieve Measurements "
-										+ caught);
+								log.warn("Cannot retrieve Measurements ",
+										caught);
 							}
 						});
 			}

@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.server;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -12,7 +13,7 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 public class ServerSettingsStorage {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private static final String APVS_SERVER_SETTINGS = "APVS.server.settings";
 	private static ServerSettingsStorage instance;
@@ -58,7 +59,7 @@ public class ServerSettingsStorage {
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {
-			log.warning("Server Settings will not be stored");
+			log.warn("Server Settings will not be stored");
 			return;
 		}
 
@@ -68,7 +69,7 @@ public class ServerSettingsStorage {
 		}
 
 		if (settings == null) {
-			log.warning("Could not read Server Settings, using defaults");
+			log.warn("Could not read Server Settings, using defaults");
 			settings = new ServerSettings(true);
 		} else {
 			log.info("Server Settings Read");			

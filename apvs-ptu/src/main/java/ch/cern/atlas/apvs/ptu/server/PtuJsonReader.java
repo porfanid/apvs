@@ -7,7 +7,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -17,8 +19,7 @@ import com.cedarsoftware.util.io.JsonReader;
 
 public class PtuJsonReader extends JsonReader {
 
-	private static final Logger log = Logger.getLogger(PtuJsonReader.class
-			.getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	public PtuJsonReader(InputStream in) {
 		super(in);
@@ -60,7 +61,7 @@ public class PtuJsonReader extends JsonReader {
 								.parseDouble((String) msg.get("Threshold")),
 						convertToDate(msg.get("Time"))));
 			} else {
-				log.warning("Message type not implemented: " + type);
+				log.warn("Message type not implemented: " + type);
 			}
 			// FIXME add other types of messages, #115 #112 #114
 		}

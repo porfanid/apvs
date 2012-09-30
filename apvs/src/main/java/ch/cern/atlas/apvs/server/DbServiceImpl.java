@@ -1,9 +1,10 @@
 package ch.cern.atlas.apvs.server;
 
-import java.util.logging.Logger;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.DbService;
@@ -18,7 +19,7 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 
 //	private static final int DEFAULT_DB_PORT = 1521;
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private String dbUrl;
 

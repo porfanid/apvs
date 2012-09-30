@@ -12,7 +12,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -23,7 +25,7 @@ import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 public class DbHandler extends DbReconnectHandler {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
 
 	private Ptus ptus = Ptus.getInstance();
@@ -60,14 +62,12 @@ public class DbHandler extends DbReconnectHandler {
 				try {
 					updateDevices();
 				} catch (SQLException e) {
-					log.warning("Could not regularly-update device list: "
-									+ e);
+					log.warn("Could not regularly-update device list: ", e);
 				}
 				try {
 					updateUsers();
 				} catch (SQLException e) {
-					log.warning("Could not regularly-update user list: "
-							+ e);
+					log.warn("Could not regularly-update user list: ", e);
 				}
 			}
 		}, 30, 30, TimeUnit.SECONDS);
@@ -123,14 +123,14 @@ public class DbHandler extends DbReconnectHandler {
 					}
 					result.close();
 
-					log.info("Creating history for " + ptuId + " "
-							+ sensor + " " + data.size() + " entries");
+					log.info("Creating history for " + ptuId + " " + sensor
+							+ " " + data.size() + " entries");
 					history = new History(
 							data.toArray(new Number[data.size()][]), unit);
 
 				}
 			} catch (SQLException ex) {
-				log.warning(ex.getMessage());
+				log.warn("Exception", ex);
 			}
 		}
 		return history;

@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
@@ -17,7 +18,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class ProcedureView extends SimplePanel {
 
-	private final Logger log = Logger.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	// FIXME
 	// private final String procedureURL =
