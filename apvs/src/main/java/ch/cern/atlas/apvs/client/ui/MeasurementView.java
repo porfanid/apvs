@@ -38,7 +38,7 @@ import com.google.web.bindery.event.shared.EventBus;
 public class MeasurementView extends VerticalFlowPanel {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
 	private PtuSettings settings;
@@ -272,7 +272,7 @@ public class MeasurementView extends VerticalFlowPanel {
 		// fill initial list
 		refillList();
 	}
-	
+
 	private void refillList() {
 		dataProvider.getList().clear();
 		for (Iterator<String> i = show.iterator(); i.hasNext();) {
@@ -283,8 +283,9 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	public static SafeHtml decorate(String s, Measurement current,
 			Measurement last) {
-		if ((current != null) && (last != null)
+		if ((current != null) && (last != null) && (current.getPtuId() != null)
 				&& (current.getPtuId().equals(last.getPtuId()))
+				&& (current.getName() != null)
 				&& current.getName().equals(last.getName())) {
 			double c = current.getValue().doubleValue();
 			double l = last.getValue().doubleValue();

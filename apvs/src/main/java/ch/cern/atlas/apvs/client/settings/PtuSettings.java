@@ -18,8 +18,6 @@ import ch.cern.atlas.apvs.client.ui.CameraView;
  * 
  */
 public class PtuSettings implements Serializable {
-
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private static final long serialVersionUID = -5390424254145424045L;
 
@@ -117,7 +115,6 @@ public class PtuSettings implements Serializable {
 	}
 
 	public boolean add(String ptuId) {
-		log.info("Adding " + ptuId);
 		if (!entries.containsKey(ptuId)) {
 			entries.put(ptuId, new Entry());
 			return true;
