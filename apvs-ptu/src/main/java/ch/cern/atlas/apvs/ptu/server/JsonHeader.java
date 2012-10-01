@@ -1,8 +1,6 @@
 package ch.cern.atlas.apvs.ptu.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -12,8 +10,6 @@ import ch.cern.atlas.apvs.domain.Report;
 
 public class JsonHeader {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
-
 	transient static int currentFrameID = 0;
 	
 	String sender;
@@ -22,7 +18,7 @@ public class JsonHeader {
 	String acknowledge = "False"; 
 	JsonMessage[] messages;
 	
-	public JsonHeader(Message message) {
+	public JsonHeader(Message message) throws APVSException {
 		currentFrameID++;
 		frameID = String.valueOf(currentFrameID);
 		sender = message.getPtuId();
@@ -38,7 +34,7 @@ public class JsonHeader {
 		} else if (message instanceof Order) {
 			messages[0] = new JsonOrder(message);
 		} else {
-			log.warn("ERROR: do not know how to write message of type: "+message.getClass());
+			throw new APVSException("ERROR: do not know how to write message of type: "+message.getClass());
 		}
 	}
 }

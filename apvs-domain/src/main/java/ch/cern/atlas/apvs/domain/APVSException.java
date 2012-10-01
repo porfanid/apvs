@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.domain;
 
-public class APVSException extends Exception {
+import java.io.IOException;
+
+public class APVSException extends IOException {
 
 	private static final long serialVersionUID = 3520019113105842483L;
 
