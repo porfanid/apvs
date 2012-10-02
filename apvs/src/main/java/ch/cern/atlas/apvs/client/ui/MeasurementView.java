@@ -27,6 +27,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -135,7 +136,6 @@ public class MeasurementView extends VerticalFlowPanel {
 				}
 			});
 		}
-
 		table.addColumn(name, showHeader ? new TextHeader("") {
 			@Override
 			public String getValue() {
@@ -184,7 +184,7 @@ public class MeasurementView extends VerticalFlowPanel {
 				}
 			});
 		}
-		table.addColumn(value, showHeader ? "Value" : null);
+		table.addColumn(value, showHeader ? new TextHeader("Value") : (Header<?>)null);
 
 		ClickableHtmlColumn<Measurement> unit = new ClickableHtmlColumn<Measurement>() {
 			@Override
@@ -203,8 +203,8 @@ public class MeasurementView extends VerticalFlowPanel {
 				}
 			});
 		}
-		table.addColumn(unit, showHeader ? "Unit" : null);
-
+		table.addColumn(unit, showHeader ? new TextHeader("Unit") : (Header<?>)null);
+		
 		List<Measurement> list = new ArrayList<Measurement>();
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(list);
