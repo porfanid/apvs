@@ -6,53 +6,15 @@
 <meta charset="utf-8" />
 <meta http-equiv="x-ua-compatible" content="ie=edge" />
 <meta name="viewport"
-	content="width=device-width, initial-scale=1, minimum-scale=1" />
+	content="width=device-width, initial-scale=1, min-scale=1" />
 <meta name="author" content="Mark Donszelmann" />
 <meta name="description" content="ATLAS Wireless Safety System" />
 
 <link rel="shortcut icon" href="favicon.ico" />
 
-<script src="assets/js/jquery.min.js" type="text/javascript"
-	charset="utf-8"></script>
-<script src="assets/js/jquery.uniform.js" type="text/javascript"></script>
-<script type="text/javascript" charset="utf-8">
-	$(function() {
-		$("input, textarea, select, button").uniform();
-	});
-</script>
-<link rel="stylesheet" href="assets/css/uniform.default.css"
-	type="text/css" media="screen" />
-
-<!--  http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js -->
 <script type="text/javascript" src="jquery/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="highcharts/highcharts.src.js"></script>
 <script type="text/javascript" src="highcharts/modules/exporting.js"></script>
-
-<noscript>
-	<link rel="stylesheet" href="assets/css/mobile.css" />
-</noscript>
-<script>
-	// Edit to suit your needs.
-	var ADAPT_CONFIG = {
-		// Where is your CSS?
-		path : 'assets/css/',
-
-		// false = Only run once, when page first loads.
-		// true = Change on window resize and page tilt.
-		dynamic : true,
-
-		// First range entry is the minimum.
-		// Last range entry is the maximum.
-		// Separate ranges by "to" keyword.
-		range : [ '0px  to 760px  = mobile.css', '760px = grid.css' ]
-	};
-</script>
-<script src="assets/js/adapt.min.js"></script>
-
-<link rel="stylesheet" href="assets/css/master.css" />
-<link rel="stylesheet" href="assets/css/text.css" />
-
-<link rel="stylesheet" href="css/APVS.css" />
 
 <!--                                           -->
 <!-- Any title is fine                         -->
@@ -85,109 +47,134 @@
 			application to display correctly.</div>
 	</noscript>
 
-	<div class="container_12">
-		<div class="panel_12 login">
+	<div class="row-fluid">
+		<div class="span12 login">
 			<p>
 				<a href="http://www.cern.ch">European Organization for Nuclear
 					Research</a>
 			</p>
 		</div>
-		<div class="panel_12 header">
+	</div>
+
+	<div class="row-fluid">
+		<div class="span12 header">
 			<h1>
 				<a href="../operation.php">ATLAS Wireless Safety System</a>
 			</h1>
 			<a href="http://atlas.web.cern.ch"><img
 				src="images/logo-110x42.jpg" /></a>
 		</div>
+	</div>
 
-		<div class="panel_12 main">
-
-			<div class="grid_12 item">
+	<div class="container-fluid main">
+		<div class="row-fluid">
+			<div class="span12 item">
 				<div
 					id="PtuTabSelector(ptu, measurements, dosimeter; Summary; Settings)"></div>
 			</div>
+		</div>
 
-			<div class="tab" id="Ptu">
-				<div class="grid_3 item">
+		<div class="tab" id="Ptu">
+			<div class="row-fluid">
+				<div class="span3 item">
 					<h3>Measurements</h3>
 					<div id="MeasurementView(measurements; NoHeader, NoSort)"></div>
 					<div id="TimeView(300; measurements; NoExport)"></div>
 				</div>
 
-				<div class="grid_6 item">
+				<div class="span6 item">
 					<h3>Helmet Camera</h3>
 					<div id="CameraView(ptu; Helmet)"></div>
 				</div>
 
-				<div class="panel_3">
-					<div class="grid_3 item">
+				<div class="span3">
+					<div class="item">
 						<h3>Hand-held Camera</h3>
 						<div id="CameraView(ptu; Hand)"></div>
 					</div>
 
-					<div class="grid_3 item">
+					<div class="item">
 						<h3>Worker View</h3>
 						<div id="PlaceView()"></div>
 					</div>
 				</div>
+			</div>
 
-				<div class="grid_3 item">
+			<div class="row-fluid">
+				<div class="span3 item">
 					<h3>General Info</h3>
 				</div>
 
-				<div class="grid_3 item">
+				<div class="span3 item">
 					<h3>Dosimeter</h3>
 					<div
 						id="MeasurementView(dosimeter; NoHeader, NoSort, NoSelection; DoseRate; DoseAccum)"></div>
 				</div>
 
-				<div class="grid_3 item">
+				<div class="span3 item">
 					<h3>Dose Rate</h3>
 					<div id="TimeView(200; ptu; NoTitle, NoExport; DoseRate)"></div>
 				</div>
 
-				<div class="grid_3 item">
+				<div class="span3 item">
 					<h3>Accumulated Dose</h3>
 					<div id="TimeView(200; ptu; NoTitle, NoExport; DoseAccum)"></div>
 				</div>
-				
-				<div class="grid_12 item">
+			</div>
+
+			<div class="row-fluid">
+				<div class="span12 item">
 					<h3>Events</h3>
 					<div id="EventView(200px; ptu)"></div>
 				</div>
 			</div>
+		</div>
 
-			<div class="tab" id="Summary">
-				<div class="grid_12 item">
+
+		<div class="tab" id="Summary">
+			<div class="row-fluid">
+				<div class="span12 item">
 					<h3>All PTUs</h3>
 					<div id="PtuView(allPtus)"></div>
 					<div id="TimeView(200; allPtus)"></div>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="span12 item">
 					<h3>All Events</h3>
 					<div id="EventView(200px)"></div>
 				</div>
 			</div>
+		</div>
 
-			<div class="tab" id="Settings">
-				<div class="grid_12 item">
+		<div class="tab" id="Settings">
+			<div class="row-fluid">
+				<div class="span12 item">
 					<h3>PTU Settings</h3>
 					<div id="PtuSettingsView()"></div>
 				</div>
-				<div class="grid_12 item">
+			</div>
+			<div class="row-fluid">
+				<div class="span12 item">
 					<h3>Server Settings</h3>
 					<div id="ServerSettingsView()"></div>
 				</div>
 			</div>
+		</div>
+	</div>
 
-			<div class="panel_12 footer">
-				<div class="copyright">
-					<p>
-						Copyright&copy; 2011-2012 CERN - <a
-							href="mailto:Mark.Donszelmann@cern.ch">ATLAS Wireless Safety
-							System</a>
-					</p>
-				</div>
+	<div class="row-fluid">
+		<div class="span12 footer">
+			<div class="copyright">
+				<p>
+					Copyright&copy; 2011-2012 CERN - <a
+						href="mailto:Mark.Donszelmann@cern.ch">ATLAS Wireless Safety
+						System</a>
+				</p>
 			</div>
 		</div>
 	</div>
+
+
 </body>
 </html>

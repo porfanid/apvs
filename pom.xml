@@ -28,7 +28,10 @@
 		<!-- <gwt-version>2.5.0-rc1</gwt-version> <gwt-plugin-version>2.5.0-rc1</gwt-plugin-version> -->
 
 		<atmosphere-version>1.0.1</atmosphere-version>
+		<gwt-bootstrap-version>2.0.4.0</gwt-bootstrap-version>
 		<highcharts-version>1.4.0</highcharts-version>
+		<hudson-gwt-slf4j-version>2.1.2</hudson-gwt-slf4j-version>
+		<javax.servlet-api-version>3.0.1</javax.servlet-api-version>
 		<jdk-version>1.6</jdk-version>
 		<jetty-version>8.1.6.v20120903</jetty-version>
 		<jetty-plugin-version>${jetty-version}</jetty-plugin-version>
@@ -41,11 +44,8 @@
 		<nettosphere-version>1.4.2</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
-		<javax.servlet-api-version>3.0.1</javax.servlet-api-version>
-		<validation-api-version>1.0.0.GA</validation-api-version>
 		<slf4j-version>1.7.1</slf4j-version>
-		<hudson-gwt-slf4j-version>2.1.2</hudson-gwt-slf4j-version>
-
+		<validation-api-version>1.0.0.GA</validation-api-version>
 
 		<!-- in order on http://maven.apache.org/plugins/index.html -->
 		<clean-plugin-version>2.5</clean-plugin-version>
@@ -59,7 +59,7 @@
 		<verifier-plugin-version>1.0</verifier-plugin-version>
 
 		<jar-plugin-version>2.4</jar-plugin-version>
-		<war-plugin-version>2.2</war-plugin-version>
+		<war-plugin-version>2.3</war-plugin-version>
 
 		<javadoc-plugin-version>2.9</javadoc-plugin-version>
 
@@ -361,6 +361,13 @@
 				<version>${gwt-version}</version>
 				<scope>runtime</scope>
 			</dependency>
+
+			<dependency>
+				<groupId>com.github.gwtbootstrap</groupId>
+				<artifactId>gwt-bootstrap</artifactId>
+				<version>${gwt-bootstrap-version}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>net.sf</groupId>
 				<artifactId>log4jdbc4</artifactId>

@@ -183,6 +183,11 @@
 			<groupId>org.jvnet.hudson.main</groupId>
 			<artifactId>hudson-gwt-slf4j</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>com.github.gwtbootstrap</groupId>
+			<artifactId>gwt-bootstrap</artifactId>
+		</dependency>
 	</dependencies>
 
 	<profiles>

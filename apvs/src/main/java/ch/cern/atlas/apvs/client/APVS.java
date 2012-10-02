@@ -106,9 +106,6 @@ public class APVS implements EntryPoint {
 		remoteEventBus = clientFactory.getRemoteEventBus();
 		placeController = clientFactory.getPlaceController();
 
-		// Turn off the browser scrollbars.
-		Window.enableScrolling(false);
-
 		settingsPersister = new SettingsPersister(remoteEventBus);
 
 		// get first div element
@@ -118,6 +115,12 @@ public class APVS implements EntryPoint {
 			return;
 		}
 
+		boolean layoutOnlyMode = Window.Location.getQueryString().indexOf("layout=true") >= 0;
+		if (layoutOnlyMode) {
+			log.info("Running in layoutOnly mode");
+			return;
+		}
+		
 		boolean newCode = false;
 		for (int i = 0; i < divs.getLength(); i++) {
 			Element element = divs.getItem(i);
@@ -139,7 +142,7 @@ public class APVS implements EntryPoint {
 				Arguments args = new Arguments(
 						parts[1].length() > 0 ? parts[1].substring(0,
 								parts[1].length() - 1) : null);
-
+				
 				log.info("Creating " + className + " with args ("
 						+ args + ")");
 
