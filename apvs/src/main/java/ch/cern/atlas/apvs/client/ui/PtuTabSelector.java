@@ -26,7 +26,7 @@ import com.google.web.bindery.event.shared.EventBus;
 public class PtuTabSelector extends HorizontalPanel {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private RemoteEventBus remoteEventBus;
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
 
@@ -38,6 +38,8 @@ public class PtuTabSelector extends HorizontalPanel {
 	public PtuTabSelector(ClientFactory clientFactory, Arguments args) {
 
 		super();
+		
+//		add(new Brand("AWSS"));
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
 
@@ -70,12 +72,12 @@ public class PtuTabSelector extends HorizontalPanel {
 						ptuId = LocalStorage.getInstance().get(
 								LocalStorage.PTU_ID);
 						fireEvent(new SelectPtuEvent(ptuId));
-						
+
 						if (ptuId != null) {
 							Tabs.setCurrentTab("Ptu");
 						}
-						
-						update();						
+
+						update();
 					}
 				});
 	}
@@ -104,14 +106,14 @@ public class PtuTabSelector extends HorizontalPanel {
 
 			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
 				String id = i.next();
-				if ((settings != null) && !settings.isEnabled(id)) continue;
-				
+				if ((settings != null) && !settings.isEnabled(id))
+					continue;
+
 				ToggleButton b = new ToggleButton(getName(id));
-				if (id.equals(ptuId)) {
-					b.setDown(true);
-				}
+				b.setDown(id.equals(ptuId));
+
 				b.addClickHandler(new ClickHandler() {
-					
+
 					@Override
 					public void onClick(ClickEvent event) {
 						ptuId = null;
@@ -120,30 +122,31 @@ public class PtuTabSelector extends HorizontalPanel {
 						ptuId = getId(b.getText());
 
 						radio(b);
-						
+
 						Tabs.setCurrentTab("Ptu");
-						
-						LocalStorage.getInstance().put(LocalStorage.PTU_ID, ptuId);
+
+						LocalStorage.getInstance().put(LocalStorage.PTU_ID,
+								ptuId);
 						fireEvent(new SelectPtuEvent(ptuId));
 					}
 				});
-				add(b);				
+				add(b);
 			}
 		}
-		
-		for (Iterator<String> i = extraTabs.iterator(); i.hasNext(); ) {
+
+		for (Iterator<String> i = extraTabs.iterator(); i.hasNext();) {
 			ToggleButton b = new ToggleButton(i.next());
 			b.addClickHandler(new ClickHandler() {
-				
+
 				@Override
 				public void onClick(ClickEvent event) {
 					ptuId = null;
 
 					ToggleButton b = (ToggleButton) event.getSource();
 					radio(b);
-					
+
 					Tabs.setCurrentTab(b.getText());
-					
+
 					LocalStorage.getInstance().put(LocalStorage.PTU_ID, ptuId);
 					fireEvent(new SelectPtuEvent(ptuId));
 				}
@@ -161,13 +164,11 @@ public class PtuTabSelector extends HorizontalPanel {
 			Widget w = getWidget(i);
 			if (w instanceof ToggleButton) {
 				ToggleButton t = (ToggleButton) w;
-				if (w != b) {
-					t.setDown(false);
-				}
+				t.setDown(w == b);
 			}
 		}
 	}
-	
+
 	private void fireEvent(SelectPtuEvent event) {
 		for (Iterator<EventBus> i = eventBusses.iterator(); i.hasNext();) {
 			i.next().fireEvent(event);
