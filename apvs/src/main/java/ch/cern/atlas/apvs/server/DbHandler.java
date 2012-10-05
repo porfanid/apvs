@@ -4,11 +4,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -16,12 +20,16 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.service.SortOrder;
+import ch.cern.atlas.apvs.client.ui.Intervention;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuServerConstants;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
+
+import com.google.gwt.view.client.Range;
 
 public class DbHandler extends DbReconnectHandler {
 
@@ -34,6 +42,7 @@ public class DbHandler extends DbReconnectHandler {
 	private PreparedStatement historyQuery;
 	private PreparedStatement deviceQuery;
 	private PreparedStatement userQuery;
+	private String interventionQuery;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super();
@@ -165,6 +174,11 @@ public class DbHandler extends DbReconnectHandler {
 		userQuery = connection
 				.prepareStatement("select ID, FNAME, LNAME from tbl_users");
 
+		interventionQuery = "select tbl_inspections.id, tbl_users.fname, tbl_users.lname, tbl_devices.name, "
+				+ "tbl_inspections.starttime, tbl_inspections.endtime, tbl_inspections.dscr from tbl_inspections "
+				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
+				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
+
 		updateDevices();
 		updateUsers();
 	}
@@ -208,6 +222,46 @@ public class DbHandler extends DbReconnectHandler {
 		if (userQuery == null)
 			return;
 
-		// FIXME...
+		log.info("Not Implemented");
+	}
+
+	public List<Intervention> getInterventions(Range range, SortOrder[] order)
+			throws SQLException {
+		if (interventionQuery == null)
+			return Collections.emptyList();
+
+		System.err.println("DB: " + range);
+
+		Statement statement = getConnection().createStatement();
+		StringBuffer sql = new StringBuffer(interventionQuery);
+		for (int i = 0; i < order.length; i++) {
+			if (i == 0) {
+				sql.append(" order by ");
+			}
+			sql.append(order[i].getName());
+			sql.append(" ");
+			sql.append(order[i].isAscending() ? "ASC" : "DESC");
+			if (i + 1 < order.length) {
+				sql.append(", ");
+			}
+		}
+		ResultSet result = statement.executeQuery(sql.toString());
+
+		// FIXME, #173 using some SQL this may be faster
+		// skip to start, result.absolute not implemented by Oracle
+		for (int i = 0; i < range.getStart() && result.next(); i++) {
+		}
+
+		List<Intervention> list = new ArrayList<Intervention>(range.getLength());
+		for (int i = 0; i < range.getLength() && result.next(); i++) {
+			list.add(new Intervention(result.getInt(1), result.getString(2),
+					result.getString(3), result.getString(4), new Date(result
+							.getTimestamp(5).getTime()),
+					result.getTimestamp(6) != null ? new Date(result
+							.getTimestamp(6).getTime()) : null, result
+							.getString(7)));
+		}
+
+		return list;
 	}
 }

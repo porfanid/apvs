@@ -19,6 +19,7 @@ import ch.cern.atlas.apvs.client.ui.AudioView;
 import ch.cern.atlas.apvs.client.ui.CameraView;
 import ch.cern.atlas.apvs.client.ui.DosimeterView;
 import ch.cern.atlas.apvs.client.ui.EventView;
+import ch.cern.atlas.apvs.client.ui.InterventionView;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.PlaceView;
 import ch.cern.atlas.apvs.client.ui.ProcedureControls;
@@ -163,6 +164,9 @@ public class APVS implements EntryPoint {
 				} else if (id.startsWith("EventView")) {
 					newCode = true;
 					RootPanel.get(id).add(new EventView(clientFactory, args));
+				} else if (id.startsWith("InterventionView")) {
+					newCode = true;
+					RootPanel.get(id).add(new InterventionView(clientFactory, args));
 				} else if (id.startsWith("ProcedureView")) {
 					newCode = true;
 					RootPanel.get(id).add(

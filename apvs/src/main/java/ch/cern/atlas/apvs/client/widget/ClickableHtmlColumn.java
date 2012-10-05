@@ -3,12 +3,10 @@ package ch.cern.atlas.apvs.client.widget;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.cellview.client.Column;
 
-public abstract class ClickableHtmlColumn<T> extends Column<T, String> {
+public abstract class ClickableHtmlColumn<T> extends ClickableTextColumn<T> {
 
 	public ClickableHtmlColumn() {
-		super(new ClickableTextCell());
 	}
 	
 	@Override

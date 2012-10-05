@@ -52,4 +52,8 @@ public class DbCallback {
 			exceptionCaught(e);
 		}
 	}
+	
+	protected Connection getConnection() {
+		return connection;
+	}
 }

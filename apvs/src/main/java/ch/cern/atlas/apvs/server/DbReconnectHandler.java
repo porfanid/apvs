@@ -17,7 +17,7 @@ public class DbReconnectHandler extends DbCallback {
 	private String url;
 	private Timer timer;
 	private boolean reconnectNow;
-
+	
 	public DbReconnectHandler() {
 	}
 
