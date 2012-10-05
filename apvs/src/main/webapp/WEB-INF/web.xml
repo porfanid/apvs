@@ -42,6 +42,8 @@
         <url-pattern>/apvs/apvsDosimeter</url-pattern>
         <url-pattern>/apvs/apvsPtu</url-pattern>
         <url-pattern>/apvs/apvsDb</url-pattern>
+        <url-pattern>/apvs/apvsEvent</url-pattern>
+        <url-pattern>/apvs/apvsIntervention</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

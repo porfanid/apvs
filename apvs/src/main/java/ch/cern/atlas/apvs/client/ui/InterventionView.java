@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.service.DbServiceAsync;
+import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
@@ -44,7 +44,6 @@ public class InterventionView extends SimplePanel {
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Interventions"));
 		table.setVisibleRange(0, 10);
-		table.setRowCount(50);
 		
 		add(table);
 
@@ -53,6 +52,19 @@ public class InterventionView extends SimplePanel {
 			@SuppressWarnings("unchecked")
 			@Override
 			protected void onRangeChanged(HasData<Intervention> display) {
+				InterventionServiceAsync.Util.getInstance().getRowCount(new AsyncCallback<Integer>() {
+					
+					@Override
+					public void onSuccess(Integer result) {
+						table.setRowCount(result);
+					}
+					
+					@Override
+					public void onFailure(Throwable caught) {
+						table.setRowCount(0);
+					}
+				});
+				
 				final Range range = display.getVisibleRange();
 				System.err.println(range);
 
@@ -69,7 +81,7 @@ public class InterventionView extends SimplePanel {
 					order[0] = new SortOrder("tbl_inspections.endtime", true);
 				} 	
 				
-				DbServiceAsync.Util.getInstance().getInterventions(range, order, new AsyncCallback<List<Intervention>>() {
+				InterventionServiceAsync.Util.getInstance().getTableData(range, order, new AsyncCallback<List<Intervention>>() {
 					
 					@Override
 					public void onSuccess(List<Intervention> result) {

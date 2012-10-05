@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.server;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
@@ -11,13 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.DbService;
-import ch.cern.atlas.apvs.client.service.ServiceException;
-import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
-import ch.cern.atlas.apvs.client.ui.Intervention;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-
-import com.google.gwt.view.client.Range;
 
 /**
  * @author Mark Donszelmann
@@ -31,10 +23,12 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 
 	private String dbUrl;
 
-	private RemoteEventBus eventBus;
-	private DbHandler dbHandler;
+	protected static RemoteEventBus eventBus;
+	protected static DbHandler dbHandler;
 
 	public DbServiceImpl() {
+		if (eventBus != null)
+			return;
 		log.info("Creating DbService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
@@ -42,6 +36,9 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+
+		if (dbHandler != null)
+			return;
 
 		log.info("Starting DbService...");
 
@@ -67,15 +64,5 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 				});
 
 		dbHandler = new DbHandler(eventBus);
-	}
-
-	// store methods to follow
-	@Override
-	public List<Intervention> getInterventions(Range range, SortOrder[] order) throws ServiceException {
-		try {
-			return dbHandler.getInterventions(range, order);
-		} catch (SQLException e) {
-			throw new ServiceException(e.getMessage());
-		}
 	}
 }
