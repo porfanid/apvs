@@ -31,8 +31,7 @@ public class InterventionView extends SimplePanel {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private DataGrid<Intervention> table = new DataGrid<Intervention>();
-	private SingleSelectionModel<Intervention> selectionModel;
+	private DataGrid<Intervention> table = new DataGrid<Intervention>(); 
 
 	private boolean selectable = false;
 	private boolean sortable = true;
@@ -292,6 +291,7 @@ public class InterventionView extends SimplePanel {
 
 		// Selection
 		if (selectable) {
+			final SingleSelectionModel<Intervention> selectionModel = new SingleSelectionModel<Intervention>();
 			table.setSelectionModel(selectionModel);
 			selectionModel
 					.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {

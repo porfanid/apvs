@@ -1,7 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.service.EventServiceAsync;
+import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.domain.Event;
@@ -18,13 +20,17 @@ import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
-import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
+import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.AsyncDataProvider;
+import com.google.gwt.view.client.HasData;
+import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -32,15 +38,12 @@ import com.google.web.bindery.event.shared.EventBus;
 public class EventView extends SimplePanel {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private EventBus cmdBus;
 	private String ptuId;
 	private String measurementName;
 
-	private ListDataProvider<Event> dataProvider = new ListDataProvider<Event>();
 	private DataGrid<Event> table = new DataGrid<Event>();
-	private ListHandler<Event> columnSortHandler;
-	private SingleSelectionModel<Event> selectionModel;
 
 	private String ptuHeader;
 	private ClickableTextColumn<Event> ptu;
@@ -65,12 +68,63 @@ public class EventView extends SimplePanel {
 
 		add(table);
 
+		AsyncDataProvider<Event> dataProvider = new AsyncDataProvider<Event>() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			protected void onRangeChanged(HasData<Event> display) {
+				EventServiceAsync.Util.getInstance().getRowCount(new AsyncCallback<Integer>() {
+					
+					@Override
+					public void onSuccess(Integer result) {
+						table.setRowCount(result);
+					}
+					
+					@Override
+					public void onFailure(Throwable caught) {
+						table.setRowCount(0);
+					}
+				});
+				
+				final Range range = display.getVisibleRange();
+				System.err.println(range);
+
+				final ColumnSortList sortList = table.getColumnSortList();
+				SortOrder[] order = new SortOrder[sortList.size()];
+				for (int i=0; i<sortList.size(); i++) {
+					ColumnSortInfo info = sortList.get(i);
+					// FIXME #88 remove cast
+					order[i] = new SortOrder(((ClickableTextColumn<Event>)info.getColumn()).getDataStoreName(), info.isAscending());
+				}
+				
+				if (order.length == 0) {
+					order = new SortOrder[1];
+					order[0] = new SortOrder("tbl_events.datetime", true);
+				} 	
+				
+				EventServiceAsync.Util.getInstance().getTableData(range, order, new AsyncCallback<List<Event>>() {
+					
+					@Override
+					public void onSuccess(List<Event> result) {
+						System.err.println("RPC DB SUCCESS");
+						table.setRowData(range.getStart(), result);
+					}
+					
+					@Override
+					public void onFailure(Throwable caught) {
+						System.err.println("RPC DB FAILED");
+						table.setRowCount(0);
+					}
+				});
+			}
+		};
+
 		// Table
 		dataProvider.addDataDisplay(table);
 
-		columnSortHandler = new ListHandler<Event>(dataProvider.getList());
+		AsyncHandler columnSortHandler = new AsyncHandler(table);
 		table.addColumnSortHandler(columnSortHandler);
-
+		
 		// Subscriptions
 		EventChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
 				new EventChangedEvent.Handler() {
@@ -84,10 +138,8 @@ public class EventView extends SimplePanel {
 						if (((ptuId == null) || event.getPtuId().equals(ptuId))
 								&& ((measurementName == null) || event
 										.getName().equals(measurementName))) {
-							dataProvider.getList().add(event);
+							update();
 						}
-
-						update();
 					}
 				});
 
@@ -112,7 +164,7 @@ public class EventView extends SimplePanel {
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
 
-					dataProvider.getList().clear();
+//					dataProvider.getList().clear();
 
 					update();
 				}
@@ -125,7 +177,7 @@ public class EventView extends SimplePanel {
 						public void onSelection(SelectMeasurementEvent event) {
 							measurementName = event.getName();
 
-							dataProvider.getList().clear();
+//							dataProvider.getList().clear();
 
 							update();
 						}
@@ -137,6 +189,11 @@ public class EventView extends SimplePanel {
 			@Override
 			public String getValue(Event object) {
 				return PtuClientConstants.dateFormat.format(object.getDate());
+			}
+			
+			@Override
+			public String getDataStoreName() {
+				return "tbl_events.datetime";
 			}
 		};
 		date.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -151,19 +208,6 @@ public class EventView extends SimplePanel {
 			});
 		}
 		table.addColumn(date, "Date / Time");
-		columnSortHandler.setComparator(date, new Comparator<Event>() {
-			public int compare(Event o1, Event o2) {
-				if (o1 == o2) {
-					return 0;
-				}
-
-				if (o1 != null) {
-					return (o2 != null) ? o1.getDate().compareTo(o2.getDate())
-							: 1;
-				}
-				return -1;
-			}
-		});
 		table.getColumnSortList().push(date);
 
 		// PtuID (2)
@@ -173,6 +217,10 @@ public class EventView extends SimplePanel {
 				return object.getPtuId();
 			}
 
+			@Override
+			public String getDataStoreName() {
+				return "tbl_devices.name";
+			}
 		};
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		ptu.setSortable(sortable);
@@ -187,19 +235,6 @@ public class EventView extends SimplePanel {
 		}
 		ptuHeader = "PTU ID";
 		table.addColumn(ptu, ptuHeader);
-		columnSortHandler.setComparator(ptu, new Comparator<Event>() {
-			public int compare(Event o1, Event o2) {
-				if (o1 == o2) {
-					return 0;
-				}
-
-				if (o1 != null) {
-					return (o2 != null) ? o1.getPtuId()
-							.compareTo(o2.getPtuId()) : 1;
-				}
-				return -1;
-			}
-		});
 
 		// Name (3)
 		name = new ClickableHtmlColumn<Event>() {
@@ -208,6 +243,10 @@ public class EventView extends SimplePanel {
 				return object.getName();
 			}
 
+			@Override
+			public String getDataStoreName() {
+				return "tbl_events.sensor";
+			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(sortable);
@@ -222,19 +261,6 @@ public class EventView extends SimplePanel {
 		}
 		nameHeader = "Name";
 		table.addColumn(name, nameHeader);
-		columnSortHandler.setComparator(name, new Comparator<Event>() {
-			public int compare(Event o1, Event o2) {
-				if (o1 == o2) {
-					return 0;
-				}
-
-				if (o1 != null) {
-					return (o2 != null) ? o1.getName().compareTo(o2.getName())
-							: 1;
-				}
-				return -1;
-			}
-		});
 
 		// EventType
 		ClickableTextColumn<Event> eventType = new ClickableTextColumn<Event>() {
@@ -243,6 +269,10 @@ public class EventView extends SimplePanel {
 				return object.getEventType();
 			}
 
+			@Override
+			public String getDataStoreName() {
+				return "tbl_events.event_type";
+			}
 		};
 		eventType.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		eventType.setSortable(sortable);
@@ -256,19 +286,6 @@ public class EventView extends SimplePanel {
 			});
 		}
 		table.addColumn(eventType, "EventType");
-		columnSortHandler.setComparator(eventType, new Comparator<Event>() {
-			public int compare(Event o1, Event o2) {
-				if (o1 == o2) {
-					return 0;
-				}
-
-				if (o1 != null) {
-					return (o2 != null) ? o1.getEventType().compareTo(
-							o2.getEventType()) : 1;
-				}
-				return -1;
-			}
-		});
 
 		// Value
 		ClickableTextColumn<Event> value = new ClickableTextColumn<Event>() {
@@ -277,6 +294,10 @@ public class EventView extends SimplePanel {
 				return object.getValue().toString();
 			}
 
+			@Override
+			public String getDataStoreName() {
+				return "tbl_events.value";
+			}
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		if (selectable) {
@@ -297,6 +318,10 @@ public class EventView extends SimplePanel {
 				return object.getTheshold().toString();
 			}
 
+			@Override
+			public String getDataStoreName() {
+				return "tbl_events.threshold";
+			}
 		};
 		threshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		if (selectable) {
@@ -331,6 +356,7 @@ public class EventView extends SimplePanel {
 
 		// Selection
 		if (selectable) {
+			final SingleSelectionModel<Event> selectionModel = new SingleSelectionModel<Event>();
 			table.setSelectionModel(selectionModel);
 			selectionModel
 					.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -363,29 +389,29 @@ public class EventView extends SimplePanel {
 		if (measurementName == null) {
 			// add Name column
 			table.insertColumn(2, name, nameHeader);
-		} 
+		}
 
 		// Re-sort the table
-		if (sortable) {
-			ColumnSortEvent.fire(table, table.getColumnSortList());
-		}
+//		if (sortable) {
+//			ColumnSortEvent.fire(table, table.getColumnSortList());
+//		}
 		table.redraw();
 
-		if (selectable) {
-			Event selection = selectionModel.getSelectedObject();
-
-			if ((selection == null) && (dataProvider.getList().size() > 0)) {
-				selection = dataProvider.getList().get(0);
-
-				selectEvent(selection);
-			}
-
-			// re-set the selection as the async update may have changed the
-			// rendering
-			if (selection != null) {
-				selectionModel.setSelected(selection, true);
-			}
-		}
+//		if (selectable) {
+//			Event selection = table.getSelectionModel().getSelectedObject();
+//
+//			if ((selection == null) && (dataProvider.getList().size() > 0)) {
+//				selection = dataProvider.getList().get(0);
+//
+//				selectEvent(selection);
+//			}
+//
+//			// re-set the selection as the async update may have changed the
+//			// rendering
+//			if (selection != null) {
+//				selectionModel.setSelected(selection, true);
+//			}
+//		}
 	}
 
 	private String unitKey(String ptuId, String name) {
