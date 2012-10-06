@@ -13,7 +13,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -61,8 +62,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		});
 
-		ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
-				1);
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.scheduleAtFixedRate(new Runnable() {
 
 			@Override
