@@ -106,7 +106,8 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public MeasurementView getMeasurementView() {
 //		if (measurementView == null) {
-			measurementView = new MeasurementView(this, new Arguments());
+			measurementView = new MeasurementView();
+			measurementView.configure(null, this, new Arguments());
 //		}
 		return measurementView;
 	}
@@ -141,12 +142,18 @@ public class APVSClientFactory implements ClientFactory {
 
 	@Override
 	public ProcedureView getProcedureView(String width, String height) {
-		return new ProcedureView(this, new Arguments(), width, height);
+		// FIXME #178 width and height ignored
+		ProcedureView v = new ProcedureView();
+		v.configure(null, this, new Arguments());
+		return v;
 	}
 
 	@Override
 	public ProcedureView getProcedureView(
 			String width, String height, String url, String name, String step) {
-		return new ProcedureView(this, new Arguments(), width, height, url, name, step);
+		// FIXME #178 width and height and name and step ignored
+		ProcedureView v = new ProcedureView();
+		v.configure(null, this, new Arguments());
+		return v;
 	}
 }

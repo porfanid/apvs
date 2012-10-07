@@ -16,10 +16,11 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class PlaceView extends SimplePanel {
+public class PlaceView extends SimplePanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
@@ -27,12 +28,14 @@ public class PlaceView extends SimplePanel {
 	private String defaultImage = "Default-640x480.jpg";
 	private String ptuId;
 
-	public PlaceView(ClientFactory clientFactory, Arguments args) {
-		this(clientFactory, args, "100%", "100%");
+	public PlaceView() {
 	}
 
-	public PlaceView(final ClientFactory clientFactory, final Arguments args,
-			final String width, final String height) {
+	public void configure(String id, final ClientFactory clientFactory, Arguments args) {
+
+		final String width = "100%";
+		final String height = "100%";
+		
 		this.remoteEventBus = clientFactory.getRemoteEventBus();
 
 		EventBus eventBus = clientFactory.getEventBus(args.getArg(0));
@@ -105,5 +108,7 @@ public class PlaceView extends SimplePanel {
 		Image image = new Image(defaultImage);
 		image.setWidth(width);
 		setWidget(image);
+		
+		RootPanel.get(id).add(this);
 	}
 }

@@ -28,6 +28,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -38,7 +39,7 @@ import com.google.web.bindery.event.shared.EventBus;
  * @author duns
  * 
  */
-public class PtuSettingsView extends VerticalFlowPanel {
+public class PtuSettingsView extends VerticalFlowPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -50,7 +51,11 @@ public class PtuSettingsView extends VerticalFlowPanel {
 	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
 	protected List<String> activePtuIds = new ArrayList<String>();
 
-	public PtuSettingsView(ClientFactory clientFactory, Arguments args) {
+	public PtuSettingsView() {
+	}
+	
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
 		add(table);
@@ -274,6 +279,8 @@ public class PtuSettingsView extends VerticalFlowPanel {
 				});
 
 		update();
+		
+		RootPanel.get(id).add(this);
 	}
 
 	private void update() {

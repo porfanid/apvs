@@ -31,12 +31,13 @@ import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class MeasurementView extends VerticalFlowPanel {
+public class MeasurementView extends VerticalFlowPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -63,7 +64,10 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	private String options;
 
-	public MeasurementView(final ClientFactory clientFactory, Arguments args) {
+	public MeasurementView() {
+	}
+	
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
 
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		options = args.getArg(1);
@@ -271,6 +275,10 @@ public class MeasurementView extends VerticalFlowPanel {
 
 		// fill initial list
 		refillList();
+		
+		if (id != null) {
+			RootPanel.get(id).add(this);
+		}
 	}
 
 	private void refillList() {

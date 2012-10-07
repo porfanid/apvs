@@ -19,11 +19,12 @@ import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class PtuTabSelector extends HorizontalPanel {
+public class PtuTabSelector extends HorizontalPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -35,9 +36,11 @@ public class PtuTabSelector extends HorizontalPanel {
 	private PtuSettings settings;
 	private List<String> extraTabs;
 
-	public PtuTabSelector(ClientFactory clientFactory, Arguments args) {
+	public PtuTabSelector() {
+	}
+	
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
 
-		super();
 		
 //		add(new Brand("AWSS"));
 
@@ -80,6 +83,8 @@ public class PtuTabSelector extends HorizontalPanel {
 						update();
 					}
 				});
+		
+		RootPanel.get(id).add(this);
 	}
 
 	private String getName(String id) {

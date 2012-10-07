@@ -20,6 +20,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
@@ -27,7 +28,7 @@ import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
-public class InterventionView extends SimplePanel {
+public class InterventionView extends SimplePanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -36,7 +37,11 @@ public class InterventionView extends SimplePanel {
 	private boolean selectable = false;
 	private boolean sortable = true;
 
-	public InterventionView(ClientFactory clientFactory, Arguments args) {
+	public InterventionView() {
+	}
+	
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+
 
 		String height = args.getArg(0);
 
@@ -303,6 +308,8 @@ public class InterventionView extends SimplePanel {
 						}
 					});
 		}		
+
+		RootPanel.get(id).add(this);
 	}
 
 	private void selectIntervention(Intervention intervention) {

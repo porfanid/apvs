@@ -19,10 +19,11 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class TimeView extends AbstractTimeView {
+public class TimeView extends AbstractTimeView implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -34,7 +35,11 @@ public class TimeView extends AbstractTimeView {
 	private EventBus cmdBus;
 	private String options;
 
-	public TimeView(final ClientFactory clientFactory, Arguments args) {
+	public TimeView() {
+	}
+	
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+
 		this.clientFactory = clientFactory;
 
 		height = Integer.parseInt(args.getArg(0));
@@ -87,6 +92,8 @@ public class TimeView extends AbstractTimeView {
 				}
 			});
 		}
+		
+		RootPanel.get(id).add(this);
 	}
 
 	private void updateChart() {

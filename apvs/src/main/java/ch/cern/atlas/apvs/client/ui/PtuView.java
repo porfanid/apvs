@@ -39,12 +39,13 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class PtuView extends VerticalPanel {
+public class PtuView extends VerticalPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -70,7 +71,11 @@ public class PtuView extends VerticalPanel {
 		units = new HashMap<String, String>();
 	}
 
-	public PtuView(ClientFactory clientFactory, Arguments args) {
+	public PtuView() {
+	}
+
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+
 		eventBus = clientFactory.getRemoteEventBus();
 
 		init();
@@ -202,6 +207,8 @@ public class PtuView extends VerticalPanel {
 
 					});
 		}
+		
+		RootPanel.get(id).add(this);
 	}
 
 	private void addColumn(final String ptuId) {

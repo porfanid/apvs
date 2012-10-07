@@ -15,11 +15,12 @@ import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.media.client.Video;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class CameraView extends SimplePanel {
+public class CameraView extends SimplePanel implements Module {
 	
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
@@ -63,12 +64,17 @@ public class CameraView extends SimplePanel {
 		init(factory, width, height);
 	}
 	
-	public CameraView(ClientFactory factory, Arguments args) {
+	public CameraView() {
+	}
+
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
 		
-	    cmdBus = factory.getEventBus(args.getArg(0));
+	    cmdBus = clientFactory.getEventBus(args.getArg(0));
 		type = args.getArg(1);
 		
-		init(factory, "100%", "100%");
+		init(clientFactory, "100%", "100%");
+		
+		RootPanel.get(id).add(this);
 	}
 		
 	private void init(ClientFactory factory, String width, String height) {

@@ -19,9 +19,10 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
-public class ServerSettingsView extends VerticalFlowPanel {
+public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
@@ -29,8 +30,12 @@ public class ServerSettingsView extends VerticalFlowPanel {
 
 	private ServerSettings settings = new ServerSettings();
 
-	public ServerSettingsView(ClientFactory factory, Arguments args) {
-		final RemoteEventBus eventBus = factory.getRemoteEventBus();
+	public ServerSettingsView() {
+	}
+
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+
+		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
 		add(table);
 
@@ -104,9 +109,12 @@ public class ServerSettingsView extends VerticalFlowPanel {
 						update();
 					}
 				});
+
+		RootPanel.get(id).add(this);
 	}
 
 	private void update() {
 		table.redraw();
 	}
+
 }

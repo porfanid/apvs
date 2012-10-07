@@ -10,9 +10,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class ProcedureControls extends HorizontalFlowPanel {
+public class ProcedureControls extends HorizontalFlowPanel implements Module {
 
 	Button start = new Button("Start");
 	Button previous = new Button("Previous");
@@ -20,8 +21,12 @@ public class ProcedureControls extends HorizontalFlowPanel {
 	Label step = new Label("-");
 
 	// Note only a local event bus
-	public ProcedureControls(ClientFactory factory, Arguments args) {
-		final EventBus eventBus = factory.getEventBus(args.getArg(0));
+	public ProcedureControls() {
+	}
+
+	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+
+		final EventBus eventBus = clientFactory.getEventBus(args.getArg(0));
 		
 		add(start);
 		start.addClickHandler(new ClickHandler() {
@@ -58,5 +63,7 @@ public class ProcedureControls extends HorizontalFlowPanel {
 				step.setText(event.getStep()+" of "+event.getTotal());
 			}
 		});
+		
+		RootPanel.get(id).add(this);
 	}
 }
