@@ -13,10 +13,10 @@ import ch.cern.atlas.apvs.client.tablet.ProcedurePlace;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -31,7 +31,8 @@ public class PlaceView extends SimplePanel implements Module {
 	public PlaceView() {
 	}
 
-	public void configure(String id, final ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, final ClientFactory clientFactory, Arguments args) {
 
 		final String width = "100%";
 		final String height = "100%";
@@ -109,6 +110,6 @@ public class PlaceView extends SimplePanel implements Module {
 		image.setWidth(width);
 		setWidget(image);
 		
-		RootPanel.get(id).add(this);
+		return true;
 	}
 }

@@ -19,7 +19,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class ServerSettingsView extends VerticalFlowPanel implements Module {
@@ -33,7 +32,8 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 	public ServerSettingsView() {
 	}
 
-	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
@@ -110,7 +110,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 					}
 				});
 
-		RootPanel.get(id).add(this);
+		return true;
 	}
 
 	private void update() {

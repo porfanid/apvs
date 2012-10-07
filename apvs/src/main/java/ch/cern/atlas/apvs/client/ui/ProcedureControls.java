@@ -6,11 +6,11 @@ import ch.cern.atlas.apvs.client.event.NavigateStepEvent.Navigation;
 import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.client.widget.HorizontalFlowPanel;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class ProcedureControls extends HorizontalFlowPanel implements Module {
@@ -24,7 +24,8 @@ public class ProcedureControls extends HorizontalFlowPanel implements Module {
 	public ProcedureControls() {
 	}
 
-	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
 		final EventBus eventBus = clientFactory.getEventBus(args.getArg(0));
 		
@@ -64,6 +65,6 @@ public class ProcedureControls extends HorizontalFlowPanel implements Module {
 			}
 		});
 		
-		RootPanel.get(id).add(this);
+		return true;
 	}
 }

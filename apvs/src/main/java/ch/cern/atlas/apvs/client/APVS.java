@@ -29,7 +29,7 @@ import ch.cern.atlas.apvs.client.ui.PtuSettingsView;
 import ch.cern.atlas.apvs.client.ui.PtuTabSelector;
 import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
-import ch.cern.atlas.apvs.client.ui.Tabs;
+import ch.cern.atlas.apvs.client.ui.Tab;
 import ch.cern.atlas.apvs.client.ui.TimeView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -43,6 +43,7 @@ import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.mgwt.mvp.client.AnimatableDisplay;
@@ -130,13 +131,7 @@ public class APVS implements EntryPoint {
 			String id = element.getId();
 
 			String[] parts = id.split("\\(", 2);
-			if (parts.length != 2) {
-				// tab div
-				if (element.getClassName().equals("tab")) {
-					Tabs.add(id, element);
-				}
-			} else {
-
+			if (parts.length == 2) {
 				String className = parts[0];
 				if ((parts[1].length() > 0) && !parts[1].endsWith(")")) {
 					log.warn("Missing closing parenthesis on '" + id + "'");
@@ -170,6 +165,8 @@ public class APVS implements EntryPoint {
 					module = new PlaceView();
 				} else if (id.startsWith("PtuTabSelector")) {					
 					module = new PtuTabSelector();
+				} else if (id.startsWith("Tab")) {					
+					module = new Tab();
 				} else if (id.startsWith("PtuSettingsView")) {					
 					module = new PtuSettingsView();
 				} else if (id.startsWith("ServerSettingsView")) {					
@@ -180,9 +177,14 @@ public class APVS implements EntryPoint {
 					module = new TimeView();
 				}
 				
-				module.configure(id, clientFactory, args);
+				if (module != null) {
+					boolean add = module.configure(element, clientFactory, args);
+					if (add && module instanceof IsWidget) {
+						RootPanel.get(element.getId()).add((IsWidget)module);
+					}
+					newCode = true;
+				}
 				
-				newCode |= module != null;
 			}
 		}
 

@@ -23,12 +23,12 @@ import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -54,7 +54,8 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 	public PtuSettingsView() {
 	}
 	
-	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
@@ -280,7 +281,7 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 
 		update();
 		
-		RootPanel.get(id).add(this);
+		return true;
 	}
 
 	private void update() {

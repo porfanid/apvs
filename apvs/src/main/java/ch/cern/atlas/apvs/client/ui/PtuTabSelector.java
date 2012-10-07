@@ -11,17 +11,19 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuTabSelector extends HorizontalPanel implements Module {
@@ -39,7 +41,8 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 	public PtuTabSelector() {
 	}
 	
-	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
 		
 //		add(new Brand("AWSS"));
@@ -77,14 +80,14 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 						fireEvent(new SelectPtuEvent(ptuId));
 
 						if (ptuId != null) {
-							Tabs.setCurrentTab("Ptu");
+							fireEvent(new SelectTabEvent("Ptu"));
 						}
 
 						update();
 					}
 				});
 		
-		RootPanel.get(id).add(this);
+		return true;
 	}
 
 	private String getName(String id) {
@@ -128,7 +131,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 						radio(b);
 
-						Tabs.setCurrentTab("Ptu");
+						fireEvent(new SelectTabEvent("Ptu"));
 
 						LocalStorage.getInstance().put(LocalStorage.PTU_ID,
 								ptuId);
@@ -150,7 +153,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 					ToggleButton b = (ToggleButton) event.getSource();
 					radio(b);
 
-					Tabs.setCurrentTab(b.getText());
+					fireEvent(new SelectTabEvent(b.getText()));
 
 					LocalStorage.getInstance().put(LocalStorage.PTU_ID, ptuId);
 					fireEvent(new SelectPtuEvent(ptuId));
@@ -174,7 +177,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		}
 	}
 
-	private void fireEvent(SelectPtuEvent event) {
+	private void fireEvent(Event<?> event) {
 		for (Iterator<EventBus> i = eventBusses.iterator(); i.hasNext();) {
 			i.next().fireEvent(event);
 		}

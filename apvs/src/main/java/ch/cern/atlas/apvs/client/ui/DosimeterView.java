@@ -32,7 +32,6 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class DosimeterView extends VerticalFlowPanel implements Module {
@@ -78,7 +77,8 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 	public DosimeterView() {
 	}
 	
-	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
 		RemoteEventBus remoteEventBus = clientFactory.getRemoteEventBus();
 		
@@ -219,7 +219,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 
 		update();
 		
-		RootPanel.get(id).add(this);
+		return true;
 	}
 
 	private String getName(Dosimeter object) {

@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
@@ -15,7 +16,6 @@ import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.media.client.Video;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -67,14 +67,15 @@ public class CameraView extends SimplePanel implements Module {
 	public CameraView() {
 	}
 
-	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 		
 	    cmdBus = clientFactory.getEventBus(args.getArg(0));
 		type = args.getArg(1);
 		
-		init(clientFactory, "100%", "100%");
+		init(clientFactory, "100%", "100%");	
 		
-		RootPanel.get(id).add(this);
+		return true;
 	}
 		
 	private void init(ClientFactory factory, String width, String height) {

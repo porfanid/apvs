@@ -70,16 +70,16 @@
 		<div class="row-fluid">
 			<div class="span12">
 				<div
-					id="PtuTabSelector(ptu, measurements, dosimeter; Summary; Settings)"></div>
+					id="PtuTabSelector(tab, ptu, measurements, dosimeter; Summary; Settings)"></div>
 			</div>
 		</div>
 
-		<div class="tab" id="Ptu">
+		<div id="Tab(tab; Ptu)">
 			<div class="row-fluid">
 				<div class="span3 item">
-					<h3>Measurements</h3>
+					<h3>Measurements</h3> 
 					<div id="MeasurementView(measurements; NoHeader, NoSort)"></div>
-					<div id="TimeView(300; measurements; NoExport)"></div>
+ 					<div id="TimeView(300; measurements; NoExport)"></div>
 				</div>
 
 				<div class="span6 item">
@@ -107,8 +107,8 @@
 
 				<div class="span3 item">
 					<h3>Dosimeter</h3>
-					<div
-						id="MeasurementView(dosimeter; NoHeader, NoSort, NoSelection; DoseRate; DoseAccum)"></div>
+  					<div
+						id="MeasurementView(dosimeter; NoHeader, NoSort, NoSelection; DoseRate; DoseAccum)"></div>					
 				</div>
 
 				<div class="span3 item">
@@ -131,7 +131,7 @@
 		</div>
 
 
-		<div class="tab" id="Summary">
+		<div id="Tab(tab; Summary)">
 			<div class="row-fluid">
 				<div class="span12 item">
 					<h3>All PTUs</h3>
@@ -147,7 +147,7 @@
 			</div>
 		</div>
 
-		<div class="tab" id="Settings">
+		<div id="Tab(tab; Settings)">
 			<div class="row-fluid">
 				<div class="span12 item">
 					<h3>PTU Settings</h3>

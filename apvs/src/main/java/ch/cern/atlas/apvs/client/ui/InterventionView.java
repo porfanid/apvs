@@ -13,6 +13,7 @@ import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
@@ -20,7 +21,6 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
@@ -40,7 +40,8 @@ public class InterventionView extends SimplePanel implements Module {
 	public InterventionView() {
 	}
 	
-	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
 
 		String height = args.getArg(0);
@@ -309,7 +310,7 @@ public class InterventionView extends SimplePanel implements Module {
 					});
 		}		
 
-		RootPanel.get(id).add(this);
+		return true;
 	}
 
 	private void selectIntervention(Intervention intervention) {

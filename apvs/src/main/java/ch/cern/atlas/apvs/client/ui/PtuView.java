@@ -31,6 +31,7 @@ import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -39,7 +40,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -74,7 +74,8 @@ public class PtuView extends VerticalPanel implements Module {
 	public PtuView() {
 	}
 
-	public void configure(String id, ClientFactory clientFactory, Arguments args) {
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
 		eventBus = clientFactory.getRemoteEventBus();
 
@@ -208,7 +209,7 @@ public class PtuView extends VerticalPanel implements Module {
 					});
 		}
 		
-		RootPanel.get(id).add(this);
+		return true;
 	}
 
 	private void addColumn(final String ptuId) {
