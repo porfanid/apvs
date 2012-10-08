@@ -83,7 +83,7 @@ public class InterventionView extends SimplePanel implements Module {
 				
 				if (order.length == 0) {
 					order = new SortOrder[1];
-					order[0] = new SortOrder("tbl_inspections.endtime", true);
+					order[0] = new SortOrder("tbl_inspections.endtime", false);
 				} 	
 				
 				InterventionServiceAsync.Util.getInstance().getTableData(range, order, new AsyncCallback<List<Intervention>>() {
@@ -133,20 +133,6 @@ public class InterventionView extends SimplePanel implements Module {
 			});
 		}
 		table.addColumn(name, "Name");
-		// columnSortHandler.setComparator(name, new Comparator<Intervention>()
-		// {
-		// public int compare(Intervention o1, Intervention o2) {
-		// if (o1 == o2) {
-		// return 0;
-		// }
-		//
-		// if (o1 != null) {
-		// return (o2 != null) ? o1.getName().compareTo(o2.getName())
-		// : 1;
-		// }
-		// return -1;
-		// }
-		// });
 
 		// PtuID
 		ClickableTextColumn<Intervention> ptu = new ClickableTextColumn<Intervention>() {
@@ -172,19 +158,6 @@ public class InterventionView extends SimplePanel implements Module {
 			});
 		}
 		table.addColumn(ptu, "PTU ID");
-		// columnSortHandler.setComparator(ptu, new Comparator<Intervention>() {
-		// public int compare(Intervention o1, Intervention o2) {
-		// if (o1 == o2) {
-		// return 0;
-		// }
-		//
-		// if (o1 != null) {
-		// return (o2 != null) ? o1.getPtuId()
-		// .compareTo(o2.getPtuId()) : 1;
-		// }
-		// return -1;
-		// }
-		// });
 
 		// startTime
 		ClickableTextColumn<Intervention> startTime = new ClickableTextColumn<Intervention>() {
@@ -211,21 +184,6 @@ public class InterventionView extends SimplePanel implements Module {
 			});
 		}
 		table.addColumn(startTime, "Start Time");
-		// columnSortHandler.setComparator(startTime,
-		// new Comparator<Intervention>() {
-		// public int compare(Intervention o1, Intervention o2) {
-		// if (o1 == o2) {
-		// return 0;
-		// }
-		//
-		// if (o1 != null) {
-		// return (o2 != null) ? o1.getStartTime().compareTo(
-		// o2.getStartTime()) : 1;
-		// }
-		// return -1;
-		// }
-		// });
-		table.getColumnSortList().push(startTime);
 
 		// endTime
 		ClickableTextColumn<Intervention> endTime = new ClickableTextColumn<Intervention>() {
@@ -252,20 +210,8 @@ public class InterventionView extends SimplePanel implements Module {
 			});
 		}
 		table.addColumn(endTime, "End Time");
-//		columnSortHandler.setComparator(endTime,
-//				new Comparator<Intervention>() {
-//					public int compare(Intervention o1, Intervention o2) {
-//						if (o1 == o2) {
-//							return 0;
-//						}
-//
-//						if (o1 != null) {
-//							return (o2 != null) ? o1.getEndTime().compareTo(
-//									o2.getEndTime()) : 1;
-//						}
-//						return -1;
-//					}
-//				});
+		// twice for descending
+		table.getColumnSortList().push(endTime);
 		table.getColumnSortList().push(endTime);
 
 		// Description
