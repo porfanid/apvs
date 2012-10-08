@@ -10,4 +10,11 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("apvsIntervention")
 public interface InterventionService extends TableService<Intervention>, RemoteService {
+
+	void addDevice(String ptuId);
+
+	void addUser(String fname, String lname);
+
+	void addIntervention(int i, int j, String string);
+
 }

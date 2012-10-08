@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.widget;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,8 +29,21 @@ public class EditableCell extends AbstractCell<Object> {
 
 	private List<Class<? extends Cell<Object>>> cellClasses;
 
-	public EditableCell(List<Class<? extends Cell<Object>>> cellClasses, int size) {
+	public EditableCell() {
+		this(null);
+	}
+
+	public EditableCell(List<Class<? extends Cell<Object>>> cellClasses) {
+		this(cellClasses, 20);
+	}
+
+	public EditableCell(List<Class<? extends Cell<Object>>> cellClasses,
+			int size) {
+
 		this.cellClasses = cellClasses;
+		if (cellClasses == null) {
+			cellClasses = Collections.emptyList();
+		}
 
 		textInputCell = new TextInputSizeCell(size);
 		editCell = new MyEditTextCell();
@@ -45,8 +59,8 @@ public class EditableCell extends AbstractCell<Object> {
 
 	@Override
 	public boolean isEditing(Context context, Element parent, Object value) {
-		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
-				.getIndex());
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(
+				context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			return textInputCell.isEditing(context, parent, (String) value);
 		} else if (cellClass.equals(EditTextCell.class)) {
@@ -66,8 +80,8 @@ public class EditableCell extends AbstractCell<Object> {
 	@Override
 	public void onBrowserEvent(Context context, Element parent, Object value,
 			NativeEvent event, final ValueUpdater<Object> valueUpdater) {
-		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
-				.getIndex());
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(
+				context, value);
 
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.onBrowserEvent(context, parent, (String) value,
@@ -135,8 +149,9 @@ public class EditableCell extends AbstractCell<Object> {
 
 	@Override
 	public void render(Context context, Object value, SafeHtmlBuilder sb) {
-		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
-				.getIndex());
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(
+				context, value);
+
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.render(context, (String) value, sb);
 		} else if (cellClass.equals(EditTextCell.class)) {
@@ -205,8 +220,7 @@ public class EditableCell extends AbstractCell<Object> {
 	protected void onEnterKeyDown(Context context, Element parent,
 			Object value, NativeEvent event,
 			final ValueUpdater<Object> valueUpdater) {
-		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
-				.getIndex());
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.onEnterKeyDown(context, parent, (String) value,
 					event, new ValueUpdater<String>() {
@@ -273,8 +287,7 @@ public class EditableCell extends AbstractCell<Object> {
 
 	@Override
 	public boolean resetFocus(Context context, Element parent, Object value) {
-		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
-				.getIndex());
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			return textInputCell.resetFocus(context, parent, (String) value);
 		} else if (cellClass.equals(EditTextCell.class)) {
@@ -293,8 +306,7 @@ public class EditableCell extends AbstractCell<Object> {
 
 	@Override
 	public void setValue(Context context, Element parent, Object value) {
-		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context
-				.getIndex());
+		Class<? extends Cell<? extends Object>> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.setValue(context, parent, (String) value);
 		} else if (cellClass.equals(EditTextCell.class)) {
@@ -311,7 +323,9 @@ public class EditableCell extends AbstractCell<Object> {
 		}
 	}
 
-	private Class<? extends Cell<? extends Object>> getCellClass(int row) {
+	protected Class<? extends Cell<? extends Object>> getCellClass(
+			Context context, Object value) {
+		int row = context.getIndex();
 		if ((0 <= row) && (row < cellClasses.size())) {
 			return cellClasses.get(row);
 		}

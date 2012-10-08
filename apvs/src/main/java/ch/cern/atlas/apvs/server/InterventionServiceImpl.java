@@ -35,4 +35,19 @@ public class InterventionServiceImpl extends DbServiceImpl implements
 			throw new ServiceException(e.getMessage());
 		}
 	}
+
+	@Override
+	public void addUser(String fname, String lname) {
+		System.err.println("Add user NOT IMPLEMENTED");
+	}
+	
+	@Override
+	public void addDevice(String ptuId) {
+		System.err.println("Add device NOT IMPLEMENTED");
+	}
+
+	@Override
+	public void addIntervention(int i, int j, String description) {
+		System.err.println("Add intervention NOT IMPLEMENTED");
+	}	
 }
