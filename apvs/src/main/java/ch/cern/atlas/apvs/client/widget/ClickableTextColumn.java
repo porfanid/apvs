@@ -9,7 +9,7 @@ public abstract class ClickableTextColumn<T> extends Column<T, String> {
 		super(new ClickableTextCell());
 	}
 	
-	public ClickableTextColumn(Cell<T> cell) {
+	public ClickableTextColumn(Cell<String> cell) {
 		super(cell);
 	}
 
