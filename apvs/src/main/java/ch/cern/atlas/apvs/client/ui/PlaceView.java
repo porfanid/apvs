@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
 import ch.cern.atlas.apvs.client.tablet.CameraPlace;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
 import ch.cern.atlas.apvs.client.tablet.ImagePlace;
@@ -15,6 +16,8 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -27,20 +30,27 @@ public class PlaceView extends SimplePanel implements Module {
 	private RemoteEventBus remoteEventBus;
 	private String defaultImage = "Default-640x480.jpg";
 	private String ptuId;
-
+		
 	public PlaceView() {
 	}
 
 	@Override
-	public boolean configure(Element element, final ClientFactory clientFactory, Arguments args) {
-
+	public boolean configure(final Element element, final ClientFactory clientFactory, Arguments args) {
+		
 		final String width = "100%";
 		final String height = "100%";
 		
+		final EventBus switchBus = clientFactory.getEventBus("switch");
+
 		this.remoteEventBus = clientFactory.getRemoteEventBus();
 
 		EventBus eventBus = clientFactory.getEventBus(args.getArg(0));
+		String options = args.getArg(1);
 
+		boolean switchSource = options.contains("SwitchSource");
+
+		SwitchWidgetEvent.register(switchBus, new SwitchWidgetEventHandler(switchBus, element, this, false));
+		
 		if (eventBus != null) {
 			SelectPtuEvent.subscribe(eventBus, new SelectPtuEvent.Handler() {
 
@@ -109,6 +119,22 @@ public class PlaceView extends SimplePanel implements Module {
 		Image image = new Image(defaultImage);
 		image.setWidth(width);
 		setWidget(image);
+		
+		if (switchSource) {
+			image.addDoubleClickHandler(new DoubleClickHandler() {
+
+				@Override
+				public void onDoubleClick(DoubleClickEvent event) {
+					log.info("Double Click " + event + " switch");
+
+					String title = element.getParentElement().getChild(1).getChild(0)
+							.getNodeValue();
+
+					log.info("Switch Widget: " + title);
+					SwitchWidgetEvent.fire(switchBus, title, PlaceView.this, false);
+				}
+			});
+		}
 		
 		return true;
 	}
