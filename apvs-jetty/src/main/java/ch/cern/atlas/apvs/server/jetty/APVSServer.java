@@ -6,8 +6,12 @@ import java.security.ProtectionDomain;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class APVSServer {
+	private static Logger log = LoggerFactory.getLogger(APVSServer.class.getName());
+	
 	private static final int DEFAULT_PORT_NO = 8095;
 
 	public static void main(String[] args) {
@@ -40,13 +44,13 @@ public class APVSServer {
 		// And start it up
 		try {
 			server.start();
-			System.out.println("APVS started on http://localhost:"+port+"/apvs/index.html");
+			log.info("APVS started on http://localhost:"+port+"/apvs/index.html");
 
 			server.join();
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e.getCause() != null) {
-				System.err.println("Caused by:");
+				log.warn("Caused by:",e.getCause());
 				e.getCause().printStackTrace();
 			}
 		}

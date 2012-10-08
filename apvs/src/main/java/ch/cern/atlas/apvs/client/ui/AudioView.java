@@ -29,6 +29,8 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.dom.client.Element;
+
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.TextBox;
@@ -36,7 +38,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
 
-public class AudioView extends VerticalPanel {
+
+public class AudioView extends VerticalPanel implements Module{
+
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
@@ -45,8 +49,11 @@ public class AudioView extends VerticalPanel {
 	private AudioSettings audioAccounts = new AudioSettings();
 	private static final Button btnCall = new Button("CALL");
 	
-	
-	public AudioView(final ClientFactory clientFactory, final Arguments args) {
+	public AudioView() {
+	}
+
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		
 		add(table);
@@ -95,7 +102,7 @@ public class AudioView extends VerticalPanel {
 				new TextCell()) {
 			@Override
 			public String getValue(String object) {
-				return audioAccounts.getChannel(object);
+				return audioAccounts.getChannel("Alexandre1");
 			}			
 		};
 		activeCall.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -153,8 +160,8 @@ public class AudioView extends VerticalPanel {
 			public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
 				System.err.println("Audio Account Settings Changed");
 				audioAccounts = event.getAudioSettings();
-				table.redraw();
 				//TODO update(); UPDATE TABLE
+				update();
 
 			}
 		});
@@ -177,6 +184,8 @@ public class AudioView extends VerticalPanel {
 		//TODO update
 		
 		
+		return true;
+
 	}
 	
 	private void update(){

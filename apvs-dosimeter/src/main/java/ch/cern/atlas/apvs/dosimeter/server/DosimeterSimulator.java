@@ -12,11 +12,15 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.domain.Dosimeter;
 
 public class DosimeterSimulator extends Thread {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	private final Channel channel;
 	private final Random random = new Random();
 	private int noOfDosimeters = 5;
@@ -36,7 +40,7 @@ public class DosimeterSimulator extends Thread {
 				dosimeters.add(new Dosimeter(serialNo[i],
 						random.nextDouble() * 500.0, random.nextDouble() * 5.0,
 						now));
-				System.out.println(dosimeters.get(i).getSerialNo());
+				log.info(Integer.toString(dosimeters.get(i).getSerialNo()));
 			}
 
 			ChannelBuffer buffer = ChannelBuffers.buffer(8192);

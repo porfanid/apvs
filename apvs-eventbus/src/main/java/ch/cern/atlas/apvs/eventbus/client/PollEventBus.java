@@ -3,6 +3,9 @@ package ch.cern.atlas.apvs.eventbus.client;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -11,6 +14,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class PollEventBus extends RemoteEventBus {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	private EventBusServiceAsync eventBusService;
 
 	public PollEventBus() {
@@ -46,16 +51,16 @@ public class PollEventBus extends RemoteEventBus {
 
 			@Override
 			public void onSuccess(Void result) {
-				System.err.println("Client: Sent event..." + event);
+				log.info("Client: Sent event..." + event);
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println("Failed to send event " + event + " "
+				log.warn("Failed to send event " + event + " "
 						+ caught);
 				caught.printStackTrace();
 				if (caught.getCause() != null) {
-					System.err.println("Caused by...");
+					log.warn("Caused by...");
 					caught.getCause().printStackTrace();
 				}
 			}
@@ -68,14 +73,14 @@ public class PollEventBus extends RemoteEventBus {
 
 					@Override
 					public void onSuccess(List<RemoteEvent<?>> events) {
-					    System.err.println(getUUID()+": Received events..." + events.size());
+					    log.info(getUUID()+": Received events..." + events.size());
 
 						// forward events locally
 						for (Iterator<RemoteEvent<?>> i = events.iterator(); i
 								.hasNext();) {
 
 							RemoteEvent<?> event = i.next();
-//						    System.err.println("Client: Received event..." + event);
+//						    log.info("Client: Received event..." + event);
 							// do not fire your own events
 							if (event.getEventBusUUID() != getUUID()) {
 								PollEventBus.super.fireEvent(event);
@@ -87,8 +92,7 @@ public class PollEventBus extends RemoteEventBus {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						System.err
-								.println("Failed to get next event " + caught);
+						log.warn("Failed to get next event " + caught);
 
 						getQueuedEvents();
 					}

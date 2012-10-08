@@ -6,7 +6,12 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PtuConnectPushHandler  {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309",
 			"PTU_27372", "PTU_39400", "PTU_88982" };
@@ -22,16 +27,15 @@ public class PtuConnectPushHandler  {
 					OutputStream os) {
 				ByteArrayOutputStream baos = (ByteArrayOutputStream)os;
 					
-				System.err.println("'"+baos.toString().substring(0, baos.size()-1)+"'");
 				try {
 					Socket socket = new Socket(host, port);
 //					baos.writeTo(socket.getOutputStream());
 					socket.getOutputStream().write(baos.toByteArray(), 0, baos.size()-1);
 					socket.close();
 				} catch (UnknownHostException e) {
-					System.err.println("Error "+e);
+					log.info("Error "+e);
 				} catch (IOException e) {
-					System.err.println("Error "+e);
+					log.info("Error "+e);
 				}
 				
 				return super.sendBufferAndClear(os);

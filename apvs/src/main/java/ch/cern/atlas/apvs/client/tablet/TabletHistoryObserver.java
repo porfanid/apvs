@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.client.tablet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.tablet.ModelEntrySelectedEvent.ModelEntry;
 import ch.cern.atlas.apvs.client.tablet.ProcedureEntrySelectedEvent.ProcedureEntry;
@@ -15,6 +18,8 @@ import com.googlecode.mgwt.ui.client.MGWT;
 
 public class TabletHistoryObserver implements HistoryObserver {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	@Override
 	public void onPlaceChange(Place place, HistoryHandler handler) {
 
@@ -47,7 +52,7 @@ public class TabletHistoryObserver implements HistoryObserver {
 			@Override
 			public void onSelectStep(SelectStepEvent event) {
 				// FIXME should be some setStepEvent
-				System.err.println("STEP "+event.getStep());
+				log.info("STEP "+event.getStep());
 				
 				Place place = new ProcedurePlace("FIXME", "TileDrawerExtraction", Integer.toString(event.getStep()));
 				

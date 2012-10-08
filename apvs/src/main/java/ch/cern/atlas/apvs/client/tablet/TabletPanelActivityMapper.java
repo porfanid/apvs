@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.client.tablet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -14,6 +17,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class TabletPanelActivityMapper implements ActivityMapper {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	private final ClientFactory clientFactory;
 	private RemoteEventBus remoteEventBus;
 	private EventBus eventBus;
@@ -35,7 +40,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 				// (!event.getEventBusUUID().equals(remoteEventBus.getUUID()))
 				// return;
 
-				System.err.println("PTU ID = " + event.getPtuId());
+				log.info("PTU ID = " + event.getPtuId());
 				ptuId = event.getPtuId();
 
 				if (lastPlace instanceof SharedPlace) {
@@ -69,7 +74,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 	@Override
 	public Activity getActivity(Place place) {
 		if (place instanceof SharedPlace) {
-			System.err.println("New REMOTE place " + place.getClass());
+			log.info("New REMOTE place " + place.getClass());
 			remoteEventBus.fireEvent(
 					new PlaceChangedEvent(ptuId, (SharedPlace) place));
 		}
@@ -121,7 +126,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 					place.getUrl());
 		}
 
-		System.err.println("Tablet Activity not handled " + newPlace);
+		log.warn("Tablet Activity not handled " + newPlace);
 
 		return null;
 	}

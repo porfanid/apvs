@@ -11,6 +11,8 @@ import javax.servlet.ServletException;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.PtuService;
@@ -27,6 +29,8 @@ import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 @SuppressWarnings("serial")
 public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	private static final int DEFAULT_PTU_PORT = 4005;
 
 	private String ptuUrl;
@@ -35,7 +39,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	private PtuClientHandler ptuClientHandler;
 
 	public PtuServiceImpl() {
-		System.out.println("Creating PtuService...");
+		log.info("Creating PtuService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
 
@@ -43,7 +47,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		System.out.println("Starting PtuService...");
+		log.info("Starting PtuService...");
 
 		ServerSettingsChangedEvent.subscribe(eventBus,
 				new ServerSettingsChangedEvent.Handler() {
@@ -62,7 +66,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 								int port = s.length > 1 ? Integer
 										.parseInt(s[1]) : DEFAULT_PTU_PORT;
 
-								System.err.println("Setting PTU to " + host
+								log.info("Setting PTU to " + host
 										+ ":" + port);
 								ptuClientHandler.connect(new InetSocketAddress(
 										host, port));

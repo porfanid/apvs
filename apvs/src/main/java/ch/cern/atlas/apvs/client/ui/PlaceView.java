@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -10,24 +13,30 @@ import ch.cern.atlas.apvs.client.tablet.ProcedurePlace;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class PlaceView extends SimplePanel {
+public class PlaceView extends SimplePanel implements Module {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	private RemoteEventBus remoteEventBus;
 	private String defaultImage = "Default-640x480.jpg";
 	private String ptuId;
 
-	public PlaceView(ClientFactory clientFactory, Arguments args) {
-		this(clientFactory, args, "100%", "100%");
+	public PlaceView() {
 	}
 
-	public PlaceView(final ClientFactory clientFactory, final Arguments args,
-			final String width, final String height) {
+	@Override
+	public boolean configure(Element element, final ClientFactory clientFactory, Arguments args) {
+
+		final String width = "100%";
+		final String height = "100%";
+		
 		this.remoteEventBus = clientFactory.getRemoteEventBus();
 
 		EventBus eventBus = clientFactory.getEventBus(args.getArg(0));
@@ -56,7 +65,7 @@ public class PlaceView extends SimplePanel {
 						if (!ptuId.equals(event.getPtuId()))
 							return;
 
-						System.out.println("PLACE CHANGED " + event);
+						log.info("PLACE CHANGED " + event);
 						Place place = event.getPlace();
 
 						if (place instanceof HomePlace) {
@@ -100,5 +109,7 @@ public class PlaceView extends SimplePanel {
 		Image image = new Image(defaultImage);
 		image.setWidth(width);
 		setWidget(image);
+		
+		return true;
 	}
 }

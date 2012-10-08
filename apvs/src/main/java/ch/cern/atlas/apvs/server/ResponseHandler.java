@@ -11,24 +11,24 @@ import org.slf4j.LoggerFactory;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 
-public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
+public class ResponseHandler<T, V> implements ValueChangeHandler<T> {
 
 	private ResponsePollService service;
 	// Synchronized !!
-	private Vector<InfoAndResponse<T,V>> delayedResponses = new Vector<InfoAndResponse<T,V>>();
-	private Logger logger = LoggerFactory.getLogger(ResponseHandler.class
-			.getName());
+	private Vector<InfoAndResponse<T, V>> delayedResponses = new Vector<InfoAndResponse<T, V>>();
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	public interface Response<T,V> {
+	public interface Response<T, V> {
 		public V getValue(T object);
 	}
-	
-	private class InfoAndResponse<U,S> {
+
+	private class InfoAndResponse<U, S> {
 		private SuspendInfo info;
-		private Response<U,S> response;
+		private Response<U, S> response;
 		private long currentHashCode;
 
-		public InfoAndResponse(SuspendInfo info, Response<U,S> response, long currentHashCode) {
+		public InfoAndResponse(SuspendInfo info, Response<U, S> response,
+				long currentHashCode) {
 			this.info = info;
 			this.response = response;
 			this.currentHashCode = currentHashCode;
@@ -37,11 +37,11 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 		public SuspendInfo getInfo() {
 			return info;
 		}
-		
-		public Response<U,S> getResponse() {
+
+		public Response<U, S> getResponse() {
 			return response;
 		}
-		
+
 		public long getCurrentHashCode() {
 			return currentHashCode;
 		}
@@ -51,7 +51,7 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 		this.service = service;
 	}
 
-	public V respond(long currentHashCode, Response<T,V> response) {
+	public V respond(long currentHashCode, Response<T, V> response) {
 
 		V object = null;
 
@@ -61,7 +61,8 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 			}
 
 			if (object == null) {
-				delayedResponses.add(new InfoAndResponse<T,V>(service.suspend(), response, currentHashCode));
+				delayedResponses.add(new InfoAndResponse<T, V>(service
+						.suspend(), response, currentHashCode));
 				return null;
 			}
 
@@ -69,11 +70,12 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 				return object;
 			}
 		} catch (NullPointerException e) {
-			System.err.println("We assume the call does not work due to a disconnect, we keep you waiting...");
-			e.printStackTrace(System.err);
+			log.warn("We assume the call does not work due to a disconnect, we keep you waiting...");
+			e.printStackTrace();
 		}
 
-		delayedResponses.add(new InfoAndResponse<T,V>(service.suspend(), response, currentHashCode));
+		delayedResponses.add(new InfoAndResponse<T, V>(service.suspend(),
+				response, currentHashCode));
 
 		return null;
 	}
@@ -81,14 +83,15 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 	@Override
 	public void onValueChange(ValueChangeEvent<T> event) {
 		synchronized (delayedResponses) {
-			for (Iterator<InfoAndResponse<T,V>> i = delayedResponses.iterator(); i.hasNext(); ) {
-				InfoAndResponse<T,V> d = i.next();
+			for (Iterator<InfoAndResponse<T, V>> i = delayedResponses
+					.iterator(); i.hasNext();) {
+				InfoAndResponse<T, V> d = i.next();
 				Object o = d.getResponse().getValue(event.getValue());
 				if (d.getCurrentHashCode() != o.hashCode()) {
 					try {
 						d.getInfo().writeAndResume(o);
 					} catch (IOException e) {
-						logger.error("Failed to write and resume", e);
+						log.warn("Failed to write and resume: ", e);
 					}
 					i.remove();
 				}
@@ -98,14 +101,15 @@ public class ResponseHandler<T,V> implements ValueChangeHandler<T> {
 
 	public void onValueChange(T value) {
 		synchronized (delayedResponses) {
-			for (Iterator<InfoAndResponse<T,V>> i = delayedResponses.iterator(); i.hasNext(); ) {
-				InfoAndResponse<T,V> d = i.next();
+			for (Iterator<InfoAndResponse<T, V>> i = delayedResponses
+					.iterator(); i.hasNext();) {
+				InfoAndResponse<T, V> d = i.next();
 				Object o = d.getResponse().getValue(value);
 				if (d.getCurrentHashCode() != o.hashCode()) {
 					try {
 						d.getInfo().writeAndResume(o);
 					} catch (IOException e) {
-						logger.error("Failed to write and resume", e);
+						log.warn("Failed to write and resume: ", e);
 					}
 					i.remove();
 				}

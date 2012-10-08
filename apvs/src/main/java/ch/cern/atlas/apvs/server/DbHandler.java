@@ -4,16 +4,25 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.cern.atlas.apvs.client.service.SortOrder;
+import ch.cern.atlas.apvs.client.ui.Intervention;
+import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -21,10 +30,11 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuServerConstants;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
+import com.google.gwt.view.client.Range;
+
 public class DbHandler extends DbReconnectHandler {
 
-	private static final Logger logger = Logger.getLogger(DbHandler.class
-			.getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
 
 	private Ptus ptus = Ptus.getInstance();
@@ -52,8 +62,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		});
 
-		ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
-				1);
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.scheduleAtFixedRate(new Runnable() {
 
 			@Override
@@ -61,16 +70,12 @@ public class DbHandler extends DbReconnectHandler {
 				try {
 					updateDevices();
 				} catch (SQLException e) {
-					System.err
-							.println("Could not regularly-update device list: "
-									+ e);
+					log.warn("Could not regularly-update device list: ", e);
 				}
 				try {
 					updateUsers();
 				} catch (SQLException e) {
-					System.err
-							.println("Could not regularly-update user list: "
-									+ e);
+					log.warn("Could not regularly-update user list: ", e);
 				}
 			}
 		}, 30, 30, TimeUnit.SECONDS);
@@ -126,14 +131,14 @@ public class DbHandler extends DbReconnectHandler {
 					}
 					result.close();
 
-					System.err.println("Creating history for " + ptuId + " "
-							+ sensor + " " + data.size() + " entries");
+					log.info("Creating history for " + ptuId + " " + sensor
+							+ " " + data.size() + " entries");
 					history = new History(
 							data.toArray(new Number[data.size()][]), unit);
 
 				}
 			} catch (SQLException ex) {
-				System.err.println(ex);
+				log.warn("Exception", ex);
 			}
 		}
 		return history;
@@ -164,8 +169,9 @@ public class DbHandler extends DbReconnectHandler {
 
 		deviceQuery = connection
 				.prepareStatement("select ID, NAME from tbl_devices");
-		
-		userQuery = connection.prepareStatement("select ID, FNAME, LNAME from tbl_users");
+
+		userQuery = connection
+				.prepareStatement("select ID, FNAME, LNAME from tbl_users");
 
 		updateDevices();
 		updateUsers();
@@ -194,7 +200,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		}
 
-		System.err.println("Pruning " + prune.size() + " devices...");
+		log.info("Pruning " + prune.size() + " devices...");
 		for (Iterator<String> i = prune.iterator(); i.hasNext();) {
 			ptus.remove(i.next());
 			ptuIdsChanged = true;
@@ -205,11 +211,99 @@ public class DbHandler extends DbReconnectHandler {
 			ptuIdsChanged = false;
 		}
 	}
-	
+
 	private void updateUsers() throws SQLException {
 		if (userQuery == null)
 			return;
 
-		// FIXME...
+		log.info("Not Implemented");
+	}
+
+	private String getSql(String sql, Range range, SortOrder[] order) {
+		StringBuffer s = new StringBuffer(sql);
+		for (int i = 0; i < order.length; i++) {
+			if (i == 0) {
+				s.append(" order by ");
+			}
+			s.append(order[i].getName());
+			s.append(" ");
+			s.append(order[i].isAscending() ? "ASC" : "DESC");
+			if (i + 1 < order.length) {
+				s.append(", ");
+			}
+		}
+		return s.toString();
+	}
+	
+	private int getCount(String sql) throws SQLException {
+		Statement statement = getConnection().createStatement();
+		ResultSet result = statement.executeQuery(sql);
+		
+		return result.next() ? result.getInt(1) : 0;		
+	}
+
+	public int getInterventionCount() throws SQLException {
+		return getCount("select count(*) from tbl_inspections");
+	}
+	
+	public List<Intervention> getInterventions(Range range, SortOrder[] order)
+			throws SQLException {
+
+		String sql = "select tbl_inspections.id, tbl_users.fname, tbl_users.lname, tbl_devices.name, "
+				+ "tbl_inspections.starttime, tbl_inspections.endtime, tbl_inspections.dscr "
+				+ "from tbl_inspections "
+				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
+				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
+
+		Statement statement = getConnection().createStatement();
+		ResultSet result = statement.executeQuery(getSql(sql, range, order));
+
+		// FIXME, #173 using some SQL this may be faster
+		// skip to start, result.absolute not implemented by Oracle
+		for (int i = 0; i < range.getStart() && result.next(); i++) {
+		}
+
+		List<Intervention> list = new ArrayList<Intervention>(range.getLength());
+		for (int i = 0; i < range.getLength() && result.next(); i++) {
+			list.add(new Intervention(result.getInt(1), result.getString(2),
+					result.getString(3), result.getString(4), new Date(result
+							.getTimestamp(5).getTime()),
+					result.getTimestamp(6) != null ? new Date(result
+							.getTimestamp(6).getTime()) : null, result
+							.getString(7)));
+		}
+
+		return list;
+	}
+	
+	public int getEventCount() throws SQLException {
+		return getCount("select count(*) from tbl_events");
+	}
+
+	public List<Event> getEvents(Range range, SortOrder[] order)
+			throws SQLException {
+
+		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
+				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
+				+ "from tbl_events "
+				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
+
+		Statement statement = getConnection().createStatement();
+		ResultSet result = statement.executeQuery(getSql(sql, range, order));
+
+		// FIXME, #173 using some SQL this may be faster
+		// skip to start, result.absolute not implemented by Oracle
+		for (int i = 0; i < range.getStart() && result.next(); i++) {
+		}
+
+		List<Event> list = new ArrayList<Event>(range.getLength());
+		for (int i = 0; i < range.getLength() && result.next(); i++) {
+			list.add(new Event(result.getString(1), result.getString(2), result
+					.getString(3), Double.parseDouble(result.getString(4)),
+					Double.parseDouble(result.getString(5)), new Date(result
+							.getTimestamp(6).getTime())));
+		}
+
+		return list;
 	}
 }

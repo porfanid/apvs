@@ -5,6 +5,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -18,6 +21,7 @@ import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -25,6 +29,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
@@ -32,7 +37,9 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class MeasurementView extends VerticalFlowPanel {
+public class MeasurementView extends VerticalFlowPanel implements Module {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
@@ -57,7 +64,11 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	private String options;
 
-	public MeasurementView(final ClientFactory clientFactory, Arguments args) {
+	public MeasurementView() {
+	}
+	
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		options = args.getArg(1);
@@ -130,7 +141,6 @@ public class MeasurementView extends VerticalFlowPanel {
 				}
 			});
 		}
-
 		table.addColumn(name, showHeader ? new TextHeader("") {
 			@Override
 			public String getValue() {
@@ -179,7 +189,7 @@ public class MeasurementView extends VerticalFlowPanel {
 				}
 			});
 		}
-		table.addColumn(value, showHeader ? "Value" : null);
+		table.addColumn(value, showHeader ? new TextHeader("Value") : (Header<?>)null);
 
 		ClickableHtmlColumn<Measurement> unit = new ClickableHtmlColumn<Measurement>() {
 			@Override
@@ -198,8 +208,8 @@ public class MeasurementView extends VerticalFlowPanel {
 				}
 			});
 		}
-		table.addColumn(unit, showHeader ? "Unit" : null);
-
+		table.addColumn(unit, showHeader ? new TextHeader("Unit") : (Header<?>)null);
+		
 		List<Measurement> list = new ArrayList<Measurement>();
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(list);
@@ -259,15 +269,17 @@ public class MeasurementView extends VerticalFlowPanel {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							Measurement m = selectionModel.getSelectedObject();
-							System.err.println(m + " " + event.getSource());
+							log.info(m + " " + event.getSource());
 						}
 					});
 		}
 
 		// fill initial list
 		refillList();
+		
+		return true;
 	}
-	
+
 	private void refillList() {
 		dataProvider.getList().clear();
 		for (Iterator<String> i = show.iterator(); i.hasNext();) {
@@ -278,8 +290,9 @@ public class MeasurementView extends VerticalFlowPanel {
 
 	public static SafeHtml decorate(String s, Measurement current,
 			Measurement last) {
-		if ((current != null) && (last != null)
+		if ((current != null) && (last != null) && (current.getPtuId() != null)
 				&& (current.getPtuId().equals(last.getPtuId()))
+				&& (current.getName() != null)
 				&& current.getName().equals(last.getName())) {
 			double c = current.getValue().doubleValue();
 			double l = last.getValue().doubleValue();

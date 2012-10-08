@@ -1,10 +1,14 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
@@ -16,7 +20,9 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class CameraView extends SimplePanel {
+public class CameraView extends SimplePanel implements Module {
+	
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	public static final String HELMET = "Helmet";
 	public static final String HAND = "Hand";
@@ -58,12 +64,18 @@ public class CameraView extends SimplePanel {
 		init(factory, width, height);
 	}
 	
-	public CameraView(ClientFactory factory, Arguments args) {
+	public CameraView() {
+	}
+
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 		
-	    cmdBus = factory.getEventBus(args.getArg(0));
+	    cmdBus = clientFactory.getEventBus(args.getArg(0));
 		type = args.getArg(1);
 		
-		init(factory, "100%", "100%");
+		init(clientFactory, "100%", "100%");	
+		
+		return true;
 	}
 		
 	private void init(ClientFactory factory, String width, String height) {
@@ -78,7 +90,7 @@ public class CameraView extends SimplePanel {
 
 			@Override
 			public void onClick(ClickEvent event) {
-				System.err.println("Single Click Update");
+				log.info("Single Click Update");
 				update(true);
 			}
 		});
@@ -86,7 +98,7 @@ public class CameraView extends SimplePanel {
 
 			@Override
 			public void onDoubleClick(DoubleClickEvent event) {
-				System.err.println("Double Click " + event + " enlarge");
+				log.info("Double Click " + event + " enlarge");
 			}
 		});
 
@@ -138,7 +150,7 @@ public class CameraView extends SimplePanel {
 
 		if (cameraUrl.startsWith("http://")) {
 			if (cameraUrl.endsWith(".mjpg")) {
-				System.err.println(cameraUrl);
+				log.info(cameraUrl);
 				image.setUrl(cameraUrl);
 				setWidget(image);
 			} else {
@@ -153,7 +165,7 @@ public class CameraView extends SimplePanel {
 					video.setLoop(true);
 					video.addSource(cameraUrl);
 				}
-				System.err.println(video.toString());
+				log.info(video.toString());
 				setWidget(video);
 			}
 		} else if (cameraUrl.startsWith("rtsp://")) {
@@ -165,7 +177,7 @@ public class CameraView extends SimplePanel {
 							+ "\" src=\""
 							+ cameraUrl
 							+ "\" autoplay=\"true\" type=\"video/quicktime\" controller=\"true\" quitwhendone=\"false\" loop=\"false\"/></embed>");
-			System.err.println(video.toString());
+			log.info(video.toString());
 			setWidget(video);
 		} else {
 			Widget video = new HTML(
@@ -180,7 +192,7 @@ public class CameraView extends SimplePanel {
 							+ "', '', 'href', '"
 							+ cameraUrl
 							+ "', 'autohref', 'true', 'target', 'myself', 'controller', 'true', 'autoplay', 'true');</script>");
-			System.err.println(video.toString());
+			log.info(video.toString());
 			setWidget(video);
 		}
 	}

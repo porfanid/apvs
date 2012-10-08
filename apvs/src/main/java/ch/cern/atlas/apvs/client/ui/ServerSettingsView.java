@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -18,16 +21,22 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 
-public class ServerSettingsView extends VerticalFlowPanel {
+public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
 	private ServerSettings settings = new ServerSettings();
 
-	public ServerSettingsView(ClientFactory factory, Arguments args) {
-		final RemoteEventBus eventBus = factory.getRemoteEventBus();
-		
+	public ServerSettingsView() {
+	}
+
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
+
+		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
+
 		add(table);
 
 		// name column
@@ -73,10 +82,11 @@ public class ServerSettingsView extends VerticalFlowPanel {
 
 			@Override
 			public void update(int index, String name, Object value) {
-				System.err.println("Updated " + index + " " + name + " "
-						+ value+" "+value.getClass());
+				log.info("Updated " + index + " " + name + " " + value + " "
+						+ value.getClass());
 				settings.put(name, value.toString());
-				((RemoteEventBus)eventBus).fireEvent(new ServerSettingsChangedEvent(settings));
+				((RemoteEventBus) eventBus)
+						.fireEvent(new ServerSettingsChangedEvent(settings));
 			}
 		});
 
@@ -85,7 +95,7 @@ public class ServerSettingsView extends VerticalFlowPanel {
 
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(ServerSettings.Entry.getKeys());
-		
+
 		ServerSettingsChangedEvent.subscribe(eventBus,
 				new ServerSettingsChangedEvent.Handler() {
 					@Override
@@ -93,15 +103,18 @@ public class ServerSettingsView extends VerticalFlowPanel {
 							ServerSettingsChangedEvent event) {
 
 						settings = event.getServerSettings();
-						
-						System.err.println(settings);
+
+						log.info(settings.toString());
 
 						update();
 					}
 				});
+
+		return true;
 	}
 
 	private void update() {
 		table.redraw();
 	}
+
 }

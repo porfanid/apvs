@@ -1,6 +1,9 @@
 Origin: http://www.moxiegroup.com/moxieapps/gwt-highcharts/
 
-One needs to copy the "js" directory from the Highcharts-x.x.zip file over
-../apvs/src/main/resources/ch/cern/atlas/apvs/public/highcharts
 
 
+* One needs to copy the "js" directory from the Highcharts-x.x.zip file over to 
+  ../apvs/src/main/resources/ch/cern/atlas/apvs/public/highcharts
+
+* Check if one still needs version 1.4.2 of jquery, and copy it to 
+  ../apvs/src/main/resources/ch/cern/atlas/apvs/public/jquery.min.js

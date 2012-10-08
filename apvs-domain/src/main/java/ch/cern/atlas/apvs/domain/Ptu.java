@@ -12,7 +12,7 @@ import java.util.Map;
 public class Ptu implements Serializable {
 	
 	private static final long serialVersionUID = 1933500417755260216L;
-
+	
 	private String ptuId;
 	protected Map<String, Measurement> measurements = new HashMap<String, Measurement>();
 	protected Map<String, History> histories = new HashMap<String, History>();
@@ -55,14 +55,14 @@ public class Ptu implements Serializable {
 		return measurements.get(name);
 	}
 			
-	public Measurement addMeasurement(Measurement measurement) {
+	public Measurement addMeasurement(Measurement measurement) throws APVSException {
 		String name = measurement.getName();
 		Measurement r = measurements.get(name);
 		// FIXME move history and add measurement
 		
 		// check if we try to store an older measurement
 		if ((r != null) && (r.getDate().getTime() > measurement.getDate().getTime())) {
-			System.err.println("WARNING, addMeasurement out of order for "+ptuId+" "+measurement.getName());
+			throw new APVSException("addMeasurement out of order for "+ptuId+" "+measurement.getName());
 		} else {
 			measurements.put(name, measurement);
 		}

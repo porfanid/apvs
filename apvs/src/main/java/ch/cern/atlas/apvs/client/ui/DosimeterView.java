@@ -34,7 +34,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 
-public class DosimeterView extends VerticalFlowPanel {
+public class DosimeterView extends VerticalFlowPanel implements Module {
 
 	private PtuSettings settings;
 	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();
@@ -74,8 +74,13 @@ public class DosimeterView extends VerticalFlowPanel {
 		}
 	};
 
-	public DosimeterView(ClientFactory factory, Arguments args) {
-		RemoteEventBus remoteEventBus = factory.getRemoteEventBus();
+	public DosimeterView() {
+	}
+	
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
+
+		RemoteEventBus remoteEventBus = clientFactory.getRemoteEventBus();
 		
 		add(table);
 
@@ -213,6 +218,8 @@ public class DosimeterView extends VerticalFlowPanel {
 				});
 
 		update();
+		
+		return true;
 	}
 
 	private String getName(Dosimeter object) {

@@ -9,12 +9,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.atmosphere.gwt.poll.AtmospherePollService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.eventbus.client.EventBusService;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
@@ -24,8 +25,8 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 public class EventBusServiceHandler extends AtmospherePollService implements
 		EventBusService {
 
-	private static Logger log = Logger.getLogger(EventBusServiceHandler.class
-			.getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	private ServerEventBus eventBus;
 	private Map<Long, ClientInfo> clients = new HashMap<Long, EventBusServiceHandler.ClientInfo>();
 
@@ -33,22 +34,24 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 		long uuid;
 		SuspendInfo suspendInfo;
 		BlockingQueue<RemoteEvent<?>> eventQueue;
-		
+
 		ClientInfo(long uuid) {
 			this.uuid = uuid;
 			suspendInfo = null;
 			eventQueue = new LinkedBlockingQueue<RemoteEvent<?>>();
 		}
-		
+
 		public String toString() {
-			return "ClientInfo: uuid=0x"+Long.toHexString(uuid).toUpperCase()+" event queue size="+eventQueue.size()+" suspend info="+suspendInfo;
+			return "ClientInfo: uuid=0x" + Long.toHexString(uuid).toUpperCase()
+					+ " event queue size=" + eventQueue.size()
+					+ " suspend info=" + suspendInfo;
 		}
 	}
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		System.out.println("Starting EventBusService...");
+		log.info("Starting EventBusService...");
 
 		eventBus = ServerEventBus.getInstance();
 		eventBus.setEventBusServiceHandler(this);
@@ -60,7 +63,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	 */
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
-		System.err.println("Server: Received event..." + event + " "
+		log.info("Server: Received event..." + event + " "
 				+ Long.toHexString(event.getEventBusUUID()).toUpperCase());
 		// add to queues
 		getClientInfo(event.getEventBusUUID());
@@ -76,18 +79,19 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	@Override
 	public List<RemoteEvent<?>> getQueuedEvents(Long eventBusUUID) {
 		ClientInfo info = getClientInfo(eventBusUUID);
-		
+
 		List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
 		int d = info.eventQueue.drainTo(events);
 		if (d > 0) {
-			log.info("Returning "+events.size()+" for uuid "+Long.toHexString(eventBusUUID).toUpperCase());
+			log.info("Returning " + events.size() + " for uuid "
+					+ Long.toHexString(eventBusUUID).toUpperCase());
 			return events;
-		} else {		
+		} else {
 
-			log.info("Suspend "+Long.toHexString(eventBusUUID).toUpperCase());
+			log.info("Suspend " + Long.toHexString(eventBusUUID).toUpperCase());
 			info.suspendInfo = suspend();
 			return null;
-	    }
+		}
 	}
 
 	/**
@@ -102,7 +106,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 
 	private synchronized void sendToRemote(RemoteEvent<?> event) {
 		if (event == null) {
-			log.warning("EBSH: sentToRemote event is null");
+			log.warn("EBSH: sentToRemote event is null");
 			return;
 		}
 
@@ -135,11 +139,12 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 
 			List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
 			int d = client.eventQueue.drainTo(events);
-			log.info("Drained "+d+" "+events.size()+" from queue "+m);
+			log.info("Drained " + d + " " + events.size() + " from queue " + m);
 			if (d > 0) {
 				try {
 					log.info("Server: Sending " + events.size()
-							+ " events to uuid " + Long.toHexString(client.uuid).toUpperCase());
+							+ " events to uuid "
+							+ Long.toHexString(client.uuid).toUpperCase());
 
 					// Debug print
 					for (Iterator<RemoteEvent<?>> j = events.iterator(); j
@@ -151,7 +156,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 					client.suspendInfo.writeAndResume(events);
 					client.suspendInfo = null;
 				} catch (IOException e) {
-					log.warning("Server: Could not write and resume event on queue "
+					log.warn("Server: Could not write and resume event on queue "
 							+ n + e);
 					client.suspendInfo = null;
 				}
@@ -175,13 +180,13 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 			sendToRemote(event);
 			eventBus.forwardEvent(event);
 		}
-		
+
 		// Debug only
 		log.info("Clients: ");
 		for (Iterator<ClientInfo> i = clients.values().iterator(); i.hasNext();) {
-			log.info("  "+i.next());
+			log.info("  " + i.next());
 		}
-		
+
 		return info;
 	}
 }

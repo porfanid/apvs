@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -17,7 +18,7 @@ public class JsonHeader {
 	String acknowledge = "False"; 
 	JsonMessage[] messages;
 	
-	public JsonHeader(Message message) {
+	public JsonHeader(Message message) throws APVSException {
 		currentFrameID++;
 		frameID = String.valueOf(currentFrameID);
 		sender = message.getPtuId();
@@ -33,7 +34,7 @@ public class JsonHeader {
 		} else if (message instanceof Order) {
 			messages[0] = new JsonOrder(message);
 		} else {
-			System.err.println("ERROR: do not know how to write message of type: "+message.getClass());
+			throw new APVSException("ERROR: do not know how to write message of type: "+message.getClass());
 		}
 	}
 }

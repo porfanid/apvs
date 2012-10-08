@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.google.web.bindery.event.shared.SimpleEventBus;
@@ -21,7 +23,7 @@ import com.google.web.bindery.event.shared.UmbrellaException;
  */
 public class RemoteEventBus extends SimpleEventBus {
 
-	private static Logger log = Logger.getLogger(RemoteEventBus.class.getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	protected static <H> void dispatchEvent(RemoteEvent<H> event, H handler) {
 		event.dispatch(handler);

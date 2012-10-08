@@ -3,6 +3,9 @@ package ch.cern.atlas.apvs.server;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -14,6 +17,8 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 public class PtuSettingsStorage {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	private static final String APVS_PTU_SETTINGS = "APVS.ptu.settings";
 	private static PtuSettingsStorage instance;
 	private PtuSettings settings;
@@ -39,8 +44,7 @@ public class PtuSettingsStorage {
 
 					@Override
 					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-						System.err
-								.println("PTU Setting Storage: PTU IDS changed");
+						log.info("PTU Setting Storage: PTU IDS changed");
 						List<String> activePtuIds = event.getPtuIds();
 
 						boolean changed = false;
@@ -81,7 +85,7 @@ public class PtuSettingsStorage {
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {
-			System.err.println("Ptu Settings will not be stored");
+			log.warn("Ptu Settings will not be stored");
 			return;
 		}
 
@@ -91,7 +95,7 @@ public class PtuSettingsStorage {
 		}
 
 		if (settings == null) {
-			System.err.println("Could not read Ptu Settings, using defaults");
+			log.warn("Could not read Ptu Settings, using defaults");
 			settings = new PtuSettings();
 		}
 	}
@@ -103,7 +107,7 @@ public class PtuSettingsStorage {
 		}
 
 		String json = JsonWriter.toJson(settings);
-		System.err.println("Storing json " + json);
+		log.info("Storing json " + json);
 
 		if (json != null) {
 			store.setItem(APVS_PTU_SETTINGS, json);

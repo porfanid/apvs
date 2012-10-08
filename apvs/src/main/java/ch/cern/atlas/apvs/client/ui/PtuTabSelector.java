@@ -5,22 +5,30 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class PtuTabSelector extends HorizontalPanel {
+public class PtuTabSelector extends HorizontalPanel implements Module {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private RemoteEventBus remoteEventBus;
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
@@ -30,9 +38,14 @@ public class PtuTabSelector extends HorizontalPanel {
 	private PtuSettings settings;
 	private List<String> extraTabs;
 
-	public PtuTabSelector(ClientFactory clientFactory, Arguments args) {
+	public PtuTabSelector() {
+	}
+	
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
-		super();
+		
+//		add(new Brand("AWSS"));
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
 
@@ -65,14 +78,16 @@ public class PtuTabSelector extends HorizontalPanel {
 						ptuId = LocalStorage.getInstance().get(
 								LocalStorage.PTU_ID);
 						fireEvent(new SelectPtuEvent(ptuId));
-						
+
 						if (ptuId != null) {
-							Tabs.setCurrentTab("Ptu");
+							fireEvent(new SelectTabEvent("Ptu"));
 						}
-						
-						update();						
+
+						update();
 					}
 				});
+		
+		return true;
 	}
 
 	private String getName(String id) {
@@ -87,7 +102,7 @@ public class PtuTabSelector extends HorizontalPanel {
 		if ((open >= 0) && (close >= 0)) {
 			name = name.substring(open + 1, close);
 		}
-		System.err.println(name);
+		log.info(name);
 		return name;
 	}
 
@@ -99,14 +114,14 @@ public class PtuTabSelector extends HorizontalPanel {
 
 			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
 				String id = i.next();
-				if ((settings != null) && !settings.isEnabled(id)) continue;
-				
+				if ((settings != null) && !settings.isEnabled(id))
+					continue;
+
 				ToggleButton b = new ToggleButton(getName(id));
-				if (id.equals(ptuId)) {
-					b.setDown(true);
-				}
+				b.setDown(id.equals(ptuId));
+
 				b.addClickHandler(new ClickHandler() {
-					
+
 					@Override
 					public void onClick(ClickEvent event) {
 						ptuId = null;
@@ -115,30 +130,31 @@ public class PtuTabSelector extends HorizontalPanel {
 						ptuId = getId(b.getText());
 
 						radio(b);
-						
-						Tabs.setCurrentTab("Ptu");
-						
-						LocalStorage.getInstance().put(LocalStorage.PTU_ID, ptuId);
+
+						fireEvent(new SelectTabEvent("Ptu"));
+
+						LocalStorage.getInstance().put(LocalStorage.PTU_ID,
+								ptuId);
 						fireEvent(new SelectPtuEvent(ptuId));
 					}
 				});
-				add(b);				
+				add(b);
 			}
 		}
-		
-		for (Iterator<String> i = extraTabs.iterator(); i.hasNext(); ) {
+
+		for (Iterator<String> i = extraTabs.iterator(); i.hasNext();) {
 			ToggleButton b = new ToggleButton(i.next());
 			b.addClickHandler(new ClickHandler() {
-				
+
 				@Override
 				public void onClick(ClickEvent event) {
 					ptuId = null;
 
 					ToggleButton b = (ToggleButton) event.getSource();
 					radio(b);
-					
-					Tabs.setCurrentTab(b.getText());
-					
+
+					fireEvent(new SelectTabEvent(b.getText()));
+
 					LocalStorage.getInstance().put(LocalStorage.PTU_ID, ptuId);
 					fireEvent(new SelectPtuEvent(ptuId));
 				}
@@ -156,14 +172,12 @@ public class PtuTabSelector extends HorizontalPanel {
 			Widget w = getWidget(i);
 			if (w instanceof ToggleButton) {
 				ToggleButton t = (ToggleButton) w;
-				if (w != b) {
-					t.setDown(false);
-				}
+				t.setDown(w == b);
 			}
 		}
 	}
-	
-	private void fireEvent(SelectPtuEvent event) {
+
+	private void fireEvent(Event<?> event) {
 		for (Iterator<EventBus> i = eventBusses.iterator(); i.hasNext();) {
 			i.next().fireEvent(event);
 		}

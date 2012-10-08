@@ -75,6 +75,10 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		} catch (AudioException e) {
 			e.printStackTrace();
 		}
+		
+		voipAccounts.add("Alexandre1");
+		voipAccounts.add("Mark1");
+		
 	}
 	
 	public void login() throws AudioException{
@@ -153,7 +157,8 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 			if(list[i].contains("channel=")){
 				channel=contentValue(list[i]);
 				String[] aux = channel.split("-");
-				System.err.println(aux[0]);
+				voipAccounts.setChannel("Alexandre1", aux[1]);
+				voipAccounts.setChannel("Mark1", aux[0]);
 				//TODO
 				/*
 				 * 

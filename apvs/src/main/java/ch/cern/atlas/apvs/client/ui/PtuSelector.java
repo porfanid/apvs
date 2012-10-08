@@ -3,6 +3,9 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.client.widget.OptionList;
@@ -18,6 +21,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuSelector extends VerticalFlowPanel {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	private ListBox list = new ListBox();
 
 	private List<String> ptuIds;
@@ -83,7 +88,7 @@ public class PtuSelector extends VerticalFlowPanel {
 		if (i == list.getItemCount()) {
 			list.setSelectedIndex(0);
 		}
-		System.err.println("Update selector..." + i);
+		log.info("Update selector..." + i);
 
 	}
 

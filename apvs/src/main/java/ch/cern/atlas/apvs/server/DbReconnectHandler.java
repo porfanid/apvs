@@ -2,22 +2,22 @@ package ch.cern.atlas.apvs.server;
 
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DbReconnectHandler extends DbCallback {
 	private static final int RECONNECT_DELAY = 20;
-	private static final Logger logger = Logger
-			.getLogger(DbReconnectHandler.class.getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private String url;
 	private Timer timer;
 	private boolean reconnectNow;
-
+	
 	public DbReconnectHandler() {
 	}
 
@@ -25,25 +25,25 @@ public class DbReconnectHandler extends DbCallback {
 	public void dbDisconnected() throws SQLException {
 		// handle reconnection
 		if (reconnectNow) {
-			System.err.println("Immediate Reconnecting to DB on " + url);
+			log.info("Immediate Reconnecting to DB on " + url);
 			super.connect(url);
 			reconnectNow = false;
 		} else {
-			System.err.println("Sleeping for: " + RECONNECT_DELAY + "s");
+			log.info("Sleeping for: " + RECONNECT_DELAY + "s");
 			timer = new HashedWheelTimer();
 			timer.newTimeout(new TimerTask() {
 				public void run(Timeout timeout) throws Exception {
-					System.err.println("Reconnecting to DB on " + url);
+					log.info("Reconnecting to DB on " + url);
 					DbReconnectHandler.super.connect(url);
 				}
 			}, RECONNECT_DELAY, TimeUnit.SECONDS);
 		}
-		
+
 		super.dbDisconnected();
 	}
 
 	public void exceptionCaught(Exception e) {
-		System.err.println(e);
+		log.warn("Exception", e);
 		super.exceptionCaught(e);
 	}
 

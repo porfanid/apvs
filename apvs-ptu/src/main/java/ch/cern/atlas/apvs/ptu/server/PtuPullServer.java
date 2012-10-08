@@ -5,9 +5,13 @@ import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PtuPullServer {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
     private final int port;
 	private final int refresh;
     private final String[] ids;
@@ -31,7 +35,7 @@ public class PtuPullServer {
         // Bind and start to accept incoming connections.
         bootstrap.bind(new InetSocketAddress(port));
         
-		System.out.println("PTU Pull Server open at "+port);
+		log.info("PTU Pull Server open at "+port);
     }
 
     public static void main(String[] args) {

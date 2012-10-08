@@ -20,7 +20,7 @@ public class AudioSettings implements Serializable{
 		Boolean onCall;
 		
 		public Entry() {
-			username = "Alex";
+			username = "";
 			number = "";
 			channel = "";
 			destUser = "";

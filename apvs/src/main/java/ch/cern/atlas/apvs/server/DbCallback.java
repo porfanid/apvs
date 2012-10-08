@@ -4,13 +4,21 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class DbCallback {
-	
-	private Driver driver = new net.sf.log4jdbc.DriverSpy();
 
+	private Driver driver;
 	private Connection connection;
-	private boolean driverRegistered = false;
+	private ExecutorService executorService;
+	private Future<?> connectFuture;
+	private Future<?> disconnectFuture;
+
+	public DbCallback() {
+		executorService = Executors.newSingleThreadExecutor();
+	}
 
 	public void dbConnected(Connection connection) throws SQLException {
 	}
@@ -25,31 +33,57 @@ public class DbCallback {
 		return connection != null;
 	}
 
-	public void connect(String url) {
-		try {
-			if (!driverRegistered) {
-				// DriverManager.registerDriver(new
-				// oracle.jdbc.driver.OracleDriver());
-				DriverManager.registerDriver(driver);
-				driverRegistered = true;
+	public void connect(final String url) {		
+		disconnect();
+		
+		connectFuture = executorService.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					if (driver == null) {
+						driver = new net.sf.log4jdbc.DriverSpy();
+						DriverManager.registerDriver(driver);
+					}
+					connection = DriverManager.getConnection(url);
+					dbConnected(connection);
+				} catch (SQLException e) {
+					exceptionCaught(e);
+				}
 			}
-			connection = DriverManager.getConnection(url);
-			dbConnected(connection);
-		} catch (SQLException e) {
-			exceptionCaught(e);
-		}
+		});
+		
 	}
 
 	public void disconnect() {
-		if (connection == null)
-			return;
-
-		try {
-			connection.close();
-			connection = null;
-			dbDisconnected();
-		} catch (SQLException e) {
-			exceptionCaught(e);
+		if (connectFuture != null) {
+			connectFuture.cancel(true);
 		}
+		
+		if (connection == null) {
+			return;
+		}
+		
+		if (disconnectFuture != null) {
+			return;
+		}
+		
+		disconnectFuture = executorService.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					connection.close();
+					connection = null;
+					dbDisconnected();
+				} catch (SQLException e) {
+					exceptionCaught(e);
+				}
+			}
+		});
+	}
+
+	protected Connection getConnection() {
+		return connection;
 	}
 }

@@ -1,8 +1,5 @@
 package com.cedarsoftware.util.io;
 
-import junit.framework.TestCase;
-
-import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,6 +25,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+
+import junit.framework.TestCase;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test cases for JsonReader / JsonWriter
@@ -49,6 +52,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TestJsonReaderWriter extends TestCase
 {
+	private static Logger log = LoggerFactory.getLogger(TestJsonReaderWriter.class.getName());
+	
     public static boolean _debug = true;    // Change to 'false' to "hush" output
     public static Date _testDate = new Date();
     public static Character _CONST_CHAR = new Character('j');
@@ -2439,7 +2444,7 @@ public class TestJsonReaderWriter extends TestCase
             }
             catch (UnsupportedEncodingException e)
             {
-                System.out.println("Get a new JVM that supports UTF-8");
+                log.debug("Get a new JVM that supports UTF-8");
             }
 
             _strArray = new String[]{"1st", "2nd", _null, null, new String("3rd")};
@@ -2758,8 +2763,8 @@ public class TestJsonReaderWriter extends TestCase
             _christBday = c.getTime();
             _cost = 57.0;
             _x = 3.14159f;
-            _klass = Rectangle.class;
-            _letter = 'j';
+            _klass = Dictionary.class;
+            _letter = 'j'; 
         }
 
         public void _writeJson(Writer writer) throws IOException
@@ -2853,7 +2858,7 @@ public class TestJsonReaderWriter extends TestCase
         {
             for (Object arg : args)
             {
-                System.out.println(arg);
+                log.debug(arg.toString());
             }
         }
     }

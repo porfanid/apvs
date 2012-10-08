@@ -55,5 +55,4 @@ public class Ptus {
 	public Collection<Ptu> getPtus() {
 		return ptus.values();
 	}
-
 }

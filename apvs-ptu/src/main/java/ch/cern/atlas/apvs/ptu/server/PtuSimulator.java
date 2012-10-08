@@ -5,13 +5,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.Random;
-import java.util.logging.Logger;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -19,8 +21,8 @@ import ch.cern.atlas.apvs.domain.Report;
 
 public class PtuSimulator extends Thread {
 
-	private static final Logger log = Logger.getLogger(PtuSimulator.class.getName());
-	
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	private final Channel channel;
 	private final Random random = new Random();
 	private final int defaultWait;
@@ -47,18 +49,21 @@ public class PtuSimulator extends Thread {
 			long then = now - deltaStartTime;
 			Date start = new Date(then);
 
-			ptu = new Ptu(ptuId);
+			ptu = new Ptu(ptuId.toString());
 
-			ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
-			ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
-			ptu.addMeasurement(new CO2(ptuId, 2.5, start));
-			ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
-			ptu.addMeasurement(new HeartRate(ptuId, 120, start));
-			ptu.addMeasurement(new DoseAccum(ptuId, 400.2, start));
-			ptu.addMeasurement(new DoseRate(ptuId, 0.1, start));
-			ptu.addMeasurement(new O2(ptuId, 85.2, start));
-
-			System.out.println(ptuId);
+			try {
+				ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
+				ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
+				ptu.addMeasurement(new CO2(ptuId, 2.5, start));
+				ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
+				ptu.addMeasurement(new HeartRate(ptuId, 120, start));
+				ptu.addMeasurement(new DoseAccum(ptuId, 400.2, start));
+				ptu.addMeasurement(new DoseRate(ptuId, 0.1, start));
+				ptu.addMeasurement(new O2(ptuId, 85.2, start));
+			} catch (APVSException e) {
+				log.warn("Could not add measurement", e);
+			}
+			log.info(ptuId);
 
 			then += defaultWait + random.nextInt(extraWait);
 
@@ -101,7 +106,7 @@ public class PtuSimulator extends Thread {
 			// ignored
 		} finally {
 			if (channel != null) {
-				System.out.println("Closing");
+				log.info("Closing");
 				channel.close();
 			}
 		}
@@ -122,7 +127,11 @@ public class PtuSimulator extends Thread {
 		int index = random.nextInt(ptu.getSize());
 		String name = ptu.getMeasurementNames().get(index);
 		Measurement measurement = nextMeasurement(ptu.getMeasurement(name), d);
-		ptu.addMeasurement(measurement);
+		try {
+			ptu.addMeasurement(measurement);
+		} catch (APVSException e) {
+			log.warn("Could not add measurement", e);
+		}
 		return measurement;
 	}
 

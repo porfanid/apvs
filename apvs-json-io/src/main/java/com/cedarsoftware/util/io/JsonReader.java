@@ -24,6 +24,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Read an object graph in JSON format and make it available in Java objects, or
  * in a "Map of Maps." (untyped representation).  This code handles cyclic references
@@ -69,6 +72,8 @@ import java.util.Set;
  */
 public class JsonReader extends Reader
 {
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
     // Save memory by re-using common 0 values
     private static final String EMPTY_ARRAY = "~!a~";   // compared with ==
     private static final String EMPTY_OBJECT = "~!o~";  // compared with ==
@@ -1336,19 +1341,19 @@ public class JsonReader extends Reader
 
             if (objReferenced == null)
             {
-                System.err.println("Back reference (" + ref.refId + ") does not match any object id in input, field '" + ref.field + '\'');
+                log.warn("Back reference (" + ref.refId + ") does not match any object id in input, field '" + ref.field + '\'');
                 continue;
             }
 
             if (objReferenced.target == null)
             {
-                System.err.println("Back referenced object does not exist,  @ref " + ref.refId + ", field '" + ref.field + '\'');
+                log.warn("Back referenced object does not exist,  @ref " + ref.refId + ", field '" + ref.field + '\'');
                 continue;
             }
 
             if (objToFix == null)
             {
-                System.err.println("Referencing object is null, back reference, @ref " + ref.refId + ", field '" + ref.field + '\'');
+                log.warn("Referencing object is null, back reference, @ref " + ref.refId + ", field '" + ref.field + '\'');
                 continue;
             }
 

@@ -145,3 +145,6 @@ Using any browser open
 ## Release a version
 
 Set JAVA_HOME to the proper java installation otherwise `mvn release:perform` will fail on calling `javadoc`
+
+Make sure to run wit -Pprod
+

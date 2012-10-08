@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -47,11 +48,14 @@
 						<phase>validate</phase>
 						<configuration>
 							<target>
-								<property name="src.dir" value="${project.build.directory}/generated-sources/gwt" />
+								<property name="src.dir"
+									value="${project.build.directory}/generated-sources/gwt" />
 								<property name="package.dir" value="ch/cern/atlas/apvs/client" />
 
-								<echo file="${src.dir}/${package.dir}/Build.properties" message="version = ${project.version}${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Build.properties" append="true" message="build = ${buildNumber}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									message="version = ${project.version}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									append="true" message="build = ${buildNumber}${line.separator}" />
 							</target>
 						</configuration>
 					</execution>
@@ -159,13 +163,13 @@
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-servlet</artifactId>
 		</dependency>
-	<dependency>
-          <groupId>io.netty</groupId>
-          <artifactId>netty</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
+			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
@@ -182,8 +186,16 @@
 		<dependency>
 			<groupId>org.asterisk</groupId>
 			<artifactId>asterisk-java</artifactId>
+		</dependency>			
+		<dependency>
+			<groupId>org.jvnet.hudson.main</groupId>
+			<artifactId>hudson-gwt-slf4j</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.github.gwtbootstrap</groupId>
+			<artifactId>gwt-bootstrap</artifactId>
+		</dependency>
 	</dependencies>
 
 	<profiles>

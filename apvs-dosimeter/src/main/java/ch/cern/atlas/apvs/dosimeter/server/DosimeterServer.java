@@ -5,9 +5,13 @@ import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DosimeterServer {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
 	private final int port = 4001;
 
 	public DosimeterServer() {
@@ -26,7 +30,7 @@ public class DosimeterServer {
 		// Bind and start to accept incoming connections.
 		bootstrap.bind(new InetSocketAddress(port));
 
-		System.out.println("Dosimeter Demo Server open at " + port);
+		log.info("Dosimeter Demo Server open at " + port);
 	}
 
 	public static void main(String[] args) {

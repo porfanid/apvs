@@ -6,6 +6,8 @@ import java.util.Map;
 import org.moxieapps.gwt.highcharts.client.Series;
 import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
@@ -16,11 +18,14 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class TimeView extends AbstractTimeView {
+public class TimeView extends AbstractTimeView implements Module {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private HandlerRegistration measurementHandler;
 
@@ -30,7 +35,12 @@ public class TimeView extends AbstractTimeView {
 	private EventBus cmdBus;
 	private String options;
 
-	public TimeView(final ClientFactory clientFactory, Arguments args) {
+	public TimeView() {
+	}
+	
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
+
 		this.clientFactory = clientFactory;
 
 		height = Integer.parseInt(args.getArg(0));
@@ -83,6 +93,8 @@ public class TimeView extends AbstractTimeView {
 				}
 			});
 		}
+		
+		return true;
 	}
 
 	private void updateChart() {
@@ -105,7 +117,7 @@ public class TimeView extends AbstractTimeView {
 								return;
 							}
 
-							System.err.println("Histories Map retrieval of "
+							log.info("Histories Map retrieval of "
 									+ measurementName + " took "
 									+ (System.currentTimeMillis() - t0) + " ms");
 
@@ -144,13 +156,12 @@ public class TimeView extends AbstractTimeView {
 
 						@Override
 						public void onFailure(Throwable caught) {
-							System.err.println("Cannot retrieve Measurements "
-									+ caught);
+							log.warn("Cannot retrieve Measurements ", caught);
 						}
 					});
 		} else {
 			// subscribe to single PTU
-			System.err.println("***** " + ptuId);
+			log.info("***** " + ptuId);
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
 				final long t0 = System.currentTimeMillis();
@@ -160,12 +171,11 @@ public class TimeView extends AbstractTimeView {
 							@Override
 							public void onSuccess(History history) {
 								if (history == null) {
-									System.err
-											.println("Cannot find history for "
-													+ measurementName);
+									log.warn("Cannot find history for "
+											+ measurementName);
 								}
 
-								System.err.println("Measurement retrieval of "
+								log.info("Measurement retrieval of "
 										+ measurementName + " of " + ptuId
 										+ " took "
 										+ (System.currentTimeMillis() - t0)
@@ -194,9 +204,8 @@ public class TimeView extends AbstractTimeView {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								System.err
-										.println("Cannot retrieve Measurements "
-												+ caught);
+								log.warn("Cannot retrieve Measurements ",
+										caught);
 							}
 						});
 			}
@@ -245,7 +254,7 @@ public class TimeView extends AbstractTimeView {
 						}
 
 						if (m.getName().equals(name)) {
-							System.err.println("New meas " + m);
+							log.info("New meas " + m);
 							Series series = seriesById.get(m.getPtuId());
 							if (series != null) {
 								Integer numberOfPoints = pointsById.get(ptuId);
