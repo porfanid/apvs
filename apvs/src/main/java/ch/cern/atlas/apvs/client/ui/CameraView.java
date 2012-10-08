@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 
 import com.google.gwt.dom.client.Element;
@@ -21,12 +22,12 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class CameraView extends SimplePanel implements Module {
-	
+
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	public static final String HELMET = "Helmet";
 	public static final String HAND = "Hand";
-	
+
 	// FIXME
 	// private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
 	// private final String cameraURL =
@@ -52,34 +53,51 @@ public class CameraView extends SimplePanel implements Module {
 
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
+	private EventBus switchBus;
 	private EventBus cmdBus;
-	
-	// FIXME needs to change when we redo the iPad version
+	private Element element;
+
+	private String options;
+	private boolean switchSource;
+	private boolean switchDestination;
+
+	// FIXME #179 needs to change when we redo the iPad version
 	public CameraView(ClientFactory factory, final String type, String width,
 			String height) {
-		
-	    cmdBus = factory.getEventBus("ptu");
+
+		cmdBus = factory.getEventBus("ptu");
 		this.type = type;
-		
+
 		init(factory, width, height);
 	}
-	
+
 	public CameraView() {
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
-		
-	    cmdBus = clientFactory.getEventBus(args.getArg(0));
+	public boolean configure(final Element element,
+			ClientFactory clientFactory, Arguments args) {
+
+		this.element = element;
+		switchBus = clientFactory.getEventBus("switch");
+
+		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		type = args.getArg(1);
-		
-		init(clientFactory, "100%", "100%");	
-		
+		options = args.getArg(2);
+
+		switchSource = options.contains("SwitchSource");
+		switchDestination = options.contains("SwitchDestination");
+
+		SwitchWidgetEvent.register(switchBus, new SwitchWidgetEventHandler(switchBus, element, this, switchDestination));
+
+		init(clientFactory, "100%", "100%");
+
 		return true;
 	}
-		
+	
+
 	private void init(ClientFactory factory, String width, String height) {
-		
+
 		this.videoWidth = width;
 		this.videoHeight = height;
 
@@ -94,13 +112,21 @@ public class CameraView extends SimplePanel implements Module {
 				update(true);
 			}
 		});
-		image.addDoubleClickHandler(new DoubleClickHandler() {
+		if (switchSource) {
+			image.addDoubleClickHandler(new DoubleClickHandler() {
 
-			@Override
-			public void onDoubleClick(DoubleClickEvent event) {
-				log.info("Double Click " + event + " enlarge");
-			}
-		});
+				@Override
+				public void onDoubleClick(DoubleClickEvent event) {
+					log.info("Double Click " + event + " switch");
+
+					String title = element.getParentElement().getChild(1).getChild(0)
+							.getNodeValue();
+
+					log.info("Switch Widget: " + title);
+					SwitchWidgetEvent.fire(switchBus, title, CameraView.this, false);
+				}
+			});
+		}
 
 		PtuSettingsChangedEvent.subscribe(factory.getRemoteEventBus(),
 				new PtuSettingsChangedEvent.Handler() {
