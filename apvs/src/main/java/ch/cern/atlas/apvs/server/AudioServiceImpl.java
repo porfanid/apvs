@@ -1,8 +1,14 @@
 package ch.cern.atlas.apvs.server;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -21,8 +27,10 @@ import org.asteriskjava.manager.event.ManagerEvent;
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
+import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
@@ -34,52 +42,72 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	private AsteriskServer asteriskServer;
 	private AudioSettings voipAccounts;
 	
+	private ExecutorService executorService;
+	private Future<?> connectFuture;
+	
+	// Account Details
+	private static final String ASTERISK_URL = "pcatlaswpss02.cern.ch";
+	private static final String AMI_ACCOUNT = "manager";
+	private static final String PASSWORD = "password";
+	
+	
 	private static final String CONTEXT = "internal";
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
 	
 	private RemoteEventBus eventBus;
 	
-	// Account Details
-	private static final String ASTERISK_SERVER = "pcatlaswpss02.cern.ch";
-	private static final String AMI_ACCOUNT = "manager";
-	private static final String PASSWORD = "password";
-	
 	public AudioServiceImpl(){
+		if(eventBus != null)
+			return;
 		System.out.println("Creating AudioService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
+		executorService = Executors.newSingleThreadExecutor();
 	}
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException{
 		super.init(config);
 		
-		System.err.println("Starting Audio Service...");
+		//if(audioHandler != null)
+			//return;
 		
+		System.out.println("Starting Audio Service...");
+		
+		//audioHandler = new AudioHandler(eventBus);
+	
 		//Local List of the current Users
 		voipAccounts = new AudioSettings();
 		
 		//Asterisk Connection Manager 
-		ManagerConnectionFactory factory = new ManagerConnectionFactory(ASTERISK_SERVER, AMI_ACCOUNT, PASSWORD);
+		ManagerConnectionFactory factory = new ManagerConnectionFactory(ASTERISK_URL, AMI_ACCOUNT, PASSWORD);
 		this.managerConnection = factory.createManagerConnection();
 		
 		// Eases the communication with asterisk server
 		asteriskServer = new DefaultAsteriskServer(managerConnection);
+	
 		
 		// Event handler
 		managerConnection.addEventListener(this);
 		
-		System.err.println("Login in to Asterisk Server on " + ASTERISK_SERVER.toLowerCase() + " ...");
-		try {
-			this.login();
-		} catch (AudioException e) {
-			e.printStackTrace();
-		}
-		
-		voipAccounts.add("Alexandre1");
-		voipAccounts.add("Mark1");
+		connectFuture = executorService.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				System.err.println("Login in to Asterisk Server on " + ASTERISK_URL.toLowerCase() + " ...");
+				try {
+					login();
+				} catch (AudioException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
 		
 	}
+	
+//*********************************************	
+	// Constructor
 	
 	public void login() throws AudioException{
 		try{
@@ -94,6 +122,9 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 			throw new AudioException("Login to Asterisk Timeout: " + e.getMessage());
 		}
 	}
+
+//*********************************************	
+	// RPC Methods	
 	
 	@Override
 	public void call(String callerOriginater, String callerDestination) {
@@ -117,7 +148,9 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	}
 	
 	
+//*********************************************	
 	// Event Handler
+	
 	@Override
 	public void onManagerEvent(ManagerEvent event) {
 		String[] eventContent = event.toString().split("\\[");
@@ -128,14 +161,13 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	    	newChannelEvent(eventContent[1]);
 		}
 
-	    	
 	    // BridgeEvent
 		if(eventContent[0].contains("BridgeEvent"))
 	    	;//bridgeEvent(eventContent[1]);
 	    	
 		// PeerStatusEvent
 		if(eventContent[0].contains("PeerStatusEvent"))
-			;//peerStatusEvent(eventContent[1]);
+			peerStatusEvent(eventContent[1]);
 		
 		// HangupEvent
 		if(eventContent[0].contains("HangupEvent"))
@@ -148,7 +180,11 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		return content.substring(content.indexOf("'",0)+1,content.indexOf("'",content.indexOf("'",0)+1));
 	}
 	
-	//New Channel Event
+	
+//*********************************************	
+	// Event Methods
+	
+	//New Channel
 	public void newChannelEvent(String channel){
 		//System.err.println(channel);
 		String[] list = channel.replace(',','\n').split("\\n");
@@ -157,8 +193,6 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 			if(list[i].contains("channel=")){
 				channel=contentValue(list[i]);
 				String[] aux = channel.split("-");
-				voipAccounts.setChannel("Alexandre1", aux[1]);
-				voipAccounts.setChannel("Mark1", aux[0]);
 				//TODO
 				/*
 				 * 
@@ -172,6 +206,42 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		}								
 	}
 
+					
+	// Users Register and Unregister
+	public void peerStatusEvent(String evntContent) {
+				
+		String[] list = evntContent.replace(',','\n').split("\\n");
+		boolean canRead= false;
+		VoipAccount user = new VoipAccount();
+		
+		for(int i=0 ; i<list.length; i++){
+			if(list[i].contains("peer=")){
+				String[] number=contentValue(list[i]).split("/");
+				user.setNumber(number[1]);
+				canRead = true;
+			}else{ 
+				if(canRead==true){
+					if(list[i].contains("channeltype"))
+						user.setType(contentValue(list[i]));
+					
+					if(list[i].contains("peerstatus")){
+						if(contentValue(list[i]).equals("Registered")){			
+							user.setStatus("Online");
+							break;
+						}
+						if(contentValue(list[i]).equals("Unregistered")){
+							user.setStatus("Offline");
+							break;
+						}else{
+							user.setStatus("Unknown");
+							break;
+						}
+					}
+				}
+			}
+							
+		}
+	}
 	
 	
 }
