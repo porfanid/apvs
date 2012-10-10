@@ -1,12 +1,15 @@
 package ch.cern.atlas.apvs.server;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.service.InterventionService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.service.SortOrder;
+import ch.cern.atlas.apvs.client.ui.Device;
 import ch.cern.atlas.apvs.client.ui.Intervention;
+import ch.cern.atlas.apvs.client.ui.User;
 
 import com.google.gwt.view.client.Range;
 
@@ -37,17 +40,59 @@ public class InterventionServiceImpl extends DbServiceImpl implements
 	}
 
 	@Override
-	public void addUser(String fname, String lname) {
-		System.err.println("Add user NOT IMPLEMENTED");
-	}
-	
-	@Override
-	public void addDevice(String ptuId) {
-		System.err.println("Add device NOT IMPLEMENTED");
+	public void addUser(User user) throws ServiceException {
+		try {
+			dbHandler.addUser(user);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
 	}
 
 	@Override
-	public void addIntervention(int i, int j, String description) {
-		System.err.println("Add intervention NOT IMPLEMENTED");
-	}	
+	public void addDevice(Device device)
+			throws ServiceException {
+		try {
+			dbHandler.addDevice(device);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public List<Device> getDevices() throws ServiceException {
+		try {
+			return dbHandler.getDevices();
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public void addIntervention(int userId, int deviceId, Date date,
+			String description) throws ServiceException {
+		try {
+			dbHandler.addIntervention(userId, deviceId, date, description);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public void endIntervention(int id, Date date) throws ServiceException {
+		try {
+			dbHandler.endIntervention(id, date);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public List<User> getUsers() throws ServiceException {
+		try {
+			return dbHandler.getUsers();
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
 }

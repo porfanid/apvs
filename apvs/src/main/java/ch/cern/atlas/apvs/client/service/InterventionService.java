@@ -1,6 +1,11 @@
 package ch.cern.atlas.apvs.client.service;
 
+import java.util.Date;
+import java.util.List;
+
+import ch.cern.atlas.apvs.client.ui.Device;
 import ch.cern.atlas.apvs.client.ui.Intervention;
+import ch.cern.atlas.apvs.client.ui.User;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -9,12 +14,20 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  * @author Mark Donszelmann
  */
 @RemoteServiceRelativePath("apvsIntervention")
-public interface InterventionService extends TableService<Intervention>, RemoteService {
+public interface InterventionService extends TableService<Intervention>,
+		RemoteService {
 
-	void addDevice(String ptuId);
+	void addDevice(Device device) throws ServiceException;
 
-	void addUser(String fname, String lname);
+	void addUser(User user) throws ServiceException;
 
-	void addIntervention(int i, int j, String string);
+	void addIntervention(int userId, int deviceId, Date date, String string)
+			throws ServiceException;
+
+	void endIntervention(int id, Date date) throws ServiceException;
+
+	List<User> getUsers() throws ServiceException;
+
+	List<Device> getDevices() throws ServiceException;
 
 }
