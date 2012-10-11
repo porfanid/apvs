@@ -26,6 +26,9 @@ public interface InterventionService extends TableService<Intervention>,
 
 	void endIntervention(int id, Date date) throws ServiceException;
 
+	void updateInterventionDescription(int id, String description)
+			throws ServiceException;
+
 	List<User> getUsers() throws ServiceException;
 
 	List<Device> getDevices() throws ServiceException;

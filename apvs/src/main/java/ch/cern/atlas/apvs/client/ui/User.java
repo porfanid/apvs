@@ -7,8 +7,15 @@ public class User implements Serializable {
 	private static final long serialVersionUID = -1423459851493629177L;
 
 	private int id;
+	
+//	@NotNull
+//	@Size(min = 1)
 	private String firstName;
+	
+//	@NotNull
+//	@Size(min = 4)
 	private String lastName;
+	
 	private String cernId;
 	
 	public User() {

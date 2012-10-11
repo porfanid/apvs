@@ -51,6 +51,7 @@ public class DbHandler extends DbReconnectHandler {
 	private PreparedStatement addDevice;
 	private PreparedStatement addIntervention;
 	private PreparedStatement endIntervention;
+	private PreparedStatement updateInterventionDescription;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super();
@@ -285,8 +286,13 @@ public class DbHandler extends DbReconnectHandler {
 	public List<Event> getEvents(Range range, SortOrder[] order)
 			throws SQLException {
 
+		// FIXME #188
+//		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
+//				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
+//				+ "from tbl_events "
+//				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
-				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
+				+ "tbl_events.value, tbl_events.datetime "
 				+ "from tbl_events "
 				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
 
@@ -300,10 +306,11 @@ public class DbHandler extends DbReconnectHandler {
 
 		List<Event> list = new ArrayList<Event>(range.getLength());
 		for (int i = 0; i < range.getLength() && result.next(); i++) {
-			list.add(new Event(result.getString(1), result.getString(2), result
-					.getString(3), Double.parseDouble(result.getString(4)),
-					Double.parseDouble(result.getString(5)), new Date(result
-							.getTimestamp(6).getTime())));
+			// FIXME #188 replace "0" with result.getString("threshold")
+			list.add(new Event(result.getString("name"), result.getString("sensor"), result
+					.getString("event_type"), Double.parseDouble(result.getString("value")),
+					Double.parseDouble("0"), new Date(result
+							.getTimestamp("datetime").getTime())));
 		}
 
 		return list;
@@ -388,6 +395,16 @@ public class DbHandler extends DbReconnectHandler {
 			list.add(new Device(result.getInt("ID"), result.getString("NAME"), result.getString("IP"), result.getString("DSCR")));
 		}
 		return list;
+	}
+
+	public void updateInterventionDescription(int id, String description) throws SQLException {
+		if (updateInterventionDescription == null) {
+			updateInterventionDescription = getConnection().prepareStatement("update tbl_inspections set dscr = ? where id=?");
+		}
+		
+		updateInterventionDescription.setString(1, description);
+		updateInterventionDescription.setInt(2, id);
+		updateInterventionDescription.executeUpdate();		
 	}
 
 	

@@ -2,12 +2,11 @@ package ch.cern.atlas.apvs.client.tablet;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;
 import com.googlecode.mgwt.ui.client.MGWT;
 import com.googlecode.mgwt.ui.client.widget.Button;
 import com.googlecode.mgwt.ui.client.widget.LayoutPanel;
-
-import com.google.gwt.dom.client.Style.Unit;
 
 public class ProcedurePanel extends DetailPanel implements ProcedureUI {
 

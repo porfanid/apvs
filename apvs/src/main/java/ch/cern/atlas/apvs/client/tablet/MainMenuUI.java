@@ -2,7 +2,6 @@ package ch.cern.atlas.apvs.client.tablet;
 
 import java.util.List;
 
-
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.googlecode.mgwt.dom.client.event.tap.HasTapHandlers;

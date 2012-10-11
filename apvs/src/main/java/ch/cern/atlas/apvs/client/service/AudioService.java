@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import ch.cern.atlas.apvs.client.AudioException;
 
 import com.google.gwt.user.client.rpc.RemoteService;

@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.settings.PtuSettings.Entry;
-
 
 public class AudioSettings implements Serializable{
 

@@ -32,6 +32,7 @@
 		<atmosphere-version>1.0.1</atmosphere-version>
 		<asterisk-java-version>1.0.0</asterisk-java-version>
 		<gwt-bootstrap-version>2.0.4.0</gwt-bootstrap-version>
+		<hibernate-validator-version>4.0.2.GA</hibernate-validator-version>
 		<highcharts-version>1.4.0</highcharts-version>
 		<hudson-gwt-slf4j-version>2.1.2</hudson-gwt-slf4j-version>
 		<javax.servlet-api-version>3.0.1</javax.servlet-api-version>
@@ -510,14 +511,45 @@
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
 				<version>${validation-api-version}</version>
-				<scope>test</scope>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
 				<version>${validation-api-version}</version>
 				<classifier>sources</classifier>
-				<scope>test</scope>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>${hibernate-validator-version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.sun.xml.bind</groupId>
+						<artifactId>jaxb-impl</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>${hibernate-validator-version}</version>
+				<classifier>sources</classifier>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.sun.xml.bind</groupId>
+						<artifactId>jaxb-impl</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 
