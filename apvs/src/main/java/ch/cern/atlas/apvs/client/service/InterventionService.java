@@ -29,8 +29,8 @@ public interface InterventionService extends TableService<Intervention>,
 	void updateInterventionDescription(int id, String description)
 			throws ServiceException;
 
-	List<User> getUsers() throws ServiceException;
+	List<User> getUsers(boolean notBusy) throws ServiceException;
 
-	List<Device> getDevices() throws ServiceException;
+	List<Device> getDevices(boolean notBusy) throws ServiceException;
 
 }

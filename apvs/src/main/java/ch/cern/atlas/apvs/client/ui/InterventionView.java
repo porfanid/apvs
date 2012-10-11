@@ -82,7 +82,7 @@ public class InterventionView extends SimplePanel implements Module {
 			Arguments args) {
 
 		String height = args.getArg(0);
-		
+
 		EventBus eventBus = clientFactory.getEventBus(args.getArg(1));
 
 		table.setSize("100%", height);
@@ -193,28 +193,30 @@ public class InterventionView extends SimplePanel implements Module {
 				final ListBoxField userField = new ListBoxField("User");
 				fieldset.add(userField);
 
-				interventionService.getUsers(new AsyncCallback<List<User>>() {
+				interventionService.getUsers(true,
+						new AsyncCallback<List<User>>() {
 
-					@Override
-					public void onSuccess(List<User> result) {
-						for (Iterator<User> i = result.iterator(); i.hasNext();) {
-							User user = i.next();
-							userField.addItem(user.getDisplayName(),
-									user.getId());
-						}
-					}
+							@Override
+							public void onSuccess(List<User> result) {
+								for (Iterator<User> i = result.iterator(); i
+										.hasNext();) {
+									User user = i.next();
+									userField.addItem(user.getDisplayName(),
+											user.getId());
+								}
+							}
 
-					@Override
-					public void onFailure(Throwable caught) {
-						log.warn("Caught : " + caught);
-					}
-				});
+							@Override
+							public void onFailure(Throwable caught) {
+								log.warn("Caught : " + caught);
+							}
+						});
 
 				final ListBoxField ptu = new ListBoxField("PTU");
 				fieldset.add(ptu);
 
-				interventionService
-						.getDevices(new AsyncCallback<List<Device>>() {
+				interventionService.getDevices(true,
+						new AsyncCallback<List<Device>>() {
 
 							@Override
 							public void onSuccess(List<Device> result) {
@@ -604,7 +606,8 @@ public class InterventionView extends SimplePanel implements Module {
 					});
 		}
 
-		// FIXME #189 this is the normal way, but does not work in our tabs... tabs should detach, attach... 
+		// FIXME #189 this is the normal way, but does not work in our tabs...
+		// tabs should detach, attach...
 		addAttachHandler(new AttachEvent.Handler() {
 
 			private Timer timer;
@@ -621,31 +624,30 @@ public class InterventionView extends SimplePanel implements Module {
 							table.redraw();
 						}
 					};
-					timer.scheduleRepeating(60000);					
+					timer.scheduleRepeating(60000);
 				} else {
 					if (timer != null) {
 						timer.cancel();
 						timer = null;
 					}
-				}				
+				}
 			}
 		});
-		
+
 		// FIXME #189 so we handle it with events
 		SelectTabEvent.subscribe(eventBus, new SelectTabEvent.Handler() {
-			
+
 			@Override
 			public void onTabSelected(SelectTabEvent event) {
 				if (event.getTab().equals("Interventions")) {
 					table.redraw();
-				} 
+				}
 			}
 		});
-		
-		
+
 		return true;
 	}
-	
+
 	private void selectIntervention(Intervention intervention) {
 	}
 

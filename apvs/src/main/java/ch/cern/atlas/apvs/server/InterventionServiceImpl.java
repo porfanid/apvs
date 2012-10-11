@@ -59,9 +59,9 @@ public class InterventionServiceImpl extends DbServiceImpl implements
 	}
 
 	@Override
-	public List<Device> getDevices() throws ServiceException {
+	public List<Device> getDevices(boolean notBusy) throws ServiceException {
 		try {
-			return dbHandler.getDevices();
+			return dbHandler.getDevices(notBusy);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -87,9 +87,9 @@ public class InterventionServiceImpl extends DbServiceImpl implements
 	}
 
 	@Override
-	public List<User> getUsers() throws ServiceException {
+	public List<User> getUsers(boolean notBusy) throws ServiceException {
 		try {
-			return dbHandler.getUsers();
+			return dbHandler.getUsers(notBusy);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}

@@ -46,7 +46,9 @@ public class DbHandler extends DbReconnectHandler {
 	private PreparedStatement historyQueryCount;
 	private PreparedStatement historyQuery;
 	private PreparedStatement deviceQuery;
+	private PreparedStatement notBusyDeviceQuery;
 	private PreparedStatement userQuery;
+	private PreparedStatement notBusyUserQuery;
 	private PreparedStatement addUser;
 	private PreparedStatement addDevice;
 	private PreparedStatement addIntervention;
@@ -177,7 +179,7 @@ public class DbHandler extends DbReconnectHandler {
 
 		updatePtus();
 	}
-	
+
 	@Override
 	public void dbDisconnected() throws SQLException {
 		super.dbDisconnected();
@@ -287,10 +289,11 @@ public class DbHandler extends DbReconnectHandler {
 			throws SQLException {
 
 		// FIXME #188
-//		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
-//				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
-//				+ "from tbl_events "
-//				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
+		// String sql =
+		// "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
+		// + "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
+		// + "from tbl_events "
+		// + "join tbl_devices on tbl_events.device_id = tbl_devices.id";
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
 				+ "tbl_events.value, tbl_events.datetime "
 				+ "from tbl_events "
@@ -307,10 +310,11 @@ public class DbHandler extends DbReconnectHandler {
 		List<Event> list = new ArrayList<Event>(range.getLength());
 		for (int i = 0; i < range.getLength() && result.next(); i++) {
 			// FIXME #188 replace "0" with result.getString("threshold")
-			list.add(new Event(result.getString("name"), result.getString("sensor"), result
-					.getString("event_type"), Double.parseDouble(result.getString("value")),
-					Double.parseDouble("0"), new Date(result
-							.getTimestamp("datetime").getTime())));
+			list.add(new Event(result.getString("name"), result
+					.getString("sensor"), result.getString("event_type"),
+					Double.parseDouble(result.getString("value")), Double
+							.parseDouble("0"), new Date(result.getTimestamp(
+							"datetime").getTime())));
 		}
 
 		return list;
@@ -329,8 +333,7 @@ public class DbHandler extends DbReconnectHandler {
 		addUser.executeUpdate();
 	}
 
-	public void addDevice(Device device)
-			throws SQLException {
+	public void addDevice(Device device) throws SQLException {
 		if (addDevice == null) {
 			addDevice = getConnection()
 					.prepareStatement(
@@ -369,43 +372,85 @@ public class DbHandler extends DbReconnectHandler {
 		endIntervention.executeUpdate();
 	}
 
-	public List<User> getUsers() throws SQLException {
-		if (userQuery == null) {
-			userQuery = getConnection().prepareStatement(
-					"select ID, FNAME, LNAME, CERN_ID from tbl_users order by LNAME, FNAME");
+	public List<User> getUsers(boolean notBusy) throws SQLException {
+		return notBusy ? getNotBusyUsers() : getAllUsers();
+	}
 
+	private List<User> getNotBusyUsers() throws SQLException {
+		if (notBusyUserQuery == null) {
+			notBusyUserQuery = getConnection().prepareStatement(
+					"select ID, FNAME, LNAME, CERN_ID from tbl_users "
+							+ "where id not in ("
+							+ "select user_id from tbl_inspections "
+							+ "where endtime is null) "
+							+ "order by LNAME, FNAME");
 		}
-		
-		ResultSet result = userQuery.executeQuery();
+
+		return getUserList(notBusyUserQuery.executeQuery());
+	}
+
+	private List<User> getAllUsers() throws SQLException {
+		if (userQuery == null) {
+			userQuery = getConnection()
+					.prepareStatement(
+							"select ID, FNAME, LNAME, CERN_ID from tbl_users order by LNAME, FNAME");
+		}
+
+		return getUserList(userQuery.executeQuery());
+	}
+
+	private List<User> getUserList(ResultSet result) throws SQLException {
 		List<User> list = new ArrayList<User>();
 		while (result.next()) {
-			list.add(new User(result.getInt("ID"), result.getString("FNAME"), result.getString("LNAME"), result.getString("CERN_ID")));
+			list.add(new User(result.getInt("ID"), result.getString("FNAME"),
+					result.getString("LNAME"), result.getString("CERN_ID")));
 		}
 		return list;
 	}
 
-	public List<Device> getDevices() throws SQLException {
+	public List<Device> getDevices(boolean notBusy) throws SQLException {
+		return notBusy ? getNotBusyDevices() : getDevices();
+	}
+
+	private List<Device> getNotBusyDevices() throws SQLException {
+		if (notBusyDeviceQuery == null) {
+			notBusyDeviceQuery = getConnection().prepareStatement(
+					"select ID, NAME, IP, DSCR from tbl_devices "
+							+ "where id not in ("
+							+ "select device_id from tbl_inspections "
+							+ "where endtime is null) " + "order by NAME");
+		}
+
+		return getDeviceList(notBusyDeviceQuery.executeQuery());
+	}
+
+	private List<Device> getDevices() throws SQLException {
 		if (deviceQuery == null) {
 			return Collections.emptyList();
 		}
-		
-		ResultSet result = deviceQuery.executeQuery();
+
+		return getDeviceList(deviceQuery.executeQuery());
+	}
+
+	private List<Device> getDeviceList(ResultSet result) throws SQLException {
 		List<Device> list = new ArrayList<Device>();
 		while (result.next()) {
-			list.add(new Device(result.getInt("ID"), result.getString("NAME"), result.getString("IP"), result.getString("DSCR")));
+			list.add(new Device(result.getInt("ID"), result.getString("NAME"),
+					result.getString("IP"), result.getString("DSCR")));
 		}
 		return list;
 	}
 
-	public void updateInterventionDescription(int id, String description) throws SQLException {
+	public void updateInterventionDescription(int id, String description)
+			throws SQLException {
 		if (updateInterventionDescription == null) {
-			updateInterventionDescription = getConnection().prepareStatement("update tbl_inspections set dscr = ? where id=?");
+			updateInterventionDescription = getConnection().prepareStatement(
+					"update tbl_inspections set dscr = ? where id=?");
 		}
-		
+
 		updateInterventionDescription.setString(1, description);
 		updateInterventionDescription.setInt(2, id);
-		updateInterventionDescription.executeUpdate();		
+		updateInterventionDescription.executeUpdate();
 	}
 
-	
 }
