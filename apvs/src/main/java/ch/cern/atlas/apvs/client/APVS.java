@@ -15,6 +15,7 @@ import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
 import ch.cern.atlas.apvs.client.ui.Arguments;
+import ch.cern.atlas.apvs.client.ui.AsteriskSettingsView;
 import ch.cern.atlas.apvs.client.ui.AudioView;
 import ch.cern.atlas.apvs.client.ui.CameraView;
 import ch.cern.atlas.apvs.client.ui.DosimeterView;
@@ -147,6 +148,8 @@ public class APVS implements EntryPoint {
 				// FIXME handle generically
 				if (id.startsWith("MeasurementView")) {
 					module = new MeasurementView();
+				} else if (id.startsWith("AsteriskSettingsView")) {				
+					module = new AsteriskSettingsView();
 				} else if (id.startsWith("AudioView")) {				
 					module = new AudioView();
 				} else if (id.startsWith("CameraView")) {					

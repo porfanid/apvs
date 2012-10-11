@@ -86,7 +86,7 @@ public class AudioView extends VerticalPanel implements Module{
 				new TextCell()) {
 			@Override
 			public String getValue(String object) {
-				return audioAccounts.getChannel("Alexandre1");
+				return audioAccounts.getChannel(object);
 			}			
 		};
 		activeCall.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -151,7 +151,7 @@ public class AudioView extends VerticalPanel implements Module{
 		});
 		
 		//TODO To be implemented.... Requires getting data from db
-		/*		PtuIdsChangedEvent.subscribe(eventBus,
+				PtuIdsChangedEvent.subscribe(eventBus,
 				new PtuIdsChangedEvent.Handler() {
 
 					@Override
@@ -164,7 +164,7 @@ public class AudioView extends VerticalPanel implements Module{
 						//TODO update(); UPDATE TABLE
 					}
 		});
-		 */	
+		 	
 		//TODO update
 		
 		

@@ -16,6 +16,7 @@ public class AudioSettings implements Serializable{
 		String destUser;
 		String status;
 		Boolean onCall;
+		String activity;
 		
 		public Entry() {
 			username = "";
@@ -24,6 +25,7 @@ public class AudioSettings implements Serializable{
 			destUser = "";
 			status = "";
 			onCall = false;
+			activity = "";
 		}
 		
 		public String toString(){
@@ -38,7 +40,7 @@ public class AudioSettings implements Serializable{
 	}
 	
 	
-	//Methods
+	//Username Methods
 	public String getUsername(String ptuId){
 		Entry entry = entries.get(ptuId);
 		return (entry!=null ? entry.username : "");
@@ -48,6 +50,7 @@ public class AudioSettings implements Serializable{
 		entries.get(ptuId).username = username;
 	}
 	
+	//Number Methods
 	public String getNumber(String ptuId){
 		Entry entry = entries.get(ptuId);
 		return (entry != null ? entry.number : "");
@@ -57,6 +60,7 @@ public class AudioSettings implements Serializable{
 		entries.get(ptuId).number = number;
 	}
 	
+	//Channel Methods
 	public String getChannel(String ptuId){
 		Entry entry = entries.get(ptuId);
 		return (entry != null ? entry.channel : "");
@@ -66,6 +70,7 @@ public class AudioSettings implements Serializable{
 		entries.get(ptuId).channel = channel;
 	}
 	
+	//Destination User Methods
 	public String getDestUser(String ptuId){
 		Entry entry = entries.get(ptuId);
 		return (entry != null ? entry.destUser : "");
@@ -75,6 +80,7 @@ public class AudioSettings implements Serializable{
 		entries.get(ptuId).destUser = user;
 	}
 	
+	//Status Methods
 	public String getStatus(String ptuId){
 		Entry entry = entries.get(ptuId);
 		return (entry != null ? entry.status : "");
@@ -84,6 +90,7 @@ public class AudioSettings implements Serializable{
 		entries.get(ptuId).status = status;
 	}
 	
+	//On Call Status Methods
 	public Boolean getOnCall(String ptuId){
 		Entry entry = entries.get(ptuId);
 		return (entry != null ? entry.onCall : false);
@@ -91,6 +98,16 @@ public class AudioSettings implements Serializable{
 	
 	public void setOnCall(String ptuId, Boolean onCall){
 		entries.get(ptuId).onCall = onCall;
+	}
+	
+	//Activity Methods
+	public String getActivity(String ptuId){
+		Entry entry = entries.get(ptuId);
+		return (entry != null ? entry.activity : "");
+	}
+	
+	public void setActivity(String ptuId, String activity){
+		entries.get(ptuId).activity = activity;
 	}
 	
 	public boolean add(String ptuId) {
