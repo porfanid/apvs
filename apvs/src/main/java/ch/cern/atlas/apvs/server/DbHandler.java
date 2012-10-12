@@ -53,6 +53,7 @@ public class DbHandler extends DbReconnectHandler {
 	private PreparedStatement addDevice;
 	private PreparedStatement addIntervention;
 	private PreparedStatement endIntervention;
+	private PreparedStatement getIntervention;
 	private PreparedStatement updateInterventionDescription;
 
 	public DbHandler(final RemoteEventBus eventBus) {
@@ -451,6 +452,29 @@ public class DbHandler extends DbReconnectHandler {
 		updateInterventionDescription.setString(1, description);
 		updateInterventionDescription.setInt(2, id);
 		updateInterventionDescription.executeUpdate();
+	}
+
+	public Intervention getIntervention(String ptuId) throws SQLException {
+		if (getIntervention == null) {
+			getIntervention = getConnection()
+					.prepareStatement(
+							"select tbl_inspections.ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
+									+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
+									+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
+									+ "where tbl_inspections.endtime is null "
+									+ "and tbl_devices.name = ? "
+									+ "order by starttime desc");
+		}
+
+		getIntervention.setString(1, ptuId);
+		ResultSet result = getIntervention.executeQuery();
+		if (result.next()) {
+			return new Intervention(result.getInt("id"),
+					result.getString("fname"), result.getString("lname"),
+					result.getString("name"), result.getTimestamp("starttime"),
+					result.getTimestamp("endtime"), result.getString("dscr"));
+		}
+		return null;
 	}
 
 }

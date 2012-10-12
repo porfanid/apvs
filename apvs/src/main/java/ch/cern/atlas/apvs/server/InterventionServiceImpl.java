@@ -104,5 +104,14 @@ public class InterventionServiceImpl extends DbServiceImpl implements
 			throw new ServiceException(e.getMessage());
 		}
 	}
+	
+	@Override
+	public Intervention getIntervention(String ptuId) throws ServiceException {
+		try {
+			return dbHandler.getIntervention(ptuId);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
 
 }

@@ -18,8 +18,8 @@ public class ServerSettings extends AbstractServerSettings {
 		databaseUrl("Database URL"),
 		audioUrl("Audio URL");
 		private String s;
-		private Class<? extends Cell<Object>> c;
-		private Class<? extends Cell<Object>> n;
+		private Class<?> c;
+		private Class<?> n;
 		
 		private Entry(String s) {
 			this(s, TextInputCell.class, TextCell.class);
@@ -32,11 +32,11 @@ public class ServerSettings extends AbstractServerSettings {
 			this.n = n;
 		}
 		
-		private Class<? extends Cell<Object>> getCellClass() {
+		private Class<?> getCellClass() {
 			return c;
 		}
 
-		private Class<? extends Cell<Object>> getNameClass() {
+		private Class<?> getNameClass() {
 			return n;
 		}
 		
@@ -52,16 +52,16 @@ public class ServerSettings extends AbstractServerSettings {
 			return r;
 		}
 		
-		public static List<Class<? extends Cell<Object>>> getCellClasses() {
-			List<Class<? extends Cell<Object>>> r = new ArrayList<Class<? extends Cell<Object>>>(values().length);
+		public static List<Class<?>> getCellClasses() {
+			List<Class<?>> r = new ArrayList<Class<?>>(values().length);
 			for (Entry k:values()) {
 				r.add(k.getCellClass());
 			}
 			return r;
 		}
 		
-		public static List<Class<? extends Cell<Object>>> getNameClasses() {
-			List<Class<? extends Cell<Object>>> r = new ArrayList<Class<? extends Cell<Object>>>(values().length);
+		public static List<Class<?>> getNameClasses() {
+			List<Class<?>> r = new ArrayList<Class<?>>(values().length);
 			for (Entry k:values()) {
 				r.add(k.getNameClass());
 			}

@@ -4,4 +4,5 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 
 public interface PtuClientConstants {
 	public static final DateTimeFormat dateFormat = DateTimeFormat.getFormat("dd MMM yyyy HH:mm:ss");
+	public static final DateTimeFormat dateFormatNoSeconds = DateTimeFormat.getFormat("dd MMM yyyy HH:mm");
 }

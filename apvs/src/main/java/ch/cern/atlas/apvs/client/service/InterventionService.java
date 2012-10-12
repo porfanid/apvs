@@ -28,6 +28,8 @@ public interface InterventionService extends TableService<Intervention>,
 
 	void updateInterventionDescription(int id, String description)
 			throws ServiceException;
+	
+	Intervention getIntervention(String ptuId) throws ServiceException; 
 
 	List<User> getUsers(boolean notBusy) throws ServiceException;
 

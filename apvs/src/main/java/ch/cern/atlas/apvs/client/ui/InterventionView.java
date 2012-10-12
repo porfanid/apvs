@@ -157,7 +157,7 @@ public class InterventionView extends SimplePanel implements Module {
 		ClickableTextColumn<Intervention> startTime = new ClickableTextColumn<Intervention>() {
 			@Override
 			public String getValue(Intervention object) {
-				return PtuClientConstants.dateFormat.format(object
+				return PtuClientConstants.dateFormatNoSeconds.format(object
 						.getStartTime());
 			}
 
@@ -304,7 +304,7 @@ public class InterventionView extends SimplePanel implements Module {
 				cell) {
 			@Override
 			public String getValue(Intervention object) {
-				return object.getEndTime() != null ? PtuClientConstants.dateFormat
+				return object.getEndTime() != null ? PtuClientConstants.dateFormatNoSeconds
 						.format(object.getEndTime()) : END_INTERVENTION;
 			}
 

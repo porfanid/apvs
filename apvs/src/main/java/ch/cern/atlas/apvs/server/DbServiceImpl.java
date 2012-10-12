@@ -65,4 +65,9 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 
 		dbHandler = new DbHandler(eventBus);
 	}
+	
+	@Override
+	public boolean isConnected() {
+		return dbHandler.isConnected();
+	}
 }
