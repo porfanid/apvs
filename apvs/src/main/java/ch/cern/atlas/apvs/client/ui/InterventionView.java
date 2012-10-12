@@ -3,6 +3,10 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +56,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.validation.client.Validation;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.Range;
@@ -72,9 +77,11 @@ public class InterventionView extends SimplePanel implements Module {
 	private final String END_INTERVENTION = "End Intervention";
 
 	private InterventionServiceAsync interventionService;
+	private Validator validator;
 
 	public InterventionView() {
 		interventionService = InterventionServiceAsync.Util.getInstance();
+		validator = Validation.buildDefaultValidatorFactory().getValidator();
 	}
 
 	@Override
@@ -87,7 +94,6 @@ public class InterventionView extends SimplePanel implements Module {
 
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Interventions"));
-		// table.setVisibleRange(0, 20);
 
 		add(table);
 
@@ -260,22 +266,38 @@ public class InterventionView extends SimplePanel implements Module {
 					@Override
 					public void onClick(ClickEvent event) {
 						m.hide();
+						
+						Intervention intervention = new Intervention(userField.getId(), ptu.getId(), new Date(),
+								description.getValue());
 
-						interventionService.addIntervention(userField.getId(),
-								ptu.getId(), new Date(),
-								description.getValue(),
-								new AsyncCallback<Void>() {
+						// FIXME #194
+						Set<ConstraintViolation<Intervention>> violations = validator
+								.validate(intervention);
 
-									@Override
-									public void onSuccess(Void result) {
-										InterventionView.this.update();
-									}
+						if (!violations.isEmpty()) {
+							StringBuffer errorMessage = new StringBuffer();
+							for (ConstraintViolation<Intervention> constraintViolation : violations) {
+								errorMessage.append('\n');
+								errorMessage.append(constraintViolation
+										.getMessage());
+							}
+							log.warn(errorMessage.toString());
+						} else {
+							interventionService.addIntervention(
+									intervention,
+									new AsyncCallback<Void>() {
 
-									@Override
-									public void onFailure(Throwable caught) {
-										log.warn("Failed");
-									}
-								});
+										@Override
+										public void onSuccess(Void result) {
+											InterventionView.this.update();
+										}
+
+										@Override
+										public void onFailure(Throwable caught) {
+											log.warn("Failed");
+										}
+									});
+						}
 					}
 				});
 
@@ -434,21 +456,36 @@ public class InterventionView extends SimplePanel implements Module {
 					public void onClick(ClickEvent event) {
 						m.hide();
 
-						interventionService.addUser(
-								new User(0, fname.getValue(), lname.getValue(),
-										cernId.getValue()),
-								new AsyncCallback<Void>() {
+						User user = new User(0, fname.getValue(), lname
+								.getValue(), cernId.getValue());
 
-									@Override
-									public void onSuccess(Void result) {
-										InterventionView.this.update();
-									}
+						// FIXME #194
+						Set<ConstraintViolation<User>> violations = validator
+								.validate(user);
 
-									@Override
-									public void onFailure(Throwable caught) {
-										log.warn("Failed " + caught);
-									}
-								});
+						if (!violations.isEmpty()) {
+							StringBuffer errorMessage = new StringBuffer();
+							for (ConstraintViolation<User> constraintViolation : violations) {
+								errorMessage.append('\n');
+								errorMessage.append(constraintViolation
+										.getMessage());
+							}
+							log.warn(errorMessage.toString());
+						} else {
+							interventionService.addUser(user,
+									new AsyncCallback<Void>() {
+
+										@Override
+										public void onSuccess(Void result) {
+											InterventionView.this.update();
+										}
+
+										@Override
+										public void onFailure(Throwable caught) {
+											log.warn("Failed " + caught);
+										}
+									});
+						}
 					}
 				});
 
@@ -529,21 +566,37 @@ public class InterventionView extends SimplePanel implements Module {
 					public void onClick(ClickEvent event) {
 						m.hide();
 
-						interventionService.addDevice(
-								new Device(0, ptuId.getValue(), ip.getValue(),
-										description.getValue()),
-								new AsyncCallback<Void>() {
+						Device device = new Device(0, ptuId.getValue(), ip
+								.getValue(), description.getValue());
 
-									@Override
-									public void onSuccess(Void result) {
-										InterventionView.this.update();
-									}
+						// FIXME #194
+						Set<ConstraintViolation<Device>> violations = validator
+								.validate(device);
 
-									@Override
-									public void onFailure(Throwable caught) {
-										log.warn("Failed " + caught);
-									}
-								});
+						if (!violations.isEmpty()) {
+							StringBuffer errorMessage = new StringBuffer();
+							for (ConstraintViolation<Device> constraintViolation : violations) {
+								errorMessage.append('\n');
+								errorMessage.append(constraintViolation
+										.getMessage());
+							}
+							log.warn(errorMessage.toString());
+						} else {
+
+							interventionService.addDevice(device,
+									new AsyncCallback<Void>() {
+
+										@Override
+										public void onSuccess(Void result) {
+											InterventionView.this.update();
+										}
+
+										@Override
+										public void onFailure(Throwable caught) {
+											log.warn("Failed " + caught);
+										}
+									});
+						}
 					}
 				});
 

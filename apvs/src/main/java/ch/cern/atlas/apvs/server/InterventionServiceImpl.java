@@ -68,10 +68,9 @@ public class InterventionServiceImpl extends DbServiceImpl implements
 	}
 
 	@Override
-	public void addIntervention(int userId, int deviceId, Date date,
-			String description) throws ServiceException {
+	public void addIntervention(Intervention intervention) throws ServiceException {
 		try {
-			dbHandler.addIntervention(userId, deviceId, date, description);
+			dbHandler.addIntervention(intervention);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}

@@ -256,7 +256,7 @@ public class DbHandler extends DbReconnectHandler {
 			throws SQLException {
 
 		String sql = "select tbl_inspections.id, tbl_users.fname, tbl_users.lname, tbl_devices.name, "
-				+ "tbl_inspections.starttime, tbl_inspections.endtime, tbl_inspections.dscr "
+				+ "tbl_inspections.starttime, tbl_inspections.endtime, tbl_inspections.dscr, tbl_users.id, tbl_devices.id "
 				+ "from tbl_inspections "
 				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
@@ -271,9 +271,10 @@ public class DbHandler extends DbReconnectHandler {
 
 		List<Intervention> list = new ArrayList<Intervention>(range.getLength());
 		for (int i = 0; i < range.getLength() && result.next(); i++) {
-			list.add(new Intervention(result.getInt(1), result.getString(2),
-					result.getString(3), result.getString(4), new Date(result
-							.getTimestamp(5).getTime()),
+			list.add(new Intervention(result.getInt(1), result.getInt(8),
+					result.getString(2), result.getString(3), result.getInt(9),
+					result.getString(4), new Date(result.getTimestamp(5)
+							.getTime()),
 					result.getTimestamp(6) != null ? new Date(result
 							.getTimestamp(6).getTime()) : null, result
 							.getString(7)));
@@ -347,18 +348,17 @@ public class DbHandler extends DbReconnectHandler {
 		addDevice.executeUpdate();
 	}
 
-	public void addIntervention(int userId, int deviceId, Date date,
-			String description) throws SQLException {
+	public void addIntervention(Intervention intervention) throws SQLException {
 		if (addIntervention == null) {
 			addIntervention = getConnection()
 					.prepareStatement(
 							"insert into tbl_inspections (user_id, device_id, starttime, dscr) values (?, ?, ?, ?)");
 		}
 
-		addIntervention.setInt(1, userId);
-		addIntervention.setInt(2, deviceId);
-		addIntervention.setTimestamp(3, new Timestamp(date.getTime()));
-		addIntervention.setString(4, description);
+		addIntervention.setInt(1, intervention.getUserId());
+		addIntervention.setInt(2, intervention.getDeviceId());
+		addIntervention.setTimestamp(3, new Timestamp(intervention.getStartTime().getTime()));
+		addIntervention.setString(4, intervention.getDescription());
 		addIntervention.executeUpdate();
 	}
 
@@ -458,7 +458,7 @@ public class DbHandler extends DbReconnectHandler {
 		if (getIntervention == null) {
 			getIntervention = getConnection()
 					.prepareStatement(
-							"select tbl_inspections.ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
+							"select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
 									+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
 									+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 									+ "where tbl_inspections.endtime is null "
@@ -470,7 +470,8 @@ public class DbHandler extends DbReconnectHandler {
 		ResultSet result = getIntervention.executeQuery();
 		if (result.next()) {
 			return new Intervention(result.getInt("id"),
-					result.getString("fname"), result.getString("lname"),
+					result.getInt("user_id"), result.getString("fname"),
+					result.getString("lname"), result.getInt("device_id"),
 					result.getString("name"), result.getTimestamp("starttime"),
 					result.getTimestamp("endtime"), result.getString("dscr"));
 		}

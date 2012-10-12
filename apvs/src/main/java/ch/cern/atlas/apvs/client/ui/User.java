@@ -2,18 +2,21 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class User implements Serializable {
 
 	private static final long serialVersionUID = -1423459851493629177L;
 
 	private int id;
 	
-//	@NotNull
-//	@Size(min = 1)
+	@NotNull
+	@Size(min = 1)
 	private String firstName;
 	
-//	@NotNull
-//	@Size(min = 4)
+	@NotNull
+	@Size(min = 4)
 	private String lastName;
 	
 	private String cernId;

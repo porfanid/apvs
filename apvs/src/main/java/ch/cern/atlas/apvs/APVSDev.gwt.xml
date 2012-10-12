@@ -16,13 +16,12 @@
 	<inherits name="org.atmosphere.gwt.Client" />
 	<inherits name="com.github.gwtbootstrap.Bootstrap" />
 	<set-property name="bootstrap.responsiveDesign" value="true" />
-<!-- 
-	<inherits name="javax.validation.Validation" />
+
 	<inherits name="org.hibernate.validator.HibernateValidator" />
-	<replace-with class="com.mySampleApplication.client.ClientValidatorFactory">
+	<replace-with class="ch.cern.atlas.apvs.client.ui.APVSValidatorFactory">
     	<when-type-is class="javax.validation.ValidatorFactory"/>
 	</replace-with>
--->
+
 	<inherits name="ch.cern.atlas.apvs.Domain" />
 	<inherits name="ch.cern.atlas.apvs.eventbus.EventBus" />
 	<inherits name="ch.cern.atlas.apvs.dosimeter.Dosimeter" />
