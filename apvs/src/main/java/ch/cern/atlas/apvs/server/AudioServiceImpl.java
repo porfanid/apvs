@@ -19,9 +19,11 @@ import org.asteriskjava.manager.ManagerConnectionFactory;
 import org.asteriskjava.manager.ManagerEventListener; 
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
+import org.asteriskjava.manager.action.SipPeersAction;
 import org.asteriskjava.manager.event.ManagerEvent;
 
 import ch.cern.atlas.apvs.client.AudioException;
+import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
@@ -38,6 +40,7 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	private ManagerConnection managerConnection;
 	private AsteriskServer asteriskServer;
 	private AudioSettings voipAccounts;
+	private List<String> usersList;
 	
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
@@ -73,8 +76,10 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		
 		//audioHandler = new AudioHandler(eventBus);
 	
-		//Local List of the current Users
+		//Local List of the current Users 
+		usersList = new ArrayList<String>(); //TODO This can migrate to listOnlineUsers()
 		voipAccounts = new AudioSettings();
+		
 		
 		//Asterisk Connection Manager 
 		ManagerConnectionFactory factory = new ManagerConnectionFactory(ASTERISK_URL, AMI_ACCOUNT, PASSWORD);
@@ -98,6 +103,14 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 					e.printStackTrace();
 				}
 				
+			}
+		});
+		
+		AudioSettingsChangedEvent.subscribe(eventBus, new AudioSettingsChangedEvent.Handler() {
+			
+			@Override
+			public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
+				voipAccounts = event.getAudioSettings();
 			}
 		});
 		
@@ -144,6 +157,22 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		}
 	}
 	
+	@Override
+	public void usersList() throws AudioException {
+		usersList.clear();
+		try {
+			managerConnection.sendAction(new SipPeersAction());
+		} catch (IllegalArgumentException e) {
+			throw new AudioException(e.getMessage());
+		} catch (IllegalStateException e) {
+			throw new AudioException(e.getMessage());
+		} catch (IOException e) {
+			throw new AudioException(e.getMessage());
+		} catch (TimeoutException e) {
+			throw new AudioException("Timeout: " + e.getMessage());
+		}
+	}
+	
 	
 //*********************************************	
 	// Event Handler
@@ -151,8 +180,12 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	@Override
 	public void onManagerEvent(ManagerEvent event) {
 		String[] eventContent = event.toString().split("\\[");
-		System.err.println("Event " + eventContent[0] );
-				
+		System.out.println("************************Event " + eventContent[0] );
+			
+		// PeerEntryEvent
+		if(eventContent[0].contains("PeerEntryEvent"))
+    		listOnlineUsers(eventContent[1]);
+		
 		// NewChannelEvent    	
 		if(eventContent[0].contains("NewChannelEvent")){
 	    	newChannelEvent(eventContent[1]);
@@ -170,7 +203,7 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		if(eventContent[0].contains("HangupEvent"))
 			;//hangupEvent(eventContent[1]);
 		
-		((RemoteEventBus)eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+		//((RemoteEventBus)eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
 	}
 	
 	public String contentValue(String content){
@@ -180,7 +213,9 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	
 //*********************************************	
 	// Event Methods
+
 	
+	//*********************************************
 	//New Channel
 	public void newChannelEvent(String channel){
 		//System.err.println(channel);
@@ -203,10 +238,9 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		}								
 	}
 
-					
+	//*********************************************	
 	// Users Register and Unregister
 	public void peerStatusEvent(String evntContent) {
-				
 		String[] list = evntContent.replace(',','\n').split("\\n");
 		boolean canRead= false;
 		VoipAccount user = new VoipAccount();
@@ -214,12 +248,15 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		for(int i=0 ; i<list.length; i++){
 			if(list[i].contains("peer=")){
 				String[] number=contentValue(list[i]).split("/");
-				user.setNumber(number[1]);
+				user.setNumber(contentValue(list[i]));
 				canRead = true;
 			}else{ 
 				if(canRead==true){
-					if(list[i].contains("channeltype"))
-						user.setType(contentValue(list[i]));
+					//TODO If later is desired to support devices other than SIP should be added channel type
+					/*
+					 * if(list[i].contains("channeltype"))
+					 * 		user.setType(contentValue(list[i]));
+					 */
 					
 					if(list[i].contains("peerstatus")){
 						if(contentValue(list[i]).equals("Registered")){			
@@ -238,6 +275,29 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 			}
 							
 		}
+		String ptuId = voipAccounts.getPtuId(voipAccounts, user.getNumber());
+		System.out.println("***********************************PTUID " + ptuId);
+		if(ptuId != null){
+			voipAccounts.setStatus(ptuId, user.getStatus());
+		}
+		
+		((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+	}
+	
+	//*********************************************
+	// List Users Number
+	public void listOnlineUsers(String evntContent){
+		String[] list = evntContent.replace(',','\n').split("\\n");
+				
+		for(int i=0; i<list.length; i++){
+			if(list[i].contains("objectname")){
+				usersList.add("SIP/" + contentValue(list[i]));
+				System.out.println("SIP/" + contentValue(list[i]));
+			}	
+		}
+		
+		((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusEvent(usersList));
+		
 	}
 	
 	
