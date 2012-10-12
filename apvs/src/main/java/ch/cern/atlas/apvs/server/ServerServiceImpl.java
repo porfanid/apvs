@@ -33,6 +33,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 
 		ServerSettingsStorage.getInstance(eventBus);
 		PtuSettingsStorage.getInstance(eventBus);
+		AudioSettingsStorage.getInstance(eventBus);
 	}
 
 	@Override
