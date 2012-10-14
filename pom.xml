@@ -32,9 +32,6 @@
 		<atmosphere-version>1.0.2</atmosphere-version>
 		<asterisk-java-version>1.0.0</asterisk-java-version>
 		<gwt-bootstrap-version>2.0.4.0</gwt-bootstrap-version>
-<!--
-		<hibernate-validator-version>4.0.2.GA</hibernate-validator-version>
--->
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
 		<highcharts-version>1.4.0</highcharts-version>
 		<hudson-gwt-slf4j-version>2.1.2</hudson-gwt-slf4j-version>
@@ -73,7 +70,7 @@
 		<antrun-plugin-version>1.7</antrun-plugin-version>
 		<assembly-plugin-version>2.3</assembly-plugin-version>
 		<release-plugin-version>2.3.2</release-plugin-version>
-		<source-plugin-version>2.3</source-plugin-version>
+		<source-plugin-version>2.2.1</source-plugin-version>
 	</properties>
 
 	<modules>
