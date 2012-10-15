@@ -193,7 +193,7 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 
 	    // BridgeEvent
 		if(eventContent[0].contains("BridgeEvent"))
-	    	;//bridgeEvent(eventContent[1]);
+	    	bridgeEvent(eventContent[1]);
 	    	
 		// PeerStatusEvent
 		if(eventContent[0].contains("PeerStatusEvent"))
@@ -298,6 +298,50 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		
 		((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusEvent(usersList));
 		
+	}
+	
+	//*********************************************
+	// Bridge of Call Channels
+	
+	public void bridgeEvent(String channel) {
+			//System.out.println(channel);
+		String[] list = channel.replace(',','\n').split("\\n");
+		ArrayList<String> usersBridged = new ArrayList<String>();
+		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
+		
+		for (int i=0 ; i<list.length; i++){
+				//System.out.println("ENTROU");
+			if(list[i].contains("channel")){
+				channel=contentValue(list[i]);
+				String[] aux = channel.split("-");
+				usersBridged.add(aux[0]);
+			}	
+		}
+		
+		//TODO Improve for loop with getIndexOfUsername fuction
+		for (int u=0; u<ptuIdList.size(); u++){
+			if(usersBridged.contains(voipAccounts.getNumber(ptuIdList.get(u)))){
+				for (int b=0; b<usersBridged.size(); b++){
+					if(usersBridged.get(b).equals(voipAccounts.getNumber(ptuIdList.get(u))))
+						continue;
+					else{
+						if(voipAccounts.getDestUser(ptuIdList.get(u)).isEmpty()){
+							voipAccounts.setDestUser(ptuIdList.get(u), usersBridged.get(b));
+								//System.out.println("ENTROU");
+						}else{
+							voipAccounts.setDestUser(ptuIdList.get(u), ptuIdList.get(u) + "," + usersBridged.get(b));
+								//System.out.println("ENTROU2");
+						}
+					}
+				}	
+			}
+			
+		}
+			
+			//System.out.println(getIndexOfUsername(aux[0]));
+			//usersList.get(getIndexOfUsername(aux[0])).setActiveCallChannel(channel);
+			//System.out.println(usersList.get(getIndexOfUsername(aux[0])).getActiveCallChannel());
+		((RemoteEventBus)eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
 	}
 	
 	
