@@ -219,20 +219,23 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	//New Channel
 	public void newChannelEvent(String channel){
 		//System.err.println(channel);
+		List<String> ptuIdList= new ArrayList<String>(voipAccounts.getPtuIds());
 		String[] list = channel.replace(',','\n').split("\\n");
 		for (int i=0 ; i<list.length; i++){
-			//System.err.println("ENTROU");
+			System.err.println("*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*ENTROU");
 			if(list[i].contains("channel=")){
 				channel=contentValue(list[i]);
+				System.err.println("*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*channel=" + channel);
 				String[] aux = channel.split("-");
-				//TODO
-				/*
-				 * 
-				 * Update channel to voipAccount list
-				 * 
-				 */
-				//usersList.get(getIndexOfUsername(aux[0])).setActiveCallChannel(channel);
-				//System.out.println(usersList.get(getIndexOfUsername(aux[0])).getActiveCallChannel());
+				System.err.println("*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$* aux="+aux[0]);
+				for(int j=0; j<ptuIdList.size(); j++){
+					if(voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])){
+						System.err.println("*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$* user="+voipAccounts.getUsername(ptuIdList.get(j)));
+						voipAccounts.setChannel(ptuIdList.get(j),channel);
+						break;
+					}
+				}
+				((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
 				break;
 			}			
 		}								
@@ -329,7 +332,7 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 							voipAccounts.setDestUser(ptuIdList.get(u), usersBridged.get(b));
 								//System.out.println("ENTROU");
 						}else{
-							voipAccounts.setDestUser(ptuIdList.get(u), ptuIdList.get(u) + "," + usersBridged.get(b));
+							voipAccounts.setDestUser(ptuIdList.get(u), voipAccounts.getDestUser(ptuIdList.get(u)) + "," + usersBridged.get(b));
 								//System.out.println("ENTROU2");
 						}
 					}
