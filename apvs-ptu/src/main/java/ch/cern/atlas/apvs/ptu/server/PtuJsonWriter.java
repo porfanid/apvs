@@ -16,7 +16,7 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 	public PtuJsonWriter(OutputStream out) throws IOException {
 		super(out);
 	}
-
+	
 	@Override
 	protected void writeImpl(Object obj, boolean showType) throws IOException {
 		if (obj instanceof Boolean || obj instanceof Long

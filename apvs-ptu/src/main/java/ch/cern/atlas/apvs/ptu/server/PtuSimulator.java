@@ -30,6 +30,8 @@ public class PtuSimulator extends Thread {
 	private final int deltaStartTime = 12 * 3600 * 1000;
 	private final String ptuId;
 	private Ptu ptu;
+	
+	private final static boolean WRITE_MARKERS = true;
 
 	public PtuSimulator(String ptuId, int refresh) {
 		this(ptuId, refresh, null);
@@ -81,7 +83,10 @@ public class PtuSimulator extends Thread {
 				// now loop at current time
 				while (!isInterrupted()) {
 					@SuppressWarnings("resource")
-					ObjectWriter writer = new PtuJsonWriter(os);
+					PtuJsonWriter writer = new PtuJsonWriter(os);
+					if (WRITE_MARKERS) {
+						writer.write(0x10);
+					}
 					if (i % 5 == 0) {
 						Event event = nextEvent(ptu, new Date());
 						writer.write(event);
@@ -89,6 +94,9 @@ public class PtuSimulator extends Thread {
 						writer.write(nextMeasurement(ptu, new Date()));
 					}
 					writer.newLine();
+					if (WRITE_MARKERS) {
+						writer.write(0x13);
+					}
 					writer.flush();
 
 					os = sendBufferAndClear(os);
