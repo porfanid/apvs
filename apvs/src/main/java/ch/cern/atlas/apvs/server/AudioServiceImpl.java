@@ -325,10 +325,10 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 					else{
 						if(voipAccounts.getDestUser(ptuIdList.get(u)).isEmpty()){
 							voipAccounts.setDestUser(ptuIdList.get(u), usersBridged.get(b));
-								//System.out.println("ENTROU");
+							voipAccounts.setOnCall(ptuIdList.get(u), true);
 						}else{
 							voipAccounts.setDestUser(ptuIdList.get(u), voipAccounts.getDestUser(ptuIdList.get(u)) + "," + usersBridged.get(b));
-								//System.out.println("ENTROU2");
+							voipAccounts.setOnCall(ptuIdList.get(u), true);
 						}
 					}
 				}	
@@ -356,6 +356,7 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 					if(voipAccounts.getNumber(ptuIdList.get(u)).equals(aux[0])){
 						voipAccounts.setChannel(ptuIdList.get(u),"");
 						voipAccounts.setDestUser(ptuIdList.get(u),"");
+						voipAccounts.setOnCall(ptuIdList.get(u), false);
 						break;	
 					}
 				}
