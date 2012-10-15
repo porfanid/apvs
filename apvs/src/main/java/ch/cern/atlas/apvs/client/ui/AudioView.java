@@ -102,6 +102,16 @@ public class AudioView extends VerticalPanel implements Module{
 		activeCall.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(activeCall, "Active Call");
 		
+		//Channel
+		Column<String, String> channel = new Column<String, String>(
+				new TextCell()) {
+			@Override
+			public String getValue(String object) {
+				return voipAccounts.getChannel(object);
+			}			
+		};
+		channel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		table.addColumn(channel, "Channel");
 		
 		//Activity
 		Column<String, String> activity = new Column<String, String>(
@@ -127,7 +137,21 @@ public class AudioView extends VerticalPanel implements Module{
 			@Override
 			public void update(int index, String object, String value) {
 				// TODO Implementation of the button Handler
-				AudioServiceAsync.Util.getInstance().call("SIP/1002","1000", new AsyncCallback<Void>() {
+				if(voipAccounts.getOnCall(object))
+					AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(object), new AsyncCallback<Void>() {
+						
+						@Override
+						public void onSuccess(Void result) {
+							System.err.println("Call Hangup...");	
+						}
+						
+						@Override
+						public void onFailure(Throwable caught) {
+							System.err.println("Fail to established the call " + caught);		
+						}
+					});
+				else
+					AudioServiceAsync.Util.getInstance().call("SIP/1002","1000", new AsyncCallback<Void>() {
 					
 					@Override
 					public void onSuccess(Void result) {
