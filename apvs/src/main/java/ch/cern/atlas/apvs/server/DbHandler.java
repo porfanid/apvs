@@ -290,14 +290,8 @@ public class DbHandler extends DbReconnectHandler {
 	public List<Event> getEvents(Range range, SortOrder[] order)
 			throws SQLException {
 
-		// FIXME #188
-		// String sql =
-		// "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
-		// + "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
-		// + "from tbl_events "
-		// + "join tbl_devices on tbl_events.device_id = tbl_devices.id";
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
-				+ "tbl_events.value, tbl_events.datetime "
+				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
 				+ "from tbl_events "
 				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
 
@@ -311,11 +305,10 @@ public class DbHandler extends DbReconnectHandler {
 
 		List<Event> list = new ArrayList<Event>(range.getLength());
 		for (int i = 0; i < range.getLength() && result.next(); i++) {
-			// FIXME #188 replace "0" with result.getString("threshold")
 			list.add(new Event(result.getString("name"), result
 					.getString("sensor"), result.getString("event_type"),
 					Double.parseDouble(result.getString("value")), Double
-							.parseDouble("0"), new Date(result.getTimestamp(
+							.parseDouble(result.getString("threshold")), new Date(result.getTimestamp(
 							"datetime").getTime())));
 		}
 
@@ -357,7 +350,8 @@ public class DbHandler extends DbReconnectHandler {
 
 		addIntervention.setInt(1, intervention.getUserId());
 		addIntervention.setInt(2, intervention.getDeviceId());
-		addIntervention.setTimestamp(3, new Timestamp(intervention.getStartTime().getTime()));
+		addIntervention.setTimestamp(3, new Timestamp(intervention
+				.getStartTime().getTime()));
 		addIntervention.setString(4, intervention.getDescription());
 		addIntervention.executeUpdate();
 	}
