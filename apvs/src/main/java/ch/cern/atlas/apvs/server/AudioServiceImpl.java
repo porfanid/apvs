@@ -201,7 +201,7 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		
 		// HangupEvent
 		if(eventContent[0].contains("HangupEvent"))
-			;//hangupEvent(eventContent[1]);
+			hangupEvent(eventContent[1]);
 		
 		//((RemoteEventBus)eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
 	}
@@ -218,19 +218,14 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	//*********************************************
 	//New Channel
 	public void newChannelEvent(String channel){
-		//System.err.println(channel);
 		List<String> ptuIdList= new ArrayList<String>(voipAccounts.getPtuIds());
 		String[] list = channel.replace(',','\n').split("\\n");
 		for (int i=0 ; i<list.length; i++){
-			System.err.println("*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*ENTROU");
 			if(list[i].contains("channel=")){
 				channel=contentValue(list[i]);
-				System.err.println("*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*channel=" + channel);
 				String[] aux = channel.split("-");
-				System.err.println("*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$* aux="+aux[0]);
 				for(int j=0; j<ptuIdList.size(); j++){
 					if(voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])){
-						System.err.println("*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$*$* user="+voipAccounts.getUsername(ptuIdList.get(j)));
 						voipAccounts.setChannel(ptuIdList.get(j),channel);
 						break;
 					}
@@ -345,6 +340,29 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 			//usersList.get(getIndexOfUsername(aux[0])).setActiveCallChannel(channel);
 			//System.out.println(usersList.get(getIndexOfUsername(aux[0])).getActiveCallChannel());
 		((RemoteEventBus)eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+	}
+	
+	
+	//*********************************************
+	// Hangup Call Event
+	public void hangupEvent(String channel){
+		List<String> ptuIdList= new ArrayList<String>(voipAccounts.getPtuIds());
+		String[] list = channel.replace(',','\n').split("\\n");
+		for (int i=0 ; i<list.length; i++){
+			if(list[i].contains("channel=")){
+				channel=contentValue(list[i]);
+				String[] aux = channel.split("-");
+				for(int u=0; u<ptuIdList.size(); u++){
+					if(voipAccounts.getNumber(ptuIdList.get(u)).equals(aux[0])){
+						voipAccounts.setChannel(ptuIdList.get(u),"");
+						voipAccounts.setDestUser(ptuIdList.get(u),"");
+						break;	
+					}
+				}
+			}			
+		}
+		((RemoteEventBus)eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+
 	}
 	
 	
