@@ -91,7 +91,7 @@ public class AudioView extends VerticalPanel implements Module{
 		table.addColumn(status, "Status");
 		
 		
-		//TODO Active Call
+		//Active Call
 		Column<String, String> activeCall = new Column<String, String>(
 				new TextCell()) {
 			@Override
@@ -101,17 +101,6 @@ public class AudioView extends VerticalPanel implements Module{
 		};
 		activeCall.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(activeCall, "Active Call");
-		
-		//Channel
-		Column<String, String> channel = new Column<String, String>(
-				new TextCell()) {
-			@Override
-			public String getValue(String object) {
-				return voipAccounts.getChannel(object);
-			}			
-		};
-		channel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		table.addColumn(channel, "Channel");
 		
 		//Activity
 		Column<String, String> activity = new Column<String, String>(
@@ -151,7 +140,7 @@ public class AudioView extends VerticalPanel implements Module{
 						}
 					});
 				else
-					AudioServiceAsync.Util.getInstance().call("SIP/1002","1000", new AsyncCallback<Void>() {
+					AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(object),"2000", new AsyncCallback<Void>() {
 					
 					@Override
 					public void onSuccess(Void result) {
