@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
@@ -32,6 +33,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.Range;
+import com.google.gwt.view.client.RangeChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -188,6 +190,17 @@ public class EventView extends SimplePanel implements Module {
 							update();
 						}
 					});
+			
+			// FIXME #189
+			SelectTabEvent.subscribe(cmdBus, new SelectTabEvent.Handler() {
+				
+				@Override
+				public void onTabSelected(SelectTabEvent event) {
+					if (event.getTab().equals("Summary")) {
+						update();
+					}
+				}
+			});
 		}
 
 		// DATE and TIME (1)
@@ -403,6 +416,7 @@ public class EventView extends SimplePanel implements Module {
 //		if (sortable) {
 //			ColumnSortEvent.fire(table, table.getColumnSortList());
 //		}
+		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
 
 //		if (selectable) {

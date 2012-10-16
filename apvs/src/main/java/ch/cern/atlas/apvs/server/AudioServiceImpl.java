@@ -10,13 +10,12 @@ import java.util.concurrent.Future;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-
 import org.asteriskjava.live.AsteriskServer;
 import org.asteriskjava.live.DefaultAsteriskServer;
 import org.asteriskjava.manager.AuthenticationFailedException;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.ManagerConnectionFactory;
-import org.asteriskjava.manager.ManagerEventListener; 
+import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
 import org.asteriskjava.manager.action.SipPeersAction;
@@ -25,53 +24,48 @@ import org.asteriskjava.manager.event.ManagerEvent;
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
-import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
-
-
-public class AudioServiceImpl extends ResponsePollService implements AudioService, ManagerEventListener {
+public class AudioServiceImpl extends ResponsePollService implements
+		AudioService, ManagerEventListener {
 
 	private ManagerConnection managerConnection;
 	private AsteriskServer asteriskServer;
 	private AudioSettings voipAccounts;
-	private List<String> usersList;
+
+	private ArrayList<String> usersList;
 	
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
-	
+
 	// Account Details
 	private static final String ASTERISK_URL = "pcatlaswpss02.cern.ch";
 	private static final String AMI_ACCOUNT = "manager";
 	private static final String PASSWORD = "password";
-	
-	
+
 	private static final String CONTEXT = "internal";
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
-	
+
 	private RemoteEventBus eventBus;
-	
-	public AudioServiceImpl(){
-		if(eventBus != null)
+
+	public AudioServiceImpl() {
+		if (eventBus != null)
 			return;
 		System.out.println("Creating AudioService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 		executorService = Executors.newSingleThreadExecutor();
 	}
-	
+
 	@Override
-	public void init(ServletConfig config) throws ServletException{
+	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		
-		//if(audioHandler != null)
-			//return;
-		
+
+		// if(audioHandler != null)
+		// return;
+
 		System.out.println("Starting Audio Service...");
 		
 		//audioHandler = new AudioHandler(eventBus);
@@ -84,86 +78,82 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		//Asterisk Connection Manager 
 		ManagerConnectionFactory factory = new ManagerConnectionFactory(ASTERISK_URL, AMI_ACCOUNT, PASSWORD);
 		this.managerConnection = factory.createManagerConnection();
-		
+
 		// Eases the communication with asterisk server
 		asteriskServer = new DefaultAsteriskServer(managerConnection);
-	
-		
+
 		// Event handler
 		managerConnection.addEventListener(this);
-		
+
 		connectFuture = executorService.submit(new Runnable() {
-			
+
 			@Override
 			public void run() {
-				System.err.println("Login in to Asterisk Server on " + ASTERISK_URL.toLowerCase() + " ...");
+				System.err.println("Login in to Asterisk Server on "
+						+ ASTERISK_URL.toLowerCase() + " ...");
 				try {
 					login();
 				} catch (AudioException e) {
 					e.printStackTrace();
 				}
-				
-			}
-		});
-		
-		AudioSettingsChangedEvent.subscribe(eventBus, new AudioSettingsChangedEvent.Handler() {
-			
-			@Override
-			public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
-				voipAccounts = event.getAudioSettings();
-			}
-		});
 
+			}
+		});
+		
 		AudioSettingsChangedEvent.subscribe(eventBus, new AudioSettingsChangedEvent.Handler() {
 			
 			@Override
 			public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
 				voipAccounts = event.getAudioSettings();
 			}
-		});
-		
+		});	
+
 	}
-	
-//*********************************************	
+
+	// *********************************************
 	// Constructor
-	
-	public void login() throws AudioException{
-		try{
+
+	public void login() throws AudioException {
+		try {
 			managerConnection.login();
-		}catch (IllegalStateException e){
+		} catch (IllegalStateException e) {
 			throw new AudioException(e.getMessage());
-		}catch (IOException e){
+		} catch (IOException e) {
 			throw new AudioException(e.getMessage());
-		}catch (AuthenticationFailedException e) {
-			throw new AudioException("Failed login to Asterisk Manager: " + e.getMessage());
-		}catch (TimeoutException e) {
-			throw new AudioException("Login to Asterisk Timeout: " + e.getMessage());
+		} catch (AuthenticationFailedException e) {
+			throw new AudioException("Failed login to Asterisk Manager: "
+					+ e.getMessage());
+		} catch (TimeoutException e) {
+			throw new AudioException("Login to Asterisk Timeout: "
+					+ e.getMessage());
 		}
 	}
 
-//*********************************************	
-	// RPC Methods	
-	
+	// *********************************************
+	// RPC Methods
+
 	@Override
 	public void call(String callerOriginater, String callerDestination) {
-		asteriskServer.originateToExtension(callerOriginater, CONTEXT, callerDestination, PRIORITY, TIMEOUT);
+		asteriskServer.originateToExtension(callerOriginater, CONTEXT,
+				callerDestination, PRIORITY, TIMEOUT);
 	}
 
 	@Override
 	public void hangup(String channel) throws AudioException {
 		HangupAction hangupCall = new HangupAction(channel);
-		try{
+		try {
 			managerConnection.sendAction(hangupCall);
-		}catch (IllegalArgumentException e){
+		} catch (IllegalArgumentException e) {
 			throw new AudioException(e.getMessage());
-		}catch (IllegalStateException e){
+		} catch (IllegalStateException e) {
 			throw new AudioException(e.getMessage());
-		}catch (IOException e){
+		} catch (IOException e) {
 			throw new AudioException(e.getMessage());
-		}catch (TimeoutException e){
+		} catch (TimeoutException e) {
 			throw new AudioException("Timeout: " + e.getMessage());
 		}
 	}
+
 	
 	@Override
 	public void usersList() throws AudioException {
@@ -184,7 +174,7 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 	
 	//*********************************************	
 	// Event Handler
-	
+
 	@Override
 	public void onManagerEvent(ManagerEvent event) {
 		String[] eventContent = event.toString().split("\\[");
@@ -202,11 +192,13 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		if(eventContent[0].contains("BridgeEvent"))
 	    	bridgeEvent(eventContent[1]);
 	    	
+
 		// PeerStatusEvent
-		if(eventContent[0].contains("PeerStatusEvent"))
+		if (eventContent[0].contains("PeerStatusEvent"))
 			peerStatusEvent(eventContent[1]);
-		
+
 		// HangupEvent
+
 		if(eventContent[0].contains("HangupEvent"))
 			hangupEvent(eventContent[1]);
 		
@@ -239,9 +231,10 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 					}
 				}
 				((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+
 				break;
-			}			
-		}								
+			}
+		}
 	}
 
 	//*********************************************	
@@ -269,17 +262,17 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 							user.setStatus("Online");
 							break;
 						}
-						if(contentValue(list[i]).equals("Unregistered")){
+						if (contentValue(list[i]).equals("Unregistered")) {
 							user.setStatus("Offline");
 							break;
-						}else{
+						} else {
 							user.setStatus("Unknown");
 							break;
 						}
 					}
 				}
 			}
-							
+
 		}
 		String ptuId = voipAccounts.getPtuId(voipAccounts, user.getNumber());
 		if(ptuId != null){
@@ -366,6 +359,5 @@ public class AudioServiceImpl extends ResponsePollService implements AudioServic
 		((RemoteEventBus)eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
 
 	}
-	
-	
+
 }

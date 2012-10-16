@@ -40,7 +40,6 @@ public class SwitchWidgetEventHandler implements SwitchWidgetEvent.Handler {
 			String oldTitle = element.getParentElement().getChild(1)
 					.getChild(0).getNodeValue();
 			Widget oldWidget = currentWidget;
-			widget.removeFromParent();
 
 			log.info("Received switch " + title);
 			// Widget is auto-removed from source

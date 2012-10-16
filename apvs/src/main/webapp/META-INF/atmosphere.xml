@@ -29,7 +29,7 @@
     <atmosphere-handler context-root="/apvs/apvsDb"
                         class-name="org.atmosphere.gwt.poll.AtmospherePollHandler">
         <property name="servletClass" value="ch.cern.atlas.apvs.server.DbServiceImpl"/>
-    </atmosphere-handler>
+    </atmosphere-handler>  
     <atmosphere-handler context-root="/apvs/apvsAudio"
                         class-name="org.atmosphere.gwt.poll.AtmospherePollHandler">
         <property name="servletClass" value="ch.cern.atlas.apvs.server.AudioServiceImpl"/>

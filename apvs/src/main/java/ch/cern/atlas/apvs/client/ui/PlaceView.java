@@ -16,6 +16,8 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.place.shared.Place;
@@ -121,11 +123,11 @@ public class PlaceView extends SimplePanel implements Module {
 		setWidget(image);
 		
 		if (switchSource) {
-			image.addDoubleClickHandler(new DoubleClickHandler() {
-
+			image.addClickHandler(new ClickHandler() {
+				
 				@Override
-				public void onDoubleClick(DoubleClickEvent event) {
-					log.info("Double Click " + event + " switch");
+				public void onClick(ClickEvent event) {
+					log.info("Click " + event + " switch");
 
 					String title = element.getParentElement().getChild(1).getChild(0)
 							.getNodeValue();

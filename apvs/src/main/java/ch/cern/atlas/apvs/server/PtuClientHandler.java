@@ -68,7 +68,12 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
 		// Print out the line received from the server.
 		String line = (String) event.getMessage();
-		// log.info(line);
+		int len = line.length();
+		line = line.replaceAll("\u0000", "");
+		line = line.replaceAll("\u0010", "");
+		line = line.replaceAll("\u0013", "");
+//		log.info("'"+line+"'");
+//		log.info(len+" "+line.length());
 
 		List<Message> list;
 		try {

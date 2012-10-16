@@ -14,7 +14,7 @@ public class PtuPushServer {
 	private final int refresh;
 	private final String[] ids;
 
-	private boolean CONNECT_FOR_EVERY_MESSAGE = true;
+	private boolean CONNECT_FOR_EVERY_MESSAGE = false;
 
 	public PtuPushServer(String host, int port, int refresh, String[] ids) {
 		this.host = host;

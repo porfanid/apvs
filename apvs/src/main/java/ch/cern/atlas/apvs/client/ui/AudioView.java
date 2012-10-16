@@ -1,39 +1,24 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.awt.Checkbox;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
-import ch.cern.atlas.apvs.client.settings.PtuSettings;
-import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.ButtonCell;
-import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.dom.client.Element;
-
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
@@ -125,7 +110,6 @@ public class AudioView extends VerticalPanel implements Module{
 			
 			@Override
 			public void update(int index, String object, String value) {
-				// TODO Implementation of the button Handler
 				if(voipAccounts.getOnCall(object))
 					AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(object), new AsyncCallback<Void>() {
 						
@@ -152,6 +136,7 @@ public class AudioView extends VerticalPanel implements Module{
 						System.err.println("Fail to established the call " + caught);				
 					}
 				});
+				
 			}
 		});
 		

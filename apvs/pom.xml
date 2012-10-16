@@ -186,15 +186,32 @@
 		<dependency>
 			<groupId>org.asterisk</groupId>
 			<artifactId>asterisk-java</artifactId>
-		</dependency>			
+		</dependency>
 		<dependency>
 			<groupId>org.jvnet.hudson.main</groupId>
 			<artifactId>hudson-gwt-slf4j</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>com.github.gwtbootstrap</groupId>
 			<artifactId>gwt-bootstrap</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<classifier>sources</classifier>
 		</dependency>
 	</dependencies>
 

@@ -3,9 +3,16 @@ package ch.cern.atlas.apvs.client.ui;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.validation.constraints.NotNull;
+
 public class Intervention implements Serializable {
 
 	private static final long serialVersionUID = 2578285814293336298L;
+
+	@NotNull
+	private Integer userId;
+	@NotNull
+	private Integer deviceId;
 
 	private int id;
 	private String fname;
@@ -18,17 +25,31 @@ public class Intervention implements Serializable {
 	public Intervention() {
 	}
 	
-	public Intervention(int id, String fname, String lname, String ptuId, Date startTime,
+	public Intervention(int id, int userId, String fname, String lname, int deviceId, String ptuId, Date startTime,
 			Date endTime, String description) {
+		this(userId, deviceId, startTime, description);
 		this.id = id;
 		this.fname = fname;
 		this.lname = lname;
 		this.ptuId = ptuId;
-		this.startTime = startTime;
 		this.endTime = endTime;
+	}
+
+	public Intervention(Integer userId, Integer deviceId, Date startTime, String description) {
+		this.userId = userId;
+		this.deviceId = deviceId;
+		this.startTime = startTime;
 		this.description = description;
 	}
 
+	public Integer getDeviceId() {
+		return deviceId;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+	
 	public String getName() {
 		return fname+" "+lname;
 	}

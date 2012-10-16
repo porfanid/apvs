@@ -8,4 +8,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("apvsDb")
 public interface DbService extends RemoteService {
+	boolean isConnected();
 }

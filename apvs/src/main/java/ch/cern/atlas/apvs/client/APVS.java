@@ -20,6 +20,7 @@ import ch.cern.atlas.apvs.client.ui.AudioView;
 import ch.cern.atlas.apvs.client.ui.CameraView;
 import ch.cern.atlas.apvs.client.ui.DosimeterView;
 import ch.cern.atlas.apvs.client.ui.EventView;
+import ch.cern.atlas.apvs.client.ui.GeneralInfoView;
 import ch.cern.atlas.apvs.client.ui.InterventionView;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.Module;
@@ -152,42 +153,45 @@ public class APVS implements EntryPoint {
 					module = new AudioSettingsView();
 				} else if (id.startsWith("AudioView")) {				
 					module = new AudioView();
-				} else if (id.startsWith("CameraView")) {					
+				} else if (id.startsWith("CameraView")) {
 					module = new CameraView();
-				} else if (id.startsWith("PtuView")) {					
-					module = new PtuView();
-				} else if (id.startsWith("EventView")) {					
-					module = new EventView();
-				} else if (id.startsWith("InterventionView")) {					
-					module = new InterventionView();
-				} else if (id.startsWith("ProcedureView")) {					
-					module = new ProcedureView();
-				} else if (id.startsWith("ProcedureControls")) {					
-					module = new ProcedureControls();
-				} else if (id.startsWith("PlaceView")) {					
-					module = new PlaceView();
-				} else if (id.startsWith("PtuTabSelector")) {					
-					module = new PtuTabSelector();
-				} else if (id.startsWith("Tab")) {					
-					module = new Tab();
-				} else if (id.startsWith("PtuSettingsView")) {					
-					module = new PtuSettingsView();
-				} else if (id.startsWith("ServerSettingsView")) {					
-					module = new ServerSettingsView();					
-				} else if (id.startsWith("DosimeterView")) {					
+				} else if (id.startsWith("DosimeterView")) {
 					module = new DosimeterView();
-				} else if (id.startsWith("TimeView")) {					
+				} else if (id.startsWith("EventView")) {
+					module = new EventView();
+				} else if (id.startsWith("GeneralInfoView")) {
+					module = new GeneralInfoView();
+				} else if (id.startsWith("InterventionView")) {
+					module = new InterventionView();
+				} else if (id.startsWith("PlaceView")) {
+					module = new PlaceView();
+				} else if (id.startsWith("ProcedureControls")) {
+					module = new ProcedureControls();
+				} else if (id.startsWith("ProcedureView")) {
+					module = new ProcedureView();
+				} else if (id.startsWith("PtuSettingsView")) {
+					module = new PtuSettingsView();
+				} else if (id.startsWith("PtuTabSelector")) {
+					module = new PtuTabSelector();
+				} else if (id.startsWith("PtuView")) {
+					module = new PtuView();
+				} else if (id.startsWith("ServerSettingsView")) {
+					module = new ServerSettingsView();
+				} else if (id.startsWith("Tab")) {
+					module = new Tab();
+				} else if (id.startsWith("TimeView")) {
 					module = new TimeView();
 				}
-				
+
 				if (module != null) {
-					boolean add = module.configure(element, clientFactory, args);
+					boolean add = module
+							.configure(element, clientFactory, args);
 					if (add && module instanceof IsWidget) {
-						RootPanel.get(element.getId()).add((IsWidget)module);
+						RootPanel.get(element.getId()).add((IsWidget) module);
 					}
 					newCode = true;
 				}
-				
+
 			}
 		}
 

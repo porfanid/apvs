@@ -647,7 +647,7 @@ public class JsonReader extends Reader
                     }
                     else
                     {
-                        throw new IOException("Input is not valid JSON; does not start with '{' or '['");
+                        throw new IOException("Input is not valid JSON; does not start with '{' or '[' but with 0x"+Integer.toHexString(c));
                     }
                     break;
 

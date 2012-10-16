@@ -17,6 +17,11 @@
 	<inherits name="com.github.gwtbootstrap.Bootstrap" />
 	<set-property name="bootstrap.responsiveDesign" value="true" />
 
+	<inherits name="org.hibernate.validator.HibernateValidator" />
+	<replace-with class="ch.cern.atlas.apvs.client.ui.APVSValidatorFactory">
+    	<when-type-is class="javax.validation.ValidatorFactory"/>
+	</replace-with>
+
 	<inherits name="ch.cern.atlas.apvs.Domain" />
 	<inherits name="ch.cern.atlas.apvs.eventbus.EventBus" />
 	<inherits name="ch.cern.atlas.apvs.dosimeter.Dosimeter" />

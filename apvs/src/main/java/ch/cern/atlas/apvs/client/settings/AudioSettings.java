@@ -10,6 +10,7 @@ import ch.cern.atlas.apvs.client.settings.PtuSettings.Entry;
 import ch.cern.atlas.apvs.server.VoipAccount;
 
 
+
 public class AudioSettings implements Serializable{
 
 	private Map<String, Entry> entries = new HashMap<String, Entry>();

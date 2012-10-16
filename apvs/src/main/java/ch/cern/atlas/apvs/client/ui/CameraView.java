@@ -12,8 +12,6 @@ import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.media.client.Video;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
@@ -88,13 +86,13 @@ public class CameraView extends SimplePanel implements Module {
 		switchSource = options.contains("SwitchSource");
 		switchDestination = options.contains("SwitchDestination");
 
-		SwitchWidgetEvent.register(switchBus, new SwitchWidgetEventHandler(switchBus, element, this, switchDestination));
+		SwitchWidgetEvent.register(switchBus, new SwitchWidgetEventHandler(
+				switchBus, element, this, switchDestination));
 
 		init(clientFactory, "100%", "100%");
-
+		
 		return true;
 	}
-	
 
 	private void init(ClientFactory factory, String width, String height) {
 
@@ -104,26 +102,19 @@ public class CameraView extends SimplePanel implements Module {
 		image = new Image();
 		image.setWidth(videoWidth);
 		image.setHeight(videoHeight);
-		image.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				log.info("Single Click Update");
-				update(true);
-			}
-		});
 		if (switchSource) {
-			image.addDoubleClickHandler(new DoubleClickHandler() {
+			image.addClickHandler(new ClickHandler() {
 
 				@Override
-				public void onDoubleClick(DoubleClickEvent event) {
-					log.info("Double Click " + event + " switch");
+				public void onClick(ClickEvent event) {
+					log.info("Single Click Switch");
 
-					String title = element.getParentElement().getChild(1).getChild(0)
-							.getNodeValue();
+					String title = element.getParentElement().getChild(1)
+							.getChild(0).getNodeValue();
 
 					log.info("Switch Widget: " + title);
-					SwitchWidgetEvent.fire(switchBus, title, CameraView.this, false);
+					SwitchWidgetEvent.fire(switchBus, title, CameraView.this,
+							false);
 				}
 			});
 		}
