@@ -31,8 +31,7 @@ public class AudioView extends VerticalPanel implements Module{
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	
 	private List<String> activePtuIds = new ArrayList<String>();
-	private AudioSettings audioAccounts = new AudioSettings();
-	private static final Button btnCall = new Button("CALL");
+	private AudioSettings voipAccounts = new AudioSettings();
 	
 	public AudioView() {
 	}
@@ -42,9 +41,6 @@ public class AudioView extends VerticalPanel implements Module{
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		
 		add(table);
-		activePtuIds.add("ALEX");
-		activePtuIds.add("MARK");
-		
 		
 		//PTU ID
 		Column<String, String> ptuId = new Column<String, String>(
@@ -55,70 +51,80 @@ public class AudioView extends VerticalPanel implements Module{
 			}			
 		};
 		ptuId.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		table.addColumn(ptuId, "PTU ID");
-		
+		//table.addColumn(ptuId, "PTU ID");
 		
 		//Username
 		Column<String, String> username = new Column<String, String>(
 				new TextCell()) {
 			@Override
 			public String getValue(String object) {
-				return audioAccounts.getUsername(object);
+				return voipAccounts.getUsername(object);
 			}			
 		};
 		username.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(username, "Username");
-
-		
-		//Phonenumber
-		Column<String, String> number = new Column<String, String>(
-				new TextCell()) {
-			@Override
-			public String getValue(String object) {
-				return audioAccounts.getNumber(object);
-			}			
-		};
-		number.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		table.addColumn(number, "Phone Number");
 				
-		
-		//TODO Active Call
-		Column<String, String> activeCall = new Column<String, String>(
-				new TextCell()) {
-			@Override
-			public String getValue(String object) {
-				return audioAccounts.getChannel(object);
-			}			
-		};
-		activeCall.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		table.addColumn(activeCall, "Active Call");
-		
-		
 		//Status
 		Column<String, String> status = new Column<String, String>(
 				new TextCell()) {
 			@Override
 			public String getValue(String object) {
-				return audioAccounts.getStatus(object);
+				return voipAccounts.getStatus(object);
 			}			
 		};
 		status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(status, "Status");
 		
 		
+		//Active Call
+		Column<String, String> activeCall = new Column<String, String>(
+				new TextCell()) {
+			@Override
+			public String getValue(String object) {
+				return voipAccounts.getDestUser(object);
+			}			
+		};
+		activeCall.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		table.addColumn(activeCall, "Active Call");
+		
+		//Activity
+		Column<String, String> activity = new Column<String, String>(
+				new TextCell()) {
+			@Override
+			public String getValue(String object) {
+				return voipAccounts.getActivity(object);
+			}			
+		};
+		activeCall.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		table.addColumn(activity, "Activity");
+		
+		
 		//Action
 		Column<String, String> action = new Column<String, String>(new ButtonCell()) {
 			@Override
 			public String getValue(String object) {
-				return "Call";//audioAccounts.getOnCall(object).toString();
+				return (voipAccounts.getOnCall(object) ? "Hangup" : "Call");
 			}		
 		};
 		action.setFieldUpdater(new FieldUpdater<String, String>() {
 			
 			@Override
 			public void update(int index, String object, String value) {
-				// TODO Implementation of the button Handler
-				AudioServiceAsync.Util.getInstance().call("SIP/1002","1000", new AsyncCallback<Void>() {
+				if(voipAccounts.getOnCall(object))
+					AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(object), new AsyncCallback<Void>() {
+						
+						@Override
+						public void onSuccess(Void result) {
+							System.err.println("Call Hangup...");	
+						}
+						
+						@Override
+						public void onFailure(Throwable caught) {
+							System.err.println("Fail to established the call " + caught);		
+						}
+					});
+				else
+					AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(object),"2000", new AsyncCallback<Void>() {
 					
 					@Override
 					public void onSuccess(Void result) {
@@ -130,6 +136,7 @@ public class AudioView extends VerticalPanel implements Module{
 						System.err.println("Fail to established the call " + caught);				
 					}
 				});
+				
 			}
 		});
 		
@@ -137,44 +144,32 @@ public class AudioView extends VerticalPanel implements Module{
 		table.addColumn(action);
 		
 		dataProvider.addDataDisplay(table);
-		dataProvider.setList(activePtuIds);
-							
-		AudioSettingsChangedEvent.subscribe(eventBus,new AudioSettingsChangedEvent.Handler() {
+		dataProvider.setList(new ArrayList<String>());
+
+		PtuIdsChangedEvent.subscribe(eventBus,new PtuIdsChangedEvent.Handler() {
+
+			@Override
+			public void onPtuIdsChanged(PtuIdsChangedEvent event) {
+				activePtuIds = event.getPtuIds();
+				dataProvider.getList().clear();
+				dataProvider.getList().addAll(activePtuIds);
+			}
+		});
+		 	
+		AudioSettingsChangedEvent.subscribe(eventBus, new AudioSettingsChangedEvent.Handler() {
 			
 			@Override
 			public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
-				System.err.println("Audio Account Settings Changed");
-				audioAccounts = event.getAudioSettings();
-				//TODO update(); UPDATE TABLE
-				update();
-
+				voipAccounts = event.getAudioSettings();
+				
+				dataProvider.getList().clear();
+				dataProvider.getList().addAll(voipAccounts.getPtuIds());
 			}
 		});
-		
-		//TODO To be implemented.... Requires getting data from db
-				PtuIdsChangedEvent.subscribe(eventBus,
-				new PtuIdsChangedEvent.Handler() {
-
-					@Override
-					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-						System.err.println("PTU IDS changed");
-						activePtuIds = event.getPtuIds();
-						dataProvider.getList().clear();
-						dataProvider.getList().addAll(activePtuIds);
-					
-						//TODO update(); UPDATE TABLE
-					}
-		});
-		 	
-		//TODO update
 		
 		
 		return true;
 
-	}
-	
-	private void update(){
-		table.redraw();
 	}
 		
 }

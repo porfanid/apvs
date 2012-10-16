@@ -1,8 +1,14 @@
 package ch.cern.atlas.apvs.client.settings;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import ch.cern.atlas.apvs.client.settings.PtuSettings.Entry;
+import ch.cern.atlas.apvs.server.VoipAccount;
+
 
 
 public class AudioSettings implements Serializable{
@@ -110,6 +116,14 @@ public class AudioSettings implements Serializable{
 		entries.get(ptuId).activity = activity;
 	}
 	
+	//PTU Ids
+	public List<String> getPtuIds() {
+		List<String> list = new ArrayList<String>();
+		list.addAll(entries.keySet());
+		return list;
+	}
+	
+	//Add PTU
 	public boolean add(String ptuId) {
 		System.err.println("Adding " + ptuId);
 		if (!entries.containsKey(ptuId)) {
@@ -118,5 +132,23 @@ public class AudioSettings implements Serializable{
 		}
 		return false;
 	}
+
+	//Check PTU is in the list
+	public boolean contains(String ptuId) {
+		if (entries.containsKey(ptuId)) {
+			return true;
+		}
+		return false;
+	}
 	
+	//Check PTU ID of given number
+	public String getPtuId(AudioSettings accounts, String number){
+		List<String> ptuList = new ArrayList<String>(accounts.getPtuIds()); 
+		for(int i=0; i<ptuList.size() ; i++){
+			if(accounts.getNumber(ptuList.get(i)).equals(number)){
+				return ptuList.get(i);
+			}
+		}
+		return null;
+	}
 }
