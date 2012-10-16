@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client.event;
 
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
-import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;

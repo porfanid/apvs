@@ -3,7 +3,6 @@ package ch.cern.atlas.apvs.client.settings;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.TextInputCell;
 
@@ -25,7 +24,7 @@ public class ServerSettings extends AbstractServerSettings {
 			this(s, TextInputCell.class, TextCell.class);
 		}
 		
-		@SuppressWarnings({ "rawtypes", "unchecked" }) 
+		@SuppressWarnings({ "rawtypes" }) 
 		private Entry(String s, Class c, Class n) {
 			this.s = s;
 			this.c = c;
