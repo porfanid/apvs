@@ -257,6 +257,7 @@ public class DbHandler extends DbReconnectHandler {
 			return result.next() ? result.getInt(1) : 0;
 		} finally {
 			result.close();
+			statement.close();
 		}
 	}
 
@@ -294,6 +295,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		} finally {
 			result.close();
+			statement.close();
 		}
 
 		return list;
@@ -330,6 +332,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		} finally {
 			result.close();
+			statement.close();
 		}
 		return list;
 	}
