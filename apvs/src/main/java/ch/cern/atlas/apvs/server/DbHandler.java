@@ -107,10 +107,14 @@ public class DbHandler extends DbReconnectHandler {
 				historyQuery.setString(3, timestamp);
 
 				ResultSet result = historyQueryCount.executeQuery();
-				result.next();
+				int n = 0;
+				try {
+					result.next();
 
-				int n = result.getInt(1);
-				result.close();
+					n = result.getInt(1);
+				} finally {
+					result.close();
+				}
 
 				int MAX_ENTRIES = 1000;
 				long MIN_INTERVAL = 5000; // ms
@@ -199,18 +203,22 @@ public class DbHandler extends DbReconnectHandler {
 
 		boolean ptuIdsChanged = false;
 		ResultSet result = deviceQuery.executeQuery();
-		while (result.next()) {
-			// int id = result.getInt(1);
-			String ptuId = result.getString("NAME");
+		try {
+			while (result.next()) {
+				// int id = result.getInt(1);
+				String ptuId = result.getString("NAME");
 
-			Ptu ptu = ptus.get(ptuId);
-			if (ptu == null) {
-				ptu = new Ptu(ptuId);
-				ptus.put(ptuId, ptu);
-				ptuIdsChanged = true;
-			} else {
-				prune.remove(ptuId);
+				Ptu ptu = ptus.get(ptuId);
+				if (ptu == null) {
+					ptu = new Ptu(ptuId);
+					ptus.put(ptuId, ptu);
+					ptuIdsChanged = true;
+				} else {
+					prune.remove(ptuId);
+				}
 			}
+		} finally {
+			result.close();
 		}
 
 		log.info("Pruning " + prune.size() + " devices...");
@@ -245,7 +253,11 @@ public class DbHandler extends DbReconnectHandler {
 		Statement statement = getConnection().createStatement();
 		ResultSet result = statement.executeQuery(sql);
 
-		return result.next() ? result.getInt(1) : 0;
+		try {
+			return result.next() ? result.getInt(1) : 0;
+		} finally {
+			result.close();
+		}
 	}
 
 	public int getInterventionCount() throws SQLException {
@@ -264,20 +276,24 @@ public class DbHandler extends DbReconnectHandler {
 		Statement statement = getConnection().createStatement();
 		ResultSet result = statement.executeQuery(getSql(sql, range, order));
 
-		// FIXME, #173 using some SQL this may be faster
-		// skip to start, result.absolute not implemented by Oracle
-		for (int i = 0; i < range.getStart() && result.next(); i++) {
-		}
-
 		List<Intervention> list = new ArrayList<Intervention>(range.getLength());
-		for (int i = 0; i < range.getLength() && result.next(); i++) {
-			list.add(new Intervention(result.getInt(1), result.getInt(8),
-					result.getString(2), result.getString(3), result.getInt(9),
-					result.getString(4), new Date(result.getTimestamp(5)
-							.getTime()),
-					result.getTimestamp(6) != null ? new Date(result
-							.getTimestamp(6).getTime()) : null, result
-							.getString(7)));
+		try {
+			// FIXME, #173 using some SQL this may be faster
+			// skip to start, result.absolute not implemented by Oracle
+			for (int i = 0; i < range.getStart() && result.next(); i++) {
+			}
+
+			for (int i = 0; i < range.getLength() && result.next(); i++) {
+				list.add(new Intervention(result.getInt(1), result.getInt(8),
+						result.getString(2), result.getString(3), result
+								.getInt(9), result.getString(4), new Date(
+								result.getTimestamp(5).getTime()), result
+								.getTimestamp(6) != null ? new Date(result
+								.getTimestamp(6).getTime()) : null, result
+								.getString(7)));
+			}
+		} finally {
+			result.close();
 		}
 
 		return list;
@@ -298,20 +314,23 @@ public class DbHandler extends DbReconnectHandler {
 		Statement statement = getConnection().createStatement();
 		ResultSet result = statement.executeQuery(getSql(sql, range, order));
 
-		// FIXME, #173 using some SQL this may be faster
-		// skip to start, result.absolute not implemented by Oracle
-		for (int i = 0; i < range.getStart() && result.next(); i++) {
-		}
-
 		List<Event> list = new ArrayList<Event>(range.getLength());
-		for (int i = 0; i < range.getLength() && result.next(); i++) {
-			list.add(new Event(result.getString("name"), result
-					.getString("sensor"), result.getString("event_type"),
-					Double.parseDouble(result.getString("value")), Double
-							.parseDouble(result.getString("threshold")), new Date(result.getTimestamp(
-							"datetime").getTime())));
-		}
+		try {
+			// FIXME, #173 using some SQL this may be faster
+			// skip to start, result.absolute not implemented by Oracle
+			for (int i = 0; i < range.getStart() && result.next(); i++) {
+			}
 
+			for (int i = 0; i < range.getLength() && result.next(); i++) {
+				list.add(new Event(result.getString("name"), result
+						.getString("sensor"), result.getString("event_type"),
+						Double.parseDouble(result.getString("value")), Double
+								.parseDouble(result.getString("threshold")),
+						new Date(result.getTimestamp("datetime").getTime())));
+			}
+		} finally {
+			result.close();
+		}
 		return list;
 	}
 
@@ -396,9 +415,14 @@ public class DbHandler extends DbReconnectHandler {
 
 	private List<User> getUserList(ResultSet result) throws SQLException {
 		List<User> list = new ArrayList<User>();
-		while (result.next()) {
-			list.add(new User(result.getInt("ID"), result.getString("FNAME"),
-					result.getString("LNAME"), result.getString("CERN_ID")));
+		try {
+			while (result.next()) {
+				list.add(new User(result.getInt("ID"), result
+						.getString("FNAME"), result.getString("LNAME"), result
+						.getString("CERN_ID")));
+			}
+		} finally {
+			result.close();
 		}
 		return list;
 	}
@@ -429,9 +453,14 @@ public class DbHandler extends DbReconnectHandler {
 
 	private List<Device> getDeviceList(ResultSet result) throws SQLException {
 		List<Device> list = new ArrayList<Device>();
-		while (result.next()) {
-			list.add(new Device(result.getInt("ID"), result.getString("NAME"),
-					result.getString("IP"), result.getString("DSCR")));
+		try {
+			while (result.next()) {
+				list.add(new Device(result.getInt("ID"), result
+						.getString("NAME"), result.getString("IP"), result
+						.getString("DSCR")));
+			}
+		} finally {
+			result.close();
 		}
 		return list;
 	}
@@ -462,12 +491,18 @@ public class DbHandler extends DbReconnectHandler {
 
 		getIntervention.setString(1, ptuId);
 		ResultSet result = getIntervention.executeQuery();
-		if (result.next()) {
-			return new Intervention(result.getInt("id"),
-					result.getInt("user_id"), result.getString("fname"),
-					result.getString("lname"), result.getInt("device_id"),
-					result.getString("name"), result.getTimestamp("starttime"),
-					result.getTimestamp("endtime"), result.getString("dscr"));
+		try {
+			if (result.next()) {
+				return new Intervention(result.getInt("id"),
+						result.getInt("user_id"), result.getString("fname"),
+						result.getString("lname"), result.getInt("device_id"),
+						result.getString("name"),
+						result.getTimestamp("starttime"),
+						result.getTimestamp("endtime"),
+						result.getString("dscr"));
+			}
+		} finally {
+			result.close();
 		}
 		return null;
 	}

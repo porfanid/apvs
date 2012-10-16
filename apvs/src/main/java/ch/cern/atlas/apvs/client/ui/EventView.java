@@ -107,7 +107,7 @@ public class EventView extends SimplePanel implements Module {
 				
 				if (order.length == 0) {
 					order = new SortOrder[1];
-					order[0] = new SortOrder("tbl_events.datetime", true);
+					order[0] = new SortOrder("tbl_events.datetime", false);
 				} 	
 				
 				EventServiceAsync.Util.getInstance().getTableData(range, order, new AsyncCallback<List<Event>>() {
@@ -227,6 +227,8 @@ public class EventView extends SimplePanel implements Module {
 			});
 		}
 		table.addColumn(date, "Date / Time");
+		// desc sort, push twice
+		table.getColumnSortList().push(date);
 		table.getColumnSortList().push(date);
 
 		// PtuID (2)
