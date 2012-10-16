@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
@@ -48,6 +50,7 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 	private ListHandler<String> columnSortHandler;
 
 	protected PtuSettings settings = new PtuSettings();
+	protected InterventionMap interventions = new InterventionMap();
 	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
 	protected List<String> activePtuIds = new ArrayList<String>();
 
@@ -110,7 +113,7 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 				new TextCell()) {
 			@Override
 			public String getValue(String object) {
-				return settings.getName(object);
+				return interventions.get(object) != null ? interventions.get(object).getName() : "";
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -204,7 +207,7 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 		});
 		columnSortHandler.setComparator(name, new Comparator<String>() {
 			public int compare(String o1, String o2) {
-				return settings.getName(o1).compareTo(settings.getName(o2));
+				return interventions.get(o1).getName().compareTo(interventions.get(o2).getName());
 			}
 		});
 		columnSortHandler.setComparator(dosimeter, new Comparator<String>() {
@@ -241,6 +244,16 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 						update();
 					}
 				});
+		
+		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
+
+			@Override
+			public void onInterventionMapChanged(
+					InterventionMapChangedEvent event) {
+				interventions = event.getInterventionMap();
+				update();
+			}
+		});
 
 		PtuIdsChangedEvent.subscribe(eventBus,
 				new PtuIdsChangedEvent.Handler() {

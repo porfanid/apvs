@@ -10,11 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -31,17 +34,21 @@ public class TimeView extends AbstractTimeView implements Module {
 
 	private String ptuId = null;
 	private PtuSettings settings;
+	private InterventionMap interventions;
 	private String measurementName = null;
 	private EventBus cmdBus;
 	private String options;
 
 	public TimeView() {
 	}
-	
+
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
+	public boolean configure(Element element, ClientFactory clientFactory,
+			Arguments args) {
 
 		this.clientFactory = clientFactory;
+
+		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
 		height = Integer.parseInt(args.getArg(0));
 		cmdBus = clientFactory.getEventBus(args.getArg(1));
@@ -51,13 +58,24 @@ public class TimeView extends AbstractTimeView implements Module {
 		this.title = !options.contains("NoTitle");
 		this.export = !options.contains("NoExport");
 
-		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
+		PtuSettingsChangedEvent.subscribe(eventBus,
 				new PtuSettingsChangedEvent.Handler() {
 
 					@Override
 					public void onPtuSettingsChanged(
 							PtuSettingsChangedEvent event) {
 						settings = event.getPtuSettings();
+						updateChart();
+					}
+				});
+
+		InterventionMapChangedEvent.subscribe(eventBus,
+				new InterventionMapChangedEvent.Handler() {
+
+					@Override
+					public void onInterventionMapChanged(
+							InterventionMapChangedEvent event) {
+						interventions = event.getInterventionMap();
 						updateChart();
 					}
 				});
@@ -93,7 +111,7 @@ public class TimeView extends AbstractTimeView implements Module {
 				}
 			});
 		}
-		
+
 		return true;
 	}
 
@@ -213,9 +231,10 @@ public class TimeView extends AbstractTimeView implements Module {
 	}
 
 	private String getName(String ptuId) {
-		return (settings != null && settings.getName(ptuId) != null
-				&& !settings.getName(ptuId).equals("") ? settings
-				.getName(ptuId) + " - " : "")
+		return (interventions != null && interventions.get(ptuId) != null
+				&& !interventions.get(ptuId).getName().equals("") ? interventions
+				.get(ptuId).getName() + " - "
+				: "")
 				+ "" + ptuId;
 	}
 

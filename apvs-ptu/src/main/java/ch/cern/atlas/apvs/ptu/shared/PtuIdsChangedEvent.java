@@ -23,6 +23,10 @@ public class PtuIdsChangedEvent extends RemoteEvent<PtuIdsChangedEvent.Handler> 
 		void onPtuIdsChanged(PtuIdsChangedEvent event);
 	}
 
+	public static void fire(RemoteEventBus eventBus, List<String> ptuIds) {
+		eventBus.fireEvent(new PtuIdsChangedEvent(ptuIds));
+	}
+	
 	private static final Type<PtuIdsChangedEvent.Handler> TYPE = new Type<PtuIdsChangedEvent.Handler>();
 
 	/**
@@ -75,4 +79,5 @@ public class PtuIdsChangedEvent extends RemoteEvent<PtuIdsChangedEvent.Handler> 
 	public String toString() {
 		return "PtuIdsChangedEvent "+(ptuIds != null ? ptuIds.size() : "null");
 	}
+
 }

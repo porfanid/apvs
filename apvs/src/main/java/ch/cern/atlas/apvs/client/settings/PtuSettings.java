@@ -15,7 +15,7 @@ import ch.cern.atlas.apvs.client.ui.CameraView;
  * 
  */
 public class PtuSettings implements Serializable {
-	
+
 	private static final long serialVersionUID = -5390424254145424045L;
 
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
@@ -23,14 +23,12 @@ public class PtuSettings implements Serializable {
 	public static class Entry implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		String name;
 		Boolean enabled;
 		Integer dosimeterSerialNo;
 		String helmetUrl;
 		String handUrl;
 
 		public Entry() {
-			name = "";
 			enabled = true;
 			dosimeterSerialNo = 0;
 			helmetUrl = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
@@ -39,9 +37,9 @@ public class PtuSettings implements Serializable {
 
 		@Override
 		public String toString() {
-			return "PtuSetting: name=" + name + " enabled="
-					+ enabled + " dosimeterNo=" + dosimeterSerialNo
-					+ " helmetUrl=" + helmetUrl + " handUrl=" + handUrl;
+			return "PtuSetting: enabled=" + enabled + " dosimeterNo="
+					+ dosimeterSerialNo + " helmetUrl=" + helmetUrl
+					+ " handUrl=" + handUrl;
 		}
 
 	}
@@ -71,15 +69,6 @@ public class PtuSettings implements Serializable {
 
 	public void setEnabled(String object, Boolean value) {
 		entries.get(object).enabled = value;
-	}
-
-	public String getName(String ptuId) {
-		Entry entry = entries.get(ptuId);
-		return entry != null ? entry.name : "";
-	}
-
-	public void setName(String object, String value) {
-		entries.get(object).name = value;
 	}
 
 	public Integer getDosimeterSerialNumber(String ptuId) {

@@ -5,7 +5,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Dosimeter;
@@ -37,6 +39,7 @@ import com.google.gwt.view.client.ListDataProvider;
 public class DosimeterView extends VerticalFlowPanel implements Module {
 
 	private PtuSettings settings;
+	private InterventionMap interventions;
 	private ListDataProvider<Dosimeter> dataProvider = new ListDataProvider<Dosimeter>();
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
 	private ListHandler<Dosimeter> columnSortHandler;
@@ -76,12 +79,13 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 
 	public DosimeterView() {
 	}
-	
+
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
+	public boolean configure(Element element, ClientFactory clientFactory,
+			Arguments args) {
 
 		RemoteEventBus remoteEventBus = clientFactory.getRemoteEventBus();
-		
+
 		add(table);
 
 		// create class "disconected" pane
@@ -192,6 +196,17 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 					}
 				});
 
+		InterventionMapChangedEvent.subscribe(remoteEventBus,
+				new InterventionMapChangedEvent.Handler() {
+
+					@Override
+					public void onInterventionMapChanged(
+							InterventionMapChangedEvent event) {
+						interventions = event.getInterventionMap();
+						update();
+					}
+				});
+
 		DosimeterChangedEvent.subscribe(remoteEventBus,
 				new DosimeterChangedEvent.Handler() {
 
@@ -218,7 +233,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 				});
 
 		update();
-		
+
 		return true;
 	}
 
@@ -230,7 +245,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 		if (ptuId == null)
 			return "";
 
-		String name = settings.getName(ptuId);
+		String name = interventions.get(ptuId) != null ? interventions.get(ptuId).getName() : null;
 		return name != null ? name : "";
 	}
 

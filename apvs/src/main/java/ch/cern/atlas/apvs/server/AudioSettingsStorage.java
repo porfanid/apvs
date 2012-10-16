@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.server;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -8,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
-import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
@@ -58,24 +57,22 @@ public class AudioSettingsStorage {
 					}
 				});
 		
-		PtuSettingsChangedEvent.subscribe(eventBus, new PtuSettingsChangedEvent.Handler() {
-			
+		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
+
 			@Override
-			public void onPtuSettingsChanged(PtuSettingsChangedEvent event) {
-				PtuSettings ptuSettings = new PtuSettings();
-				ptuSettings = event.getPtuSettings();
-				List<String> ptuList = new ArrayList<String>(ptuSettings.getPtuIds());
-				String ptuId = new String();
-				for(int i=0; i<ptuList.size() ; i++){
-					ptuId = ptuList.get(i);
+			public void onInterventionMapChanged(
+					InterventionMapChangedEvent event) {
+				InterventionMap interventions = event.getInterventionMap();
+				for (Iterator<String> i = interventions.getPtuIds().iterator(); i.hasNext(); ) {
+					String ptuId = i.next();
 					if(audioSettings.contains(ptuId))
-						audioSettings.setUsername(ptuId, ptuSettings.getName(ptuId));
+						audioSettings.setUsername(ptuId, interventions.get(ptuId).getName());
 				}
-				
+
 				eventBus.fireEvent(new AudioSettingsChangedEvent(audioSettings));
 			}
 		});
-
+		
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override

@@ -14,8 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
@@ -63,6 +65,7 @@ public class PtuView extends VerticalPanel implements Module {
 	private Map<String, String> colorMap = new HashMap<String, String>();
 
 	private PtuSettings settings;
+	private InterventionMap interventions;
 	private EventBus cmdBus;
 
 	private void init() {
@@ -75,7 +78,8 @@ public class PtuView extends VerticalPanel implements Module {
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
+	public boolean configure(Element element, ClientFactory clientFactory,
+			Arguments args) {
 
 		eventBus = clientFactory.getRemoteEventBus();
 
@@ -197,6 +201,18 @@ public class PtuView extends VerticalPanel implements Module {
 					}
 				});
 
+		InterventionMapChangedEvent.subscribe(eventBus,
+				new InterventionMapChangedEvent.Handler() {
+
+					@Override
+					public void onInterventionMapChanged(
+							InterventionMapChangedEvent event) {
+						interventions = event.getInterventionMap();
+
+						update();
+					}
+				});
+
 		if (cmdBus != null) {
 			ColorMapChangedEvent.subscribe(cmdBus,
 					new ColorMapChangedEvent.Handler() {
@@ -208,7 +224,7 @@ public class PtuView extends VerticalPanel implements Module {
 
 					});
 		}
-		
+
 		return true;
 	}
 
@@ -267,7 +283,9 @@ public class PtuView extends VerticalPanel implements Module {
 		table.addColumn(column, new TextHeader("") {
 			@Override
 			public String getValue() {
-				String name = settings != null ? settings.getName(ptuId) : null;
+				String name = interventions != null ? interventions.get(ptuId) != null ? interventions
+						.get(ptuId).getName() : null
+						: null;
 				return name != null ? name + "<br/>(" + ptuId.toString() + ")"
 						: ptuId.toString();
 			}

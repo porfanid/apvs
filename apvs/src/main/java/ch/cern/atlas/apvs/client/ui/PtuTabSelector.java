@@ -9,9 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -36,16 +38,17 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 	private List<String> ptuIds;
 	private String ptuId;
 	private PtuSettings settings;
+	private InterventionMap interventions;
 	private List<String> extraTabs;
 
 	public PtuTabSelector() {
 	}
-	
-	@Override
-	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
-		
-//		add(new Brand("AWSS"));
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory,
+			Arguments args) {
+
+		// add(new Brand("AWSS"));
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
 
@@ -63,6 +66,17 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 							PtuSettingsChangedEvent event) {
 						settings = event.getPtuSettings();
 
+						update();
+					}
+				});
+
+		InterventionMapChangedEvent.subscribe(remoteEventBus,
+				new InterventionMapChangedEvent.Handler() {
+
+					@Override
+					public void onInterventionMapChanged(
+							InterventionMapChangedEvent event) {
+						interventions = event.getInterventionMap();
 						update();
 					}
 				});
@@ -86,14 +100,14 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 						update();
 					}
 				});
-		
+
 		return true;
 	}
 
 	private String getName(String id) {
-		return (settings != null) && !settings.getName(id).equals("") ? settings
-				.getName(id) + " (" + id.toString() + ")"
-				: id.toString();
+		return (interventions != null) && (interventions.get(id) != null)
+				&& !interventions.get(id).getName().equals("") ? interventions
+				.get(id).getName() + " (" + id.toString() + ")" : id.toString();
 	}
 
 	private String getId(String name) {
