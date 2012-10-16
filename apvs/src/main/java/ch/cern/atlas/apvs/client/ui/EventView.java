@@ -60,10 +60,10 @@ public class EventView extends SimplePanel implements Module {
 
 	public EventView() {
 	}
-	
-	@Override
-	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory,
+			Arguments args) {
 
 		String height = args.getArg(0);
 
@@ -81,49 +81,54 @@ public class EventView extends SimplePanel implements Module {
 			@SuppressWarnings("unchecked")
 			@Override
 			protected void onRangeChanged(HasData<Event> display) {
-				EventServiceAsync.Util.getInstance().getRowCount(new AsyncCallback<Integer>() {
-					
-					@Override
-					public void onSuccess(Integer result) {
-						table.setRowCount(result);
-					}
-					
-					@Override
-					public void onFailure(Throwable caught) {
-						table.setRowCount(0);
-					}
-				});
-				
+				EventServiceAsync.Util.getInstance().getRowCount(
+						new AsyncCallback<Integer>() {
+
+							@Override
+							public void onSuccess(Integer result) {
+								table.setRowCount(result);
+							}
+
+							@Override
+							public void onFailure(Throwable caught) {
+								table.setRowCount(0);
+							}
+						});
+
 				final Range range = display.getVisibleRange();
 				System.err.println(range);
 
 				final ColumnSortList sortList = table.getColumnSortList();
 				SortOrder[] order = new SortOrder[sortList.size()];
-				for (int i=0; i<sortList.size(); i++) {
+				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
 					// FIXME #88 remove cast
-					order[i] = new SortOrder(((ClickableTextColumn<Event>)info.getColumn()).getDataStoreName(), info.isAscending());
+					order[i] = new SortOrder(
+							((ClickableTextColumn<Event>) info.getColumn())
+									.getDataStoreName(),
+							info.isAscending());
 				}
-				
+
 				if (order.length == 0) {
 					order = new SortOrder[1];
 					order[0] = new SortOrder("tbl_events.datetime", false);
-				} 	
-				
-				EventServiceAsync.Util.getInstance().getTableData(range, order, new AsyncCallback<List<Event>>() {
-					
-					@Override
-					public void onSuccess(List<Event> result) {
-						System.err.println("RPC DB SUCCESS");
-						table.setRowData(range.getStart(), result);
-					}
-					
-					@Override
-					public void onFailure(Throwable caught) {
-						System.err.println("RPC DB FAILED");
-						table.setRowCount(0);
-					}
-				});
+				}
+
+				EventServiceAsync.Util.getInstance().getTableData(range, order,
+						new AsyncCallback<List<Event>>() {
+
+							@Override
+							public void onSuccess(List<Event> result) {
+								System.err.println("RPC DB SUCCESS EVENT");
+								table.setRowData(range.getStart(), result);
+							}
+
+							@Override
+							public void onFailure(Throwable caught) {
+								System.err.println("RPC DB FAILED");
+								table.setRowCount(0);
+							}
+						});
 			}
 		};
 
@@ -132,7 +137,7 @@ public class EventView extends SimplePanel implements Module {
 
 		AsyncHandler columnSortHandler = new AsyncHandler(table);
 		table.addColumnSortHandler(columnSortHandler);
-		
+
 		// Subscriptions
 		EventChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
 				new EventChangedEvent.Handler() {
@@ -158,10 +163,12 @@ public class EventView extends SimplePanel implements Module {
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement m = event.getMeasurement();
-						units.put(unitKey(m.getPtuId(), m.getName()),
-								m.getUnit());
-
-						update();
+						String key = unitKey(m.getPtuId(), m.getName());
+						String oldUnit = units.get(key);
+						if (oldUnit == null || !oldUnit.equals(m.getUnit())) {
+							units.put(key, m.getUnit());
+							update();
+						}
 					}
 				});
 
@@ -172,7 +179,7 @@ public class EventView extends SimplePanel implements Module {
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
 
-//					dataProvider.getList().clear();
+					// dataProvider.getList().clear();
 
 					update();
 				}
@@ -185,15 +192,15 @@ public class EventView extends SimplePanel implements Module {
 						public void onSelection(SelectMeasurementEvent event) {
 							measurementName = event.getName();
 
-//							dataProvider.getList().clear();
+							// dataProvider.getList().clear();
 
 							update();
 						}
 					});
-			
+
 			// FIXME #189
 			SelectTabEvent.subscribe(cmdBus, new SelectTabEvent.Handler() {
-				
+
 				@Override
 				public void onTabSelected(SelectTabEvent event) {
 					if (event.getTab().equals("Summary")) {
@@ -209,7 +216,7 @@ public class EventView extends SimplePanel implements Module {
 			public String getValue(Event object) {
 				return PtuClientConstants.dateFormat.format(object.getDate());
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "tbl_events.datetime";
@@ -389,7 +396,7 @@ public class EventView extends SimplePanel implements Module {
 						}
 					});
 		}
-		
+
 		return true;
 	}
 
@@ -399,43 +406,49 @@ public class EventView extends SimplePanel implements Module {
 	private void update() {
 		// enable / disable columns
 		if (table.getColumnIndex(ptu) >= 0) {
-			table.removeColumn(ptu);
-		}
-		if (ptuId == null) {
-			// add Ptu Column
-			table.insertColumn(1, ptu, ptuHeader);
+			if (ptuId != null) {
+				table.removeColumn(ptu);
+			}
+		} else {
+			if (ptuId == null) {
+				// add Ptu Column
+				table.insertColumn(1, ptu, ptuHeader);
+			}
 		}
 
 		if (table.getColumnIndex(name) >= 0) {
-			table.removeColumn(name);
-		}
-		if (measurementName == null) {
-			// add Name column
-			table.insertColumn(2, name, nameHeader);
+			if (measurementName != null) {
+				table.removeColumn(name);				
+			}
+		} else {
+			if (measurementName == null) {
+				// add Name column
+				table.insertColumn(2, name, nameHeader);
+			}
 		}
 
 		// Re-sort the table
-//		if (sortable) {
-//			ColumnSortEvent.fire(table, table.getColumnSortList());
-//		}
+		// if (sortable) {
+		// ColumnSortEvent.fire(table, table.getColumnSortList());
+		// }
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
 
-//		if (selectable) {
-//			Event selection = table.getSelectionModel().getSelectedObject();
-//
-//			if ((selection == null) && (dataProvider.getList().size() > 0)) {
-//				selection = dataProvider.getList().get(0);
-//
-//				selectEvent(selection);
-//			}
-//
-//			// re-set the selection as the async update may have changed the
-//			// rendering
-//			if (selection != null) {
-//				selectionModel.setSelected(selection, true);
-//			}
-//		}
+		// if (selectable) {
+		// Event selection = table.getSelectionModel().getSelectedObject();
+		//
+		// if ((selection == null) && (dataProvider.getList().size() > 0)) {
+		// selection = dataProvider.getList().get(0);
+		//
+		// selectEvent(selection);
+		// }
+		//
+		// // re-set the selection as the async update may have changed the
+		// // rendering
+		// if (selection != null) {
+		// selectionModel.setSelected(selection, true);
+		// }
+		// }
 	}
 
 	private String unitKey(String ptuId, String name) {
