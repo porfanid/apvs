@@ -107,20 +107,12 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 
 		// NAME
 		Column<String, String> name = new Column<String, String>(
-				new TextInputSizeCell(30)) {
+				new TextCell()) {
 			@Override
 			public String getValue(String object) {
 				return settings.getName(object);
 			}
 		};
-		name.setFieldUpdater(new FieldUpdater<String, String>() {
-
-			@Override
-			public void update(int index, String object, String value) {
-				settings.setName(object, value);
-				fireSettingsChangedEvent(eventBus, settings);
-			}
-		});
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
 		table.addColumn(name, "Name");
