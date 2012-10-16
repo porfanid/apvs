@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
+import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class SwitchWidgetEventHandler implements SwitchWidgetEvent.Handler {
@@ -15,22 +15,22 @@ public class SwitchWidgetEventHandler implements SwitchWidgetEvent.Handler {
 
 	private EventBus switchBus;
 	private Element element;
-	private Widget currentWidget;
-	private boolean isDestination;
+	private IsSwitchableWidget currentWidget;
 
-	public SwitchWidgetEventHandler(EventBus switchBus, Element element, Widget widget, boolean isDestination) {
+	public SwitchWidgetEventHandler(EventBus switchBus, Element element, IsSwitchableWidget switchableWidget) {
 		this.switchBus = switchBus;
 		this.element = element;
-		this.currentWidget = widget;
-		this.isDestination = isDestination;
+		this.currentWidget = switchableWidget;
 	}
 
 	@Override
 	public void onSwitchWidget(SwitchWidgetEvent event) {
 		String title = event.getTitle();
-		Widget widget = event.getWidget();
+		IsSwitchableWidget widget = event.getSwitchableWidget();
 		boolean replacement = event.isReplacement();
 
+		IsSwitchableWidget oldWidget = currentWidget;
+		boolean isDestination = oldWidget.isDestination();
 		if (replacement) {
 			if (!isDestination && (element.getChildCount() == 0)) {
 				log.info("Received other window in switch " + title);
@@ -39,8 +39,7 @@ public class SwitchWidgetEventHandler implements SwitchWidgetEvent.Handler {
 		} else if (isDestination) {
 			String oldTitle = element.getParentElement().getChild(1)
 					.getChild(0).getNodeValue();
-			Widget oldWidget = currentWidget;
-
+			
 			log.info("Received switch " + title);
 			// Widget is auto-removed from source
 			switchToWidget(title, widget);
@@ -50,10 +49,11 @@ public class SwitchWidgetEventHandler implements SwitchWidgetEvent.Handler {
 		}
 	}
 
-	private void switchToWidget(String title, Widget widget) {
-		element.getParentElement().getChild(1).getChild(0).setNodeValue(title);
-		element.appendChild(widget.getElement());
-		currentWidget = widget;
+	private void switchToWidget(String title, IsSwitchableWidget switchableWidget) {
+		switchableWidget.toggleDestination();
+		element.getParentElement().getChild(1).getChild(0).setNodeValue(title+" "+switchableWidget.isDestination());
+		element.appendChild(switchableWidget.asWidget().getElement());
+		currentWidget = switchableWidget;
 	}
 
 }

@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.client.tablet.CameraPlace;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
 import ch.cern.atlas.apvs.client.tablet.ImagePlace;
 import ch.cern.atlas.apvs.client.tablet.ProcedurePlace;
+import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
@@ -18,30 +19,31 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class PlaceView extends SimplePanel implements Module {
+public class PlaceView extends SimplePanel implements Module,
+		IsSwitchableWidget {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private RemoteEventBus remoteEventBus;
 	private String defaultImage = "Default-640x480.jpg";
 	private String ptuId;
-		
+	private boolean switchDestination = false;
+
 	public PlaceView() {
 	}
 
 	@Override
-	public boolean configure(final Element element, final ClientFactory clientFactory, Arguments args) {
-		
+	public boolean configure(final Element element,
+			final ClientFactory clientFactory, Arguments args) {
+
 		final String width = "100%";
 		final String height = "100%";
-		
+
 		final EventBus switchBus = clientFactory.getEventBus("switch");
 
 		this.remoteEventBus = clientFactory.getRemoteEventBus();
@@ -50,9 +52,11 @@ public class PlaceView extends SimplePanel implements Module {
 		String options = args.getArg(1);
 
 		boolean switchSource = options.contains("SwitchSource");
+		switchDestination = options.contains("SwitchDestination");
 
-		SwitchWidgetEvent.register(switchBus, new SwitchWidgetEventHandler(switchBus, element, this, false));
-		
+		SwitchWidgetEvent.register(switchBus, new SwitchWidgetEventHandler(
+				switchBus, element, this));
+
 		if (eventBus != null) {
 			SelectPtuEvent.subscribe(eventBus, new SelectPtuEvent.Handler() {
 
@@ -121,23 +125,34 @@ public class PlaceView extends SimplePanel implements Module {
 		Image image = new Image(defaultImage);
 		image.setWidth(width);
 		setWidget(image);
-		
-		if (switchSource) {
+
+		if (switchSource || switchDestination) {
 			image.addClickHandler(new ClickHandler() {
-				
+
 				@Override
 				public void onClick(ClickEvent event) {
 					log.info("Click " + event + " switch");
 
-					String title = element.getParentElement().getChild(1).getChild(0)
-							.getNodeValue();
+					String title = element.getParentElement().getChild(1)
+							.getChild(0).getNodeValue();
 
 					log.info("Switch Widget: " + title);
-					SwitchWidgetEvent.fire(switchBus, title, PlaceView.this, false);
+					SwitchWidgetEvent.fire(switchBus, title, PlaceView.this,
+							false);
 				}
 			});
 		}
-		
+
 		return true;
+	}
+
+	@Override
+	public boolean isDestination() {
+		return switchDestination;
+	}
+
+	@Override
+	public void toggleDestination() {
+		switchDestination = !switchDestination;
 	}
 }
