@@ -3,7 +3,6 @@ package ch.cern.atlas.apvs.ptu.shared;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -37,16 +36,7 @@ public class EventChangedEvent extends RemoteEvent<EventChangedEvent.Handler> {
 			EventChangedEvent.Handler handler) {
 		return ((RemoteEventBus)eventBus).addHandler(TYPE, handler);
 	}
-	
-	public static HandlerRegistration subscribe(EventBus eventBus, Handler handler) {
-		HandlerRegistration registration = register(eventBus, handler);
 		
-		((RemoteEventBus)eventBus).fireEvent(new RequestRemoteEvent(EventChangedEvent.class));
-		
-		return registration;
-	}
-
-	
 	private Event event;
 	
 	public EventChangedEvent() {

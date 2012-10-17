@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.server;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +11,6 @@ import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
@@ -37,25 +35,6 @@ public class AudioSettingsStorage {
 						store();	
 					}
 		});
-
-		PtuIdsChangedEvent.subscribe(eventBus, new PtuIdsChangedEvent.Handler() {
-
-					@Override
-					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-						log.info("Audio Setting Storage: PTU IDS changed");
-						List<String> activePtuIds = event.getPtuIds();
-
-						boolean changed = false;
-						for (Iterator<String> i = activePtuIds.iterator(); i.hasNext();) {
-							boolean added = audioSettings.add(i.next());
-							changed |= added;
-						}
-
-						if (changed) {
-							eventBus.fireEvent(new AudioSettingsChangedEvent(audioSettings));
-						}
-					}
-				});
 		
 		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
 
@@ -63,13 +42,21 @@ public class AudioSettingsStorage {
 			public void onInterventionMapChanged(
 					InterventionMapChangedEvent event) {
 				InterventionMap interventions = event.getInterventionMap();
+				boolean changed = false;
 				for (Iterator<String> i = interventions.getPtuIds().iterator(); i.hasNext(); ) {
 					String ptuId = i.next();
-					if(audioSettings.contains(ptuId))
-						audioSettings.setUsername(ptuId, interventions.get(ptuId).getName());
+					if(audioSettings.contains(ptuId)) {
+						boolean set = audioSettings.setUsername(ptuId, interventions.get(ptuId).getName());
+						changed |= set;
+					} else {
+						boolean added = audioSettings.add(i.next());
+						changed |= added;
+					}
 				}
 
-				eventBus.fireEvent(new AudioSettingsChangedEvent(audioSettings));
+				if (changed) {
+					eventBus.fireEvent(new AudioSettingsChangedEvent(audioSettings));
+				}
 			}
 		});
 		

@@ -17,7 +17,6 @@ import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -36,11 +35,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
 
 	private List<String> ptuIds;
-	private String ptuId;
+	private String selectedPtuId;
+	private String selectedTab;
 	private PtuSettings settings;
 	private InterventionMap interventions;
 	private List<String> extraTabs;
-
+	
 	public PtuTabSelector() {
 	}
 
@@ -57,6 +57,9 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 			eventBusses.add(clientFactory.getEventBus(busNames[i].trim()));
 		}
 		extraTabs = args.getArgs(1);
+
+		selectedTab = LocalStorage.getInstance().get(LocalStorage.SELECTED_TAB);
+		selectedPtuId = LocalStorage.getInstance().get(LocalStorage.PTU_ID);
 
 		PtuSettingsChangedEvent.subscribe(remoteEventBus,
 				new PtuSettingsChangedEvent.Handler() {
@@ -76,31 +79,21 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 					@Override
 					public void onInterventionMapChanged(
 							InterventionMapChangedEvent event) {
+
 						interventions = event.getInterventionMap();
+
+						ptuIds = interventions.getPtuIds();
+
 						update();
-					}
-				});
 
-		PtuIdsChangedEvent.subscribe(remoteEventBus,
-				new PtuIdsChangedEvent.Handler() {
-
-					@Override
-					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-
-						ptuIds = event.getPtuIds();
-
-						ptuId = LocalStorage.getInstance().get(
-								LocalStorage.PTU_ID);
-						fireEvent(new SelectPtuEvent(ptuId));
-
-						if (ptuId != null) {
-							fireEvent(new SelectTabEvent("Ptu"));
+						if (selectedTab != null) {
+							fireEvent(new SelectTabEvent(selectedPtuId == null ? selectedTab : "Ptu"));
+							fireEvent(new SelectPtuEvent(selectedPtuId));
 						}
-
-						update();
 					}
 				});
 
+		
 		return true;
 	}
 
@@ -109,16 +102,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 				&& !interventions.get(id).getName().equals("") ? interventions
 				.get(id).getName() + " (" + id.toString() + ")" : id.toString();
 	}
-
-	private String getId(String name) {
-		int open = name.indexOf('(');
-		int close = name.lastIndexOf(')');
-		if ((open >= 0) && (close >= 0)) {
-			name = name.substring(open + 1, close);
-		}
-		log.info(name);
-		return name;
-	}
+	
 
 	private void update() {
 		clear();
@@ -127,29 +111,28 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 			Collections.sort(ptuIds);
 
 			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
-				String id = i.next();
+				final String id = i.next();
 				if ((settings != null) && !settings.isEnabled(id))
 					continue;
 
-				ToggleButton b = new ToggleButton(getName(id));
-				b.setDown(id.equals(ptuId));
+				final ToggleButton b = new ToggleButton(getName(id));
+				b.setDown(id.equals(selectedTab));
 
 				b.addClickHandler(new ClickHandler() {
 
 					@Override
 					public void onClick(ClickEvent event) {
-						ptuId = null;
 
-						ToggleButton b = (ToggleButton) event.getSource();
-						ptuId = getId(b.getText());
+						selectedTab = id;
+						selectedPtuId = id;
 
 						radio(b);
 
 						fireEvent(new SelectTabEvent("Ptu"));
 
-						LocalStorage.getInstance().put(LocalStorage.PTU_ID,
-								ptuId);
-						fireEvent(new SelectPtuEvent(ptuId));
+						LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB,
+								selectedTab);
+						fireEvent(new SelectPtuEvent(selectedPtuId));						
 					}
 				});
 				add(b);
@@ -157,28 +140,27 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		}
 
 		for (Iterator<String> i = extraTabs.iterator(); i.hasNext();) {
-			ToggleButton b = new ToggleButton(i.next());
+			final String name = i.next();
+			final ToggleButton b = new ToggleButton(name);
+			b.setDown(name.equals(selectedTab));
+			
 			b.addClickHandler(new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					ptuId = null;
+					selectedTab = name;
+					selectedPtuId = null;
 
-					ToggleButton b = (ToggleButton) event.getSource();
 					radio(b);
 
-					fireEvent(new SelectTabEvent(b.getText()));
+					fireEvent(new SelectTabEvent(selectedTab));
 
-					LocalStorage.getInstance().put(LocalStorage.PTU_ID, ptuId);
-					fireEvent(new SelectPtuEvent(ptuId));
+					LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB, selectedTab);
+					fireEvent(new SelectPtuEvent(selectedPtuId));
 				}
 			});
 			add(b);
 		}
-	}
-
-	public String getPtuId() {
-		return ptuId;
 	}
 
 	private void radio(ToggleButton b) {

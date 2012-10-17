@@ -12,7 +12,6 @@ import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
-import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
@@ -20,7 +19,6 @@ import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -52,29 +50,17 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 	protected PtuSettings settings = new PtuSettings();
 	protected InterventionMap interventions = new InterventionMap();
 	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
-	protected List<String> activePtuIds = new ArrayList<String>();
 
 	public PtuSettingsView() {
 	}
-	
+
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
+	public boolean configure(Element element, ClientFactory clientFactory,
+			Arguments args) {
 
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
 		add(table);
-
-		// ACTIVE
-		Column<String, Boolean> active = new Column<String, Boolean>(
-				new ActiveCheckboxCell()) {
-			@Override
-			public Boolean getValue(String object) {
-				return activePtuIds.contains(object);
-			}
-		};
-		active.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		active.setSortable(true);
-		table.addColumn(active, "Active");
 
 		// ENABLED
 		Column<String, Boolean> enabled = new Column<String, Boolean>(
@@ -109,11 +95,11 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 		table.addColumn(ptuId, "PTU ID");
 
 		// NAME
-		Column<String, String> name = new Column<String, String>(
-				new TextCell()) {
+		Column<String, String> name = new Column<String, String>(new TextCell()) {
 			@Override
 			public String getValue(String object) {
-				return interventions.get(object) != null ? interventions.get(object).getName() : "";
+				return interventions.get(object) != null ? interventions.get(
+						object).getName() : "";
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -193,13 +179,6 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 				return o1 != null ? o1.compareTo(o2) : -1;
 			}
 		});
-		columnSortHandler.setComparator(active, new Comparator<String>() {
-			public int compare(String o1, String o2) {
-				return activePtuIds.contains(o1) ? activePtuIds.contains(o2) ? 0
-						: 1
-						: -1;
-			}
-		});
 		columnSortHandler.setComparator(enabled, new Comparator<String>() {
 			public int compare(String o1, String o2) {
 				return settings.isEnabled(o1).compareTo(settings.isEnabled(o2));
@@ -207,7 +186,8 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 		});
 		columnSortHandler.setComparator(name, new Comparator<String>() {
 			public int compare(String o1, String o2) {
-				return interventions.get(o1).getName().compareTo(interventions.get(o2).getName());
+				return interventions.get(o1).getName()
+						.compareTo(interventions.get(o2).getName());
 			}
 		});
 		columnSortHandler.setComparator(dosimeter, new Comparator<String>() {
@@ -244,25 +224,14 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 						update();
 					}
 				});
-		
-		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
 
-			@Override
-			public void onInterventionMapChanged(
-					InterventionMapChangedEvent event) {
-				interventions = event.getInterventionMap();
-				update();
-			}
-		});
-
-		PtuIdsChangedEvent.subscribe(eventBus,
-				new PtuIdsChangedEvent.Handler() {
+		InterventionMapChangedEvent.subscribe(eventBus,
+				new InterventionMapChangedEvent.Handler() {
 
 					@Override
-					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-						log.info("PTU IDS changed");
-						activePtuIds = event.getPtuIds();
-
+					public void onInterventionMapChanged(
+							InterventionMapChangedEvent event) {
+						interventions = event.getInterventionMap();
 						update();
 					}
 				});
@@ -285,7 +254,7 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 				});
 
 		update();
-		
+
 		return true;
 	}
 

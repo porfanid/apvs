@@ -259,7 +259,7 @@ public class TimeView extends AbstractTimeView implements Module {
 	private void subscribe(final String ptuId, final String name) {
 		unsubscribe();
 
-		measurementHandler = MeasurementChangedEvent.subscribe(
+		measurementHandler = MeasurementChangedEvent.register(
 				clientFactory.getRemoteEventBus(),
 				new MeasurementChangedEvent.Handler() {
 

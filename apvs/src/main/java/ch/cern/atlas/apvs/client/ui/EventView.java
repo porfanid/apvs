@@ -114,7 +114,7 @@ public class EventView extends SimplePanel implements Module {
 					order[0] = new SortOrder("tbl_events.datetime", false);
 				}
 
-				EventServiceAsync.Util.getInstance().getTableData(range, order,
+				EventServiceAsync.Util.getInstance().getTableData(range, order, ptuId, 
 						new AsyncCallback<List<Event>>() {
 
 							@Override
@@ -139,7 +139,7 @@ public class EventView extends SimplePanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 
 		// Subscriptions
-		EventChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
+		EventChangedEvent.register(clientFactory.getRemoteEventBus(),
 				new EventChangedEvent.Handler() {
 
 					@Override
@@ -156,7 +156,7 @@ public class EventView extends SimplePanel implements Module {
 					}
 				});
 
-		MeasurementChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
+		MeasurementChangedEvent.register(clientFactory.getRemoteEventBus(),
 				new MeasurementChangedEvent.Handler() {
 
 					@Override
@@ -178,7 +178,7 @@ public class EventView extends SimplePanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-
+log.info("_____> "+ptuId);
 					// dataProvider.getList().clear();
 
 					update();
@@ -405,50 +405,31 @@ public class EventView extends SimplePanel implements Module {
 
 	private void update() {
 		// enable / disable columns
-		if (table.getColumnIndex(ptu) >= 0) {
-			if (ptuId != null) {
-				table.removeColumn(ptu);
-			}
-		} else {
-			if (ptuId == null) {
-				// add Ptu Column
-				table.insertColumn(1, ptu, ptuHeader);
-			}
-		}
-
-		if (table.getColumnIndex(name) >= 0) {
-			if (measurementName != null) {
-				table.removeColumn(name);				
-			}
-		} else {
-			if (measurementName == null) {
-				// add Name column
-				table.insertColumn(2, name, nameHeader);
-			}
-		}
+//		if (table.getColumnIndex(ptu) >= 0) {
+//			if (ptuId != null) {
+//				table.removeColumn(ptu);
+//			}
+//		} else {
+//			if (ptuId == null) {
+//				// add Ptu Column
+//				table.insertColumn(1, ptu, ptuHeader);
+//			}
+//		}
+//
+//		if (table.getColumnIndex(name) >= 0) {
+//			if (measurementName != null) {
+//				table.removeColumn(name);				
+//			}
+//		} else {
+//			if (measurementName == null) {
+//				// add Name column
+//				table.insertColumn(2, name, nameHeader);
+//			}
+//		}
 
 		// Re-sort the table
-		// if (sortable) {
-		// ColumnSortEvent.fire(table, table.getColumnSortList());
-		// }
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
-
-		// if (selectable) {
-		// Event selection = table.getSelectionModel().getSelectedObject();
-		//
-		// if ((selection == null) && (dataProvider.getList().size() > 0)) {
-		// selection = dataProvider.getList().get(0);
-		//
-		// selectEvent(selection);
-		// }
-		//
-		// // re-set the selection as the async update may have changed the
-		// // rendering
-		// if (selection != null) {
-		// selectionModel.setSelected(selection, true);
-		// }
-		// }
 	}
 
 	private String unitKey(String ptuId, String name) {

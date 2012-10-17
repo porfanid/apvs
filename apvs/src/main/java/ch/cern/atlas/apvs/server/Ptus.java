@@ -51,8 +51,4 @@ public class Ptus {
 		result.addAll(ptus.keySet());
 		return result;
 	}
-
-	public Collection<Ptu> getPtus() {
-		return ptus.values();
-	}
 }

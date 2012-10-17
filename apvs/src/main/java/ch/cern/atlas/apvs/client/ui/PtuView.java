@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,7 +27,6 @@ import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -140,18 +138,7 @@ public class PtuView extends VerticalPanel implements Module {
 		selectionModel = new SingleSelectionModel<String>();
 		table.setSelectionModel(selectionModel);
 
-		PtuIdsChangedEvent.subscribe(eventBus,
-				new PtuIdsChangedEvent.Handler() {
-
-					@Override
-					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-						ptuIds = event.getPtuIds();
-						configChanged();
-						update();
-					}
-				});
-
-		MeasurementChangedEvent.subscribe(eventBus,
+		MeasurementChangedEvent.register(eventBus,
 				new MeasurementChangedEvent.Handler() {
 
 					@Override
@@ -209,6 +196,8 @@ public class PtuView extends VerticalPanel implements Module {
 							InterventionMapChangedEvent event) {
 						interventions = event.getInterventionMap();
 
+						ptuIds = interventions.getPtuIds();
+						configChanged();
 						update();
 					}
 				});
@@ -304,8 +293,6 @@ public class PtuView extends VerticalPanel implements Module {
 		}
 
 		if (ptuIds != null) {
-			Collections.sort(ptuIds);
-
 			for (Iterator<Map.Entry<String, Ptu>> i = ptus.entrySet()
 					.iterator(); i.hasNext();) {
 				Map.Entry<String, Ptu> entry = i.next();

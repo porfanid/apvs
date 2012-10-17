@@ -6,13 +6,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.client.widget.OptionList;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -22,7 +22,7 @@ import com.google.web.bindery.event.shared.EventBus;
 public class PtuSelector extends VerticalFlowPanel {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private ListBox list = new ListBox();
 
 	private List<String> ptuIds;
@@ -57,13 +57,13 @@ public class PtuSelector extends VerticalFlowPanel {
 			}
 		});
 
-		PtuIdsChangedEvent.subscribe(remoteEventBus,
-				new PtuIdsChangedEvent.Handler() {
+		InterventionMapChangedEvent.subscribe((RemoteEventBus)remoteEventBus,
+				new InterventionMapChangedEvent.Handler() {
 
 					@Override
-					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-
-						ptuIds = event.getPtuIds();
+					public void onInterventionMapChanged(
+							InterventionMapChangedEvent event) {
+						ptuIds = event.getInterventionMap().getPtuIds();
 
 						ptuId = LocalStorage.getInstance().get(
 								LocalStorage.PTU_ID);
@@ -73,6 +73,7 @@ public class PtuSelector extends VerticalFlowPanel {
 						updateSelector();
 					}
 				});
+
 		update();
 	}
 

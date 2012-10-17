@@ -110,7 +110,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			}
 		});
 
-		MeasurementChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
+		MeasurementChangedEvent.register(clientFactory.getRemoteEventBus(),
 				new MeasurementChangedEvent.Handler() {
 
 					@Override
