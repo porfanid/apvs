@@ -15,7 +15,6 @@ public class Ptu implements Serializable {
 	
 	private String ptuId;
 	protected Map<String, Measurement> measurements = new HashMap<String, Measurement>();
-	protected Map<String, History> histories = new HashMap<String, History>();
 		
 	public Ptu() {
 		ptuId = null;
@@ -58,7 +57,6 @@ public class Ptu implements Serializable {
 	public Measurement addMeasurement(Measurement measurement) throws APVSException {
 		String name = measurement.getName();
 		Measurement r = measurements.get(name);
-		// FIXME move history and add measurement
 		
 		// check if we try to store an older measurement
 		if ((r != null) && (r.getDate().getTime() > measurement.getDate().getTime())) {
@@ -67,13 +65,6 @@ public class Ptu implements Serializable {
 			measurements.put(name, measurement);
 		}
 		
-		// FIXME limit size
-		/*
-		Integer limitNoOfValues = this.limitNoOfValues.get(measurement.getName());
-		while ((limitNoOfValues != null) && (m.size() > limitNoOfValues)) {
-			m.remove(0);
-		}
-		*/
 		return r;
 	}
 
@@ -84,14 +75,6 @@ public class Ptu implements Serializable {
 			if (m != null) r.add(m);
 		}
 		return r;
-	}
-	
-	public History getHistory(String name) {
-		return histories.get(name);
-	}
-	
-	public History setHistory(String sensor, History history) {
-		return histories.put(sensor, history);
 	}	
 }
 

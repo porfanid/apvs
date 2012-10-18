@@ -125,7 +125,7 @@ public class EventView extends SimplePanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								System.err.println("RPC DB FAILED");
+								System.err.println("RPC DB FAILED "+caught);
 								table.setRowCount(0);
 							}
 						});

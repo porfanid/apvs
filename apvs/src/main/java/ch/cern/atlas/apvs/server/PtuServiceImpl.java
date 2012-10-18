@@ -1,9 +1,8 @@
 package ch.cern.atlas.apvs.server;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import javax.servlet.ServletConfig;
@@ -16,10 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.service.PtuService;
+import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 
@@ -27,7 +26,7 @@ import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class PtuServiceImpl extends ResponsePollService implements PtuService {
+public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
@@ -88,37 +87,29 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	}
 
 	@Override
-	public Ptu getPtu(String ptuId) {
-		return ptuClientHandler != null ? ptuClientHandler.getPtu(ptuId) : null;
+	public List<Measurement> getMeasurements(String ptuId) throws ServiceException {
+		try {
+			return dbHandler.getMeasurements(ptuId);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
 	}
 
 	@Override
-	public Measurement getMeasurement(String ptuId, String name) {
-		Ptu ptu = getPtu(ptuId);
-
-		return ptu != null ? ptu.getMeasurement(name) : null;
+	public Measurement getMeasurement(String ptuId, String name) throws ServiceException {
+		try {
+			return dbHandler.getMeasurement(ptuId, name);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
 	}
 
-	public History getHistory(String ptuId, String name) {
-		Ptu ptu = getPtu(ptuId);
-
-		return ptu != null ? ptu.getHistory(name) : null;
-	}
-
-	public Map<String, History> getHistories(String name) {
-		Map<String, History> result = new HashMap<String, History>();
-		if (ptuClientHandler == null) {
-			return result;
+	@Override
+	public History getHistory(String ptuId, String name) throws ServiceException {
+		try {
+			return dbHandler.getHistory(ptuId, name);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
 		}
-
-		for (Iterator<String> i = ptuClientHandler.getPtuIds().iterator(); i
-				.hasNext();) {
-			String ptuId = i.next();
-			Ptu ptu = ptuClientHandler.getPtu(ptuId);
-			if (ptu != null) {
-				result.put(ptuId, ptu.getHistory(name));
-			}
-		}
-		return result;
 	}
 }

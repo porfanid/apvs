@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
@@ -32,11 +33,13 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextHeader;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class MeasurementView extends VerticalFlowPanel implements Module {
 
@@ -56,6 +59,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 
 	private String ptuId = "PTU1234";
 
+	private RemoteEventBus remoteEventBus;
 	private EventBus cmdBus;
 
 	private boolean showHeader = true;
@@ -65,13 +69,15 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 
 	private String options;
 
+	private HandlerRegistration measurementHandler;
+
 	public MeasurementView() {
 	}
 	
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
-		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
+		remoteEventBus = clientFactory.getRemoteEventBus();
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		options = args.getArg(1);
 		show = args.getArgs(2);
@@ -87,7 +93,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 
 		add(table);
 		
-		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedEvent.subscribe(remoteEventBus, new InterventionMapChangedEvent.Handler() {
 
 			@Override
 			public void onInterventionMapChanged(
@@ -103,26 +109,10 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			public void onPtuSelected(final SelectPtuEvent event) {
 				ptuId = event.getPtuId();
 
-				if (ptuId == null) {
-					refillList();
-				}
+				changePtuId();
 				update();
 			}
 		});
-
-		MeasurementChangedEvent.register(clientFactory.getRemoteEventBus(),
-				new MeasurementChangedEvent.Handler() {
-
-					@Override
-					public void onMeasurementChanged(
-							MeasurementChangedEvent event) {
-						Measurement measurement = event.getMeasurement();
-						if (measurement.getPtuId().equals(ptuId)) {
-							last = replace(measurement, last);
-							update();
-						}
-					}
-				});
 
 		name = new ClickableHtmlColumn<Measurement>() {
 			@Override
@@ -137,7 +127,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 
 				@Override
 				public void update(int index, Measurement object, String value) {
-					selectMeasurement(object.getName());
+					selectMeasurement(object);
 				}
 			});
 		}
@@ -185,7 +175,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 
 				@Override
 				public void update(int index, Measurement object, String value) {
-					selectMeasurement(object.getName());
+					selectMeasurement(object);
 				}
 			});
 		}
@@ -204,7 +194,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 
 				@Override
 				public void update(int index, Measurement object, String value) {
-					selectMeasurement(object.getName());
+					selectMeasurement(object);
 				}
 			});
 		}
@@ -273,19 +263,51 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 						}
 					});
 		}
-
-		// fill initial list
-		refillList();
+		
+		changePtuId();
 		
 		return true;
 	}
 
-	private void refillList() {
+	private void changePtuId() {
 		dataProvider.getList().clear();
-		for (Iterator<String> i = show.iterator(); i.hasNext();) {
-			String name = i.next();
-			dataProvider.getList().add(new NullMeasurement(null, name));
+		if (measurementHandler != null) {
+			measurementHandler.removeHandler();
+			measurementHandler = null;
 		}
+		
+		PtuServiceAsync.Util.getInstance().getMeasurements(ptuId, new AsyncCallback<List<Measurement>>() {
+			
+			@Override
+			public void onSuccess(List<Measurement> result) {
+				for (Iterator<Measurement> i = result.iterator(); i.hasNext(); ) {
+					Measurement measurement = i.next();
+					if ((show == null) || (show.size() == 0) || (show.contains(measurement.getName()))) {
+						dataProvider.getList().add(measurement);
+					}
+				}
+				
+				measurementHandler = MeasurementChangedEvent.register(remoteEventBus,
+						new MeasurementChangedEvent.Handler() {
+
+							@Override
+							public void onMeasurementChanged(
+									MeasurementChangedEvent event) {
+								Measurement measurement = event.getMeasurement();
+								if (measurement.getPtuId().equals(ptuId)) {
+									last = replace(measurement, last);
+									update();
+								}
+							}
+						});				
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+		});		
 	}
 
 	public static SafeHtml decorate(String s, Measurement current,
@@ -315,7 +337,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			if ((selection == null) && (dataProvider.getList().size() > 0)) {
 				selection = dataProvider.getList().get(0);
 
-				selectMeasurement(selection.getName());
+				selectMeasurement(selection);
 			}
 
 			// re-set the selection as the async update may have changed the
@@ -349,8 +371,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 		return lastValue;
 	}
 
-	private void selectMeasurement(String name) {
-		SelectMeasurementEvent.fire(cmdBus, name);
+	private void selectMeasurement(Measurement measurement) {
+		SelectMeasurementEvent.fire(cmdBus, measurement.getName());
 	}
 
 }
