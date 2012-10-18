@@ -30,7 +30,7 @@ public class AudioView extends VerticalPanel implements Module{
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	
-	private List<String> activePtuIds = new ArrayList<String>();
+	private List<String> ptuId = new ArrayList<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 	
 	public AudioView() {
