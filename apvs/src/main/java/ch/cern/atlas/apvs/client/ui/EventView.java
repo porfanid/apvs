@@ -405,27 +405,27 @@ log.info("_____> "+ptuId);
 
 	private void update() {
 		// enable / disable columns
-//		if (table.getColumnIndex(ptu) >= 0) {
-//			if (ptuId != null) {
-//				table.removeColumn(ptu);
-//			}
-//		} else {
-//			if (ptuId == null) {
-//				// add Ptu Column
-//				table.insertColumn(1, ptu, ptuHeader);
-//			}
-//		}
-//
-//		if (table.getColumnIndex(name) >= 0) {
-//			if (measurementName != null) {
-//				table.removeColumn(name);				
-//			}
-//		} else {
-//			if (measurementName == null) {
-//				// add Name column
-//				table.insertColumn(2, name, nameHeader);
-//			}
-//		}
+		if (table.getColumnIndex(ptu) >= 0) {
+			if (ptuId != null) {
+				table.removeColumn(ptu);
+			}
+		} else {
+			if (ptuId == null) {
+				// add Ptu Column
+				table.insertColumn(1, ptu, ptuHeader);
+			}
+		}
+
+		if (table.getColumnIndex(name) >= 0) {
+			if (measurementName != null) {
+				table.removeColumn(name);				
+			}
+		} else {
+			if (measurementName == null) {
+				// add Name column
+				table.insertColumn(2, name, nameHeader);
+			}
+		}
 
 		// Re-sort the table
 		RangeChangeEvent.fire(table, table.getVisibleRange());
