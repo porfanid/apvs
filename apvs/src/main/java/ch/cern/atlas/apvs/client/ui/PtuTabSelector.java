@@ -29,6 +29,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuTabSelector extends HorizontalPanel implements Module {
 
+	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private RemoteEventBus remoteEventBus;

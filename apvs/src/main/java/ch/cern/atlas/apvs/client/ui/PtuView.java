@@ -16,6 +16,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
@@ -25,7 +26,6 @@ import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
@@ -39,6 +39,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextHeader;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
@@ -58,6 +59,7 @@ public class PtuView extends VerticalPanel implements Module {
 	private List<String> ptuIds;
 	private Measurement last;
 	private SortedMap<String, Ptu> ptus;
+	private Map<String, String> displayNames;
 	private Map<String, String> units;
 	private SingleSelectionModel<String> selectionModel;
 	private Map<String, String> colorMap = new HashMap<String, String>();
@@ -70,6 +72,7 @@ public class PtuView extends VerticalPanel implements Module {
 		last = new Measurement();
 		ptus = new TreeMap<String, Ptu>();
 		units = new HashMap<String, String>();
+		displayNames = new HashMap<String, String>();
 	}
 
 	public PtuView() {
@@ -91,7 +94,7 @@ public class PtuView extends VerticalPanel implements Module {
 		ClickableHtmlColumn<String> name = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String object) {
-				return object;
+				return displayNames.get(object);
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -145,33 +148,7 @@ public class PtuView extends VerticalPanel implements Module {
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement measurement = event.getMeasurement();
-						String ptuId = measurement.getPtuId();
-						if ((ptuIds == null) || !ptuIds.contains(ptuId))
-							return;
-
-						Ptu ptu = ptus.get(ptuId);
-						if (ptu == null) {
-							ptu = new Ptu(ptuId);
-							ptus.put(ptuId, ptu);
-						}
-
-						String name = measurement.getName();
-						try {
-							if (ptu.getMeasurement(name) == null) {
-								units.put(name, measurement.getUnit());
-								ptu.addMeasurement(measurement);
-								last = measurement;
-							} else {
-								last = ptu.addMeasurement(measurement);
-							}
-						} catch (APVSException e) {
-							log.warn("Could not add measurement", e);
-						}
-
-						String displayName = measurement.getDisplayName();
-						if (!dataProvider.getList().contains(displayName)) {
-							dataProvider.getList().add(displayName);
-						}
+						addOrReplaceMeasurement(measurement, last);
 						update();
 					}
 				});
@@ -215,6 +192,36 @@ public class PtuView extends VerticalPanel implements Module {
 		}
 
 		return true;
+	}
+
+	private void addOrReplaceMeasurement(Measurement measurement, Measurement lastValue) {
+		String ptuId = measurement.getPtuId();
+		if ((ptuIds == null) || !ptuIds.contains(ptuId))
+			return;
+
+		Ptu ptu = ptus.get(ptuId);
+		if (ptu == null) {
+			ptu = new Ptu(ptuId);
+			ptus.put(ptuId, ptu);
+		}
+
+		String name = measurement.getName();
+		try {
+			if (ptu.getMeasurement(name) == null) {
+				units.put(name, measurement.getUnit());
+				displayNames.put(name, measurement.getDisplayName());
+				ptu.addMeasurement(measurement);
+				lastValue = measurement;
+			} else {
+				lastValue = ptu.addMeasurement(measurement);
+			}
+		} catch (APVSException e) {
+			log.warn("Could not add measurement", e);
+		}
+
+		if (!dataProvider.getList().contains(name)) {
+			dataProvider.getList().add(name);
+		}
 	}
 
 	private void addColumn(final String ptuId) {
@@ -303,15 +310,29 @@ public class PtuView extends VerticalPanel implements Module {
 			}
 
 			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
-				String id = i.next();
-				if ((settings == null) || settings.isEnabled(id)) {
-					addColumn(id);
+				String ptuId = i.next();
+				if ((settings == null) || settings.isEnabled(ptuId)) {
+					addColumn(ptuId);
+
+					PtuServiceAsync.Util.getInstance().getMeasurements(ptuId,
+							new AsyncCallback<List<Measurement>>() {
+
+								@Override
+								public void onSuccess(List<Measurement> result) {
+									for (Iterator<Measurement> i = result
+											.iterator(); i.hasNext();) {
+										addOrReplaceMeasurement(i.next(), new Measurement());
+									}
+								}
+
+								@Override
+								public void onFailure(Throwable caught) {
+									log.warn("PtuView getMeasurements failed "
+											+ caught);
+								}
+							});
 				}
 			}
-
-			eventBus.fireEvent(new RequestRemoteEvent(
-					MeasurementChangedEvent.class));
-
 		} else {
 			init();
 		}

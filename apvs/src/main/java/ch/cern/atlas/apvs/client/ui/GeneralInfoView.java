@@ -107,12 +107,6 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 				Object s = getValue(name);
 				getCell().render(context, s, sb);
 			}
-
-			@Override
-			public void onBrowserEvent(Context context, Element elem,
-					String name, NativeEvent event) {
-				super.onBrowserEvent(context, elem, name, event);
-			}
 		};
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		table.addColumn(column, showHeader ? new TextHeader("Value") : null);

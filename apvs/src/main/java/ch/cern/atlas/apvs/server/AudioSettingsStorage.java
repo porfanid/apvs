@@ -49,7 +49,7 @@ public class AudioSettingsStorage {
 						boolean set = audioSettings.setUsername(ptuId, interventions.get(ptuId).getName());
 						changed |= set;
 					} else {
-						boolean added = audioSettings.add(i.next());
+						boolean added = audioSettings.add(ptuId);
 						changed |= added;
 					}
 				}

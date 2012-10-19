@@ -27,6 +27,7 @@ import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
+import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuServerConstants;
@@ -52,6 +53,8 @@ public class DbHandler extends DbReconnectHandler {
 	private PreparedStatement endIntervention;
 	private PreparedStatement getIntervention;
 	private PreparedStatement updateInterventionDescription;
+	private PreparedStatement measurementQuery;
+	private PreparedStatement measurementListQuery;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super();
@@ -63,8 +66,7 @@ public class DbHandler extends DbReconnectHandler {
 			public void onRequestEvent(RequestRemoteEvent event) {
 				String type = event.getRequestedClassName();
 
-				if (type.equals(InterventionMapChangedEvent.class
-						.getName())) {
+				if (type.equals(InterventionMapChangedEvent.class.getName())) {
 					InterventionMapChangedEvent.fire(eventBus, interventions);
 				}
 			}
@@ -79,77 +81,83 @@ public class DbHandler extends DbReconnectHandler {
 				try {
 					updateInterventions();
 				} catch (SQLException e) {
-					log.warn("Could not regularly-update intervention list: ", e);
+					log.warn("Could not regularly-update intervention list: ",
+							e);
 				}
 			}
 		}, 30, 30, TimeUnit.SECONDS);
 	}
 
-	public History getHistory(String ptuId, String sensor, String unit) {
-		History history = null;
+	// NOTE: needs to be synchronized OR needs to have separate
+	// preparedStatements...
+	public synchronized History getHistory(String ptuId, String sensor)
+			throws SQLException {
 		// check on history and load from DB
-		if ((historyQuery != null) && (historyQueryCount != null)) {
-
-			long PERIOD = 36; // hours
-			Date then = new Date(new Date().getTime() - (PERIOD * 3600000));
-			String timestamp = PtuServerConstants.timestampFormat.format(then);
-
-			try {
-				historyQueryCount.setString(1, sensor);
-				historyQueryCount.setString(2, ptuId);
-				historyQueryCount.setString(3, timestamp);
-				historyQuery.setString(1, sensor);
-				historyQuery.setString(2, ptuId);
-				historyQuery.setString(3, timestamp);
-
-				ResultSet result = historyQueryCount.executeQuery();
-				int n = 0;
-				try {
-					result.next();
-
-					n = result.getInt(1);
-				} finally {
-					result.close();
-				}
-
-				int MAX_ENTRIES = 1000;
-				long MIN_INTERVAL = 5000; // ms
-
-				if (n > 0) {
-					// limit entries
-					if (n > MAX_ENTRIES)
-						n = 1000;
-
-					Deque<Number[]> data = new ArrayDeque<Number[]>(n);
-
-					long lastTime = new Date().getTime();
-					result = historyQuery.executeQuery();
-					while (result.next() && (data.size() <= n)) {
-						long time = result.getTimestamp(1).getTime();
-
-						// limit entry separation (reverse order)
-						if (lastTime - time > MIN_INTERVAL) {
-							lastTime = time;
-
-							Number[] entry = new Number[2];
-							entry[0] = time;
-							entry[1] = Double.parseDouble(result.getString(2));
-							data.addFirst(entry);
-						}
-					}
-					result.close();
-
-					log.info("Creating history for " + ptuId + " " + sensor
-							+ " " + data.size() + " entries");
-					history = new History(
-							data.toArray(new Number[data.size()][]), unit);
-
-				}
-			} catch (SQLException ex) {
-				log.warn("Exception", ex);
-			}
+		if ((historyQuery == null) || (historyQueryCount == null)) {
+			return null;
 		}
-		return history;
+
+		long PERIOD = 36; // hours
+		Date then = new Date(new Date().getTime() - (PERIOD * 3600000));
+		String timestamp = PtuServerConstants.timestampFormat.format(then);
+
+		historyQueryCount.setString(1, sensor);
+		historyQueryCount.setString(2, ptuId);
+		historyQueryCount.setString(3, timestamp);
+		historyQuery.setString(1, sensor);
+		historyQuery.setString(2, ptuId);
+		historyQuery.setString(3, timestamp);
+
+		ResultSet resultCount = historyQueryCount.executeQuery();
+		int n = 0;
+		try {
+			if (resultCount.next()) {
+				n = resultCount.getInt(1);
+			}
+		} finally {
+			resultCount.close();
+		}
+
+		int MAX_ENTRIES = 1000;
+		long MIN_INTERVAL = 5000; // ms
+
+		if (n <= 0) {
+			return null;
+		}
+
+		// limit entries
+		if (n > MAX_ENTRIES) {
+			n = 1000;
+		}
+
+		Deque<Number[]> data = new ArrayDeque<Number[]>(n);
+
+		long lastTime = new Date().getTime();
+		ResultSet result = historyQuery.executeQuery();
+		String unit = "";
+		try {
+			while (result.next() && (data.size() <= n)) {
+				long time = result.getTimestamp("datetime").getTime();
+				unit = result.getString("unit");
+				double value = Double.parseDouble(result.getString("value"));
+
+				// limit entry separation (reverse order)
+				if (lastTime - time > MIN_INTERVAL) {
+					lastTime = time;
+
+					Number[] entry = new Number[2];
+					entry[0] = time;
+					entry[1] = value;
+					data.addFirst(entry);
+				}
+			}
+
+			log.info("Creating history for " + ptuId + " " + sensor + " "
+					+ data.size() + " entries");
+			return new History(data.toArray(new Number[data.size()][]), unit);
+		} finally {
+			result.close();
+		}
 	}
 
 	@Override
@@ -161,12 +169,12 @@ public class DbHandler extends DbReconnectHandler {
 		historyQueryCount = connection
 				.prepareStatement("select count(*) from tbl_measurements "
 						+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
-						+ "where sensor = ? " + "and name = ? "
-						+ "and datetime > to_timestamp(?,"
+						+ "where SENSOR = ? " + "and NAME = ? "
+						+ "and DATETIME > to_timestamp(?,"
 						+ PtuServerConstants.oracleFormat + ")");
 
 		historyQuery = connection
-				.prepareStatement("select DATETIME, VALUE from tbl_measurements "
+				.prepareStatement("select DATETIME, UNIT, VALUE from tbl_measurements "
 						+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
 						+ "where SENSOR = ? "
 						+ "and NAME = ? "
@@ -188,7 +196,7 @@ public class DbHandler extends DbReconnectHandler {
 		historyQueryCount = null;
 		historyQuery = null;
 		deviceQuery = null;
-		
+
 		interventions.clear();
 		InterventionMapChangedEvent.fire(eventBus, interventions);
 	}
@@ -264,7 +272,8 @@ public class DbHandler extends DbReconnectHandler {
 	public int getEventCount(String ptuId) throws SQLException {
 		String sql = "select count(*) from tbl_events";
 		if (ptuId != null) {
-			sql += "join tbl_devices on tbl_events.device_id = tbl_devices.id where tbl_devices.name = '"+ptuId+"'";
+			sql += "join tbl_devices on tbl_events.device_id = tbl_devices.id where tbl_devices.name = '"
+					+ ptuId + "'";
 		}
 		return getCount(sql);
 	}
@@ -277,7 +286,7 @@ public class DbHandler extends DbReconnectHandler {
 				+ "from tbl_events "
 				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
 		if (ptuId != null) {
-			sql += " where tbl_devices.name = '"+ptuId+"'";
+			sql += " where tbl_devices.name = '" + ptuId + "'";
 		}
 
 		Statement statement = getConnection().createStatement();
@@ -291,10 +300,12 @@ public class DbHandler extends DbReconnectHandler {
 			}
 
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
+				double value = getDouble(result.getString("value"));
+				double threshold = getDouble(result.getString("threshold"));
+				
 				list.add(new Event(result.getString("name"), result
 						.getString("sensor"), result.getString("event_type"),
-						Double.parseDouble(result.getString("value")), Double
-								.parseDouble(result.getString("threshold")),
+						value, threshold,
 						new Date(result.getTimestamp("datetime").getTime())));
 			}
 		} finally {
@@ -303,8 +314,14 @@ public class DbHandler extends DbReconnectHandler {
 		}
 		return list;
 	}
+	
+	private double getDouble(String string) {
+		if (string == null) return 0;
+		
+		return Double.parseDouble(string);
+	}
 
-	public void addUser(User user) throws SQLException {
+	public synchronized void addUser(User user) throws SQLException {
 		if (addUser == null) {
 			addUser = getConnection()
 					.prepareStatement(
@@ -317,7 +334,7 @@ public class DbHandler extends DbReconnectHandler {
 		addUser.executeUpdate();
 	}
 
-	public void addDevice(Device device) throws SQLException {
+	public synchronized void addDevice(Device device) throws SQLException {
 		if (addDevice == null) {
 			addDevice = getConnection()
 					.prepareStatement(
@@ -330,7 +347,8 @@ public class DbHandler extends DbReconnectHandler {
 		addDevice.executeUpdate();
 	}
 
-	public void addIntervention(Intervention intervention) throws SQLException {
+	public synchronized void addIntervention(Intervention intervention)
+			throws SQLException {
 		if (addIntervention == null) {
 			addIntervention = getConnection()
 					.prepareStatement(
@@ -347,7 +365,8 @@ public class DbHandler extends DbReconnectHandler {
 		updateInterventions();
 	}
 
-	public void endIntervention(int id, Date date) throws SQLException {
+	public synchronized void endIntervention(int id, Date date)
+			throws SQLException {
 		if (endIntervention == null) {
 			endIntervention = getConnection().prepareStatement(
 					"update tbl_inspections set endtime = ? where id = ?");
@@ -364,7 +383,7 @@ public class DbHandler extends DbReconnectHandler {
 		return notBusy ? getNotBusyUsers() : getAllUsers();
 	}
 
-	private List<User> getNotBusyUsers() throws SQLException {
+	private synchronized List<User> getNotBusyUsers() throws SQLException {
 		if (notBusyUserQuery == null) {
 			notBusyUserQuery = getConnection().prepareStatement(
 					"select ID, FNAME, LNAME, CERN_ID from tbl_users "
@@ -377,7 +396,7 @@ public class DbHandler extends DbReconnectHandler {
 		return getUserList(notBusyUserQuery.executeQuery());
 	}
 
-	private List<User> getAllUsers() throws SQLException {
+	private synchronized List<User> getAllUsers() throws SQLException {
 		if (userQuery == null) {
 			userQuery = getConnection()
 					.prepareStatement(
@@ -387,7 +406,8 @@ public class DbHandler extends DbReconnectHandler {
 		return getUserList(userQuery.executeQuery());
 	}
 
-	private List<User> getUserList(ResultSet result) throws SQLException {
+	private synchronized List<User> getUserList(ResultSet result)
+			throws SQLException {
 		List<User> list = new ArrayList<User>();
 		try {
 			while (result.next()) {
@@ -405,7 +425,7 @@ public class DbHandler extends DbReconnectHandler {
 		return notBusy ? getNotBusyDevices() : getDevices();
 	}
 
-	private List<Device> getNotBusyDevices() throws SQLException {
+	private synchronized List<Device> getNotBusyDevices() throws SQLException {
 		if (notBusyDeviceQuery == null) {
 			notBusyDeviceQuery = getConnection().prepareStatement(
 					"select ID, NAME, IP, DSCR from tbl_devices "
@@ -425,7 +445,8 @@ public class DbHandler extends DbReconnectHandler {
 		return getDeviceList(deviceQuery.executeQuery());
 	}
 
-	private List<Device> getDeviceList(ResultSet result) throws SQLException {
+	private synchronized List<Device> getDeviceList(ResultSet result)
+			throws SQLException {
 		List<Device> list = new ArrayList<Device>();
 		try {
 			while (result.next()) {
@@ -439,8 +460,8 @@ public class DbHandler extends DbReconnectHandler {
 		return list;
 	}
 
-	public void updateInterventionDescription(int id, String description)
-			throws SQLException {
+	public synchronized void updateInterventionDescription(int id,
+			String description) throws SQLException {
 		if (updateInterventionDescription == null) {
 			updateInterventionDescription = getConnection().prepareStatement(
 					"update tbl_inspections set dscr = ? where id=?");
@@ -453,7 +474,8 @@ public class DbHandler extends DbReconnectHandler {
 		updateInterventions();
 	}
 
-	public Intervention getIntervention(String ptuId) throws SQLException {
+	public synchronized Intervention getIntervention(String ptuId)
+			throws SQLException {
 		if (getIntervention == null) {
 			getIntervention = getConnection()
 					.prepareStatement(
@@ -483,7 +505,7 @@ public class DbHandler extends DbReconnectHandler {
 		return null;
 	}
 
-	private void updateInterventions() throws SQLException {
+	private synchronized void updateInterventions() throws SQLException {
 		String sql = "select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
 				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
@@ -491,10 +513,10 @@ public class DbHandler extends DbReconnectHandler {
 
 		Statement statement = getConnection().createStatement();
 		ResultSet result = statement.executeQuery(sql);
-		interventions.clear();
+		InterventionMap newMap = new InterventionMap();
 		try {
 			while (result.next()) {
-				interventions.put(
+				newMap.put(
 						result.getString("name"),
 						new Intervention(result.getInt("id"), result
 								.getInt("user_id"), result.getString("fname"),
@@ -509,7 +531,68 @@ public class DbHandler extends DbReconnectHandler {
 			result.close();
 			statement.close();
 		}
+		
+		if (!interventions.equals(newMap)) {
+			interventions = newMap;
+			InterventionMapChangedEvent.fire(eventBus, interventions);
+		}
+	}
 
-		InterventionMapChangedEvent.fire(eventBus, interventions);
+	public synchronized Measurement getMeasurement(String ptuId, String name)
+			throws SQLException {
+		if (measurementQuery == null) {
+			measurementQuery = getConnection()
+					.prepareStatement(
+							"select NAME, SENSOR, VALUE, SAMPLINGRATE, UNIT, DATETIME from tbl_measurements "
+									+ "join tbl_devices on tbl_devices.id = tbl_measurements.device_id "
+									+ "where NAME = ? "
+									+ "and SENSOR = ? "
+									+ "order by DATETIME DESC");
+		}
+
+		measurementQuery.setString(1, ptuId);
+		measurementQuery.setString(2, name);
+		ResultSet result = measurementQuery.executeQuery();
+		try {
+			if (result.next()) {
+				return new Measurement(result.getString("NAME"),
+						result.getString("SENSOR"),
+						Double.parseDouble(result.getString("VALUE")),
+						Integer.parseInt(result.getString("SAMPLINGRATE")),
+						result.getString("UNIT"), new Date(result.getTimestamp(
+								"DATETIME").getTime()));
+			}
+		} finally {
+			result.close();
+		}
+		return null;
+	}
+
+	public synchronized List<Measurement> getMeasurements(String ptuId)
+			throws SQLException {
+		// FIXME we could find a faster way
+		if (measurementListQuery == null) {
+			measurementListQuery = getConnection()
+					.prepareStatement(
+							"select distinct(SENSOR) from tbl_measurements "
+									+ "join tbl_devices on tbl_devices.id = tbl_measurements.device_id "
+									+ "where NAME = ? ");
+		}
+
+		measurementListQuery.setString(1, ptuId);
+		ResultSet result = measurementListQuery.executeQuery();
+
+		List<Measurement> list = new ArrayList<Measurement>();
+		try {
+			while (result.next()) {
+				Measurement m = getMeasurement(ptuId, result.getString("SENSOR"));
+				if (m != null) {
+					list.add(m);
+				}
+			}
+		} finally {
+			result.close();
+		}
+		return list;
 	}
 }

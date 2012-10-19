@@ -7,6 +7,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import ch.cern.atlas.apvs.client.domain.Intervention;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 
 public class InterventionMap implements Serializable {
 
@@ -34,5 +35,17 @@ public class InterventionMap implements Serializable {
 		interventions.clear();
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof InterventionMap) {
+			return interventions.entrySet().equals(((InterventionMap)obj).interventions.entrySet());
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return interventions.entrySet().hashCode();
+	}
 
 }
