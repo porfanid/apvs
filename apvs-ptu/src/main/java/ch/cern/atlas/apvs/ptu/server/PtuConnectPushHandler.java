@@ -13,6 +13,7 @@ public class PtuConnectPushHandler  {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
+	@SuppressWarnings("unused")
 	private String[] ptuIds = { "PTU_78347", "PTU_82098", "PTU_37309",
 			"PTU_27372", "PTU_39400", "PTU_88982" };
 

@@ -4,6 +4,7 @@ import com.google.gwt.storage.client.Storage;
 
 public class LocalStorage {
 
+	public static final String SELECTED_TAB = "SELECTED_TAB";
 	public static final String PTU_ID = "PTU_ID";
 	
 	private static LocalStorage instance;

@@ -11,10 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,17 +19,17 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.domain.Device;
+import ch.cern.atlas.apvs.client.domain.Intervention;
+import ch.cern.atlas.apvs.client.domain.User;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.service.SortOrder;
-import ch.cern.atlas.apvs.client.ui.Device;
-import ch.cern.atlas.apvs.client.ui.Intervention;
-import ch.cern.atlas.apvs.client.ui.User;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
-import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuServerConstants;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.view.client.Range;
 
@@ -41,7 +38,7 @@ public class DbHandler extends DbReconnectHandler {
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
 
-	private Ptus ptus = Ptus.getInstance();
+	private InterventionMap interventions = new InterventionMap();
 
 	private PreparedStatement historyQueryCount;
 	private PreparedStatement historyQuery;
@@ -60,16 +57,15 @@ public class DbHandler extends DbReconnectHandler {
 		super();
 		this.eventBus = eventBus;
 
-		ptus.setDbHandler(this);
-
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
 				String type = event.getRequestedClassName();
 
-				if (type.equals(PtuIdsChangedEvent.class.getName())) {
-					eventBus.fireEvent(new PtuIdsChangedEvent(ptus.getPtuIds()));
+				if (type.equals(InterventionMapChangedEvent.class
+						.getName())) {
+					InterventionMapChangedEvent.fire(eventBus, interventions);
 				}
 			}
 		});
@@ -81,9 +77,9 @@ public class DbHandler extends DbReconnectHandler {
 			@Override
 			public void run() {
 				try {
-					updatePtus();
+					updateInterventions();
 				} catch (SQLException e) {
-					log.warn("Could not regularly-update device list: ", e);
+					log.warn("Could not regularly-update intervention list: ", e);
 				}
 			}
 		}, 30, 30, TimeUnit.SECONDS);
@@ -182,7 +178,7 @@ public class DbHandler extends DbReconnectHandler {
 		deviceQuery = connection
 				.prepareStatement("select ID, NAME, IP, DSCR from tbl_devices order by NAME");
 
-		updatePtus();
+		updateInterventions();
 	}
 
 	@Override
@@ -192,45 +188,9 @@ public class DbHandler extends DbReconnectHandler {
 		historyQueryCount = null;
 		historyQuery = null;
 		deviceQuery = null;
-	}
-
-	private void updatePtus() throws SQLException {
-		if (deviceQuery == null)
-			return;
-
-		Set<String> prune = new HashSet<String>();
-		prune.addAll(ptus.getPtuIds());
-
-		boolean ptuIdsChanged = false;
-		ResultSet result = deviceQuery.executeQuery();
-		try {
-			while (result.next()) {
-				// int id = result.getInt(1);
-				String ptuId = result.getString("NAME");
-
-				Ptu ptu = ptus.get(ptuId);
-				if (ptu == null) {
-					ptu = new Ptu(ptuId);
-					ptus.put(ptuId, ptu);
-					ptuIdsChanged = true;
-				} else {
-					prune.remove(ptuId);
-				}
-			}
-		} finally {
-			result.close();
-		}
-
-		log.info("Pruning " + prune.size() + " devices...");
-		for (Iterator<String> i = prune.iterator(); i.hasNext();) {
-			ptus.remove(i.next());
-			ptuIdsChanged = true;
-		}
-
-		if (ptuIdsChanged) {
-			eventBus.fireEvent(new PtuIdsChangedEvent(ptus.getPtuIds()));
-			ptuIdsChanged = false;
-		}
+		
+		interventions.clear();
+		InterventionMapChangedEvent.fire(eventBus, interventions);
 	}
 
 	private String getSql(String sql, Range range, SortOrder[] order) {
@@ -257,6 +217,7 @@ public class DbHandler extends DbReconnectHandler {
 			return result.next() ? result.getInt(1) : 0;
 		} finally {
 			result.close();
+			statement.close();
 		}
 	}
 
@@ -294,22 +255,30 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		} finally {
 			result.close();
+			statement.close();
 		}
 
 		return list;
 	}
 
-	public int getEventCount() throws SQLException {
-		return getCount("select count(*) from tbl_events");
+	public int getEventCount(String ptuId) throws SQLException {
+		String sql = "select count(*) from tbl_events";
+		if (ptuId != null) {
+			sql += "join tbl_devices on tbl_events.device_id = tbl_devices.id where tbl_devices.name = '"+ptuId+"'";
+		}
+		return getCount(sql);
 	}
 
-	public List<Event> getEvents(Range range, SortOrder[] order)
+	public List<Event> getEvents(Range range, SortOrder[] order, String ptuId)
 			throws SQLException {
 
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
 				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
 				+ "from tbl_events "
 				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
+		if (ptuId != null) {
+			sql += " where tbl_devices.name = '"+ptuId+"'";
+		}
 
 		Statement statement = getConnection().createStatement();
 		ResultSet result = statement.executeQuery(getSql(sql, range, order));
@@ -330,6 +299,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		} finally {
 			result.close();
+			statement.close();
 		}
 		return list;
 	}
@@ -373,6 +343,8 @@ public class DbHandler extends DbReconnectHandler {
 				.getStartTime().getTime()));
 		addIntervention.setString(4, intervention.getDescription());
 		addIntervention.executeUpdate();
+
+		updateInterventions();
 	}
 
 	public void endIntervention(int id, Date date) throws SQLException {
@@ -384,6 +356,8 @@ public class DbHandler extends DbReconnectHandler {
 		endIntervention.setTimestamp(1, new Timestamp(date.getTime()));
 		endIntervention.setInt(2, id);
 		endIntervention.executeUpdate();
+
+		updateInterventions();
 	}
 
 	public List<User> getUsers(boolean notBusy) throws SQLException {
@@ -475,6 +449,8 @@ public class DbHandler extends DbReconnectHandler {
 		updateInterventionDescription.setString(1, description);
 		updateInterventionDescription.setInt(2, id);
 		updateInterventionDescription.executeUpdate();
+
+		updateInterventions();
 	}
 
 	public Intervention getIntervention(String ptuId) throws SQLException {
@@ -507,4 +483,33 @@ public class DbHandler extends DbReconnectHandler {
 		return null;
 	}
 
+	private void updateInterventions() throws SQLException {
+		String sql = "select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
+				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
+				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
+				+ "where tbl_inspections.endtime is null";
+
+		Statement statement = getConnection().createStatement();
+		ResultSet result = statement.executeQuery(sql);
+		interventions.clear();
+		try {
+			while (result.next()) {
+				interventions.put(
+						result.getString("name"),
+						new Intervention(result.getInt("id"), result
+								.getInt("user_id"), result.getString("fname"),
+								result.getString("lname"), result
+										.getInt("device_id"), result
+										.getString("name"), result
+										.getTimestamp("starttime"), result
+										.getTimestamp("endtime"), result
+										.getString("dscr")));
+			}
+		} finally {
+			result.close();
+			statement.close();
+		}
+
+		InterventionMapChangedEvent.fire(eventBus, interventions);
+	}
 }

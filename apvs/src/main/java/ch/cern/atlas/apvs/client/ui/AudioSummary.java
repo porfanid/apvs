@@ -5,10 +5,10 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -30,7 +30,6 @@ public class AudioSummary extends VerticalPanel implements Module{
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	
-	private List<String> activePtuIds = new ArrayList<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 	
 	public AudioSummary() {
@@ -51,7 +50,7 @@ public class AudioSummary extends VerticalPanel implements Module{
 			}			
 		};
 		ptuId.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		//table.addColumn(ptuId, "PTU ID");
+		table.addColumn(ptuId, "PTU ID");
 		
 		//Username
 		Column<String, String> username = new Column<String, String>(
@@ -146,11 +145,11 @@ public class AudioSummary extends VerticalPanel implements Module{
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(new ArrayList<String>());
 
-		PtuIdsChangedEvent.subscribe(eventBus,new PtuIdsChangedEvent.Handler() {
-
+		InterventionMapChangedEvent.subscribe(eventBus,new InterventionMapChangedEvent.Handler() {
+			
 			@Override
-			public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-				activePtuIds = event.getPtuIds();
+			public void onInterventionMapChanged(InterventionMapChangedEvent event) {
+				List<String> activePtuIds = event.getInterventionMap().getPtuIds();
 				dataProvider.getList().clear();
 				dataProvider.getList().addAll(activePtuIds);
 			}

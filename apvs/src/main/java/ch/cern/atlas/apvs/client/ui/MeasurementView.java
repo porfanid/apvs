@@ -9,14 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
@@ -43,7 +44,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 
-	private PtuSettings settings;
+	private InterventionMap interventions;
 	private Measurement last = new Measurement();
 	private ListDataProvider<Measurement> dataProvider = new ListDataProvider<Measurement>();
 	private CellTable<Measurement> table = new CellTable<Measurement>();
@@ -70,6 +71,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
 
+		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		options = args.getArg(1);
 		show = args.getArgs(2);
@@ -84,18 +86,16 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 		}
 
 		add(table);
+		
+		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
 
-		PtuSettingsChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
-				new PtuSettingsChangedEvent.Handler() {
-
-					@Override
-					public void onPtuSettingsChanged(
-							PtuSettingsChangedEvent event) {
-						settings = event.getPtuSettings();
-
-						update();
-					}
-				});
+			@Override
+			public void onInterventionMapChanged(
+					InterventionMapChangedEvent event) {
+				interventions = event.getInterventionMap();
+				update();
+			}
+		});
 
 		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
@@ -110,7 +110,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			}
 		});
 
-		MeasurementChangedEvent.subscribe(clientFactory.getRemoteEventBus(),
+		MeasurementChangedEvent.register(clientFactory.getRemoteEventBus(),
 				new MeasurementChangedEvent.Handler() {
 
 					@Override
@@ -150,8 +150,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 				if (ptuId == null)
 					return "Name";
 
-				if (settings != null) {
-					String name = settings.getName(ptuId);
+				if (interventions != null) {
+					String name = interventions.get(ptuId) != null ? interventions.get(ptuId).getName() : null;
 
 					if (name != null)
 						return name;

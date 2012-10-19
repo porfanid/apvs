@@ -25,7 +25,6 @@ import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.domain.Report;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
@@ -44,31 +43,12 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
-
-		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
-
-			@Override
-			public void onRequestEvent(RequestRemoteEvent event) {
-				String type = event.getRequestedClassName();
-
-				if (type.equals(MeasurementChangedEvent.class.getName())) {
-					List<Measurement> m = getMeasurements();
-					log.info("Getting all meas " + m.size());
-					for (Iterator<Measurement> i = m.iterator(); i.hasNext();) {
-						eventBus.fireEvent(new MeasurementChangedEvent(i.next()));
-					}
-				} else if (type.equals(EventChangedEvent.class.getName())) {
-					eventBus.fireEvent(new EventChangedEvent(null));
-				}
-			}
-		});
 	}
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
 		// Print out the line received from the server.
 		String line = (String) event.getMessage();
-		int len = line.length();
 		line = line.replaceAll("\u0000", "");
 		line = line.replaceAll("\u0010", "");
 		line = line.replaceAll("\u0013", "");
@@ -174,13 +154,5 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		list.addAll(ptus.getPtuIds());
 		Collections.sort(list);
 		return list;
-	}
-
-	public List<Measurement> getMeasurements() {
-		List<Measurement> m = new ArrayList<Measurement>();
-		for (Iterator<Ptu> i = ptus.getPtus().iterator(); i.hasNext();) {
-			m.addAll(i.next().getMeasurements());
-		}
-		return m;
 	}
 }

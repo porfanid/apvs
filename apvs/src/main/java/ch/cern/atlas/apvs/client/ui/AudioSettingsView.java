@@ -3,28 +3,19 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.text.TableView.TableCell;
-
-import org.jboss.netty.buffer.DynamicChannelBuffer;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
-import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -145,12 +136,12 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 		
 		//*****************************
 		//Events Registration
-		PtuIdsChangedEvent.subscribe(eventBus,new PtuIdsChangedEvent.Handler() {
+		InterventionMapChangedEvent.subscribe(eventBus,new InterventionMapChangedEvent.Handler() {
 
 			@Override
-			public void onPtuIdsChanged(PtuIdsChangedEvent event) {
+			public void onInterventionMapChanged(InterventionMapChangedEvent event){
 				System.err.println("PTU IDS changed");
-				activePtuIds = event.getPtuIds();
+				activePtuIds = event.getInterventionMap().getPtuIds();
 			}
 		});
 		

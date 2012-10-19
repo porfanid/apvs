@@ -4,12 +4,12 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import ch.cern.atlas.apvs.client.domain.Device;
+import ch.cern.atlas.apvs.client.domain.Intervention;
+import ch.cern.atlas.apvs.client.domain.User;
 import ch.cern.atlas.apvs.client.service.InterventionService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.service.SortOrder;
-import ch.cern.atlas.apvs.client.ui.Device;
-import ch.cern.atlas.apvs.client.ui.Intervention;
-import ch.cern.atlas.apvs.client.ui.User;
 
 import com.google.gwt.view.client.Range;
 

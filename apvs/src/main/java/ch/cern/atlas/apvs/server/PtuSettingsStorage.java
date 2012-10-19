@@ -6,11 +6,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuIdsChangedEvent;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
@@ -38,28 +38,27 @@ public class PtuSettingsStorage {
 						store();
 					}
 				});
+		
+		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
+			
+			@Override
+			public void onInterventionMapChanged(InterventionMapChangedEvent event) {
+				log.info("PTU Setting Storage: PTU IDS changed");
+				List<String> activePtuIds = event.getInterventionMap().getPtuIds();
 
-		PtuIdsChangedEvent.subscribe(eventBus,
-				new PtuIdsChangedEvent.Handler() {
+				boolean changed = false;
+				for (Iterator<String> i = activePtuIds.iterator(); i
+						.hasNext();) {
+					boolean added = settings.add(i.next());
+					changed |= added;
+				}
 
-					@Override
-					public void onPtuIdsChanged(PtuIdsChangedEvent event) {
-						log.info("PTU Setting Storage: PTU IDS changed");
-						List<String> activePtuIds = event.getPtuIds();
-
-						boolean changed = false;
-						for (Iterator<String> i = activePtuIds.iterator(); i
-								.hasNext();) {
-							boolean added = settings.add(i.next());
-							changed |= added;
-						}
-
-						if (changed) {
-							eventBus.fireEvent(new PtuSettingsChangedEvent(
-									settings));
-						}
-					}
-				});
+				if (changed) {
+					eventBus.fireEvent(new PtuSettingsChangedEvent(
+							settings));
+				}
+			}
+		});
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 

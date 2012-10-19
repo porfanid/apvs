@@ -19,7 +19,16 @@ public class EventServiceImpl extends DbServiceImpl implements EventService {
 	@Override
 	public int getRowCount() throws ServiceException {
 		try {
-			return dbHandler.getEventCount();
+			return dbHandler.getEventCount(null);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public int getRowCount(String ptuId) throws ServiceException {
+		try {
+			return dbHandler.getEventCount(ptuId);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -29,7 +38,17 @@ public class EventServiceImpl extends DbServiceImpl implements EventService {
 	public List<Event> getTableData(Range range, SortOrder[] order)
 			throws ServiceException {
 		try {
-			return dbHandler.getEvents(range, order);
+			return dbHandler.getEvents(range, order, null);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+	
+	@Override
+	public List<Event> getTableData(Range range, SortOrder[] order, String ptuId)
+			throws ServiceException {
+		try {
+			return dbHandler.getEvents(range, order, ptuId);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}

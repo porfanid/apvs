@@ -44,7 +44,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private Future<?> connectFuture;
 
 	// Account Details
-	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
+	private static final String ASTERISK_URL = "pcatlaswpss02.cern.ch";
 	private static final String AMI_ACCOUNT = "manager";
 	private static final String PASSWORD = "password";
 
@@ -138,38 +138,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void call(String callerOriginater, String callerDestination) {
 		asteriskServer.originateToExtension(callerOriginater, CONTEXT,callerDestination, PRIORITY, TIMEOUT);
-		/*asteriskServer.originateToApplicationAsync("SIP/1002", "MeetMe", "1234", 10000, new OriginateCallback() {
-			
-			@Override
-			public void onSuccess(AsteriskChannel arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onNoAnswer(AsteriskChannel arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onFailure(LiveException arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onDialing(AsteriskChannel arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onBusy(AsteriskChannel arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});*/
 	}
 
 	@Override

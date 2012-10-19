@@ -1,8 +1,8 @@
 package ch.cern.atlas.apvs.client.event;
 
+import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
-import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -21,8 +21,8 @@ public class SwitchWidgetEvent extends Event<SwitchWidgetEvent.Handler> {
 
 	private static final Type<SwitchWidgetEvent.Handler> TYPE = new Type<SwitchWidgetEvent.Handler>();
 
-	public static void fire(EventBus eventBus, String title, Widget widget, boolean replacement) {
-		eventBus.fireEvent(new SwitchWidgetEvent(title, widget, replacement));
+	public static void fire(EventBus eventBus, String title, IsSwitchableWidget switchableWidget, boolean replacement) {
+		eventBus.fireEvent(new SwitchWidgetEvent(title, switchableWidget, replacement));
 	}	
 	
 	/**
@@ -49,13 +49,13 @@ public class SwitchWidgetEvent extends Event<SwitchWidgetEvent.Handler> {
 	}
 
 	private String title;
-	private Widget widget;
+	private IsSwitchableWidget widget;
 	private boolean replacement;
 
 	public SwitchWidgetEvent() {
 	}
 	
-	public SwitchWidgetEvent(String title, Widget widget, boolean replacement) {
+	public SwitchWidgetEvent(String title, IsSwitchableWidget widget, boolean replacement) {
 		this.title = title;
 		this.widget = widget;
 		this.replacement = replacement;
@@ -70,7 +70,7 @@ public class SwitchWidgetEvent extends Event<SwitchWidgetEvent.Handler> {
 		return title;
 	}
 	
-	public Widget getWidget() {
+	public IsSwitchableWidget getSwitchableWidget() {
 		return widget;
 	}
 	
@@ -85,6 +85,6 @@ public class SwitchWidgetEvent extends Event<SwitchWidgetEvent.Handler> {
 	
 	@Override
 	public String toString() {
-		return "SwitchWidget "+title+" "+widget;
+		return "SwitchableWidget "+title+" "+widget;
 	}
 }

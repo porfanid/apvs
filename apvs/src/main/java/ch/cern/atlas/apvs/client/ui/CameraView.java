@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -19,7 +20,8 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class CameraView extends SimplePanel implements Module {
+public class CameraView extends SimplePanel implements Module,
+		IsSwitchableWidget {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -87,10 +89,10 @@ public class CameraView extends SimplePanel implements Module {
 		switchDestination = options.contains("SwitchDestination");
 
 		SwitchWidgetEvent.register(switchBus, new SwitchWidgetEventHandler(
-				switchBus, element, this, switchDestination));
+				switchBus, element, this));
 
 		init(clientFactory, "100%", "100%");
-		
+
 		return true;
 	}
 
@@ -102,7 +104,7 @@ public class CameraView extends SimplePanel implements Module {
 		image = new Image();
 		image.setWidth(videoWidth);
 		image.setHeight(videoHeight);
-		if (switchSource) {
+		if (switchSource || switchDestination) {
 			image.addClickHandler(new ClickHandler() {
 
 				@Override
@@ -141,6 +143,16 @@ public class CameraView extends SimplePanel implements Module {
 				update(false);
 			}
 		});
+	}
+
+	@Override
+	public boolean isDestination() {
+		return switchDestination;
+	}
+
+	@Override
+	public void toggleDestination() {
+		switchDestination = !switchDestination;
 	}
 
 	private String getCameraUrl(String type, String ptuId) {
