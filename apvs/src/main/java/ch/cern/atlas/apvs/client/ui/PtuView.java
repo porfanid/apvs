@@ -148,7 +148,7 @@ public class PtuView extends VerticalPanel implements Module {
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement measurement = event.getMeasurement();
-						addOrReplaceMeasurement(measurement, last);
+						last = addOrReplaceMeasurement(measurement);
 						update();
 					}
 				});
@@ -194,10 +194,10 @@ public class PtuView extends VerticalPanel implements Module {
 		return true;
 	}
 
-	private void addOrReplaceMeasurement(Measurement measurement, Measurement lastValue) {
+	private Measurement addOrReplaceMeasurement(Measurement measurement) {
 		String ptuId = measurement.getPtuId();
 		if ((ptuIds == null) || !ptuIds.contains(ptuId))
-			return;
+			return null;
 
 		Ptu ptu = ptus.get(ptuId);
 		if (ptu == null) {
@@ -205,6 +205,8 @@ public class PtuView extends VerticalPanel implements Module {
 			ptus.put(ptuId, ptu);
 		}
 
+		Measurement lastValue = null;
+		
 		String name = measurement.getName();
 		try {
 			if (ptu.getMeasurement(name) == null) {
@@ -222,6 +224,8 @@ public class PtuView extends VerticalPanel implements Module {
 		if (!dataProvider.getList().contains(name)) {
 			dataProvider.getList().add(name);
 		}
+		
+		return lastValue;
 	}
 
 	private void addColumn(final String ptuId) {
@@ -321,7 +325,7 @@ public class PtuView extends VerticalPanel implements Module {
 								public void onSuccess(List<Measurement> result) {
 									for (Iterator<Measurement> i = result
 											.iterator(); i.hasNext();) {
-										addOrReplaceMeasurement(i.next(), new Measurement());
+										last = addOrReplaceMeasurement(i.next());
 									}
 								}
 
