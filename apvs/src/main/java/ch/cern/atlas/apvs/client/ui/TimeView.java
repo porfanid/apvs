@@ -152,6 +152,7 @@ public class TimeView extends AbstractTimeView implements Module {
 									if (chart != null) {
 									Series series = chart.createSeries()
 											.setName(getName(ptuId));
+									chart.setAnimation(false);
 									pointsById.put(ptuId, 0);
 									seriesById.put(ptuId, series);
 									colorsById.put(ptuId, color[z]);
