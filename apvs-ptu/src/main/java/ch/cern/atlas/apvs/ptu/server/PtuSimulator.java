@@ -59,8 +59,8 @@ public class PtuSimulator extends Thread {
 				ptu.addMeasurement(new CO2(ptuId, 2.5, start));
 				ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
 				ptu.addMeasurement(new HeartRate(ptuId, 120, start));
-				ptu.addMeasurement(new DoseAccum(ptuId, 400.2, start));
-				ptu.addMeasurement(new DoseRate(ptuId, 0.1, start));
+				ptu.addMeasurement(new DoseAccum(ptuId, 0.042, start));
+				ptu.addMeasurement(new DoseRate(ptuId, 0.001, start));
 				ptu.addMeasurement(new O2(ptuId, 85.2, start));
 			} catch (APVSException e) {
 				log.warn("Could not add measurement", e);

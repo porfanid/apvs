@@ -140,6 +140,12 @@ public class DbHandler extends DbReconnectHandler {
 				long time = result.getTimestamp("datetime").getTime();
 				unit = result.getString("unit");
 				double value = Double.parseDouble(result.getString("value"));
+				
+				// Scale down to microSievert
+				if (unit.equals("mSv")) {
+					unit = "&micro;Sv";
+					value *= 1000;
+				}
 
 				// limit entry separation (reverse order)
 				if (lastTime - time > MIN_INTERVAL) {
@@ -555,11 +561,22 @@ public class DbHandler extends DbReconnectHandler {
 		ResultSet result = measurementQuery.executeQuery();
 		try {
 			if (result.next()) {
+				String unit = result.getString("UNIT");
+				double value = Double.parseDouble(result.getString("VALUE"));
+
+				System.err.println("'"+unit+"'");
+			
+				// Scale down to microSievert
+				if (unit.equals("mSv")) {
+					unit = "&micro;Sv";
+					value *= 1000;
+				}
+
 				return new Measurement(result.getString("NAME"),
 						result.getString("SENSOR"),
-						Double.parseDouble(result.getString("VALUE")),
+						value,
 						Integer.parseInt(result.getString("SAMPLINGRATE")),
-						result.getString("UNIT"), new Date(result.getTimestamp(
+						unit, new Date(result.getTimestamp(
 								"DATETIME").getTime()));
 			}
 		} finally {
