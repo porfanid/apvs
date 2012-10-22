@@ -176,9 +176,6 @@ public class EventView extends SimplePanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-log.info("_____> "+ptuId);
-					// dataProvider.getList().clear();
-
 					update();
 				}
 			});
@@ -189,9 +186,6 @@ log.info("_____> "+ptuId);
 						@Override
 						public void onSelection(SelectMeasurementEvent event) {
 							measurementName = event.getName();
-
-							// dataProvider.getList().clear();
-
 							update();
 						}
 					});

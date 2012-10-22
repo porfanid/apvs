@@ -75,7 +75,7 @@
 				<executions>
 					<execution>
 						<configuration>
-							<extraJvmArgs>-Xmx512m</extraJvmArgs>
+							<extraJvmArgs>-Xmx512m -Djava.util.logging.config.file=logging.properties</extraJvmArgs>
 						</configuration>
 						<goals>
 							<goal>generateAsync</goal>
