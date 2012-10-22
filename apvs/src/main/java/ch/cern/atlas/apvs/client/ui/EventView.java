@@ -96,7 +96,6 @@ public class EventView extends SimplePanel implements Module {
 						});
 
 				final Range range = display.getVisibleRange();
-				System.err.println(range);
 
 				final ColumnSortList sortList = table.getColumnSortList();
 				SortOrder[] order = new SortOrder[sortList.size()];
@@ -119,13 +118,12 @@ public class EventView extends SimplePanel implements Module {
 
 							@Override
 							public void onSuccess(List<Event> result) {
-								System.err.println("RPC DB SUCCESS EVENT");
 								table.setRowData(range.getStart(), result);
 							}
 
 							@Override
 							public void onFailure(Throwable caught) {
-								System.err.println("RPC DB FAILED "+caught);
+								log.warn("RPC DB FAILED "+caught);
 								table.setRowCount(0);
 							}
 						});

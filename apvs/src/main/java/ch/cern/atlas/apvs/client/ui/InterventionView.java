@@ -120,7 +120,6 @@ public class InterventionView extends SimplePanel implements Module {
 				});
 
 				final Range range = display.getVisibleRange();
-				System.err.println(range);
 
 				final ColumnSortList sortList = table.getColumnSortList();
 				SortOrder[] order = new SortOrder[sortList.size()];
@@ -143,13 +142,12 @@ public class InterventionView extends SimplePanel implements Module {
 
 							@Override
 							public void onSuccess(List<Intervention> result) {
-								System.err.println("RPC DB SUCCESS INTERVENTION");
 								updateRowData(range.getStart(), result);
 							}
 
 							@Override
 							public void onFailure(Throwable caught) {
-								System.err.println("RPC DB FAILED");
+								log.warn("RPC DB FAILED "+caught);
 								updateRowCount(0, true);
 							}
 						});
@@ -423,7 +421,6 @@ public class InterventionView extends SimplePanel implements Module {
 
 			@Override
 			public void update(String value) {
-				System.err.println("ADD USER");
 
 				Fieldset fieldset = new Fieldset();
 
@@ -533,7 +530,6 @@ public class InterventionView extends SimplePanel implements Module {
 
 			@Override
 			public void update(String value) {
-				System.err.println("ADD PTU");
 				Fieldset fieldset = new Fieldset();
 
 				final TextBoxField ptuId = new TextBoxField("PTU ID");
@@ -670,7 +666,6 @@ public class InterventionView extends SimplePanel implements Module {
 
 			@Override
 			public void onAttachOrDetach(AttachEvent event) {
-				System.err.println("ATTACH " + event.toDebugString());
 
 				if (event.isAttached()) {
 					// refresh for duration

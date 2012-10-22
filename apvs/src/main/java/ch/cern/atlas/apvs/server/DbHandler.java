@@ -564,8 +564,6 @@ public class DbHandler extends DbReconnectHandler {
 				String unit = result.getString("UNIT");
 				double value = Double.parseDouble(result.getString("VALUE"));
 
-				System.err.println("'"+unit+"'");
-			
 				// Scale down to microSievert
 				if (unit.equals("mSv")) {
 					unit = "&micro;Sv";

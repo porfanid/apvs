@@ -120,7 +120,6 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-					System.err.println("NEW PTU "+ptuId);
 					updateIntervention();
 					update();
 				}

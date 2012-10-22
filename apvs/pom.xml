@@ -18,7 +18,7 @@
 		<war.target>${basedir}/src/main/webapp</war.target>
 		<gwt.compiler.force>false</gwt.compiler.force>
 		<gwt.draftCompile>false</gwt.draftCompile>
-		<gwt.style>PRETTY</gwt.style>
+		<gwt.style>OBFUSCATED</gwt.style>
 		<outputDir>${war.target}/WEB-INF/classes</outputDir>
 		<netbeans.hint.deploy.server>Tomcat70</netbeans.hint.deploy.server>
 		<jetty.port>8095</jetty.port>
@@ -70,6 +70,7 @@
 					<hostedWebapp>${war.target}</hostedWebapp>
 					<encoding>UTF-8</encoding>
 					<bindAddress>0.0.0.0</bindAddress>
+					<style>${gwt.style}</style>
 				</configuration>
 				<executions>
 					<execution>
