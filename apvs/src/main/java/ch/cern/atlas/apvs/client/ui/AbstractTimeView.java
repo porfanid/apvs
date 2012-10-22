@@ -141,8 +141,9 @@ public class AbstractTimeView extends SimplePanel {
 			return;
 		}
 		
-		// fix #96 to put unicode in place of &deg;
+		// fix #96 to put unicode in place of &deg; and &micro;
 		unit = unit.replaceAll("\\&deg\\;", "\u00B0");
+		unit = unit.replaceAll("\\&micro\\;", "\u00B5");
 
 		chart.getYAxis().setAxisTitle(new AxisTitle().setText(unit));
 	}
