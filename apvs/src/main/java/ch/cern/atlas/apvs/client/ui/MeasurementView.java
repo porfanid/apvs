@@ -282,9 +282,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			public void onSuccess(List<Measurement> result) {
 				for (Iterator<Measurement> i = result.iterator(); i.hasNext(); ) {
 					Measurement measurement = i.next();
-					if ((show == null) || (show.size() == 0) || (show.contains(measurement.getName()))) {
-						dataProvider.getList().add(measurement);
-					}
+					replace(measurement, new Measurement());
 				}
 				
 				measurementHandler = MeasurementChangedEvent.register(remoteEventBus,
@@ -304,8 +302,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
-				
+				log.warn("Error "+caught);
 			}
 		});		
 	}
@@ -360,11 +357,13 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 		}
 
 		if (i == list.size()) {
-			if (show.size() == 0) {
+			// end of list, not found, add ?
+			if ((show == null) || (show.size() == 0) || (show.contains(measurement.getName()))) {
 				list.add(measurement);
 				lastValue = measurement;
 			}
 		} else {
+			// found, replace
 			lastValue = list.set(i, measurement);
 		}
 
