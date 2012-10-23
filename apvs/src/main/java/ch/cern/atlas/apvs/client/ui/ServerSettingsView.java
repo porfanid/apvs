@@ -113,8 +113,10 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 		return true;
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		table.redraw();
+		return false;
 	}
 
 }

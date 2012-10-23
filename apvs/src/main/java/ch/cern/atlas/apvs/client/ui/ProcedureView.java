@@ -98,10 +98,11 @@ public class ProcedureView extends SimplePanel implements Module {
 		return true;
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		String source = procedureURL + "/" + procedure + "/" + step + extension;
 		if (source.equals(oldSource))
-			return;
+			return false;
 		oldSource = source;
 
 		Video video = Video.createIfSupported();
@@ -118,6 +119,8 @@ public class ProcedureView extends SimplePanel implements Module {
 
 		log.info(source);
 		// Thread.dumpStack();
+		
+		return false;
 	}
 
 	private void navigateStep(int step) {

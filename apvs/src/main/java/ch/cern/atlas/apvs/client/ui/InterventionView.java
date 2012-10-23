@@ -702,8 +702,11 @@ public class InterventionView extends SimplePanel implements Module {
 	private void selectIntervention(Intervention intervention) {
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
+		
+		return false;
 	}
 }

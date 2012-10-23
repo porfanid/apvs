@@ -36,4 +36,9 @@ public class Tab implements Module {
 		
 		return false;
 	}
+	
+	@Override
+	public boolean update() {
+		return false;
+	}
 }

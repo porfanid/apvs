@@ -395,7 +395,8 @@ public class EventView extends SimplePanel implements Module {
 	private void selectEvent(Event event) {
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		// enable / disable columns
 		if (table.getColumnIndex(ptu) >= 0) {
 			if (ptuId != null) {
@@ -422,6 +423,8 @@ public class EventView extends SimplePanel implements Module {
 		// Re-sort the table
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
+		
+		return false;
 	}
 
 	private String unitKey(String ptuId, String name) {

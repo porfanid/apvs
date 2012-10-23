@@ -524,7 +524,6 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			while (result.next()) {
 				String name = result.getString("name");
-				log.info("********** " + name);
 				newMap.put(
 						name,
 						new Intervention(result.getInt("id"), result

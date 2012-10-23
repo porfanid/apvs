@@ -181,8 +181,10 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 				});
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		table.redraw();
+		return false;
 	}
 
 }

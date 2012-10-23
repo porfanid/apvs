@@ -249,12 +249,15 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 		return name != null ? name : "";
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		// Resort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 
 		showGlass(false);
+		
+		return false;
 	}
 
 	@Override

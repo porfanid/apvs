@@ -105,7 +105,8 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 	}
 	
 
-	private void update() {
+	@Override
+	public boolean update() {
 		clear();
 		if (ptuIds != null) {
 
@@ -162,6 +163,8 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 			});
 			add(b);
 		}
+		
+		return false;
 	}
 
 	private void radio(ToggleButton b) {

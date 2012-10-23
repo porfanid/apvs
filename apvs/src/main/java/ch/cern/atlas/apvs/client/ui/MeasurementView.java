@@ -321,7 +321,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 		return SafeHtmlUtils.fromSafeConstant(s);
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		// Re-sort the table
 		if (sortable) {
 			ColumnSortEvent.fire(table, table.getColumnSortList());
@@ -343,6 +344,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 				selectionModel.setSelected(selection, true);
 			}
 		}
+		
+		return false;
 	}
 
 	private Measurement replace(Measurement measurement) {

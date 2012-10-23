@@ -225,4 +225,9 @@ public class CameraView extends SimplePanel implements Module,
 			setWidget(video);
 		}
 	}
+	
+	@Override
+	public boolean update() {
+		return false;
+	}
 }

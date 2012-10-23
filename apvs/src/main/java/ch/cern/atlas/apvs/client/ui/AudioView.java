@@ -169,6 +169,11 @@ public class AudioView extends VerticalPanel implements Module{
 		return true;
 
 	}
+	
+	@Override
+	public boolean update() {
+		return false;
+	}
 		
 }
 	

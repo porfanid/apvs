@@ -67,4 +67,9 @@ public class ProcedureControls extends HorizontalFlowPanel implements Module {
 		
 		return true;
 	}
+	
+	@Override
+	public boolean update() {
+		return false;
+	}
 }

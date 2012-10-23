@@ -340,7 +340,8 @@ public class PtuView extends VerticalPanel implements Module {
 		}
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 
@@ -356,6 +357,7 @@ public class PtuView extends VerticalPanel implements Module {
 		if (selection != null) {
 			selectionModel.setSelected(selection, true);
 		}
+		return false;
 	}
 
 	private void selectMeasurementAndPtu(String name, String ptuId) {

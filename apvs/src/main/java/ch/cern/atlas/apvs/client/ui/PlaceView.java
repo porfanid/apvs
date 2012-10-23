@@ -155,4 +155,9 @@ public class PlaceView extends SimplePanel implements Module,
 	public void toggleDestination() {
 		switchDestination = !switchDestination;
 	}
+	
+	@Override
+	public boolean update() {
+		return false;
+	}
 }

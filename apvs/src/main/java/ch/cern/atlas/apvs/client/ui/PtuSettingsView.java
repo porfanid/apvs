@@ -258,11 +258,14 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 		return true;
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		// Resort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 
 		table.redraw();
+		
+		return false;
 	}
 
 	private void fireSettingsChangedEvent(EventBus eventBus,
