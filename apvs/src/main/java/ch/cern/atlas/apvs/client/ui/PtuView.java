@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +56,7 @@ public class PtuView extends VerticalPanel implements Module {
 
 	private List<String> ptuIds;
 	private Measurement last;
-	private SortedMap<String, Ptu> ptus;
+	private Map<String, Ptu> ptus;
 	private Map<String, String> displayNames;
 	private Map<String, String> units;
 	private SingleSelectionModel<String> selectionModel;
@@ -70,7 +68,7 @@ public class PtuView extends VerticalPanel implements Module {
 
 	private void init() {
 		last = new Measurement();
-		ptus = new TreeMap<String, Ptu>();
+		ptus = new HashMap<String, Ptu>();
 		units = new HashMap<String, String>();
 		displayNames = new HashMap<String, String>();
 	}
@@ -148,7 +146,7 @@ public class PtuView extends VerticalPanel implements Module {
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement measurement = event.getMeasurement();
-						addOrReplaceMeasurement(measurement, last);
+						last = addOrReplaceMeasurement(measurement);
 						update();
 					}
 				});
@@ -194,10 +192,10 @@ public class PtuView extends VerticalPanel implements Module {
 		return true;
 	}
 
-	private void addOrReplaceMeasurement(Measurement measurement, Measurement lastValue) {
+	private Measurement addOrReplaceMeasurement(Measurement measurement) {
 		String ptuId = measurement.getPtuId();
 		if ((ptuIds == null) || !ptuIds.contains(ptuId))
-			return;
+			return null;
 
 		Ptu ptu = ptus.get(ptuId);
 		if (ptu == null) {
@@ -205,6 +203,8 @@ public class PtuView extends VerticalPanel implements Module {
 			ptus.put(ptuId, ptu);
 		}
 
+		Measurement lastValue = null;
+		
 		String name = measurement.getName();
 		try {
 			if (ptu.getMeasurement(name) == null) {
@@ -222,6 +222,8 @@ public class PtuView extends VerticalPanel implements Module {
 		if (!dataProvider.getList().contains(name)) {
 			dataProvider.getList().add(name);
 		}
+		
+		return lastValue;
 	}
 
 	private void addColumn(final String ptuId) {
@@ -321,7 +323,7 @@ public class PtuView extends VerticalPanel implements Module {
 								public void onSuccess(List<Measurement> result) {
 									for (Iterator<Measurement> i = result
 											.iterator(); i.hasNext();) {
-										addOrReplaceMeasurement(i.next(), new Measurement());
+										last = addOrReplaceMeasurement(i.next());
 									}
 								}
 

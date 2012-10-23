@@ -77,6 +77,11 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private void handleMessage(Measurement message) throws APVSException {
 
+		// Scale down to microSievert
+		if (message.getUnit().equals("mSv")) {
+			message = new Measurement(message.getPtuId(), message.getName(), message.getValue().doubleValue()*1000, message.getSamplingRate(), "&micro;Sv", message.getDate());
+		}
+		
 		measurementChanged.add(message);
 
 		sendEvents();

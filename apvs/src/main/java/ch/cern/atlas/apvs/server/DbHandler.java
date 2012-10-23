@@ -141,6 +141,12 @@ public class DbHandler extends DbReconnectHandler {
 				unit = result.getString("unit");
 				double value = Double.parseDouble(result.getString("value"));
 
+				// Scale down to microSievert
+				if (unit.equals("mSv")) {
+					unit = "&micro;Sv";
+					value *= 1000;
+				}
+
 				// limit entry separation (reverse order)
 				if (lastTime - time > MIN_INTERVAL) {
 					lastTime = time;
@@ -302,11 +308,11 @@ public class DbHandler extends DbReconnectHandler {
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
 				double value = getDouble(result.getString("value"));
 				double threshold = getDouble(result.getString("threshold"));
-				
+
 				list.add(new Event(result.getString("name"), result
 						.getString("sensor"), result.getString("event_type"),
-						value, threshold,
-						new Date(result.getTimestamp("datetime").getTime())));
+						value, threshold, new Date(result.getTimestamp(
+								"datetime").getTime())));
 			}
 		} finally {
 			result.close();
@@ -314,10 +320,11 @@ public class DbHandler extends DbReconnectHandler {
 		}
 		return list;
 	}
-	
+
 	private double getDouble(String string) {
-		if (string == null) return 0;
-		
+		if (string == null)
+			return 0;
+
 		return Double.parseDouble(string);
 	}
 
@@ -516,13 +523,14 @@ public class DbHandler extends DbReconnectHandler {
 		InterventionMap newMap = new InterventionMap();
 		try {
 			while (result.next()) {
+				String name = result.getString("name");
+				log.info("********** " + name);
 				newMap.put(
-						result.getString("name"),
+						name,
 						new Intervention(result.getInt("id"), result
 								.getInt("user_id"), result.getString("fname"),
 								result.getString("lname"), result
-										.getInt("device_id"), result
-										.getString("name"), result
+										.getInt("device_id"), name, result
 										.getTimestamp("starttime"), result
 										.getTimestamp("endtime"), result
 										.getString("dscr")));
@@ -531,7 +539,7 @@ public class DbHandler extends DbReconnectHandler {
 			result.close();
 			statement.close();
 		}
-		
+
 		if (!interventions.equals(newMap)) {
 			interventions = newMap;
 			InterventionMapChangedEvent.fire(eventBus, interventions);
@@ -555,12 +563,20 @@ public class DbHandler extends DbReconnectHandler {
 		ResultSet result = measurementQuery.executeQuery();
 		try {
 			if (result.next()) {
+				String unit = result.getString("UNIT");
+				double value = Double.parseDouble(result.getString("VALUE"));
+
+				// Scale down to microSievert
+				if (unit.equals("mSv")) {
+					unit = "&micro;Sv";
+					value *= 1000;
+				}
+
 				return new Measurement(result.getString("NAME"),
-						result.getString("SENSOR"),
-						Double.parseDouble(result.getString("VALUE")),
+						result.getString("SENSOR"), value,
 						Integer.parseInt(result.getString("SAMPLINGRATE")),
-						result.getString("UNIT"), new Date(result.getTimestamp(
-								"DATETIME").getTime()));
+						unit, new Date(result.getTimestamp("DATETIME")
+								.getTime()));
 			}
 		} finally {
 			result.close();
@@ -585,7 +601,8 @@ public class DbHandler extends DbReconnectHandler {
 		List<Measurement> list = new ArrayList<Measurement>();
 		try {
 			while (result.next()) {
-				Measurement m = getMeasurement(ptuId, result.getString("SENSOR"));
+				Measurement m = getMeasurement(ptuId,
+						result.getString("SENSOR"));
 				if (m != null) {
 					list.add(m);
 				}

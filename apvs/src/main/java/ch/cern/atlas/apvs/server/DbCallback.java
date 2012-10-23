@@ -15,6 +15,8 @@ public class DbCallback {
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
 	private Future<?> disconnectFuture;
+	
+	private final static boolean LOG_DB = false;
 
 	public DbCallback() {
 		executorService = Executors.newSingleThreadExecutor();
@@ -42,10 +44,10 @@ public class DbCallback {
 			public void run() {
 				try {
 					if (driver == null) {
-						driver = new net.sf.log4jdbc.DriverSpy();
+						driver = LOG_DB ? new net.sf.log4jdbc.DriverSpy() :new oracle.jdbc.OracleDriver();
 						DriverManager.registerDriver(driver);
 					}
-					connection = DriverManager.getConnection(url);
+					connection = DriverManager.getConnection("jdbc:"+(LOG_DB ? "log4jdbc:" : "")+"oracle:thin:"+url);
 					dbConnected(connection);
 				} catch (SQLException e) {
 					exceptionCaught(e);

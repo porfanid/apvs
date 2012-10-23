@@ -35,7 +35,7 @@ public class EditableCell extends AbstractCell<Object> {
 	private MyDurationCell durationCell;
 	
 	private List<Class<?>> cellClasses;
-	private boolean editable = true;
+	private boolean enabled = true;
 	
 	public EditableCell() {
 		this(null);
@@ -52,7 +52,7 @@ public class EditableCell extends AbstractCell<Object> {
 			cellClasses = Collections.emptyList();
 		}
 		
-		editable = true;
+		enabled = true;
 
 		textInputCell = new TextInputSizeCell(size);
 		editCell = new MyEditTextCell();
@@ -73,8 +73,10 @@ public class EditableCell extends AbstractCell<Object> {
 	}
 	
 	// FIXME works only for checkbox
-	public void setEditable(boolean editable) {
-		this.editable = editable;
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+		
+		checkboxCell.setEnabled(enabled);
 	}
 
 	@Override
@@ -150,7 +152,6 @@ public class EditableCell extends AbstractCell<Object> {
 								}
 							}
 						});
-				if (!editable) checkboxCell.setValue(context, parent, (Boolean)value);
 			} else {
 				checkboxCell.onBrowserEvent(context, parent,
 						Boolean.valueOf((String) value), event,
@@ -162,7 +163,6 @@ public class EditableCell extends AbstractCell<Object> {
 								}
 							}
 						});
-				if (!editable) checkboxCell.setValue(context, parent, Boolean.valueOf((String) value));
 			}
 		} else if (cellClass.equals(ButtonCell.class)) {
 			buttonCell.onBrowserEvent(context, parent, (String) value, event,
@@ -295,9 +295,7 @@ public class EditableCell extends AbstractCell<Object> {
 	@Override
 	protected void onEnterKeyDown(Context context, Element parent,
 			Object value, NativeEvent event,
-			final ValueUpdater<Object> valueUpdater) {
-		if (!editable) return;
-		
+			final ValueUpdater<Object> valueUpdater) {		
 		Class<?> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.onEnterKeyDown(context, parent, (String) value,
@@ -340,7 +338,6 @@ public class EditableCell extends AbstractCell<Object> {
 								}
 							}
 						});
-				if (!editable) checkboxCell.setValue(context, parent, (Boolean)value);
 			} else {
 				checkboxCell.onEnterKeyDown(context, parent,
 						Boolean.valueOf((String) value), event,
@@ -352,7 +349,6 @@ public class EditableCell extends AbstractCell<Object> {
 								}
 							}
 						});
-				if (!editable) checkboxCell.setValue(context, parent, Boolean.valueOf((String) value));
 			}
 		} else if (cellClass.equals(ButtonCell.class)) {
 			buttonCell.onEnterKeyDown(context, parent, (String) value, event,
@@ -398,9 +394,7 @@ public class EditableCell extends AbstractCell<Object> {
 	}
 
 	@Override
-	public boolean resetFocus(Context context, Element parent, Object value) {
-		if (!editable) return false;
-		
+	public boolean resetFocus(Context context, Element parent, Object value) {		
 		Class<?> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			return textInputCell.resetFocus(context, parent, (String) value);
@@ -428,9 +422,7 @@ public class EditableCell extends AbstractCell<Object> {
 	}
 
 	@Override
-	public void setValue(Context context, Element parent, Object value) {
-		if (!editable) return;
-		
+	public void setValue(Context context, Element parent, Object value) {		
 		Class<?> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.setValue(context, parent, (String) value);
@@ -494,7 +486,7 @@ public class EditableCell extends AbstractCell<Object> {
 		}
 	}
 
-	private class MyCheckboxCell extends CheckboxCell {
+	private class MyCheckboxCell extends ActiveCheckboxCell {
 		@Override
 		protected void onEnterKeyDown(
 				com.google.gwt.cell.client.Cell.Context context,

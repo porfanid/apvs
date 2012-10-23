@@ -18,6 +18,12 @@ public class ActiveCheckboxCell extends com.google.gwt.cell.client.CheckboxCell 
 	private static final SafeHtml INPUT_UNCHECKED_DISABLED = SafeHtmlUtils
 			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" disabled=\"disabled\"/>");
 
+	private boolean enabled;
+	
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
 	@Override
 	public void render(Context context, Boolean value, SafeHtmlBuilder sb) {
 		// Get the view data.
@@ -29,8 +35,6 @@ public class ActiveCheckboxCell extends com.google.gwt.cell.client.CheckboxCell 
 		}
 
 		Boolean checked = viewData != null ? viewData : value;
-		// FIXME make this set-able
-		boolean enabled = false;
 
 		if (checked && !enabled) {
 			sb.append(INPUT_CHECKED_DISABLED);

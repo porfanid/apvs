@@ -2,18 +2,18 @@ package ch.cern.atlas.apvs.client.settings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Map;
 
 import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 
 public class InterventionMap implements Serializable {
 
 	private static final long serialVersionUID = 8868971785801918119L;
 
-	private SortedMap<String, Intervention> interventions = new TreeMap<String, Intervention>();
+	private Map<String, Intervention> interventions = new HashMap<String, Intervention>();
 	
 	public InterventionMap() {
 		// serializable
@@ -28,7 +28,9 @@ public class InterventionMap implements Serializable {
 	}
 
 	public List<String> getPtuIds() {
-		return new ArrayList<String>(interventions.keySet());
+		List<String> ptuIds = new ArrayList<String>(interventions.keySet());
+		Collections.sort(ptuIds);
+		return ptuIds;
 	}
 
 	public void clear() {

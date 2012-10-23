@@ -81,7 +81,7 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 
 		EditableCell cell = new EditableCell(classes, 50);
 		cell.setDateFormat(PtuClientConstants.dateFormatNoSeconds);
-		cell.setEditable(false);
+		cell.setEnabled(false);
 		Column<String, Object> column = new Column<String, Object>(cell) {
 			@Override
 			public Object getValue(String name) {
@@ -120,7 +120,6 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-					System.err.println("NEW PTU "+ptuId);
 					updateIntervention();
 					update();
 				}

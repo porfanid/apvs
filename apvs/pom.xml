@@ -70,6 +70,7 @@
 					<hostedWebapp>${war.target}</hostedWebapp>
 					<encoding>UTF-8</encoding>
 					<bindAddress>0.0.0.0</bindAddress>
+					<style>${gwt.style}</style>
 				</configuration>
 				<executions>
 					<execution>

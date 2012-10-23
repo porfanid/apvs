@@ -56,8 +56,7 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 							if ((url != null) && !url.equals(dbUrl)) {
 								dbUrl = url;
 
-								dbHandler.connect("jdbc:log4jdbc:oracle:thin:"
-										+ dbUrl);
+								dbHandler.connect(dbUrl);
 							}
 						}
 					}
