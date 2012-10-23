@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +56,7 @@ public class PtuView extends VerticalPanel implements Module {
 
 	private List<String> ptuIds;
 	private Measurement last;
-	private SortedMap<String, Ptu> ptus;
+	private Map<String, Ptu> ptus;
 	private Map<String, String> displayNames;
 	private Map<String, String> units;
 	private SingleSelectionModel<String> selectionModel;
@@ -70,7 +68,7 @@ public class PtuView extends VerticalPanel implements Module {
 
 	private void init() {
 		last = new Measurement();
-		ptus = new TreeMap<String, Ptu>();
+		ptus = new HashMap<String, Ptu>();
 		units = new HashMap<String, String>();
 		displayNames = new HashMap<String, String>();
 	}

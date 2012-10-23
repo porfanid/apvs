@@ -36,6 +36,7 @@ public class Intervention implements Serializable {
 	}
 
 	public Intervention(Integer userId, Integer deviceId, Date startTime, String description) {
+		this.id = 0;
 		this.userId = userId;
 		this.deviceId = deviceId;
 		this.startTime = startTime;

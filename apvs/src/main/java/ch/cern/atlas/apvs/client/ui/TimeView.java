@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -150,16 +151,16 @@ public class TimeView extends AbstractTimeView implements Module {
 										|| settings.isEnabled(ptuId)) {
 
 									if (chart != null) {
-									Series series = chart.createSeries()
-											.setName(getName(ptuId));
-									chart.setAnimation(false);
-									pointsById.put(ptuId, 0);
-									seriesById.put(ptuId, series);
-									colorsById.put(ptuId, color[z]);
+										Series series = chart.createSeries()
+												.setName(getName(ptuId));
+										chart.setAnimation(false);
+										pointsById.put(ptuId, 0);
+										seriesById.put(ptuId, series);
+										colorsById.put(ptuId, color[z]);
 
-									addHistory(ptuId, series, history);
+										addHistory(ptuId, series, history);
 
-									chart.addSeries(series, true, false);
+										chart.addSeries(series, true, false);
 									}
 								}
 
@@ -231,9 +232,12 @@ public class TimeView extends AbstractTimeView implements Module {
 	}
 
 	private String getName(String ptuId) {
-		return (interventions != null && interventions.get(ptuId) != null
-				&& !interventions.get(ptuId).getName().equals("") ? interventions
-				.get(ptuId).getName() + " - "
+		if (interventions == null) {
+			return ptuId;
+		}
+		Intervention intervention = interventions.get(ptuId);
+		return ((intervention != null) && !intervention.getName().equals("") ? intervention
+				.getName() + " - "
 				: "")
 				+ "" + ptuId;
 	}

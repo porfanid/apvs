@@ -18,7 +18,7 @@
 		<war.target>${basedir}/src/main/webapp</war.target>
 		<gwt.compiler.force>false</gwt.compiler.force>
 		<gwt.draftCompile>false</gwt.draftCompile>
-		<gwt.style>OBFUSCATED</gwt.style>
+		<gwt.style>PRETTY</gwt.style>
 		<outputDir>${war.target}/WEB-INF/classes</outputDir>
 		<netbeans.hint.deploy.server>Tomcat70</netbeans.hint.deploy.server>
 		<jetty.port>8095</jetty.port>
@@ -75,7 +75,7 @@
 				<executions>
 					<execution>
 						<configuration>
-							<extraJvmArgs>-Xmx512m -Djava.util.logging.config.file=logging.properties</extraJvmArgs>
+							<extraJvmArgs>-Xmx512m</extraJvmArgs>
 						</configuration>
 						<goals>
 							<goal>generateAsync</goal>
