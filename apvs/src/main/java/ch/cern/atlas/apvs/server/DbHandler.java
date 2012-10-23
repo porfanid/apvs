@@ -146,6 +146,10 @@ public class DbHandler extends DbReconnectHandler {
 					unit = "&micro;Sv";
 					value *= 1000;
 				}
+				if (unit.equals("mSv/h")) {
+					unit = "&micro;Sv/h";
+					value *= 1000;
+				}
 
 				// limit entry separation (reverse order)
 				if (lastTime - time > MIN_INTERVAL) {
