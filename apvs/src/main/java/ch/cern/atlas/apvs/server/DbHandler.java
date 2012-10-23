@@ -570,6 +570,10 @@ public class DbHandler extends DbReconnectHandler {
 					unit = "&micro;Sv";
 					value *= 1000;
 				}
+				if (unit.equals("mSv/h")) {
+					unit = "&micro;Sv/h";
+					value *= 1000;
+				}
 
 				return new Measurement(result.getString("NAME"),
 						result.getString("SENSOR"), value,
