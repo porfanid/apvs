@@ -6,22 +6,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.settings.PtuSettings.Entry;
-import ch.cern.atlas.apvs.server.VoipAccount;
-
 public class AudioSettings implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
 	public static class Entry implements Serializable {
-		String username;
-		String number;
-		String channel;
-		String destUser;
-		String status;
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		String  username;
+		String  number;
+		String  destUser;
+		String  channel;
+		String  activity;
+		String  status;
+		
+		// Private Call
 		Boolean onCall;
-		String activity;
-
+		
+		// Conference Call
+		String  room;
+		Boolean onConference;
+		
+		
 		public Entry() {
 			username = "";
 			number = "";
@@ -49,7 +58,6 @@ public class AudioSettings implements Serializable {
 	}
 
 	public boolean setUsername(String ptuId, String username) {
-		boolean changed = false;
 		if (entries.get(ptuId).username.equals(username)) {
 			return false;
 		}
