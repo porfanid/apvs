@@ -172,7 +172,6 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 		
 	@Override
 	public boolean update() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

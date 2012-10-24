@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.dom.client.Element;
@@ -43,6 +44,8 @@ public class ProcedureView extends SimplePanel implements Module {
 	private EventBus localEventBus;
 
 	private Object oldSource;
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public ProcedureView() {
 	}
@@ -89,11 +92,11 @@ public class ProcedureView extends SimplePanel implements Module {
 						localEventBus.fireEvent(new StepStatusEvent(
 								ProcedureView.this.step, lastStep,
 								hasPrevious(), hasNext()));
-						update();
+						scheduler.update();
 					}
 				});
 
-		update();
+		scheduler.update();
 
 		return true;
 	}
@@ -129,7 +132,7 @@ public class ProcedureView extends SimplePanel implements Module {
 			remoteEventBus.fireEvent(new SelectStepEvent(step));
 			localEventBus.fireEvent(new StepStatusEvent(step, lastStep,
 					hasPrevious(), hasNext()));
-			update();
+			scheduler.update();
 		}
 	}
 

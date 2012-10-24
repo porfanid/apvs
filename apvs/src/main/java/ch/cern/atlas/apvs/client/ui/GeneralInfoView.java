@@ -15,6 +15,7 @@ import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.DurationCell;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
@@ -54,6 +55,8 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 	private List<Class<?>> classes = Arrays.asList(new Class<?>[] {
 			CheckboxCell.class, CheckboxCell.class, CheckboxCell.class,
 			DateCell.class, DurationCell.class });
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public GeneralInfoView() {
 	}
@@ -121,7 +124,7 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
 					updateIntervention();
-					update();
+					scheduler.update();
 				}
 			});
 		}
@@ -131,7 +134,7 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 			public void run() {
 				updateDatabase();
 				updateIntervention();
-				update();
+				scheduler.update();
 			}
 		};
 		timer.scheduleRepeating(60000);
@@ -148,7 +151,7 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 			@Override
 			public void onSuccess(Boolean result) {
 				databaseConnected = result;
-				update();
+				scheduler.update();
 			}
 			
 			@Override
@@ -171,7 +174,7 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 					public void onSuccess(Intervention result) {
 						startTime = result != null ? result.getStartTime()
 								: null;
-						update();
+						scheduler.update();
 					}
 
 					@Override
