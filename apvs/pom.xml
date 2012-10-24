@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -13,20 +14,20 @@
 	<name>APVS client/server</name>
 
 	<properties>
-		<gwtModule>ch.cern.atlas.apvs.APVS</gwtModule>
-		<gwtDevModule>ch.cern.atlas.apvs.APVSDev</gwtDevModule>
-		<war.target>${basedir}/src/main/webapp</war.target>
-		<gwt.compiler.force>false</gwt.compiler.force>
-		<gwt.draftCompile>false</gwt.draftCompile>
+		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
+
 		<gwt.style>PRETTY</gwt.style>
-		<outputDir>${war.target}/WEB-INF/classes</outputDir>
-		<netbeans.hint.deploy.server>Tomcat70</netbeans.hint.deploy.server>
+		<gwt.compiler.strict>true</gwt.compiler.strict>
+
 		<jetty.port>8095</jetty.port>
 	</properties>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
-		<outputDirectory>${outputDir}</outputDirectory>
+
+		<!-- Generate compiled stuff in the folder used for developing mode -->
+		<outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>
+
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -47,30 +48,31 @@
 						<phase>validate</phase>
 						<configuration>
 							<target>
-								<property name="src.dir" value="${project.build.directory}/generated-sources/gwt" />
+								<property name="src.dir"
+									value="${project.build.directory}/generated-sources/gwt" />
 								<property name="package.dir" value="ch/cern/atlas/apvs/client" />
 
-								<echo file="${src.dir}/${package.dir}/Build.properties" message="version = ${project.version}${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Build.properties" append="true" message="build = ${buildNumber}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									message="version = ${project.version}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									append="true" message="build = ${buildNumber}${line.separator}" />
 							</target>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
 				<configuration>
-					<strict>true</strict>
-					<module>${gwtDevModule}</module>
+					<module>ch.cern.atlas.apvs.APVSDev</module>
 					<gwtVersion>${gwt-version}</gwtVersion>
-					<runTarget>http://localhost:8888/apvs/index.html</runTarget>
-					<noServer>false</noServer>
+					<runTarget>http://localhost:8888/index.html</runTarget>
 					<sourcesOnPath>true</sourcesOnPath>
-					<hostedWebapp>${war.target}</hostedWebapp>
+					<hostedWebapp>${webappDirectory}</hostedWebapp>
 					<encoding>UTF-8</encoding>
 					<bindAddress>0.0.0.0</bindAddress>
-					<style>${gwt.style}</style>
 				</configuration>
 				<executions>
 					<execution>
@@ -85,26 +87,29 @@
 				</executions>
 			</plugin>
 
+			<!-- Copy static web files before executing gwt:run -->
 			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>exploded</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
-					<filesets>
-						<fileset>
-							<directory>${outputDir}</directory>
-						</fileset>
-						<fileset>
-							<directory>${war.target}/apvs</directory>
-						</fileset>
-						<fileset>
-							<directory>${war.target}/WEB-INF/classes</directory>
-						</fileset>
-						<fileset>
-							<directory>${war.target}/WEB-INF/lib</directory>
-						</fileset>
-						<fileset>
-							<directory>${war.target}/WEB-INF/deploy</directory>
-						</fileset>
-					</filesets>
+					<webappDirectory>${webappDirectory}</webappDirectory>
+					<webResources>
+						<resource>
+							<filtering>true</filtering>
+							<directory>src/main/webapp</directory>
+							<includes>
+								<include>**/*.html</include>
+							</includes>
+						</resource>
+					</webResources>
 				</configuration>
 			</plugin>
 
@@ -221,14 +226,11 @@
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>gwt-maven-plugin</artifactId>
 						<configuration>
-							<module>${gwtModule}</module>
-
-							<strict>true</strict>
+							<module>ch.cern.atlas.apvs.APVS</module>
 							<gwtVersion>${gwt-version}</gwtVersion>
-							<runTarget>http://localhost:8888/apvs/index.html</runTarget>
-							<noServer>false</noServer>
+							<runTarget>http://localhost:8888/index.html</runTarget>
 							<sourcesOnPath>true</sourcesOnPath>
-							<hostedWebapp>${war.target}</hostedWebapp>
+							<hostedWebapp>${webappDirectory}</hostedWebapp>
 							<encoding>UTF-8</encoding>
 						</configuration>
 						<executions>
