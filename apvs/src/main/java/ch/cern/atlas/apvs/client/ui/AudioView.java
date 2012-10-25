@@ -1,7 +1,10 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.omg.CORBA.FieldNameHelper;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
@@ -11,8 +14,11 @@ import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.ButtonCell;
+import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.HasCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -31,18 +37,19 @@ public class AudioView extends VerticalPanel implements Module {
 
 	private EventBus cmdBus;
 
-	private List<String> fieldName = Arrays.asList(new String[] { "Status",
-			"Private Call", "Group Call", "New Group Call" });
+	private List<String> fieldName = new ArrayList<String>(Arrays.asList(new String[] { "Status",
+			"Private Call", "Group Call", "New Group Call" }));
+	//private List<String> fieldName2 = new ArrayList<String>(fieldName); 
+	//private List<String> fieldName = Arrays.asList(new String[] { "Status", "Private Call", "Group Call", "New Group Call" });
 	private List<Class<?>> classField = Arrays.asList(new Class<?>[] {
 			TextCell.class, ButtonCell.class, ButtonCell.class,
-			ButtonCell.class });
+			ButtonCell.class, TextCell.class, CompositeCell.class});
 
 	public AudioView() {
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory,
-			Arguments args) {
+	public boolean configure(Element element, ClientFactory clientFactory,Arguments args) {
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
@@ -70,63 +77,57 @@ public class AudioView extends VerticalPanel implements Module {
 				if (fieldName.equals("Status"))
 					return voipAccounts.getStatus(ptuId);
 				else if (fieldName.equals("Private Call"))
-					return "Call '" + voipAccounts.getUsername(ptuId) + "'";
+					return ((voipAccounts.getOnCall(ptuId)?"Hangup '":"Call '") + voipAccounts.getUsername(ptuId) + "'");
 				else if (fieldName.equals("Group Call"))
-					return "Join '" + voipAccounts.getActivity(ptuId) + "'";
+					return ((voipAccounts.getOnConference(voipAccounts.getPtuId(voipAccounts,"SIP/2000"))?"Leave '":"Join '") + voipAccounts.getActivity(ptuId) + "'");
 				else if (fieldName.equals("New Group Call"))
 					return "Create '" + voipAccounts.getActivity(ptuId)
 							+ "' conference";
+				else if (voipAccounts.getOnCall(ptuId))
+					return "BUTTONS";
 				else
 					return null;
 			}
 		};
 
+	
 		field.setFieldUpdater(new FieldUpdater<String, Object>() {
 
 			@Override
 			public void update(int index, String fieldName, Object value) {
 				if (fieldName.equals("Private Call")) {
 					if (voipAccounts.getOnCall(ptuId)) {
-						AudioServiceAsync.Util.getInstance().hangup(
-								voipAccounts.getChannel(ptuId),
+						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(ptuId),
 								new AsyncCallback<Void>() {
 									@Override
 									public void onSuccess(Void result) {
-										System.err
-												.println("Call Established...");
+										System.err.println("Hangup Success...");
 									}
 
 									@Override
 									public void onFailure(Throwable caught) {
-										System.err
-												.println("Fail to established the call "
-														+ caught);
+										System.err.println("Fail to established the hangup call "+ caught);
 									}
 								});
 
-					} else {
+					}else {
 						AudioServiceAsync.Util.getInstance().call(
 								voipAccounts.getNumber(ptuId), "2000",
 								new AsyncCallback<Void>() {
 
 									@Override
 									public void onSuccess(Void result) {
-										System.err
-												.println("Call Established...");
+										System.err.println("Call Established...");
 									}
 
 									@Override
 									public void onFailure(Throwable caught) {
-										System.err
-												.println("Fail to established the call "
-														+ caught);
+										System.err.println("Fail to established the call "+ caught);
 									}
 								});
 					}
 				} else if (fieldName.equals("Group Call")) {
-					AudioServiceAsync.Util.getInstance().addToConference(
-							voipAccounts.getChannel(ptuId), "0",
-							new AsyncCallback<Void>() {
+					AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getChannel(ptuId), "0",new AsyncCallback<Void>() {
 
 								@Override
 								public void onSuccess(Void result) {
@@ -135,9 +136,7 @@ public class AudioView extends VerticalPanel implements Module {
 
 								@Override
 								public void onFailure(Throwable caught) {
-									System.err
-											.println("Fail to established the call "
-													+ caught);
+									System.err.println("Fail to established the call "+ caught);
 								}
 							});
 
@@ -168,8 +167,8 @@ public class AudioView extends VerticalPanel implements Module {
 		table.addColumn(field);
 
 		dataProvider.addDataDisplay(table);
-		dataProvider.setList(fieldName);
-
+		dataProvider.setList(new ArrayList<String>());
+		
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
@@ -182,14 +181,36 @@ public class AudioView extends VerticalPanel implements Module {
 			});
 		}
 
-		AudioSettingsChangedEvent.subscribe(eventBus,
-				new AudioSettingsChangedEvent.Handler() {
+		AudioSettingsChangedEvent.subscribe(eventBus, new AudioSettingsChangedEvent.Handler() {
 
 					@Override
-					public void onAudioSettingsChanged(
-							AudioSettingsChangedEvent event) {
+					public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
 						voipAccounts = event.getAudioSettings();
-						table.redraw();
+						//System.out.println("lasdasdadsasdasdad "+fieldName.get(0)+" asdad "+ fieldName);
+						if(fieldName.size()>4){
+							while(fieldName.size()>4){
+								System.out.println(fieldName.get(4));
+								fieldName.remove(4);// = fieldName.subList(0, 4);
+							}
+						}
+						System.out.println("lasdasdadsasdasdad "+fieldName.get(0)+" asdad "+ fieldName);
+						//System.out.println("AI "+!voipAccounts.getDestPtu(ptuId).isEmpty());
+						if(!voipAccounts.getDestPtu(ptuId).isEmpty()){
+							//System.out.println("fieldName2 "+voipAccounts.getDestPtu(ptuId));
+							String[] ptuList = voipAccounts.getDestPtu(ptuId).split(",");
+							//System.out.println("voipAccount "+voipAccounts.getPtuIds().size());
+							//System.out.println("ptuList "+ptuList.length);
+							fieldName.add(voipAccounts.getUsername(ptuId) + " is on " + (voipAccounts.getOnCall(ptuId)?"Call with":"Conference with"));
+							for(int i = 0; i < ptuList.length; i++){
+								System.out.println("PTU ID = "+(ptuList[i]));
+								fieldName.add(voipAccounts.getUsername(ptuList[i]));
+								System.out.println(voipAccounts.getUsername(ptuList[i]));
+							}
+							System.out.println("fieldName "+fieldName);
+						}
+						dataProvider.getList().clear();
+						dataProvider.getList().addAll(fieldName);
+						//table.redraw();
 					}
 				});
 

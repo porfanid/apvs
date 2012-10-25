@@ -19,9 +19,11 @@ public class AudioSettings implements Serializable {
 		String  username;
 		String  number;
 		String  destUser;
+		String destPTU;
 		String  channel;
 		String  activity;
 		String  status;
+		
 		
 		// Private Call
 		Boolean onCall;
@@ -36,15 +38,20 @@ public class AudioSettings implements Serializable {
 			number = "";
 			channel = "";
 			destUser = "";
+			destPTU = "";
 			status = "";
-			onCall = false;
 			activity = "";
+			
+			onCall = false;
+			
+			room = "";
+			onConference = false;
 		}
 
 		public String toString() {
 			return ("VoipAccount: username=" + username + "" + " number= "
 					+ number + " channel=" + channel + " destUser= " + destUser
-					+ " status=" + status + " onCall=" + onCall);
+					+ " destPTU= " + destPTU + " status=" + status + " onCall=" + onCall);
 		}
 	}
 
@@ -95,6 +102,16 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).destUser = user;
 	}
 
+	// Destination PTU Methods
+	public String getDestPtu(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return (entry != null ? entry.destPTU : "");
+	}
+
+	public void setDestPtu(String ptuId, String ptu) {
+		entries.get(ptuId).destPTU = ptu;
+	}
+	
 	// Status Methods
 	public String getStatus(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -115,6 +132,16 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).onCall = onCall;
 	}
 
+	// On Conference Status Methods
+	public Boolean getOnConference(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return (entry != null ? entry.onConference : false);
+	}
+
+	public void setOnConference(String ptuId, Boolean onConference) {
+		entries.get(ptuId).onConference = onConference;
+	}
+	
 	// Activity Methods
 	public String getActivity(String ptuId) {
 		Entry entry = entries.get(ptuId);

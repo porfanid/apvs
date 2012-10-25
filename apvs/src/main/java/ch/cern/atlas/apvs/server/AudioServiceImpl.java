@@ -141,8 +141,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	@Override
 	public void call(String callerOriginater, String callerDestination) {
-		asteriskServer.originateToExtension(callerOriginater, CONTEXT,
-				callerDestination, PRIORITY, TIMEOUT);
+		asteriskServer.originateToExtension(callerOriginater, CONTEXT, callerDestination, PRIORITY, TIMEOUT);
 		/*
 		 * asteriskServer.originateToApplicationAsync(callerOriginater,
 		 * "MeetMe", "2000", 10000, new OriginateCallback() {
@@ -182,14 +181,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	@Override
 	public void newConference(String callerOriginater) {
-		asteriskServer.originateToExtension(callerOriginater, CONTEXT,
-				"newConference", PRIORITY, TIMEOUT);
+		asteriskServer.originateToExtension(callerOriginater, CONTEXT,"newConference", PRIORITY, TIMEOUT);
 	}
 
 	@Override
 	public void addToConference(String callerOriginater, String conferenceRoom) {
-		asteriskServer.originateToApplicationAsync(callerOriginater, "MeetMe",
-				conferenceRoom, 10000, new OriginateCallback() {
+		asteriskServer.originateToApplicationAsync(callerOriginater, "MeetMe",conferenceRoom, 10000, new OriginateCallback() {
 
 					@Override
 					public void onSuccess(AsteriskChannel arg0) {
@@ -240,7 +237,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void onManagerEvent(ManagerEvent event) {
 		String[] eventContent = event.toString().split("\\[");
-
+		System.out.println(eventContent[0]);
 		// PeerEntryEvent
 		if (eventContent[0].contains("PeerEntryEvent"))
 			listOnlineUsers(eventContent[1]);
@@ -376,34 +373,23 @@ public class AudioServiceImpl extends ResponsePollService implements
 				usersBridged.add(aux[0]);
 			}
 		}
-
+		//System.out.println("*&*&*&*&*&*&*&*&*&*&*&*&*&*&"+usersBridged);
 		for (int u = 0; u < ptuIdList.size(); u++) {
 			if (usersBridged.contains(voipAccounts.getNumber(ptuIdList.get(u)))) {
 				for (int b = 0; b < usersBridged.size(); b++) {
-					if (usersBridged.get(b).equals(
-							voipAccounts.getNumber(ptuIdList.get(u))))
+					if (usersBridged.get(b).equals(voipAccounts.getNumber(ptuIdList.get(u)))){
 						continue;
-					else {
-						if (voipAccounts.getDestUser(ptuIdList.get(u))
-								.isEmpty()) {
-							voipAccounts.setDestUser(ptuIdList.get(u),
-									voipAccounts.getUsername(voipAccounts
-											.getPtuId(voipAccounts,
-													usersBridged.get(b))));
+					}else {
+						if (voipAccounts.getDestUser(ptuIdList.get(u)).isEmpty()) {
+							voipAccounts.setDestUser(ptuIdList.get(u),voipAccounts.getUsername(voipAccounts.getPtuId(voipAccounts,usersBridged.get(b))));
+							//System.out.println("*%*%*%*%*%*%*%*%*%*%*%*%*%*% User Bridged" + usersBridged.get(b)+"$%@");
+							voipAccounts.setDestPtu(ptuIdList.get(u), voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
+							//System.out.println("*&*&*&*&*&*&*&*&*&*&*&*&*&*& Ptu do userBridged "+voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
 							voipAccounts.setOnCall(ptuIdList.get(u), true);
+							
 						} else {
-							voipAccounts
-									.setDestUser(
-											ptuIdList.get(u),
-											voipAccounts.getDestUser(ptuIdList
-													.get(u))
-													+ ","
-													+ voipAccounts
-															.getUsername(voipAccounts
-																	.getPtuId(
-																			voipAccounts,
-																			usersBridged
-																					.get(b))));
+							voipAccounts.setDestUser(ptuIdList.get(u),voipAccounts.getDestUser(ptuIdList.get(u)) + "," + voipAccounts.getUsername(voipAccounts.getPtuId(voipAccounts,usersBridged.get(b))));
+							voipAccounts.setDestPtu(ptuIdList.get(u), voipAccounts.getDestPtu(ptuIdList.get(u)) + "," + voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
 							voipAccounts.setOnCall(ptuIdList.get(u), true);
 						}
 					}
@@ -429,6 +415,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					if (voipAccounts.getNumber(ptuIdList.get(u)).equals(aux[0])) {
 						voipAccounts.setChannel(ptuIdList.get(u), "");
 						voipAccounts.setDestUser(ptuIdList.get(u), "");
+						voipAccounts.setDestPtu(ptuIdList.get(u), "");
 						voipAccounts.setOnCall(ptuIdList.get(u), false);
 						break;
 					}
