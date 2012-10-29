@@ -141,6 +141,16 @@ public class AudioSettings implements Serializable {
 	public void setOnConference(String ptuId, Boolean onConference) {
 		entries.get(ptuId).onConference = onConference;
 	}
+
+	// Room Methods
+	public String getRoom(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return (entry != null ? entry.room : "");
+	}
+
+	public void setRoom(String ptuId, String conferenceRoom) {
+		entries.get(ptuId).room = conferenceRoom;
+	}
 	
 	// Activity Methods
 	public String getActivity(String ptuId) {
@@ -186,5 +196,18 @@ public class AudioSettings implements Serializable {
 			}
 		}
 		return null;
+	}
+
+	// Check user phone call numbers of given activity
+	public List<String> getNumbersActivity(AudioSettings accounts, String activity) {
+		List<String> ptuList = new ArrayList<String>(accounts.getPtuIds());
+		List<String> numbers = new ArrayList<String>();
+		for (int i = 0; i < ptuList.size(); i++) {
+			if (accounts.getActivity(ptuList.get(i)).equals(activity)) {
+				System.out.println("accounts.getNumber(ptuList.get(i))"+ptuList);
+				numbers.add(accounts.getNumber(ptuList.get(i)));
+			}
+		}
+		return numbers;
 	}
 }

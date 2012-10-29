@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.service;
 
+import java.util.List;
+
 import ch.cern.atlas.apvs.client.AudioException;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -11,7 +13,7 @@ public interface AudioService extends RemoteService {
 
 	void hangup(String channel) throws AudioException;
 
-	void newConference(String callerOriginater);
+	void newConference(List<String> participants);
 
 	void addToConference(String callerOriginater, String conferenceRoom);
 

@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +15,9 @@ import org.asteriskjava.live.AsteriskChannel;
 import org.asteriskjava.live.AsteriskServer;
 import org.asteriskjava.live.DefaultAsteriskServer;
 import org.asteriskjava.live.LiveException;
+import org.asteriskjava.live.ManagerCommunicationException;
+import org.asteriskjava.live.MeetMeRoom;
+import org.asteriskjava.live.MeetMeUser;
 import org.asteriskjava.live.OriginateCallback;
 import org.asteriskjava.manager.AuthenticationFailedException;
 import org.asteriskjava.manager.ManagerConnection;
@@ -38,9 +42,10 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private ManagerConnection managerConnection;
 	private AsteriskServer asteriskServer;
 	private AudioSettings voipAccounts;
+	private List<Integer> conferenceRooms;
 
 	private ArrayList<String> usersList;
-
+	
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
 
@@ -66,10 +71,13 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-
+		
 		// if(audioHandler != null)
 		// return;
 
+		//TODO look at MEETME ROOMS Available
+		conferenceRooms = new ArrayList<Integer>();
+		
 		System.out.println("Starting Audio Service...");
 
 		// audioHandler = new AudioHandler(eventBus);
@@ -104,6 +112,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 			}
 		});
+		
 
 		AudioSettingsChangedEvent.subscribe(eventBus,
 				new AudioSettingsChangedEvent.Handler() {
@@ -142,25 +151,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void call(String callerOriginater, String callerDestination) {
 		asteriskServer.originateToExtension(callerOriginater, CONTEXT, callerDestination, PRIORITY, TIMEOUT);
-		/*
-		 * asteriskServer.originateToApplicationAsync(callerOriginater,
-		 * "MeetMe", "2000", 10000, new OriginateCallback() {
-		 * 
-		 * @Override public void onSuccess(AsteriskChannel arg0) {
-		 * System.err.println("User on conference call..."); }
-		 * 
-		 * @Override public void onNoAnswer(AsteriskChannel arg0) {
-		 * System.err.println("No answer..."); }
-		 * 
-		 * @Override public void onFailure(LiveException arg0) {
-		 * System.err.println("Failure to load..."); }
-		 * 
-		 * @Override public void onDialing(AsteriskChannel arg0) {
-		 * System.err.println("User currently dialing someone..."); }
-		 * 
-		 * @Override public void onBusy(AsteriskChannel arg0) {
-		 * System.err.println("User Busy..."); } });
-		 */
 	}
 
 	@Override
@@ -180,13 +170,23 @@ public class AudioServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void newConference(String callerOriginater) {
-		asteriskServer.originateToExtension(callerOriginater, CONTEXT,"newConference", PRIORITY, TIMEOUT);
+	public void newConference(List<String> participantsNumber) {
+		//System.out.println("=================AIIIII===============");
+		MeetMeRoom room = asteriskServer.getMeetMeRoom("0001");
+		//System.out.println("================================="+participantsNumber);
+		//System.out.println("================================="+room);
+		//System.out.println("================================="+room.getRoomNumber());
+		for(int i=0;i<participantsNumber.size();i++){
+			addToConference(participantsNumber.get(i), room.getRoomNumber()+",d");
+		}
+		//asteriskServer.originateToExtension("SIP/1001", CONTEXT, "800"+room.getRoomNumber(), PRIORITY, TIMEOUT);
+		
+		
 	}
 
 	@Override
-	public void addToConference(String callerOriginater, String conferenceRoom) {
-		asteriskServer.originateToApplicationAsync(callerOriginater, "MeetMe",conferenceRoom, 10000, new OriginateCallback() {
+	public void addToConference(String participant, String roomAndParam) {
+		asteriskServer.originateToApplicationAsync(participant, "MeetMe",roomAndParam, 10000, new OriginateCallback() {
 
 					@Override
 					public void onSuccess(AsteriskChannel arg0) {
@@ -426,5 +426,4 @@ public class AudioServiceImpl extends ResponsePollService implements
 				voipAccounts));
 
 	}
-
 }
