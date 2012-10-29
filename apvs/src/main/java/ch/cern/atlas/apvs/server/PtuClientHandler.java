@@ -81,6 +81,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		if (message.getUnit().equals("mSv")) {
 			message = new Measurement(message.getPtuId(), message.getName(), message.getValue().doubleValue()*1000, message.getSamplingRate(), "&micro;Sv", message.getDate());
 		}
+		if (message.getUnit().equals("mSv/h")) {
+			message = new Measurement(message.getPtuId(), message.getName(), message.getValue().doubleValue()*1000, message.getSamplingRate(), "&micro;Sv/h", message.getDate());
+		}
 		
 		measurementChanged.add(message);
 

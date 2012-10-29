@@ -146,6 +146,10 @@ public class DbHandler extends DbReconnectHandler {
 					unit = "&micro;Sv";
 					value *= 1000;
 				}
+				if (unit.equals("mSv/h")) {
+					unit = "&micro;Sv/h";
+					value *= 1000;
+				}
 
 				// limit entry separation (reverse order)
 				if (lastTime - time > MIN_INTERVAL) {
@@ -524,7 +528,6 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			while (result.next()) {
 				String name = result.getString("name");
-				log.info("********** " + name);
 				newMap.put(
 						name,
 						new Intervention(result.getInt("id"), result
@@ -569,6 +572,10 @@ public class DbHandler extends DbReconnectHandler {
 				// Scale down to microSievert
 				if (unit.equals("mSv")) {
 					unit = "&micro;Sv";
+					value *= 1000;
+				}
+				if (unit.equals("mSv/h")) {
+					unit = "&micro;Sv/h";
 					value *= 1000;
 				}
 

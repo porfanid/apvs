@@ -14,6 +14,7 @@ import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
@@ -57,6 +58,8 @@ public class EventView extends SimplePanel implements Module {
 
 	private boolean selectable = false;
 	private boolean sortable = true;
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public EventView() {
 	}
@@ -149,7 +152,7 @@ public class EventView extends SimplePanel implements Module {
 						if (((ptuId == null) || event.getPtuId().equals(ptuId))
 								&& ((measurementName == null) || event
 										.getName().equals(measurementName))) {
-							update();
+							scheduler.update();
 						}
 					}
 				});
@@ -165,7 +168,7 @@ public class EventView extends SimplePanel implements Module {
 						String oldUnit = units.get(key);
 						if (oldUnit == null || !oldUnit.equals(m.getUnit())) {
 							units.put(key, m.getUnit());
-							update();
+							scheduler.update();
 						}
 					}
 				});
@@ -176,7 +179,7 @@ public class EventView extends SimplePanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-					update();
+					scheduler.update();
 				}
 			});
 
@@ -186,7 +189,7 @@ public class EventView extends SimplePanel implements Module {
 						@Override
 						public void onSelection(SelectMeasurementEvent event) {
 							measurementName = event.getName();
-							update();
+							scheduler.update();
 						}
 					});
 
@@ -196,7 +199,7 @@ public class EventView extends SimplePanel implements Module {
 				@Override
 				public void onTabSelected(SelectTabEvent event) {
 					if (event.getTab().equals("Summary")) {
-						update();
+						scheduler.update();
 					}
 				}
 			});
@@ -395,7 +398,8 @@ public class EventView extends SimplePanel implements Module {
 	private void selectEvent(Event event) {
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		// enable / disable columns
 		if (table.getColumnIndex(ptu) >= 0) {
 			if (ptuId != null) {
@@ -422,6 +426,8 @@ public class EventView extends SimplePanel implements Module {
 		// Re-sort the table
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
+		
+		return false;
 	}
 
 	private String unitKey(String ptuId, String name) {

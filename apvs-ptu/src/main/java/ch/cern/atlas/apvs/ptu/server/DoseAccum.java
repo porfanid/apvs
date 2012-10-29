@@ -10,5 +10,4 @@ public class DoseAccum extends Measurement {
 	public DoseAccum(String ptuId, double value, Date d) {
 		super(ptuId, "DoseAccum", value, "mSv", d);
 	}
-	
 }

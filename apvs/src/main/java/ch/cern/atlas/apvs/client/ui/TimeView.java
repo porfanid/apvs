@@ -15,6 +15,7 @@ import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -38,6 +39,8 @@ public class TimeView extends AbstractTimeView implements Module {
 	private String measurementName = null;
 	private EventBus cmdBus;
 	private String options;
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public TimeView() {
 	}
@@ -65,7 +68,7 @@ public class TimeView extends AbstractTimeView implements Module {
 					public void onPtuSettingsChanged(
 							PtuSettingsChangedEvent event) {
 						settings = event.getPtuSettings();
-						updateChart();
+						scheduler.update();
 					}
 				});
 
@@ -76,7 +79,7 @@ public class TimeView extends AbstractTimeView implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedEvent event) {
 						interventions = event.getInterventionMap();
-						updateChart();
+						scheduler.update();
 					}
 				});
 
@@ -86,7 +89,7 @@ public class TimeView extends AbstractTimeView implements Module {
 				@Override
 				public void onPtuSelected(final SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-					updateChart();
+					scheduler.update();
 				}
 			});
 
@@ -96,7 +99,7 @@ public class TimeView extends AbstractTimeView implements Module {
 						@Override
 						public void onSelection(SelectMeasurementEvent event) {
 							measurementName = event.getName();
-							updateChart();
+							scheduler.update();
 						}
 					});
 
@@ -115,17 +118,18 @@ public class TimeView extends AbstractTimeView implements Module {
 		return true;
 	}
 
-	private void updateChart() {
+	@Override
+	public boolean update() {
 		deregister();
 		removeChart();
 
 		if (measurementName.equals("")) {
-			return;
+			return false;
 		}
 
 		if (ptuId == null) {
 			if (interventions == null) {
-				return;
+				return false;
 			}
 
 			createChart(measurementName);
@@ -229,6 +233,8 @@ public class TimeView extends AbstractTimeView implements Module {
 						});
 			}
 		}
+		
+		return false;
 	}
 
 	private String getName(String ptuId) {

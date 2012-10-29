@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.client.event.SelectStepEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.dom.client.Element;
@@ -43,6 +44,8 @@ public class ProcedureView extends SimplePanel implements Module {
 	private EventBus localEventBus;
 
 	private Object oldSource;
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public ProcedureView() {
 	}
@@ -89,19 +92,20 @@ public class ProcedureView extends SimplePanel implements Module {
 						localEventBus.fireEvent(new StepStatusEvent(
 								ProcedureView.this.step, lastStep,
 								hasPrevious(), hasNext()));
-						update();
+						scheduler.update();
 					}
 				});
 
-		update();
+		scheduler.update();
 
 		return true;
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		String source = procedureURL + "/" + procedure + "/" + step + extension;
 		if (source.equals(oldSource))
-			return;
+			return false;
 		oldSource = source;
 
 		Video video = Video.createIfSupported();
@@ -118,6 +122,8 @@ public class ProcedureView extends SimplePanel implements Module {
 
 		log.info(source);
 		// Thread.dumpStack();
+		
+		return false;
 	}
 
 	private void navigateStep(int step) {
@@ -126,7 +132,7 @@ public class ProcedureView extends SimplePanel implements Module {
 			remoteEventBus.fireEvent(new SelectStepEvent(step));
 			localEventBus.fireEvent(new StepStatusEvent(step, lastStep,
 					hasPrevious(), hasNext()));
-			update();
+			scheduler.update();
 		}
 	}
 

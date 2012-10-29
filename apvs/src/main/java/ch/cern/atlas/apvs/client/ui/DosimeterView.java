@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
@@ -50,6 +51,8 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 	private Element glass;
 	private boolean glassShowing;
 	private String glassStyleName = "gwt-PopupPanelGlass";
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	private HandlerRegistration resizeRegistration;
 	private ResizeHandler glassResizer = new ResizeHandler() {
@@ -192,7 +195,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 							PtuSettingsChangedEvent event) {
 						settings = event.getPtuSettings();
 
-						update();
+						scheduler.update();
 					}
 				});
 
@@ -203,7 +206,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedEvent event) {
 						interventions = event.getInterventionMap();
-						update();
+						scheduler.update();
 					}
 				});
 
@@ -228,11 +231,11 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 							list.add(dosimeter);
 						}
 
-						update();
+						scheduler.update();
 					}
 				});
-
-		update();
+		
+		scheduler.update();
 
 		return true;
 	}
@@ -249,12 +252,15 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 		return name != null ? name : "";
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		// Resort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 
 		showGlass(false);
+		
+		return false;
 	}
 
 	@Override

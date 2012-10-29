@@ -16,6 +16,7 @@ import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -70,6 +71,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 	private String options;
 
 	private HandlerRegistration measurementHandler;
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public MeasurementView() {
 	}
@@ -99,7 +102,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			public void onInterventionMapChanged(
 					InterventionMapChangedEvent event) {
 				interventions = event.getInterventionMap();
-				update();
+				scheduler.update();
 			}
 		});
 
@@ -110,7 +113,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 				ptuId = event.getPtuId();
 
 				changePtuId();
-				update();
+				scheduler.update();
 			}
 		});
 
@@ -294,7 +297,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 								Measurement measurement = event.getMeasurement();
 								if (measurement.getPtuId().equals(ptuId)) {
 									last = replace(measurement);
-									update();
+									scheduler.update();
 								}
 							}
 						});				
@@ -321,7 +324,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 		return SafeHtmlUtils.fromSafeConstant(s);
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		// Re-sort the table
 		if (sortable) {
 			ColumnSortEvent.fire(table, table.getColumnSortList());
@@ -343,6 +347,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 				selectionModel.setSelected(selection, true);
 			}
 		}
+		
+		return false;
 	}
 
 	private Measurement replace(Measurement measurement) {

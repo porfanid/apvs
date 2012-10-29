@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -28,6 +29,8 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 	private CellTable<String> table = new CellTable<String>();
 
 	private ServerSettings settings = new ServerSettings();
+
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public ServerSettingsView() {
 	}
@@ -106,15 +109,17 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
 						log.info(settings.toString());
 
-						update();
+						scheduler.update();
 					}
 				});
 
 		return true;
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		table.redraw();
+		return false;
 	}
 
 }

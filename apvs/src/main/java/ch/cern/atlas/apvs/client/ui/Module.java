@@ -15,4 +15,9 @@ public interface Module {
 	 * @return
 	 */
 	public boolean configure(Element element, ClientFactory clientFactory, Arguments args);
+	
+	/**
+	 * Updates the display with the latest information. Returns true when it needs to be called again. 
+	 */
+	public boolean update();
 }

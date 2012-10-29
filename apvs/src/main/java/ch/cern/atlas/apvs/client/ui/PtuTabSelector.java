@@ -16,6 +16,7 @@ import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.dom.client.Element;
@@ -41,7 +42,9 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 	private PtuSettings settings;
 	private InterventionMap interventions;
 	private List<String> extraTabs;
-	
+
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
+
 	public PtuTabSelector() {
 	}
 
@@ -70,7 +73,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 							PtuSettingsChangedEvent event) {
 						settings = event.getPtuSettings();
 
-						update();
+						scheduler.update();
 					}
 				});
 
@@ -85,7 +88,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 						ptuIds = interventions.getPtuIds();
 
-						update();
+						scheduler.update();
 
 						if (selectedTab != null) {
 							fireEvent(new SelectTabEvent(selectedPtuId == null ? selectedTab : "Ptu"));
@@ -105,7 +108,8 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 	}
 	
 
-	private void update() {
+	@Override
+	public boolean update() {
 		clear();
 		if (ptuIds != null) {
 
@@ -162,6 +166,8 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 			});
 			add(b);
 		}
+		
+		return false;
 	}
 
 	private void radio(ToggleButton b) {

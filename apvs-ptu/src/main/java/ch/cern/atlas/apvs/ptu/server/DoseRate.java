@@ -8,7 +8,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 public class DoseRate extends Measurement {
 
 	public DoseRate(String ptuId, double value, Date d) {
-		super(ptuId, "DoseRate", value, "mSv", d);
+		super(ptuId, "DoseRate", value, "mSv/h", d);
 	}
 	
 }

@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -60,6 +61,8 @@ public class CameraView extends SimplePanel implements Module,
 	private String options;
 	private boolean switchSource;
 	private boolean switchDestination;
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	// FIXME #179 needs to change when we redo the iPad version
 	public CameraView(ClientFactory factory, final String type, String width,
@@ -130,7 +133,7 @@ public class CameraView extends SimplePanel implements Module,
 
 						settings = event.getPtuSettings();
 
-						update(false);
+						scheduler.update();
 					}
 				});
 
@@ -140,7 +143,7 @@ public class CameraView extends SimplePanel implements Module,
 			public void onPtuSelected(SelectPtuEvent event) {
 				ptuId = event.getPtuId();
 
-				update(false);
+				scheduler.update();
 			}
 		});
 	}
@@ -163,16 +166,16 @@ public class CameraView extends SimplePanel implements Module,
 		return settings.getCameraUrl(ptuId, type);
 	}
 
-	private void update(boolean force) {
+	public boolean update() {
 		String cameraUrl = getCameraUrl(type, ptuId);
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
 			image.setUrl(videoPoster);
 			setWidget(image);
-			return;
+			return false;
 		}
 
-		if (!force && (cameraUrl.equals(currentCameraUrl))) {
-			return;
+		if (cameraUrl.equals(currentCameraUrl)) {
+			return false;
 		}
 
 		currentCameraUrl = cameraUrl;
@@ -224,5 +227,6 @@ public class CameraView extends SimplePanel implements Module,
 			log.info(video.toString());
 			setWidget(video);
 		}
+		return false;
 	}
 }

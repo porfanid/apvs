@@ -15,6 +15,7 @@ import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
@@ -50,6 +51,8 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 	protected PtuSettings settings = new PtuSettings();
 	protected InterventionMap interventions = new InterventionMap();
 	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
+
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public PtuSettingsView() {
 	}
@@ -221,7 +224,7 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(settings.getPtuIds());
 
-						update();
+						scheduler.update();
 					}
 				});
 
@@ -232,7 +235,7 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedEvent event) {
 						interventions = event.getInterventionMap();
-						update();
+						scheduler.update();
 					}
 				});
 
@@ -249,20 +252,23 @@ public class PtuSettingsView extends VerticalFlowPanel implements Module {
 								+ dosimeterSerialNumbers.size());
 
 						// FIXME, allow for setting not available as DOSI #
-						update();
+						scheduler.update();
 					}
 				});
 
-		update();
+		scheduler.update();
 
 		return true;
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		// Resort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 
 		table.redraw();
+		
+		return false;
 	}
 
 	private void fireSettingsChangedEvent(EventBus eventBus,

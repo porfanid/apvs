@@ -20,6 +20,7 @@ import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -65,6 +66,8 @@ public class PtuView extends VerticalPanel implements Module {
 	private PtuSettings settings;
 	private InterventionMap interventions;
 	private EventBus cmdBus;
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	private void init() {
 		last = new Measurement();
@@ -147,7 +150,7 @@ public class PtuView extends VerticalPanel implements Module {
 							MeasurementChangedEvent event) {
 						Measurement measurement = event.getMeasurement();
 						last = addOrReplaceMeasurement(measurement);
-						update();
+						scheduler.update();
 					}
 				});
 
@@ -159,7 +162,7 @@ public class PtuView extends VerticalPanel implements Module {
 							PtuSettingsChangedEvent event) {
 						settings = event.getPtuSettings();
 						configChanged();
-						update();
+						scheduler.update();
 					}
 				});
 
@@ -173,7 +176,7 @@ public class PtuView extends VerticalPanel implements Module {
 
 						ptuIds = interventions.getPtuIds();
 						configChanged();
-						update();
+						scheduler.update();
 					}
 				});
 
@@ -183,7 +186,7 @@ public class PtuView extends VerticalPanel implements Module {
 						@Override
 						public void onColorMapChanged(ColorMapChangedEvent event) {
 							colorMap = event.getColorMap();
-							update();
+							scheduler.update();
 						}
 
 					});
@@ -324,6 +327,7 @@ public class PtuView extends VerticalPanel implements Module {
 									for (Iterator<Measurement> i = result
 											.iterator(); i.hasNext();) {
 										last = addOrReplaceMeasurement(i.next());
+										scheduler.update();
 									}
 								}
 
@@ -340,7 +344,8 @@ public class PtuView extends VerticalPanel implements Module {
 		}
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 
@@ -356,6 +361,7 @@ public class PtuView extends VerticalPanel implements Module {
 		if (selection != null) {
 			selectionModel.setSelected(selection, true);
 		}
+		return false;
 	}
 
 	private void selectMeasurementAndPtu(String name, String ptuId) {

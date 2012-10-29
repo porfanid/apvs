@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module rename-to="apvs">
+
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name='com.google.gwt.core.Core' />
+	<inherits name='com.google.gwt.activity.Activity' />
+	<inherits name='com.google.gwt.place.Place' />
+	<inherits name="com.google.gwt.logging.Logging" />
+	<inherits name="com.google.gwt.http.HTTP" />
+	<inherits name="com.google.gwt.json.JSON" />
+	<inherits name="com.google.gwt.resources.Resources" />
+	<inherits name="com.google.web.bindery.autobean.AutoBean" />
+
+	<set-property name="gwt.logging.logLevel" value="INFO" />
+	<set-property name="gwt.logging.enabled" value="TRUE" />
+	<set-property name="gwt.logging.developmentModeHandler"
+		value="ENABLED" />
+	<set-property name="gwt.logging.systemHandler" value="DISABLED" />
+	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
+	<set-property name="gwt.logging.consoleHandler" value="ENABLED" />
+	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />
+
+	<inherits name="org.slf4j.Slf4j" />
+	<inherits name="org.atmosphere.gwt.Client" />
+	<inherits name="com.github.gwtbootstrap.Bootstrap" />
+	<set-property name="bootstrap.responsiveDesign" value="true" />
+
+	<inherits name="org.hibernate.validator.HibernateValidator" />
+	<replace-with class="ch.cern.atlas.apvs.client.ui.APVSValidatorFactory">
+		<when-type-is class="javax.validation.ValidatorFactory" />
+	</replace-with>
+
+	<inherits name="ch.cern.atlas.apvs.Domain" />
+	<inherits name="ch.cern.atlas.apvs.eventbus.EventBus" />
+	<inherits name="ch.cern.atlas.apvs.dosimeter.Dosimeter" />
+	<inherits name="ch.cern.atlas.apvs.ptu.Ptu" />
+
+	<inherits name="com.googlecode.mgwt.MGWT" />
+
+	<inherits name="org.moxieapps.gwt.highcharts.Highcharts" />
+
+	<!-- inherit css based theme -->
+	<inherits name='com.google.gwt.user.theme.standard.Standard' />
+
+	<stylesheet src='../css/APVS.css' />
+
+	<set-property name="locale" value="default" />
+	<set-property name="gwt.logging.logLevel" value="FINEST" />
+	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
+
+	<set-property name="compiler.stackMode" value="emulated" />
+	<set-configuration-property name="compiler.emulatedStack.recordLineNumbers"
+		value="true" />
+	<set-configuration-property name="compiler.emulatedStack.recordFileNames"
+		value="true" />
+
+
+	<replace-with class="ch.cern.atlas.apvs.client.APVSClientFactory">
+		<when-type-is class="ch.cern.atlas.apvs.client.ClientFactory" />
+	</replace-with>
+
+	<entry-point class='ch.cern.atlas.apvs.client.APVS' />
+
+	<!-- DEV specific items -->
+	<!-- <set-property name="user.agent" value="gecko1_8" /> -->
+	<set-property name="user.agent" value="safari, gecko1_8" />
+	<set-property name="mgwt.os" value="ipad, desktop" />
+</module>

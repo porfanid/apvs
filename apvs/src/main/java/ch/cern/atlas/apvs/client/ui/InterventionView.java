@@ -28,6 +28,7 @@ import ch.cern.atlas.apvs.client.widget.HumanTime;
 import ch.cern.atlas.apvs.client.widget.ListBoxField;
 import ch.cern.atlas.apvs.client.widget.TextAreaField;
 import ch.cern.atlas.apvs.client.widget.TextBoxField;
+import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.github.gwtbootstrap.client.ui.Button;
@@ -81,6 +82,8 @@ public class InterventionView extends SimplePanel implements Module {
 
 	private InterventionServiceAsync interventionService;
 	private Validator validator;
+	
+	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public InterventionView() {
 		interventionService = InterventionServiceAsync.Util.getInstance();
@@ -290,7 +293,7 @@ public class InterventionView extends SimplePanel implements Module {
 
 										@Override
 										public void onSuccess(Void result) {
-											InterventionView.this.update();
+											scheduler.update();
 										}
 
 										@Override
@@ -349,7 +352,7 @@ public class InterventionView extends SimplePanel implements Module {
 
 								@Override
 								public void onSuccess(Void result) {
-									InterventionView.this.update();
+									scheduler.update();
 								}
 
 								@Override
@@ -477,7 +480,7 @@ public class InterventionView extends SimplePanel implements Module {
 
 										@Override
 										public void onSuccess(Void result) {
-											InterventionView.this.update();
+											scheduler.update();
 										}
 
 										@Override
@@ -587,7 +590,7 @@ public class InterventionView extends SimplePanel implements Module {
 
 										@Override
 										public void onSuccess(Void result) {
-											InterventionView.this.update();
+											scheduler.update();
 										}
 
 										@Override
@@ -630,7 +633,7 @@ public class InterventionView extends SimplePanel implements Module {
 
 							@Override
 							public void onSuccess(Void result) {
-								InterventionView.this.update();
+								scheduler.update();
 							}
 
 							@Override
@@ -702,8 +705,11 @@ public class InterventionView extends SimplePanel implements Module {
 	private void selectIntervention(Intervention intervention) {
 	}
 
-	private void update() {
+	@Override
+	public boolean update() {
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
+		
+		return false;
 	}
 }
