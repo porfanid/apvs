@@ -118,8 +118,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				new AudioSettingsChangedEvent.Handler() {
 
 					@Override
-					public void onAudioSettingsChanged(
-							AudioSettingsChangedEvent event) {
+					public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
 						voipAccounts = event.getAudioSettings();
 					}
 				});
@@ -258,10 +257,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 		// HangupEvent
 		if (eventContent[0].contains("HangupEvent"))
 			hangupEvent(eventContent[1]);
+		
+		//MeetMeJoinEvent
+		if (eventContent[0].contains("MeetMeJoinEvent"))
+			meetmeJoin(eventContent[1]);
 
 	}
-
-	// *********************************************
 
 	public String contentValue(String content) {
 		return content.substring(content.indexOf("'", 0) + 1,
@@ -274,16 +275,16 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	// *********************************************
 	// New Channel
-	public void newChannelEvent(String channel) {
+	public void newChannelEvent(String eventContent) {
 		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
-		String[] list = channel.replace(',', '\n').split("\\n");
+		String[] list = eventContent.replace(',', '\n').split("\\n");
 		for (int i = 0; i < list.length; i++) {
 			if (list[i].contains("channel=")) {
-				channel = contentValue(list[i]);
-				String[] aux = channel.split("-");
+				eventContent = contentValue(list[i]);
+				String[] aux = eventContent.split("-");
 				for (int j = 0; j < ptuIdList.size(); j++) {
 					if (voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])) {
-						voipAccounts.setChannel(ptuIdList.get(j), channel);
+						voipAccounts.setChannel(ptuIdList.get(j), eventContent);
 						break;
 					}
 				}
@@ -297,8 +298,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	// *********************************************
 	// Users Register and Unregister
-	public void peerStatusEvent(String evntContent) {
-		String[] list = evntContent.replace(',', '\n').split("\\n");
+	public void peerStatusEvent(String eventContent) {
+		String[] list = eventContent.replace(',', '\n').split("\\n");
 		boolean canRead = false;
 		VoipAccount user = new VoipAccount();
 
@@ -343,8 +344,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	// *********************************************
 	// List Users Number
-	public void listOnlineUsers(String evntContent) {
-		String[] list = evntContent.replace(',', '\n').split("\\n");
+	public void listOnlineUsers(String eventContent) {
+		String[] list = eventContent.replace(',', '\n').split("\\n");
 
 		for (int i = 0; i < list.length; i++) {
 			if (list[i].contains("objectname")) {
@@ -361,15 +362,15 @@ public class AudioServiceImpl extends ResponsePollService implements
 	// *********************************************
 	// Bridge of Call Channels
 
-	public void bridgeEvent(String channel) {
-		String[] list = channel.replace(',', '\n').split("\\n");
+	public void bridgeEvent(String eventContent) {
+		String[] list = eventContent.replace(',', '\n').split("\\n");
 		ArrayList<String> usersBridged = new ArrayList<String>();
 		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
 
 		for (int i = 0; i < list.length; i++) {
 			if (list[i].contains("channel")) {
-				channel = contentValue(list[i]);
-				String[] aux = channel.split("-");
+				eventContent = contentValue(list[i]);
+				String[] aux = eventContent.split("-");
 				usersBridged.add(aux[0]);
 			}
 		}
@@ -385,11 +386,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 							//System.out.println("*%*%*%*%*%*%*%*%*%*%*%*%*%*% User Bridged" + usersBridged.get(b)+"$%@");
 							voipAccounts.setDestPtu(ptuIdList.get(u), voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
 							//System.out.println("*&*&*&*&*&*&*&*&*&*&*&*&*&*& Ptu do userBridged "+voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
+							voipAccounts.setOnConference(ptuIdList.get(u), false);
 							voipAccounts.setOnCall(ptuIdList.get(u), true);
+							
 							
 						} else {
 							voipAccounts.setDestUser(ptuIdList.get(u),voipAccounts.getDestUser(ptuIdList.get(u)) + "," + voipAccounts.getUsername(voipAccounts.getPtuId(voipAccounts,usersBridged.get(b))));
 							voipAccounts.setDestPtu(ptuIdList.get(u), voipAccounts.getDestPtu(ptuIdList.get(u)) + "," + voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
+							voipAccounts.setOnConference(ptuIdList.get(u), false);
 							voipAccounts.setOnCall(ptuIdList.get(u), true);
 						}
 					}
@@ -404,19 +408,20 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	// *********************************************
 	// Hangup Call Event
-	public void hangupEvent(String channel) {
+	public void hangupEvent(String eventContent) {
 		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
-		String[] list = channel.replace(',', '\n').split("\\n");
+		String[] list = eventContent.replace(',', '\n').split("\\n");
 		for (int i = 0; i < list.length; i++) {
 			if (list[i].contains("channel=")) {
-				channel = contentValue(list[i]);
-				String[] aux = channel.split("-");
+				eventContent = contentValue(list[i]);
+				String[] aux = eventContent.split("-");
 				for (int u = 0; u < ptuIdList.size(); u++) {
 					if (voipAccounts.getNumber(ptuIdList.get(u)).equals(aux[0])) {
 						voipAccounts.setChannel(ptuIdList.get(u), "");
 						voipAccounts.setDestUser(ptuIdList.get(u), "");
 						voipAccounts.setDestPtu(ptuIdList.get(u), "");
 						voipAccounts.setOnCall(ptuIdList.get(u), false);
+						voipAccounts.setOnConference(ptuIdList.get(u), false);
 						break;
 					}
 				}
@@ -426,4 +431,33 @@ public class AudioServiceImpl extends ResponsePollService implements
 				voipAccounts));
 
 	}
+	
+	// *********************************************
+	// Meetme Join Event
+	private void meetmeJoin(String eventContent) {
+				
+		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
+		String[] list = eventContent.replace(',', '\n').split("\\n");
+		for (int i = 0; i < list.length; i++) {
+			if (list[i].contains("channel=")) {
+				eventContent = contentValue(list[i]);
+				String[] aux = eventContent.split("-");
+		
+				for (int j = 0; j < ptuIdList.size(); j++) {
+					if (voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])) {
+						voipAccounts.setChannel(ptuIdList.get(j), eventContent);
+						voipAccounts.setOnCall(ptuIdList.get(j), false);
+						voipAccounts.setOnConference(ptuIdList.get(j), true);
+						break;
+					}
+				}
+				((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+				break;
+			}
+		}
+
+		
+		
+	}
+	
 }
