@@ -33,10 +33,10 @@ public class EditableCell extends AbstractCell<Object> {
 	private MyTextCell textCell;
 	private MyDateCell dateCell;
 	private MyDurationCell durationCell;
-	
+
 	private List<Class<?>> cellClasses;
 	private boolean enabled = true;
-	
+
 	public EditableCell() {
 		this(null);
 	}
@@ -51,7 +51,7 @@ public class EditableCell extends AbstractCell<Object> {
 		if (cellClasses == null) {
 			cellClasses = Collections.emptyList();
 		}
-		
+
 		enabled = true;
 
 		textInputCell = new TextInputSizeCell(size);
@@ -62,6 +62,7 @@ public class EditableCell extends AbstractCell<Object> {
 		textCell = new MyTextCell();
 		dateCell = new MyDateCell();
 		durationCell = new MyDurationCell();
+
 	}
 
 	public void setOptions(List<String> options) {
@@ -71,16 +72,16 @@ public class EditableCell extends AbstractCell<Object> {
 	public void setDateFormat(DateTimeFormat format) {
 		dateCell.setFormat(format);
 	}
-	
+
 	// FIXME works only for checkbox
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-		
+
 		checkboxCell.setEnabled(enabled);
 	}
 
 	@Override
-	public boolean isEditing(Context context, Element parent, Object value) {		
+	public boolean isEditing(Context context, Element parent, Object value) {
 		Class<?> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			return textInputCell.isEditing(context, parent, (String) value);
@@ -110,7 +111,7 @@ public class EditableCell extends AbstractCell<Object> {
 	public void onBrowserEvent(Context context, Element parent, Object value,
 			NativeEvent event, final ValueUpdater<Object> valueUpdater) {
 		Class<?> cellClass = getCellClass(context, value);
-		
+
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.onBrowserEvent(context, parent, (String) value,
 					event, new ValueUpdater<String>() {
@@ -295,7 +296,7 @@ public class EditableCell extends AbstractCell<Object> {
 	@Override
 	protected void onEnterKeyDown(Context context, Element parent,
 			Object value, NativeEvent event,
-			final ValueUpdater<Object> valueUpdater) {		
+			final ValueUpdater<Object> valueUpdater) {
 		Class<?> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.onEnterKeyDown(context, parent, (String) value,
@@ -394,7 +395,7 @@ public class EditableCell extends AbstractCell<Object> {
 	}
 
 	@Override
-	public boolean resetFocus(Context context, Element parent, Object value) {		
+	public boolean resetFocus(Context context, Element parent, Object value) {
 		Class<?> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			return textInputCell.resetFocus(context, parent, (String) value);
@@ -422,7 +423,7 @@ public class EditableCell extends AbstractCell<Object> {
 	}
 
 	@Override
-	public void setValue(Context context, Element parent, Object value) {		
+	public void setValue(Context context, Element parent, Object value) {
 		Class<?> cellClass = getCellClass(context, value);
 		if (cellClass.equals(TextInputCell.class)) {
 			textInputCell.setValue(context, parent, (String) value);
@@ -447,7 +448,7 @@ public class EditableCell extends AbstractCell<Object> {
 			textCell.setValue(context, parent, (String) value);
 		}
 	}
-	
+
 	protected Class<?> getCellClass(Context context, Object value) {
 		int row = context.getIndex();
 		if ((0 <= row) && (row < cellClasses.size())) {
@@ -519,12 +520,12 @@ public class EditableCell extends AbstractCell<Object> {
 	private class MyDateCell extends AbstractCell<Date> {
 		private DateTimeFormat format;
 		private final SafeHtmlRenderer<String> renderer;
-		
+
 		public MyDateCell() {
 			format = DateTimeFormat.getFormat(PredefinedFormat.DATE_FULL);
 			renderer = SimpleSafeHtmlRenderer.getInstance();
 		}
-		
+
 		@Override
 		protected void onEnterKeyDown(
 				com.google.gwt.cell.client.Cell.Context context,
@@ -539,12 +540,12 @@ public class EditableCell extends AbstractCell<Object> {
 				sb.append(renderer.render(format.format(value)));
 			}
 		}
-		
+
 		public void setFormat(DateTimeFormat format) {
 			this.format = format;
 		}
 	}
-	
+
 	private class MyDurationCell extends DurationCell {
 		@Override
 		protected void onEnterKeyDown(
@@ -552,7 +553,6 @@ public class EditableCell extends AbstractCell<Object> {
 				Element parent, Long value, NativeEvent event,
 				ValueUpdater<Long> valueUpdater) {
 			super.onEnterKeyDown(context, parent, value, event, valueUpdater);
-		}		
+		}
 	}
-
 }

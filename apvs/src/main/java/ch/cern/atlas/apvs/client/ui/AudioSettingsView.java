@@ -139,7 +139,7 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 		InterventionMapChangedEvent.subscribe(eventBus,new InterventionMapChangedEvent.Handler() {
 
 			@Override
-			public void onInterventionMapChanged(InterventionMapChangedEvent event) {
+			public void onInterventionMapChanged(InterventionMapChangedEvent event){
 				System.err.println("PTU IDS changed");
 				activePtuIds = event.getInterventionMap().getPtuIds();
 			}

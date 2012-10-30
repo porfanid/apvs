@@ -6,36 +6,52 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.settings.PtuSettings.Entry;
-import ch.cern.atlas.apvs.server.VoipAccount;
-
 public class AudioSettings implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
 	public static class Entry implements Serializable {
-		String username;
-		String number;
-		String channel;
-		String destUser;
-		String status;
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		String  username;
+		String  number;
+		String  destUser;
+		String destPTU;
+		String  channel;
+		String  activity;
+		String  status;
+		
+		
+		// Private Call
 		Boolean onCall;
-		String activity;
-
+		
+		// Conference Call
+		String  room;
+		Boolean onConference;
+		
+		
 		public Entry() {
 			username = "";
 			number = "";
 			channel = "";
 			destUser = "";
+			destPTU = "";
 			status = "";
-			onCall = false;
 			activity = "";
+			
+			onCall = false;
+			
+			room = "";
+			onConference = false;
 		}
 
 		public String toString() {
 			return ("VoipAccount: username=" + username + "" + " number= "
 					+ number + " channel=" + channel + " destUser= " + destUser
-					+ " status=" + status + " onCall=" + onCall);
+					+ " destPTU= " + destPTU + " status=" + status + " onCall=" + onCall);
 		}
 	}
 
@@ -49,7 +65,6 @@ public class AudioSettings implements Serializable {
 	}
 
 	public boolean setUsername(String ptuId, String username) {
-		boolean changed = false;
 		if (entries.get(ptuId).username.equals(username)) {
 			return false;
 		}
@@ -87,6 +102,16 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).destUser = user;
 	}
 
+	// Destination PTU Methods
+	public String getDestPtu(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return (entry != null ? entry.destPTU : "");
+	}
+
+	public void setDestPtu(String ptuId, String ptu) {
+		entries.get(ptuId).destPTU = ptu;
+	}
+	
 	// Status Methods
 	public String getStatus(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -107,6 +132,26 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).onCall = onCall;
 	}
 
+	// On Conference Status Methods
+	public Boolean getOnConference(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return (entry != null ? entry.onConference : false);
+	}
+
+	public void setOnConference(String ptuId, Boolean onConference) {
+		entries.get(ptuId).onConference = onConference;
+	}
+
+	// Room Methods
+	public String getRoom(String ptuId) {
+		Entry entry = entries.get(ptuId);
+		return (entry != null ? entry.room : "");
+	}
+
+	public void setRoom(String ptuId, String conferenceRoom) {
+		entries.get(ptuId).room = conferenceRoom;
+	}
+	
 	// Activity Methods
 	public String getActivity(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -151,5 +196,18 @@ public class AudioSettings implements Serializable {
 			}
 		}
 		return null;
+	}
+
+	// Check user phone call numbers of given activity
+	public List<String> getNumbersActivity(AudioSettings accounts, String activity) {
+		List<String> ptuList = new ArrayList<String>(accounts.getPtuIds());
+		List<String> numbers = new ArrayList<String>();
+		for (int i = 0; i < ptuList.size(); i++) {
+			if (accounts.getActivity(ptuList.get(i)).equals(activity)) {
+				System.out.println("accounts.getNumber(ptuList.get(i))"+ptuList);
+				numbers.add(accounts.getNumber(ptuList.get(i)));
+			}
+		}
+		return numbers;
 	}
 }
