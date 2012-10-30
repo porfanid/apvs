@@ -23,14 +23,21 @@ import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ScrollEvent;
+import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.SimplePager;
+import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.Range;
@@ -39,7 +46,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class EventView extends SimplePanel implements Module {
+public class EventView extends DockPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -47,7 +54,7 @@ public class EventView extends SimplePanel implements Module {
 	private String ptuId;
 	private String measurementName;
 
-	private DataGrid<Event> table = new DataGrid<Event>();
+	private MyDataGrid<Event> table = new MyDataGrid<Event>();
 
 	private String ptuHeader;
 	private ClickableTextColumn<Event> ptu;
@@ -58,8 +65,15 @@ public class EventView extends SimplePanel implements Module {
 
 	private boolean selectable = false;
 	private boolean sortable = true;
-	
+
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
+
+	private class MyDataGrid<T> extends DataGrid<T> {
+		ScrollPanel getScrollPanel() {
+			return (ScrollPanel) ((HeaderPanel) table.getWidget())
+					.getContentWidget();
+		}
+	}
 
 	public EventView() {
 	}
@@ -77,7 +91,34 @@ public class EventView extends SimplePanel implements Module {
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Events"));
 
-		add(table);
+		SimplePager pager = new SimplePager(TextLocation.RIGHT);
+		add(pager, SOUTH);
+		pager.setDisplay(table);
+
+		final TextArea msg = new TextArea();
+		// FIXME, not sure how to handle scroll bar and paging
+//		add(msg, NORTH);
+
+		setWidth("100%");
+		add(table, CENTER);
+
+		final ScrollPanel scrollPanel = table.getScrollPanel();
+		scrollPanel.addScrollHandler(new ScrollHandler() {
+
+			int line = 0;
+
+			@Override
+			public void onScroll(ScrollEvent event) {
+				msg.setText(msg.getText() + "\n" + line + " "
+						+ event.toDebugString() + " "
+						+ scrollPanel.getVerticalScrollPosition() + " "
+						+ scrollPanel.getMinimumVerticalScrollPosition() + " "
+						+ scrollPanel.getMaximumVerticalScrollPosition());
+				msg.getElement().setScrollTop(
+						msg.getElement().getScrollHeight());
+				line++;
+			}
+		});
 
 		AsyncDataProvider<Event> dataProvider = new AsyncDataProvider<Event>() {
 
@@ -116,8 +157,8 @@ public class EventView extends SimplePanel implements Module {
 					order[0] = new SortOrder("tbl_events.datetime", false);
 				}
 
-				EventServiceAsync.Util.getInstance().getTableData(range, order, ptuId, 
-						new AsyncCallback<List<Event>>() {
+				EventServiceAsync.Util.getInstance().getTableData(range, order,
+						ptuId, new AsyncCallback<List<Event>>() {
 
 							@Override
 							public void onSuccess(List<Event> result) {
@@ -126,7 +167,7 @@ public class EventView extends SimplePanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("RPC DB FAILED "+caught);
+								log.warn("RPC DB FAILED " + caught);
 								table.setRowCount(0);
 							}
 						});
@@ -414,7 +455,7 @@ public class EventView extends SimplePanel implements Module {
 
 		if (table.getColumnIndex(name) >= 0) {
 			if (measurementName != null) {
-				table.removeColumn(name);				
+				table.removeColumn(name);
 			}
 		} else {
 			if (measurementName == null) {
@@ -426,7 +467,7 @@ public class EventView extends SimplePanel implements Module {
 		// Re-sort the table
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
-		
+
 		return false;
 	}
 
