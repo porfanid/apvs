@@ -31,6 +31,7 @@ import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
+import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -269,7 +270,8 @@ public class EventView extends DockPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(date, "Date / Time");
+		table.addColumn(date, new TextHeader("Date / Time"));
+		
 		// desc sort, push twice
 		table.getColumnSortList().push(date);
 		table.getColumnSortList().push(date);

@@ -52,14 +52,16 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
+import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.validation.client.Validation;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
@@ -69,7 +71,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class InterventionView extends SimplePanel implements Module {
+public class InterventionView extends DockPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -101,7 +103,12 @@ public class InterventionView extends SimplePanel implements Module {
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Interventions"));
 
-		add(table);
+		SimplePager pager = new SimplePager(TextLocation.RIGHT);
+		add(pager, SOUTH);
+		pager.setDisplay(table);
+		
+		setWidth("100%");
+		add(table, CENTER);
 
 		AsyncDataProvider<Intervention> dataProvider = new AsyncDataProvider<Intervention>() {
 
