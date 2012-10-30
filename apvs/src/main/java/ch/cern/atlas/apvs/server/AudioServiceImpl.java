@@ -261,6 +261,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 		//MeetMeJoinEvent
 		if (eventContent[0].contains("MeetMeJoinEvent"))
 			meetmeJoin(eventContent[1]);
+		
+		//MeetMeLeaveEvent
+		if (eventContent[0].contains("MeetMeLeaveEvent"))
+			meetmeLeave(eventContent[1]);
+		
 
 	}
 
@@ -386,14 +391,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 							//System.out.println("*%*%*%*%*%*%*%*%*%*%*%*%*%*% User Bridged" + usersBridged.get(b)+"$%@");
 							voipAccounts.setDestPtu(ptuIdList.get(u), voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
 							//System.out.println("*&*&*&*&*&*&*&*&*&*&*&*&*&*& Ptu do userBridged "+voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
-							voipAccounts.setOnConference(ptuIdList.get(u), false);
+							//voipAccounts.setOnConference(ptuIdList.get(u), false);
 							voipAccounts.setOnCall(ptuIdList.get(u), true);
 							
 							
 						} else {
 							voipAccounts.setDestUser(ptuIdList.get(u),voipAccounts.getDestUser(ptuIdList.get(u)) + "," + voipAccounts.getUsername(voipAccounts.getPtuId(voipAccounts,usersBridged.get(b))));
 							voipAccounts.setDestPtu(ptuIdList.get(u), voipAccounts.getDestPtu(ptuIdList.get(u)) + "," + voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
-							voipAccounts.setOnConference(ptuIdList.get(u), false);
+							//voipAccounts.setOnConference(ptuIdList.get(u), false);
 							voipAccounts.setOnCall(ptuIdList.get(u), true);
 						}
 					}
@@ -434,20 +439,28 @@ public class AudioServiceImpl extends ResponsePollService implements
 	
 	// *********************************************
 	// Meetme Join Event
-	private void meetmeJoin(String eventContent) {
+	public void meetmeJoin(String eventContent) {
 				
 		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
 		String[] list = eventContent.replace(',', '\n').split("\\n");
+		String room = new String();
 		for (int i = 0; i < list.length; i++) {
+			if(list[i].contains("meetme="))
+				room = contentValue(list[i]);
+			
 			if (list[i].contains("channel=")) {
 				eventContent = contentValue(list[i]);
 				String[] aux = eventContent.split("-");
 		
 				for (int j = 0; j < ptuIdList.size(); j++) {
 					if (voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])) {
+						if (room != null){
 						voipAccounts.setChannel(ptuIdList.get(j), eventContent);
-						voipAccounts.setOnCall(ptuIdList.get(j), false);
+						//voipAccounts.setOnCall(ptuIdList.get(j), false);
 						voipAccounts.setOnConference(ptuIdList.get(j), true);
+						break;
+						}
+						System.err.println("Meetme Join event with no room assigned");
 						break;
 					}
 				}
@@ -455,8 +468,32 @@ public class AudioServiceImpl extends ResponsePollService implements
 				break;
 			}
 		}
-
+	}
 		
+	// *********************************************
+	// Meetme Leave Event
+	public void meetmeLeave(String eventContent) {
+		System.out.println("*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#Event Content" + eventContent);
+				
+		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
+		String[] list = eventContent.replace(',', '\n').split("\\n");
+		for (int i = 0; i < list.length; i++) {
+			if (list[i].contains("channel=")) {
+				eventContent = contentValue(list[i]);
+				String[] aux = eventContent.split("-");
+				System.out.println("Username " +aux[0]);
+				for (int j = 0; j < ptuIdList.size(); j++) {
+					if (voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])) {
+						voipAccounts.setChannel(ptuIdList.get(j), "");
+						//voipAccounts.setOnCall(ptuIdList.get(j), false);
+						voipAccounts.setOnConference(ptuIdList.get(j), false);
+						break;
+					}
+				}
+				((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+				break;
+			}
+		}
 		
 	}
 	

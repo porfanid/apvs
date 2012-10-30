@@ -93,6 +93,7 @@ public class AudioView extends VerticalPanel implements Module {
 			@Override
 			public void update(int index, String fieldName, Object value) {
 				if (fieldName.equals("Private Call")) {
+					
 					if (voipAccounts.getOnCall(ptuId)) {
 						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(voipAccounts, SUPERVISOR_ACCOUNT)),
 								new AsyncCallback<Void>() {
