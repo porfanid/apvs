@@ -320,9 +320,7 @@ public class InterventionView extends DockPanel implements Module {
 		});
 		table.addColumn(startTime, new TextHeader("Start Time"),
 				interventionFooter);
-		// twice for descending
-		table.getColumnSortList().push(startTime);
-		table.getColumnSortList().push(startTime);
+		table.getColumnSortList().push(new ColumnSortInfo(startTime, false));
 
 		// endTime
 		EditableCell cell = new EditableCell() {

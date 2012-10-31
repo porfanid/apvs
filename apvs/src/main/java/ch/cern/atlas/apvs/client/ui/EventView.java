@@ -12,21 +12,22 @@ import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.LabeledButtonCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.SafeHtmlHeader;
+import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -53,6 +54,8 @@ public class EventView extends DockPanel implements Module {
 	private String measurementName;
 
 	private MyDataGrid<Event> table = new MyDataGrid<Event>();
+	private ScrollPanel scrollPanel;
+	private SimplePager pager;
 
 	private ClickableTextColumn<Event> date;
 	private String ptuHeader;
@@ -88,7 +91,7 @@ public class EventView extends DockPanel implements Module {
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Events"));
 
-		final SimplePager pager = new SimplePager(TextLocation.RIGHT);
+		pager = new SimplePager(TextLocation.RIGHT);
 		add(pager, SOUTH);
 		pager.setDisplay(table);
 
@@ -99,7 +102,7 @@ public class EventView extends DockPanel implements Module {
 		setWidth("100%");
 		add(table, CENTER);
 
-		final ScrollPanel scrollPanel = table.getScrollPanel();
+		scrollPanel = table.getScrollPanel();
 		scrollPanel.addScrollHandler(new ScrollHandler() {
 
 			int line = 0;
@@ -192,43 +195,6 @@ public class EventView extends DockPanel implements Module {
 								&& ((measurementName == null) || event
 										.getName().equals(measurementName))) {
 							scheduler.update();
-
-							ColumnSortList sortList = table.getColumnSortList();
-							ColumnSortInfo sortInfo = sortList.size() > 0 ? sortList
-									.get(0) : null;
-							boolean sortedOnDate = sortInfo != null ? sortInfo
-									.getColumn().equals(date) : false;
-							boolean sortedDescending = sortInfo != null ? !sortInfo
-									.isAscending() : false;
-
-							if (!sortedOnDate
-									|| !sortedDescending
-									|| (scrollPanel.getVerticalScrollPosition() != scrollPanel
-											.getMinimumHorizontalScrollPosition())
-									|| (pager.getPage() != pager.getPageStart())) {
-								System.err.println("************* Event "
-										+ e.getEvent()
-										+ " "
-										+ scrollPanel
-												.getVerticalScrollPosition()
-										+ " v"
-										+ scrollPanel
-												.getMinimumHorizontalScrollPosition()
-										+ " "
-										+ pager.getPage()
-										+ " s"
-										+ pager.getPageStart()
-										+ " "
-										+ event.getPtuId()
-										+ " "
-										+ ptuId
-										+ " "
-										+ measurementName
-										+ " "
-										+ (sortInfo != null ? sortInfo
-												.isAscending() : "null") + " "
-										+ sortedOnDate);
-							}
 						}
 					}
 				});
@@ -288,11 +254,26 @@ public class EventView extends DockPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(date, new SafeHtmlHeader(SafeHtmlUtils.fromSafeConstant("Date / Time")));
+		Header<String> dateHeader = new Header<String>(new LabeledButtonCell(
+				"Date / Time")) {
+			@Override
+			public String getValue() {
+				return needsUpdate() ? "Update" : null;
+			}
+		};
+		dateHeader.setUpdater(new ValueUpdater<String>() {
 
-		// desc sort, push twice
-		table.getColumnSortList().push(date);
-		table.getColumnSortList().push(date);
+			@Override
+			public void update(String value) {
+				pager.setPage(pager.getPageStart());
+				scrollPanel.setVerticalScrollPosition(scrollPanel
+						.getMinimumHorizontalScrollPosition());
+
+				table.getColumnSortList().push(new ColumnSortInfo(date, false));
+			}
+		});
+		table.addColumn(date, dateHeader);
+		table.getColumnSortList().push(new ColumnSortInfo(date, false));
 
 		// PtuID (2)
 		ptu = new ClickableTextColumn<Event>() {
@@ -454,6 +435,23 @@ public class EventView extends DockPanel implements Module {
 		}
 
 		return true;
+	}
+
+	private boolean needsUpdate() {
+		ColumnSortList sortList = table.getColumnSortList();
+		ColumnSortInfo sortInfo = sortList.size() > 0 ? sortList.get(0) : null;
+		if (sortInfo == null) {
+			return true;
+		}
+		if (!sortInfo.getColumn().equals(date)) {
+			return true;
+		}
+		if (sortInfo.isAscending()) {
+			return true;
+		}
+		return (scrollPanel.getVerticalScrollPosition() != scrollPanel
+				.getMinimumVerticalScrollPosition())
+				|| (pager.getPage() != pager.getPageStart());
 	}
 
 	private void selectEvent(Event event) {
