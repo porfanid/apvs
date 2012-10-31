@@ -21,13 +21,14 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.SafeHtmlHeader;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
-import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -121,8 +122,8 @@ public class EventView extends DockPanel implements Module {
 			@SuppressWarnings("unchecked")
 			@Override
 			protected void onRangeChanged(HasData<Event> display) {
-				EventServiceAsync.Util.getInstance().getRowCount(ptuId, measurementName, 
-						new AsyncCallback<Integer>() {
+				EventServiceAsync.Util.getInstance().getRowCount(ptuId,
+						measurementName, new AsyncCallback<Integer>() {
 
 							@Override
 							public void onSuccess(Integer result) {
@@ -154,7 +155,8 @@ public class EventView extends DockPanel implements Module {
 				}
 
 				EventServiceAsync.Util.getInstance().getTableData(range, order,
-						ptuId, measurementName, new AsyncCallback<List<Event>>() {
+						ptuId, measurementName,
+						new AsyncCallback<List<Event>>() {
 
 							@Override
 							public void onSuccess(List<Event> result) {
@@ -286,7 +288,7 @@ public class EventView extends DockPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(date, new TextHeader("Date / Time"));
+		table.addColumn(date, new SafeHtmlHeader(SafeHtmlUtils.fromSafeConstant("Date / Time")));
 
 		// desc sort, push twice
 		table.getColumnSortList().push(date);
