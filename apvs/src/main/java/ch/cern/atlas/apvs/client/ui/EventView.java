@@ -53,6 +53,7 @@ public class EventView extends DockPanel implements Module {
 
 	private MyDataGrid<Event> table = new MyDataGrid<Event>();
 
+	private ClickableTextColumn<Event> date;
 	private String ptuHeader;
 	private ClickableTextColumn<Event> ptu;
 	private String nameHeader;
@@ -86,13 +87,13 @@ public class EventView extends DockPanel implements Module {
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Events"));
 
-		SimplePager pager = new SimplePager(TextLocation.RIGHT);
+		final SimplePager pager = new SimplePager(TextLocation.RIGHT);
 		add(pager, SOUTH);
 		pager.setDisplay(table);
 
 		final TextArea msg = new TextArea();
 		// FIXME, not sure how to handle scroll bar and paging
-//		add(msg, NORTH);
+		// add(msg, NORTH);
 
 		setWidth("100%");
 		add(table, CENTER);
@@ -120,7 +121,7 @@ public class EventView extends DockPanel implements Module {
 			@SuppressWarnings("unchecked")
 			@Override
 			protected void onRangeChanged(HasData<Event> display) {
-				EventServiceAsync.Util.getInstance().getRowCount(
+				EventServiceAsync.Util.getInstance().getRowCount(ptuId, measurementName, 
 						new AsyncCallback<Integer>() {
 
 							@Override
@@ -153,7 +154,7 @@ public class EventView extends DockPanel implements Module {
 				}
 
 				EventServiceAsync.Util.getInstance().getTableData(range, order,
-						ptuId, new AsyncCallback<List<Event>>() {
+						ptuId, measurementName, new AsyncCallback<List<Event>>() {
 
 							@Override
 							public void onSuccess(List<Event> result) {
@@ -189,6 +190,43 @@ public class EventView extends DockPanel implements Module {
 								&& ((measurementName == null) || event
 										.getName().equals(measurementName))) {
 							scheduler.update();
+
+							ColumnSortList sortList = table.getColumnSortList();
+							ColumnSortInfo sortInfo = sortList.size() > 0 ? sortList
+									.get(0) : null;
+							boolean sortedOnDate = sortInfo != null ? sortInfo
+									.getColumn().equals(date) : false;
+							boolean sortedDescending = sortInfo != null ? !sortInfo
+									.isAscending() : false;
+
+							if (!sortedOnDate
+									|| !sortedDescending
+									|| (scrollPanel.getVerticalScrollPosition() != scrollPanel
+											.getMinimumHorizontalScrollPosition())
+									|| (pager.getPage() != pager.getPageStart())) {
+								System.err.println("************* Event "
+										+ e.getEvent()
+										+ " "
+										+ scrollPanel
+												.getVerticalScrollPosition()
+										+ " v"
+										+ scrollPanel
+												.getMinimumHorizontalScrollPosition()
+										+ " "
+										+ pager.getPage()
+										+ " s"
+										+ pager.getPageStart()
+										+ " "
+										+ event.getPtuId()
+										+ " "
+										+ ptuId
+										+ " "
+										+ measurementName
+										+ " "
+										+ (sortInfo != null ? sortInfo
+												.isAscending() : "null") + " "
+										+ sortedOnDate);
+							}
 						}
 					}
 				});
@@ -226,7 +264,7 @@ public class EventView extends DockPanel implements Module {
 		}
 
 		// DATE and TIME (1)
-		ClickableTextColumn<Event> date = new ClickableTextColumn<Event>() {
+		date = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
 				return PtuClientConstants.dateFormat.format(object.getDate());
@@ -249,7 +287,7 @@ public class EventView extends DockPanel implements Module {
 			});
 		}
 		table.addColumn(date, new TextHeader("Date / Time"));
-		
+
 		// desc sort, push twice
 		table.getColumnSortList().push(date);
 		table.getColumnSortList().push(date);

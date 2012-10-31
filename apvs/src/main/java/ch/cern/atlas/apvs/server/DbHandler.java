@@ -297,11 +297,20 @@ public class DbHandler extends DbReconnectHandler {
 		return list;
 	}
 
-	public int getEventCount(String ptuId) throws SQLException {
-		String sql = "select count(*) from tbl_events";
-		if (ptuId != null) {
-			sql += "join tbl_devices on tbl_events.device_id = tbl_devices.id where tbl_devices.name = '"
-					+ ptuId + "'";
+	public int getEventCount(String ptuId, String measurementName)
+			throws SQLException {
+		String sql = "select count(*) from tbl_events join tbl_devices on tbl_events.device_id = tbl_devices.id";
+		if ((ptuId != null) || (measurementName != null)) {
+			sql += " where";
+			if (ptuId != null) {
+				sql += " tbl_devices.name = '" + ptuId + "'";
+			}
+			if (measurementName != null) {
+				if (ptuId != null) {
+					sql += " and";
+				}
+				sql += " tbl_events.sensor = '" + measurementName + "'";
+			}
 		}
 		return getCount(sql);
 	}
@@ -309,15 +318,24 @@ public class DbHandler extends DbReconnectHandler {
 	// FIXME #231 until unit is in the DB
 	private Map<String, String> units = new HashMap<String, String>();
 
-	public List<Event> getEvents(Range range, SortOrder[] order, String ptuId)
-			throws SQLException {
+	public List<Event> getEvents(Range range, SortOrder[] order, String ptuId,
+			String measurementName) throws SQLException {
 
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
 				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
 				+ "from tbl_events "
 				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
-		if (ptuId != null) {
-			sql += " where tbl_devices.name = '" + ptuId + "'";
+		if ((ptuId != null) || (measurementName != null)) {
+			sql += " where";
+			if (ptuId != null) {
+				sql += " tbl_devices.name = '" + ptuId + "'";
+			}
+			if (measurementName != null) {
+				if (ptuId != null) {
+					sql += " and";
+				}
+				sql += " tbl_events.sensor = '" + measurementName + "'";
+			}
 		}
 
 		Statement statement = getConnection().createStatement();
