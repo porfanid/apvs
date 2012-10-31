@@ -1,8 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +14,7 @@ import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Event;
-import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
-import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.FieldUpdater;
@@ -61,8 +57,6 @@ public class EventView extends DockPanel implements Module {
 	private ClickableTextColumn<Event> ptu;
 	private String nameHeader;
 	private ClickableHtmlColumn<Event> name;
-
-	private Map<String, String> units = new HashMap<String, String>();
 
 	private boolean selectable = false;
 	private boolean sortable = true;
@@ -194,22 +188,6 @@ public class EventView extends DockPanel implements Module {
 						if (((ptuId == null) || event.getPtuId().equals(ptuId))
 								&& ((measurementName == null) || event
 										.getName().equals(measurementName))) {
-							scheduler.update();
-						}
-					}
-				});
-
-		MeasurementChangedEvent.register(clientFactory.getRemoteEventBus(),
-				new MeasurementChangedEvent.Handler() {
-
-					@Override
-					public void onMeasurementChanged(
-							MeasurementChangedEvent event) {
-						Measurement m = event.getMeasurement();
-						String key = unitKey(m.getPtuId(), m.getName());
-						String oldUnit = units.get(key);
-						if (oldUnit == null || !oldUnit.equals(m.getUnit())) {
-							units.put(key, m.getUnit());
 							scheduler.update();
 						}
 					}
@@ -405,7 +383,7 @@ public class EventView extends DockPanel implements Module {
 		ClickableHtmlColumn<Event> unit = new ClickableHtmlColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return units.get(unitKey(object.getPtuId(), object.getName()));
+				return object.getUnit();
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -471,9 +449,5 @@ public class EventView extends DockPanel implements Module {
 		table.redraw();
 
 		return false;
-	}
-
-	private String unitKey(String ptuId, String name) {
-		return ptuId + ":" + name;
 	}
 }

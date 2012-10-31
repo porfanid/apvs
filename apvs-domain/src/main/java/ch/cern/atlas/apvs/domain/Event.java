@@ -12,18 +12,20 @@ public class Event implements Message, Serializable {
 	private String eventType;
 	private Number value;
 	private Number threshold;
+	private String unit;
 	private Date date;
 
 	public Event() {
 	}
 
-	public Event(String ptuId, String name, String eventType, Number value, Number threshold, Date date) {
+	public Event(String ptuId, String name, String eventType, Number value, Number threshold, String unit, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
 		this.eventType = eventType;
 		this.value = value;
-		this.date = date;
 		this.threshold = threshold;
+		this.unit = unit;
+		this.date = date;
 	}
 
     @Override
@@ -42,6 +44,14 @@ public class Event implements Message, Serializable {
 	public Number getValue() {
 		return value;
 	}
+	
+	public Number getTheshold() {
+		return threshold;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
 
 	public Date getDate() {
 		return date;
@@ -52,11 +62,8 @@ public class Event implements Message, Serializable {
 		return "Event";
 	}
 
-	public Number getTheshold() {
-		return threshold;
-	}
 	
 	public String toString() {
-		return getDate()+"PTU: "+getPtuId()+" Sensor: "+getName()+" Type: "+getEventType()+" Value: "+getValue()+" Threshold: "+getTheshold();
+		return getDate()+"PTU: "+getPtuId()+" Sensor: "+getName()+" Type: "+getEventType()+" Value: "+getValue()+" Unit: "+getUnit()+" Threshold: "+getTheshold();
 	}
 }

@@ -160,8 +160,9 @@ public class PtuSimulator extends Thread {
 		String name = ptu.getMeasurementNames().get(index);
 		double d1 = random.nextDouble();
 		double d2 = random.nextDouble();
+		String unit = "";
 
 		return new Event(ptu.getPtuId(), name, "UpLevel", Math.max(d1, d2),
-				Math.min(d1, d2), d);
+				Math.min(d1, d2), unit, d);
 	}
 }
