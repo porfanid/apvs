@@ -277,7 +277,7 @@ public class EventView extends DockPanel implements Module {
 					selectEvent(object);
 				}
 			});
-		}
+		}		
 		table.addColumn(date, new TextHeader("Date / Time"));
 		table.getColumnSortList().push(new ColumnSortInfo(date, false));
 

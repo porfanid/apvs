@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client.widget;
+package ch.cern.atlas.apvs.client.validation;
 
 import com.github.gwtbootstrap.client.ui.ControlGroup;
 import com.github.gwtbootstrap.client.ui.ControlLabel;
