@@ -12,11 +12,19 @@ public class LabeledButtonCell extends ButtonCell implements Cell<String> {
 		this.label = label;
 	}
 
+	public LabeledButtonCell() {
+		this(null);
+	}
+
 	@Override
 	public void render(Context context, String value, SafeHtmlBuilder sb) {
-		sb.appendHtmlConstant(label);
-		if (value != null) {
+		if (label != null) {
+			sb.appendHtmlConstant(label);
+		}
+		if ((label != null) && (value != null)) {
 			sb.appendHtmlConstant("&nbsp;");
+		}
+		if (value != null) {
 			super.render(context, value, sb);
 		}
 	}
