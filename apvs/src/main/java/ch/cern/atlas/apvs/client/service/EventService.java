@@ -13,8 +13,8 @@ import com.google.gwt.view.client.Range;
  */
 @RemoteServiceRelativePath("apvsEvent")
 public interface EventService extends TableService<Event>, RemoteService {
-	int getRowCount(String ptuId) throws ServiceException;
+	int getRowCount(String ptuId, String measurementName) throws ServiceException;
 	
-	List<Event> getTableData(Range range, SortOrder[] order, String ptuId)
+	List<Event> getTableData(Range range, SortOrder[] order, String ptuId, String measurementName)
 			throws ServiceException;
 }

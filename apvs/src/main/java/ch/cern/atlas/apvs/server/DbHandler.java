@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuServerConstants;
+import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.view.client.Range;
 
@@ -71,6 +74,21 @@ public class DbHandler extends DbReconnectHandler {
 				}
 			}
 		});
+
+		MeasurementChangedEvent.register(eventBus,
+				new MeasurementChangedEvent.Handler() {
+
+					@Override
+					public void onMeasurementChanged(
+							MeasurementChangedEvent event) {
+						Measurement m = event.getMeasurement();
+						String key = m.getName();
+						String oldUnit = units.get(key);
+						if (oldUnit == null || !oldUnit.equals(m.getUnit())) {
+							units.put(key, m.getUnit());
+						}
+					}
+				});
 
 		ScheduledExecutorService executor = Executors
 				.newSingleThreadScheduledExecutor();
@@ -279,24 +297,45 @@ public class DbHandler extends DbReconnectHandler {
 		return list;
 	}
 
-	public int getEventCount(String ptuId) throws SQLException {
-		String sql = "select count(*) from tbl_events";
-		if (ptuId != null) {
-			sql += "join tbl_devices on tbl_events.device_id = tbl_devices.id where tbl_devices.name = '"
-					+ ptuId + "'";
+	public int getEventCount(String ptuId, String measurementName)
+			throws SQLException {
+		String sql = "select count(*) from tbl_events join tbl_devices on tbl_events.device_id = tbl_devices.id";
+		if ((ptuId != null) || (measurementName != null)) {
+			sql += " where";
+			if (ptuId != null) {
+				sql += " tbl_devices.name = '" + ptuId + "'";
+			}
+			if (measurementName != null) {
+				if (ptuId != null) {
+					sql += " and";
+				}
+				sql += " tbl_events.sensor = '" + measurementName + "'";
+			}
 		}
 		return getCount(sql);
 	}
 
-	public List<Event> getEvents(Range range, SortOrder[] order, String ptuId)
-			throws SQLException {
+	// FIXME #231 until unit is in the DB
+	private Map<String, String> units = new HashMap<String, String>();
+
+	public List<Event> getEvents(Range range, SortOrder[] order, String ptuId,
+			String measurementName) throws SQLException {
 
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
 				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
 				+ "from tbl_events "
 				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
-		if (ptuId != null) {
-			sql += " where tbl_devices.name = '" + ptuId + "'";
+		if ((ptuId != null) || (measurementName != null)) {
+			sql += " where";
+			if (ptuId != null) {
+				sql += " tbl_devices.name = '" + ptuId + "'";
+			}
+			if (measurementName != null) {
+				if (ptuId != null) {
+					sql += " and";
+				}
+				sql += " tbl_events.sensor = '" + measurementName + "'";
+			}
 		}
 
 		Statement statement = getConnection().createStatement();
@@ -310,13 +349,14 @@ public class DbHandler extends DbReconnectHandler {
 			}
 
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
+				String name = result.getString("name");
 				double value = getDouble(result.getString("value"));
 				double threshold = getDouble(result.getString("threshold"));
+				String unit = units.get(name) != null ? units.get(name) : "";
 
-				list.add(new Event(result.getString("name"), result
-						.getString("sensor"), result.getString("event_type"),
-						value, threshold, new Date(result.getTimestamp(
-								"datetime").getTime())));
+				list.add(new Event(name, result.getString("sensor"), result
+						.getString("event_type"), value, threshold, unit,
+						new Date(result.getTimestamp("datetime").getTime())));
 			}
 		} finally {
 			result.close();

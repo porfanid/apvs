@@ -55,10 +55,11 @@ public class PtuJsonReader extends JsonReader {
 						(String) msg.get("Unit"),
 						convertToDate(msg.get("Time"))));
 			} else if (type.equals("Event")) {
+				// FIXME #231
 				result.add(new Event(sender, (String) msg.get("Sensor"),
 						(String) msg.get("EventType"), Double
 								.parseDouble((String) msg.get("Value")), Double
-								.parseDouble((String) msg.get("Threshold")),
+								.parseDouble((String) msg.get("Threshold")), "",
 						convertToDate(msg.get("Time"))));
 			} else {
 				log.warn("Message type not implemented: " + type);

@@ -1,8 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,23 +12,32 @@ import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Event;
-import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
-import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ScrollEvent;
+import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
-import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.SimplePager;
+import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
+import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.Range;
@@ -39,7 +46,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class EventView extends SimplePanel implements Module {
+public class EventView extends DockPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -47,18 +54,23 @@ public class EventView extends SimplePanel implements Module {
 	private String ptuId;
 	private String measurementName;
 
-	private DataGrid<Event> table = new DataGrid<Event>();
+	private ScrolledDataGrid<Event> table = new ScrolledDataGrid<Event>();
+	private ScrollPanel scrollPanel;
+	
+	private HorizontalPanel footer = new HorizontalPanel();
+	private SimplePager pager;
+	private Button update;
+	private boolean showUpdate;
 
+	private ClickableTextColumn<Event> date;
 	private String ptuHeader;
 	private ClickableTextColumn<Event> ptu;
 	private String nameHeader;
 	private ClickableHtmlColumn<Event> name;
 
-	private Map<String, String> units = new HashMap<String, String>();
-
 	private boolean selectable = false;
 	private boolean sortable = true;
-	
+
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public EventView() {
@@ -77,15 +89,64 @@ public class EventView extends SimplePanel implements Module {
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Events"));
 
-		add(table);
+		pager = new SimplePager(TextLocation.RIGHT);
+		footer.add(pager);
+		pager.setDisplay(table);
+		
+		update = new Button("Update");
+		update.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				pager.setPage(0);
+				scrollPanel.setVerticalScrollPosition(scrollPanel
+						.getMinimumHorizontalScrollPosition());
+
+				table.getColumnSortList().push(new ColumnSortInfo(date, false));
+				scheduler.update();
+			}
+		});
+		update.setVisible(false);
+		footer.add(update);
+
+		final TextArea msg = new TextArea();
+		// FIXME, not sure how to handle scroll bar and paging
+		// add(msg, NORTH);
+
+		setWidth("100%");
+		add(footer, SOUTH);
+		add(table, CENTER);
+
+		scrollPanel = table.getScrollPanel();
+		scrollPanel.addScrollHandler(new ScrollHandler() {
+
+			int line = 0;
+
+			@Override
+			public void onScroll(ScrollEvent event) {
+				msg.setText(msg.getText() + "\n" + line + " "
+						+ event.toDebugString() + " "
+						+ scrollPanel.getVerticalScrollPosition() + " "
+						+ scrollPanel.getMinimumVerticalScrollPosition() + " "
+						+ scrollPanel.getMaximumVerticalScrollPosition());
+				msg.getElement().setScrollTop(
+						msg.getElement().getScrollHeight());
+				line++;
+
+				if (scrollPanel.getVerticalScrollPosition() == scrollPanel
+						.getMinimumVerticalScrollPosition()) {
+					scheduler.update();
+				}
+			}
+		});
 
 		AsyncDataProvider<Event> dataProvider = new AsyncDataProvider<Event>() {
 
 			@SuppressWarnings("unchecked")
 			@Override
 			protected void onRangeChanged(HasData<Event> display) {
-				EventServiceAsync.Util.getInstance().getRowCount(
-						new AsyncCallback<Integer>() {
+				EventServiceAsync.Util.getInstance().getRowCount(ptuId,
+						measurementName, new AsyncCallback<Integer>() {
 
 							@Override
 							public void onSuccess(Integer result) {
@@ -116,7 +177,8 @@ public class EventView extends SimplePanel implements Module {
 					order[0] = new SortOrder("tbl_events.datetime", false);
 				}
 
-				EventServiceAsync.Util.getInstance().getTableData(range, order, ptuId, 
+				EventServiceAsync.Util.getInstance().getTableData(range, order,
+						ptuId, measurementName,
 						new AsyncCallback<List<Event>>() {
 
 							@Override
@@ -126,7 +188,7 @@ public class EventView extends SimplePanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("RPC DB FAILED "+caught);
+								log.warn("RPC DB FAILED " + caught);
 								table.setRowCount(0);
 							}
 						});
@@ -152,22 +214,7 @@ public class EventView extends SimplePanel implements Module {
 						if (((ptuId == null) || event.getPtuId().equals(ptuId))
 								&& ((measurementName == null) || event
 										.getName().equals(measurementName))) {
-							scheduler.update();
-						}
-					}
-				});
-
-		MeasurementChangedEvent.register(clientFactory.getRemoteEventBus(),
-				new MeasurementChangedEvent.Handler() {
-
-					@Override
-					public void onMeasurementChanged(
-							MeasurementChangedEvent event) {
-						Measurement m = event.getMeasurement();
-						String key = unitKey(m.getPtuId(), m.getName());
-						String oldUnit = units.get(key);
-						if (oldUnit == null || !oldUnit.equals(m.getUnit())) {
-							units.put(key, m.getUnit());
+							showUpdate = true;
 							scheduler.update();
 						}
 					}
@@ -179,6 +226,7 @@ public class EventView extends SimplePanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
+					showUpdate = true;
 					scheduler.update();
 				}
 			});
@@ -189,6 +237,7 @@ public class EventView extends SimplePanel implements Module {
 						@Override
 						public void onSelection(SelectMeasurementEvent event) {
 							measurementName = event.getName();
+							showUpdate = true;
 							scheduler.update();
 						}
 					});
@@ -199,6 +248,7 @@ public class EventView extends SimplePanel implements Module {
 				@Override
 				public void onTabSelected(SelectTabEvent event) {
 					if (event.getTab().equals("Summary")) {
+						showUpdate = true;
 						scheduler.update();
 					}
 				}
@@ -206,7 +256,7 @@ public class EventView extends SimplePanel implements Module {
 		}
 
 		// DATE and TIME (1)
-		ClickableTextColumn<Event> date = new ClickableTextColumn<Event>() {
+		date = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
 				return PtuClientConstants.dateFormat.format(object.getDate());
@@ -228,10 +278,8 @@ public class EventView extends SimplePanel implements Module {
 				}
 			});
 		}
-		table.addColumn(date, "Date / Time");
-		// desc sort, push twice
-		table.getColumnSortList().push(date);
-		table.getColumnSortList().push(date);
+		table.addColumn(date, new TextHeader("Date / Time"));
+		table.getColumnSortList().push(new ColumnSortInfo(date, false));
 
 		// PtuID (2)
 		ptu = new ClickableTextColumn<Event>() {
@@ -362,7 +410,7 @@ public class EventView extends SimplePanel implements Module {
 		ClickableHtmlColumn<Event> unit = new ClickableHtmlColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return units.get(unitKey(object.getPtuId(), object.getName()));
+				return object.getUnit();
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -395,6 +443,28 @@ public class EventView extends SimplePanel implements Module {
 		return true;
 	}
 
+	private boolean needsUpdate() {
+		if (showUpdate) {
+			ColumnSortList sortList = table.getColumnSortList();
+			ColumnSortInfo sortInfo = sortList.size() > 0 ? sortList.get(0)
+					: null;
+			if (sortInfo == null) {
+				return true;
+			}
+			if (!sortInfo.getColumn().equals(date)) {
+				return true;
+			}
+			if (sortInfo.isAscending()) {
+				return true;
+			}
+			showUpdate = (scrollPanel.getVerticalScrollPosition() != scrollPanel
+					.getMinimumVerticalScrollPosition())
+					|| (pager.getPage() != pager.getPageStart());
+			return showUpdate;
+		}
+		return false;
+	}
+
 	private void selectEvent(Event event) {
 	}
 
@@ -414,7 +484,7 @@ public class EventView extends SimplePanel implements Module {
 
 		if (table.getColumnIndex(name) >= 0) {
 			if (measurementName != null) {
-				table.removeColumn(name);				
+				table.removeColumn(name);
 			}
 		} else {
 			if (measurementName == null) {
@@ -422,15 +492,14 @@ public class EventView extends SimplePanel implements Module {
 				table.insertColumn(2, name, nameHeader);
 			}
 		}
+		
+		// show or hide update button
+		update.setVisible(needsUpdate());
 
 		// Re-sort the table
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
-		
-		return false;
-	}
 
-	private String unitKey(String ptuId, String name) {
-		return ptuId + ":" + name;
+		return false;
 	}
 }

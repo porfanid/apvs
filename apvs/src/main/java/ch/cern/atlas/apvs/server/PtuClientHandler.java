@@ -98,7 +98,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
 				message.getEventType(), message.getValue(), message
-						.getTheshold(), message.getDate())));
+						.getTheshold(), message.getUnit(), message.getDate())));
 	}
 
 	private void handleMessage(Report report) {

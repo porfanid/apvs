@@ -26,6 +26,7 @@ import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.HumanTime;
 import ch.cern.atlas.apvs.client.widget.ListBoxField;
+import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.TextAreaField;
 import ch.cern.atlas.apvs.client.widget.TextBoxField;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
@@ -47,19 +48,24 @@ import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ScrollEvent;
+import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.SimplePager;
+import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.validation.client.Validation;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
@@ -69,11 +75,14 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class InterventionView extends SimplePanel implements Module {
+public class InterventionView extends DockPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private DataGrid<Intervention> table = new DataGrid<Intervention>();
+	private ScrolledDataGrid<Intervention> table = new ScrolledDataGrid<Intervention>();
+	private ScrollPanel scrollPanel;
+	
+	private ClickableTextColumn<Intervention>  startTime;
 
 	private boolean selectable = false;
 	private boolean sortable = true;
@@ -82,8 +91,13 @@ public class InterventionView extends SimplePanel implements Module {
 
 	private InterventionServiceAsync interventionService;
 	private Validator validator;
-	
+
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
+
+	private HorizontalPanel footer = new HorizontalPanel();
+	private SimplePager pager;
+	private Button update;
+	private boolean showUpdate;
 
 	public InterventionView() {
 		interventionService = InterventionServiceAsync.Util.getInstance();
@@ -101,7 +115,40 @@ public class InterventionView extends SimplePanel implements Module {
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Interventions"));
 
-		add(table);
+		pager = new SimplePager(TextLocation.RIGHT);
+		footer.add(pager);
+		pager.setDisplay(table);
+
+		update = new Button("Update");
+		update.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				pager.setPage(0);
+				scrollPanel.setVerticalScrollPosition(scrollPanel
+						.getMinimumHorizontalScrollPosition());
+
+				table.getColumnSortList().push(new ColumnSortInfo(startTime, false));
+				scheduler.update();
+			}
+		});
+		update.setVisible(false);
+		footer.add(update);
+
+		setWidth("100%");
+		add(table, CENTER);
+
+		scrollPanel = table.getScrollPanel();
+		scrollPanel.addScrollHandler(new ScrollHandler() {
+
+			@Override
+			public void onScroll(ScrollEvent event) {
+				if (scrollPanel.getVerticalScrollPosition() == scrollPanel
+						.getMinimumVerticalScrollPosition()) {
+					scheduler.update();
+				}
+			}
+		});
 
 		AsyncDataProvider<Intervention> dataProvider = new AsyncDataProvider<Intervention>() {
 
@@ -150,7 +197,7 @@ public class InterventionView extends SimplePanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("RPC DB FAILED "+caught);
+								log.warn("RPC DB FAILED " + caught);
 								updateRowCount(0, true);
 							}
 						});
@@ -164,7 +211,7 @@ public class InterventionView extends SimplePanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 
 		// startTime
-		ClickableTextColumn<Intervention> startTime = new ClickableTextColumn<Intervention>() {
+		startTime = new ClickableTextColumn<Intervention>() {
 			@Override
 			public String getValue(Intervention object) {
 				return PtuClientConstants.dateFormatNoSeconds.format(object
@@ -270,9 +317,10 @@ public class InterventionView extends SimplePanel implements Module {
 					@Override
 					public void onClick(ClickEvent event) {
 						m.hide();
-						
-						Intervention intervention = new Intervention(userField.getId(), ptu.getId(), new Date(),
-								description.getValue());
+
+						Intervention intervention = new Intervention(userField
+								.getId(), ptu.getId(), new Date(), description
+								.getValue());
 
 						// FIXME #194
 						Set<ConstraintViolation<Intervention>> violations = validator
@@ -287,8 +335,7 @@ public class InterventionView extends SimplePanel implements Module {
 							}
 							log.warn(errorMessage.toString());
 						} else {
-							interventionService.addIntervention(
-									intervention,
+							interventionService.addIntervention(intervention,
 									new AsyncCallback<Void>() {
 
 										@Override
@@ -313,9 +360,7 @@ public class InterventionView extends SimplePanel implements Module {
 		});
 		table.addColumn(startTime, new TextHeader("Start Time"),
 				interventionFooter);
-		// twice for descending
-		table.getColumnSortList().push(startTime);
-		table.getColumnSortList().push(startTime);
+		table.getColumnSortList().push(new ColumnSortInfo(startTime, false));
 
 		// endTime
 		EditableCell cell = new EditableCell() {
@@ -694,6 +739,7 @@ public class InterventionView extends SimplePanel implements Module {
 			@Override
 			public void onTabSelected(SelectTabEvent event) {
 				if (event.getTab().equals("Interventions")) {
+					showUpdate = true;
 					table.redraw();
 				}
 			}
@@ -704,12 +750,37 @@ public class InterventionView extends SimplePanel implements Module {
 
 	private void selectIntervention(Intervention intervention) {
 	}
+	
+	private boolean needsUpdate() {
+		if (showUpdate) {
+			ColumnSortList sortList = table.getColumnSortList();
+			ColumnSortInfo sortInfo = sortList.size() > 0 ? sortList.get(0)
+					: null;
+			if (sortInfo == null) {
+				return true;
+			}
+			if (!sortInfo.getColumn().equals(startTime)) {
+				return true;
+			}
+			if (sortInfo.isAscending()) {
+				return true;
+			}
+			showUpdate = (scrollPanel.getVerticalScrollPosition() != scrollPanel
+					.getMinimumVerticalScrollPosition())
+					|| (pager.getPage() != pager.getPageStart());
+			return showUpdate;
+		}
+		return false;
+	}
 
 	@Override
 	public boolean update() {
+		// show or hide update button
+		update.setVisible(needsUpdate());
+		
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
-		
+
 		return false;
 	}
 }
