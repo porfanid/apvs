@@ -1,24 +1,48 @@
 package ch.cern.atlas.apvs.client.validation;
 
-import com.github.gwtbootstrap.client.ui.ControlGroup;
-import com.github.gwtbootstrap.client.ui.ControlLabel;
-import com.github.gwtbootstrap.client.ui.Controls;
 import com.github.gwtbootstrap.client.ui.TextArea;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 
-public class TextAreaField extends ControlGroup {
+public class TextAreaField extends ValidationField {
 
-	private ControlLabel label;
-	private Controls controls;
 	private TextArea area;
 	
-	public TextAreaField(String fieldLabel) {
-		label = new ControlLabel(fieldLabel);
-		controls = new Controls();
+	public TextAreaField(String fieldLabel, Validator validator) {
+		super(fieldLabel, validator);
+		
 		area = new TextArea();
 		
-		add(label);
-		add(controls);
-		controls.add(area);
+		area.addBlurHandler(new BlurHandler() {		
+			@Override
+			public void onBlur(BlurEvent event) {
+				validate();
+			}
+		});
+		
+		area.addFocusHandler(new FocusHandler() {
+			@Override
+			public void onFocus(FocusEvent event) {
+				validate();
+			}
+		});
+		
+		area.addKeyUpHandler(new KeyUpHandler() {		
+			@Override
+			public void onKeyUp(KeyUpEvent event) {
+				validate();
+			}
+		});
+		
+		setField(area);
+	}
+	
+	public TextAreaField(String fieldLabel) {
+		this(fieldLabel, null);
 	}
 	
 	public String getValue() {
