@@ -6,12 +6,12 @@ import java.util.List;
 import com.github.gwtbootstrap.client.ui.Fieldset;
 import com.google.gwt.event.logical.shared.AttachEvent;
 
-public class FormFieldset extends Fieldset {
+public class ValidationFieldset extends Fieldset {
 
-	private List<FormField> fields = new ArrayList<FormField>();
+	private List<ValidationField> fields = new ArrayList<ValidationField>();
 	private List<ValidationHandler> handlers = new ArrayList<ValidationHandler>();
 
-	public FormFieldset() {
+	public ValidationFieldset() {
 		addAttachHandler(new AttachEvent.Handler() {
 			
 			@Override
@@ -21,7 +21,7 @@ public class FormFieldset extends Fieldset {
 		});
 	}
 	
-	public void add(FormField field) {
+	public void add(ValidationField field) {
 		super.add(field);
 		fields.add(field);
 
@@ -41,7 +41,7 @@ public class FormFieldset extends Fieldset {
 	}
 	
 	public boolean validate() {
-		for (FormField field: fields) {
+		for (ValidationField field: fields) {
 			if (!field.validate()) {
 				return false;
 			}

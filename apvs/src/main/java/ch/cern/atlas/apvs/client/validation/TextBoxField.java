@@ -8,7 +8,7 @@ import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 
-public class TextBoxField extends FormField {
+public class TextBoxField extends ValidationField {
 
 	private TextBox box;
 		

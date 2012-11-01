@@ -19,7 +19,7 @@ import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.validation.EmptyValidator;
-import ch.cern.atlas.apvs.client.validation.FormFieldset;
+import ch.cern.atlas.apvs.client.validation.ValidationFieldset;
 import ch.cern.atlas.apvs.client.validation.IntegerValidator;
 import ch.cern.atlas.apvs.client.validation.ListBoxField;
 import ch.cern.atlas.apvs.client.validation.NotNullValidator;
@@ -250,7 +250,7 @@ public class InterventionView extends DockPanel implements Module {
 			@Override
 			public void update(String value) {
 
-				FormFieldset fieldset = new FormFieldset();
+				ValidationFieldset fieldset = new ValidationFieldset();
 
 				final ListBoxField userField = new ListBoxField("User", new NotNullValidator());
 				fieldset.add(userField);
@@ -475,7 +475,7 @@ public class InterventionView extends DockPanel implements Module {
 			@Override
 			public void update(String value) {
 
-				FormFieldset fieldset = new FormFieldset();
+				ValidationFieldset fieldset = new ValidationFieldset();
 
 				final TextBoxField fname = new TextBoxField("First Name", new StringValidator(1, 50));
 				fieldset.add(fname);
@@ -583,7 +583,7 @@ public class InterventionView extends DockPanel implements Module {
 
 			@Override
 			public void update(String value) {
-				FormFieldset fieldset = new FormFieldset();
+				ValidationFieldset fieldset = new ValidationFieldset();
 
 				final TextBoxField ptuId = new TextBoxField("PTU ID", new StringValidator(2, 20));
 				fieldset.add(ptuId);

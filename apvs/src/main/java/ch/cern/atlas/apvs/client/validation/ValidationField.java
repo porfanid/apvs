@@ -11,7 +11,7 @@ import com.github.gwtbootstrap.client.ui.constants.ControlGroupType;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class FormField extends ControlGroup {
+public abstract class ValidationField extends ControlGroup {
 
 	private ControlLabel label;
 	private Controls controls;
@@ -20,7 +20,7 @@ public abstract class FormField extends ControlGroup {
 	private Validator validator;
 	private HelpInline help;
 
-	public FormField(String fieldLabel, Validator validator) {
+	public ValidationField(String fieldLabel, Validator validator) {
 		label = new ControlLabel(fieldLabel);
 		this.validator = validator;
 

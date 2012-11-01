@@ -11,7 +11,7 @@ import com.google.gwt.user.client.ui.HasEnabled;
 
 public class ValidationForm extends Form {
 
-	private List<FormFieldset> fieldsets = new ArrayList<FormFieldset>();
+	private List<ValidationFieldset> fieldsets = new ArrayList<ValidationFieldset>();
 	private List<ValidationHandler> handlers = new ArrayList<ValidationHandler>();
 
 	public ValidationForm() {
@@ -43,7 +43,7 @@ public class ValidationForm extends Form {
 		});
 	}
 
-	public void add(FormFieldset fieldset) {
+	public void add(ValidationFieldset fieldset) {
 		super.add(fieldset);
 		fieldsets.add(fieldset);
 
@@ -63,7 +63,7 @@ public class ValidationForm extends Form {
 	}
 
 	public boolean validate() {
-		for (FormFieldset fieldset : fieldsets) {
+		for (ValidationFieldset fieldset : fieldsets) {
 			if (!fieldset.validate()) {
 				return false;
 			}

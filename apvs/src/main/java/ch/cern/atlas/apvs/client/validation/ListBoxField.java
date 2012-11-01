@@ -11,7 +11,7 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 
-public class ListBoxField extends FormField {
+public class ListBoxField extends ValidationField {
 
 	private ListBox box;
 	private Map<String, Integer> ids;
