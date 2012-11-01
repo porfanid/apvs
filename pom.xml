@@ -28,10 +28,10 @@
 		<gwt-version>2.5.0</gwt-version> 
 		<gwt-plugin-version>2.5.0-SNAPSHOT</gwt-plugin-version>
 -->
-		<atmosphere-version>1.0.3</atmosphere-version>
 <!--
-		<atmosphere-version>1.1.0.beta1</atmosphere-version>
+		<atmosphere-version>1.0.3</atmosphere-version>
 -->
+		<atmosphere-version>1.1.0.beta1</atmosphere-version>
 		<asterisk-java-version>38898d3a191ebce989c64a57b4fc43171424fa40</asterisk-java-version>
 		<gwt-bootstrap-version>2.0.4.0</gwt-bootstrap-version>
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
@@ -46,11 +46,11 @@
 		<log4jdbc-version>1.2</log4jdbc-version>
 		<mgwt-version>1.0.1</mgwt-version>
 		<mockito-version>1.9.5-rc1</mockito-version>
-		<netty-version>3.5.8.Final</netty-version>
-		<nettosphere-version>1.4.2</nettosphere-version>
+		<netty-version>3.5.9.Final</netty-version>
 <!--
-		<nettosphere-version>2.0.0.beta1</nettosphere-version>
+		<nettosphere-version>1.4.2</nettosphere-version>
 -->
+		<nettosphere-version>2.0.0.beta1</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
 		<slf4j-version>1.7.1</slf4j-version>

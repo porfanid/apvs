@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +69,6 @@ import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.validation.client.Validation;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.Range;
@@ -94,7 +92,7 @@ public class InterventionView extends DockPanel implements Module {
 	private final String END_INTERVENTION = "End Intervention";
 
 	private InterventionServiceAsync interventionService;
-	private Validator validator;
+//	private Validator validator;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -105,7 +103,7 @@ public class InterventionView extends DockPanel implements Module {
 
 	public InterventionView() {
 		interventionService = InterventionServiceAsync.Util.getInstance();
-		validator = Validation.buildDefaultValidatorFactory().getValidator();
+//		validator = Validation.buildDefaultValidatorFactory().getValidator();
 	}
 
 	@Override
@@ -322,18 +320,18 @@ public class InterventionView extends DockPanel implements Module {
 								.getValue());
 
 						// FIXME #194
-						Set<ConstraintViolation<Intervention>> violations = validator
-								.validate(intervention);
-
-						if (!violations.isEmpty()) {
-							StringBuffer errorMessage = new StringBuffer();
-							for (ConstraintViolation<Intervention> constraintViolation : violations) {
-								errorMessage.append('\n');
-								errorMessage.append(constraintViolation
-										.getMessage());
-							}
-							log.warn(errorMessage.toString());
-						} else {
+//						Set<ConstraintViolation<Intervention>> violations = validator
+//								.validate(intervention);
+//
+//						if (!violations.isEmpty()) {
+//							StringBuffer errorMessage = new StringBuffer();
+//							for (ConstraintViolation<Intervention> constraintViolation : violations) {
+//								errorMessage.append('\n');
+//								errorMessage.append(constraintViolation
+//										.getMessage());
+//							}
+//							log.warn(errorMessage.toString());
+//						} else {
 							interventionService.addIntervention(intervention,
 									new AsyncCallback<Void>() {
 
@@ -348,7 +346,7 @@ public class InterventionView extends DockPanel implements Module {
 										}
 									});
 						}
-					}
+//					}
 				});
 
 				ValidationForm form = new ValidationForm(ok, cancel);
@@ -507,18 +505,18 @@ public class InterventionView extends DockPanel implements Module {
 								.getValue(), cernId.getValue());
 
 						// FIXME #194
-						Set<ConstraintViolation<User>> violations = validator
-								.validate(user);
-
-						if (!violations.isEmpty()) {
-							StringBuffer errorMessage = new StringBuffer();
-							for (ConstraintViolation<User> constraintViolation : violations) {
-								errorMessage.append('\n');
-								errorMessage.append(constraintViolation
-										.getMessage());
-							}
-							log.warn(errorMessage.toString());
-						} else {
+//						Set<ConstraintViolation<User>> violations = validator
+//								.validate(user);
+//
+//						if (!violations.isEmpty()) {
+//							StringBuffer errorMessage = new StringBuffer();
+//							for (ConstraintViolation<User> constraintViolation : violations) {
+//								errorMessage.append('\n');
+//								errorMessage.append(constraintViolation
+//										.getMessage());
+//							}
+//							log.warn(errorMessage.toString());
+//						} else {
 							interventionService.addUser(user,
 									new AsyncCallback<Void>() {
 
@@ -533,7 +531,7 @@ public class InterventionView extends DockPanel implements Module {
 										}
 									});
 						}
-					}
+//					}
 				});
 
 				ValidationForm form = new ValidationForm(ok, cancel);
@@ -614,18 +612,18 @@ public class InterventionView extends DockPanel implements Module {
 								.getValue(), description.getValue());
 
 						// FIXME #194
-						Set<ConstraintViolation<Device>> violations = validator
-								.validate(device);
-
-						if (!violations.isEmpty()) {
-							StringBuffer errorMessage = new StringBuffer();
-							for (ConstraintViolation<Device> constraintViolation : violations) {
-								errorMessage.append('\n');
-								errorMessage.append(constraintViolation
-										.getMessage());
-							}
-							log.warn(errorMessage.toString());
-						} else {
+//						Set<ConstraintViolation<Device>> violations = validator
+//								.validate(device);
+//
+//						if (!violations.isEmpty()) {
+//							StringBuffer errorMessage = new StringBuffer();
+//							for (ConstraintViolation<Device> constraintViolation : violations) {
+//								errorMessage.append('\n');
+//								errorMessage.append(constraintViolation
+//										.getMessage());
+//							}
+//							log.warn(errorMessage.toString());
+//						} else {
 
 							interventionService.addDevice(device,
 									new AsyncCallback<Void>() {
@@ -641,7 +639,7 @@ public class InterventionView extends DockPanel implements Module {
 										}
 									});
 						}
-					}
+//					}
 				});
 
 				ValidationForm form = new ValidationForm(ok, cancel);
