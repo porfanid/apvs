@@ -12,6 +12,7 @@ import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
@@ -26,7 +27,6 @@ import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextHeader;
@@ -34,7 +34,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -55,11 +54,13 @@ public class EventView extends DockPanel implements Module {
 	private String ptuId;
 	private String measurementName;
 
-	private MyDataGrid<Event> table = new MyDataGrid<Event>();
+	private ScrolledDataGrid<Event> table = new ScrolledDataGrid<Event>();
 	private ScrollPanel scrollPanel;
+	
 	private HorizontalPanel footer = new HorizontalPanel();
 	private SimplePager pager;
 	private Button update;
+	private boolean showUpdate;
 
 	private ClickableTextColumn<Event> date;
 	private String ptuHeader;
@@ -70,16 +71,7 @@ public class EventView extends DockPanel implements Module {
 	private boolean selectable = false;
 	private boolean sortable = true;
 
-	private boolean showUpdate;
-
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
-
-	private class MyDataGrid<T> extends DataGrid<T> {
-		ScrollPanel getScrollPanel() {
-			return (ScrollPanel) ((HeaderPanel) table.getWidget())
-					.getContentWidget();
-		}
-	}
 
 	public EventView() {
 	}
