@@ -11,12 +11,12 @@ public class AndValidator implements Validator {
 	}
 	
 	@Override
-	public String validate(String value) {
-		String result = left.validate(value);
-		if (result != null) {
-			return result;
+	public Validation validate(String value) {
+		Validation result = left.validate(value);
+		if (result.isValid()) {
+			return right.validate(value);
 		}
-		return right.validate(value);
+		return result;
 	}
 
 }

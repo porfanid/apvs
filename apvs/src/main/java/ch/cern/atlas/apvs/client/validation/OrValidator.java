@@ -12,9 +12,9 @@ public class OrValidator implements Validator {
 	}
 	
 	@Override
-	public String validate(String value) {
-		String result = left.validate(value);
-		if (result == null) {
+	public Validation validate(String value) {
+		Validation result = left.validate(value);
+		if (result.isValid()) {
 			return result;
 		}
 		return right.validate(value);

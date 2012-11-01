@@ -38,7 +38,7 @@ public class ValidationForm extends Form {
 			
 			@Override
 			public void onAttachOrDetach(AttachEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 	}
@@ -51,6 +51,12 @@ public class ValidationForm extends Form {
 
 			@Override
 			public void onValid(boolean valid) {
+				if (valid) {
+					for (ValidationFieldset fieldset: fieldsets) {
+						valid &= fieldset.validate(false);
+					}
+				}
+				
 				for (ValidationHandler handler : handlers) {
 					handler.onValid(valid);
 				}
@@ -62,9 +68,9 @@ public class ValidationForm extends Form {
 		handlers.add(validationHandler);
 	}
 
-	public boolean validate() {
+	public boolean validate(boolean fireEvents) {
 		for (ValidationFieldset fieldset : fieldsets) {
-			if (!fieldset.validate()) {
+			if (!fieldset.validate(fireEvents)) {
 				return false;
 			}
 		}

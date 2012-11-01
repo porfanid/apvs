@@ -3,9 +3,6 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -473,13 +470,13 @@ public class InterventionView extends DockPanel implements Module {
 
 				ValidationFieldset fieldset = new ValidationFieldset();
 
-				final TextBoxField fname = new TextBoxField("First Name", new StringValidator(1, 50));
+				final TextBoxField fname = new TextBoxField("First Name", new StringValidator(1, 50, "*"));
 				fieldset.add(fname);
 
-				final TextBoxField lname = new TextBoxField("Last Name", new StringValidator(4, 50));
+				final TextBoxField lname = new TextBoxField("Last Name", new StringValidator(4, 50, "*"));
 				fieldset.add(lname);
 
-				final TextBoxField cernId = new TextBoxField("CERN ID", new OrValidator(new EmptyValidator(), new IntegerValidator()));
+				final TextBoxField cernId = new TextBoxField("CERN ID", new OrValidator(new EmptyValidator(), new IntegerValidator("Enter a number")));
 				fieldset.add(cernId);
 
 				final Modal m = new Modal();
@@ -580,7 +577,7 @@ public class InterventionView extends DockPanel implements Module {
 			public void update(String value) {
 				ValidationFieldset fieldset = new ValidationFieldset();
 
-				final TextBoxField ptuId = new TextBoxField("PTU ID", new StringValidator(2, 20));
+				final TextBoxField ptuId = new TextBoxField("PTU ID", new StringValidator(2, 20, "Enter alphanumeric ID"));
 				fieldset.add(ptuId);
 
 				final TextBoxField ip = new TextBoxField("IP");

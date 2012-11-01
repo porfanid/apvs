@@ -20,21 +20,21 @@ public class TextAreaField extends ValidationField {
 		area.addBlurHandler(new BlurHandler() {		
 			@Override
 			public void onBlur(BlurEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 		
 		area.addFocusHandler(new FocusHandler() {
 			@Override
 			public void onFocus(FocusEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 		
 		area.addKeyUpHandler(new KeyUpHandler() {		
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 		

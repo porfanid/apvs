@@ -16,7 +16,7 @@ public class ValidationFieldset extends Fieldset {
 			
 			@Override
 			public void onAttachOrDetach(AttachEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 	}
@@ -29,6 +29,12 @@ public class ValidationFieldset extends Fieldset {
 
 			@Override
 			public void onValid(boolean valid) {
+				if (valid) {
+					for (ValidationField field: fields) {
+						valid &= field.validate(false);
+					}
+				}
+				
 				for (ValidationHandler handler: handlers) {
 					handler.onValid(valid);
 				}
@@ -40,9 +46,9 @@ public class ValidationFieldset extends Fieldset {
 		handlers.add(validationHandler);
 	}
 	
-	public boolean validate() {
+	public boolean validate(boolean fireEvents) {
 		for (ValidationField field: fields) {
-			if (!field.validate()) {
+			if (!field.validate(fireEvents)) {
 				return false;
 			}
 		}

@@ -7,7 +7,6 @@ import com.github.gwtbootstrap.client.ui.ControlGroup;
 import com.github.gwtbootstrap.client.ui.ControlLabel;
 import com.github.gwtbootstrap.client.ui.Controls;
 import com.github.gwtbootstrap.client.ui.HelpInline;
-import com.github.gwtbootstrap.client.ui.constants.ControlGroupType;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -26,48 +25,46 @@ public abstract class ValidationField extends ControlGroup {
 
 		controls = new Controls();
 		help = new HelpInline();
-		
+
 		add(label);
 		add(controls);
-		
+
 		addAttachHandler(new AttachEvent.Handler() {
-			
+
 			@Override
 			public void onAttachOrDetach(AttachEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 	}
-	
+
 	public void addValidationHandler(ValidationHandler handler) {
 		handlers.add(handler);
 	}
-	
-	public boolean validate() {
-	    if (validator != null) {
-	    	String result = validator.validate(getValue() != null ? getValue().trim() : getValue());
-	        if (result != null) {
-	            help.setText(result);
-	            setType(ControlGroupType.ERROR);
-	            fire(false);
-	            return false;
-	        }
-	    }
-	    help.setText("");
-        setType(ControlGroupType.NONE);
-        fire(true);
-	    return true;
-	}		
-	
+
+	public boolean validate(boolean fireEvents) {
+		Validation result = new Validation();
+		if (validator != null) {
+			String value = getValue() != null ? getValue().trim() : null;
+			result = validator.validate(value);
+		}
+		help.setText(result.getMessage());
+		setType(result.getLevel());
+		if (fireEvents) {
+			fire(result.isValid());
+		}
+		return result.isValid();
+	}
+
 	protected void setField(Widget field) {
 		controls.add(field);
 		controls.add(help);
 	}
-	
+
 	public abstract String getValue();
-	
+
 	private void fire(boolean valid) {
-		for (ValidationHandler handler: handlers) {
+		for (ValidationHandler handler : handlers) {
 			handler.onValid(valid);
 		}
 	}

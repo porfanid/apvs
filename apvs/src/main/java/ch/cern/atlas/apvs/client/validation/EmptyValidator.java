@@ -6,10 +6,10 @@ public class EmptyValidator implements Validator {
 	}
 	
 	@Override
-	public String validate(String value) {
+	public Validation validate(String value) {
 		if (value.length() > 0) {
-			return "Length should be 0";
+			return new Validation(ERROR, "Length should be 0");
 		}
-		return null;
+		return new Validation();
 	}
 }

@@ -28,7 +28,7 @@ public class ListBoxField extends ValidationField {
 			
 			@Override
 			public void onBlur(BlurEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 		
@@ -36,7 +36,7 @@ public class ListBoxField extends ValidationField {
 			
 			@Override
 			public void onFocus(FocusEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 		
@@ -44,7 +44,7 @@ public class ListBoxField extends ValidationField {
 			
 			@Override
 			public void onChange(ChangeEvent event) {
-				validate();
+				validate(true);
 			}
 		});
 	}
