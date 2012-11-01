@@ -312,7 +312,6 @@ public class InterventionView extends DockPanel implements Module {
 				});
 
 				Button ok = new Button("Ok");
-				ok.setType(ButtonType.PRIMARY);
 				ok.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -489,7 +488,6 @@ public class InterventionView extends DockPanel implements Module {
 				final Modal m = new Modal();
 
 				final Button cancel = new Button("Cancel");
-				cancel.setType(ButtonType.PRIMARY);
 				cancel.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -607,7 +605,6 @@ public class InterventionView extends DockPanel implements Module {
 				});
 
 				Button ok = new Button("Ok");
-				ok.setType(ButtonType.PRIMARY);
 				ok.addClickHandler(new ClickHandler() {
 
 					@Override
