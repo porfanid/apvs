@@ -16,6 +16,7 @@ import com.google.gwt.core.client.GWT;
 
 public class AtmosphereEventBus extends RemoteEventBus {
 	
+	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private AtmosphereClient client;
@@ -56,8 +57,12 @@ public class AtmosphereEventBus extends RemoteEventBus {
 
 	public class AtmosphereEventBusListener implements AtmosphereListener {
 
-		@Override
+		// atmosphere 1.0
 		public void onConnected(int heartbeat, int connectionID) {
+		}
+		
+		// atmosphere 1.1
+		public void onConnected(int heartbeat, String connectionUUID) {
 		}
 
 		@Override
