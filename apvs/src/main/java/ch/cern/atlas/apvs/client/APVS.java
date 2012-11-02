@@ -199,7 +199,7 @@ public class APVS implements EntryPoint {
 		}
 
 		// FIXME create tab buttons for each, select default one
-		String defaultPtuId = "PTU1234";
+		String defaultPtuId = "PTUdemo";
 		clientFactory.getEventBus("ptu").fireEvent(
 				new SelectPtuEvent(defaultPtuId));
 

@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
+import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -67,18 +69,20 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 	private boolean showName = true;
 	private boolean sortable = true;
 	private boolean selectable = true;
+	private boolean showDate = false;
 
 	private String options;
 
 	private HandlerRegistration measurementHandler;
-	
+
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public MeasurementView() {
 	}
-	
+
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory, Arguments args) {
+	public boolean configure(Element element, ClientFactory clientFactory,
+			Arguments args) {
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
@@ -89,22 +93,24 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 		showName = !options.contains("NoName");
 		sortable = !options.contains("NoSort");
 		selectable = !options.contains("NoSelection");
+		showDate = options.contains("Date");
 
 		if (selectable) {
 			selectionModel = new SingleSelectionModel<Measurement>();
 		}
 
 		add(table);
-		
-		InterventionMapChangedEvent.subscribe(remoteEventBus, new InterventionMapChangedEvent.Handler() {
 
-			@Override
-			public void onInterventionMapChanged(
-					InterventionMapChangedEvent event) {
-				interventions = event.getInterventionMap();
-				scheduler.update();
-			}
-		});
+		InterventionMapChangedEvent.subscribe(remoteEventBus,
+				new InterventionMapChangedEvent.Handler() {
+
+					@Override
+					public void onInterventionMapChanged(
+							InterventionMapChangedEvent event) {
+						interventions = event.getInterventionMap();
+						scheduler.update();
+					}
+				});
 
 		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
@@ -121,6 +127,14 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			@Override
 			public String getValue(Measurement object) {
 				return object.getDisplayName();
+			}
+			
+			@Override
+			public void render(Context context, Measurement object,
+					SafeHtmlBuilder sb) {
+				String s = getValue(object);
+				((ClickableTextCell) getCell()).render(context,
+						decorate(s, object), sb);
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -144,7 +158,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 					return "Name";
 
 				if (interventions != null) {
-					String name = interventions.get(ptuId) != null ? interventions.get(ptuId).getName() : null;
+					String name = interventions.get(ptuId) != null ? interventions
+							.get(ptuId).getName() : null;
 
 					if (name != null)
 						return name;
@@ -152,7 +167,8 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 
 				return "PTU Id: " + ptuId;
 			}
-		} : null);
+		}
+				: null);
 
 		ClickableTextColumn<Measurement> value = new ClickableTextColumn<Measurement>() {
 			@Override
@@ -182,12 +198,21 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(value, showHeader ? new TextHeader("Value") : (Header<?>)null);
+		table.addColumn(value, showHeader ? new TextHeader("Value")
+				: (Header<?>) null);
 
 		ClickableHtmlColumn<Measurement> unit = new ClickableHtmlColumn<Measurement>() {
 			@Override
 			public String getValue(Measurement object) {
 				return object.getUnit();
+			}
+
+			@Override
+			public void render(Context context, Measurement object,
+					SafeHtmlBuilder sb) {
+				String s = getValue(object);
+				((ClickableTextCell) getCell()).render(context,
+						decorate(s, object), sb);
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -201,7 +226,38 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(unit, showHeader ? new TextHeader("Unit") : (Header<?>)null);
+		table.addColumn(unit, showHeader ? new TextHeader("Unit")
+				: (Header<?>) null);
+
+		ClickableHtmlColumn<Measurement> date = new ClickableHtmlColumn<Measurement>() {
+			@Override
+			public String getValue(Measurement object) {
+				return PtuClientConstants.dateFormat.format(object.getDate());
+			}
+			
+			@Override
+			public void render(Context context, Measurement object,
+					SafeHtmlBuilder sb) {
+				String s = getValue(object);
+				((ClickableTextCell) getCell()).render(context,
+						decorate(s, object), sb);
+			}
+		};
+		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		unit.setSortable(sortable);
+		if (selectable) {
+			unit.setFieldUpdater(new FieldUpdater<Measurement, String>() {
+
+				@Override
+				public void update(int index, Measurement object, String value) {
+					selectMeasurement(object);
+				}
+			});
+		}
+		if (showDate) {
+			table.addColumn(date, showHeader ? new TextHeader("Date")
+					: (Header<?>) null);
+		}
 		
 		List<Measurement> list = new ArrayList<Measurement>();
 		dataProvider.addDataDisplay(table);
@@ -251,6 +307,19 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 				return -1;
 			}
 		});
+		columnSortHandler.setComparator(date, new Comparator<Measurement>() {
+			public int compare(Measurement o1, Measurement o2) {
+				if (o1 == o2) {
+					return 0;
+				}
+
+				if (o1 != null) {
+					return (o2 != null) ? o1.getDate().compareTo(o2.getDate())
+							: 1;
+				}
+				return -1;
+			}
+		});
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(name);
 
@@ -266,9 +335,9 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 						}
 					});
 		}
-		
+
 		changePtuId();
-		
+
 		return true;
 	}
 
@@ -278,38 +347,52 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			measurementHandler.removeHandler();
 			measurementHandler = null;
 		}
-		
-		PtuServiceAsync.Util.getInstance().getMeasurements(ptuId, new AsyncCallback<List<Measurement>>() {
-			
-			@Override
-			public void onSuccess(List<Measurement> result) {
-				for (Iterator<Measurement> i = result.iterator(); i.hasNext(); ) {
-					Measurement measurement = i.next();
-					replace(measurement);
-				}
-				
-				measurementHandler = MeasurementChangedEvent.register(remoteEventBus,
-						new MeasurementChangedEvent.Handler() {
 
-							@Override
-							public void onMeasurementChanged(
-									MeasurementChangedEvent event) {
-								Measurement measurement = event.getMeasurement();
-								if (measurement.getPtuId().equals(ptuId)) {
-									last = replace(measurement);
-									scheduler.update();
-								}
-							}
-						});				
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				log.warn("Error "+caught);
-			}
-		});		
+		PtuServiceAsync.Util.getInstance().getMeasurements(ptuId,
+				new AsyncCallback<List<Measurement>>() {
+
+					@Override
+					public void onSuccess(List<Measurement> result) {
+						for (Iterator<Measurement> i = result.iterator(); i
+								.hasNext();) {
+							Measurement measurement = i.next();
+							replace(measurement);
+						}
+
+						measurementHandler = MeasurementChangedEvent.register(
+								remoteEventBus,
+								new MeasurementChangedEvent.Handler() {
+
+									@Override
+									public void onMeasurementChanged(
+											MeasurementChangedEvent event) {
+										Measurement measurement = event
+												.getMeasurement();
+										if (measurement.getPtuId()
+												.equals(ptuId)) {
+											last = replace(measurement);
+											scheduler.update();
+										}
+									}
+								});
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						log.warn("Error " + caught);
+					}
+				});
 	}
 
+	/**
+	 * Decorate with arrow up, down, left if a value went up, down or stayed the same.
+	 * Only applies to last value. Also calls standard decorate method.
+	 * 
+	 * @param s
+	 * @param current
+	 * @param last
+	 * @return
+	 */
 	public static SafeHtml decorate(String s, Measurement current,
 			Measurement last) {
 		if ((current != null) && (last != null) && (current.getPtuId() != null)
@@ -321,6 +404,36 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			String a = (c == l) ? "&larr;" : (c > l) ? "&uarr;" : "&darr;";
 			s = a + "&nbsp;<b>" + s + "</b>";
 		}
+		return decorate(s, current);
+	}
+
+	/**
+	 * Adds date/time as tooltip. Shows future values (beyond 1 minute) in bold,
+	 * values older than 5 minutes in italics and makes values older than a day 
+	 * more transparent. 
+	 * 
+	 * @param s
+	 * @param current
+	 * @return
+	 */
+	public static SafeHtml decorate(String s, Measurement current) {
+		long now = new Date().getTime();
+		long future1min = now + (60 * 1000);
+		long past5mins = now - (5 * 60 * 1000); 
+		long pastDay = now - (24 * 3600 * 1000);
+		long time = current.getDate().getTime();
+		if (time > future1min) {
+			s = "<b>" + s + "</b>";
+		} else if (time < past5mins) {
+			s = "<i>" + s + "</i>";
+		}
+		
+		// make text more transparent
+		if (time < pastDay) {
+			s = "<span style=\"opacity: 0.5;\">" + s + "</span>";
+		}
+		// Add date in tooltip
+		s = "<div title=\"" + PtuClientConstants.dateFormat.format(current.getDate()) + "\">" + s + "</div>";
 		return SafeHtmlUtils.fromSafeConstant(s);
 	}
 
@@ -347,7 +460,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 				selectionModel.setSelected(selection, true);
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -363,10 +476,11 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 		}
 
 		Measurement lastValue = null;
-		
+
 		if (i == list.size()) {
 			// end of list, not found, add ?
-			if ((show == null) || (show.size() == 0) || (show.contains(measurement.getName()))) {
+			if ((show == null) || (show.size() == 0)
+					|| (show.contains(measurement.getName()))) {
 				list.add(measurement);
 				lastValue = measurement;
 			}
