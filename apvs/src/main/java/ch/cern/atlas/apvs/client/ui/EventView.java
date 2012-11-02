@@ -278,7 +278,8 @@ public class EventView extends DockPanel implements Module {
 				}
 			});
 		}		
-		table.addColumn(date, new TextHeader("Date / Time"));
+			
+		table.addColumn(date, new TextHeader("Date / Time")/*, new PagerHeader().getHeader() */);
 		table.getColumnSortList().push(new ColumnSortInfo(date, false));
 
 		// PtuID (2)
@@ -442,6 +443,7 @@ public class EventView extends DockPanel implements Module {
 
 		return true;
 	}
+	
 
 	private boolean needsUpdate() {
 		if (showUpdate) {
