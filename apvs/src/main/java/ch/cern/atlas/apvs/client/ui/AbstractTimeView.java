@@ -133,9 +133,9 @@ public class AbstractTimeView extends SimplePanel {
 		long yesterday = now - (24 * 60 * 1000);
 		Date date = new Date(time);
 		if (time > nextMinute) {
-			return "<b>"+PtuClientConstants.dateFormat.format(date)+"</b>";
+			return "<b>"+PtuClientConstants.dateFormatShort.format(date)+"</b>";
 		} else if (time < yesterday) {
-			return "<i>"+PtuClientConstants.dateFormat.format(date)+"</i>";
+			return "<i>"+PtuClientConstants.dateFormatShort.format(date)+"</i>";
 		} 
 		return PtuClientConstants.timeFormat.format(date);
 	}
