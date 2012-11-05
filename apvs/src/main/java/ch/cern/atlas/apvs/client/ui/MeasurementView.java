@@ -17,8 +17,8 @@ import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
-import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
@@ -44,7 +44,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class MeasurementView extends VerticalFlowPanel implements Module {
+public class MeasurementView extends GlassPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -99,7 +99,7 @@ public class MeasurementView extends VerticalFlowPanel implements Module {
 			selectionModel = new SingleSelectionModel<Measurement>();
 		}
 
-		add(table);
+		add(table, CENTER);
 
 		InterventionMapChangedEvent.subscribe(remoteEventBus,
 				new InterventionMapChangedEvent.Handler() {

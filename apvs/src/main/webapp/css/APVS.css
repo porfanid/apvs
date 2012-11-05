@@ -130,5 +130,17 @@ body {
 	line-height: 35px;
 }
 
+.glass-panel {
+	background-color: #000;
+    opacity: 0.4;
+    filter: literal("alpha(opacity=40)");
+    z-index: 4000;
+    position: relative;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+
 
 

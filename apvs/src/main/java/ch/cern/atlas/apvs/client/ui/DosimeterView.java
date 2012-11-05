@@ -9,22 +9,14 @@ import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
-import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.domain.Dosimeter;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.NumberCell;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.dom.client.Style.Display;
-import com.google.gwt.dom.client.Style.Position;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -32,12 +24,10 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 
-public class DosimeterView extends VerticalFlowPanel implements Module {
+public class DosimeterView extends GlassPanel implements Module {
 
 	private PtuSettings settings;
 	private InterventionMap interventions;
@@ -45,40 +35,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 	private CellTable<Dosimeter> table = new CellTable<Dosimeter>();
 	private ListHandler<Dosimeter> columnSortHandler;
 
-	private static final int TIMEOUT = 10000;
-	private Timer timeoutTimer = null;
-
-	private Element glass;
-	private boolean glassShowing;
-	private String glassStyleName = "gwt-PopupPanelGlass";
-	
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
-
-	private HandlerRegistration resizeRegistration;
-	private ResizeHandler glassResizer = new ResizeHandler() {
-		public void onResize(ResizeEvent event) {
-			Style style = glass.getStyle();
-
-			int width = table.getOffsetWidth();
-			int height = table.getOffsetHeight();
-
-			// Hide the glass while checking the document size. Otherwise it
-			// would
-			// interfere with the measurement.
-			style.setDisplay(Display.NONE);
-			style.setWidth(0, Unit.PX);
-			style.setHeight(0, Unit.PX);
-
-			// Set the glass size to the larger of the window's client size or
-			// the
-			// document's scroll size.
-			style.setWidth(width, Unit.PX);
-			style.setHeight(height, Unit.PX);
-
-			// The size is set. Show the glass again.
-			style.setDisplay(Display.BLOCK);
-		}
-	};
 
 	public DosimeterView() {
 	}
@@ -89,15 +46,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 
 		RemoteEventBus remoteEventBus = clientFactory.getRemoteEventBus();
 
-		add(table);
-
-		// create class "disconected" pane
-		glass = Document.get().createDivElement();
-		glass.setClassName(glassStyleName);
-
-		glass.getStyle().setPosition(Position.ABSOLUTE);
-		glass.getStyle().setLeft(0, Unit.PX);
-		glass.getStyle().setTop(0, Unit.PX);
+		add(table, CENTER);
 
 		TextColumn<Dosimeter> name = new TextColumn<Dosimeter>() {
 			@Override
@@ -234,7 +183,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 						scheduler.update();
 					}
 				});
-		
+
 		scheduler.update();
 
 		return true;
@@ -248,7 +197,8 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 		if (ptuId == null)
 			return "";
 
-		String name = interventions.get(ptuId) != null ? interventions.get(ptuId).getName() : null;
+		String name = interventions.get(ptuId) != null ? interventions.get(
+				ptuId).getName() : null;
 		return name != null ? name : "";
 	}
 
@@ -257,56 +207,7 @@ public class DosimeterView extends VerticalFlowPanel implements Module {
 		// Resort the table
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
-
-		showGlass(false);
 		
 		return false;
 	}
-
-	@Override
-	public void setVisible(boolean visible) {
-		super.setVisible(visible);
-		glass.getStyle().setProperty("visibility",
-				visible ? "visible" : "hidden");
-	}
-
-	@SuppressWarnings("unused")
-	private void startTimer() {
-		timeoutTimer = new Timer() {
-			@Override
-			public void run() {
-				timeoutTimer = null;
-				showGlass(true);
-			}
-		};
-		timeoutTimer.schedule(TIMEOUT);
-	}
-
-	@SuppressWarnings("unused")
-	private void cancelTimer() {
-		if (timeoutTimer != null) {
-			timeoutTimer.cancel();
-			timeoutTimer = null;
-		}
-	}
-
-	private void showGlass(boolean show) {
-		if (show) {
-			Document.get().getBody().appendChild(glass);
-
-			resizeRegistration = Window.addResizeHandler(glassResizer);
-			glassResizer.onResize(null);
-
-			glassShowing = true;
-
-		} else if (glassShowing) {
-			Document.get().getBody().removeChild(glass);
-
-			resizeRegistration.removeHandler();
-			resizeRegistration = null;
-
-			glassShowing = false;
-		}
-	}
-
 }
