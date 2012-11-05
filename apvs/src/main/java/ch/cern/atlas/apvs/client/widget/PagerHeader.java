@@ -123,9 +123,8 @@ public class PagerHeader extends AbstractPager {
 		this.style.ensureInjected();
 
 		// Create the buttons.
-		String disabledStyle = style.disabledButton();
 		firstPage = new ImageButton("first", resources.pagerHeaderFirstPage(),
-				resources.pagerHeaderFirstPageDisabled(), disabledStyle,
+				resources.pagerHeaderFirstPageDisabled(),
 				new Delegate<ImageResource>() {
 					@Override
 					public void execute(ImageResource object) {
@@ -133,7 +132,7 @@ public class PagerHeader extends AbstractPager {
 					}
 				});
 		nextPage = new ImageButton("next", resources.pagerHeaderNextPage(),
-				resources.pagerHeaderNextPageDisabled(), disabledStyle,
+				resources.pagerHeaderNextPageDisabled(),
 				new Delegate<ImageResource>() {
 					@Override
 					public void execute(ImageResource object) {
@@ -142,7 +141,7 @@ public class PagerHeader extends AbstractPager {
 				});
 		prevPage = new ImageButton("previous",
 				resources.pagerHeaderPreviousPage(),
-				resources.pagerHeaderPreviousPageDisabled(), disabledStyle,
+				resources.pagerHeaderPreviousPageDisabled(),
 				new Delegate<ImageResource>() {
 					@Override
 					public void execute(ImageResource object) {
@@ -150,7 +149,7 @@ public class PagerHeader extends AbstractPager {
 					}
 				});
 		lastPage = new ImageButton("last", resources.pagerHeaderLastPage(),
-				resources.pagerHeaderLastPageDisabled(), disabledStyle,
+				resources.pagerHeaderLastPageDisabled(),
 				new Delegate<ImageResource>() {
 					@Override
 					public void execute(ImageResource object) {
@@ -159,7 +158,7 @@ public class PagerHeader extends AbstractPager {
 				});
 		fastForward = new ImageButton("forward",
 				resources.pagerHeaderFastForward(),
-				resources.pagerHeaderFastForwardDisabled(), disabledStyle,
+				resources.pagerHeaderFastForwardDisabled(),
 				new Delegate<ImageResource>() {
 					@Override
 					public void execute(ImageResource object) {
@@ -387,11 +386,10 @@ public class PagerHeader extends AbstractPager {
 		private boolean disabled;
 
 		public ImageButton(String text, ImageResource resource,
-				ImageResource disabledResource, String disabledStyle,
-				Delegate<ImageResource> delegate) {
+				ImageResource disabledResource, Delegate<ImageResource> delegate) {
 			this.resource = resource;
 			this.disabledResource = disabledResource;
-			
+
 			cell = new ImageButtonCell(delegate) {
 				@Override
 				public void render(Context context, ImageResource value,

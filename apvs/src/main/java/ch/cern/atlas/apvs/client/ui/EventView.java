@@ -10,8 +10,10 @@ import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
+import ch.cern.atlas.apvs.client.widget.ActionHeader;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.CompositeHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
@@ -20,10 +22,9 @@ import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
+import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
@@ -31,10 +32,8 @@ import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -56,10 +55,9 @@ public class EventView extends DockPanel implements Module {
 
 	private ScrolledDataGrid<Event> table = new ScrolledDataGrid<Event>();
 	private ScrollPanel scrollPanel;
-	
-	private HorizontalPanel footer = new HorizontalPanel();
+
 	private PagerHeader pager;
-	private Button update;
+	private ActionHeader update;
 	private boolean showUpdate;
 
 	private ClickableTextColumn<Event> date;
@@ -88,15 +86,13 @@ public class EventView extends DockPanel implements Module {
 
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Events"));
-		
+
 		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
-		
-		update = new Button("Update");
-		update.addClickHandler(new ClickHandler() {
-			
+
+		update = new ActionHeader("Update", new Delegate<String>() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void execute(String object) {
 				pager.setPage(0);
 				scrollPanel.setVerticalScrollPosition(scrollPanel
 						.getMinimumHorizontalScrollPosition());
@@ -106,14 +102,15 @@ public class EventView extends DockPanel implements Module {
 			}
 		});
 		update.setVisible(false);
-		footer.add(update);
+		
+		@SuppressWarnings("unchecked")
+		CompositeHeader compositeFooter = new CompositeHeader(pager.getHeader(), update);
 
 		final TextArea msg = new TextArea();
 		// FIXME, not sure how to handle scroll bar and paging
 		// add(msg, NORTH);
 
 		setWidth("100%");
-		add(footer, SOUTH);
 		add(table, CENTER);
 
 		scrollPanel = table.getScrollPanel();
@@ -276,10 +273,9 @@ public class EventView extends DockPanel implements Module {
 					selectEvent(object);
 				}
 			});
-		}		
-			
-		
-		table.addColumn(date, new TextHeader("Date / Time"), pager.getHeader());
+		}
+
+		table.addColumn(date, new TextHeader("Date / Time"), compositeFooter);
 		table.getColumnSortList().push(new ColumnSortInfo(date, false));
 
 		// PtuID (2)
@@ -306,7 +302,7 @@ public class EventView extends DockPanel implements Module {
 			});
 		}
 		ptuHeader = "PTU ID";
-		table.addColumn(ptu, new TextHeader(ptuHeader), pager.getHeader());
+		table.addColumn(ptu, new TextHeader(ptuHeader), compositeFooter);
 
 		// Name (3)
 		name = new ClickableHtmlColumn<Event>() {
@@ -332,7 +328,7 @@ public class EventView extends DockPanel implements Module {
 			});
 		}
 		nameHeader = "Name";
-		table.addColumn(name, new TextHeader(nameHeader), pager.getHeader());
+		table.addColumn(name, new TextHeader(nameHeader), compositeFooter);
 
 		// EventType
 		ClickableTextColumn<Event> eventType = new ClickableTextColumn<Event>() {
@@ -381,7 +377,7 @@ public class EventView extends DockPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(value, "Value");
+		table.addColumn(value, new TextHeader("Value"));
 
 		// Threshold
 		ClickableTextColumn<Event> threshold = new ClickableTextColumn<Event>() {
@@ -443,7 +439,6 @@ public class EventView extends DockPanel implements Module {
 
 		return true;
 	}
-	
 
 	private boolean needsUpdate() {
 		if (showUpdate) {
@@ -494,7 +489,7 @@ public class EventView extends DockPanel implements Module {
 				table.insertColumn(2, name, nameHeader);
 			}
 		}
-		
+
 		// show or hide update button
 		update.setVisible(needsUpdate());
 
