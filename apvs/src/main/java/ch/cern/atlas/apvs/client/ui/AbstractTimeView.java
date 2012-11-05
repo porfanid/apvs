@@ -25,8 +25,8 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -102,12 +102,7 @@ public class AbstractTimeView extends SimplePanel {
 										return "<b>"
 												+ toolTipData.getSeriesName()
 												+ "</b><br/>"
-												+ DateTimeFormat
-														.getFormat(
-																"yyyy-MM-dd HH:mm:ss")
-														.format(new Date(
-																toolTipData
-																		.getXAsLong()))
+												+ getDateTime(toolTipData.getXAsLong())
 												+ "<br/>"
 												+ NumberFormat
 														.getFormat("0.00")
@@ -122,25 +117,34 @@ public class AbstractTimeView extends SimplePanel {
 
 					@Override
 					public String format(AxisLabelsData axisLabelsData) {
-						Date date = new Date(axisLabelsData.getValueAsLong());
-						@SuppressWarnings("deprecation")
-						String pattern = date.getSeconds() == 0 ? "HH:mm"
-								: "HH:mm:ss";
-						return DateTimeFormat.getFormat(pattern).format(date);
+						return getDateTime(axisLabelsData.getValueAsLong());
 					}
 				}));
 		chart.getXAxis().setAxisTitle(new AxisTitle().setText("Time"));
 
 		chart.getYAxis().setAllowDecimals(true);
-		
+
 		chart.getYAxis().setAxisTitle(new AxisTitle().setText(""));
+	}
+	
+	private String getDateTime(long time) {
+		long now = new Date().getTime();
+		long nextMinute = now + (60 * 1000);
+		long yesterday = now - (24 * 60 * 1000);
+		Date date = new Date(time);
+		if (time > nextMinute) {
+			return "<b>"+PtuClientConstants.dateFormatShort.format(date)+"</b>";
+		} else if (time < yesterday) {
+			return "<i>"+PtuClientConstants.dateFormatShort.format(date)+"</i>";
+		} 
+		return PtuClientConstants.timeFormat.format(date);
 	}
 
 	protected void setUnit(String unit) {
 		if (chart == null) {
 			return;
 		}
-		
+
 		// fix #96 to put unicode in place of &deg; and &micro;
 		unit = unit.replaceAll("\\&deg\\;", "\u00B0");
 		unit = unit.replaceAll("\\&micro\\;", "\u00B5");

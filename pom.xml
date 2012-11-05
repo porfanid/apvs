@@ -26,10 +26,10 @@
 		<gwt-plugin-version>2.4.0</gwt-plugin-version>
 <!--
 		<gwt-version>2.5.0</gwt-version> 
-		<gwt-plugin-version>2.5.0-SNAPSHOT</gwt-plugin-version>
+		<gwt-plugin-version>2.5.0</gwt-plugin-version>
 -->
 <!--
-		<atmosphere-version>1.0.3</atmosphere-version>
+		<atmosphere-version>1.0.4</atmosphere-version>
 -->
 		<atmosphere-version>1.1.0.beta1</atmosphere-version>
 		<asterisk-java-version>38898d3a191ebce989c64a57b4fc43171424fa40</asterisk-java-version>

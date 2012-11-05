@@ -31,6 +31,8 @@ import ch.cern.atlas.apvs.client.widget.EditTextColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.HumanTime;
+import ch.cern.atlas.apvs.client.widget.PagerHeader;
+import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
@@ -56,8 +58,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -80,8 +80,8 @@ public class InterventionView extends DockPanel implements Module {
 
 	private ScrolledDataGrid<Intervention> table = new ScrolledDataGrid<Intervention>();
 	private ScrollPanel scrollPanel;
-	
-	private ClickableTextColumn<Intervention>  startTime;
+
+	private ClickableTextColumn<Intervention> startTime;
 
 	private boolean selectable = false;
 	private boolean sortable = true;
@@ -89,18 +89,18 @@ public class InterventionView extends DockPanel implements Module {
 	private final String END_INTERVENTION = "End Intervention";
 
 	private InterventionServiceAsync interventionService;
-//	private Validator validator;
+	// private Validator validator;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	private HorizontalPanel footer = new HorizontalPanel();
-	private SimplePager pager;
+	private PagerHeader pager;
 	private Button update;
 	private boolean showUpdate;
 
 	public InterventionView() {
 		interventionService = InterventionServiceAsync.Util.getInstance();
-//		validator = Validation.buildDefaultValidatorFactory().getValidator();
+		// validator = Validation.buildDefaultValidatorFactory().getValidator();
 	}
 
 	@Override
@@ -114,8 +114,7 @@ public class InterventionView extends DockPanel implements Module {
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Interventions"));
 
-		pager = new SimplePager(TextLocation.RIGHT);
-		footer.add(pager);
+		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
 
 		update = new Button("Update");
@@ -127,7 +126,8 @@ public class InterventionView extends DockPanel implements Module {
 				scrollPanel.setVerticalScrollPosition(scrollPanel
 						.getMinimumHorizontalScrollPosition());
 
-				table.getColumnSortList().push(new ColumnSortInfo(startTime, false));
+				table.getColumnSortList().push(
+						new ColumnSortInfo(startTime, false));
 				scheduler.update();
 			}
 		});
@@ -233,131 +233,7 @@ public class InterventionView extends DockPanel implements Module {
 				}
 			});
 		}
-		Header<String> interventionFooter = new Header<String>(new ButtonCell()) {
-			@Override
-			public String getValue() {
-				return "Start a new Intervention";
-			}
-		};
-		interventionFooter.setUpdater(new ValueUpdater<String>() {
-
-			@Override
-			public void update(String value) {
-
-				ValidationFieldset fieldset = new ValidationFieldset();
-
-				final ListBoxField userField = new ListBoxField("User", new NotNullValidator());
-				fieldset.add(userField);
-
-				interventionService.getUsers(true,
-						new AsyncCallback<List<User>>() {
-
-							@Override
-							public void onSuccess(List<User> result) {
-								for (Iterator<User> i = result.iterator(); i
-										.hasNext();) {
-									User user = i.next();
-									userField.addItem(user.getDisplayName(),
-											user.getId());
-								}
-							}
-
-							@Override
-							public void onFailure(Throwable caught) {
-								log.warn("Caught : " + caught);
-							}
-						});
-
-				final ListBoxField ptu = new ListBoxField("PTU", new NotNullValidator());
-				fieldset.add(ptu);
-
-				interventionService.getDevices(true,
-						new AsyncCallback<List<Device>>() {
-
-							@Override
-							public void onSuccess(List<Device> result) {
-								for (Iterator<Device> i = result.iterator(); i
-										.hasNext();) {
-									Device device = i.next();
-									ptu.addItem(device.getName(),
-											device.getId());
-								}
-							}
-
-							@Override
-							public void onFailure(Throwable caught) {
-								log.warn("Caught : " + caught);
-							}
-						});
-
-				final TextAreaField description = new TextAreaField(
-						"Description");
-				fieldset.add(description);
-
-				final Modal m = new Modal();
-
-				Button cancel = new Button("Cancel");
-				cancel.addClickHandler(new ClickHandler() {
-
-					@Override
-					public void onClick(ClickEvent event) {
-						m.hide();
-					}
-				});
-
-				Button ok = new Button("Ok");
-				ok.addClickHandler(new ClickHandler() {
-
-					@Override
-					public void onClick(ClickEvent event) {
-						m.hide();
-
-						Intervention intervention = new Intervention(userField
-								.getId(), ptu.getId(), new Date(), description
-								.getValue());
-
-						// FIXME #194
-//						Set<ConstraintViolation<Intervention>> violations = validator
-//								.validate(intervention);
-//
-//						if (!violations.isEmpty()) {
-//							StringBuffer errorMessage = new StringBuffer();
-//							for (ConstraintViolation<Intervention> constraintViolation : violations) {
-//								errorMessage.append('\n');
-//								errorMessage.append(constraintViolation
-//										.getMessage());
-//							}
-//							log.warn(errorMessage.toString());
-//						} else {
-							interventionService.addIntervention(intervention,
-									new AsyncCallback<Void>() {
-
-										@Override
-										public void onSuccess(Void result) {
-											scheduler.update();
-										}
-
-										@Override
-										public void onFailure(Throwable caught) {
-											log.warn("Failed");
-										}
-									});
-						}
-//					}
-				});
-
-				ValidationForm form = new ValidationForm(ok, cancel);
-				form.setType(FormType.HORIZONTAL);
-				form.add(fieldset);
-
-				m.setTitle("Start a new Intervention");
-				m.add(form);
-				m.add(new ModalFooter(cancel, ok));
-				m.show();
-			}
-		});
-		table.addColumn(startTime, new TextHeader("Start Time"),
-				interventionFooter);
+		table.addColumn(startTime, new TextHeader("Start Time"), pager.getHeader());
 		table.getColumnSortList().push(new ColumnSortInfo(startTime, false));
 
 		// endTime
@@ -407,7 +283,135 @@ public class InterventionView extends DockPanel implements Module {
 				}
 			}
 		});
-		table.addColumn(endTime, new TextHeader("End Time"), new TextHeader(""));
+		table.addColumn(endTime, new TextHeader("End Time"), pager.getHeader());
+		
+		Header<String> interventionFooter = new Header<String>(new ButtonCell()) {
+			@Override
+			public String getValue() {
+				return "Start a new Intervention";
+			}
+		};
+		interventionFooter.setUpdater(new ValueUpdater<String>() {
+
+			@Override
+			public void update(String value) {
+
+				ValidationFieldset fieldset = new ValidationFieldset();
+
+				final ListBoxField userField = new ListBoxField("User",
+						new NotNullValidator());
+				fieldset.add(userField);
+
+				interventionService.getUsers(true,
+						new AsyncCallback<List<User>>() {
+
+							@Override
+							public void onSuccess(List<User> result) {
+								for (Iterator<User> i = result.iterator(); i
+										.hasNext();) {
+									User user = i.next();
+									userField.addItem(user.getDisplayName(),
+											user.getId());
+								}
+							}
+
+							@Override
+							public void onFailure(Throwable caught) {
+								log.warn("Caught : " + caught);
+							}
+						});
+
+				final ListBoxField ptu = new ListBoxField("PTU",
+						new NotNullValidator());
+				fieldset.add(ptu);
+
+				interventionService.getDevices(true,
+						new AsyncCallback<List<Device>>() {
+
+							@Override
+							public void onSuccess(List<Device> result) {
+								for (Iterator<Device> i = result.iterator(); i
+										.hasNext();) {
+									Device device = i.next();
+									ptu.addItem(device.getName(),
+											device.getId());
+								}
+							}
+
+							@Override
+							public void onFailure(Throwable caught) {
+								log.warn("Caught : " + caught);
+							}
+						});
+
+				final TextAreaField description = new TextAreaField(
+						"Description");
+				fieldset.add(description);
+
+				final Modal m = new Modal();
+
+				Button cancel = new Button("Cancel");
+				cancel.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						m.hide();
+					}
+				});
+
+				Button ok = new Button("Ok");
+				ok.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent event) {
+						m.hide();
+
+						Intervention intervention = new Intervention(userField
+								.getId(), ptu.getId(), new Date(), description
+								.getValue());
+
+						// FIXME #194
+						// Set<ConstraintViolation<Intervention>> violations =
+						// validator
+						// .validate(intervention);
+						//
+						// if (!violations.isEmpty()) {
+						// StringBuffer errorMessage = new StringBuffer();
+						// for (ConstraintViolation<Intervention>
+						// constraintViolation : violations) {
+						// errorMessage.append('\n');
+						// errorMessage.append(constraintViolation
+						// .getMessage());
+						// }
+						// log.warn(errorMessage.toString());
+						// } else {
+						interventionService.addIntervention(intervention,
+								new AsyncCallback<Void>() {
+
+									@Override
+									public void onSuccess(Void result) {
+										scheduler.update();
+									}
+
+									@Override
+									public void onFailure(Throwable caught) {
+										log.warn("Failed");
+									}
+								});
+					}
+					// }
+				});
+
+				ValidationForm form = new ValidationForm(ok, cancel);
+				form.setType(FormType.HORIZONTAL);
+				form.add(fieldset);
+
+				m.setTitle("Start a new Intervention");
+				m.add(form);
+				m.add(new ModalFooter(cancel, ok));
+				m.show();
+			}
+		});
 
 		ClickableTextColumn<Intervention> duration = new ClickableTextColumn<Intervention>() {
 
@@ -432,7 +436,7 @@ public class InterventionView extends DockPanel implements Module {
 			});
 		}
 		table.addColumn(duration, new TextHeader("Duration"),
-				new TextHeader(""));
+				interventionFooter);
 
 		// Name
 		ClickableHtmlColumn<Intervention> name = new ClickableHtmlColumn<Intervention>() {
@@ -470,13 +474,17 @@ public class InterventionView extends DockPanel implements Module {
 
 				ValidationFieldset fieldset = new ValidationFieldset();
 
-				final TextBoxField fname = new TextBoxField("First Name", new StringValidator(1, 50, "*"));
+				final TextBoxField fname = new TextBoxField("First Name",
+						new StringValidator(1, 50, "*"));
 				fieldset.add(fname);
 
-				final TextBoxField lname = new TextBoxField("Last Name", new StringValidator(4, 50, "*"));
+				final TextBoxField lname = new TextBoxField("Last Name",
+						new StringValidator(4, 50, "*"));
 				fieldset.add(lname);
 
-				final TextBoxField cernId = new TextBoxField("CERN ID", new OrValidator(new EmptyValidator(), new IntegerValidator("Enter a number")));
+				final TextBoxField cernId = new TextBoxField("CERN ID",
+						new OrValidator(new EmptyValidator(),
+								new IntegerValidator("Enter a number")));
 				fieldset.add(cernId);
 
 				final Modal m = new Modal();
@@ -502,33 +510,34 @@ public class InterventionView extends DockPanel implements Module {
 								.getValue(), cernId.getValue());
 
 						// FIXME #194
-//						Set<ConstraintViolation<User>> violations = validator
-//								.validate(user);
-//
-//						if (!violations.isEmpty()) {
-//							StringBuffer errorMessage = new StringBuffer();
-//							for (ConstraintViolation<User> constraintViolation : violations) {
-//								errorMessage.append('\n');
-//								errorMessage.append(constraintViolation
-//										.getMessage());
-//							}
-//							log.warn(errorMessage.toString());
-//						} else {
-							interventionService.addUser(user,
-									new AsyncCallback<Void>() {
+						// Set<ConstraintViolation<User>> violations = validator
+						// .validate(user);
+						//
+						// if (!violations.isEmpty()) {
+						// StringBuffer errorMessage = new StringBuffer();
+						// for (ConstraintViolation<User> constraintViolation :
+						// violations) {
+						// errorMessage.append('\n');
+						// errorMessage.append(constraintViolation
+						// .getMessage());
+						// }
+						// log.warn(errorMessage.toString());
+						// } else {
+						interventionService.addUser(user,
+								new AsyncCallback<Void>() {
 
-										@Override
-										public void onSuccess(Void result) {
-											scheduler.update();
-										}
+									@Override
+									public void onSuccess(Void result) {
+										scheduler.update();
+									}
 
-										@Override
-										public void onFailure(Throwable caught) {
-											log.warn("Failed " + caught);
-										}
-									});
-						}
-//					}
+									@Override
+									public void onFailure(Throwable caught) {
+										log.warn("Failed " + caught);
+									}
+								});
+					}
+					// }
 				});
 
 				ValidationForm form = new ValidationForm(ok, cancel);
@@ -577,7 +586,8 @@ public class InterventionView extends DockPanel implements Module {
 			public void update(String value) {
 				ValidationFieldset fieldset = new ValidationFieldset();
 
-				final TextBoxField ptuId = new TextBoxField("PTU ID", new StringValidator(2, 20, "Enter alphanumeric ID"));
+				final TextBoxField ptuId = new TextBoxField("PTU ID",
+						new StringValidator(2, 20, "Enter alphanumeric ID"));
 				fieldset.add(ptuId);
 
 				final TextBoxField ip = new TextBoxField("IP");
@@ -609,34 +619,36 @@ public class InterventionView extends DockPanel implements Module {
 								.getValue(), description.getValue());
 
 						// FIXME #194
-//						Set<ConstraintViolation<Device>> violations = validator
-//								.validate(device);
-//
-//						if (!violations.isEmpty()) {
-//							StringBuffer errorMessage = new StringBuffer();
-//							for (ConstraintViolation<Device> constraintViolation : violations) {
-//								errorMessage.append('\n');
-//								errorMessage.append(constraintViolation
-//										.getMessage());
-//							}
-//							log.warn(errorMessage.toString());
-//						} else {
+						// Set<ConstraintViolation<Device>> violations =
+						// validator
+						// .validate(device);
+						//
+						// if (!violations.isEmpty()) {
+						// StringBuffer errorMessage = new StringBuffer();
+						// for (ConstraintViolation<Device> constraintViolation
+						// : violations) {
+						// errorMessage.append('\n');
+						// errorMessage.append(constraintViolation
+						// .getMessage());
+						// }
+						// log.warn(errorMessage.toString());
+						// } else {
 
-							interventionService.addDevice(device,
-									new AsyncCallback<Void>() {
+						interventionService.addDevice(device,
+								new AsyncCallback<Void>() {
 
-										@Override
-										public void onSuccess(Void result) {
-											scheduler.update();
-										}
+									@Override
+									public void onSuccess(Void result) {
+										scheduler.update();
+									}
 
-										@Override
-										public void onFailure(Throwable caught) {
-											log.warn("Failed " + caught);
-										}
-									});
-						}
-//					}
+									@Override
+									public void onFailure(Throwable caught) {
+										log.warn("Failed " + caught);
+									}
+								});
+					}
+					// }
 				});
 
 				ValidationForm form = new ValidationForm(ok, cancel);
@@ -746,7 +758,7 @@ public class InterventionView extends DockPanel implements Module {
 
 	private void selectIntervention(Intervention intervention) {
 	}
-	
+
 	private boolean needsUpdate() {
 		if (showUpdate) {
 			ColumnSortList sortList = table.getColumnSortList();
@@ -773,7 +785,7 @@ public class InterventionView extends DockPanel implements Module {
 	public boolean update() {
 		// show or hide update button
 		update.setVisible(needsUpdate());
-		
+
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
 

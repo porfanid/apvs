@@ -32,7 +32,6 @@ import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-import ch.cern.atlas.apvs.ptu.server.PtuServerConstants;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.view.client.Range;
@@ -44,7 +43,6 @@ public class DbHandler extends DbReconnectHandler {
 
 	private InterventionMap interventions = new InterventionMap();
 
-	private PreparedStatement historyQueryCount;
 	private PreparedStatement historyQuery;
 	private PreparedStatement deviceQuery;
 	private PreparedStatement notBusyDeviceQuery;
@@ -111,51 +109,33 @@ public class DbHandler extends DbReconnectHandler {
 	public synchronized History getHistory(String ptuId, String sensor)
 			throws SQLException {
 		// check on history and load from DB
-		if ((historyQuery == null) || (historyQueryCount == null)) {
+		if (historyQuery == null) {
 			return null;
 		}
 
-		long PERIOD = 36; // hours
-		Date then = new Date(new Date().getTime() - (PERIOD * 3600000));
-		String timestamp = PtuServerConstants.timestampFormat.format(then);
-
-		historyQueryCount.setString(1, sensor);
-		historyQueryCount.setString(2, ptuId);
-		historyQueryCount.setString(3, timestamp);
 		historyQuery.setString(1, sensor);
 		historyQuery.setString(2, ptuId);
-		historyQuery.setString(3, timestamp);
 
-		ResultSet resultCount = historyQueryCount.executeQuery();
-		int n = 0;
-		try {
-			if (resultCount.next()) {
-				n = resultCount.getInt(1);
-			}
-		} finally {
-			resultCount.close();
-		}
-
+		long PERIOD = 36; // hours
 		int MAX_ENTRIES = 1000;
-		long MIN_INTERVAL = 5000; // ms
+		long MIN_INTERVAL = 5; // s
+		
+		Deque<Number[]> data = new ArrayDeque<Number[]>(200);
 
-		if (n <= 0) {
-			return null;
-		}
-
-		// limit entries
-		if (n > MAX_ENTRIES) {
-			n = 1000;
-		}
-
-		Deque<Number[]> data = new ArrayDeque<Number[]>(n);
-
-		long lastTime = new Date().getTime();
+		long time = 0;
+		long then = -1;
+		long lastTime = new Date().getTime() + MIN_INTERVAL;
 		ResultSet result = historyQuery.executeQuery();
 		String unit = "";
 		try {
-			while (result.next() && (data.size() <= n)) {
-				long time = result.getTimestamp("datetime").getTime();
+			while (result.next() && (data.size() < MAX_ENTRIES)) {
+				time = result.getTimestamp("datetime").getTime();
+				if (then < 0) {
+					then = time - (PERIOD * 60 * 60);
+				}
+				if (time < then) {
+					break;
+				}
 				unit = result.getString("unit");
 				double value = Double.parseDouble(result.getString("value"));
 
@@ -193,22 +173,12 @@ public class DbHandler extends DbReconnectHandler {
 		super.dbConnected(connection);
 
 		connection.setAutoCommit(true);
-
-		historyQueryCount = connection
-				.prepareStatement("select count(*) from tbl_measurements "
-						+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
-						+ "where SENSOR = ? " + "and NAME = ? "
-						+ "and DATETIME > to_timestamp(?,"
-						+ PtuServerConstants.oracleFormat + ")");
-
+		
 		historyQuery = connection
 				.prepareStatement("select DATETIME, UNIT, VALUE from tbl_measurements "
 						+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
 						+ "where SENSOR = ? "
 						+ "and NAME = ? "
-						+ "and DATETIME > to_timestamp(?,"
-						+ PtuServerConstants.oracleFormat
-						+ ") "
 						+ "order by DATETIME desc");
 
 		deviceQuery = connection
@@ -221,7 +191,6 @@ public class DbHandler extends DbReconnectHandler {
 	public void dbDisconnected() throws SQLException {
 		super.dbDisconnected();
 
-		historyQueryCount = null;
 		historyQuery = null;
 		deviceQuery = null;
 
