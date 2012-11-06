@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 
 public class PtuPushServer {
 
@@ -37,8 +39,10 @@ public class PtuPushServer {
 		} else {
 			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
 
+			Timer timer = new HashedWheelTimer();
+
 			// Configure the pipeline factory.
-			bootstrap.setPipelineFactory(new PtuPipelineFactory(handler));
+			bootstrap.setPipelineFactory(new PtuPipelineFactory(timer, handler));
 
 			// Start the connection attempt.
 			handler.connect(new InetSocketAddress(host, port));

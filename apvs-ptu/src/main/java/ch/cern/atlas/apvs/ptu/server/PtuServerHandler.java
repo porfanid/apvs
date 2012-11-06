@@ -11,11 +11,11 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.handler.timeout.IdleStateAwareChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PtuServerHandler extends SimpleChannelUpstreamHandler {
+public class PtuServerHandler extends IdleStateAwareChannelUpstreamHandler {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 

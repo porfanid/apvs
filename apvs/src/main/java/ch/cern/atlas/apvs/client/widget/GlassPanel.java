@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client.widget;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class GlassPanel extends DockPanel implements NativePreviewHandler {
 
@@ -13,7 +14,11 @@ public class GlassPanel extends DockPanel implements NativePreviewHandler {
 	public GlassPanel() {
 		glassShowing = false;
 	}
-	
+
+	public void add(Widget child) {
+		add(child, CENTER);
+	}
+
 	public void showGlass(boolean show) {
 		this.glassShowing = show;
 		if (show) {

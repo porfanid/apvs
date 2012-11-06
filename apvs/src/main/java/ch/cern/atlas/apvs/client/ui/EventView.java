@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.EventServiceAsync;
@@ -74,6 +75,10 @@ public class EventView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
+	protected boolean daqOk;
+
+	protected boolean databaseOk;
+
 	public EventView() {
 	}
 
@@ -105,9 +110,10 @@ public class EventView extends GlassPanel implements Module {
 			}
 		});
 		update.setVisible(false);
-		
+
 		@SuppressWarnings("unchecked")
-		CompositeHeader compositeFooter = new CompositeHeader(pager.getHeader(), update);
+		CompositeHeader compositeFooter = new CompositeHeader(
+				pager.getHeader(), update);
 
 		final TextArea msg = new TextArea();
 		// FIXME, not sure how to handle scroll bar and paging
@@ -201,6 +207,28 @@ public class EventView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 
 		// Subscriptions
+		ConnectionStatusChangedEvent.subscribe(
+				clientFactory.getRemoteEventBus(),
+				new ConnectionStatusChangedEvent.Handler() {
+
+					@Override
+					public void onConnectionStatusChanged(
+							ConnectionStatusChangedEvent event) {
+						switch (event.getConnection()) {
+						case daq:
+							daqOk = event.isOk();
+							break;
+						case database:
+							databaseOk = event.isOk();
+							break;
+						default:
+							break;
+						}
+
+						showGlass(!daqOk || !databaseOk);
+					}
+				});
+
 		EventChangedEvent.register(clientFactory.getRemoteEventBus(),
 				new EventChangedEvent.Handler() {
 
@@ -440,18 +468,17 @@ public class EventView extends GlassPanel implements Module {
 					});
 		}
 
-		
 		// FIXME
 		Button b = new Button("X");
 		add(b, SOUTH);
 		b.addClickHandler(new ClickHandler() {
-			
+
 			@Override
 			public void onClick(ClickEvent event) {
 				showGlass(!isGlassShowing());
 			}
-		});	
-//		showGlass(true);
+		});
+		// showGlass(true);
 
 		return true;
 	}

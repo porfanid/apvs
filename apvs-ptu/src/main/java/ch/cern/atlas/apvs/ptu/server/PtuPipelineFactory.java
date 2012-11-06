@@ -8,20 +8,26 @@ import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
+import org.jboss.netty.handler.timeout.IdleStateHandler;
+import org.jboss.netty.util.Timer;
 
 public class PtuPipelineFactory implements ChannelPipelineFactory {
 
 	private final ChannelHandler handler;
+	private final ChannelHandler idleStateHandler;
 
-	public PtuPipelineFactory(ChannelHandler handler) {
+	public PtuPipelineFactory(Timer timer, ChannelHandler handler) {
 		this.handler = handler;
+		this.idleStateHandler = new IdleStateHandler(timer, 60, 30, 0); // timer must be shared.
 	}
-	
+
 	@Override
 	public ChannelPipeline getPipeline() throws Exception {
 		// Create a default pipeline implementation.
 		ChannelPipeline pipeline = Channels.pipeline();
 
+		pipeline.addLast("idle", idleStateHandler);
+		
 		// Add the text line codec combination first,
 		pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192,
 				Delimiters.lineDelimiter()));

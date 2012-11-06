@@ -10,6 +10,8 @@ import javax.servlet.ServletException;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,7 @@ import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private static final int DEFAULT_PTU_PORT = 4005;
 
 	private String ptuUrl;
@@ -65,8 +67,7 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 								int port = s.length > 1 ? Integer
 										.parseInt(s[1]) : DEFAULT_PTU_PORT;
 
-								log.info("Setting PTU to " + host
-										+ ":" + port);
+								log.info("Setting PTU to " + host + ":" + port);
 								ptuClientHandler.connect(new InetSocketAddress(
 										host, port));
 							}
@@ -82,12 +83,15 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 
 		ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
 
+		Timer timer = new HashedWheelTimer();
+
 		// Configure the pipeline factory.
-		bootstrap.setPipelineFactory(new PtuPipelineFactory(ptuClientHandler));
+		bootstrap.setPipelineFactory(new PtuPipelineFactory(timer, ptuClientHandler));
 	}
 
 	@Override
-	public List<Measurement> getMeasurements(String ptuId) throws ServiceException {
+	public List<Measurement> getMeasurements(String ptuId)
+			throws ServiceException {
 		try {
 			return dbHandler.getMeasurements(ptuId);
 		} catch (SQLException e) {
@@ -96,7 +100,8 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 	}
 
 	@Override
-	public Measurement getMeasurement(String ptuId, String name) throws ServiceException {
+	public Measurement getMeasurement(String ptuId, String name)
+			throws ServiceException {
 		try {
 			return dbHandler.getMeasurement(ptuId, name);
 		} catch (SQLException e) {
@@ -105,7 +110,8 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 	}
 
 	@Override
-	public History getHistory(String ptuId, String name) throws ServiceException {
+	public History getHistory(String ptuId, String name)
+			throws ServiceException {
 		try {
 			return dbHandler.getHistory(ptuId, name);
 		} catch (SQLException e) {

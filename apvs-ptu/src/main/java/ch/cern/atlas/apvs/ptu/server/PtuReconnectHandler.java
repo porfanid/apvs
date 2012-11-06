@@ -10,7 +10,9 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.handler.timeout.IdleState;
+import org.jboss.netty.handler.timeout.IdleStateAwareChannelUpstreamHandler;
+import org.jboss.netty.handler.timeout.IdleStateEvent;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
@@ -18,9 +20,8 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
+public class PtuReconnectHandler extends IdleStateAwareChannelUpstreamHandler {
 	private static final int RECONNECT_DELAY = 20;
-	private static final int PING_DELAY = 10;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ClientBootstrap bootstrap;
@@ -29,23 +30,9 @@ public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
 	private Channel channel;
 	private Timer reconnectTimer;
 	private boolean reconnectNow;
-	private java.util.Timer pingTimer;
 
 	public PtuReconnectHandler(ClientBootstrap bootstrap) {
-		this.bootstrap = bootstrap;
-		
-		pingTimer = new java.util.Timer();
-		pingTimer.scheduleAtFixedRate(new java.util.TimerTask() {
-			
-			@Override
-			public void run() {
-				if (channel != null) {
-					channel.write("");
-				}
-				System.err.println("IS CONNECTED !!!! "+isConnected()+" "+channel+ " "+channel.isOpen()+" "+channel.isReadable()+" "+channel.isWritable());
-				isConnected();
-			}
-		}, PING_DELAY*1000, PING_DELAY*1000);		
+		this.bootstrap = bootstrap;		
 	}
 
 	@Override
@@ -88,6 +75,15 @@ public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
 
 		super.channelClosed(ctx, e);
 	}
+	
+	@Override
+    public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) {
+        if (e.getState() == IdleState.READER_IDLE) {
+            e.getChannel().close();
+        } else if (e.getState() == IdleState.WRITER_IDLE) {
+//            e.getChannel().write(new PingMessage());
+        }
+    }
 
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
 		if (e.getCause() instanceof ConnectException) {
