@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.event;
 
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;

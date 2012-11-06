@@ -11,8 +11,9 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.DurationCell;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
@@ -28,14 +29,13 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class GeneralInfoView extends VerticalFlowPanel implements Module {
 
+	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
@@ -43,8 +43,8 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 	private EventBus cmdBus;
 
 	private String ptuId;
-	private Date startTime;
 	private boolean audioOk, videoOk, daqOk, databaseOk;
+	private InterventionMap interventions;
 
 	private boolean showHeader = true;
 
@@ -99,8 +99,9 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 				} else if (name.equals(ConnectionType.database.getString())) {
 					return databaseOk;
 				} else if (name.equals("Start Time")) {
-					return startTime;
+					return getStartTime();
 				} else if (name.equals("Duration")) {
+					Date startTime = getStartTime();
 					return startTime != null ? new Date().getTime()
 							- startTime.getTime() : null;
 				}
@@ -147,6 +148,15 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 						scheduler.update();
 					}
 				});
+		
+		InterventionMapChangedEvent.subscribe(clientFactory.getRemoteEventBus(), new InterventionMapChangedEvent.Handler() {
+			
+			@Override
+			public void onInterventionMapChanged(InterventionMapChangedEvent event) {
+				interventions = event.getInterventionMap();
+				scheduler.update();
+			}
+		});
 
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
@@ -154,48 +164,29 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-					updateIntervention();
 					scheduler.update();
 				}
 			});
 		}
 
-		// FIXME #258
-		Timer timer = new Timer() {
-			@Override
-			public void run() {
-				updateIntervention();
-				scheduler.update();
-			}
-		};
-		timer.scheduleRepeating(60000);
-
-		updateIntervention();
-
 		return true;
 	}
-
-	private void updateIntervention() {
+	
+	private Date getStartTime() {
 		if (ptuId == null) {
-			startTime = null;
-			return;
+			return null;
 		}
-
-		InterventionServiceAsync.Util.getInstance().getIntervention(ptuId,
-				new AsyncCallback<Intervention>() {
-
-					@Override
-					public void onSuccess(Intervention result) {
-						startTime = result != null ? result.getStartTime()
-								: null;
-						scheduler.update();
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						log.warn("Caught : " + caught);
-					}
-				});
+		
+		if (interventions == null) {
+			return null;
+		}
+		
+		Intervention intervention = interventions.get(ptuId);
+		if (intervention == null) {
+			return null;
+		}
+		
+		return intervention.getStartTime();
 	}
 
 	@Override
