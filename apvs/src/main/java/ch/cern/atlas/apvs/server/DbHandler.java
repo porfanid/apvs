@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.User;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
@@ -69,6 +71,8 @@ public class DbHandler extends DbReconnectHandler {
 
 				if (type.equals(InterventionMapChangedEvent.class.getName())) {
 					InterventionMapChangedEvent.fire(eventBus, interventions);
+				} else if (type.equals(ConnectionStatusChangedEvent.class.getName())) {
+					ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.database, isConnected());
 				}
 			}
 		});
@@ -184,6 +188,8 @@ public class DbHandler extends DbReconnectHandler {
 		deviceQuery = connection
 				.prepareStatement("select ID, NAME, IP, DSCR from tbl_devices order by NAME");
 
+		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.database, true);
+		
 		updateInterventions();
 	}
 
@@ -193,6 +199,8 @@ public class DbHandler extends DbReconnectHandler {
 
 		historyQuery = null;
 		deviceQuery = null;
+		
+		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.database, false);
 
 		interventions.clear();
 		InterventionMapChangedEvent.fire(eventBus, interventions);

@@ -20,17 +20,32 @@ import org.slf4j.LoggerFactory;
 
 public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
 	private static final int RECONNECT_DELAY = 20;
+	private static final int PING_DELAY = 10;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ClientBootstrap bootstrap;
 
 	private InetSocketAddress address;
 	private Channel channel;
-	private Timer timer;
+	private Timer reconnectTimer;
 	private boolean reconnectNow;
+	private java.util.Timer pingTimer;
 
 	public PtuReconnectHandler(ClientBootstrap bootstrap) {
 		this.bootstrap = bootstrap;
+		
+		pingTimer = new java.util.Timer();
+		pingTimer.scheduleAtFixedRate(new java.util.TimerTask() {
+			
+			@Override
+			public void run() {
+				if (channel != null) {
+					channel.write("");
+				}
+				System.err.println("IS CONNECTED !!!! "+isConnected()+" "+channel+ " "+channel.isOpen()+" "+channel.isReadable()+" "+channel.isWritable());
+				isConnected();
+			}
+		}, PING_DELAY*1000, PING_DELAY*1000);		
 	}
 
 	@Override
@@ -62,8 +77,8 @@ public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
 			reconnectNow = false;
 		} else {
 			log.info("Sleeping for: " + RECONNECT_DELAY + "s");
-			timer = new HashedWheelTimer();
-			timer.newTimeout(new TimerTask() {
+			reconnectTimer = new HashedWheelTimer();
+			reconnectTimer.newTimeout(new TimerTask() {
 				public void run(Timeout timeout) throws Exception {
 					log.info("Reconnecting to PTU_DAQ on " + address);
 					bootstrap.connect(address);
@@ -101,15 +116,19 @@ public class PtuReconnectHandler extends SimpleChannelUpstreamHandler {
 	public void reconnect(boolean reconnectNow) {
 		this.reconnectNow = reconnectNow;
 
-		if (timer != null) {
-			timer.stop();
-			timer = null;
+		if (reconnectTimer != null) {
+			reconnectTimer.stop();
+			reconnectTimer = null;
 		}
 
 		if (channel != null) {
 			channel.disconnect();
 			channel = null;
 		}
+	}
+	
+	public boolean isConnected() {
+		return channel != null && channel.isConnected();
 	}
 
 }
