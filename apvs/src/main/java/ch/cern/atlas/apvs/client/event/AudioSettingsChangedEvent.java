@@ -29,8 +29,7 @@ public class AudioSettingsChangedEvent extends
 			AudioSettingsChangedEvent.Handler handler) {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(
-				AudioSettingsChangedEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(AudioSettingsChangedEvent.class));
 
 		return registration;
 	}

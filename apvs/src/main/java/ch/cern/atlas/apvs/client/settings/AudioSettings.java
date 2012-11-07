@@ -12,18 +12,15 @@ public class AudioSettings implements Serializable {
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
 	public static class Entry implements Serializable {
-		/**
-		 * 
-		 */
+		
 		private static final long serialVersionUID = 1L;
 		String  username;
 		String  number;
 		String  destUser;
-		String destPTU;
+		String  destPTU;
 		String  channel;
 		String  activity;
 		String  status;
-		
 		
 		// Private Call
 		Boolean onCall;
@@ -31,7 +28,6 @@ public class AudioSettings implements Serializable {
 		// Conference Call
 		String  room;
 		Boolean onConference;
-		
 		
 		public Entry() {
 			username = "";
@@ -51,13 +47,17 @@ public class AudioSettings implements Serializable {
 		public String toString() {
 			return ("VoipAccount: username=" + username + "" + " number= "
 					+ number + " channel=" + channel + " destUser= " + destUser
-					+ " destPTU= " + destPTU + " status=" + status + " onCall=" + onCall);
+					+ " destPTU= " + destPTU + " status=" + status + " activity="+ activity + " onCall=" + onCall + " room="+ room + " onConference="+ onConference);
 		}
 	}
 
 	public AudioSettings() {
 	}
 
+	/*********************************************
+	 * Methods
+	 *********************************************/
+	
 	// Username Methods
 	public String getUsername(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -72,6 +72,7 @@ public class AudioSettings implements Serializable {
 		return true;
 	}
 
+	
 	// Number Methods
 	public String getNumber(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -82,6 +83,7 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).number = number;
 	}
 
+	
 	// Channel Methods
 	public String getChannel(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -92,25 +94,27 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).channel = channel;
 	}
 
+	
 	// Destination User Methods
 	public String getDestUser(String ptuId) {
 		Entry entry = entries.get(ptuId);
 		return (entry != null ? entry.destUser : "");
 	}
 
-	public void setDestUser(String ptuId, String user) {
-		entries.get(ptuId).destUser = user;
-	}
-
-	// Destination PTU Methods
 	public String getDestPtu(String ptuId) {
 		Entry entry = entries.get(ptuId);
 		return (entry != null ? entry.destPTU : "");
 	}
-
-	public void setDestPtu(String ptuId, String ptu) {
-		entries.get(ptuId).destPTU = ptu;
+	
+	public void setDestUser(String ptuId, String userDest) {
+		entries.get(ptuId).destUser = userDest;
 	}
+	
+	public void setDestPTUser(String ptuId, String userDest, String PTUDest) {
+		entries.get(ptuId).destUser = userDest;
+		entries.get(ptuId).destPTU  = PTUDest;
+	}
+
 	
 	// Status Methods
 	public String getStatus(String ptuId) {
@@ -122,6 +126,7 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).status = status;
 	}
 
+	
 	// On Call Status Methods
 	public Boolean getOnCall(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -132,6 +137,7 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).onCall = onCall;
 	}
 
+	
 	// On Conference Status Methods
 	public Boolean getOnConference(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -142,6 +148,7 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).onConference = onConference;
 	}
 
+	
 	// Room Methods
 	public String getRoom(String ptuId) {
 		Entry entry = entries.get(ptuId);
@@ -151,6 +158,7 @@ public class AudioSettings implements Serializable {
 	public void setRoom(String ptuId, String conferenceRoom) {
 		entries.get(ptuId).room = conferenceRoom;
 	}
+	
 	
 	// Activity Methods
 	public String getActivity(String ptuId) {
@@ -162,6 +170,7 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).activity = activity;
 	}
 
+	
 	// PTU Ids
 	public List<String> getPtuIds() {
 		List<String> list = new ArrayList<String>();
@@ -169,6 +178,7 @@ public class AudioSettings implements Serializable {
 		return list;
 	}
 
+	
 	// Add PTU
 	public boolean add(String ptuId) {
 		System.err.println("Adding " + ptuId);
@@ -179,6 +189,7 @@ public class AudioSettings implements Serializable {
 		return false;
 	}
 
+	
 	// Check PTU is in the list
 	public boolean contains(String ptuId) {
 		if (entries.containsKey(ptuId)) {
@@ -187,6 +198,7 @@ public class AudioSettings implements Serializable {
 		return false;
 	}
 
+	
 	// Check PTU ID of given number
 	public String getPtuId(AudioSettings accounts, String number) {
 		List<String> ptuList = new ArrayList<String>(accounts.getPtuIds());
@@ -204,10 +216,11 @@ public class AudioSettings implements Serializable {
 		List<String> numbers = new ArrayList<String>();
 		for (int i = 0; i < ptuList.size(); i++) {
 			if (accounts.getActivity(ptuList.get(i)).equals(activity)) {
-				System.out.println("accounts.getNumber(ptuList.get(i))"+ptuList);
+				//System.out.println("accounts.getNumber(ptuList.get(i))"+ptuList);
 				numbers.add(accounts.getNumber(ptuList.get(i)));
 			}
 		}
 		return numbers;
 	}
+	
 }
