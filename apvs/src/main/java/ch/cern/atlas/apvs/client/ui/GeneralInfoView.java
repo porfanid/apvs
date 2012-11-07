@@ -128,7 +128,6 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 					@Override
 					public void onConnectionStatusChanged(
 							ConnectionStatusChangedEvent event) {
-						System.out.println("IMPORTANT "+event.getConnection().getString());
 						switch (event.getConnection()) {
 						case audio:
 							audioOk = event.isOk();

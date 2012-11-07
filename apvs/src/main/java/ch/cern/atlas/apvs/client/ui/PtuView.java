@@ -354,8 +354,8 @@ public class PtuView extends GlassPanel implements Module {
 									for (Iterator<Measurement> i = result
 											.iterator(); i.hasNext();) {
 										last = addOrReplaceMeasurement(i.next());
-										scheduler.update();
 									}
+									scheduler.update();
 								}
 
 								@Override

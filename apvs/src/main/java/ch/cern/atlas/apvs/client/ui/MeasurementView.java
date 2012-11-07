@@ -382,6 +382,7 @@ public class MeasurementView extends GlassPanel implements Module {
 							Measurement measurement = i.next();
 							replace(measurement);
 						}
+						scheduler.update();
 
 						measurementHandler = MeasurementChangedEvent.register(
 								remoteEventBus,
@@ -467,8 +468,7 @@ public class MeasurementView extends GlassPanel implements Module {
 		if (sortable) {
 			ColumnSortEvent.fire(table, table.getColumnSortList());
 		}
-		table.redraw();
-
+		
 		if (selectable) {
 			Measurement selection = selectionModel.getSelectedObject();
 
@@ -477,13 +477,15 @@ public class MeasurementView extends GlassPanel implements Module {
 
 				selectMeasurement(selection);
 			}
-
+			
 			// re-set the selection as the async update may have changed the
 			// rendering
 			if (selection != null) {
 				selectionModel.setSelected(selection, true);
 			}
 		}
+
+		table.redraw();
 
 		return false;
 	}
