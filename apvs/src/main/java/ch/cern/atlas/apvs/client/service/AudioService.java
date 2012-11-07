@@ -12,6 +12,8 @@ public interface AudioService extends RemoteService {
 	void call(String callerOriginater, String callerDestination);
 
 	void hangup(String channel) throws AudioException;
+	
+	void hangupMultiple(List<String> channels) throws AudioException;
 
 	void newConference(List<String> participants);
 

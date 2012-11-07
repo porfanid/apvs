@@ -201,6 +201,13 @@ public class AudioServiceImpl extends ResponsePollService implements
 			throw new AudioException("Timeout: " + e.getMessage());
 		}
 	}
+	
+	@Override
+	public void hangupMultiple(List<String> channels) throws AudioException{
+		for (int i = 0; i < channels.size(); i++) {
+			hangup(channels.get(i));
+		}
+	}
 
 	@Override
 	public void newConference(List<String> participantsNumber) {
@@ -468,5 +475,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		((RemoteEventBus) eventBus)
 				.fireEvent(new AsteriskStatusEvent(usersList));
 	}
+
+
 
 }
