@@ -180,12 +180,13 @@ public class AudioView extends GlassPanel implements Module {
 					if (!voipAccounts.getOnConference(voipAccounts
 							.getPtuId(SUPERVISOR_ACCOUNT))) {
 						if (voipAccounts.getRoom(ptuId).isEmpty()) {
-							List<String> aux = voipAccounts.getNumbersActivity(
-									voipAccounts.getActivity(ptuId));
+							//TODO Discuss if the supervisor should be automatically added to conference
+							List<String> aux = voipAccounts.getNumbersActivity(voipAccounts.getActivity(ptuId));
 							aux.add(SUPERVISOR_ACCOUNT);
 							// TODO Hangup Channels of all activity users
+							AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)), callbackHangup);
 							AudioServiceAsync.Util.getInstance().newConference(
-									aux, callbackConference);
+									voipAccounts.getNumbersActivity(voipAccounts.getActivity(ptuId)), callbackConference);
 						} else {
 							// TODO Hangup Channels of activity users
 							AudioServiceAsync.Util.getInstance()
