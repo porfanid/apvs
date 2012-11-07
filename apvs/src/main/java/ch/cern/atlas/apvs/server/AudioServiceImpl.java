@@ -1,9 +1,12 @@
 package ch.cern.atlas.apvs.server;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -18,21 +21,37 @@ import org.asteriskjava.live.LiveException;
 import org.asteriskjava.live.ManagerCommunicationException;
 import org.asteriskjava.live.MeetMeRoom;
 import org.asteriskjava.live.MeetMeUser;
+import org.asteriskjava.live.MeetMeUserState;
 import org.asteriskjava.live.OriginateCallback;
 import org.asteriskjava.manager.AuthenticationFailedException;
+import org.asteriskjava.manager.DefaultManagerConnection;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.ManagerConnectionFactory;
 import org.asteriskjava.manager.ManagerEventListener;
+import org.asteriskjava.manager.ManagerEventListenerProxy;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
 import org.asteriskjava.manager.action.SipPeersAction;
+import org.asteriskjava.manager.event.BridgeEvent;
+import org.asteriskjava.manager.event.FullyBootedEvent;
+import org.asteriskjava.manager.event.HangupEvent;
 import org.asteriskjava.manager.event.ManagerEvent;
+import org.asteriskjava.manager.event.MeetMeEndEvent;
+import org.asteriskjava.manager.event.MeetMeJoinEvent;
+import org.asteriskjava.manager.event.MeetMeLeaveEvent;
+import org.asteriskjava.manager.event.NewChannelEvent;
+import org.asteriskjava.manager.event.PeerEntryEvent;
+import org.asteriskjava.manager.event.PeerStatusEvent;
 
 import ch.cern.atlas.apvs.client.AudioException;
+import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.MeetMeEvent;
 import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
+import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
+import ch.cern.atlas.apvs.client.settings.AudioSettings.Entry;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 public class AudioServiceImpl extends ResponsePollService implements
@@ -42,7 +61,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private ManagerConnection managerConnection;
 	private AsteriskServer asteriskServer;
 	private AudioSettings voipAccounts;
-	private List<Integer> conferenceRooms;
+	private ConferenceRooms conferenceRooms;
 
 	private ArrayList<String> usersList;
 	
@@ -53,7 +72,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
 	private static final String AMI_ACCOUNT = "manager";
 	private static final String PASSWORD = "password";
-
+	
+	// Asterisk Placing Calls Details
 	private static final String CONTEXT = "internal";
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
@@ -76,7 +96,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		// return;
 
 		//TODO look at MEETME ROOMS Available
-		conferenceRooms = new ArrayList<Integer>();
+		//conferenceRooms = new ArrayList<Integer>();
 		
 		System.out.println("Starting Audio Service...");
 
@@ -86,7 +106,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 		usersList = new ArrayList<String>(); // TODO This can migrate to
 												// listOnlineUsers()
 		voipAccounts = new AudioSettings();
-
+		conferenceRooms = new ConferenceRooms();
+		
 		// Asterisk Connection Manager
 		ManagerConnectionFactory factory = new ManagerConnectionFactory(
 				ASTERISK_URL, AMI_ACCOUNT, PASSWORD);
@@ -95,6 +116,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 		// Eases the communication with asterisk server
 		asteriskServer = new DefaultAsteriskServer(managerConnection);
 
+		
+		
 		// Event handler
 		managerConnection.addEventListener(this);
 
@@ -109,20 +132,26 @@ public class AudioServiceImpl extends ResponsePollService implements
 				} catch (AudioException e) {
 					e.printStackTrace();
 				}
-
 			}
+			
 		});
-		
 
-		AudioSettingsChangedEvent.subscribe(eventBus,
-				new AudioSettingsChangedEvent.Handler() {
+		AudioSettingsChangedEvent.subscribe(eventBus,new AudioSettingsChangedEvent.Handler() {
 
 					@Override
 					public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
 						voipAccounts = event.getAudioSettings();
 					}
-				});
+		});
 
+		MeetMeEvent.subscribe(eventBus,new MeetMeEvent.Handler() {
+					
+					@Override
+					public void onMeetMeEvent(MeetMeEvent event) {
+						conferenceRooms = event.getConferenceRooms();
+					}
+		});
+		
 	}
 
 	// *********************************************
@@ -143,10 +172,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 					+ e.getMessage());
 		}
 	}
+	
+	public String filterNumber(String channel){
+		return channel.substring(0, channel.indexOf("-"));
+	}
 
-	// *********************************************
-	// RPC Methods
-
+	/*********************************************
+	 * RPC Methods
+	 *********************************************/
 	@Override
 	public void call(String callerOriginater, String callerDestination) {
 		asteriskServer.originateToExtension(callerOriginater, CONTEXT, callerDestination, PRIORITY, TIMEOUT);
@@ -171,12 +204,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void newConference(List<String> participantsNumber) {
 		//System.out.println("=================AIIIII===============");
-		MeetMeRoom room = asteriskServer.getMeetMeRoom("0001");
+		MeetMeRoom room = asteriskServer.getMeetMeRoom("0002");
 		//System.out.println("================================="+participantsNumber);
 		//System.out.println("================================="+room);
 		//System.out.println("================================="+room.getRoomNumber());
 		for(int i=0;i<participantsNumber.size();i++){
-			addToConference(participantsNumber.get(i), room.getRoomNumber()+",d");
+			addToConference(participantsNumber.get(i), room.getRoomNumber()+",qd");
 		}
 		//asteriskServer.originateToExtension("SIP/1001", CONTEXT, "800"+room.getRoomNumber(), PRIORITY, TIMEOUT);
 		
@@ -185,7 +218,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	@Override
 	public void addToConference(String participant, String roomAndParam) {
-		asteriskServer.originateToApplicationAsync(participant, "MeetMe",roomAndParam, 10000, new OriginateCallback() {
+		asteriskServer.originateToApplicationAsync(participant, "MeetMe",roomAndParam, 20000, new OriginateCallback() {
 
 					@Override
 					public void onSuccess(AsteriskChannel arg0) {
@@ -230,271 +263,198 @@ public class AudioServiceImpl extends ResponsePollService implements
 		}
 	}
 
-	// *********************************************
-	// Event Handler
+	/*********************************************
+	 * Event Handler
+	 *********************************************/
 
 	@Override
 	public void onManagerEvent(ManagerEvent event) {
-		String[] eventContent = event.toString().split("\\[");
-		System.out.println(eventContent[0]);
-		// PeerEntryEvent
-		if (eventContent[0].contains("PeerEntryEvent"))
-			listOnlineUsers(eventContent[1]);
-
 		// NewChannelEvent
-		if (eventContent[0].contains("NewChannelEvent")) {
-			newChannelEvent(eventContent[1]);
-		}
-
+		if (event instanceof NewChannelEvent){
+			NewChannelEvent channel = (NewChannelEvent) event;
+			System.out.println("CHANNEL EVENT "+ channel.toString());
+			newChannelEvent(channel);
 		// BridgeEvent
-		if (eventContent[0].contains("BridgeEvent"))
-			bridgeEvent(eventContent[1]);
-
-		// PeerStatusEvent
-		if (eventContent[0].contains("PeerStatusEvent"))
-			peerStatusEvent(eventContent[1]);
-
+		}else if (event instanceof BridgeEvent){
+			BridgeEvent bridge = (BridgeEvent) event;
+			System.out.println("BRIDGE EVENT "+ bridge.toString());
+			bridgeEvent(bridge);
 		// HangupEvent
-		if (eventContent[0].contains("HangupEvent"))
-			hangupEvent(eventContent[1]);
-		
+		}else if (event instanceof HangupEvent){
+			HangupEvent hangup = (HangupEvent) event;
+			System.out.println("HANGUP EVENT "+ hangup.toString());
+			hangupEvent(hangup);
+		// PeerStatusEvent
+		}else if (event instanceof PeerStatusEvent){
+			PeerStatusEvent peer = (PeerStatusEvent) event;
+			System.out.println("PEER STATUS EVENT "+ peer.toString());
+			peerStatusEvent(peer);
 		//MeetMeJoinEvent
-		if (eventContent[0].contains("MeetMeJoinEvent"))
-			meetmeJoin(eventContent[1]);
-		
+		}else if (event instanceof MeetMeJoinEvent){
+			MeetMeJoinEvent meetJoin = (MeetMeJoinEvent) event;
+			System.out.println("MEET JOIN EVENT "+ meetJoin.toString());
+			meetMeJoin(meetJoin);
+			((RemoteEventBus) eventBus).fireEvent(new MeetMeEvent(conferenceRooms));
+
+			//System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "+ conferenceRooms.get("0001").getUserNum()+ conferenceRooms.get("0001").getPtuIds());
 		//MeetMeLeaveEvent
-		if (eventContent[0].contains("MeetMeLeaveEvent"))
-			meetmeLeave(eventContent[1]);
-		
+		}else if (event instanceof MeetMeLeaveEvent){
+			MeetMeLeaveEvent meetLeave = (MeetMeLeaveEvent) event;
+			System.out.println("MEET LEAVE EVENT "+ meetLeave.toString());
+			meetMeLeave(meetLeave);
+			((RemoteEventBus) eventBus).fireEvent(new MeetMeEvent(conferenceRooms));
 
+			//System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "+ conferenceRooms.get("0001").getUserNum()+ conferenceRooms.get("0001").getPtuIds());
+		//PeerEntryEvent
+		}else if (event instanceof PeerEntryEvent){
+			PeerEntryEvent peer = (PeerEntryEvent) event;
+			System.out.println("PEER ENTRY EVENT "+ peer.toString());
+			peerEntryEvent(peer);
+		//MeetMeEndEvent
+		}else if (event instanceof MeetMeEndEvent){
+			MeetMeEndEvent meetEnd = (MeetMeEndEvent) event;
+			System.out.println("MEET END EVENT "+ meetEnd.toString());
+			meetMeEnd(meetEnd);
+		}	
 	}
-
-	public String contentValue(String content) {
-		return content.substring(content.indexOf("'", 0) + 1,
-				content.indexOf("'", content.indexOf("'", 0) + 1));
-	}
-
+	
 	/*********************************************
 	 * Event Methods
 	 *********************************************/
-
-	// *********************************************
 	// New Channel
-	public void newChannelEvent(String eventContent) {
-		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
-		String[] list = eventContent.replace(',', '\n').split("\\n");
-		for (int i = 0; i < list.length; i++) {
-			if (list[i].contains("channel=")) {
-				eventContent = contentValue(list[i]);
-				String[] aux = eventContent.split("-");
-				for (int j = 0; j < ptuIdList.size(); j++) {
-					if (voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])) {
-						voipAccounts.setChannel(ptuIdList.get(j), eventContent);
-						break;
-					}
-				}
-				((RemoteEventBus) eventBus)
-						.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
-
-				break;
-			}
+	public void newChannelEvent(NewChannelEvent event) {
+		String channel = event.getChannel();
+		String number  = filterNumber(channel);
+		String ptuId   = voipAccounts.getPtuId(voipAccounts, number);
+		
+		if(ptuId != null){
+			voipAccounts.setChannel(ptuId, channel);
+			((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+			return;
 		}
-	}
-
-	// *********************************************
-	// Users Register and Unregister
-	public void peerStatusEvent(String eventContent) {
-		String[] list = eventContent.replace(',', '\n').split("\\n");
-		boolean canRead = false;
-		VoipAccount user = new VoipAccount();
-
-		for (int i = 0; i < list.length; i++) {
-			if (list[i].contains("peer=")) {
-				user.setNumber(contentValue(list[i]));
-				canRead = true;
-			} else {
-				if (canRead == true) {
-					// TODO If later is desired to support devices other than
-					// SIP should be added channel type
-					/*
-					 * if(list[i].contains("channeltype"))
-					 * user.setType(contentValue(list[i]));
-					 */
-
-					if (list[i].contains("peerstatus")) {
-						if (contentValue(list[i]).equals("Registered")) {
-							user.setStatus("Online");
-							break;
-						}
-						if (contentValue(list[i]).equals("Unregistered")) {
-							user.setStatus("Offline");
-							break;
-						} else {
-							user.setStatus("Unknown");
-							break;
-						}
-					}
-				}
-			}
-
-		}
-		String ptuId = voipAccounts.getPtuId(voipAccounts, user.getNumber());
-		if (ptuId != null) {
-			voipAccounts.setStatus(ptuId, user.getStatus());
-		}
-
-		((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(
-				voipAccounts));
-	}
-
-	// *********************************************
-	// List Users Number
-	public void listOnlineUsers(String eventContent) {
-		String[] list = eventContent.replace(',', '\n').split("\\n");
-
-		for (int i = 0; i < list.length; i++) {
-			if (list[i].contains("objectname")) {
-				usersList.add("SIP/" + contentValue(list[i]));
-				System.out.println("SIP/" + contentValue(list[i]));
-			}
-		}
-
-		((RemoteEventBus) eventBus)
-				.fireEvent(new AsteriskStatusEvent(usersList));
-
-	}
-
-	// *********************************************
-	// Bridge of Call Channels
-
-	public void bridgeEvent(String eventContent) {
-		String[] list = eventContent.replace(',', '\n').split("\\n");
-		ArrayList<String> usersBridged = new ArrayList<String>();
-		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
-
-		for (int i = 0; i < list.length; i++) {
-			if (list[i].contains("channel")) {
-				eventContent = contentValue(list[i]);
-				String[] aux = eventContent.split("-");
-				usersBridged.add(aux[0]);
-			}
-		}
-		//System.out.println("*&*&*&*&*&*&*&*&*&*&*&*&*&*&"+usersBridged);
-		for (int u = 0; u < ptuIdList.size(); u++) {
-			if (usersBridged.contains(voipAccounts.getNumber(ptuIdList.get(u)))) {
-				for (int b = 0; b < usersBridged.size(); b++) {
-					if (usersBridged.get(b).equals(voipAccounts.getNumber(ptuIdList.get(u)))){
-						continue;
-					}else {
-						if (voipAccounts.getDestUser(ptuIdList.get(u)).isEmpty()) {
-							voipAccounts.setDestUser(ptuIdList.get(u),voipAccounts.getUsername(voipAccounts.getPtuId(voipAccounts,usersBridged.get(b))));
-							//System.out.println("*%*%*%*%*%*%*%*%*%*%*%*%*%*% User Bridged" + usersBridged.get(b)+"$%@");
-							voipAccounts.setDestPtu(ptuIdList.get(u), voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
-							//System.out.println("*&*&*&*&*&*&*&*&*&*&*&*&*&*& Ptu do userBridged "+voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
-							//voipAccounts.setOnConference(ptuIdList.get(u), false);
-							voipAccounts.setOnCall(ptuIdList.get(u), true);
-							
-							
-						} else {
-							voipAccounts.setDestUser(ptuIdList.get(u),voipAccounts.getDestUser(ptuIdList.get(u)) + "," + voipAccounts.getUsername(voipAccounts.getPtuId(voipAccounts,usersBridged.get(b))));
-							voipAccounts.setDestPtu(ptuIdList.get(u), voipAccounts.getDestPtu(ptuIdList.get(u)) + "," + voipAccounts.getPtuId(voipAccounts,usersBridged.get(b)));
-							//voipAccounts.setOnConference(ptuIdList.get(u), false);
-							voipAccounts.setOnCall(ptuIdList.get(u), true);
-						}
-					}
-				}
-			}
-
-		}
-
-		((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(
-				voipAccounts));
-	}
-
-	// *********************************************
-	// Hangup Call Event
-	public void hangupEvent(String eventContent) {
-		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
-		String[] list = eventContent.replace(',', '\n').split("\\n");
-		for (int i = 0; i < list.length; i++) {
-			if (list[i].contains("channel=")) {
-				eventContent = contentValue(list[i]);
-				String[] aux = eventContent.split("-");
-				for (int u = 0; u < ptuIdList.size(); u++) {
-					if (voipAccounts.getNumber(ptuIdList.get(u)).equals(aux[0])) {
-						voipAccounts.setChannel(ptuIdList.get(u), "");
-						voipAccounts.setDestUser(ptuIdList.get(u), "");
-						voipAccounts.setDestPtu(ptuIdList.get(u), "");
-						voipAccounts.setOnCall(ptuIdList.get(u), false);
-						voipAccounts.setOnConference(ptuIdList.get(u), false);
-						break;
-					}
-				}
-			}
-		}
-		((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(
-				voipAccounts));
-
+		System.err.println("NO PTU FOUND WITH NUMBER " + number);
 	}
 	
-	// *********************************************
-	// Meetme Join Event
-	public void meetmeJoin(String eventContent) {
-				
-		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
-		String[] list = eventContent.replace(',', '\n').split("\\n");
-		String room = new String();
-		for (int i = 0; i < list.length; i++) {
-			if(list[i].contains("meetme="))
-				room = contentValue(list[i]);
+	// Bridge of Call Channels - Event only valid for private call
+	public void bridgeEvent(BridgeEvent event) {
+		String channel1 = event.getChannel1();
+		String number1  = filterNumber(channel1);
+		String ptuId1   = voipAccounts.getPtuId(voipAccounts, number1);
+		
+		String channel2 = event.getChannel2();
+		String number2  = filterNumber(channel2);
+		String ptuId2   = voipAccounts.getPtuId(voipAccounts, number2);
+		
+		if(ptuId1 != null && ptuId2 != null){
+			voipAccounts.setDestPTUser(ptuId1, voipAccounts.getUsername(ptuId2), ptuId2);
+			voipAccounts.setOnCall(ptuId1, true);
 			
-			if (list[i].contains("channel=")) {
-				eventContent = contentValue(list[i]);
-				String[] aux = eventContent.split("-");
-		
-				for (int j = 0; j < ptuIdList.size(); j++) {
-					if (voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])) {
-						if (room != null){
-						voipAccounts.setChannel(ptuIdList.get(j), eventContent);
-						//voipAccounts.setOnCall(ptuIdList.get(j), false);
-						voipAccounts.setOnConference(ptuIdList.get(j), true);
-						break;
-						}
-						System.err.println("Meetme Join event with no room assigned");
-						break;
-					}
-				}
-				((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
-				break;
-			}
+			voipAccounts.setDestPTUser(ptuId2, voipAccounts.getUsername(ptuId1), ptuId1);
+			voipAccounts.setOnCall(ptuId2, true);
+			((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+			return;
 		}
-	}
-		
-	// *********************************************
-	// Meetme Leave Event
-	public void meetmeLeave(String eventContent) {
-		System.out.println("*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#Event Content" + eventContent);
-				
-		List<String> ptuIdList = new ArrayList<String>(voipAccounts.getPtuIds());
-		String[] list = eventContent.replace(',', '\n').split("\\n");
-		for (int i = 0; i < list.length; i++) {
-			if (list[i].contains("channel=")) {
-				eventContent = contentValue(list[i]);
-				String[] aux = eventContent.split("-");
-				System.out.println("Username " +aux[0]);
-				for (int j = 0; j < ptuIdList.size(); j++) {
-					if (voipAccounts.getNumber(ptuIdList.get(j)).equals(aux[0])) {
-						voipAccounts.setChannel(ptuIdList.get(j), "");
-						//voipAccounts.setOnCall(ptuIdList.get(j), false);
-						voipAccounts.setOnConference(ptuIdList.get(j), false);
-						break;
-					}
-				}
-				((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
-				break;
-			}
-		}
-		
+		System.err.println("NO PTUS FOUND WITH NUMBERS " + number1 + " & " + number2);
 	}
 	
+	// Hangup Call Event
+	public void hangupEvent(HangupEvent event) {
+		String channel = event.getChannel();
+		String number  = filterNumber(channel);
+		String ptuId   = voipAccounts.getPtuId(voipAccounts, number);
+		if(ptuId != null){
+			voipAccounts.setChannel(ptuId, "");
+			voipAccounts.setDestPTUser(ptuId, "", "");
+			voipAccounts.setOnCall(ptuId, false);
+			voipAccounts.setOnConference(ptuId, false);
+			voipAccounts.setRoom(ptuId, "");
+			((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+			return;
+		}	
+		System.err.println("NO PTU FOUND WITH NUMBER " + number);
+	}
+
+	// Users Register and Unregister
+	public void peerStatusEvent(PeerStatusEvent event) {
+		String status = event.getPeerStatus();
+		if (status.equals("Registered"))
+			status = "Online";
+		else
+			status = "Offline";
+		
+		String number = event.getPeer();
+		String ptuId  = voipAccounts.getPtuId(voipAccounts, number);
+		if (ptuId != null) {
+			voipAccounts.setStatus(ptuId, status);
+			((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+			return;
+		}
+		System.err.println("NO PTU FOUND OR ASSIGNED WITH NUMBER " + number);	
+	}
+
+	// MeetMe Join Event
+	public void meetMeJoin(MeetMeJoinEvent event) {
+		String channel = event.getChannel();
+		String room    = event.getMeetMe();
+		String number  = filterNumber(channel);
+		String ptuId   = voipAccounts.getPtuId(voipAccounts, number);		
+		
+		if(!conferenceRooms.roomExist(room)){
+			conferenceRooms.put(room, new Conference());
+			conferenceRooms.get(room).setActivity(voipAccounts.getActivity(ptuId));
+		}
+		
+		if (ptuId != null){
+			voipAccounts.setChannel(ptuId, channel);
+			voipAccounts.setRoom(ptuId, room);
+			voipAccounts.setOnConference(ptuId, true);
+			conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum()+1);
+			conferenceRooms.get(room).addPtu(ptuId);
+			conferenceRooms.get(room).addUsername(voipAccounts.getUsername(ptuId));
+			((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+			return;
+		}
+		
+		System.err.println("NO PTU FOUND WITH NUMBER " + number);
+	}
+		
+	// MeetMe Leave Event
+	public void meetMeLeave(MeetMeLeaveEvent event) {
+		
+		String channel = event.getChannel();
+		String room    = event.getMeetMe();
+		String number  = filterNumber(channel);
+		String ptuId   = voipAccounts.getPtuId(voipAccounts, number);		
+		if (ptuId != null){
+			if(voipAccounts.getChannel(ptuId).equals(channel))
+				voipAccounts.setChannel(ptuId, "");
+			if(voipAccounts.getRoom(ptuId).equals(room))
+				voipAccounts.setRoom(ptuId, "");
+			
+			voipAccounts.setOnConference(ptuId, false);					
+			
+			conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum()-1);
+			int index = conferenceRooms.get(room).getPtuIds().indexOf(ptuId);
+			conferenceRooms.get(room).getPtuIds().remove(index);
+			conferenceRooms.get(room).getUsernames().remove(index);
+			
+			((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+			return;
+		}
+		
+		System.err.println("NO PTU FOUND WITH NUMBER " + number);
+	}
+	
+	// Peer Entry Event
+	public void peerEntryEvent(PeerEntryEvent event) {
+		String number = "SIP/"+event.getObjectName();
+		usersList.add(number);
+		((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusEvent(usersList));
+	}
+	
+	// MeetMe End Event
+	public void meetMeEnd(MeetMeEndEvent event) {
+		String room = event.getMeetMe();
+		conferenceRooms.remove(room);
+	}
 }
