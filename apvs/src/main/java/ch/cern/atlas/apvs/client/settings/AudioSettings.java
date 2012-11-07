@@ -222,4 +222,16 @@ public class AudioSettings implements Serializable {
 		return numbers;
 	}
 	
+	// Return active channels of given activity
+	public List<String> getActiveChannelsActivity(String activity) {
+		List<String> ptuList = new ArrayList<String>(this.getPtuIds());
+		List<String> channels = new ArrayList<String>();
+		for (int i = 0; i < ptuList.size(); i++) {
+			if (this.getActivity(ptuList.get(i)).equals(activity) && !this.getChannel(ptuList.get(i)).isEmpty()) {
+				channels.add(this.getChannel(ptuList.get(i)));
+			}
+		}
+		return channels;
+	}
+	
 }
