@@ -24,12 +24,9 @@ import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
-import com.github.gwtbootstrap.client.ui.Button;
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
@@ -97,6 +94,7 @@ public class EventView extends GlassPanel implements Module {
 
 		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
+		pager.setNextPageButtonsDisabled(true);
 
 		update = new ActionHeader("Update", new Delegate<String>() {
 			@Override
@@ -467,19 +465,7 @@ public class EventView extends GlassPanel implements Module {
 						}
 					});
 		}
-
-		// FIXME
-		Button b = new Button("X");
-		add(b, SOUTH);
-		b.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				showGlass(!isGlassShowing());
-			}
-		});
-		// showGlass(true);
-
+		
 		return true;
 	}
 

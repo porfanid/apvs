@@ -279,6 +279,9 @@ public class PagerHeader extends AbstractPager {
 
 	@Override
 	public void setPage(int index) {
+		if (index < 0) {
+			index = 0;
+		}
 		super.setPage(index);
 	}
 
@@ -336,7 +339,7 @@ public class PagerHeader extends AbstractPager {
 		fastForward.setDisabled(disabled);
 	}
 
-	private void setNextPageButtonsDisabled(boolean disabled) {
+	public void setNextPageButtonsDisabled(boolean disabled) {
 		nextPage.setDisabled(disabled);
 		lastPage.setDisabled(disabled);
 	}
