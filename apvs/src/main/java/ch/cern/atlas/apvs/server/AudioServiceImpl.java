@@ -317,7 +317,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	public void newChannelEvent(NewChannelEvent event) {
 		String channel = event.getChannel();
 		String number = filterNumber(channel);
-		String ptuId = voipAccounts.getPtuId(voipAccounts, number);
+		String ptuId = voipAccounts.getPtuId(number);
 
 		if (ptuId != null) {
 			voipAccounts.setChannel(ptuId, channel);
@@ -332,11 +332,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 	public void bridgeEvent(BridgeEvent event) {
 		String channel1 = event.getChannel1();
 		String number1 = filterNumber(channel1);
-		String ptuId1 = voipAccounts.getPtuId(voipAccounts, number1);
+		String ptuId1 = voipAccounts.getPtuId(number1);
 
 		String channel2 = event.getChannel2();
 		String number2 = filterNumber(channel2);
-		String ptuId2 = voipAccounts.getPtuId(voipAccounts, number2);
+		String ptuId2 = voipAccounts.getPtuId(number2);
 
 		if (ptuId1 != null && ptuId2 != null) {
 			voipAccounts.setDestPTUser(ptuId1,
@@ -358,7 +358,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	public void hangupEvent(HangupEvent event) {
 		String channel = event.getChannel();
 		String number = filterNumber(channel);
-		String ptuId = voipAccounts.getPtuId(voipAccounts, number);
+		String ptuId = voipAccounts.getPtuId(number);
 		if (ptuId != null) {
 			voipAccounts.setChannel(ptuId, "");
 			voipAccounts.setDestPTUser(ptuId, "", "");
@@ -381,7 +381,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			status = "Offline";
 
 		String number = event.getPeer();
-		String ptuId = voipAccounts.getPtuId(voipAccounts, number);
+		String ptuId = voipAccounts.getPtuId(number);
 		if (ptuId != null) {
 			voipAccounts.setStatus(ptuId, status);
 			((RemoteEventBus) eventBus)
@@ -396,7 +396,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String channel = event.getChannel();
 		String room = event.getMeetMe();
 		String number = filterNumber(channel);
-		String ptuId = voipAccounts.getPtuId(voipAccounts, number);
+		String ptuId = voipAccounts.getPtuId(number);
 
 		if (!conferenceRooms.roomExist(room)) {
 			conferenceRooms.put(room, new Conference());
@@ -430,7 +430,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String channel = event.getChannel();
 		String room = event.getMeetMe();
 		String number = filterNumber(channel);
-		String ptuId = voipAccounts.getPtuId(voipAccounts, number);
+		String ptuId = voipAccounts.getPtuId(number);
 		if (ptuId != null) {
 			if (voipAccounts.getChannel(ptuId).equals(channel))
 				voipAccounts.setChannel(ptuId, "");

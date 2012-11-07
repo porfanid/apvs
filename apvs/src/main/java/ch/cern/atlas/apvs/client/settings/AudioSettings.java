@@ -199,25 +199,24 @@ public class AudioSettings implements Serializable {
 	}
 
 	
-	// Check PTU ID of given number
-	public String getPtuId(AudioSettings accounts, String number) {
-		List<String> ptuList = new ArrayList<String>(accounts.getPtuIds());
+	// Return PTU ID of given number
+	public String getPtuId(String number) {
+		List<String> ptuList = new ArrayList<String>(this.getPtuIds());
 		for (int i = 0; i < ptuList.size(); i++) {
-			if (accounts.getNumber(ptuList.get(i)).equals(number)) {
+			if (this.getNumber(ptuList.get(i)).equals(number)) {
 				return ptuList.get(i);
 			}
 		}
 		return null;
 	}
 
-	// Check user phone call numbers of given activity
-	public List<String> getNumbersActivity(AudioSettings accounts, String activity) {
-		List<String> ptuList = new ArrayList<String>(accounts.getPtuIds());
+	// Return users phone numbers of given activity
+	public List<String> getNumbersActivity(String activity) {
+		List<String> ptuList = new ArrayList<String>(this.getPtuIds());
 		List<String> numbers = new ArrayList<String>();
 		for (int i = 0; i < ptuList.size(); i++) {
-			if (accounts.getActivity(ptuList.get(i)).equals(activity)) {
-				//System.out.println("accounts.getNumber(ptuList.get(i))"+ptuList);
-				numbers.add(accounts.getNumber(ptuList.get(i)));
+			if (this.getActivity(ptuList.get(i)).equals(activity)) {
+				numbers.add(this.getNumber(ptuList.get(i)));
 			}
 		}
 		return numbers;
