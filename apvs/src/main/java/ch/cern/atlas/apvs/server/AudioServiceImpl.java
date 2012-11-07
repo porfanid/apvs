@@ -214,7 +214,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void addToConference(String participant, String roomAndParam) {
 		asteriskServer.originateToApplicationAsync(participant, "MeetMe",
-				roomAndParam, 20000, new OriginateCallback() {
+				roomAndParam, TIMEOUT, new OriginateCallback() {
 
 					@Override
 					public void onSuccess(AsteriskChannel arg0) {

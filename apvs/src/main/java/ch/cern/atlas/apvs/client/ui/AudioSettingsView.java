@@ -41,8 +41,7 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory,Arguments args) {
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
-		
-		//TODO - Change the place of RPC SIP Peers List 
+		 
 		//Call List Users
 		AudioServiceAsync.Util.getInstance().usersList(new AsyncCallback<Void>() {
 			
