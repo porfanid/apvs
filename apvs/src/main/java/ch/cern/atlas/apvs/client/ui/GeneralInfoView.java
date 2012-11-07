@@ -104,7 +104,8 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 					Date startTime = getStartTime();
 					return startTime != null ? new Date().getTime()
 							- startTime.getTime() : null;
-				}
+				} 	
+				System.out.println("GeneralInfoView name unknown '"+name+"'");
 				return null;
 			}
 
@@ -127,9 +128,9 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 					@Override
 					public void onConnectionStatusChanged(
 							ConnectionStatusChangedEvent event) {
+						System.out.println("IMPORTANT "+event.getConnection().getString());
 						switch (event.getConnection()) {
 						case audio:
-							// FIXME #191, not sent yet
 							audioOk = event.isOk();
 							break;
 						case video:

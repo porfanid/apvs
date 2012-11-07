@@ -106,7 +106,7 @@ public class PtuSettingsStorage {
 		}
 
 		String json = JsonWriter.toJson(settings);
-		log.info("Storing json " + json);
+//		log.info("Storing json " + json);
 
 		if (json != null) {
 			store.setItem(APVS_PTU_SETTINGS, json);

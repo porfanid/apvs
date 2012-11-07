@@ -26,14 +26,19 @@ import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
 import org.asteriskjava.manager.action.SipPeersAction;
+import org.asteriskjava.manager.event.ConnectEvent;
+import org.asteriskjava.manager.event.DisconnectEvent;
 import org.asteriskjava.manager.event.ManagerEvent;
 
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 public class AudioServiceImpl extends ResponsePollService implements
 		AudioService, ManagerEventListener {
@@ -48,6 +53,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
+	private boolean audioOk;
 
 	// Account Details
 	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
@@ -58,7 +64,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
 
-	private RemoteEventBus eventBus;
+	private static RemoteEventBus eventBus;
 
 	public AudioServiceImpl() {
 		if (eventBus != null)
@@ -66,6 +72,18 @@ public class AudioServiceImpl extends ResponsePollService implements
 		System.out.println("Creating AudioService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 		executorService = Executors.newSingleThreadExecutor();
+		
+		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+
+			@Override
+			public void onRequestEvent(RequestRemoteEvent event) {
+				String type = event.getRequestedClassName();
+
+				if (type.equals(ConnectionStatusChangedEvent.class.getName())) {
+					ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.audio, audioOk);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -102,14 +120,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 			@Override
 			public void run() {
+				// FIXME #263, we need some auto-relogin here if we loose the connection
 				System.err.println("Login in to Asterisk Server on "
 						+ ASTERISK_URL.toLowerCase() + " ...");
 				try {
 					login();
 				} catch (AudioException e) {
 					e.printStackTrace();
-				}
-
+				}				
 			}
 		});
 		
@@ -258,6 +276,17 @@ public class AudioServiceImpl extends ResponsePollService implements
 		// HangupEvent
 		if (eventContent[0].contains("HangupEvent"))
 			hangupEvent(eventContent[1]);
+		
+		if (event instanceof ConnectEvent) {
+			audioOk = true;
+			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.audio, audioOk);			
+		}
+		
+		// FIXME never happens, see #264
+		if (event instanceof DisconnectEvent) {
+			audioOk = false;
+			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.audio, audioOk);						
+		}
 
 	}
 
