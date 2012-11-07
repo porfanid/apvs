@@ -85,7 +85,7 @@ public class AtmosphereEventBus extends RemoteEventBus {
 		public void onRefresh() {
 		}
 
-		@Override
+		// atmosphere 1.1
 		public void onAfterRefresh() {
 		}
 
@@ -103,6 +103,12 @@ public class AtmosphereEventBus extends RemoteEventBus {
 					AtmosphereEventBus.super.fireEvent(event);
 				}
 			}
+		}
+
+		@Override
+		public void onAfterRefresh(String connectionUUID) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }
