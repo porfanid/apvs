@@ -9,6 +9,8 @@ import javax.servlet.ServletException;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -55,7 +57,8 @@ public class DosimeterServiceImpl extends ResponsePollService {
 							ServerSettings settings = event.getServerSettings();
 							if (settings != null) {
 								String url = settings
-										.get(ServerSettings.Entry.dosimeterUrl.toString());
+										.get(ServerSettings.Entry.dosimeterUrl
+												.toString());
 								if ((url != null) && !url.equals(dosimeterUrl)) {
 									dosimeterUrl = url;
 									String[] s = dosimeterUrl.split(":", 2);
@@ -63,8 +66,8 @@ public class DosimeterServiceImpl extends ResponsePollService {
 									int port = s.length > 1 ? Integer
 											.parseInt(s[1]) : DEFAULT_PORT;
 
-									log.info("Setting DOSIMETER to "
-											+ host + ":" + port);
+									log.info("Setting DOSIMETER to " + host
+											+ ":" + port);
 									dosimeterClientHandler
 											.connect(new InetSocketAddress(
 													host, port));
@@ -82,8 +85,10 @@ public class DosimeterServiceImpl extends ResponsePollService {
 			dosimeterClientHandler = new DosimeterClientHandler(bootstrap,
 					eventBus);
 
+			Timer timer = new HashedWheelTimer();
+
 			// Configure the pipeline factory.
-			bootstrap.setPipelineFactory(new PtuPipelineFactory(
+			bootstrap.setPipelineFactory(new PtuPipelineFactory(timer,
 					dosimeterClientHandler));
 		}
 	}

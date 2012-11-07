@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.EventServiceAsync;
@@ -23,12 +24,9 @@ import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
-import com.github.gwtbootstrap.client.ui.Button;
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
@@ -74,6 +72,10 @@ public class EventView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
+	protected boolean daqOk;
+
+	protected boolean databaseOk;
+
 	public EventView() {
 	}
 
@@ -92,6 +94,7 @@ public class EventView extends GlassPanel implements Module {
 
 		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
+		pager.setNextPageButtonsDisabled(true);
 
 		update = new ActionHeader("Update", new Delegate<String>() {
 			@Override
@@ -105,9 +108,10 @@ public class EventView extends GlassPanel implements Module {
 			}
 		});
 		update.setVisible(false);
-		
+
 		@SuppressWarnings("unchecked")
-		CompositeHeader compositeFooter = new CompositeHeader(pager.getHeader(), update);
+		CompositeHeader compositeFooter = new CompositeHeader(
+				pager.getHeader(), update);
 
 		final TextArea msg = new TextArea();
 		// FIXME, not sure how to handle scroll bar and paging
@@ -201,6 +205,28 @@ public class EventView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 
 		// Subscriptions
+		ConnectionStatusChangedEvent.subscribe(
+				clientFactory.getRemoteEventBus(),
+				new ConnectionStatusChangedEvent.Handler() {
+
+					@Override
+					public void onConnectionStatusChanged(
+							ConnectionStatusChangedEvent event) {
+						switch (event.getConnection()) {
+						case daq:
+							daqOk = event.isOk();
+							break;
+						case database:
+							databaseOk = event.isOk();
+							break;
+						default:
+							break;
+						}
+
+						showGlass(!daqOk || !databaseOk);
+					}
+				});
+
 		EventChangedEvent.register(clientFactory.getRemoteEventBus(),
 				new EventChangedEvent.Handler() {
 
@@ -439,20 +465,7 @@ public class EventView extends GlassPanel implements Module {
 						}
 					});
 		}
-
 		
-		// FIXME
-		Button b = new Button("X");
-		add(b, SOUTH);
-		b.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				showGlass(!isGlassShowing());
-			}
-		});	
-//		showGlass(true);
-
 		return true;
 	}
 

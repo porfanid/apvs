@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Intervention;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.DbServiceAsync;
-import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
+import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.DurationCell;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
@@ -27,14 +29,13 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class GeneralInfoView extends VerticalFlowPanel implements Module {
 
+	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
@@ -42,19 +43,21 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 	private EventBus cmdBus;
 
 	private String ptuId;
-	private Date startTime;
-	private boolean databaseConnected;
+	private boolean audioOk, videoOk, daqOk, databaseOk;
+	private InterventionMap interventions;
 
 	private boolean showHeader = true;
 
 	private String options;
 
-	private List<String> names = Arrays.asList(new String[] { "Audio Status",
-			"Video Status", "Database Status", "Start Time", "Duration" });
+	private List<String> names = Arrays.asList(new String[] {
+			ConnectionType.audio.getString(), ConnectionType.video.getString(),
+			ConnectionType.daq.getString(), ConnectionType.database.getString(),
+			"Start Time", "Duration" });
 	private List<Class<?>> classes = Arrays.asList(new Class<?>[] {
-			CheckboxCell.class, CheckboxCell.class, CheckboxCell.class,
+			CheckboxCell.class, CheckboxCell.class, CheckboxCell.class, CheckboxCell.class,
 			DateCell.class, DurationCell.class });
-	
+
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public GeneralInfoView() {
@@ -87,17 +90,18 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 		Column<String, Object> column = new Column<String, Object>(cell) {
 			@Override
 			public Object getValue(String name) {
-				if (name.equals("Audio Status")) {
-					// FIXME #191
-					return false;
-				} else if (name.equals("Video Status")) {
-					// FIXME #192
-					return false;
-				} else if (name.equals("Database Status")) {
-					return databaseConnected;
+				if (name.equals(ConnectionType.audio.getString())) {
+					return audioOk;
+				} else if (name.equals(ConnectionType.video.getString())) {
+					return videoOk;
+				} else if (name.equals(ConnectionType.daq.getString())) {
+					return daqOk;
+				} else if (name.equals(ConnectionType.database.getString())) {
+					return databaseOk;
 				} else if (name.equals("Start Time")) {
-					return startTime;
+					return getStartTime();
 				} else if (name.equals("Duration")) {
+					Date startTime = getStartTime();
 					return startTime != null ? new Date().getTime()
 							- startTime.getTime() : null;
 				}
@@ -116,71 +120,73 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(names);
 
+		ConnectionStatusChangedEvent.subscribe(
+				clientFactory.getRemoteEventBus(),
+				new ConnectionStatusChangedEvent.Handler() {
+
+					@Override
+					public void onConnectionStatusChanged(
+							ConnectionStatusChangedEvent event) {
+						switch (event.getConnection()) {
+						case audio:
+							// FIXME #191, not sent yet
+							audioOk = event.isOk();
+							break;
+						case video:
+							// FIXME #192, not sent yet
+							videoOk = event.isOk();
+							break;
+						case daq:
+							daqOk = event.isOk();
+							break;
+						case database:
+							databaseOk = event.isOk();
+							break;
+						default:
+							return;
+						}
+						scheduler.update();
+					}
+				});
+		
+		InterventionMapChangedEvent.subscribe(clientFactory.getRemoteEventBus(), new InterventionMapChangedEvent.Handler() {
+			
+			@Override
+			public void onInterventionMapChanged(InterventionMapChangedEvent event) {
+				interventions = event.getInterventionMap();
+				scheduler.update();
+			}
+		});
+
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-					updateIntervention();
 					scheduler.update();
 				}
 			});
 		}
 
-		Timer timer = new Timer() {
-			@Override
-			public void run() {
-				updateDatabase();
-				updateIntervention();
-				scheduler.update();
-			}
-		};
-		timer.scheduleRepeating(60000);
-
-		updateDatabase();
-		updateIntervention();
-
 		return true;
 	}
-
-	private void updateDatabase() {
-		DbServiceAsync.Util.getInstance().isConnected(new AsyncCallback<Boolean>() {
-			
-			@Override
-			public void onSuccess(Boolean result) {
-				databaseConnected = result;
-				scheduler.update();
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				log.warn("Caught: "+caught);
-			}
-		});
-	}
-
-	private void updateIntervention() {
+	
+	private Date getStartTime() {
 		if (ptuId == null) {
-			startTime = null;
-			return;
+			return null;
 		}
-
-		InterventionServiceAsync.Util.getInstance().getIntervention(ptuId,
-				new AsyncCallback<Intervention>() {
-
-					@Override
-					public void onSuccess(Intervention result) {
-						startTime = result != null ? result.getStartTime()
-								: null;
-						scheduler.update();
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						log.warn("Caught : " + caught);
-					}
-				});
+		
+		if (interventions == null) {
+			return null;
+		}
+		
+		Intervention intervention = interventions.get(ptuId);
+		if (intervention == null) {
+			return null;
+		}
+		
+		return intervention.getStartTime();
 	}
 
 	@Override

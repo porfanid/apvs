@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -68,6 +69,10 @@ public class PtuView extends GlassPanel implements Module {
 	private EventBus cmdBus;
 	
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
+
+	protected boolean daqOk;
+
+	protected boolean databaseOk;
 
 	private void init() {
 		last = new Measurement();
@@ -141,6 +146,28 @@ public class PtuView extends GlassPanel implements Module {
 
 		selectionModel = new SingleSelectionModel<String>();
 		table.setSelectionModel(selectionModel);
+
+		ConnectionStatusChangedEvent.subscribe(
+				clientFactory.getRemoteEventBus(),
+				new ConnectionStatusChangedEvent.Handler() {
+
+					@Override
+					public void onConnectionStatusChanged(
+							ConnectionStatusChangedEvent event) {
+						switch (event.getConnection()) {
+						case daq:
+							daqOk = event.isOk();
+							break;
+						case database:
+							databaseOk = event.isOk();
+							break;
+						default:
+							break;
+						}
+
+						showGlass(!daqOk || !databaseOk);
+					}
+				});
 
 		MeasurementChangedEvent.register(eventBus,
 				new MeasurementChangedEvent.Handler() {

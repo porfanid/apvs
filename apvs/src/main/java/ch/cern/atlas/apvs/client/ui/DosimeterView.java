@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
@@ -36,6 +37,8 @@ public class DosimeterView extends GlassPanel implements Module {
 	private ListHandler<Dosimeter> columnSortHandler;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
+	protected boolean daqOk;
+	protected boolean databaseOk;
 
 	public DosimeterView() {
 	}
@@ -136,6 +139,28 @@ public class DosimeterView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(serialNo);
 
+		ConnectionStatusChangedEvent.subscribe(
+				clientFactory.getRemoteEventBus(),
+				new ConnectionStatusChangedEvent.Handler() {
+
+					@Override
+					public void onConnectionStatusChanged(
+							ConnectionStatusChangedEvent event) {
+						switch (event.getConnection()) {
+						case daq:
+							daqOk = event.isOk();
+							break;
+						case database:
+							databaseOk = event.isOk();
+							break;
+						default:
+							break;
+						}
+
+						showGlass(!daqOk || !databaseOk);
+					}
+				});
+		
 		PtuSettingsChangedEvent.subscribe(remoteEventBus,
 				new PtuSettingsChangedEvent.Handler() {
 

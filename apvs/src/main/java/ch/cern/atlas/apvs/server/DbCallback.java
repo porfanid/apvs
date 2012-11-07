@@ -34,6 +34,14 @@ public class DbCallback {
 	public boolean isConnected() {
 		return connection != null;
 	}
+	
+	public boolean checkConnection() {
+		try {
+			return  isConnected() && connection.isValid(0);
+		} catch (SQLException e) {
+			return false;
+		}
+	}
 
 	public void connect(final String url) {		
 		disconnect();

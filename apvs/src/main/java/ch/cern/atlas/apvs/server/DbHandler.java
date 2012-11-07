@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.User;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
@@ -69,6 +71,10 @@ public class DbHandler extends DbReconnectHandler {
 
 				if (type.equals(InterventionMapChangedEvent.class.getName())) {
 					InterventionMapChangedEvent.fire(eventBus, interventions);
+				} else if (type.equals(ConnectionStatusChangedEvent.class
+						.getName())) {
+					ConnectionStatusChangedEvent.fire(eventBus,
+							ConnectionType.database, isConnected());
 				}
 			}
 		});
@@ -94,14 +100,21 @@ public class DbHandler extends DbReconnectHandler {
 
 			@Override
 			public void run() {
-				try {
-					updateInterventions();
-				} catch (SQLException e) {
-					log.warn("Could not regularly-update intervention list: ",
-							e);
+				if (isConnected()) {
+					if (!checkConnection()) {
+						log.warn("DB no longer reachable, closing");
+						disconnect();
+					}
+					try {
+						updateInterventions();
+					} catch (SQLException e) {
+						log.warn(
+								"Could not regularly-update intervention list: ",
+								e);
+					}
 				}
 			}
-		}, 30, 30, TimeUnit.SECONDS);
+		}, 0, 30, TimeUnit.SECONDS);
 	}
 
 	// NOTE: needs to be synchronized OR needs to have separate
@@ -119,7 +132,7 @@ public class DbHandler extends DbReconnectHandler {
 		long PERIOD = 36; // hours
 		int MAX_ENTRIES = 1000;
 		long MIN_INTERVAL = 5; // s
-		
+
 		Deque<Number[]> data = new ArrayDeque<Number[]>(200);
 
 		long time = 0;
@@ -173,7 +186,7 @@ public class DbHandler extends DbReconnectHandler {
 		super.dbConnected(connection);
 
 		connection.setAutoCommit(true);
-		
+
 		historyQuery = connection
 				.prepareStatement("select DATETIME, UNIT, VALUE from tbl_measurements "
 						+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
@@ -184,6 +197,9 @@ public class DbHandler extends DbReconnectHandler {
 		deviceQuery = connection
 				.prepareStatement("select ID, NAME, IP, DSCR from tbl_devices order by NAME");
 
+		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.database,
+				true);
+
 		updateInterventions();
 	}
 
@@ -193,6 +209,9 @@ public class DbHandler extends DbReconnectHandler {
 
 		historyQuery = null;
 		deviceQuery = null;
+
+		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.database,
+				false);
 
 		interventions.clear();
 		InterventionMapChangedEvent.fire(eventBus, interventions);

@@ -7,10 +7,13 @@ import java.util.List;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
 import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
@@ -18,6 +21,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Report;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
@@ -34,6 +38,32 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
+		
+		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+
+			@Override
+			public void onRequestEvent(RequestRemoteEvent event) {
+				String type = event.getRequestedClassName();
+
+				if (type.equals(ConnectionStatusChangedEvent.class.getName())) {
+					ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, isConnected());
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
+			throws Exception {
+		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, true);
+		super.channelConnected(ctx, e);
+	}
+	
+	@Override
+	public void channelDisconnected(ChannelHandlerContext ctx,
+			ChannelStateEvent e) throws Exception {
+		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, false);
+		super.channelDisconnected(ctx, e);
 	}
 
 	@Override

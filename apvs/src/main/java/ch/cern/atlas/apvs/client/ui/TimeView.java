@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Intervention;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -39,7 +40,7 @@ public class TimeView extends AbstractTimeView implements Module {
 	private String measurementName = null;
 	private EventBus cmdBus;
 	private String options;
-	
+
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	public TimeView() {
@@ -60,6 +61,23 @@ public class TimeView extends AbstractTimeView implements Module {
 
 		this.title = !options.contains("NoTitle");
 		this.export = !options.contains("NoExport");
+
+		ConnectionStatusChangedEvent.subscribe(
+				clientFactory.getRemoteEventBus(),
+				new ConnectionStatusChangedEvent.Handler() {
+
+					@Override
+					public void onConnectionStatusChanged(
+							ConnectionStatusChangedEvent event) {
+						switch (event.getConnection()) {
+						case database:
+							showGlass(!event.isOk());
+							break;
+						default:
+							break;
+						}
+					}
+				});
 
 		PtuSettingsChangedEvent.subscribe(eventBus,
 				new PtuSettingsChangedEvent.Handler() {
@@ -233,7 +251,7 @@ public class TimeView extends AbstractTimeView implements Module {
 						});
 			}
 		}
-		
+
 		return false;
 	}
 
