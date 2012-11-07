@@ -13,8 +13,8 @@ public class ConnectionStatusChangedEvent extends
 	private static final long serialVersionUID = 8865199851228810365L;
 
 	public enum ConnectionType {
-		audio("Audio Status"), video("Video Status"), daq("DAQ Status"), database(
-				"Database Status");
+		audio("Audio Status"), video("Video Status"), daq("DAQ Status"), dosimeter(
+				"Dosimeter Status"), database("Database Status");
 
 		private String s;
 
