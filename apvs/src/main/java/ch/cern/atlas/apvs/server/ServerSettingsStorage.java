@@ -83,7 +83,7 @@ public class ServerSettingsStorage {
 		}
 
 		String json = JsonWriter.toJson(settings);
-		log.info("Storing json " + json);
+//		log.info("Storing json " + json);
 
 		if (json != null) {
 			store.setItem(APVS_SERVER_SETTINGS, json);

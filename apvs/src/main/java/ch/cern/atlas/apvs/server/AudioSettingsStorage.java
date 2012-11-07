@@ -109,7 +109,7 @@ public class AudioSettingsStorage {
 		}
 
 		String json = JsonWriter.toJson(audioSettings);
-		log.info("Storing json " + json);
+//		log.info("Storing json " + json);
 
 		if (json != null) {
 			store.setItem(APVS_ASTERISK_SETTINGS, json);

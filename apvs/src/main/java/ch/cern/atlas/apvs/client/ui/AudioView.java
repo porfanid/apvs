@@ -8,11 +8,15 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.MeetMeEvent;
+
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
+import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ButtonCell;
@@ -22,11 +26,10 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class AudioView extends VerticalPanel implements Module {
+public class AudioView extends GlassPanel implements Module {
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
@@ -72,7 +75,7 @@ public class AudioView extends VerticalPanel implements Module {
  
 		 */
 		
-		add(table);		
+		add(table, CENTER);		
 		
 		// Field Name column
 		Column<String, String> name = new Column<String, String>(new TextCell()) {
@@ -194,6 +197,16 @@ public class AudioView extends VerticalPanel implements Module {
 				}
 			});
 		}
+		
+		ConnectionStatusChangedEvent.subscribe(eventBus, new ConnectionStatusChangedEvent.Handler() {
+			
+			@Override
+			public void onConnectionStatusChanged(ConnectionStatusChangedEvent event) {
+				if (event.getConnection() == ConnectionType.audio) {
+					showGlass(!event.isOk());
+				}
+			}
+		});
 
 		AudioSettingsChangedEvent.subscribe(eventBus, new AudioSettingsChangedEvent.Handler() {
 

@@ -35,6 +35,8 @@ import org.asteriskjava.manager.action.SipPeersAction;
 import org.asteriskjava.manager.event.BridgeEvent;
 import org.asteriskjava.manager.event.FullyBootedEvent;
 import org.asteriskjava.manager.event.HangupEvent;
+import org.asteriskjava.manager.event.ConnectEvent;
+import org.asteriskjava.manager.event.DisconnectEvent;
 import org.asteriskjava.manager.event.ManagerEvent;
 import org.asteriskjava.manager.event.MeetMeEndEvent;
 import org.asteriskjava.manager.event.MeetMeJoinEvent;
@@ -47,12 +49,18 @@ import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
+
 import ch.cern.atlas.apvs.client.event.MeetMeEvent;
+
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
+
 import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.settings.AudioSettings.Entry;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 public class AudioServiceImpl extends ResponsePollService implements
 		AudioService, ManagerEventListener {
@@ -67,6 +75,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
+	private boolean audioOk;
 
 	// Account Details
 	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
@@ -78,7 +87,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
 
-	private RemoteEventBus eventBus;
+	private static RemoteEventBus eventBus;
 
 	public AudioServiceImpl() {
 		if (eventBus != null)
@@ -86,6 +95,18 @@ public class AudioServiceImpl extends ResponsePollService implements
 		System.out.println("Creating AudioService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 		executorService = Executors.newSingleThreadExecutor();
+		
+		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+
+			@Override
+			public void onRequestEvent(RequestRemoteEvent event) {
+				String type = event.getRequestedClassName();
+
+				if (type.equals(ConnectionStatusChangedEvent.class.getName())) {
+					ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.audio, audioOk);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -125,13 +146,15 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 			@Override
 			public void run() {
+				// FIXME #263, we need some auto-relogin here if we loose the connection
 				System.err.println("Login in to Asterisk Server on "
 						+ ASTERISK_URL.toLowerCase() + " ...");
 				try {
 					login();
 				} catch (AudioException e) {
 					e.printStackTrace();
-				}
+
+				}				
 			}
 			
 		});
@@ -294,17 +317,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 			MeetMeJoinEvent meetJoin = (MeetMeJoinEvent) event;
 			System.out.println("MEET JOIN EVENT "+ meetJoin.toString());
 			meetMeJoin(meetJoin);
-			((RemoteEventBus) eventBus).fireEvent(new MeetMeEvent(conferenceRooms));
-
-			//System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "+ conferenceRooms.get("0001").getUserNum()+ conferenceRooms.get("0001").getPtuIds());
 		//MeetMeLeaveEvent
 		}else if (event instanceof MeetMeLeaveEvent){
 			MeetMeLeaveEvent meetLeave = (MeetMeLeaveEvent) event;
 			System.out.println("MEET LEAVE EVENT "+ meetLeave.toString());
 			meetMeLeave(meetLeave);
 			((RemoteEventBus) eventBus).fireEvent(new MeetMeEvent(conferenceRooms));
-
-			//System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "+ conferenceRooms.get("0001").getUserNum()+ conferenceRooms.get("0001").getPtuIds());
 		//PeerEntryEvent
 		}else if (event instanceof PeerEntryEvent){
 			PeerEntryEvent peer = (PeerEntryEvent) event;
@@ -316,8 +334,20 @@ public class AudioServiceImpl extends ResponsePollService implements
 			System.out.println("MEET END EVENT "+ meetEnd.toString());
 			meetMeEnd(meetEnd);
 		}	
+/*
+		if (event instanceof ConnectEvent) {
+			audioOk = true;
+			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.audio, audioOk);			
+		}
+		
+		// FIXME never happens, see #264
+		if (event instanceof DisconnectEvent) {
+			audioOk = false;
+			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.audio, audioOk);						
+		}*/
+
 	}
-	
+
 	/*********************************************
 	 * Event Methods
 	 *********************************************/
@@ -411,7 +441,9 @@ public class AudioServiceImpl extends ResponsePollService implements
 			conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum()+1);
 			conferenceRooms.get(room).addPtu(ptuId);
 			conferenceRooms.get(room).addUsername(voipAccounts.getUsername(ptuId));
+			
 			((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+			((RemoteEventBus) eventBus).fireEvent(new MeetMeEvent(conferenceRooms));
 			return;
 		}
 		
@@ -439,17 +471,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 			conferenceRooms.get(room).getUsernames().remove(index);
 			
 			((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+			((RemoteEventBus) eventBus).fireEvent(new MeetMeEvent(conferenceRooms));
 			return;
 		}
 		
 		System.err.println("NO PTU FOUND WITH NUMBER " + number);
-	}
-	
-	// Peer Entry Event
-	public void peerEntryEvent(PeerEntryEvent event) {
-		String number = "SIP/"+event.getObjectName();
-		usersList.add(number);
-		((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusEvent(usersList));
 	}
 	
 	// MeetMe End Event
@@ -457,4 +483,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String room = event.getMeetMe();
 		conferenceRooms.remove(room);
 	}
+	
+	// Peer Entry Event
+	public void peerEntryEvent(PeerEntryEvent event) {
+		String number = "SIP/"+event.getObjectName();
+		usersList.add(number);
+		((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusEvent(usersList));
+	}	
+
 }

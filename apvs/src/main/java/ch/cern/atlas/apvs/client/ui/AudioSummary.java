@@ -5,9 +5,11 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
+import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ButtonCell;
@@ -18,15 +20,16 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
-public class AudioSummary extends VerticalPanel implements Module {
+public class AudioSummary extends GlassPanel implements Module {
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 
 	private AudioSettings voipAccounts = new AudioSettings();
+	protected boolean audioOk;
+	protected boolean databaseOk;
 
 	public AudioSummary() {
 	}
@@ -36,7 +39,7 @@ public class AudioSummary extends VerticalPanel implements Module {
 			Arguments args) {
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
-		add(table);
+		add(table, CENTER);
 
 		// PTU ID
 		Column<String, String> ptuId = new Column<String, String>(
@@ -148,6 +151,27 @@ public class AudioSummary extends VerticalPanel implements Module {
 
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(new ArrayList<String>());
+
+		ConnectionStatusChangedEvent.subscribe(eventBus,
+				new ConnectionStatusChangedEvent.Handler() {
+
+					@Override
+					public void onConnectionStatusChanged(
+							ConnectionStatusChangedEvent event) {
+						switch (event.getConnection()) {
+						case audio:
+							audioOk = event.isOk();
+							break;
+						case database:
+							databaseOk = event.isOk();
+							break;
+						default:
+							break;
+						}
+
+						showGlass(!audioOk || !databaseOk);
+					}
+				});
 
 		InterventionMapChangedEvent.subscribe(eventBus,
 				new InterventionMapChangedEvent.Handler() {

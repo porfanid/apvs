@@ -33,6 +33,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private final RemoteEventBus eventBus;
 
 	private List<Measurement> measurementChanged = new ArrayList<Measurement>();
+	
+	private boolean dosimeterOk;
 
 	public PtuClientHandler(ClientBootstrap bootstrap,
 			final RemoteEventBus eventBus) {
@@ -47,6 +49,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 				if (type.equals(ConnectionStatusChangedEvent.class.getName())) {
 					ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, isConnected());
+					ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, isConnected() && dosimeterOk);
 				}
 			}
 		});
@@ -56,6 +59,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
 		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, true);
+		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
 		super.channelConnected(ctx, e);
 	}
 	
@@ -63,6 +67,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	public void channelDisconnected(ChannelHandlerContext ctx,
 			ChannelStateEvent e) throws Exception {
 		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, false);
+		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
 		super.channelDisconnected(ctx, e);
 	}
 
@@ -129,6 +134,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
 				message.getEventType(), message.getValue(), message
 						.getTheshold(), message.getUnit(), message.getDate())));
+		
+		if (message.getEventType().equals("DosConnectionStatus_OFF")) {
+			dosimeterOk = false;
+			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+		} else if (message.getEventType().equals("DosConnectionStatus_ON")) {
+			dosimeterOk = true;
+			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+		}
 	}
 
 	private void handleMessage(Report report) {

@@ -19,10 +19,13 @@ public class UpdateScheduler {
 			return false;
 		}
 
+//		System.out.println("Scheduling update for "+module.getClass());
+		
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
 			@Override
 			public void execute() {
+//				System.out.println("Executing update for "+module.getClass());
 				updateScheduled = false;
 				module.update();
 			}

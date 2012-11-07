@@ -43,7 +43,7 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 	private EventBus cmdBus;
 
 	private String ptuId;
-	private boolean audioOk, videoOk, daqOk, databaseOk;
+	private boolean audioOk, videoOk, daqOk, dosimeterOk, databaseOk;
 	private InterventionMap interventions;
 
 	private boolean showHeader = true;
@@ -52,11 +52,13 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 
 	private List<String> names = Arrays.asList(new String[] {
 			ConnectionType.audio.getString(), ConnectionType.video.getString(),
-			ConnectionType.daq.getString(), ConnectionType.database.getString(),
-			"Start Time", "Duration" });
+			ConnectionType.daq.getString(),
+			ConnectionType.dosimeter.getString(),
+			ConnectionType.database.getString(), "Start Time", "Duration" });
 	private List<Class<?>> classes = Arrays.asList(new Class<?>[] {
-			CheckboxCell.class, CheckboxCell.class, CheckboxCell.class, CheckboxCell.class,
-			DateCell.class, DurationCell.class });
+			CheckboxCell.class, CheckboxCell.class, CheckboxCell.class,
+			CheckboxCell.class, CheckboxCell.class, DateCell.class,
+			DurationCell.class });
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -96,6 +98,8 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 					return videoOk;
 				} else if (name.equals(ConnectionType.daq.getString())) {
 					return daqOk;
+				} else if (name.equals(ConnectionType.dosimeter.getString())) {
+					return dosimeterOk;
 				} else if (name.equals(ConnectionType.database.getString())) {
 					return databaseOk;
 				} else if (name.equals("Start Time")) {
@@ -105,6 +109,8 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 					return startTime != null ? new Date().getTime()
 							- startTime.getTime() : null;
 				}
+				System.out.println("GeneralInfoView name unknown '" + name
+						+ "'");
 				return null;
 			}
 
@@ -129,7 +135,6 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 							ConnectionStatusChangedEvent event) {
 						switch (event.getConnection()) {
 						case audio:
-							// FIXME #191, not sent yet
 							audioOk = event.isOk();
 							break;
 						case video:
@@ -138,6 +143,9 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 							break;
 						case daq:
 							daqOk = event.isOk();
+							break;
+						case dosimeter:
+							dosimeterOk = event.isOk();
 							break;
 						case database:
 							databaseOk = event.isOk();
@@ -148,15 +156,18 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 						scheduler.update();
 					}
 				});
-		
-		InterventionMapChangedEvent.subscribe(clientFactory.getRemoteEventBus(), new InterventionMapChangedEvent.Handler() {
-			
-			@Override
-			public void onInterventionMapChanged(InterventionMapChangedEvent event) {
-				interventions = event.getInterventionMap();
-				scheduler.update();
-			}
-		});
+
+		InterventionMapChangedEvent.subscribe(
+				clientFactory.getRemoteEventBus(),
+				new InterventionMapChangedEvent.Handler() {
+
+					@Override
+					public void onInterventionMapChanged(
+							InterventionMapChangedEvent event) {
+						interventions = event.getInterventionMap();
+						scheduler.update();
+					}
+				});
 
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
@@ -171,21 +182,21 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 
 		return true;
 	}
-	
+
 	private Date getStartTime() {
 		if (ptuId == null) {
 			return null;
 		}
-		
+
 		if (interventions == null) {
 			return null;
 		}
-		
+
 		Intervention intervention = interventions.get(ptuId);
 		if (intervention == null) {
 			return null;
 		}
-		
+
 		return intervention.getStartTime();
 	}
 
