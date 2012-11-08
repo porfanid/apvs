@@ -17,7 +17,7 @@ public class DosimeterSelector extends VerticalFlowPanel {
 
 	private ListBox list = new ListBox();
 
-	private List<Integer> serialNumbers;
+	private List<String> serialNumbers;
 
 	public DosimeterSelector(final RemoteEventBus eventBus) {
 		add(list);
@@ -79,8 +79,8 @@ public class DosimeterSelector extends VerticalFlowPanel {
 		if (serialNumbers != null) {
 			list.addItem("Select SerialNo");
 			Collections.sort(serialNumbers);
-			for (Iterator<Integer> i = serialNumbers.iterator(); i.hasNext();) {
-				list.addItem(Integer.toString(i.next()));
+			for (Iterator<String> i = serialNumbers.iterator(); i.hasNext();) {
+				list.addItem(i.next());
 			}
 			list.setEnabled(true);
 		} else {

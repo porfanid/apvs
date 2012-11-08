@@ -85,10 +85,6 @@ public class AtmosphereEventBus extends RemoteEventBus {
 		public void onRefresh() {
 		}
 
-		// atmosphere 1.1
-		public void onAfterRefresh() {
-		}
-
 		/**
 		 * handle broadcasted events from other clients
 		 */
@@ -105,10 +101,12 @@ public class AtmosphereEventBus extends RemoteEventBus {
 			}
 		}
 
-		@Override
+		// atmosphere 1.0
+		public void onAfterRefresh() {
+		}
+
+		// atmosphere 1.1
 		public void onAfterRefresh(String connectionUUID) {
-			// TODO Auto-generated method stub
-			
 		}
 	}
 }

@@ -56,8 +56,8 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	private Timer timer;
 	private boolean reconnectNow;
 
-	private Map<Integer, Dosimeter> dosimeters;
-	private Map<Integer, String> dosimeterToPtu;
+	private Map<String, Dosimeter> dosimeters;
+	private Map<String, String> dosimeterToPtu;
 
 	private boolean LOG_TO_FILE = false;
 	private FileHandler logHandler;
@@ -80,13 +80,13 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 					eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(
 							getDosimeterSerialNumbers()));
 				} else if (type.equals(DosimeterChangedEvent.class.getName())) {
-					for (Iterator<Integer> i = dosimeters.keySet().iterator(); i
+					for (Iterator<String> i = dosimeters.keySet().iterator(); i
 							.hasNext();) {
 						eventBus.fireEvent(new DosimeterChangedEvent(
 								getDosimeter(i.next())));
 					}
 				} else if (type.equals(MeasurementChangedEvent.class.getName())) {
-					for (Iterator<Integer> i = dosimeters.keySet().iterator(); i
+					for (Iterator<String> i = dosimeters.keySet().iterator(); i
 							.hasNext();) {
 						Dosimeter dosimeter = getDosimeter(i.next());
 						String ptuId = dosimeterToPtu.get(dosimeter
@@ -111,8 +111,8 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 	}
 
 	private void init() {
-		dosimeters = new HashMap<Integer, Dosimeter>();
-		dosimeterToPtu = new HashMap<Integer, String>();
+		dosimeters = new HashMap<String, Dosimeter>();
+		dosimeterToPtu = new HashMap<String, String>();
 
 		if (!LOG_TO_FILE)
 			return;
@@ -159,7 +159,7 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 		log.info("Closed Dosimeter socket, invalidated DosiIds");
 		init();
 		eventBus.fireEvent(new DosimeterSerialNumbersChangedEvent(
-				new ArrayList<Integer>()));
+				new ArrayList<String>()));
 
 		// handle (re)connection
 		channel = null;
@@ -262,17 +262,17 @@ public class DosimeterClientHandler extends SimpleChannelUpstreamHandler {
 		eventBus.fireEvent(new MeasurementChangedEvent(dose));
 	}
 
-	public List<Integer> getDosimeterSerialNumbers() {
-		List<Integer> list = new ArrayList<Integer>(dosimeters.keySet());
+	public List<String> getDosimeterSerialNumbers() {
+		List<String> list = new ArrayList<String>(dosimeters.keySet());
 		Collections.sort(list);
 		return list;
 	}
 
-	public Dosimeter getDosimeter(int serialNo) {
+	public Dosimeter getDosimeter(String serialNo) {
 		return dosimeters.get(serialNo);
 	}
 
-	public Map<Integer, Dosimeter> getDosimeterMap() {
+	public Map<String, Dosimeter> getDosimeterMap() {
 		return dosimeters;
 	}
 }

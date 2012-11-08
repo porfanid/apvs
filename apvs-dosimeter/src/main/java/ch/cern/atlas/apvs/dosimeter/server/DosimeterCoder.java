@@ -17,7 +17,7 @@ public class DosimeterCoder {
 		// FIXME...
 		int ratePower = 0;
 		String s = String.format(
-				"0%05d00%07.0f000%03.0f%1d0000000000000000000000",
+				"0%5s00%07.0f000%03.0f%1d0000000000000000000000",
 				dosimeter.getSerialNo(), dosimeter.getDose(), rate, ratePower);
 		int checksum = getChecksum(s);
 		return s + String.format("%02X", checksum);
@@ -26,7 +26,7 @@ public class DosimeterCoder {
 	public static Dosimeter decode(String encodedString, Date date) {
 		if (encodedString.length() < 46) return null;
 		
-		int serialNo = Integer.parseInt(encodedString.substring(0, 6));
+		String serialNo = encodedString.substring(0, 6);
 		double dose = Double.parseDouble(encodedString.substring(8, 14) + "."
 				+ encodedString.substring(14, 15))
 				* MICRO_SIEVERT;
