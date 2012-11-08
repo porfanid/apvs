@@ -101,7 +101,9 @@ public class AudioView extends GlassPanel implements Module {
 					return ((voipAccounts.getOnCall(ptuId) ? "Hangup '"
 							: "Call '") + voipAccounts.getUsername(ptuId) + "'");
 				else if (fieldName.equals("Group Call"))
-					return ((voipAccounts.getRoom(ptuId).isEmpty() ? ("Create '")
+					return ((!conferenceRooms
+							.conferenceOfActivityExist(voipAccounts
+									.getActivity(ptuId)) ? ("Create '")
 							: (voipAccounts.getOnConference(voipAccounts
 									.getPtuId(SUPERVISOR_ACCOUNT)) ? "Leave '"
 									: "Join '"))
@@ -165,30 +167,57 @@ public class AudioView extends GlassPanel implements Module {
 				};
 
 				if (fieldName.equals("Private Call")) {
-					if (voipAccounts.getOnCall(ptuId)) {
+					if (!voipAccounts.getOnCall(ptuId)) {
+						List<String> channels = new ArrayList<String>();
+						channels.add(voipAccounts.getChannel(voipAccounts
+								.getPtuId(SUPERVISOR_ACCOUNT)));
+						channels.add(voipAccounts.getChannel(ptuId));
+						AudioServiceAsync.Util.getInstance().hangupMultiple(
+								channels, callbackHangup);
+						AudioServiceAsync.Util.getInstance().call(
+								voipAccounts.getNumber(ptuId),
+								SUPERVISOR_NUMBER, callbackCall);
+					} else {
 						AudioServiceAsync.Util.getInstance().hangup(
 								voipAccounts.getChannel(voipAccounts
 										.getPtuId(SUPERVISOR_ACCOUNT)),
 								callbackHangup);
-
-					} else {
-						AudioServiceAsync.Util.getInstance().call(
-								voipAccounts.getNumber(ptuId),
-								SUPERVISOR_NUMBER, callbackCall);
+						if (conferenceRooms
+								.conferenceOfActivityExist(voipAccounts
+										.getActivity(ptuId))) {
+							AudioServiceAsync.Util
+									.getInstance()
+									.addToConference(
+											voipAccounts.getNumber(ptuId),
+											conferenceRooms
+													.roomOfActivity(voipAccounts
+															.getActivity(ptuId)),
+											callbackConference);
+						}
 					}
 				} else if (fieldName.equals("Group Call")) {
 					if (!voipAccounts.getOnConference(voipAccounts
 							.getPtuId(SUPERVISOR_ACCOUNT))) {
-						if (voipAccounts.getRoom(ptuId).isEmpty()) {
-							//TODO Discuss if the supervisor should be automatically added to conference
-							List<String> aux = voipAccounts.getNumbersActivity(voipAccounts.getActivity(ptuId));
-							aux.add(SUPERVISOR_ACCOUNT);
-							// TODO Hangup Channels of all activity users
-							AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)), callbackHangup);
+						if (!conferenceRooms
+								.conferenceOfActivityExist(voipAccounts
+										.getActivity(ptuId))) {
+							AudioServiceAsync.Util
+									.getInstance()
+									.hangupMultiple(
+											voipAccounts
+													.getActiveChannelsActivity(voipAccounts
+															.getActivity(ptuId)),
+											callbackHangup);
 							AudioServiceAsync.Util.getInstance().newConference(
-									voipAccounts.getNumbersActivity(voipAccounts.getActivity(ptuId)), callbackConference);
+									voipAccounts
+											.getNumbersActivity(voipAccounts
+													.getActivity(ptuId)),
+									callbackConference);
 						} else {
-							// TODO Hangup Channels of activity users
+							AudioServiceAsync.Util.getInstance().hangup(
+									voipAccounts.getChannel(voipAccounts
+											.getPtuId(SUPERVISOR_ACCOUNT)),
+									callbackHangup);
 							AudioServiceAsync.Util.getInstance()
 									.addToConference(SUPERVISOR_ACCOUNT,
 											voipAccounts.getRoom(ptuId),
@@ -245,7 +274,7 @@ public class AudioView extends GlassPanel implements Module {
 					}
 				});
 
-		MeetMeEvent.register(eventBus, new MeetMeEvent.Handler() {
+		MeetMeEvent.subscribe(eventBus, new MeetMeEvent.Handler() {
 
 			@Override
 			public void onMeetMeEvent(MeetMeEvent event) {
