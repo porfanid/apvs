@@ -12,24 +12,27 @@ import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
-import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
-import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.cell.client.ActionCell;
+import com.google.gwt.cell.client.ActionCell.Delegate;
+import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.HasCell;
+import com.google.gwt.cell.client.IconCellDecorator;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -51,7 +54,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 	protected PtuSettings settings = new PtuSettings();
 	protected InterventionMap interventions = new InterventionMap();
-	protected List<Integer> dosimeterSerialNumbers = new ArrayList<Integer>();
+	protected List<String> dosimeterSerialNumbers = new ArrayList<String>();
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -111,27 +114,73 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumn(name, "Name");
 
 		// DOSIMETER
-		Column<String, String> dosimeter = new Column<String, String>(
-				new DynamicSelectionCell(new StringList<Integer>(
-						dosimeterSerialNumbers))) {
+		List<HasCell<String, ?>> cells = new ArrayList<HasCell<String, ?>>();
+		cells.add(new HasCell<String, String>() {
+			Cell<String> action = new ActionCell<String>("P",
+					new Delegate<String>() {
+
+						@Override
+						public void execute(String object) {
+							// FIXME 127
+							System.out.println("Action program "
+									+ settings.getDosimeterSerialNumber(object)
+									+ " into " + object);
+						}
+					});
+
+			@Override
+			public Cell<String> getCell() {
+				return action;
+			}
+
+			@Override
+			public FieldUpdater<String, String> getFieldUpdater() {
+				return null;
+			}
 
 			@Override
 			public String getValue(String object) {
-				return settings.getDosimeterSerialNumber(object).toString();
+				// TODO Auto-generated method stub
+				return object;
 			}
-		};
-		dosimeter.setFieldUpdater(new FieldUpdater<String, String>() {
+
+		});		
+		cells.add(new HasCell<String, String>() {
+			Cell<String> cell = new TextInputSizeCell(10);
 
 			@Override
-			public void update(int index, String object, String value) {
-				settings.setDosimeterSerialNumber(object,
-						Integer.parseInt(value));
-				fireSettingsChangedEvent(eventBus, settings);
+			public Cell<String> getCell() {
+				return cell;
+			}
+
+			@Override
+			public FieldUpdater<String, String> getFieldUpdater() {
+				return new FieldUpdater<String, String>() {
+					@Override
+					public void update(int index, String object, String value) {
+						settings.setDosimeterSerialNumber(object, value);
+						fireSettingsChangedEvent(eventBus, settings);
+					}
+				};
+			}
+
+			@Override
+			public String getValue(String object) {
+				return settings.getDosimeterSerialNumber(object);
 			}
 		});
+		Column<String, String> dosimeter = new Column<String, String>(new CompositeCell<String>(cells)) {
+
+			@Override
+			public String getValue(String object) {
+				return object;
+			}
+		};
 		dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		dosimeter.setSortable(true);
 		table.addColumn(dosimeter, "Dosimeter #");
+		
+		IconCellDecorator x;
 
 		// HELMET URL
 		Column<String, String> helmetUrl = new Column<String, String>(
@@ -268,7 +317,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		ColumnSortEvent.fire(table, table.getColumnSortList());
 
 		table.redraw();
-		
+
 		return false;
 	}
 

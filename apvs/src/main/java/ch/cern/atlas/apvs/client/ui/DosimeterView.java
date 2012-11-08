@@ -17,6 +17,7 @@ import ch.cern.atlas.apvs.dosimeter.shared.DosimeterChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.NumberCell;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -61,10 +62,10 @@ public class DosimeterView extends GlassPanel implements Module {
 		name.setSortable(true);
 		table.addColumn(name, "Name");
 
-		Column<Dosimeter, Number> serialNo = new Column<Dosimeter, Number>(
-				new NumberCell(NumberFormat.getFormat("0"))) {
+		Column<Dosimeter, String> serialNo = new Column<Dosimeter, String>(
+				new TextCell()) {
 			@Override
-			public Number getValue(Dosimeter object) {
+			public String getValue(Dosimeter object) {
 				return object.getSerialNo();
 			}
 		};

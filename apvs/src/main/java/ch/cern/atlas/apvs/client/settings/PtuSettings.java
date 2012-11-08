@@ -24,13 +24,13 @@ public class PtuSettings implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		Boolean enabled;
-		Integer dosimeterSerialNo;
+		String dosimeterSerialNo;
 		String helmetUrl;
 		String handUrl;
 
 		public Entry() {
 			enabled = true;
-			dosimeterSerialNo = 0;
+			dosimeterSerialNo = "";
 			helmetUrl = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
 			handUrl = "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
 		}
@@ -47,13 +47,13 @@ public class PtuSettings implements Serializable {
 	public PtuSettings() {
 	}
 
-	public HashMap<Integer, String> getDosimeterToPtuMap() {
-		HashMap<Integer, String> dosimeterToPtu = new HashMap<Integer, String>();
+	public HashMap<String, String> getDosimeterToPtuMap() {
+		HashMap<String, String> dosimeterToPtu = new HashMap<String, String>();
 
 		// takes the last proper value
 		for (Iterator<String> i = entries.keySet().iterator(); i.hasNext();) {
 			String ptuId = i.next();
-			Integer serialNo = entries.get(ptuId).dosimeterSerialNo;
+			String serialNo = entries.get(ptuId).dosimeterSerialNo;
 			if ((ptuId != null) && (serialNo != null)) {
 				dosimeterToPtu.put(serialNo, ptuId);
 			}
@@ -71,12 +71,12 @@ public class PtuSettings implements Serializable {
 		entries.get(object).enabled = value;
 	}
 
-	public Integer getDosimeterSerialNumber(String ptuId) {
+	public String getDosimeterSerialNumber(String ptuId) {
 		Entry entry = entries.get(ptuId);
-		return entry != null ? entry.dosimeterSerialNo : 0;
+		return entry != null ? entry.dosimeterSerialNo : "";
 	}
 
-	public void setDosimeterSerialNumber(String object, Integer value) {
+	public void setDosimeterSerialNumber(String object, String value) {
 		entries.get(object).dosimeterSerialNo = value;
 	}
 
@@ -109,7 +109,7 @@ public class PtuSettings implements Serializable {
 	}
 
 	// Returns ptuId associated to dosimeterSerialNo
-	public String getPtuId(Integer dosimeterSerialNo) {
+	public String getPtuId(String dosimeterSerialNo) {
 		return getDosimeterToPtuMap().get(dosimeterSerialNo);
 	}
 }

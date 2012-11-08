@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
+// FIXME no longer needed
 public class DosimeterSerialNumbersChangedEvent extends RemoteEvent<DosimeterSerialNumbersChangedEvent.Handler> {
 
 	private static final long serialVersionUID = -3506909579723676949L;
@@ -47,12 +48,12 @@ public class DosimeterSerialNumbersChangedEvent extends RemoteEvent<DosimeterSer
 		return registration;
 	}
 	
-	private List<Integer> dosimeterSerialNumbers;
+	private List<String> dosimeterSerialNumbers;
 	
 	public DosimeterSerialNumbersChangedEvent() {
 	}
 
-	public DosimeterSerialNumbersChangedEvent(List<Integer> dosimeterSerialNumbers) {
+	public DosimeterSerialNumbersChangedEvent(List<String> dosimeterSerialNumbers) {
 		this.dosimeterSerialNumbers = dosimeterSerialNumbers;
 	}
 
@@ -61,7 +62,7 @@ public class DosimeterSerialNumbersChangedEvent extends RemoteEvent<DosimeterSer
 		return TYPE;
 	}
 
-	public List<Integer> getDosimeterSerialNumbers() {
+	public List<String> getDosimeterSerialNumbers() {
 		return dosimeterSerialNumbers;
 	}
 	

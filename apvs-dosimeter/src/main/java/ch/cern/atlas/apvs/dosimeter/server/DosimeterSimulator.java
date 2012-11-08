@@ -34,13 +34,13 @@ public class DosimeterSimulator extends Thread {
 		try {
 			List<Dosimeter> dosimeters = new ArrayList<Dosimeter>(
 					noOfDosimeters);
-			int[] serialNo = { 265, 4738, 202, 106, 395 };
+			String[] serialNo = { "265", "4738", "202", "106", "395" };
 			Date now = new Date();
 			for (int i = 0; i < noOfDosimeters; i++) {
 				dosimeters.add(new Dosimeter(serialNo[i],
 						random.nextDouble() * 500.0, random.nextDouble() * 5.0,
 						now));
-				log.info(Integer.toString(dosimeters.get(i).getSerialNo()));
+				log.info(dosimeters.get(i).getSerialNo());
 			}
 
 			ChannelBuffer buffer = ChannelBuffers.buffer(8192);
