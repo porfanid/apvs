@@ -18,6 +18,7 @@ import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -65,6 +66,22 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		selectedTab = LocalStorage.getInstance().get(LocalStorage.SELECTED_TAB);
 		selectedPtuId = LocalStorage.getInstance().get(LocalStorage.PTU_ID);
 
+		// listen to all event busses
+		for (final EventBus eventBus : eventBusses) {
+			RequestEvent.register(eventBus, new RequestEvent.Handler() {
+
+				@Override
+				public void onRequestEvent(RequestEvent event) {
+					String eventType = event.getRequestedClassName();
+					if (eventType.equals(SelectPtuEvent.class.getName())) {
+						eventBus.fireEvent(new SelectPtuEvent(selectedPtuId));
+					} else if (eventType.equals(SelectTabEvent.class.getName())) {
+						eventBus.fireEvent(new SelectTabEvent(selectedTab));
+					}
+				}
+			});
+		}
+
 		PtuSettingsChangedEvent.subscribe(remoteEventBus,
 				new PtuSettingsChangedEvent.Handler() {
 
@@ -91,13 +108,13 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 						scheduler.update();
 
 						if (selectedTab != null) {
-							fireEvent(new SelectTabEvent(selectedPtuId == null ? selectedTab : "Ptu"));
+							fireEvent(new SelectTabEvent(
+									selectedPtuId == null ? selectedTab : "Ptu"));
 							fireEvent(new SelectPtuEvent(selectedPtuId));
 						}
 					}
 				});
 
-		
 		return true;
 	}
 
@@ -106,7 +123,6 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 				&& !interventions.get(id).getName().equals("") ? interventions
 				.get(id).getName() + " (" + id.toString() + ")" : id.toString();
 	}
-	
 
 	@Override
 	public boolean update() {
@@ -135,9 +151,9 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 						fireEvent(new SelectTabEvent("Ptu"));
 
-						LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB,
-								selectedTab);
-						fireEvent(new SelectPtuEvent(selectedPtuId));						
+						LocalStorage.getInstance().put(
+								LocalStorage.SELECTED_TAB, selectedTab);
+						fireEvent(new SelectPtuEvent(selectedPtuId));
 					}
 				});
 				add(b);
@@ -148,7 +164,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 			final String name = i.next();
 			final ToggleButton b = new ToggleButton(name);
 			b.setDown(name.equals(selectedTab));
-			
+
 			b.addClickHandler(new ClickHandler() {
 
 				@Override
@@ -160,13 +176,14 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 					fireEvent(new SelectTabEvent(selectedTab));
 
-					LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB, selectedTab);
+					LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB,
+							selectedTab);
 					fireEvent(new SelectPtuEvent(selectedPtuId));
 				}
 			});
 			add(b);
 		}
-		
+
 		return false;
 	}
 
