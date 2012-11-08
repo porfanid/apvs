@@ -101,6 +101,10 @@ public class AtmosphereEventBus extends RemoteEventBus {
 			}
 		}
 
+		// atmosphere 1.0
+		public void onAfterRefresh() {
+		}
+
 		// atmosphere 1.1
 		public void onAfterRefresh(String connectionUUID) {
 		}
