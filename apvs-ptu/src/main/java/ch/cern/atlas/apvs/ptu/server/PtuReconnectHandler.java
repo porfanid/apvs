@@ -126,5 +126,9 @@ public class PtuReconnectHandler extends IdleStateAwareChannelUpstreamHandler {
 	public boolean isConnected() {
 		return channel != null && channel.isConnected();
 	}
+	
+	public Channel getChannel() {
+		return channel;
+	}
 
 }

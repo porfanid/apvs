@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Report;
+import ch.cern.atlas.apvs.domain.SensorOrder;
 
 public class JsonHeader {
 
@@ -31,6 +32,8 @@ public class JsonHeader {
 			messages[0] = new JsonEvent(message);			
 		} else if (message instanceof Error) {
 			messages[0] = new JsonError(message);
+		} else if (message instanceof SensorOrder) {
+			messages[0] = new JsonSensorOrder(message);
 		} else if (message instanceof Order) {
 			messages[0] = new JsonOrder(message);
 		} else {

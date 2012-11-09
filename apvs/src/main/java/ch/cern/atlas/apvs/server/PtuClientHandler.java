@@ -1,11 +1,15 @@
 package ch.cern.atlas.apvs.server;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBufferOutputStream;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -19,10 +23,12 @@ import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
+import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Report;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
+import ch.cern.atlas.apvs.ptu.server.PtuJsonWriter;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
@@ -70,6 +76,29 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
 		super.channelDisconnected(ctx, e);
 	}
+	
+	public void sendOrder(Order order) {
+		try {
+			System.out.println(PtuJsonWriter.objectToJson(order));
+			
+			ChannelBuffer buffer = ChannelBuffers.buffer(8192);
+			OutputStream os = new ChannelBufferOutputStream(buffer);
+			PtuJsonWriter writer = new PtuJsonWriter(os);
+			writer.write(0x10);
+			writer.write(order);
+			writer.write(0x13);
+			System.out.println("Sedning...");
+			
+			ChannelBufferOutputStream cos = (ChannelBufferOutputStream) os;
+			getChannel().write(cos.buffer()).awaitUninterruptibly();
+			System.out.println(PtuJsonWriter.objectToJson(order));
+			writer.close();
+			System.out.println("Done...");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
@@ -109,7 +138,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 
 	}
-
+	
 	private void handleMessage(Measurement message) throws APVSException {
 
 		// Scale down to microSievert

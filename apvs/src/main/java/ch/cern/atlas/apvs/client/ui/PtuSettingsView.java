@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -26,13 +28,13 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.HasCell;
-import com.google.gwt.cell.client.IconCellDecorator;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -114,73 +116,126 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumn(name, "Name");
 
 		// DOSIMETER
-		List<HasCell<String, ?>> cells = new ArrayList<HasCell<String, ?>>();
-		cells.add(new HasCell<String, String>() {
-			Cell<String> action = new ActionCell<String>("P",
-					new Delegate<String>() {
+		Column<String, String> dosimeter;
+		boolean useCompositeCell = false;
 
-						@Override
-						public void execute(String object) {
-							// FIXME 127
-							System.out.println("Action program "
-									+ settings.getDosimeterSerialNumber(object)
-									+ " into " + object);
-						}
-					});
-
+		final Delegate<String> setDosimeterSerialId = new Delegate<String>() {
 			@Override
-			public Cell<String> getCell() {
-				return action;
-			}
+			public void execute(String object) {
+				System.out.println("Action program "
+						+ settings.getDosimeterSerialNumber(object) + " into "
+						+ object);
+				final Order order = new Order(object, "DosimeterID",
+						settings.getDosimeterSerialNumber(object));
+				PtuServiceAsync.Util.getInstance().handleOrder(order,
+						new AsyncCallback<Void>() {
 
-			@Override
-			public FieldUpdater<String, String> getFieldUpdater() {
-				return null;
-			}
+							@Override
+							public void onSuccess(Void result) {
+								log.info("Order " + order + " set");
+							}
 
-			@Override
-			public String getValue(String object) {
-				// TODO Auto-generated method stub
-				return object;
-			}
-
-		});		
-		cells.add(new HasCell<String, String>() {
-			Cell<String> cell = new TextInputSizeCell(10);
-
-			@Override
-			public Cell<String> getCell() {
-				return cell;
-			}
-
-			@Override
-			public FieldUpdater<String, String> getFieldUpdater() {
-				return new FieldUpdater<String, String>() {
-					@Override
-					public void update(int index, String object, String value) {
-						settings.setDosimeterSerialNumber(object, value);
-						fireSettingsChangedEvent(eventBus, settings);
-					}
-				};
-			}
-
-			@Override
-			public String getValue(String object) {
-				return settings.getDosimeterSerialNumber(object);
-			}
-		});
-		Column<String, String> dosimeter = new Column<String, String>(new CompositeCell<String>(cells)) {
-
-			@Override
-			public String getValue(String object) {
-				return object;
+							@Override
+							public void onFailure(Throwable caught) {
+								log.warn("Order " + order + " failed " + caught);
+							}
+						});
 			}
 		};
+
+		if (useCompositeCell) {
+			// FIXME #275 could be done with cells, but could not get button and
+			// inout next to eachother, something with
+			// block level and inline elements AND table cells
+			List<HasCell<String, ?>> cells = new ArrayList<HasCell<String, ?>>();
+			cells.add(new HasCell<String, String>() {
+				Cell<String> action = new ActionCell<String>("Set to PTU",
+						setDosimeterSerialId);
+
+				@Override
+				public Cell<String> getCell() {
+					return action;
+				}
+
+				@Override
+				public FieldUpdater<String, String> getFieldUpdater() {
+					return null;
+				}
+
+				@Override
+				public String getValue(String object) {
+					return object;
+				}
+
+			});
+			cells.add(new HasCell<String, String>() {
+				Cell<String> cell = new TextInputSizeCell(10);
+
+				@Override
+				public Cell<String> getCell() {
+					return cell;
+				}
+
+				@Override
+				public FieldUpdater<String, String> getFieldUpdater() {
+					return new FieldUpdater<String, String>() {
+						@Override
+						public void update(int index, String object,
+								String value) {
+							settings.setDosimeterSerialNumber(object, value);
+							fireSettingsChangedEvent(eventBus, settings);
+						}
+					};
+				}
+
+				@Override
+				public String getValue(String object) {
+					return settings.getDosimeterSerialNumber(object);
+				}
+			});
+			dosimeter = new Column<String, String>(new CompositeCell<String>(
+					cells)) {
+
+				@Override
+				public String getValue(String object) {
+					return object;
+				}
+			};
+		} else {
+			dosimeter = new Column<String, String>(new TextInputSizeCell(15)) {
+				@Override
+				public String getValue(String object) {
+					return settings.getDosimeterSerialNumber(object);
+				}
+			};
+			dosimeter.setFieldUpdater(new FieldUpdater<String, String>() {
+
+				@Override
+				public void update(int index, String object, String value) {
+					settings.setDosimeterSerialNumber(object, value);
+					fireSettingsChangedEvent(eventBus, settings);
+				}
+			});
+		}
 		dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		dosimeter.setSortable(true);
+		dosimeter.setSortable(useCompositeCell);
 		table.addColumn(dosimeter, "Dosimeter #");
-		
-		IconCellDecorator x;
+
+		if (!useCompositeCell) {
+			Column<String, String> dosimeterSet = new Column<String, String>(
+					new ActionCell<String>("Set to PTU", setDosimeterSerialId)) {
+
+				@Override
+				public String getValue(String object) {
+					return object;
+				}
+			};
+			dosimeterSet.setSortable(false);
+			dosimeterSet
+					.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+			table.addColumn(dosimeterSet, "Dosimeter #");
+
+		}
 
 		// HELMET URL
 		Column<String, String> helmetUrl = new Column<String, String>(

@@ -7,16 +7,15 @@ public class Order implements Message, Serializable {
 	private static final long serialVersionUID = 2917315876156737998L;
 	
 	private String ptuId;
-	private String name;
 	private String parameter;
-	private Number value;
+	private String value;
+	private String type = "Order";
 
 	public Order() {
 	}
-
-	public Order(String ptuId, String name, String parameter, Number value) {
+	
+	public Order(String ptuId, String parameter, String value) {
 		this.ptuId = ptuId;
-		this.name = name;
 		this.parameter = parameter;
 		this.value = value;
 	}
@@ -26,20 +25,21 @@ public class Order implements Message, Serializable {
 		return ptuId;
 	}
 
-	public String getName() {
-		return name;
-	}
-
 	public String getParameter() {
 		return parameter;
 	}
 
-	public Number getValue() {
+	public String getValue() {
 		return value;
 	}
 
 	@Override
 	public String getType() {
-		return "Order";
+		return type;
+	}
+	
+	@Override
+	public String toString() {
+		return getType()+" "+getPtuId()+" "+getParameter()+" "+getValue();
 	}
 }

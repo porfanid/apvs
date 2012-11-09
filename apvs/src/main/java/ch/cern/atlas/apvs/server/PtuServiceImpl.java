@@ -21,6 +21,7 @@ import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
 
@@ -117,5 +118,12 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}
+	}
+	
+	@Override
+	public void handleOrder(Order order) throws ServiceException {
+		System.err.println("Handle "+order);
+		
+		ptuClientHandler.sendOrder(order);
 	}
 }
