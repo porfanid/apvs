@@ -130,8 +130,8 @@ public class DbHandler extends DbReconnectHandler {
 		historyQuery.setString(2, ptuId);
 
 		long PERIOD = 36; // hours
-		int MAX_ENTRIES = 1000;
-		long MIN_INTERVAL = 5; // s
+		int MAX_ENTRIES = 1000; // number
+		long MIN_INTERVAL = 5000; // ms
 
 		Deque<Number[]> data = new ArrayDeque<Number[]>(200);
 
@@ -144,7 +144,7 @@ public class DbHandler extends DbReconnectHandler {
 			while (result.next() && (data.size() < MAX_ENTRIES)) {
 				time = result.getTimestamp("datetime").getTime();
 				if (then < 0) {
-					then = time - (PERIOD * 60 * 60);
+					then = time - (PERIOD * 60 * 60 * 1000);
 				}
 				if (time < then) {
 					break;

@@ -76,6 +76,8 @@ public class APVS implements EntryPoint {
 	@SuppressWarnings("unused")
 	private SettingsPersister settingsPersister;
 
+	private String defaultPtuId = "PTU1234";
+
 	@Override
 	public void onModuleLoad() {
 		GWT.setUncaughtExceptionHandler(new APVSUncaughtExceptionHandler());
@@ -150,11 +152,11 @@ public class APVS implements EntryPoint {
 				// FIXME handle generically
 				if (id.startsWith("MeasurementView")) {
 					module = new MeasurementView();
-				} else if (id.startsWith("AudioSettingsView")) {				
+				} else if (id.startsWith("AudioSettingsView")) {
 					module = new AudioSettingsView();
-				} else if (id.startsWith("AudioSummary")) {				
+				} else if (id.startsWith("AudioSummary")) {
 					module = new AudioSummary();
-				} else if (id.startsWith("AudioView")) {				
+				} else if (id.startsWith("AudioView")) {
 					module = new AudioView();
 				} else if (id.startsWith("CameraView")) {
 					module = new CameraView();
@@ -199,7 +201,6 @@ public class APVS implements EntryPoint {
 		}
 
 		// FIXME create tab buttons for each, select default one
-		String defaultPtuId = "PTUdemo";
 		clientFactory.getEventBus("ptu").fireEvent(
 				new SelectPtuEvent(defaultPtuId));
 
