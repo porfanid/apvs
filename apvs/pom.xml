@@ -121,6 +121,10 @@
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-asterisk</artifactId>
 		</dependency>
+                <dependency>
+                        <groupId>ch.cern.atlas</groupId>
+                        <artifactId>apvs-atmosphere</artifactId>
+                </dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-charts</artifactId>
@@ -156,6 +160,22 @@
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-poll</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.atmosphere</groupId>
+			<artifactId>atmosphere-runtime</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.atmosphere</groupId>
+			<artifactId>atmosphere-compat-jbossweb</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.atmosphere</groupId>
+			<artifactId>atmosphere-compat-tomcat</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.atmosphere</groupId>
+			<artifactId>atmosphere-compat-tomcat7</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>
