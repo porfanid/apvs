@@ -22,15 +22,16 @@
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+<!--
 		<gwt-version>2.4.0</gwt-version>
 		<gwt-plugin-version>2.4.0</gwt-plugin-version>
 		<atmosphere-version>1.1.0.beta1</atmosphere-version>
-<!--
+-->
 		<gwt-version>2.5.0</gwt-version> 
 		<gwt-plugin-version>2.5.0</gwt-plugin-version>
-		<atmosphere-version>1.1.0-SNAPSHOT</atmosphere-version>
--->
+		<atmosphere-version>1.1.0-5b9299</atmosphere-version>
 <!--
+		<atmosphere-version>1.1.0-SNAPSHOT</atmosphere-version>
 		<atmosphere-version>1.0.4</atmosphere-version>
 -->
 		<asterisk-java-version>38898d3a191ebce989c64a57b4fc43171424fa40</asterisk-java-version>
@@ -82,6 +83,7 @@
 	<modules>
 		<module>apvs</module>
 		<module>apvs-asterisk</module>
+		<module>apvs-atmosphere</module>
 		<module>apvs-charts</module>
 		<module>apvs-domain</module>
 		<module>apvs-dosimeter</module>
@@ -281,6 +283,11 @@
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-atmosphere</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-charts</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -345,11 +352,32 @@
 				<version>${asterisk-java-version}</version>
 			</dependency>
 					
+                <dependency>
+                        <groupId>org.atmosphere</groupId>
+                        <artifactId>atmosphere-runtime</artifactId>
+				<version>${atmosphere-version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.atmosphere</groupId>
+                        <artifactId>atmosphere-compat-jbossweb</artifactId>
+				<version>${atmosphere-version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.atmosphere</groupId>
+                        <artifactId>atmosphere-compat-tomcat</artifactId>
+				<version>${atmosphere-version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.atmosphere</groupId>
+                        <artifactId>atmosphere-compat-tomcat7</artifactId>
+				<version>${atmosphere-version}</version>
+                </dependency>
 			<dependency>
 				<groupId>org.atmosphere</groupId>
 				<artifactId>atmosphere-compat-jetty</artifactId>
 				<version>${atmosphere-version}</version>
 			</dependency>
+
 			<dependency>
 				<groupId>org.atmosphere</groupId>
 				<artifactId>atmosphere-gwt-client</artifactId>
