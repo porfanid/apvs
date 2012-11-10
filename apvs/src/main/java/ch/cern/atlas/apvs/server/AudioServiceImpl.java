@@ -79,7 +79,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final String CONTEXT = "internal";
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
-	private static final long ASTERISK_POOLING = 20;
+	private static final long ASTERISK_POOLING = 20000;
 
 	private static RemoteEventBus eventBus;
 
@@ -178,7 +178,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 									ConnectionType.audio, audioOk);
 						}
 					}
-				}, 0, ASTERISK_POOLING, TimeUnit.SECONDS);
+				}, 0, ASTERISK_POOLING, TimeUnit.MILLISECONDS);
 
 		AudioSettingsChangedEvent.subscribe(eventBus,
 				new AudioSettingsChangedEvent.Handler() {
