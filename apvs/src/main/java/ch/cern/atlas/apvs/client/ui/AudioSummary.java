@@ -7,7 +7,8 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
-import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
+//FIXME
+//import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -104,14 +105,17 @@ public class AudioSummary extends GlassPanel implements Module {
 				return (voipAccounts.getOnCall(object) ? "Hangup" : "Call");
 			}
 		};
+		//FIXME
+		/*
 		action.setFieldUpdater(new FieldUpdater<String, String>() {
 
 			@Override
 			public void update(int index, String object, String value) {
+				//FIXME
+				
 				if (voipAccounts.getOnCall(object))
-					AudioServiceAsync.Util.getInstance().hangup(
-							voipAccounts.getChannel(object),
-							new AsyncCallback<Void>() {
+					
+					AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(object),new AsyncCallback<Void>() {
 
 								@Override
 								public void onSuccess(Void result) {
@@ -125,10 +129,8 @@ public class AudioSummary extends GlassPanel implements Module {
 													+ caught);
 								}
 							});
-				else
-					AudioServiceAsync.Util.getInstance().call(
-							voipAccounts.getNumber(object), "2000",
-							new AsyncCallback<Void>() {
+				else{
+					AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(object), "2000",new AsyncCallback<Void>() {
 
 								@Override
 								public void onSuccess(Void result) {
@@ -142,9 +144,10 @@ public class AudioSummary extends GlassPanel implements Module {
 													+ caught);
 								}
 							});
+					}
 
 			}
-		});
+		});*/
 
 		action.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(action);
