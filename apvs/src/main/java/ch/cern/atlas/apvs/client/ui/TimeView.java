@@ -53,7 +53,7 @@ public class TimeView extends AbstractTimeView implements Module {
 
 		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
-		height = Integer.parseInt(args.getArg(0));
+		height = args.getArgInt(0);
 		cmdBus = clientFactory.getEventBus(args.getArg(1));
 		options = args.getArg(2);
 		measurementName = args.getArg(3);

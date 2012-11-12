@@ -22,6 +22,14 @@ public class Arguments {
 		return list.get(index).trim();
 	}
 	
+	public Integer getArgInt(int index) {
+		try {
+			return Integer.parseInt(getArg(index));
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
 	public List<String> getArgs(int index) {
 		if ((index < 0) || (index >= list.size())) return new ArrayList<String>();
 		List<String> args = new ArrayList<String>();

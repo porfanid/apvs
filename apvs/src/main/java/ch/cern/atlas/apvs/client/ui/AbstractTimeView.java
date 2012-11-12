@@ -39,7 +39,7 @@ public class AbstractTimeView extends GlassPanel {
 	private Map<String, String> colorsById;
 
 	protected Chart chart;
-	protected int height = 300;
+	protected Integer height = null;
 	protected boolean export = true;
 	protected boolean title = true;
 
@@ -76,8 +76,7 @@ public class AbstractTimeView extends GlassPanel {
 						"#DB843D", "#92A8CD", "#A47D7C", "#B5CA92")
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
-				.setWidth100()
-				.setHeight(height)
+				.setSizeToMatchContainer()
 				.setChartTitle(
 						title ? new ChartTitle().setText(name).setStyle(
 								new Style().setFontSize("12px")) : null)
@@ -110,6 +109,10 @@ public class AbstractTimeView extends GlassPanel {
 																.getYAsDouble());
 									}
 								}));
+		
+		if (height != null) {
+			chart.setHeight(height);
+		}
 
 		chart.getXAxis().setType(Axis.Type.DATE_TIME).setLabels(
 		// Fix one hour offset in time labels...
