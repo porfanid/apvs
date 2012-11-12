@@ -3,9 +3,10 @@ package ch.cern.atlas.apvs.server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -22,6 +23,7 @@ import org.asteriskjava.manager.ManagerConnectionFactory;
 import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
+import org.asteriskjava.manager.action.PingAction;
 import org.asteriskjava.manager.action.SipPeersAction;
 import org.asteriskjava.manager.event.BridgeEvent;
 import org.asteriskjava.manager.event.ConnectEvent;
@@ -34,6 +36,8 @@ import org.asteriskjava.manager.event.MeetMeLeaveEvent;
 import org.asteriskjava.manager.event.NewChannelEvent;
 import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
+import org.asteriskjava.manager.response.ManagerResponse;
+import org.asteriskjava.manager.response.PingResponse;
 
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.domain.Conference;
@@ -52,16 +56,19 @@ public class AudioServiceImpl extends ResponsePollService implements
 		AudioService, ManagerEventListener {
 
 	private static final long serialVersionUID = 1L;
+
 	private ManagerConnection managerConnection;
+
 	private AsteriskServer asteriskServer;
 	private AudioSettings voipAccounts;
 	private ConferenceRooms conferenceRooms;
 
 	private ArrayList<String> usersList;
 
-	private ExecutorService executorService;
-	private Future<?> connectFuture;
+	private ScheduledExecutorService executorService;
+	private ScheduledFuture<?> connectFuture;
 	private boolean audioOk;
+	private boolean asteriskConnected;
 
 	// Account Details
 	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
@@ -72,6 +79,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final String CONTEXT = "internal";
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
+	private static final long ASTERISK_POOLING = 20000;
 
 	private static RemoteEventBus eventBus;
 
@@ -80,7 +88,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			return;
 		System.out.println("Creating AudioService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
-		executorService = Executors.newSingleThreadExecutor();
+		executorService = Executors.newSingleThreadScheduledExecutor();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
@@ -104,6 +112,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 		voipAccounts = new AudioSettings();
 		conferenceRooms = new ConferenceRooms();
+		audioOk = false;
+		asteriskConnected = false;
 
 		// Asterisk Connection Manager
 		ManagerConnectionFactory factory = new ManagerConnectionFactory(
@@ -116,23 +126,59 @@ public class AudioServiceImpl extends ResponsePollService implements
 		// Event handler
 		managerConnection.addEventListener(this);
 
-		this.connectFuture = executorService.submit(new Runnable() {
+		this.connectFuture = executorService.scheduleAtFixedRate(
+				new Runnable() {
 
-			@Override
-			public void run() {
-				// FIXME #263, we need some auto-relogin here if we loose the
-				// connection
-				System.err.println("Login in to Asterisk Server on "
-						+ ASTERISK_URL.toLowerCase() + " ...");
-				try {
-					login();
-				} catch (AudioException e) {
-					e.printStackTrace();
+					@Override
+					public void run() {
+						if (!asteriskConnected) {
+							System.err
+									.println("Trying login in Asterisk Server on "
+											+ ASTERISK_URL.toLowerCase()
+											+ " ...");
+							try {
+								login();
+							} catch (AudioException e) {
+								System.err.println("Fail to login: "
+										+ e.getMessage());
+							}
+						}
 
-				}
-			}
+						PingAction ping = new PingAction();
+						audioOk = false;
 
-		});
+						ManagerResponse originateResponse = new ManagerResponse();
+
+						try {
+							originateResponse = managerConnection.sendAction(
+									ping, 10000);
+						} catch (IllegalArgumentException e1) {
+							System.out
+									.println("Exception thrown in pooling server: "
+											+ e1.getMessage());
+						} catch (IllegalStateException e1) {
+							System.out
+									.println("Exception thrown in pooling server2: "
+											+ e1.getMessage());
+						} catch (IOException e1) {
+							System.out
+									.println("Exception thrown in pooling server: "
+											+ e1.getMessage());
+						} catch (TimeoutException e1) {
+							System.out
+									.println("Exception thrown in pooling server: "
+											+ e1.getMessage());
+						}
+						if (originateResponse instanceof PingResponse) {
+							audioOk = true;
+							ConnectionStatusChangedEvent.fire(eventBus,
+									ConnectionType.audio, audioOk);
+						} else {
+							ConnectionStatusChangedEvent.fire(eventBus,
+									ConnectionType.audio, audioOk);
+						}
+					}
+				}, 0, ASTERISK_POOLING, TimeUnit.MILLISECONDS);
 
 		AudioSettingsChangedEvent.subscribe(eventBus,
 				new AudioSettingsChangedEvent.Handler() {
@@ -306,14 +352,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 			peerEntryEvent(peer);
 			// ConnectEvent
 		} else if (event instanceof ConnectEvent) {
-			audioOk = true;
-			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.audio,
-					audioOk);
+			asteriskConnected = true;
+			System.out.println("Connected to Asterisk server");
 			// DisconnectEvent
 		} else if (event instanceof DisconnectEvent) {
-			audioOk = false;
-			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.audio,
-					audioOk);
+			System.out.println("Disconnected from Asterisk server");
 		}
 	}
 

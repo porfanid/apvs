@@ -172,6 +172,7 @@ public class AudioView extends GlassPanel implements Module {
 						channels.add(voipAccounts.getChannel(voipAccounts
 								.getPtuId(SUPERVISOR_ACCOUNT)));
 						channels.add(voipAccounts.getChannel(ptuId));
+						//Hangup Supervisor and PTU User from active calls
 						AudioServiceAsync.Util.getInstance().hangupMultiple(
 								channels, callbackHangup);
 						AudioServiceAsync.Util.getInstance().call(
@@ -201,6 +202,7 @@ public class AudioView extends GlassPanel implements Module {
 						if (!conferenceRooms
 								.conferenceOfActivityExist(voipAccounts
 										.getActivity(ptuId))) {
+							//Hangup Impact Activity Users from active calls
 							AudioServiceAsync.Util
 									.getInstance()
 									.hangupMultiple(
@@ -214,6 +216,7 @@ public class AudioView extends GlassPanel implements Module {
 													.getActivity(ptuId)),
 									callbackConference);
 						} else {
+							//Hangup Supervisor from active calls
 							AudioServiceAsync.Util.getInstance().hangup(
 									voipAccounts.getChannel(voipAccounts
 											.getPtuId(SUPERVISOR_ACCOUNT)),
