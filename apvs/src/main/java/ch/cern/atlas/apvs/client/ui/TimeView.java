@@ -2,9 +2,6 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.Iterator;
 
-import org.moxieapps.gwt.highcharts.client.Series;
-import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
-import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +37,8 @@ public class TimeView extends AbstractTimeView implements Module {
 	private String measurementName = null;
 	private EventBus cmdBus;
 	private String options;
+
+	private ClientFactory clientFactory;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -154,12 +153,10 @@ public class TimeView extends AbstractTimeView implements Module {
 			add(chart);
 
 			// Subscribe to all PTUs
-			int k = 0;
 			for (Iterator<String> i = interventions.getPtuIds().iterator(); i
-					.hasNext(); k++) {
+					.hasNext();) {
 
 				final String ptuId = i.next();
-				final int z = k;
 				clientFactory.getPtuService().getHistory(ptuId,
 						measurementName, new AsyncCallback<History>() {
 
@@ -173,16 +170,9 @@ public class TimeView extends AbstractTimeView implements Module {
 										|| settings.isEnabled(ptuId)) {
 
 									if (chart != null) {
-										Series series = chart.createSeries()
-												.setName(getName(ptuId));
+										addSeries(ptuId, getName(ptuId));
+										addHistory(ptuId, history);
 										chart.setAnimation(false);
-										pointsById.put(ptuId, 0);
-										seriesById.put(ptuId, series);
-										colorsById.put(ptuId, color[z]);
-
-										addHistory(ptuId, series, history);
-
-										chart.addSeries(series, true, false);
 									}
 								}
 
@@ -224,18 +214,10 @@ public class TimeView extends AbstractTimeView implements Module {
 
 								createChart(measurementName + " (" + ptuId
 										+ ")");
-
-								Series series = chart.createSeries().setName(
-										getName(ptuId));
-								pointsById.put(ptuId, 0);
-								seriesById.put(ptuId, series);
-								colorsById.put(ptuId, color[0]);
-
-								addHistory(ptuId, series, history);
-
-								chart.addSeries(series, true, false);
-
 								add(chart);
+
+								addSeries(ptuId, getName(ptuId));
+								addHistory(ptuId, history);
 
 								cmdBus.fireEvent(new ColorMapChangedEvent(
 										getColors()));
@@ -266,13 +248,11 @@ public class TimeView extends AbstractTimeView implements Module {
 				+ "" + ptuId;
 	}
 
-	private void addHistory(String ptuId, Series series, History history) {
+	private void addHistory(String ptuId, History history) {
 		if (history == null)
 			return;
 
-		Number[][] data = history.getData();
-		series.setPoints(data != null ? data : new Number[0][2], false);
-		pointsById.put(ptuId, data != null ? data.length : 0);
+		addData(ptuId, history.getData());
 
 		setUnit(history.getUnit());
 	}
@@ -302,24 +282,10 @@ public class TimeView extends AbstractTimeView implements Module {
 
 						if (m.getName().equals(name)) {
 							log.info("New meas " + m);
-							Series series = seriesById.get(m.getPtuId());
-							if (series != null) {
-								Integer numberOfPoints = pointsById.get(ptuId);
-								if (numberOfPoints == null)
-									numberOfPoints = 0;
-								boolean shift = numberOfPoints >= pointLimit;
-								if (!shift) {
-									pointsById.put(ptuId, numberOfPoints + 1);
-								}
-								chart.setLinePlotOptions(new LinePlotOptions()
-										.setMarker(new Marker()
-												.setEnabled(!shift)));
+							addPoint(m.getPtuId(), m.getDate().getTime(),
+									m.getValue());
 
-								setUnit(m.getUnit());
-
-								series.addPoint(m.getDate().getTime(),
-										m.getValue(), true, shift, true);
-							}
+							setUnit(m.getUnit());
 						}
 					}
 				});

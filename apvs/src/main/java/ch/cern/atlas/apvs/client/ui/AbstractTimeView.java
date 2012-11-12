@@ -24,7 +24,6 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.BarPlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.LinePlotOptions;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 
-import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
@@ -32,14 +31,14 @@ import com.google.gwt.i18n.client.NumberFormat;
 
 public class AbstractTimeView extends GlassPanel {
 
-	protected static final String[] color = { "#4572A7", "#AA4643", "#89A54E",
+	private static final int POINT_LIMIT = 200;
+	private static final String[] color = { "#4572A7", "#AA4643", "#89A54E",
 			"#80699B", "#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92" };
-	protected static final int pointLimit = 200;
-	protected ClientFactory clientFactory;
+	private Map<String, Integer> pointsById;
+	private Map<String, Series> seriesById;
+	private Map<String, String> colorsById;
+
 	protected Chart chart;
-	protected Map<String, Integer> pointsById;
-	protected Map<String, Series> seriesById;
-	protected Map<String, String> colorsById;
 	protected int height = 300;
 	protected boolean export = true;
 	protected boolean title = true;
@@ -102,7 +101,8 @@ public class AbstractTimeView extends GlassPanel {
 										return "<b>"
 												+ toolTipData.getSeriesName()
 												+ "</b><br/>"
-												+ getDateTime(toolTipData.getXAsLong())
+												+ getDateTime(toolTipData
+														.getXAsLong())
 												+ "<br/>"
 												+ NumberFormat
 														.getFormat("0.00")
@@ -126,17 +126,50 @@ public class AbstractTimeView extends GlassPanel {
 
 		chart.getYAxis().setAxisTitle(new AxisTitle().setText(""));
 	}
-	
+
+	protected void addSeries(String ptuId, String name) {
+		Series series = chart.createSeries().setName(name);
+		pointsById.put(ptuId, 0);
+		seriesById.put(ptuId, series);
+		colorsById.put(ptuId, color[chart.getSeries().length]);
+
+		chart.addSeries(series, true, false);
+	}
+
+	protected void addData(String ptuId, Number[][] data) {
+		Series series = seriesById.get(ptuId);
+		series.setPoints(data != null ? data : new Number[0][2], false);
+		pointsById.put(ptuId, data != null ? data.length : 0);
+	}
+
+	protected void addPoint(String ptuId, long time, Number value) {
+		Series series = seriesById.get(ptuId);
+		if (series == null)
+			return;
+		Integer numberOfPoints = pointsById.get(ptuId);
+		if (numberOfPoints == null)
+			numberOfPoints = 0;
+		boolean shift = numberOfPoints >= POINT_LIMIT;
+		if (!shift) {
+			pointsById.put(ptuId, numberOfPoints + 1);
+		}
+		chart.setLinePlotOptions(new LinePlotOptions().setMarker(new Marker()
+				.setEnabled(!shift)));
+		series.addPoint(time, value, true, shift, true);
+	}
+
 	private String getDateTime(long time) {
 		long now = new Date().getTime();
 		long nextMinute = now + (60 * 1000);
 		long yesterday = now - (24 * 60 * 1000);
 		Date date = new Date(time);
 		if (time > nextMinute) {
-			return "<b>"+PtuClientConstants.dateFormatShort.format(date)+"</b>";
+			return "<b>" + PtuClientConstants.dateFormatShort.format(date)
+					+ "</b>";
 		} else if (time < yesterday) {
-			return "<i>"+PtuClientConstants.dateFormatShort.format(date)+"</i>";
-		} 
+			return "<i>" + PtuClientConstants.dateFormatShort.format(date)
+					+ "</i>";
+		}
 		return PtuClientConstants.timeFormat.format(date);
 	}
 
