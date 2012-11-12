@@ -23,7 +23,6 @@ import org.asteriskjava.manager.ManagerConnectionFactory;
 import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
-import org.asteriskjava.manager.action.PingAction;
 import org.asteriskjava.manager.action.SipPeersAction;
 import org.asteriskjava.manager.event.BridgeEvent;
 import org.asteriskjava.manager.event.ConnectEvent;
@@ -36,8 +35,6 @@ import org.asteriskjava.manager.event.MeetMeLeaveEvent;
 import org.asteriskjava.manager.event.NewChannelEvent;
 import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
-import org.asteriskjava.manager.response.ManagerResponse;
-import org.asteriskjava.manager.response.PingResponse;
 
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.domain.Conference;
@@ -69,6 +66,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private ScheduledFuture<?> connectFuture;
 	private boolean audioOk;
 	private boolean asteriskConnected;
+	private AsteriskPing ping;
 
 	// Account Details
 	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
@@ -125,6 +123,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 		// Event handler
 		managerConnection.addEventListener(this);
+		
+		ping  = new AsteriskPing(managerConnection);
 
 		this.connectFuture = executorService.scheduleAtFixedRate(
 				new Runnable() {
@@ -143,39 +143,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 										+ e.getMessage());
 							}
 						}
-
-						PingAction ping = new PingAction();
-						audioOk = false;
-
-						ManagerResponse originateResponse = new ManagerResponse();
-
-						try {
-							originateResponse = managerConnection.sendAction(
-									ping, 10000);
-						} catch (IllegalArgumentException e1) {
-							System.out
-									.println("Exception thrown in pooling server: "
-											+ e1.getMessage());
-						} catch (IllegalStateException e1) {
-							System.out
-									.println("Exception thrown in pooling server2: "
-											+ e1.getMessage());
-						} catch (IOException e1) {
-							System.out
-									.println("Exception thrown in pooling server: "
-											+ e1.getMessage());
-						} catch (TimeoutException e1) {
-							System.out
-									.println("Exception thrown in pooling server: "
-											+ e1.getMessage());
-						}
-						if (originateResponse instanceof PingResponse) {
+												
+						if (ping.isAlive()) {
 							audioOk = true;
-							ConnectionStatusChangedEvent.fire(eventBus,
-									ConnectionType.audio, audioOk);
+							ConnectionStatusChangedEvent.fire(eventBus,ConnectionType.audio, audioOk);
 						} else {
-							ConnectionStatusChangedEvent.fire(eventBus,
-									ConnectionType.audio, audioOk);
+							audioOk = false;
+							System.err.println("Asterisk Server is not available...");
+							ConnectionStatusChangedEvent.fire(eventBus,ConnectionType.audio, audioOk);
 						}
 					}
 				}, 0, ASTERISK_POOLING, TimeUnit.MILLISECONDS);
@@ -256,8 +231,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void newConference(List<String> participantsNumber) {
-		MeetMeRoom room = asteriskServer.getMeetMeRoom("0001");
+	public void newConference(List<String> participantsNumber) {	
+		MeetMeRoom room = asteriskServer.getMeetMeRoom(conferenceRooms.newRoom());
 		for (int i = 0; i < participantsNumber.size(); i++) {
 			addToConference(participantsNumber.get(i), room.getRoomNumber()
 					+ ",qd");
@@ -449,7 +424,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String ptuId = voipAccounts.getPtuId(number);
 
 		if (!conferenceRooms.roomExist(room)) {
-			conferenceRooms.put(room, new Conference());
+			System.out.println(room);
+			conferenceRooms.put(room, new Conference());		
 			conferenceRooms.get(room).setActivity(
 					voipAccounts.getActivity(ptuId));
 		}

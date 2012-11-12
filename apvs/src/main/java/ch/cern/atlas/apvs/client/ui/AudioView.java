@@ -11,7 +11,6 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.MeetMeEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
@@ -172,7 +171,7 @@ public class AudioView extends GlassPanel implements Module {
 						channels.add(voipAccounts.getChannel(voipAccounts
 								.getPtuId(SUPERVISOR_ACCOUNT)));
 						channels.add(voipAccounts.getChannel(ptuId));
-						//Hangup Supervisor and PTU User from active calls
+						// Hangup Supervisor and PTU User from active calls
 						AudioServiceAsync.Util.getInstance().hangupMultiple(
 								channels, callbackHangup);
 						AudioServiceAsync.Util.getInstance().call(
@@ -202,7 +201,7 @@ public class AudioView extends GlassPanel implements Module {
 						if (!conferenceRooms
 								.conferenceOfActivityExist(voipAccounts
 										.getActivity(ptuId))) {
-							//Hangup Impact Activity Users from active calls
+							// Hangup Impact Activity Users from active calls
 							AudioServiceAsync.Util
 									.getInstance()
 									.hangupMultiple(
@@ -216,7 +215,7 @@ public class AudioView extends GlassPanel implements Module {
 													.getActivity(ptuId)),
 									callbackConference);
 						} else {
-							//Hangup Supervisor from active calls
+							// Hangup Supervisor from active calls
 							AudioServiceAsync.Util.getInstance().hangup(
 									voipAccounts.getChannel(voipAccounts
 											.getPtuId(SUPERVISOR_ACCOUNT)),
@@ -289,9 +288,7 @@ public class AudioView extends GlassPanel implements Module {
 				}
 
 				conferenceRooms = event.getConferenceRooms();
-				System.out.println(conferenceRooms
-						.conferenceOfActivityExist(voipAccounts
-								.getActivity(ptuId)));
+
 				if (conferenceRooms.conferenceOfActivityExist(voipAccounts
 						.getActivity(ptuId))) {
 					fieldName.add("Conference");

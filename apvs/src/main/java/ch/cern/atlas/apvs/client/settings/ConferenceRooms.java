@@ -56,4 +56,13 @@ public class ConferenceRooms implements Serializable {
 	public void clear() {
 		conferenceRooms.clear();
 	}
+	
+	public String newRoom(){
+		for(int i=0; i<10000 ;i++){
+			if(!roomExist(Integer.toString(i))){
+				return Integer.toString(i);
+			}
+		}
+		return null; 
+	}
 }
