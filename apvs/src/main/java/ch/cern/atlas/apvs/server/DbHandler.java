@@ -311,7 +311,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		}
 
-		PreparedStatement statement = getConnection().prepareStatement(sql);
+		PreparedStatement statement = getConnection().prepareStatement(getSql(sql, range, order));
 		int param = 1;
 		if (ptuId != null) {
 			statement.setString(param, ptuId);
@@ -322,7 +322,7 @@ public class DbHandler extends DbReconnectHandler {
 			param++;
 		}
 
-		ResultSet result = statement.executeQuery(getSql(sql, range, order));
+		ResultSet result = statement.executeQuery();
 
 		List<Event> list = new ArrayList<Event>(range.getLength());
 		try {
@@ -610,7 +610,7 @@ public class DbHandler extends DbReconnectHandler {
 			sql += " and NAME = ?";
 		}
 		if (name != null) {
-			sql += "and view_last_measurements_date.SENSOR = ?";
+			sql += " and view_last_measurements_date.SENSOR = ?";
 		}
 
 		PreparedStatement statement = getConnection().prepareStatement(sql);
@@ -624,7 +624,7 @@ public class DbHandler extends DbReconnectHandler {
 			param++;
 		}
 
-		ResultSet result = statement.executeQuery(sql);
+		ResultSet result = statement.executeQuery();
 
 		List<Measurement> list = new ArrayList<Measurement>();
 		try {

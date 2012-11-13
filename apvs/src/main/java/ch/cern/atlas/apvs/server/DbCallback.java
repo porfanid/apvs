@@ -15,8 +15,8 @@ public class DbCallback {
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
 	private Future<?> disconnectFuture;
-	
-	private final static boolean LOG_DB = false;
+
+	private final static boolean LOG_DB = true;
 
 	public DbCallback() {
 		executorService = Executors.newSingleThreadExecutor();
@@ -34,52 +34,55 @@ public class DbCallback {
 	public boolean isConnected() {
 		return connection != null;
 	}
-	
+
 	public boolean checkConnection() {
 		try {
-			return  isConnected() && connection.isValid(0);
+			return isConnected() && connection.isValid(0);
 		} catch (SQLException e) {
 			return false;
 		}
 	}
 
-	public void connect(final String url) {		
+	public void connect(final String url) {
 		disconnect();
-		
+
 		connectFuture = executorService.submit(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {
 					if (driver == null) {
-						driver = LOG_DB ? new net.sf.log4jdbc.DriverSpy() :new oracle.jdbc.OracleDriver();
+						driver = LOG_DB ? new net.sf.log4jdbc.DriverSpy()
+								: new oracle.jdbc.OracleDriver();
 						DriverManager.registerDriver(driver);
 					}
-					connection = DriverManager.getConnection("jdbc:"+(LOG_DB ? "log4jdbc:" : "")+"oracle:thin:"+url);
+					connection = DriverManager.getConnection("jdbc:"
+							+ (LOG_DB ? "log4jdbc:" : "") + "oracle:thin:"
+							+ url);
 					dbConnected(connection);
 				} catch (SQLException e) {
 					exceptionCaught(e);
 				}
 			}
 		});
-		
+
 	}
 
 	public void disconnect() {
 		if (connectFuture != null) {
 			connectFuture.cancel(true);
 		}
-		
+
 		if (connection == null) {
 			return;
 		}
-		
+
 		if (disconnectFuture != null) {
 			return;
 		}
-		
+
 		disconnectFuture = executorService.submit(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {

@@ -61,7 +61,7 @@ public class MeasurementView extends GlassPanel implements Module {
 
 	private List<String> show = null;
 
-	private String ptuId = "PTU1234";
+	private String ptuId = null;
 
 	private RemoteEventBus remoteEventBus;
 	private EventBus cmdBus;
@@ -359,8 +359,6 @@ public class MeasurementView extends GlassPanel implements Module {
 						}
 					});
 		}
-
-		changePtuId();
 
 		return true;
 	}
