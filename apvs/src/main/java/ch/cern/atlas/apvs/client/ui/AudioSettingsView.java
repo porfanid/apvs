@@ -7,8 +7,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
-//FIXME
-//import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
+import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
@@ -33,7 +32,6 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 	private List<String> activePtuIds = new ArrayList<String>();
 	private List<String> usersList = new ArrayList<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
-	//private PtuSettings settings = new PtuSettings();
 
 	
 	public AudioSettingsView() {
@@ -44,8 +42,7 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		 
 		//Call List Users
-		//FIXME
-		/*AudioServiceAsync.Util.getInstance().usersList(new AsyncCallback<Void>() {
+		AudioServiceAsync.Util.getInstance().usersList(new AsyncCallback<Void>() {
 			
 			@Override
 			public void onSuccess(Void result) {
@@ -56,7 +53,7 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 			public void onFailure(Throwable caught) {
 				System.err.println("Fail to list Asterisk SIP users " + caught);				
 			}
-		});*/
+		});
 		
 		add(table);
 		

@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.MeetMeEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
@@ -32,8 +33,6 @@ public class AudioView extends GlassPanel implements Module {
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
-	//FIXME
-	//private AudioServiceAsync audioService;
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
 	private Conference conferenceMembers = new Conference();
 	private String ptuId = new String("PTU1234");
@@ -174,17 +173,14 @@ public class AudioView extends GlassPanel implements Module {
 								.getPtuId(SUPERVISOR_ACCOUNT)));
 						channels.add(voipAccounts.getChannel(ptuId));
 						// Hangup Supervisor and PTU User from active calls
-						//FIXME
-						/*
+
 						AudioServiceAsync.Util.getInstance().hangupMultiple(
 								channels, callbackHangup);
 						AudioServiceAsync.Util.getInstance().call(
 								voipAccounts.getNumber(ptuId),
 								SUPERVISOR_NUMBER, callbackCall);
-						*/
+
 					} else {
-						//FIXME
-						/*
 						AudioServiceAsync.Util.getInstance().hangup(
 								voipAccounts.getChannel(voipAccounts
 										.getPtuId(SUPERVISOR_ACCOUNT)),
@@ -201,15 +197,14 @@ public class AudioView extends GlassPanel implements Module {
 															.getActivity(ptuId)),
 											callbackConference);
 						}
-						*/
 					}
 				} else if (fieldName.equals("Group Call")) {
-					if (!voipAccounts.getOnConference(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT))) {
-						//FIXME
-						/*
-						if (!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
+					if (!voipAccounts.getOnConference(voipAccounts
+							.getPtuId(SUPERVISOR_ACCOUNT))) {
+						if (!conferenceRooms
+								.conferenceOfActivityExist(voipAccounts
+										.getActivity(ptuId))) {
 							// Hangup Impact Activity Users from active calls
-
 							AudioServiceAsync.Util
 									.getInstance()
 									.hangupMultiple(
@@ -238,7 +233,6 @@ public class AudioView extends GlassPanel implements Module {
 								voipAccounts.getChannel(voipAccounts
 										.getPtuId(SUPERVISOR_ACCOUNT)),
 								callbackHangup);
-							 */
 					}
 				} else
 					return;

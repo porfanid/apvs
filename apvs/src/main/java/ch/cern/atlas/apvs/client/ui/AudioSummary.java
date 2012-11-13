@@ -7,8 +7,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
-//FIXME
-//import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
+import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -105,14 +104,11 @@ public class AudioSummary extends GlassPanel implements Module {
 				return (voipAccounts.getOnCall(object) ? "Hangup" : "Call");
 			}
 		};
-		//FIXME
-		/*
+		
 		action.setFieldUpdater(new FieldUpdater<String, String>() {
 
 			@Override
-			public void update(int index, String object, String value) {
-				//FIXME
-				
+			public void update(int index, String object, String value) {				
 				if (voipAccounts.getOnCall(object))
 					
 					AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(object),new AsyncCallback<Void>() {
@@ -147,7 +143,7 @@ public class AudioSummary extends GlassPanel implements Module {
 					}
 
 			}
-		});*/
+		});
 
 		action.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(action);
