@@ -89,22 +89,12 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		// Configure the pipeline factory.
 		bootstrap.setPipelineFactory(new PtuPipelineFactory(timer, ptuClientHandler));
 	}
-
+	
 	@Override
-	public List<Measurement> getMeasurements(String ptuId)
+	public List<Measurement> getMeasurements(String ptuId, String name)
 			throws ServiceException {
 		try {
-			return dbHandler.getMeasurements(ptuId);
-		} catch (SQLException e) {
-			throw new ServiceException(e.getMessage());
-		}
-	}
-
-	@Override
-	public Measurement getMeasurement(String ptuId, String name)
-			throws ServiceException {
-		try {
-			return dbHandler.getMeasurement(ptuId, name);
+			return dbHandler.getMeasurements(ptuId, name);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}

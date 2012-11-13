@@ -372,7 +372,7 @@ public class MeasurementView extends GlassPanel implements Module {
 			measurementHandler = null;
 		}
 
-		PtuServiceAsync.Util.getInstance().getMeasurements(ptuId,
+		PtuServiceAsync.Util.getInstance().getMeasurements(ptuId, null,
 				new AsyncCallback<List<Measurement>>() {
 
 					@Override

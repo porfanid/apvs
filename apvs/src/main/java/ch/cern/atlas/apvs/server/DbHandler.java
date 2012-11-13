@@ -56,8 +56,6 @@ public class DbHandler extends DbReconnectHandler {
 	private PreparedStatement endIntervention;
 	private PreparedStatement getIntervention;
 	private PreparedStatement updateInterventionDescription;
-	private PreparedStatement measurementQuery;
-	private PreparedStatement measurementListQuery;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super();
@@ -577,23 +575,37 @@ public class DbHandler extends DbReconnectHandler {
 		}
 	}
 
-	public synchronized Measurement getMeasurement(String ptuId, String name)
+	/**
+	 * 
+	 * @param ptuId
+	 *            can be null
+	 * @param name
+	 *            can be null
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<Measurement> getMeasurements(String ptuId, String name)
 			throws SQLException {
-		if (measurementQuery == null) {
-			measurementQuery = getConnection()
-					.prepareStatement(
-							"select NAME, SENSOR, VALUE, SAMPLINGRATE, UNIT, DATETIME from tbl_measurements "
-									+ "join tbl_devices on tbl_devices.id = tbl_measurements.device_id "
-									+ "where NAME = ? "
-									+ "and SENSOR = ? "
-									+ "order by DATETIME DESC");
+
+		String sql = "select NAME, view_last_measurements_date.SENSOR, VALUE, SAMPLINGRATE, UNIT, view_last_measurements_date.DATETIME "
+				+ "from view_last_measurements_date, tbl_measurements, tbl_devices "
+				+ "where view_last_measurements_date.datetime = tbl_measurements.datetime "
+				+ "and view_last_measurements_date.sensor = tbl_measurements.sensor "
+				+ "and view_last_measurements_date.device_id = tbl_measurements.device_id "
+				+ "and view_last_measurements_date.device_id = tbl_devices.id";
+		if (ptuId != null) {
+			sql += " and NAME = '" + ptuId + "'";
+		}
+		if (name != null) {
+			sql += "and view_last_measurements_date.SENSOR = '" + name + "'";
 		}
 
-		measurementQuery.setString(1, ptuId);
-		measurementQuery.setString(2, name);
-		ResultSet result = measurementQuery.executeQuery();
+		Statement statement = getConnection().createStatement();
+		ResultSet result = statement.executeQuery(sql);
+
+		List<Measurement> list = new ArrayList<Measurement>();
 		try {
-			if (result.next()) {
+			while (result.next()) {
 				String unit = result.getString("UNIT");
 				double value = Double.parseDouble(result.getString("VALUE"));
 
@@ -606,44 +618,16 @@ public class DbHandler extends DbReconnectHandler {
 					unit = "&micro;Sv/h";
 					value *= 1000;
 				}
-
-				return new Measurement(result.getString("NAME"),
+				Measurement m = new Measurement(result.getString("NAME"),
 						result.getString("SENSOR"), value,
 						Integer.parseInt(result.getString("SAMPLINGRATE")),
 						unit, new Date(result.getTimestamp("DATETIME")
 								.getTime()));
+				list.add(m);
 			}
 		} finally {
 			result.close();
-		}
-		return null;
-	}
-
-	public synchronized List<Measurement> getMeasurements(String ptuId)
-			throws SQLException {
-		// FIXME we could find a faster way
-		if (measurementListQuery == null) {
-			measurementListQuery = getConnection()
-					.prepareStatement(
-							"select distinct(SENSOR) from tbl_measurements "
-									+ "join tbl_devices on tbl_devices.id = tbl_measurements.device_id "
-									+ "where NAME = ? ");
-		}
-
-		measurementListQuery.setString(1, ptuId);
-		ResultSet result = measurementListQuery.executeQuery();
-
-		List<Measurement> list = new ArrayList<Measurement>();
-		try {
-			while (result.next()) {
-				Measurement m = getMeasurement(ptuId,
-						result.getString("SENSOR"));
-				if (m != null) {
-					list.add(m);
-				}
-			}
-		} finally {
-			result.close();
+			statement.close();
 		}
 		return list;
 	}
