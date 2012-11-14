@@ -15,6 +15,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("apvsPtu")
 public interface PtuService extends RemoteService {
 	public List<Measurement> getMeasurements(String ptuId, String name) throws ServiceException;
-	public History getHistory(String ptuId, String name) throws ServiceException;
+	public List<History> getHistories(String ptuId, String name) throws ServiceException;
 	public void handleOrder(Order order) throws ServiceException;
 }

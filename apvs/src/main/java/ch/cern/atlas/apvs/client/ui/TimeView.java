@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Iterator;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,25 +153,22 @@ public class TimeView extends AbstractTimeView implements Module {
 			add(chart);
 
 			// Subscribe to all PTUs
-			for (Iterator<String> i = interventions.getPtuIds().iterator(); i
-					.hasNext();) {
-
-				final String ptuId = i.next();
-				clientFactory.getPtuService().getHistory(ptuId,
-						measurementName, new AsyncCallback<History>() {
-
-							@Override
-							public void onSuccess(History history) {
-								if (history == null) {
-									return;
+			clientFactory.getPtuService().getHistories(null, measurementName,
+					new AsyncCallback<List<History>>() {
+						@Override
+						public void onSuccess(List<History> result) {
+							for (History history: result) {
+								String ptuId = history.getPtuId();
+								if (!history.getName().equals(measurementName)) {
+									continue;
 								}
-
+								
 								if ((settings == null)
 										|| settings.isEnabled(ptuId)) {
 
 									if (chart != null) {
 										addSeries(ptuId, getName(ptuId));
-										addHistory(ptuId, history);
+										addHistory(history);
 										chart.setAnimation(false);
 									}
 								}
@@ -181,48 +178,45 @@ public class TimeView extends AbstractTimeView implements Module {
 											getColors());
 								}
 
-								register(ptuId, measurementName);
+								register(ptuId, measurementName);							
 							}
+						}
 
-							@Override
-							public void onFailure(Throwable caught) {
-								log.warn("Cannot retrieve Measurements ",
-										caught);
-							}
-						});
-			}
+						@Override
+						public void onFailure(Throwable caught) {
+							log.warn("Cannot retrieve Measurements ", caught);
+						}
+					});
 		} else {
 			// subscribe to single PTU
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
-				final long t0 = System.currentTimeMillis();
-				clientFactory.getPtuService().getHistory(ptuId,
-						measurementName, new AsyncCallback<History>() {
+				clientFactory.getPtuService().getHistories(ptuId,
+						measurementName, new AsyncCallback<List<History>>() {
 
 							@Override
-							public void onSuccess(History history) {
-								if (history == null) {
-									log.warn("Cannot find history for "
-											+ measurementName);
+							public void onSuccess(List<History> result) {
+								for (History history: result) {
+									if (!history.getPtuId().equals(ptuId)) {
+										continue;
+									}
+									if (!history.getName().equals(measurementName)) {
+										continue;
+									}
+									
+									createChart(measurementName + " (" + ptuId
+											+ ")");
+									add(chart);
+
+									addSeries(ptuId, getName(ptuId));
+									addHistory(history);
+
+									cmdBus.fireEvent(new ColorMapChangedEvent(
+											getColors()));
+
+									register(ptuId, measurementName);
+									break;
 								}
-
-								log.info("Measurement retrieval of "
-										+ measurementName + " of " + ptuId
-										+ " took "
-										+ (System.currentTimeMillis() - t0)
-										+ " ms");
-
-								createChart(measurementName + " (" + ptuId
-										+ ")");
-								add(chart);
-
-								addSeries(ptuId, getName(ptuId));
-								addHistory(ptuId, history);
-
-								cmdBus.fireEvent(new ColorMapChangedEvent(
-										getColors()));
-
-								register(ptuId, measurementName);
 							}
 
 							@Override
@@ -248,11 +242,11 @@ public class TimeView extends AbstractTimeView implements Module {
 				+ "" + ptuId;
 	}
 
-	private void addHistory(String ptuId, History history) {
+	private void addHistory(History history) {
 		if (history == null)
 			return;
 
-		addData(ptuId, history.getData());
+		addData(history.getPtuId(), history.getData());
 
 		setUnit(history.getUnit());
 	}

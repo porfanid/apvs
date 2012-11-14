@@ -12,6 +12,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -101,29 +102,44 @@ public class DbHandler extends DbReconnectHandler {
 		}, 0, 30, TimeUnit.SECONDS);
 	}
 
-	public History getHistory(String ptuId, String sensor) throws SQLException {
-		// check on history and load from DB
-		PreparedStatement historyQuery = getConnection()
-				.prepareStatement(
-						"select DATETIME, UNIT, VALUE from tbl_measurements "
-								+ "join tbl_devices on tbl_measurements.device_id = tbl_devices.id "
-								+ "where SENSOR = ? " + "and NAME = ? "
-								+ "order by DATETIME desc");
+	public List<History> getHistories(String ptuId, String sensor) throws SQLException {
+		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE from tbl_measurements, tbl_devices "
+				+ "where tbl_measurements.device_id = tbl_devices.id";
 
-		historyQuery.setString(1, sensor);
-		historyQuery.setString(2, ptuId);
+		if (sensor != null) {
+			sql += " and SENSOR = ?";
+		}
+		if (ptuId != null) {
+			sql += " and NAME = ?";
+		}
 
+		sql += " order by DATETIME desc";
+
+		PreparedStatement historyQuery = getConnection().prepareStatement(sql);
+
+		int param = 1;
+		if (sensor != null) {
+			historyQuery.setString(param, sensor);
+			param++;
+		}
+		if (ptuId != null) {
+			historyQuery.setString(param, ptuId);
+			param++;
+		}
+		
 		long PERIOD = 36; // hours
 		int MAX_ENTRIES = 1000; // number
 		long MIN_INTERVAL = 5000; // ms
 
-		Deque<Number[]> data = new ArrayDeque<Number[]>(200);
-
+		Map<String, String> ptuIds = new HashMap<String, String>();
+		Map<String, String> sensors = new HashMap<String, String>();
+		Map<String, Deque<Number[]>> data = new HashMap<String, Deque<Number[]>>();
+		Map<String, String> units = new HashMap<String, String>();
+		Map<String, Long> lastTimes = new HashMap<String, Long>();
+		
 		long time = 0;
 		long then = -1;
-		long lastTime = new Date().getTime() + MIN_INTERVAL;
 		ResultSet result = historyQuery.executeQuery();
-		String unit = "";
 		try {
 			while (result.next() && (data.size() < MAX_ENTRIES)) {
 				time = result.getTimestamp("datetime").getTime();
@@ -133,9 +149,17 @@ public class DbHandler extends DbReconnectHandler {
 				if (time < then) {
 					break;
 				}
-				unit = result.getString("unit");
+				
+				ptuId = result.getString("name");
+				sensor = result.getString("sensor");
+				String key = ptuId+":"+sensor;
+				ptuIds.put(key, ptuId);
+				sensors.put(key, sensor);
+				lastTimes.put(key, new Date().getTime() + MIN_INTERVAL);
+				
+				String unit = result.getString("unit");
 				double value = Double.parseDouble(result.getString("value"));
-
+				
 				// Scale down to microSievert
 				if (unit.equals("mSv")) {
 					unit = "&micro;Sv";
@@ -145,25 +169,38 @@ public class DbHandler extends DbReconnectHandler {
 					unit = "&micro;Sv/h";
 					value *= 1000;
 				}
+				units.put(key, unit);
 
 				// limit entry separation (reverse order)
-				if (lastTime - time > MIN_INTERVAL) {
-					lastTime = time;
+				if (lastTimes.get(key) - time > MIN_INTERVAL) {
+					lastTimes.put(key, time);
 
 					Number[] entry = new Number[2];
 					entry[0] = time;
 					entry[1] = value;
-					data.addFirst(entry);
+					Deque<Number[]> deque = data.get(key);
+					if (deque == null) {
+						deque = new ArrayDeque<Number[]>(200);
+						data.put(key, deque);
+					}
+					deque.addFirst(entry);
 				}
 			}
-
-			log.info("Creating history for " + ptuId + " " + sensor + " "
-					+ data.size() + " entries");
-			return new History(data.toArray(new Number[data.size()][]), unit);
 		} finally {
 			result.close();
 			historyQuery.close();
 		}
+
+		List<History> list = new ArrayList<History>(data.size());
+		for (Entry<String, Deque<Number[]>> e: data.entrySet()) {
+			String key = e.getKey();
+			ptuId = ptuIds.get(key);
+			sensor = sensors.get(key);
+			list.add(new History(ptuId, sensor, e.getValue().toArray(new Number[data.size()][]), units.get(key)));
+			log.info("Creating history for " + ptuId + " " + sensor + " "
+					+ data.size() + " entries");
+		}
+		return list;
 	}
 
 	@Override
@@ -311,7 +348,8 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		}
 
-		PreparedStatement statement = getConnection().prepareStatement(getSql(sql, range, order));
+		PreparedStatement statement = getConnection().prepareStatement(
+				getSql(sql, range, order));
 		int param = 1;
 		if (ptuId != null) {
 			statement.setString(param, ptuId);

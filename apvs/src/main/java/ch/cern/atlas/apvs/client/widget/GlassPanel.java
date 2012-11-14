@@ -13,10 +13,12 @@ public class GlassPanel extends DockPanel implements NativePreviewHandler {
 
 	public GlassPanel() {
 		glassShowing = false;
+		setWidth("100%");
 	}
 
 	public void add(Widget child) {
 		add(child, CENTER);
+//		setCellWidth(child, "100%");
 	}
 
 	public void showGlass(boolean show) {

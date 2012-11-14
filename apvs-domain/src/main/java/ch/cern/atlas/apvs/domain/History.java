@@ -6,15 +6,27 @@ public class History implements Serializable {
 
 	private static final long serialVersionUID = 2802095781867809709L;
 
+	private String ptuId;
+	private String name;
 	private Number[][] data;
 	private String unit;
 	
 	public History() {
 	}
 	
-	public History(Number[][] data, String unit) {
+	public History(String ptuId, String name, Number[][] data, String unit) {
+		this.ptuId = ptuId;
+		this.name = name;
 		this.data = data;
 		this.unit = unit;
+	}
+	
+	public String getPtuId() {
+		return ptuId;
+	}
+	
+	public String getName() {
+		return name;
 	}
 
 	public Number[][] getData() {

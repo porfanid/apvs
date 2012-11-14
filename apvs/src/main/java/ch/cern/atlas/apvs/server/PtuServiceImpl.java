@@ -101,10 +101,10 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 	}
 
 	@Override
-	public History getHistory(String ptuId, String name)
+	public List<History> getHistories(String ptuId, String name)
 			throws ServiceException {
 		try {
-			return dbHandler.getHistory(ptuId, name);
+			return dbHandler.getHistories(ptuId, name);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}

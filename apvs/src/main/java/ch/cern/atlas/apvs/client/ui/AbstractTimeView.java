@@ -77,6 +77,7 @@ public class AbstractTimeView extends GlassPanel {
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
 				.setSizeToMatchContainer()
+//				.setWidth100()
 				.setChartTitle(
 						title ? new ChartTitle().setText(name).setStyle(
 								new Style().setFontSize("12px")) : null)
