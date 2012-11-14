@@ -47,6 +47,7 @@ import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 public class AudioServiceImpl extends ResponsePollService implements
@@ -154,10 +155,21 @@ public class AudioServiceImpl extends ResponsePollService implements
 						}
 					}
 				}, 0, ASTERISK_POOLING, TimeUnit.MILLISECONDS);
+		
+		// FOR #281, uids may still change in the future, related to #284, at this moment any reload generated more uids... none is taken away on disconnect
+		RemoteEventBusIdsChangedEvent.subscribe(eventBus, new RemoteEventBusIdsChangedEvent.Handler() {
+			
+			@Override
+			public void onRemoteIdsChanged(RemoteEventBusIdsChangedEvent event) {
+				for (Long id: event.getClientIds()) {
+					System.err.println("EventBus: "+id);
+				}
+			}
+		});
 
 		AudioSettingsChangedEvent.subscribe(eventBus,
 				new AudioSettingsChangedEvent.Handler() {
-
+			
 					@Override
 					public void onAudioSettingsChanged(
 							AudioSettingsChangedEvent event) {

@@ -59,5 +59,4 @@ public class ServerEventBus extends RemoteEventBus {
 			super.fireEvent(event);
 		}
 	}
-
 }

@@ -31,7 +31,7 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
         java.util.logging.Logger.getLogger("gwtcomettest").setLevel(Level.ALL);
         java.util.logging.Logger.getLogger("").getHandlers()[0].setLevel(Level.ALL);
         log.trace("Updated logging levels");
-    }
+    }  
 
     @Override
     public int doComet(GwtAtmosphereResource resource) throws ServletException, IOException {
