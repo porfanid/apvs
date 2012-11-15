@@ -6,10 +6,10 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Conference;
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
-import ch.cern.atlas.apvs.client.event.MeetMeEvent;
+import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
@@ -254,24 +254,24 @@ public class AudioView extends GlassPanel implements Module {
 			});
 		}
 
-		ConnectionStatusChangedEvent.subscribe(eventBus,
-				new ConnectionStatusChangedEvent.Handler() {
+		ConnectionStatusChangedRemoteEvent.subscribe(eventBus,
+				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onConnectionStatusChanged(
-							ConnectionStatusChangedEvent event) {
+							ConnectionStatusChangedRemoteEvent event) {
 						if (event.getConnection() == ConnectionType.audio) {
 							showGlass(!event.isOk());
 						}
 					}
 				});
 
-		AudioSettingsChangedEvent.subscribe(eventBus,
-				new AudioSettingsChangedEvent.Handler() {
+		AudioSettingsChangedRemoteEvent.subscribe(eventBus,
+				new AudioSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onAudioSettingsChanged(
-							AudioSettingsChangedEvent event) {
+							AudioSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
 
 						dataProvider.getList().clear();
@@ -279,10 +279,10 @@ public class AudioView extends GlassPanel implements Module {
 					}
 				});
 
-		MeetMeEvent.subscribe(eventBus, new MeetMeEvent.Handler() {
+		MeetMeRemoteEvent.subscribe(eventBus, new MeetMeRemoteEvent.Handler() {
 
 			@Override
-			public void onMeetMeEvent(MeetMeEvent event) {
+			public void onMeetMeEvent(MeetMeRemoteEvent event) {
 				if (fieldName.size() > 3) {
 					while (fieldName.size() > 3) {
 						fieldName.remove(3);

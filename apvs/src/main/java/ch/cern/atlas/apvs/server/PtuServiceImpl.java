@@ -15,7 +15,7 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -51,12 +51,12 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 
 		log.info("Starting PtuService...");
 
-		ServerSettingsChangedEvent.subscribe(eventBus,
-				new ServerSettingsChangedEvent.Handler() {
+		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onServerSettingsChanged(
-							ServerSettingsChangedEvent event) {
+							ServerSettingsChangedRemoteEvent event) {
 						ServerSettings settings = event.getServerSettings();
 						if (settings != null) {
 							String url = settings

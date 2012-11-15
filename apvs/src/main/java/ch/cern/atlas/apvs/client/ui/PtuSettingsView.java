@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -319,11 +319,11 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(ptuId);
 
-		PtuSettingsChangedEvent.subscribe(eventBus,
-				new PtuSettingsChangedEvent.Handler() {
+		PtuSettingsChangedRemoteEvent.subscribe(eventBus,
+				new PtuSettingsChangedRemoteEvent.Handler() {
 					@Override
 					public void onPtuSettingsChanged(
-							PtuSettingsChangedEvent event) {
+							PtuSettingsChangedRemoteEvent event) {
 						log.info("PTU Settings changed");
 						settings = event.getPtuSettings();
 						dataProvider.getList().clear();
@@ -333,12 +333,12 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					}
 				});
 
-		InterventionMapChangedEvent.subscribe(eventBus,
-				new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onInterventionMapChanged(
-							InterventionMapChangedEvent event) {
+							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
 						scheduler.update();
 					}
@@ -379,7 +379,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	private void fireSettingsChangedEvent(EventBus eventBus,
 			PtuSettings settings) {
 
-		((RemoteEventBus) eventBus).fireEvent(new PtuSettingsChangedEvent(
+		((RemoteEventBus) eventBus).fireEvent(new PtuSettingsChangedRemoteEvent(
 				settings));
 		((RemoteEventBus) eventBus).fireEvent(new DosimeterPtuChangedEvent(
 				settings.getDosimeterToPtuMap()));

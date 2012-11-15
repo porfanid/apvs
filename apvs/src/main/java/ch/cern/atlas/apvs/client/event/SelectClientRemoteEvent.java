@@ -8,7 +8,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectClientEvent extends RemoteEvent<SelectClientEvent.Handler> {
+public class SelectClientRemoteEvent extends RemoteEvent<SelectClientRemoteEvent.Handler> {
 
 	private static final long serialVersionUID = -7796935868246937748L;
 
@@ -19,10 +19,10 @@ public class SelectClientEvent extends RemoteEvent<SelectClientEvent.Handler> {
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onClientSelected(SelectClientEvent event);
+		void onClientSelected(SelectClientRemoteEvent event);
 	}
 
-	private static final Type<SelectClientEvent.Handler> TYPE = new Type<SelectClientEvent.Handler>();
+	private static final Type<SelectClientRemoteEvent.Handler> TYPE = new Type<SelectClientRemoteEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -34,21 +34,21 @@ public class SelectClientEvent extends RemoteEvent<SelectClientEvent.Handler> {
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			SelectClientEvent.Handler handler) {
+			SelectClientRemoteEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
 	private long clientId;
 
-	public SelectClientEvent() {
+	public SelectClientRemoteEvent() {
 	}
 	
-	public SelectClientEvent(long clientId) {
+	public SelectClientRemoteEvent(long clientId) {
 		this.clientId = clientId;
 	}
 
 	@Override
-	public Type<SelectClientEvent.Handler> getAssociatedType() {
+	public Type<SelectClientRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 

@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
@@ -126,13 +126,13 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(names);
 
-		ConnectionStatusChangedEvent.subscribe(
+		ConnectionStatusChangedRemoteEvent.subscribe(
 				clientFactory.getRemoteEventBus(),
-				new ConnectionStatusChangedEvent.Handler() {
+				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onConnectionStatusChanged(
-							ConnectionStatusChangedEvent event) {
+							ConnectionStatusChangedRemoteEvent event) {
 						switch (event.getConnection()) {
 						case audio:
 							audioOk = event.isOk();
@@ -157,13 +157,13 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 					}
 				});
 
-		InterventionMapChangedEvent.subscribe(
+		InterventionMapChangedRemoteEvent.subscribe(
 				clientFactory.getRemoteEventBus(),
-				new InterventionMapChangedEvent.Handler() {
+				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onInterventionMapChanged(
-							InterventionMapChangedEvent event) {
+							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
 						scheduler.update();
 					}

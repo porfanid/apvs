@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
+import ch.cern.atlas.apvs.client.event.PlaceChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
 import ch.cern.atlas.apvs.client.tablet.CameraPlace;
@@ -65,16 +65,16 @@ public class PlaceView extends SimplePanel implements Module,
 					ptuId = event.getPtuId();
 
 					remoteEventBus.fireEvent(new RequestRemoteEvent(
-							PlaceChangedEvent.class));
+							PlaceChangedRemoteEvent.class));
 				}
 			});
 		}
 
-		PlaceChangedEvent.subscribe(remoteEventBus,
-				new PlaceChangedEvent.Handler() {
+		PlaceChangedRemoteEvent.subscribe(remoteEventBus,
+				new PlaceChangedRemoteEvent.Handler() {
 
 					@Override
-					public void onPlaceChanged(PlaceChangedEvent event) {
+					public void onPlaceChanged(PlaceChangedRemoteEvent event) {
 						if (ptuId == null)
 							return;
 

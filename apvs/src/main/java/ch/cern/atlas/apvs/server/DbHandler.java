@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.User;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.domain.Event;
@@ -56,11 +56,11 @@ public class DbHandler extends DbReconnectHandler {
 			public void onRequestEvent(RequestRemoteEvent event) {
 				String type = event.getRequestedClassName();
 
-				if (type.equals(InterventionMapChangedEvent.class.getName())) {
-					InterventionMapChangedEvent.fire(eventBus, interventions);
-				} else if (type.equals(ConnectionStatusChangedEvent.class
+				if (type.equals(InterventionMapChangedRemoteEvent.class.getName())) {
+					InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
+				} else if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
-					ConnectionStatusChangedEvent.fire(eventBus,
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,
 							ConnectionType.database, isConnected());
 				}
 			}
@@ -213,7 +213,7 @@ public class DbHandler extends DbReconnectHandler {
 	public void dbConnected(DataSource datasource) throws SQLException {
 		super.dbConnected(datasource);
 
-		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.database,
+		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.database,
 				true);
 
 		updateInterventions();
@@ -223,11 +223,11 @@ public class DbHandler extends DbReconnectHandler {
 	public void dbDisconnected() throws SQLException {
 		super.dbDisconnected();
 
-		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.database,
+		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.database,
 				false);
 
 		interventions.clear();
-		InterventionMapChangedEvent.fire(eventBus, interventions);
+		InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 	}
 
 	private String getSql(String sql, Range range, SortOrder[] order) {
@@ -663,7 +663,7 @@ public class DbHandler extends DbReconnectHandler {
 
 		if (!interventions.equals(newMap)) {
 			interventions = newMap;
-			InterventionMapChangedEvent.fire(eventBus, interventions);
+			InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 		}
 	}
 

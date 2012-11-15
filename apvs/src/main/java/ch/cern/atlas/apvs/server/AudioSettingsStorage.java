@@ -5,8 +5,8 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -27,20 +27,20 @@ public class AudioSettingsStorage {
 
 		load();
 
-		AudioSettingsChangedEvent.register(eventBus, new AudioSettingsChangedEvent.Handler() {
+		AudioSettingsChangedRemoteEvent.register(eventBus, new AudioSettingsChangedRemoteEvent.Handler() {
 					
 					@Override
-					public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
+					public void onAudioSettingsChanged(AudioSettingsChangedRemoteEvent event) {
 						audioSettings = event.getAudioSettings();
 						store();	
 					}
 		});
 		
-		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(eventBus, new InterventionMapChangedRemoteEvent.Handler() {
 
 			@Override
 			public void onInterventionMapChanged(
-					InterventionMapChangedEvent event) {
+					InterventionMapChangedRemoteEvent event) {
 				InterventionMap interventions = event.getInterventionMap();
 				boolean changed = false;
 				for (Iterator<String> i = interventions.getPtuIds().iterator(); i.hasNext(); ) {
@@ -55,7 +55,7 @@ public class AudioSettingsStorage {
 				}
 
 				if (changed) {
-					eventBus.fireEvent(new AudioSettingsChangedEvent(audioSettings));
+					eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(audioSettings));
 				}
 			}
 		});
@@ -64,13 +64,13 @@ public class AudioSettingsStorage {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
-				if (event.getRequestedClassName().equals(AudioSettingsChangedEvent.class.getName())) {
-					eventBus.fireEvent(new AudioSettingsChangedEvent(audioSettings));
+				if (event.getRequestedClassName().equals(AudioSettingsChangedRemoteEvent.class.getName())) {
+					eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(audioSettings));
 				}
 			}
 		});
 
-		eventBus.fireEvent(new AudioSettingsChangedEvent(audioSettings));
+		eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(audioSettings));
 	}
 
 	public static AudioSettingsStorage getInstance(RemoteEventBus eventBus) {

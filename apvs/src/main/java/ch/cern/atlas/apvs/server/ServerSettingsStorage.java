@@ -3,7 +3,7 @@ package ch.cern.atlas.apvs.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -23,12 +23,12 @@ public class ServerSettingsStorage {
 
 		load();
 
-		ServerSettingsChangedEvent.register(eventBus,
-				new ServerSettingsChangedEvent.Handler() {
+		ServerSettingsChangedRemoteEvent.register(eventBus,
+				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onServerSettingsChanged(
-							ServerSettingsChangedEvent event) {
+							ServerSettingsChangedRemoteEvent event) {
 						settings = event.getServerSettings();
 
 						store();
@@ -40,13 +40,13 @@ public class ServerSettingsStorage {
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
 				if (event.getRequestedClassName().equals(
-						ServerSettingsChangedEvent.class.getName())) {
-					eventBus.fireEvent(new ServerSettingsChangedEvent(settings));
+						ServerSettingsChangedRemoteEvent.class.getName())) {
+					eventBus.fireEvent(new ServerSettingsChangedRemoteEvent(settings));
 				}
 			}
 		});
 
-		eventBus.fireEvent(new ServerSettingsChangedEvent(settings));
+		eventBus.fireEvent(new ServerSettingsChangedRemoteEvent(settings));
 	}
 
 	public static ServerSettingsStorage getInstance(RemoteEventBus eventBus) {

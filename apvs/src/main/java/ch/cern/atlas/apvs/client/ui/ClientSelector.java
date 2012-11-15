@@ -3,7 +3,7 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.Collections;
 import java.util.List;
 
-import ch.cern.atlas.apvs.client.event.SelectClientEvent;
+import ch.cern.atlas.apvs.client.event.SelectClientRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 
@@ -31,7 +31,7 @@ public class ClientSelector extends SimplePanel {
 				} catch (NumberFormatException e) {
 					selectedClientId = -1;
 				}
-				eventBus.fireEvent(new SelectClientEvent(selectedClientId));
+				eventBus.fireEvent(new SelectClientRemoteEvent(selectedClientId));
 			}
 		});
 		

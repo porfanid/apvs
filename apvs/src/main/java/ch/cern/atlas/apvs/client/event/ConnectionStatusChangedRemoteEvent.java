@@ -7,8 +7,8 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class ConnectionStatusChangedEvent extends
-		RemoteEvent<ConnectionStatusChangedEvent.Handler> {
+public class ConnectionStatusChangedRemoteEvent extends
+		RemoteEvent<ConnectionStatusChangedRemoteEvent.Handler> {
 
 	private static final long serialVersionUID = 8865199851228810365L;
 
@@ -34,14 +34,14 @@ public class ConnectionStatusChangedEvent extends
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onConnectionStatusChanged(ConnectionStatusChangedEvent event);
+		void onConnectionStatusChanged(ConnectionStatusChangedRemoteEvent event);
 	}
 
-	private static final Type<ConnectionStatusChangedEvent.Handler> TYPE = new Type<ConnectionStatusChangedEvent.Handler>();
+	private static final Type<ConnectionStatusChangedRemoteEvent.Handler> TYPE = new Type<ConnectionStatusChangedRemoteEvent.Handler>();
 
 	public static void fire(RemoteEventBus eventBus, ConnectionType type,
 			boolean ok) {
-		eventBus.fireEvent(new ConnectionStatusChangedEvent(type, ok));
+		eventBus.fireEvent(new ConnectionStatusChangedRemoteEvent(type, ok));
 	}
 
 	/**
@@ -54,16 +54,16 @@ public class ConnectionStatusChangedEvent extends
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			ConnectionStatusChangedEvent.Handler handler) {
+			ConnectionStatusChangedRemoteEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			ConnectionStatusChangedEvent.Handler handler) {
+			ConnectionStatusChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 
 		eventBus.fireEvent(new RequestRemoteEvent(
-				ConnectionStatusChangedEvent.class));
+				ConnectionStatusChangedRemoteEvent.class));
 
 		return registration;
 	}
@@ -71,16 +71,16 @@ public class ConnectionStatusChangedEvent extends
 	private ConnectionType connection;
 	private boolean ok;
 
-	public ConnectionStatusChangedEvent() {
+	public ConnectionStatusChangedRemoteEvent() {
 	}
 
-	public ConnectionStatusChangedEvent(ConnectionType connection, boolean ok) {
+	public ConnectionStatusChangedRemoteEvent(ConnectionType connection, boolean ok) {
 		this.connection = connection;
 		this.ok = ok;
 	}
 
 	@Override
-	public Type<ConnectionStatusChangedEvent.Handler> getAssociatedType() {
+	public Type<ConnectionStatusChangedRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 

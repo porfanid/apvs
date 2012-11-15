@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -124,12 +124,12 @@ public class CameraView extends SimplePanel implements Module,
 			});
 		}
 
-		PtuSettingsChangedEvent.subscribe(factory.getRemoteEventBus(),
-				new PtuSettingsChangedEvent.Handler() {
+		PtuSettingsChangedRemoteEvent.subscribe(factory.getRemoteEventBus(),
+				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onPtuSettingsChanged(
-							PtuSettingsChangedEvent event) {
+							PtuSettingsChangedRemoteEvent event) {
 
 						settings = event.getPtuSettings();
 

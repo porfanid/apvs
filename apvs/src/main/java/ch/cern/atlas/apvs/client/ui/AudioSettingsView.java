@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.AsteriskStatusRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
@@ -105,7 +105,7 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 			@Override
 			public void update(int index, String object, String value) {
 				voipAccounts.setNumber(object, value);
-				eventBus.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+				eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			}
 		});
 		
@@ -125,7 +125,7 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 			@Override
 			public void update(int index, String object, String value) {
 				voipAccounts.setActivity(object, value);
-				eventBus.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+				eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			}
 		});
 		
@@ -134,19 +134,19 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 		
 		//*****************************
 		//Events Registration
-		InterventionMapChangedEvent.subscribe(eventBus,new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(eventBus,new InterventionMapChangedRemoteEvent.Handler() {
 
 			@Override
-			public void onInterventionMapChanged(InterventionMapChangedEvent event){
+			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event){
 				System.err.println("PTU IDS changed");
 				activePtuIds = event.getInterventionMap().getPtuIds();
 			}
 		});
 		
-		AudioSettingsChangedEvent.subscribe(eventBus,new AudioSettingsChangedEvent.Handler() {
+		AudioSettingsChangedRemoteEvent.subscribe(eventBus,new AudioSettingsChangedRemoteEvent.Handler() {
 			
 			@Override
-			public void onAudioSettingsChanged(AudioSettingsChangedEvent event) {
+			public void onAudioSettingsChanged(AudioSettingsChangedRemoteEvent event) {
 				System.out.println("Audio Settings changed");
 				voipAccounts = event.getAudioSettings();
 
@@ -155,10 +155,10 @@ public class AudioSettingsView extends VerticalPanel implements Module{
 			}
 		}); 		
 		
-		AsteriskStatusEvent.register(eventBus, new AsteriskStatusEvent.Handler() {
+		AsteriskStatusRemoteEvent.register(eventBus, new AsteriskStatusRemoteEvent.Handler() {
 			
 			@Override
-			public void onAsteriskStatusChange(AsteriskStatusEvent event) {
+			public void onAsteriskStatusChange(AsteriskStatusRemoteEvent event) {
 				System.out.println("Asterisk Event");
 				usersList.clear();
 				usersList.addAll(event.getAsteriskUsersList());

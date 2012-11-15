@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.DbService;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -42,12 +42,12 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 
 		log.info("Starting DbService...");
 
-		ServerSettingsChangedEvent.subscribe(eventBus,
-				new ServerSettingsChangedEvent.Handler() {
+		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onServerSettingsChanged(
-							ServerSettingsChangedEvent event) {
+							ServerSettingsChangedRemoteEvent event) {
 						ServerSettings settings = event.getServerSettings();
 						if (settings != null) {
 							String url = settings

@@ -6,7 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.client.widget.OptionList;
@@ -57,12 +57,12 @@ public class PtuSelector extends VerticalFlowPanel {
 			}
 		});
 
-		InterventionMapChangedEvent.subscribe((RemoteEventBus)remoteEventBus,
-				new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe((RemoteEventBus)remoteEventBus,
+				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onInterventionMapChanged(
-							InterventionMapChangedEvent event) {
+							InterventionMapChangedRemoteEvent event) {
 						ptuIds = event.getInterventionMap().getPtuIds();
 
 						ptuId = LocalStorage.getInstance().get(

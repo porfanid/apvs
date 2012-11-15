@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
@@ -106,10 +106,10 @@ public class MeasurementView extends GlassPanel implements Module {
 
 		add(table, CENTER);
 		
-		ConnectionStatusChangedEvent.subscribe(remoteEventBus, new ConnectionStatusChangedEvent.Handler() {
+		ConnectionStatusChangedRemoteEvent.subscribe(remoteEventBus, new ConnectionStatusChangedRemoteEvent.Handler() {
 			
 			@Override
-			public void onConnectionStatusChanged(ConnectionStatusChangedEvent event) {
+			public void onConnectionStatusChanged(ConnectionStatusChangedRemoteEvent event) {
 				switch(event.getConnection()) {
 					case daq:
 						daqOk = event.isOk();
@@ -125,12 +125,12 @@ public class MeasurementView extends GlassPanel implements Module {
 			}
 		});
 
-		InterventionMapChangedEvent.subscribe(remoteEventBus,
-				new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(remoteEventBus,
+				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onInterventionMapChanged(
-							InterventionMapChangedEvent event) {
+							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
 						scheduler.update();
 					}

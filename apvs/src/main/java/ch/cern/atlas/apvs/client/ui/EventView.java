@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.EventServiceAsync;
@@ -205,13 +205,13 @@ public class EventView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 
 		// Subscriptions
-		ConnectionStatusChangedEvent.subscribe(
+		ConnectionStatusChangedRemoteEvent.subscribe(
 				clientFactory.getRemoteEventBus(),
-				new ConnectionStatusChangedEvent.Handler() {
+				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onConnectionStatusChanged(
-							ConnectionStatusChangedEvent event) {
+							ConnectionStatusChangedRemoteEvent event) {
 						switch (event.getConnection()) {
 						case daq:
 							daqOk = event.isOk();

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
@@ -89,7 +89,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 						+ value.getClass());
 				settings.put(name, value.toString());
 				((RemoteEventBus) eventBus)
-						.fireEvent(new ServerSettingsChangedEvent(settings));
+						.fireEvent(new ServerSettingsChangedRemoteEvent(settings));
 			}
 		});
 
@@ -99,11 +99,11 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(ServerSettings.Entry.getKeys());
 
-		ServerSettingsChangedEvent.subscribe(eventBus,
-				new ServerSettingsChangedEvent.Handler() {
+		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+				new ServerSettingsChangedRemoteEvent.Handler() {
 					@Override
 					public void onServerSettingsChanged(
-							ServerSettingsChangedEvent event) {
+							ServerSettingsChangedRemoteEvent event) {
 
 						settings = event.getServerSettings();
 

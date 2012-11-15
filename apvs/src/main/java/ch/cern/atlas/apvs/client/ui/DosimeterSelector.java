@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import ch.cern.atlas.apvs.client.event.SelectDosimeterEvent;
+import ch.cern.atlas.apvs.client.event.SelectDosimeterRemoteEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -32,15 +32,15 @@ public class DosimeterSelector extends VerticalFlowPanel {
 				} catch (NumberFormatException e) {
 					serialNo = 0;
 				}
-				eventBus.fireEvent(new SelectDosimeterEvent(serialNo));
+				eventBus.fireEvent(new SelectDosimeterRemoteEvent(serialNo));
 			}
 		});
 
-		SelectDosimeterEvent.register(eventBus,
-				new SelectDosimeterEvent.Handler() {
+		SelectDosimeterRemoteEvent.register(eventBus,
+				new SelectDosimeterRemoteEvent.Handler() {
 
 					@Override
-					public void onDosimeterSelected(SelectDosimeterEvent event) {
+					public void onDosimeterSelected(SelectDosimeterRemoteEvent event) {
 						if (eventBus.getUUID() != event.getEventBusUUID())
 							return;
 

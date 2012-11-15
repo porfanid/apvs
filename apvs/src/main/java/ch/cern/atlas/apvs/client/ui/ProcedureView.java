@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.NavigateStepEvent;
 import ch.cern.atlas.apvs.client.event.SelectStepEvent;
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.StepStatusEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
@@ -81,12 +81,12 @@ public class ProcedureView extends SimplePanel implements Module {
 					}
 				});
 
-		ServerSettingsChangedEvent.subscribe(remoteEventBus,
-				new ServerSettingsChangedEvent.Handler() {
+		ServerSettingsChangedRemoteEvent.subscribe(remoteEventBus,
+				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onServerSettingsChanged(
-							ServerSettingsChangedEvent event) {
+							ServerSettingsChangedRemoteEvent event) {
 						procedureURL = event.getServerSettings().get(
 								ServerSettings.Entry.procedureUrl.toString());
 						localEventBus.fireEvent(new StepStatusEvent(

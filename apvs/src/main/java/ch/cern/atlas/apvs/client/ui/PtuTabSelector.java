@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
@@ -82,24 +82,24 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 			});
 		}
 
-		PtuSettingsChangedEvent.subscribe(remoteEventBus,
-				new PtuSettingsChangedEvent.Handler() {
+		PtuSettingsChangedRemoteEvent.subscribe(remoteEventBus,
+				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onPtuSettingsChanged(
-							PtuSettingsChangedEvent event) {
+							PtuSettingsChangedRemoteEvent event) {
 						settings = event.getPtuSettings();
 
 						scheduler.update();
 					}
 				});
 
-		InterventionMapChangedEvent.subscribe(remoteEventBus,
-				new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(remoteEventBus,
+				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onInterventionMapChanged(
-							InterventionMapChangedEvent event) {
+							InterventionMapChangedRemoteEvent event) {
 
 						interventions = event.getInterventionMap();
 

@@ -12,7 +12,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.dosimeter.server.DosimeterClientHandler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -48,12 +48,12 @@ public class DosimeterServiceImpl extends ResponsePollService {
 
 			log.info("Starting DosimeterService...");
 
-			ServerSettingsChangedEvent.subscribe(eventBus,
-					new ServerSettingsChangedEvent.Handler() {
+			ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+					new ServerSettingsChangedRemoteEvent.Handler() {
 
 						@Override
 						public void onServerSettingsChanged(
-								ServerSettingsChangedEvent event) {
+								ServerSettingsChangedRemoteEvent event) {
 							ServerSettings settings = event.getServerSettings();
 							if (settings != null) {
 								String url = settings

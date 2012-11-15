@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
@@ -151,12 +151,12 @@ public class AudioSummary extends GlassPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(new ArrayList<String>());
 
-		ConnectionStatusChangedEvent.subscribe(eventBus,
-				new ConnectionStatusChangedEvent.Handler() {
+		ConnectionStatusChangedRemoteEvent.subscribe(eventBus,
+				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onConnectionStatusChanged(
-							ConnectionStatusChangedEvent event) {
+							ConnectionStatusChangedRemoteEvent event) {
 						switch (event.getConnection()) {
 						case audio:
 							audioOk = event.isOk();
@@ -172,12 +172,12 @@ public class AudioSummary extends GlassPanel implements Module {
 					}
 				});
 
-		InterventionMapChangedEvent.subscribe(eventBus,
-				new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onInterventionMapChanged(
-							InterventionMapChangedEvent event) {
+							InterventionMapChangedRemoteEvent event) {
 						List<String> activePtuIds = event.getInterventionMap()
 								.getPtuIds();
 						dataProvider.getList().clear();
@@ -185,12 +185,12 @@ public class AudioSummary extends GlassPanel implements Module {
 					}
 				});
 
-		AudioSettingsChangedEvent.subscribe(eventBus,
-				new AudioSettingsChangedEvent.Handler() {
+		AudioSettingsChangedRemoteEvent.subscribe(eventBus,
+				new AudioSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onAudioSettingsChanged(
-							AudioSettingsChangedEvent event) {
+							AudioSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
 
 						dataProvider.getList().clear();

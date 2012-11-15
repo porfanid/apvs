@@ -38,11 +38,11 @@ import org.asteriskjava.manager.event.PeerStatusEvent;
 
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.domain.Conference;
-import ch.cern.atlas.apvs.client.event.AsteriskStatusEvent;
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
-import ch.cern.atlas.apvs.client.event.MeetMeEvent;
+import ch.cern.atlas.apvs.client.event.AsteriskStatusRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
 import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
@@ -95,8 +95,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 			public void onRequestEvent(RequestRemoteEvent event) {
 				String type = event.getRequestedClassName();
 
-				if (type.equals(ConnectionStatusChangedEvent.class.getName())) {
-					ConnectionStatusChangedEvent.fire(eventBus,
+				if (type.equals(ConnectionStatusChangedRemoteEvent.class.getName())) {
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,
 							ConnectionType.audio, audioOk);
 				}
 			}
@@ -147,11 +147,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 												
 						if (ping.isAlive()) {
 							audioOk = true;
-							ConnectionStatusChangedEvent.fire(eventBus,ConnectionType.audio, audioOk);
+							ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 						} else {
 							audioOk = false;
 							System.err.println("Asterisk Server is not available...");
-							ConnectionStatusChangedEvent.fire(eventBus,ConnectionType.audio, audioOk);
+							ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 						}
 					}
 				}, 0, ASTERISK_POOLING, TimeUnit.MILLISECONDS);
@@ -167,20 +167,20 @@ public class AudioServiceImpl extends ResponsePollService implements
 			}
 		});
 
-		AudioSettingsChangedEvent.subscribe(eventBus,
-				new AudioSettingsChangedEvent.Handler() {
+		AudioSettingsChangedRemoteEvent.subscribe(eventBus,
+				new AudioSettingsChangedRemoteEvent.Handler() {
 			
 					@Override
 					public void onAudioSettingsChanged(
-							AudioSettingsChangedEvent event) {
+							AudioSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
 					}
 				});
 
-		MeetMeEvent.subscribe(eventBus, new MeetMeEvent.Handler() {
+		MeetMeRemoteEvent.subscribe(eventBus, new MeetMeRemoteEvent.Handler() {
 
 			@Override
-			public void onMeetMeEvent(MeetMeEvent event) {
+			public void onMeetMeEvent(MeetMeRemoteEvent event) {
 				conferenceRooms = event.getConferenceRooms();
 			}
 		});
@@ -359,7 +359,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		if (ptuId != null) {
 			voipAccounts.setChannel(ptuId, channel);
 			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			return;
 		}
 		System.err.println("NO PTU FOUND WITH NUMBER " + number);
@@ -384,7 +384,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					voipAccounts.getUsername(ptuId1), ptuId1);
 			voipAccounts.setOnCall(ptuId2, true);
 			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			return;
 		}
 		System.err.println("NO PTUS FOUND WITH NUMBERS " + number1 + " & "
@@ -403,7 +403,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			voipAccounts.setOnConference(ptuId, false);
 			voipAccounts.setRoom(ptuId, "");
 			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			return;
 		}
 		System.err.println("NO PTU FOUND WITH NUMBER " + number);
@@ -422,7 +422,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		if (ptuId != null) {
 			voipAccounts.setStatus(ptuId, status);
 			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
+					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			return;
 		}
 		System.err.println("NO PTU FOUND OR ASSIGNED WITH NUMBER " + number);
@@ -453,8 +453,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 					voipAccounts.getUsername(ptuId));
 
 			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
-			((RemoteEventBus) eventBus).fireEvent(new MeetMeEvent(
+					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
+			((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(
 					conferenceRooms));
 			return;
 		}
@@ -484,8 +484,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 			conferenceRooms.get(room).getUsernames().remove(index);
 
 			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioSettingsChangedEvent(voipAccounts));
-			((RemoteEventBus) eventBus).fireEvent(new MeetMeEvent(
+					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
+			((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(
 					conferenceRooms));
 			return;
 		}
@@ -504,7 +504,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String number = "SIP/" + event.getObjectName();
 		usersList.add(number);
 		((RemoteEventBus) eventBus)
-				.fireEvent(new AsteriskStatusEvent(usersList));
+				.fireEvent(new AsteriskStatusRemoteEvent(usersList));
 	}
 
 }

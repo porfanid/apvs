@@ -8,7 +8,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class PtuSettingsChangedEvent extends RemoteEvent<PtuSettingsChangedEvent.Handler> {
+public class PtuSettingsChangedRemoteEvent extends RemoteEvent<PtuSettingsChangedRemoteEvent.Handler> {
 
 	private static final long serialVersionUID = -9142224229884250487L;
 
@@ -19,10 +19,10 @@ public class PtuSettingsChangedEvent extends RemoteEvent<PtuSettingsChangedEvent
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onPtuSettingsChanged(PtuSettingsChangedEvent event);
+		void onPtuSettingsChanged(PtuSettingsChangedRemoteEvent event);
 	}
 
-	private static final Type<PtuSettingsChangedEvent.Handler> TYPE = new Type<PtuSettingsChangedEvent.Handler>();
+	private static final Type<PtuSettingsChangedRemoteEvent.Handler> TYPE = new Type<PtuSettingsChangedRemoteEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -34,30 +34,30 @@ public class PtuSettingsChangedEvent extends RemoteEvent<PtuSettingsChangedEvent
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			PtuSettingsChangedEvent.Handler handler) {
+			PtuSettingsChangedRemoteEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			PtuSettingsChangedEvent.Handler handler) {
+			PtuSettingsChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(PtuSettingsChangedEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(PtuSettingsChangedRemoteEvent.class));
 		
 		return registration;
 	}
 
 	private PtuSettings settings;
 
-	public PtuSettingsChangedEvent() {
+	public PtuSettingsChangedRemoteEvent() {
 	}
 
-	public PtuSettingsChangedEvent(PtuSettings settings) {
+	public PtuSettingsChangedRemoteEvent(PtuSettings settings) {
 		this.settings = settings;
 	}
 
 	@Override
-	public Type<PtuSettingsChangedEvent.Handler> getAssociatedType() {
+	public Type<PtuSettingsChangedRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 

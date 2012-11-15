@@ -8,7 +8,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class MeetMeEvent extends RemoteEvent<MeetMeEvent.Handler>{
+public class MeetMeRemoteEvent extends RemoteEvent<MeetMeRemoteEvent.Handler>{
 
 	/**
 	 * 
@@ -17,28 +17,28 @@ public class MeetMeEvent extends RemoteEvent<MeetMeEvent.Handler>{
 
 	public interface Handler{
 		
-		void onMeetMeEvent(MeetMeEvent event);
+		void onMeetMeEvent(MeetMeRemoteEvent event);
 	}
 	
-	private static final Type<MeetMeEvent.Handler> TYPE = new Type<MeetMeEvent.Handler>();
+	private static final Type<MeetMeRemoteEvent.Handler> TYPE = new Type<MeetMeRemoteEvent.Handler>();
 	
-	public static HandlerRegistration register(RemoteEventBus eventBus, MeetMeEvent.Handler handler){
+	public static HandlerRegistration register(RemoteEventBus eventBus, MeetMeRemoteEvent.Handler handler){
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus, MeetMeEvent.Handler handler){
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus, MeetMeRemoteEvent.Handler handler){
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(MeetMeEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(MeetMeRemoteEvent.class));
 		
 		return registration;
 	}
 
 	private ConferenceRooms conferenceRooms;
 	
-	public MeetMeEvent(){
+	public MeetMeRemoteEvent(){
 	}
 	
-	public MeetMeEvent(ConferenceRooms conferenceRooms){
+	public MeetMeRemoteEvent(ConferenceRooms conferenceRooms){
 		this.conferenceRooms = conferenceRooms;
 	}
 	
@@ -51,7 +51,7 @@ public class MeetMeEvent extends RemoteEvent<MeetMeEvent.Handler>{
 	}
 	
 	@Override
-	public Type<MeetMeEvent.Handler> getAssociatedType() {
+	public Type<MeetMeRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 	

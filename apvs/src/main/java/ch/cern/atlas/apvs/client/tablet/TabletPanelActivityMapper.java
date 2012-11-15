@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.PlaceChangedEvent;
+import ch.cern.atlas.apvs.client.event.PlaceChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.places.SharedPlace;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -44,7 +44,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 				ptuId = event.getPtuId();
 
 				if (lastPlace instanceof SharedPlace) {
-					remoteEventBus.fireEvent(new PlaceChangedEvent(ptuId,
+					remoteEventBus.fireEvent(new PlaceChangedRemoteEvent(ptuId,
 							(SharedPlace) lastPlace));
 				}
 			}
@@ -60,10 +60,10 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 							return;
 
 						if (event.getRequestedClassName().equals(
-								PlaceChangedEvent.class.getName())) {
+								PlaceChangedRemoteEvent.class.getName())) {
 							if (lastPlace instanceof SharedPlace) {
 								remoteEventBus
-										.fireEvent(new PlaceChangedEvent(ptuId,
+										.fireEvent(new PlaceChangedRemoteEvent(ptuId,
 												(SharedPlace) lastPlace));
 							}
 						}
@@ -76,7 +76,7 @@ public class TabletPanelActivityMapper implements ActivityMapper {
 		if (place instanceof SharedPlace) {
 			log.info("New REMOTE place " + place.getClass());
 			remoteEventBus.fireEvent(
-					new PlaceChangedEvent(ptuId, (SharedPlace) place));
+					new PlaceChangedRemoteEvent(ptuId, (SharedPlace) place));
 		}
 		Activity activity = getActivity(lastPlace, place);
 		lastPlace = place;

@@ -8,39 +8,39 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class AsteriskStatusEvent extends
-		RemoteEvent<AsteriskStatusEvent.Handler> {
+public class AsteriskStatusRemoteEvent extends
+		RemoteEvent<AsteriskStatusRemoteEvent.Handler> {
 
 	private static final long serialVersionUID = 1L;
 
 	public interface Handler {
 
-		void onAsteriskStatusChange(AsteriskStatusEvent event);
+		void onAsteriskStatusChange(AsteriskStatusRemoteEvent event);
 	}
 
-	private static final Type<AsteriskStatusEvent.Handler> TYPE = new Type<AsteriskStatusEvent.Handler>();
+	private static final Type<AsteriskStatusRemoteEvent.Handler> TYPE = new Type<AsteriskStatusRemoteEvent.Handler>();
 
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			AsteriskStatusEvent.Handler handler) {
+			AsteriskStatusRemoteEvent.Handler handler) {
 
 		return eventBus.addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			AsteriskStatusEvent.Handler handler) {
+			AsteriskStatusRemoteEvent.Handler handler) {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(AsteriskStatusEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(AsteriskStatusRemoteEvent.class));
 
 		return registration;
 	}
 
 	private List<String> usersList;
 
-	public AsteriskStatusEvent() {
+	public AsteriskStatusRemoteEvent() {
 	}
 
-	public AsteriskStatusEvent(List<String> usersList) {
+	public AsteriskStatusRemoteEvent(List<String> usersList) {
 		this.usersList = usersList;
 	}
 
@@ -49,12 +49,12 @@ public class AsteriskStatusEvent extends
 	}
 
 	@Override
-	public Type<AsteriskStatusEvent.Handler> getAssociatedType() {
+	public Type<AsteriskStatusRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
 	@Override
-	protected void dispatch(AsteriskStatusEvent.Handler handler) {
+	protected void dispatch(AsteriskStatusRemoteEvent.Handler handler) {
 		handler.onAsteriskStatusChange(this);
 
 	}

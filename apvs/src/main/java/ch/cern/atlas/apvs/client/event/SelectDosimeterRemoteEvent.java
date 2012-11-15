@@ -6,7 +6,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class SelectDosimeterEvent extends RemoteEvent<SelectDosimeterEvent.Handler> {
+public class SelectDosimeterRemoteEvent extends RemoteEvent<SelectDosimeterRemoteEvent.Handler> {
 
 	private static final long serialVersionUID = 3684090069329583327L;
 
@@ -17,10 +17,10 @@ public class SelectDosimeterEvent extends RemoteEvent<SelectDosimeterEvent.Handl
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onDosimeterSelected(SelectDosimeterEvent event);
+		void onDosimeterSelected(SelectDosimeterRemoteEvent event);
 	}
 
-	private static final Type<SelectDosimeterEvent.Handler> TYPE = new Type<SelectDosimeterEvent.Handler>();
+	private static final Type<SelectDosimeterRemoteEvent.Handler> TYPE = new Type<SelectDosimeterRemoteEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -32,21 +32,21 @@ public class SelectDosimeterEvent extends RemoteEvent<SelectDosimeterEvent.Handl
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			SelectDosimeterEvent.Handler handler) {
+			SelectDosimeterRemoteEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
 	private int serialNo;
 	
-	public SelectDosimeterEvent() {
+	public SelectDosimeterRemoteEvent() {
 	}
 
-	public SelectDosimeterEvent(int serialNo) {
+	public SelectDosimeterRemoteEvent(int serialNo) {
 		this.serialNo = serialNo;
 	}
 
 	@Override
-	public Type<SelectDosimeterEvent.Handler> getAssociatedType() {
+	public Type<SelectDosimeterRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 

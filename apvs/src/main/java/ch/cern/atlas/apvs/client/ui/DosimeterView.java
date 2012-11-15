@@ -5,9 +5,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
@@ -140,13 +140,13 @@ public class DosimeterView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(serialNo);
 
-		ConnectionStatusChangedEvent.subscribe(
+		ConnectionStatusChangedRemoteEvent.subscribe(
 				clientFactory.getRemoteEventBus(),
-				new ConnectionStatusChangedEvent.Handler() {
+				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onConnectionStatusChanged(
-							ConnectionStatusChangedEvent event) {
+							ConnectionStatusChangedRemoteEvent event) {
 						switch (event.getConnection()) {
 						case daq:
 							daqOk = event.isOk();
@@ -162,24 +162,24 @@ public class DosimeterView extends GlassPanel implements Module {
 					}
 				});
 		
-		PtuSettingsChangedEvent.subscribe(remoteEventBus,
-				new PtuSettingsChangedEvent.Handler() {
+		PtuSettingsChangedRemoteEvent.subscribe(remoteEventBus,
+				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onPtuSettingsChanged(
-							PtuSettingsChangedEvent event) {
+							PtuSettingsChangedRemoteEvent event) {
 						settings = event.getPtuSettings();
 
 						scheduler.update();
 					}
 				});
 
-		InterventionMapChangedEvent.subscribe(remoteEventBus,
-				new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(remoteEventBus,
+				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onInterventionMapChanged(
-							InterventionMapChangedEvent event) {
+							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
 						scheduler.update();
 					}

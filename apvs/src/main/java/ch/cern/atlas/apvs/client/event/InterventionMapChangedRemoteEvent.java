@@ -8,7 +8,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class InterventionMapChangedEvent extends RemoteEvent<InterventionMapChangedEvent.Handler> {
+public class InterventionMapChangedRemoteEvent extends RemoteEvent<InterventionMapChangedRemoteEvent.Handler> {
 
 	private static final long serialVersionUID = -6369043960585044786L;
 
@@ -19,14 +19,14 @@ public class InterventionMapChangedEvent extends RemoteEvent<InterventionMapChan
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onInterventionMapChanged(InterventionMapChangedEvent event);
+		void onInterventionMapChanged(InterventionMapChangedRemoteEvent event);
 	}
 
 	public static void fire(RemoteEventBus eventBus, InterventionMap interventions) {
-		eventBus.fireEvent(new InterventionMapChangedEvent(interventions));
+		eventBus.fireEvent(new InterventionMapChangedRemoteEvent(interventions));
 	}	
 	
-	private static final Type<InterventionMapChangedEvent.Handler> TYPE = new Type<InterventionMapChangedEvent.Handler>();
+	private static final Type<InterventionMapChangedRemoteEvent.Handler> TYPE = new Type<InterventionMapChangedRemoteEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -38,30 +38,30 @@ public class InterventionMapChangedEvent extends RemoteEvent<InterventionMapChan
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			InterventionMapChangedEvent.Handler handler) {
+			InterventionMapChangedRemoteEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			InterventionMapChangedEvent.Handler handler) {
+			InterventionMapChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(InterventionMapChangedEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(InterventionMapChangedRemoteEvent.class));
 		
 		return registration;
 	}
 
 	private InterventionMap interventions;
 
-	public InterventionMapChangedEvent() {
+	public InterventionMapChangedRemoteEvent() {
 	}
 
-	public InterventionMapChangedEvent(InterventionMap interventions) {
+	public InterventionMapChangedRemoteEvent(InterventionMap interventions) {
 		this.interventions = interventions;
 	}
 
 	@Override
-	public Type<InterventionMapChangedEvent.Handler> getAssociatedType() {
+	public Type<InterventionMapChangedRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 

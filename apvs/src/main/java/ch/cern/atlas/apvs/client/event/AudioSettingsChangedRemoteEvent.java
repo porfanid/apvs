@@ -7,39 +7,39 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class AudioSettingsChangedEvent extends
-		RemoteEvent<AudioSettingsChangedEvent.Handler> {
+public class AudioSettingsChangedRemoteEvent extends
+		RemoteEvent<AudioSettingsChangedRemoteEvent.Handler> {
 
 	private static final long serialVersionUID = 1L;
 
 	public interface Handler {
 
-		void onAudioSettingsChanged(AudioSettingsChangedEvent event);
+		void onAudioSettingsChanged(AudioSettingsChangedRemoteEvent event);
 	}
 
-	private static final Type<AudioSettingsChangedEvent.Handler> TYPE = new Type<AudioSettingsChangedEvent.Handler>();
+	private static final Type<AudioSettingsChangedRemoteEvent.Handler> TYPE = new Type<AudioSettingsChangedRemoteEvent.Handler>();
 
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			AudioSettingsChangedEvent.Handler handler) {
+			AudioSettingsChangedRemoteEvent.Handler handler) {
 
 		return eventBus.addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			AudioSettingsChangedEvent.Handler handler) {
+			AudioSettingsChangedRemoteEvent.Handler handler) {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(AudioSettingsChangedEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(AudioSettingsChangedRemoteEvent.class));
 
 		return registration;
 	}
 
 	private AudioSettings voipAccounts;
 
-	public AudioSettingsChangedEvent() {
+	public AudioSettingsChangedRemoteEvent() {
 	}
 
-	public AudioSettingsChangedEvent(AudioSettings voipAccount) {
+	public AudioSettingsChangedRemoteEvent(AudioSettings voipAccount) {
 		this.voipAccounts = voipAccount;
 	}
 
@@ -48,7 +48,7 @@ public class AudioSettingsChangedEvent extends
 	}
 
 	@Override
-	public Type<AudioSettingsChangedEvent.Handler> getAssociatedType() {
+	public Type<AudioSettingsChangedRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 

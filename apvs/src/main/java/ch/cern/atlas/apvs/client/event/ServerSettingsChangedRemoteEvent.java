@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client.event;
 
-import ch.cern.atlas.apvs.client.places.SharedPlace;
+import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -8,9 +8,9 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class PlaceChangedEvent extends RemoteEvent<PlaceChangedEvent.Handler> {
+public class ServerSettingsChangedRemoteEvent extends RemoteEvent<ServerSettingsChangedRemoteEvent.Handler> {
 
-	private static final long serialVersionUID = -1860914796613543708L;
+	private static final long serialVersionUID = 1233098800577352998L;
 
 	public interface Handler {
 		/**
@@ -19,10 +19,10 @@ public class PlaceChangedEvent extends RemoteEvent<PlaceChangedEvent.Handler> {
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onPlaceChanged(PlaceChangedEvent event);
+		void onServerSettingsChanged(ServerSettingsChangedRemoteEvent event);
 	}
 
-	private static final Type<PlaceChangedEvent.Handler> TYPE = new Type<PlaceChangedEvent.Handler>();
+	private static final Type<ServerSettingsChangedRemoteEvent.Handler> TYPE = new Type<ServerSettingsChangedRemoteEvent.Handler>();
 
 	/**
 	 * Register a handler for events on the eventbus.
@@ -34,51 +34,40 @@ public class PlaceChangedEvent extends RemoteEvent<PlaceChangedEvent.Handler> {
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			PlaceChangedEvent.Handler handler) {
+			ServerSettingsChangedRemoteEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			PlaceChangedEvent.Handler handler) {
+			ServerSettingsChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(PlaceChangedEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(ServerSettingsChangedRemoteEvent.class));
 		
 		return registration;
 	}
 
-	private String ptuId;
-	private SharedPlace place;
+	private ServerSettings settings;
 
-	public PlaceChangedEvent() {
+	public ServerSettingsChangedRemoteEvent() {
 	}
-	
-	public PlaceChangedEvent(String ptuId, SharedPlace place) {
-		this.ptuId = ptuId;
-		this.place = place;
+
+	public ServerSettingsChangedRemoteEvent(ServerSettings settings) {
+		this.settings = settings;
 	}
 
 	@Override
-	public Type<PlaceChangedEvent.Handler> getAssociatedType() {
+	public Type<ServerSettingsChangedRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
-	public String getPtuId() {
-		return ptuId;
+	public ServerSettings getServerSettings() {
+		return settings;
 	}
-	
-	public SharedPlace getPlace() {
-		return place;
-	}
-	
+
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onPlaceChanged(this);
-	}
-	
-	@Override
-	public String toString() {
-		return "PlaceChangedEvent "+place;
+		handler.onServerSettingsChanged(this);
 	}
 
 }

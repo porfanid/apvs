@@ -6,8 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.PtuSettingsChangedEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -27,22 +27,22 @@ public class PtuSettingsStorage {
 
 		load();
 
-		PtuSettingsChangedEvent.register(eventBus,
-				new PtuSettingsChangedEvent.Handler() {
+		PtuSettingsChangedRemoteEvent.register(eventBus,
+				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onPtuSettingsChanged(
-							PtuSettingsChangedEvent event) {
+							PtuSettingsChangedRemoteEvent event) {
 						settings = event.getPtuSettings();
 
 						store();
 					}
 				});
 		
-		InterventionMapChangedEvent.subscribe(eventBus, new InterventionMapChangedEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(eventBus, new InterventionMapChangedRemoteEvent.Handler() {
 			
 			@Override
-			public void onInterventionMapChanged(InterventionMapChangedEvent event) {
+			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
 				log.info("PTU Setting Storage: PTU IDS changed");
 				List<String> activePtuIds = event.getInterventionMap().getPtuIds();
 
@@ -54,7 +54,7 @@ public class PtuSettingsStorage {
 				}
 
 				if (changed) {
-					eventBus.fireEvent(new PtuSettingsChangedEvent(
+					eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(
 							settings));
 				}
 			}
@@ -65,13 +65,13 @@ public class PtuSettingsStorage {
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
 				if (event.getRequestedClassName().equals(
-						PtuSettingsChangedEvent.class.getName())) {
-					eventBus.fireEvent(new PtuSettingsChangedEvent(settings));
+						PtuSettingsChangedRemoteEvent.class.getName())) {
+					eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
 				}
 			}
 		});
 
-		eventBus.fireEvent(new PtuSettingsChangedEvent(settings));
+		eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
 	}
 
 	public static PtuSettingsStorage getInstance(RemoteEventBus eventBus) {

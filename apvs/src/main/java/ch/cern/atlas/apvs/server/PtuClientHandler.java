@@ -16,8 +16,8 @@ import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
@@ -53,9 +53,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			public void onRequestEvent(RequestRemoteEvent event) {
 				String type = event.getRequestedClassName();
 
-				if (type.equals(ConnectionStatusChangedEvent.class.getName())) {
-					ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, isConnected());
-					ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, isConnected() && dosimeterOk);
+				if (type.equals(ConnectionStatusChangedRemoteEvent.class.getName())) {
+					ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq, isConnected());
+					ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, isConnected() && dosimeterOk);
 				}
 			}
 		});
@@ -64,16 +64,16 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
-		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, true);
-		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq, true);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
 		super.channelConnected(ctx, e);
 	}
 	
 	@Override
 	public void channelDisconnected(ChannelHandlerContext ctx,
 			ChannelStateEvent e) throws Exception {
-		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.daq, false);
-		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq, false);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
 		super.channelDisconnected(ctx, e);
 	}
 	
@@ -166,10 +166,10 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		
 		if (message.getEventType().equals("DosConnectionStatus_OFF")) {
 			dosimeterOk = false;
-			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+			ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
 		} else if (message.getEventType().equals("DosConnectionStatus_ON")) {
 			dosimeterOk = true;
-			ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+			ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
 		}
 	}
 
