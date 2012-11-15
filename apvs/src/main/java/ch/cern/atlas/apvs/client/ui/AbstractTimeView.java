@@ -32,8 +32,8 @@ import com.google.gwt.i18n.client.NumberFormat;
 public class AbstractTimeView extends GlassPanel {
 
 	private static final int POINT_LIMIT = 200;
-	private static final String[] color = { "#4572A7", "#AA4643", "#89A54E",
-			"#80699B", "#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92" };
+	private static final String[] color = { "#AA4643", "#89A54E",
+			"#80699B", "#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
 	private Map<String, Integer> pointsById;
 	private Map<String, Series> seriesById;
 	private Map<String, String> colorsById;
@@ -72,8 +72,8 @@ public class AbstractTimeView extends GlassPanel {
 				// FIXME String.format not supported
 				.setColors(
 						// String.format("%s, ", (Object[])color))
-						"#4572A7", "#AA4643", "#89A54E", "#80699B", "#3D96AE",
-						"#DB843D", "#92A8CD", "#A47D7C", "#B5CA92")
+						"#AA4643", "#89A54E", "#80699B", "#3D96AE",
+						"#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7")
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
 				.setSizeToMatchContainer()
