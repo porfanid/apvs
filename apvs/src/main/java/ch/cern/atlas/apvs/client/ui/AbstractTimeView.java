@@ -168,10 +168,10 @@ public class AbstractTimeView extends GlassPanel {
 		long yesterday = now - (24 * 60 * 1000);
 		Date date = new Date(time);
 		if (time > nextMinute) {
-			return "<b>" + PtuClientConstants.dateFormatShort.format(date)
+			return "<b>" + PtuClientConstants.timeFormat.format(date) +"<br/>"+PtuClientConstants.dateFormatOnly.format(date)
 					+ "</b>";
 		} else if (time < yesterday) {
-			return "<i>" + PtuClientConstants.dateFormatShort.format(date)
+			return "<i>" + PtuClientConstants.timeFormat.format(date) +"<br/>"+PtuClientConstants.dateFormatOnly.format(date)
 					+ "</i>";
 		}
 		return PtuClientConstants.timeFormat.format(date);

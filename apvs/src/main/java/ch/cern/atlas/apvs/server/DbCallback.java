@@ -54,8 +54,6 @@ public class DbCallback {
 									: "oracle.jdbc.OracleDriver");
 					datasource.setJdbcUrl("jdbc:" + (LOG_DB ? "log4jdbc:" : "")
 							+ "oracle:thin:" + url);
-					// datasource.setUser("dbuser");
-					// datasource.setPassword("dbpassword");
 					
 					// FIXME check if this helps...
 					datasource.setMaxStatementsPerConnection(30);
