@@ -40,26 +40,26 @@
 		<junit-version>4.10</junit-version>
 		<log4jdbc-version>1.2</log4jdbc-version>
 		<mgwt-version>1.0.1</mgwt-version>
-		<mockito-version>1.9.5-rc1</mockito-version>
-		<netty-version>3.5.9.Final</netty-version>
+		<mockito-version>1.9.5</mockito-version>
+		<netty-version>3.5.10.Final</netty-version>
 <!--
 		<nettosphere-version>1.4.2</nettosphere-version>
 -->
 		<nettosphere-version>2.0.0.beta1</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
-		<slf4j-version>1.7.1</slf4j-version>
+		<slf4j-version>1.7.2</slf4j-version>
 		<validation-api-version>1.0.0.GA</validation-api-version>
 
 		<!-- in order on http://maven.apache.org/plugins/index.html -->
 		<clean-plugin-version>2.5</clean-plugin-version>
 		<compiler-plugin-version>2.5.1</compiler-plugin-version>
 		<deploy-plugin-version>2.7</deploy-plugin-version>
-		<failsafe-plugin-version>2.12.3</failsafe-plugin-version>
+		<failsafe-plugin-version>2.12.4</failsafe-plugin-version>
 		<install-plugin-version>2.4</install-plugin-version>
 		<resources-plugin-version>2.6</resources-plugin-version>
 		<site-plugin-version>3.2</site-plugin-version>
-		<surefire-plugin-version>2.12.3</surefire-plugin-version>
+		<surefire-plugin-version>2.12.4</surefire-plugin-version>
 		<verifier-plugin-version>1.0</verifier-plugin-version>
 
 		<jar-plugin-version>2.4</jar-plugin-version>
