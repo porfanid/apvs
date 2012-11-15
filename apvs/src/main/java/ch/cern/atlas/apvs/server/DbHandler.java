@@ -17,6 +17,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +104,8 @@ public class DbHandler extends DbReconnectHandler {
 		}, 0, 30, TimeUnit.SECONDS);
 	}
 
-	public List<History> getHistories(String ptuId, String sensor) throws SQLException {
+	public List<History> getHistories(String ptuId, String sensor)
+			throws SQLException {
 		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id";
 
@@ -115,7 +118,8 @@ public class DbHandler extends DbReconnectHandler {
 
 		sql += " order by DATETIME desc";
 
-		PreparedStatement historyQuery = getConnection().prepareStatement(sql);
+		Connection connection = getConnection();
+		PreparedStatement historyQuery = connection.prepareStatement(sql);
 
 		int param = 1;
 		if (sensor != null) {
@@ -126,7 +130,7 @@ public class DbHandler extends DbReconnectHandler {
 			historyQuery.setString(param, ptuId);
 			param++;
 		}
-		
+
 		long PERIOD = 36; // hours
 		int MAX_ENTRIES = 1000; // number
 		long MIN_INTERVAL = 5000; // ms
@@ -136,7 +140,7 @@ public class DbHandler extends DbReconnectHandler {
 		Map<String, Deque<Number[]>> data = new HashMap<String, Deque<Number[]>>();
 		Map<String, String> units = new HashMap<String, String>();
 		Map<String, Long> lastTimes = new HashMap<String, Long>();
-		
+
 		long time = 0;
 		long then = -1;
 		ResultSet result = historyQuery.executeQuery();
@@ -149,17 +153,17 @@ public class DbHandler extends DbReconnectHandler {
 				if (time < then) {
 					break;
 				}
-				
+
 				ptuId = result.getString("name");
 				sensor = result.getString("sensor");
-				String key = ptuId+":"+sensor;
+				String key = ptuId + ":" + sensor;
 				ptuIds.put(key, ptuId);
 				sensors.put(key, sensor);
 				lastTimes.put(key, new Date().getTime() + MIN_INTERVAL);
-				
+
 				String unit = result.getString("unit");
 				double value = Double.parseDouble(result.getString("value"));
-				
+
 				// Scale down to microSievert
 				if (unit.equals("mSv")) {
 					unit = "&micro;Sv";
@@ -189,14 +193,16 @@ public class DbHandler extends DbReconnectHandler {
 		} finally {
 			result.close();
 			historyQuery.close();
+			connection.close();
 		}
 
 		List<History> list = new ArrayList<History>(data.size());
-		for (Entry<String, Deque<Number[]>> e: data.entrySet()) {
+		for (Entry<String, Deque<Number[]>> e : data.entrySet()) {
 			String key = e.getKey();
 			ptuId = ptuIds.get(key);
 			sensor = sensors.get(key);
-			list.add(new History(ptuId, sensor, e.getValue().toArray(new Number[data.size()][]), units.get(key)));
+			list.add(new History(ptuId, sensor, e.getValue().toArray(
+					new Number[data.size()][]), units.get(key)));
 			log.info("Creating history for " + ptuId + " " + sensor + " "
 					+ data.size() + " entries");
 		}
@@ -204,10 +210,8 @@ public class DbHandler extends DbReconnectHandler {
 	}
 
 	@Override
-	public void dbConnected(Connection connection) throws SQLException {
-		super.dbConnected(connection);
-
-		connection.setAutoCommit(true);
+	public void dbConnected(DataSource datasource) throws SQLException {
+		super.dbConnected(datasource);
 
 		ConnectionStatusChangedEvent.fire(eventBus, ConnectionType.database,
 				true);
@@ -254,20 +258,26 @@ public class DbHandler extends DbReconnectHandler {
 	}
 
 	public int getInterventionCount() throws SQLException {
-		return getCount(getConnection().prepareStatement(
-				"select count(*) from tbl_inspections"));
+		Connection connection = getConnection();
+
+		try {
+			return getCount(connection.prepareStatement(
+					"select count(*) from tbl_inspections"));
+		} finally {
+			connection.close();
+		}
 	}
 
 	public List<Intervention> getInterventions(Range range, SortOrder[] order)
 			throws SQLException {
-
 		String sql = "select tbl_inspections.id, tbl_users.fname, tbl_users.lname, tbl_devices.name, "
 				+ "tbl_inspections.starttime, tbl_inspections.endtime, tbl_inspections.dscr, tbl_users.id, tbl_devices.id "
 				+ "from tbl_inspections "
 				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
 
-		PreparedStatement statement = getConnection().prepareStatement(
+		Connection connection = getConnection();
+		PreparedStatement statement = connection.prepareStatement(
 				getSql(sql, range, order));
 		ResultSet result = statement.executeQuery();
 
@@ -290,6 +300,7 @@ public class DbHandler extends DbReconnectHandler {
 		} finally {
 			result.close();
 			statement.close();
+			connection.close();
 		}
 
 		return list;
@@ -311,18 +322,24 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		}
 
-		PreparedStatement statement = getConnection().prepareStatement(sql);
-		int param = 1;
-		if (ptuId != null) {
-			statement.setString(param, ptuId);
-			param++;
-		}
-		if (measurementName != null) {
-			statement.setString(param, measurementName);
-			param++;
-		}
+		Connection connection = getConnection();
 
-		return getCount(statement);
+		try {
+			PreparedStatement statement = connection.prepareStatement(sql);
+			int param = 1;
+			if (ptuId != null) {
+				statement.setString(param, ptuId);
+				param++;
+			}
+			if (measurementName != null) {
+				statement.setString(param, measurementName);
+				param++;
+			}
+
+			return getCount(statement);
+		} finally {
+			connection.close();
+		}
 	}
 
 	// FIXME #231 until unit is in the DB
@@ -348,7 +365,8 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		}
 
-		PreparedStatement statement = getConnection().prepareStatement(
+		Connection connection = getConnection();
+		PreparedStatement statement = connection.prepareStatement(
 				getSql(sql, range, order));
 		int param = 1;
 		if (ptuId != null) {
@@ -382,6 +400,7 @@ public class DbHandler extends DbReconnectHandler {
 		} finally {
 			result.close();
 			statement.close();
+			connection.close();
 		}
 		return list;
 	}
@@ -394,7 +413,8 @@ public class DbHandler extends DbReconnectHandler {
 	}
 
 	public synchronized void addUser(User user) throws SQLException {
-		PreparedStatement addUser = getConnection()
+		Connection connection = getConnection();
+		PreparedStatement addUser = connection
 				.prepareStatement(
 						"insert into tbl_users (fname, lname, cern_id) values (?, ?, ?)");
 		try {
@@ -404,12 +424,14 @@ public class DbHandler extends DbReconnectHandler {
 			addUser.executeUpdate();
 		} finally {
 			addUser.close();
+			connection.close();
 		}
 	}
 
 	public synchronized void addDevice(Device device) throws SQLException {
-		PreparedStatement addDevice = getConnection().prepareStatement(
-				"insert into tbl_devices (name, ip, dscr) values (?, ?, ?)");
+		Connection connection = getConnection();
+		PreparedStatement addDevice = connection
+				.prepareStatement("insert into tbl_devices (name, ip, dscr) values (?, ?, ?)");
 		try {
 			addDevice.setString(1, device.getName());
 			addDevice.setString(2, device.getIp());
@@ -417,12 +439,14 @@ public class DbHandler extends DbReconnectHandler {
 			addDevice.executeUpdate();
 		} finally {
 			addDevice.close();
+			connection.close();
 		}
 	}
 
 	public synchronized void addIntervention(Intervention intervention)
 			throws SQLException {
-		PreparedStatement addIntervention = getConnection()
+		Connection connection = getConnection();
+		PreparedStatement addIntervention = connection
 				.prepareStatement(
 						"insert into tbl_inspections (user_id, device_id, starttime, dscr) values (?, ?, ?, ?)");
 
@@ -437,12 +461,14 @@ public class DbHandler extends DbReconnectHandler {
 			updateInterventions();
 		} finally {
 			addIntervention.close();
+			connection.close();
 		}
 	}
 
 	public synchronized void endIntervention(int id, Date date)
 			throws SQLException {
-		PreparedStatement endIntervention = getConnection().prepareStatement(
+		Connection connection = getConnection();
+		PreparedStatement endIntervention = connection.prepareStatement(
 				"update tbl_inspections set endtime = ? where id = ?");
 
 		try {
@@ -453,6 +479,7 @@ public class DbHandler extends DbReconnectHandler {
 			updateInterventions();
 		} finally {
 			endIntervention.close();
+			connection.close();
 		}
 	}
 
@@ -461,7 +488,8 @@ public class DbHandler extends DbReconnectHandler {
 	}
 
 	private synchronized List<User> getNotBusyUsers() throws SQLException {
-		PreparedStatement notBusyUserQuery = getConnection().prepareStatement(
+		Connection connection = getConnection();
+		PreparedStatement notBusyUserQuery = connection.prepareStatement(
 				"select ID, FNAME, LNAME, CERN_ID from tbl_users "
 						+ "where id not in ("
 						+ "select user_id from tbl_inspections "
@@ -470,11 +498,13 @@ public class DbHandler extends DbReconnectHandler {
 			return getUserList(notBusyUserQuery.executeQuery());
 		} finally {
 			notBusyUserQuery.close();
+			connection.close();
 		}
 	}
 
 	private synchronized List<User> getAllUsers() throws SQLException {
-		PreparedStatement userQuery = getConnection()
+		Connection connection = getConnection();
+		PreparedStatement userQuery = connection
 				.prepareStatement(
 						"select ID, FNAME, LNAME, CERN_ID from tbl_users order by LNAME, FNAME");
 
@@ -482,6 +512,7 @@ public class DbHandler extends DbReconnectHandler {
 			return getUserList(userQuery.executeQuery());
 		} finally {
 			userQuery.close();
+			connection.close();
 		}
 	}
 
@@ -505,7 +536,8 @@ public class DbHandler extends DbReconnectHandler {
 	}
 
 	private synchronized List<Device> getNotBusyDevices() throws SQLException {
-		PreparedStatement notBusyDeviceQuery = getConnection()
+		Connection connection = getConnection();
+		PreparedStatement notBusyDeviceQuery = connection
 				.prepareStatement(
 						"select ID, NAME, IP, DSCR from tbl_devices "
 								+ "where id not in ("
@@ -516,17 +548,20 @@ public class DbHandler extends DbReconnectHandler {
 			return getDeviceList(notBusyDeviceQuery.executeQuery());
 		} finally {
 			notBusyDeviceQuery.close();
+			connection.close();
 		}
 	}
 
 	private List<Device> getDevices() throws SQLException {
-		PreparedStatement deviceQuery = getConnection().prepareStatement(
+		Connection connection = getConnection();
+		PreparedStatement deviceQuery = connection.prepareStatement(
 				"select ID, NAME, IP, DSCR from tbl_devices order by NAME");
 
 		try {
 			return getDeviceList(deviceQuery.executeQuery());
 		} finally {
 			deviceQuery.close();
+			connection.close();
 		}
 	}
 
@@ -547,7 +582,8 @@ public class DbHandler extends DbReconnectHandler {
 
 	public synchronized void updateInterventionDescription(int id,
 			String description) throws SQLException {
-		PreparedStatement updateInterventionDescription = getConnection()
+		Connection connection = getConnection();
+		PreparedStatement updateInterventionDescription = connection
 				.prepareStatement(
 						"update tbl_inspections set dscr = ? where id=?");
 
@@ -559,12 +595,14 @@ public class DbHandler extends DbReconnectHandler {
 			updateInterventions();
 		} finally {
 			updateInterventionDescription.close();
+			connection.close();
 		}
 	}
 
 	public synchronized Intervention getIntervention(String ptuId)
 			throws SQLException {
-		PreparedStatement getIntervention = getConnection()
+		Connection connection = getConnection();
+		PreparedStatement getIntervention = connection
 				.prepareStatement(
 						"select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
 								+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
@@ -588,12 +626,14 @@ public class DbHandler extends DbReconnectHandler {
 		} finally {
 			result.close();
 			getIntervention.close();
+			connection.close();
 		}
 		return null;
 	}
 
 	private synchronized void updateInterventions() throws SQLException {
-		PreparedStatement updateInterventions = getConnection()
+		Connection connection = getConnection();
+		PreparedStatement updateInterventions = connection
 				.prepareStatement(
 						"select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
 								+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
@@ -618,6 +658,7 @@ public class DbHandler extends DbReconnectHandler {
 		} finally {
 			result.close();
 			updateInterventions.close();
+			connection.close();
 		}
 
 		if (!interventions.equals(newMap)) {
@@ -651,7 +692,8 @@ public class DbHandler extends DbReconnectHandler {
 			sql += " and view_last_measurements_date.SENSOR = ?";
 		}
 
-		PreparedStatement statement = getConnection().prepareStatement(sql);
+		Connection connection = getConnection();
+		PreparedStatement statement = connection.prepareStatement(sql);
 		int param = 1;
 		if (ptuId != null) {
 			statement.setString(param, ptuId);
@@ -689,6 +731,7 @@ public class DbHandler extends DbReconnectHandler {
 		} finally {
 			result.close();
 			statement.close();
+			connection.close();
 		}
 		return list;
 	}

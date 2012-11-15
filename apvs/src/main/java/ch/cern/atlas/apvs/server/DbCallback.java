@@ -1,28 +1,29 @@
 package ch.cern.atlas.apvs.server;
 
+import java.beans.PropertyVetoException;
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class DbCallback {
+import javax.sql.DataSource;
 
-	private Driver driver;
-	private Connection connection;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+public class DbCallback {
+	private ComboPooledDataSource datasource;
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
 	private Future<?> disconnectFuture;
 
-	private final static boolean LOG_DB = true;
+	private final static boolean LOG_DB = false;
 
 	public DbCallback() {
 		executorService = Executors.newSingleThreadExecutor();
 	}
 
-	public void dbConnected(Connection connection) throws SQLException {
+	public void dbConnected(DataSource datasource) throws SQLException {
 	}
 
 	public void dbDisconnected() throws SQLException {
@@ -32,15 +33,11 @@ public class DbCallback {
 	}
 
 	public boolean isConnected() {
-		return connection != null;
+		return datasource != null;
 	}
 
 	public boolean checkConnection() {
-		try {
-			return isConnected() && connection.isValid(0);
-		} catch (SQLException e) {
-			return false;
-		}
+		return isConnected();
 	}
 
 	public void connect(final String url) {
@@ -51,16 +48,22 @@ public class DbCallback {
 			@Override
 			public void run() {
 				try {
-					if (driver == null) {
-						driver = LOG_DB ? new net.sf.log4jdbc.DriverSpy()
-								: new oracle.jdbc.OracleDriver();
-						DriverManager.registerDriver(driver);
-					}
-					connection = DriverManager.getConnection("jdbc:"
-							+ (LOG_DB ? "log4jdbc:" : "") + "oracle:thin:"
-							+ url);
-					dbConnected(connection);
+					datasource = new ComboPooledDataSource();
+					datasource
+							.setDriverClass(LOG_DB ? "net.sf.log4jdbc.DriverSpy"
+									: "oracle.jdbc.OracleDriver");
+					datasource.setJdbcUrl("jdbc:" + (LOG_DB ? "log4jdbc:" : "")
+							+ "oracle:thin:" + url);
+					// datasource.setUser("dbuser");
+					// datasource.setPassword("dbpassword");
+					
+					// FIXME check if this helps...
+					datasource.setMaxStatementsPerConnection(30);
+
+					dbConnected(datasource);
 				} catch (SQLException e) {
+					exceptionCaught(e);
+				} catch (PropertyVetoException e) {
 					exceptionCaught(e);
 				}
 			}
@@ -73,7 +76,7 @@ public class DbCallback {
 			connectFuture.cancel(true);
 		}
 
-		if (connection == null) {
+		if (datasource == null) {
 			return;
 		}
 
@@ -86,8 +89,8 @@ public class DbCallback {
 			@Override
 			public void run() {
 				try {
-					connection.close();
-					connection = null;
+					datasource.close();
+					datasource = null;
 					dbDisconnected();
 				} catch (SQLException e) {
 					exceptionCaught(e);
@@ -96,7 +99,7 @@ public class DbCallback {
 		});
 	}
 
-	protected Connection getConnection() {
-		return connection;
+	protected Connection getConnection() throws SQLException {
+		return datasource.getConnection();
 	}
 }
