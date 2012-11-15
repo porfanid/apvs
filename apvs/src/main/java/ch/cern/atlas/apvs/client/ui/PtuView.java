@@ -366,27 +366,6 @@ public class PtuView extends GlassPanel implements Module {
 					if (column == null) {
 						addColumn(ptuId);
 						newColumns = true;
-
-//						PtuServiceAsync.Util.getInstance().getMeasurements(
-//								ptuId, new AsyncCallback<List<Measurement>>() {
-//
-//									@Override
-//									public void onSuccess(
-//											List<Measurement> result) {
-//										for (Iterator<Measurement> i = result
-//												.iterator(); i.hasNext();) {
-//											last = addOrReplaceMeasurement(i
-//													.next());
-//										}
-//										scheduler.update();
-//									}
-//
-//									@Override
-//									public void onFailure(Throwable caught) {
-//										log.warn("PtuView getMeasurements failed "
-//												+ caught);
-//									}
-//								});
 					}
 				} else {
 					// remove a column that was disabled
@@ -397,7 +376,7 @@ public class PtuView extends GlassPanel implements Module {
 			}
 			
 			if (newColumns) {
-				PtuServiceAsync.Util.getInstance().getMeasurements(null, null, new AsyncCallback<List<Measurement>>() {
+				PtuServiceAsync.Util.getInstance().getMeasurements((List<String>)null, null, new AsyncCallback<List<Measurement>>() {
 
 							@Override
 							public void onSuccess(List<Measurement> result) {

@@ -19,6 +19,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
+import ch.cern.atlas.apvs.util.StringUtils;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -152,17 +153,17 @@ public class TimeView extends AbstractTimeView implements Module {
 			createChart(measurementName);
 			add(chart);
 
-			// Subscribe to all PTUs
-			clientFactory.getPtuService().getHistories(null, measurementName,
-					new AsyncCallback<List<History>>() {
+			// Subscribe to all "current" PTUs
+			clientFactory.getPtuService().getHistories(interventions.getPtuIds(),
+					measurementName, new AsyncCallback<List<History>>() {
 						@Override
 						public void onSuccess(List<History> result) {
-							for (History history: result) {
+							for (History history : result) {
 								String ptuId = history.getPtuId();
 								if (!history.getName().equals(measurementName)) {
 									continue;
 								}
-								
+
 								if ((settings == null)
 										|| settings.isEnabled(ptuId)) {
 
@@ -178,7 +179,7 @@ public class TimeView extends AbstractTimeView implements Module {
 											getColors());
 								}
 
-								register(ptuId, measurementName);							
+								register(ptuId, measurementName);
 							}
 						}
 
@@ -196,14 +197,15 @@ public class TimeView extends AbstractTimeView implements Module {
 
 							@Override
 							public void onSuccess(List<History> result) {
-								for (History history: result) {
+								for (History history : result) {
 									if (!history.getPtuId().equals(ptuId)) {
 										continue;
 									}
-									if (!history.getName().equals(measurementName)) {
+									if (!history.getName().equals(
+											measurementName)) {
 										continue;
 									}
-									
+
 									createChart(measurementName + " (" + ptuId
 											+ ")");
 									add(chart);

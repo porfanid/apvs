@@ -129,11 +129,15 @@ public class StringUtils {
 	 * @since 2.0
 	 */
 	public static String join(Object[] array, char separator) {
+		return join(array, separator, (char)0, 0, array.length);
+	}
+
+	public static String join(Object[] array, char separator, char quote) {
 		if (array == null) {
 			return null;
 		}
 
-		return join(array, separator, 0, array.length);
+		return join(array, separator, quote, 0, array.length);
 	}
 
 	/**
@@ -169,7 +173,7 @@ public class StringUtils {
 	 * @return the joined String, {@code null} if null array input
 	 * @since 2.0
 	 */
-	public static String join(Object[] array, char separator, int startIndex,
+	public static String join(Object[] array, char separator, char quote, int startIndex,
 			int endIndex) {
 		if (array == null) {
 			return null;
@@ -186,7 +190,9 @@ public class StringUtils {
 				buf.append(separator);
 			}
 			if (array[i] != null) {
+				buf.append(quote);
 				buf.append(array[i]);
+				buf.append(quote);
 			}
 		}
 		return buf.toString();

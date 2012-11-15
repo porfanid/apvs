@@ -91,6 +91,16 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 	}
 	
 	@Override
+	public List<Measurement> getMeasurements(List<String> ptuIdList, String name)
+			throws ServiceException {
+		try {
+			return dbHandler.getMeasurements(ptuIdList, name);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
 	public List<Measurement> getMeasurements(String ptuId, String name)
 			throws ServiceException {
 		try {
@@ -100,6 +110,16 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		}
 	}
 
+	@Override
+	public List<History> getHistories(List<String> ptuIdList, String name)
+			throws ServiceException {
+		try {
+			return dbHandler.getHistories(ptuIdList, name);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+	
 	@Override
 	public List<History> getHistories(String ptuId, String name)
 			throws ServiceException {
