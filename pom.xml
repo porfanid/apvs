@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ch.cern.atlas</groupId>
@@ -22,7 +23,7 @@
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<gwt-version>2.5.0</gwt-version> 
+		<gwt-version>2.5.0</gwt-version>
 		<gwt-plugin-version>2.5.0</gwt-plugin-version>
 		<atmosphere-version>1.1.0-5b9299</atmosphere-version>
 
@@ -42,9 +43,7 @@
 		<mgwt-version>1.0.1</mgwt-version>
 		<mockito-version>1.9.5</mockito-version>
 		<netty-version>3.5.10.Final</netty-version>
-<!--
-		<nettosphere-version>1.4.2</nettosphere-version>
--->
+		<!-- <nettosphere-version>1.4.2</nettosphere-version> -->
 		<nettosphere-version>2.0.0.beta1</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
@@ -310,12 +309,12 @@
 				<artifactId>apvs-json-io</artifactId>
 				<version>${project.version}</version>
 
-<exclusions>
-      <exclusion> 
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-      </exclusion>
-</exclusions>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-jdk14</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
@@ -349,27 +348,27 @@
 				<artifactId>asterisk-java</artifactId>
 				<version>${asterisk-java-version}</version>
 			</dependency>
-					
-                <dependency>
-                        <groupId>org.atmosphere</groupId>
-                        <artifactId>atmosphere-runtime</artifactId>
+
+			<dependency>
+				<groupId>org.atmosphere</groupId>
+				<artifactId>atmosphere-runtime</artifactId>
 				<version>${atmosphere-version}</version>
-                </dependency>
-                <dependency>
-                        <groupId>org.atmosphere</groupId>
-                        <artifactId>atmosphere-compat-jbossweb</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.atmosphere</groupId>
+				<artifactId>atmosphere-compat-jbossweb</artifactId>
 				<version>${atmosphere-version}</version>
-                </dependency>
-                <dependency>
-                        <groupId>org.atmosphere</groupId>
-                        <artifactId>atmosphere-compat-tomcat</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.atmosphere</groupId>
+				<artifactId>atmosphere-compat-tomcat</artifactId>
 				<version>${atmosphere-version}</version>
-                </dependency>
-                <dependency>
-                        <groupId>org.atmosphere</groupId>
-                        <artifactId>atmosphere-compat-tomcat7</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.atmosphere</groupId>
+				<artifactId>atmosphere-compat-tomcat7</artifactId>
 				<version>${atmosphere-version}</version>
-                </dependency>
+			</dependency>
 			<dependency>
 				<groupId>org.atmosphere</groupId>
 				<artifactId>atmosphere-compat-jetty</artifactId>
@@ -401,6 +400,12 @@
 			<dependency>
 				<groupId>com.google.gwt</groupId>
 				<artifactId>gwt-user</artifactId>
+				<version>${gwt-version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.google.gwt</groupId>
+				<artifactId>gwt-elemental</artifactId>
 				<version>${gwt-version}</version>
 				<scope>provided</scope>
 			</dependency>
