@@ -53,7 +53,7 @@
 
 		<!-- in order on http://maven.apache.org/plugins/index.html -->
 		<clean-plugin-version>2.5</clean-plugin-version>
-		<compiler-plugin-version>2.5.1</compiler-plugin-version>
+		<compiler-plugin-version>3.0</compiler-plugin-version>
 		<deploy-plugin-version>2.7</deploy-plugin-version>
 		<failsafe-plugin-version>2.12.4</failsafe-plugin-version>
 		<install-plugin-version>2.4</install-plugin-version>
@@ -68,7 +68,7 @@
 		<javadoc-plugin-version>2.9</javadoc-plugin-version>
 
 		<antrun-plugin-version>1.7</antrun-plugin-version>
-		<assembly-plugin-version>2.3</assembly-plugin-version>
+		<assembly-plugin-version>2.4</assembly-plugin-version>
 		<release-plugin-version>2.3.2</release-plugin-version>
 		<source-plugin-version>2.2.1</source-plugin-version>
 	</properties>
