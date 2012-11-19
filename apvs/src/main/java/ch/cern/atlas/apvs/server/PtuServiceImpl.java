@@ -15,11 +15,11 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
-import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -111,25 +111,15 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 	}
 
 	@Override
-	public List<History> getHistories(List<String> ptuIdList, String name)
+	public HistoryMap getHistoryMap(List<String> ptuIdList)
 			throws ServiceException {
 		try {
-			return dbHandler.getHistories(ptuIdList, name);
+			return dbHandler.getHistoryMap(ptuIdList);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
-	
-	@Override
-	public List<History> getHistories(String ptuId, String name)
-			throws ServiceException {
-		try {
-			return dbHandler.getHistories(ptuId, name);
-		} catch (SQLException e) {
-			throw new ServiceException(e.getMessage());
-		}
-	}
-	
+		
 	@Override
 	public void handleOrder(Order order) throws ServiceException {
 		System.err.println("Handle "+order);

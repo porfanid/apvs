@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class History implements Serializable {
 
@@ -8,15 +9,17 @@ public class History implements Serializable {
 
 	private String ptuId;
 	private String name;
+	private Integer samplingRate;
 	private Number[][] data;
 	private String unit;
 	
 	public History() {
 	}
 	
-	public History(String ptuId, String name, Number[][] data, String unit) {
+	public History(String ptuId, String name, Integer samplingRate, Number[][] data, String unit) {
 		this.ptuId = ptuId;
 		this.name = name;
+		this.samplingRate = samplingRate;
 		this.data = data;
 		this.unit = unit;
 	}
@@ -51,5 +54,10 @@ public class History implements Serializable {
 		// copy new value in
 		data[lastIndex][0] = time;
 		data[lastIndex][1] = value;
+	}
+
+	public Measurement getMeasurement() {
+		int lastIndex = data.length - 1;		
+		return new Measurement(ptuId, name, data[lastIndex][1], samplingRate, unit, new Date(data[lastIndex][0].longValue()));
 	}
 }

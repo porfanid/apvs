@@ -23,13 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.domain.Device;
+import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.Intervention;
+import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.domain.User;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.SortOrder;
-import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -107,56 +108,67 @@ public class DbHandler extends DbReconnectHandler {
 		}, 0, 30, TimeUnit.SECONDS);
 	}
 
-	public List<History> getHistories(String ptuId, String sensor)
-			throws SQLException {
-		List<String> ptuIdList = null;
-		if (ptuId != null) {
-			ptuIdList = new ArrayList<String>();
-			ptuIdList.add(ptuId);
-		}
-		return getHistories(ptuIdList, sensor);
-	}
-
-	public List<History> getHistories(List<String> ptuIdList, String sensor)
-			throws SQLException {
-		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE from tbl_measurements, tbl_devices "
-				+ "where tbl_measurements.device_id = tbl_devices.id";
-
-		if (sensor != null) {
-			sql += " and SENSOR = ?";
-		}
-		if (ptuIdList != null) {
-			sql += " and NAME in (" + StringUtils.join(ptuIdList.toArray(), ',', '\'') + ")";
-		}
-
-		sql += " order by DATETIME desc";
-
-		System.err.println("JHFDJHFJDHJ " + sql);
+	public HistoryMap getHistoryMap(List<String> ptuIdList) throws SQLException {
+		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE from tbl_measurements, tbl_devices "
+				+ "where tbl_measurements.device_id = tbl_devices.id"
+				+ " and NAME = ?"
+				+ " order by DATETIME desc";
 
 		Connection connection = getConnection();
 		PreparedStatement historyQuery = connection.prepareStatement(sql);
 
-		int param = 1;
-		if (sensor != null) {
-			historyQuery.setString(param, sensor);
-			param++;
-		}
-
-		long PERIOD = 36; // hours
-		int MAX_ENTRIES = 1000; // number
-		long MIN_INTERVAL = 5000; // ms
-
 		Map<String, String> ptuIds = new HashMap<String, String>();
 		Map<String, String> sensors = new HashMap<String, String>();
+		Map<String, Integer> samplingRates = new HashMap<String, Integer>();
 		Map<String, Deque<Number[]>> data = new HashMap<String, Deque<Number[]>>();
 		Map<String, String> units = new HashMap<String, String>();
+
+		try {
+			for (String ptuId : ptuIdList) {
+				getHistory(ptuId, historyQuery, ptuIds, sensors, samplingRates,
+						data, units);
+			}
+		} finally {
+			historyQuery.close();
+			connection.close();
+		}
+
+		HistoryMap map = new HistoryMap();
+		for (Entry<String, Deque<Number[]>> e : data.entrySet()) {
+			String key = e.getKey();
+			Deque<Number[]> deque = e.getValue();
+			String ptuId = ptuIds.get(key);
+			String sensor = sensors.get(key);
+			Integer samplingRate = samplingRates.get(key);
+			map.put(new History(ptuId, sensor, samplingRate, deque
+					.toArray(new Number[deque.size()][]), units.get(key)));
+			log.info("Creating history for " + ptuId + " " + sensor + " "
+					+ deque.size() + " entries");
+		}
+		return map;
+	}
+
+	private static final long PERIOD = 48; // hours
+	private static final int MAX_ENTRIES = 1000; // number
+	private static final long MIN_INTERVAL = 5000; // ms
+
+	private void getHistory(String ptuId, PreparedStatement historyQuery,
+			Map<String, String> ptuIds, Map<String, String> sensors,
+			Map<String, Integer> samplingRates,
+			Map<String, Deque<Number[]>> data, Map<String, String> units)
+			throws SQLException {
+		
+		historyQuery.setString(1, ptuId);
+		
 		Map<String, Long> lastTimes = new HashMap<String, Long>();
 
 		long time = 0;
 		long then = -1;
+		int entries = 0;
 		ResultSet result = historyQuery.executeQuery();
 		try {
-			while (result.next() && (data.size() < MAX_ENTRIES)) {
+			while (result.next() && (entries < MAX_ENTRIES)) {
+				entries++;
 				time = result.getTimestamp("datetime").getTime();
 				if (then < 0) {
 					then = time - (PERIOD * 60 * 60 * 1000);
@@ -165,11 +177,14 @@ public class DbHandler extends DbReconnectHandler {
 					break;
 				}
 
-				String ptuId = result.getString("name");
-				sensor = result.getString("sensor");
+				ptuId = result.getString("name");
+				String sensor = result.getString("sensor");
+				Integer samplingRate = Integer.parseInt(result
+						.getString("samplingrate"));
 				String key = ptuId + ":" + sensor;
 				ptuIds.put(key, ptuId);
 				sensors.put(key, sensor);
+				samplingRates.put(key, samplingRate);
 				lastTimes.put(key, new Date().getTime() + MIN_INTERVAL);
 
 				String unit = result.getString("unit");
@@ -203,21 +218,7 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		} finally {
 			result.close();
-			historyQuery.close();
-			connection.close();
 		}
-
-		List<History> list = new ArrayList<History>(data.size());
-		for (Entry<String, Deque<Number[]>> e : data.entrySet()) {
-			String key = e.getKey();
-			String ptuId = ptuIds.get(key);
-			sensor = sensors.get(key);
-			list.add(new History(ptuId, sensor, e.getValue().toArray(
-					new Number[data.size()][]), units.get(key)));
-			log.info("Creating history for " + ptuId + " " + sensor + " "
-					+ data.size() + " entries");
-		}
-		return list;
 	}
 
 	@Override
@@ -637,6 +638,7 @@ public class DbHandler extends DbReconnectHandler {
 	}
 
 	private synchronized void updateInterventions() throws SQLException {
+
 		Connection connection = getConnection();
 		PreparedStatement updateInterventions = connection
 				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
@@ -667,11 +669,12 @@ public class DbHandler extends DbReconnectHandler {
 
 		if (!interventions.equals(newMap)) {
 			interventions = newMap;
+			System.err.println("Sent............." + eventBus.getUUID() + " "
+					+ interventions.hashCode());
 			InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 		}
 	}
 
-	
 	public List<Measurement> getMeasurements(String ptuId, String name)
 			throws SQLException {
 		List<String> ptuIdList = null;
@@ -681,7 +684,7 @@ public class DbHandler extends DbReconnectHandler {
 		}
 		return getMeasurements(ptuIdList, name);
 	}
-	
+
 	/**
 	 * 
 	 * @param ptuId
@@ -701,7 +704,8 @@ public class DbHandler extends DbReconnectHandler {
 				+ "and view_last_measurements_date.device_id = tbl_measurements.device_id "
 				+ "and view_last_measurements_date.device_id = tbl_devices.id";
 		if (ptuIdList != null) {
-			sql += " and NAME in (" + StringUtils.join(ptuIdList.toArray(), ',', '\'') + ")";
+			sql += " and NAME in ("
+					+ StringUtils.join(ptuIdList.toArray(), ',', '\'') + ")";
 		}
 		if (name != null) {
 			sql += " and view_last_measurements_date.SENSOR = ?";

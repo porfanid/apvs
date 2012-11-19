@@ -148,8 +148,9 @@ public class AbstractTimeView extends GlassPanel {
 
 	protected void addPoint(String ptuId, long time, Number value) {
 		Series series = seriesById.get(ptuId);
-		if (series == null)
+		if (series == null) {
 			return;
+		}
 		Integer numberOfPoints = pointsById.get(ptuId);
 		if (numberOfPoints == null)
 			numberOfPoints = 0;
@@ -177,7 +178,12 @@ public class AbstractTimeView extends GlassPanel {
 		return PtuClientConstants.timeFormat.format(date);
 	}
 
-	protected void setUnit(String unit) {
+	protected void setUnit(String ptuId, String unit) {
+		Series series = seriesById.get(ptuId);
+		if (series == null) {
+			return;
+		}
+		
 		if (chart == null) {
 			return;
 		}

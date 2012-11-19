@@ -3,18 +3,18 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.domain.HistoryMap;
+import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
-import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
@@ -37,7 +37,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -78,9 +77,10 @@ public class MeasurementView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	protected boolean daqOk;
+	private boolean daqOk;
+	private boolean databaseOk;
 
-	protected boolean databaseOk;
+	private HistoryMap historyMap;
 
 	public MeasurementView() {
 	}
@@ -105,25 +105,27 @@ public class MeasurementView extends GlassPanel implements Module {
 		}
 
 		add(table, CENTER);
-		
-		ConnectionStatusChangedRemoteEvent.subscribe(remoteEventBus, new ConnectionStatusChangedRemoteEvent.Handler() {
-			
-			@Override
-			public void onConnectionStatusChanged(ConnectionStatusChangedRemoteEvent event) {
-				switch(event.getConnection()) {
-					case daq:
-						daqOk = event.isOk();
-						break;
-					case database:
-						databaseOk = event.isOk();
-						break;
-					default:
-						break;
-				}
-				
-				showGlass(!daqOk || !databaseOk);
-			}
-		});
+
+		ConnectionStatusChangedRemoteEvent.subscribe(remoteEventBus,
+				new ConnectionStatusChangedRemoteEvent.Handler() {
+
+					@Override
+					public void onConnectionStatusChanged(
+							ConnectionStatusChangedRemoteEvent event) {
+						switch (event.getConnection()) {
+						case daq:
+							daqOk = event.isOk();
+							break;
+						case database:
+							databaseOk = event.isOk();
+							break;
+						default:
+							break;
+						}
+
+						showGlass(!daqOk || !databaseOk);
+					}
+				});
 
 		InterventionMapChangedRemoteEvent.subscribe(remoteEventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
@@ -132,6 +134,18 @@ public class MeasurementView extends GlassPanel implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
+						changePtuId();
+						scheduler.update();
+					}
+				});
+
+		HistoryMapChangedEvent.subscribe(remoteEventBus,
+				new HistoryMapChangedEvent.Handler() {
+
+					@Override
+					public void onHistoryMapChanged(HistoryMapChangedEvent event) {
+						historyMap = event.getHistoryMap();
+						changePtuId();
 						scheduler.update();
 					}
 				});
@@ -152,7 +166,7 @@ public class MeasurementView extends GlassPanel implements Module {
 			public String getValue(Measurement object) {
 				return object.getDisplayName();
 			}
-			
+
 			@Override
 			public void render(Context context, Measurement object,
 					SafeHtmlBuilder sb) {
@@ -178,19 +192,27 @@ public class MeasurementView extends GlassPanel implements Module {
 				if (!showName)
 					return null;
 
-				if (ptuId == null)
-					return "Name";
-
-				if (interventions != null) {
-					String name = interventions.get(ptuId) != null ? interventions
-							.get(ptuId).getName() : null;
-
-					if (name != null)
-						return name;
-				}
-
-				return "PTU Id: " + ptuId;
+				return ptuId;
 			}
+
+			public void render(Context context, SafeHtmlBuilder sb) {
+				String s = getValue();
+				if (s != null) {
+					s = "PTU Id: " + ptuId;
+
+					if (interventions != null) {
+						String realName = interventions.get(ptuId) != null ? interventions
+								.get(ptuId).getName() : null;
+
+						if (realName != null) {
+							s = "<div title=\"" + s + "\">" + realName
+									+ "</div>";
+						}
+					}
+
+					sb.append(SafeHtmlUtils.fromSafeConstant(s));
+				}
+			};
 		}
 				: null);
 
@@ -258,7 +280,7 @@ public class MeasurementView extends GlassPanel implements Module {
 			public String getValue(Measurement object) {
 				return PtuClientConstants.dateFormat.format(object.getDate());
 			}
-			
+
 			@Override
 			public void render(Context context, Measurement object,
 					SafeHtmlBuilder sb) {
@@ -282,7 +304,7 @@ public class MeasurementView extends GlassPanel implements Module {
 			table.addColumn(date, showHeader ? new TextHeader("Date")
 					: (Header<?>) null);
 		}
-		
+
 		List<Measurement> list = new ArrayList<Measurement>();
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(list);
@@ -370,46 +392,40 @@ public class MeasurementView extends GlassPanel implements Module {
 			measurementHandler = null;
 		}
 
-		PtuServiceAsync.Util.getInstance().getMeasurements(ptuId, null,
-				new AsyncCallback<List<Measurement>>() {
+		if (interventions == null) {
+			return;
+		}
+
+		if (historyMap == null) {
+			return;
+		}
+
+		for (String ptuId : interventions.getPtuIds()) {
+			for (Measurement measurement : historyMap.getMeasurements(ptuId)) {
+				replace(measurement);
+			}
+		}
+		scheduler.update();
+
+		measurementHandler = MeasurementChangedEvent.register(remoteEventBus,
+				new MeasurementChangedEvent.Handler() {
 
 					@Override
-					public void onSuccess(List<Measurement> result) {
-						for (Iterator<Measurement> i = result.iterator(); i
-								.hasNext();) {
-							Measurement measurement = i.next();
-							replace(measurement);
+					public void onMeasurementChanged(
+							MeasurementChangedEvent event) {
+						Measurement measurement = event.getMeasurement();
+						if (measurement.getPtuId().equals(ptuId)) {
+							last = replace(measurement);
+							scheduler.update();
 						}
-						scheduler.update();
-
-						measurementHandler = MeasurementChangedEvent.register(
-								remoteEventBus,
-								new MeasurementChangedEvent.Handler() {
-
-									@Override
-									public void onMeasurementChanged(
-											MeasurementChangedEvent event) {
-										Measurement measurement = event
-												.getMeasurement();
-										if (measurement.getPtuId()
-												.equals(ptuId)) {
-											last = replace(measurement);
-											scheduler.update();
-										}
-									}
-								});
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						log.warn("Error " + caught);
 					}
 				});
+
 	}
 
 	/**
-	 * Decorate with arrow up, down, left if a value went up, down or stayed the same.
-	 * Only applies to last value. Also calls standard decorate method.
+	 * Decorate with arrow up, down, left if a value went up, down or stayed the
+	 * same. Only applies to last value. Also calls standard decorate method.
 	 * 
 	 * @param s
 	 * @param current
@@ -432,8 +448,8 @@ public class MeasurementView extends GlassPanel implements Module {
 
 	/**
 	 * Adds date/time as tooltip. Shows future values (beyond 1 minute) in bold,
-	 * values older than 5 minutes in italics and makes values older than a day 
-	 * more transparent. 
+	 * values older than 5 minutes in italics and makes values older than a day
+	 * more transparent.
 	 * 
 	 * @param s
 	 * @param current
@@ -442,7 +458,7 @@ public class MeasurementView extends GlassPanel implements Module {
 	public static SafeHtml decorate(String s, Measurement current) {
 		long now = new Date().getTime();
 		long future1min = now + (60 * 1000);
-		long past5mins = now - (5 * 60 * 1000); 
+		long past5mins = now - (5 * 60 * 1000);
 		long pastDay = now - (24 * 3600 * 1000);
 		long time = current.getDate().getTime();
 		if (time > future1min) {
@@ -450,13 +466,15 @@ public class MeasurementView extends GlassPanel implements Module {
 		} else if (time < past5mins) {
 			s = "<i>" + s + "</i>";
 		}
-		
+
 		// make text more transparent
 		if (time < pastDay) {
 			s = "<span style=\"opacity: 0.5;\">" + s + "</span>";
 		}
 		// Add date in tooltip
-		s = "<div title=\"" + PtuClientConstants.dateFormat.format(current.getDate()) + "\">" + s + "</div>";
+		s = "<div title=\""
+				+ PtuClientConstants.dateFormat.format(current.getDate())
+				+ "\">" + s + "</div>";
 		return SafeHtmlUtils.fromSafeConstant(s);
 	}
 
@@ -466,7 +484,7 @@ public class MeasurementView extends GlassPanel implements Module {
 		if (sortable) {
 			ColumnSortEvent.fire(table, table.getColumnSortList());
 		}
-		
+
 		if (selectable) {
 			Measurement selection = selectionModel.getSelectedObject();
 
@@ -475,7 +493,7 @@ public class MeasurementView extends GlassPanel implements Module {
 
 				selectMeasurement(selection);
 			}
-			
+
 			// re-set the selection as the async update may have changed the
 			// rendering
 			if (selection != null) {

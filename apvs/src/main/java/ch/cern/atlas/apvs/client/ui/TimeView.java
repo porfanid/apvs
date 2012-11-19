@@ -1,17 +1,17 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.Intervention;
+import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.History;
@@ -19,15 +19,14 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
-import ch.cern.atlas.apvs.util.StringUtils;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class TimeView extends AbstractTimeView implements Module {
 
+	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private HandlerRegistration measurementHandler;
@@ -35,6 +34,8 @@ public class TimeView extends AbstractTimeView implements Module {
 	private String ptuId = null;
 	private PtuSettings settings;
 	private InterventionMap interventions;
+	private HistoryMap historyMap;
+
 	private String measurementName = null;
 	private EventBus cmdBus;
 	private String options;
@@ -101,6 +102,16 @@ public class TimeView extends AbstractTimeView implements Module {
 					}
 				});
 
+		HistoryMapChangedEvent.subscribe(eventBus,
+				new HistoryMapChangedEvent.Handler() {
+
+					@Override
+					public void onHistoryMapChanged(HistoryMapChangedEvent event) {
+						historyMap = event.getHistoryMap();
+						scheduler.update();
+					}
+				});
+
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
@@ -138,95 +149,54 @@ public class TimeView extends AbstractTimeView implements Module {
 
 	@Override
 	public boolean update() {
-		deregister();
+		unregister();
 		removeChart();
 
 		if (measurementName.equals("")) {
 			return false;
 		}
 
-		if (ptuId == null) {
-			if (interventions == null) {
-				return false;
-			}
+		if (historyMap == null) {
+			return false;
+		}
 
+		if (interventions == null) {
+			return false;
+		}
+
+		if (ptuId == null) {
 			createChart(measurementName);
 			add(chart);
 
-			// Subscribe to all "current" PTUs
-			clientFactory.getPtuService().getHistories(interventions.getPtuIds(),
-					measurementName, new AsyncCallback<List<History>>() {
-						@Override
-						public void onSuccess(List<History> result) {
-							for (History history : result) {
-								String ptuId = history.getPtuId();
-								if (!history.getName().equals(measurementName)) {
-									continue;
-								}
+			for (String ptuId : interventions.getPtuIds()) {
+				if ((settings == null) || settings.isEnabled(ptuId)) {
 
-								if ((settings == null)
-										|| settings.isEnabled(ptuId)) {
+					if (chart != null) {
+						addSeries(ptuId, getName(ptuId));
+						addHistory(historyMap.get(ptuId, measurementName));
+						chart.setAnimation(false);
+					}
+				}
 
-									if (chart != null) {
-										addSeries(ptuId, getName(ptuId));
-										addHistory(history);
-										chart.setAnimation(false);
-									}
-								}
+			}
 
-								if (cmdBus != null) {
-									ColorMapChangedEvent.fire(cmdBus,
-											getColors());
-								}
+			register();
 
-								register(ptuId, measurementName);
-							}
-						}
-
-						@Override
-						public void onFailure(Throwable caught) {
-							log.warn("Cannot retrieve Measurements ", caught);
-						}
-					});
+			if (cmdBus != null) {
+				ColorMapChangedEvent.fire(cmdBus, getColors());
+			}
 		} else {
-			// subscribe to single PTU
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
-				clientFactory.getPtuService().getHistories(ptuId,
-						measurementName, new AsyncCallback<List<History>>() {
+				createChart(measurementName + " (" + ptuId + ")");
+				add(chart);
 
-							@Override
-							public void onSuccess(List<History> result) {
-								for (History history : result) {
-									if (!history.getPtuId().equals(ptuId)) {
-										continue;
-									}
-									if (!history.getName().equals(
-											measurementName)) {
-										continue;
-									}
+				addSeries(ptuId, getName(ptuId));
+				addHistory(historyMap.get(ptuId, measurementName));
 
-									createChart(measurementName + " (" + ptuId
-											+ ")");
-									add(chart);
+				cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));
 
-									addSeries(ptuId, getName(ptuId));
-									addHistory(history);
-
-									cmdBus.fireEvent(new ColorMapChangedEvent(
-											getColors()));
-
-									register(ptuId, measurementName);
-									break;
-								}
-							}
-
-							@Override
-							public void onFailure(Throwable caught) {
-								log.warn("Cannot retrieve Measurements ",
-										caught);
-							}
-						});
+				register();
 			}
 		}
 
@@ -250,18 +220,18 @@ public class TimeView extends AbstractTimeView implements Module {
 
 		addData(history.getPtuId(), history.getData());
 
-		setUnit(history.getUnit());
+		setUnit(history.getPtuId(), history.getUnit());
 	}
 
-	private void deregister() {
+	private void unregister() {
 		if (measurementHandler != null) {
 			measurementHandler.removeHandler();
 			measurementHandler = null;
 		}
 	}
 
-	private void register(final String ptuId, final String name) {
-		deregister();
+	private void register() {
+		unregister();
 
 		measurementHandler = MeasurementChangedEvent.register(
 				clientFactory.getRemoteEventBus(),
@@ -272,17 +242,10 @@ public class TimeView extends AbstractTimeView implements Module {
 							MeasurementChangedEvent event) {
 						Measurement m = event.getMeasurement();
 
-						if ((ptuId != null) && (!m.getPtuId().equals(ptuId))) {
-							return;
-						}
+						addPoint(m.getPtuId(), m.getDate().getTime(),
+								m.getValue());
 
-						if (m.getName().equals(name)) {
-							log.info("New meas " + m);
-							addPoint(m.getPtuId(), m.getDate().getTime(),
-									m.getValue());
-
-							setUnit(m.getUnit());
-						}
+						setUnit(m.getPtuId(), m.getUnit());
 					}
 				});
 	}

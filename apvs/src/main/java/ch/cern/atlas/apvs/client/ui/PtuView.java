@@ -11,21 +11,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.domain.HistoryMap;
+import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
-import ch.cern.atlas.apvs.client.settings.InterventionMap;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
-import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -40,7 +39,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -48,6 +46,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuView extends GlassPanel implements Module {
 
+	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
@@ -58,9 +57,6 @@ public class PtuView extends GlassPanel implements Module {
 
 	private List<String> ptuIds;
 	private Measurement last;
-	private Map<String, Ptu> ptus;
-	private Map<String, String> displayNames;
-	private Map<String, String> units;
 	private Map<String, ClickableTextColumn<String>> columns;
 	private SingleSelectionModel<String> selectionModel;
 	private Map<String, String> colorMap = new HashMap<String, String>();
@@ -71,16 +67,14 @@ public class PtuView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	protected boolean daqOk;
+	private boolean daqOk;
+	private boolean databaseOk;
 
-	protected boolean databaseOk;
+	private HistoryMap historyMap;
 
 	private void init() {
 		last = new Measurement();
-		ptus = new HashMap<String, Ptu>();
-		units = new HashMap<String, String>();
 		columns = new HashMap<String, ClickableTextColumn<String>>();
-		displayNames = new HashMap<String, String>();
 	}
 
 	public PtuView() {
@@ -101,8 +95,8 @@ public class PtuView extends GlassPanel implements Module {
 		// name column
 		ClickableHtmlColumn<String> name = new ClickableHtmlColumn<String>() {
 			@Override
-			public String getValue(String object) {
-				return displayNames.get(object);
+			public String getValue(String name) {
+				return historyMap.getDisplayName(name);
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -119,8 +113,8 @@ public class PtuView extends GlassPanel implements Module {
 		// unit column
 		ClickableHtmlColumn<String> unit = new ClickableHtmlColumn<String>() {
 			@Override
-			public String getValue(String object) {
-				return units.get(object);
+			public String getValue(String name) {
+				return historyMap.getUnit(name);
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -205,23 +199,21 @@ public class PtuView extends GlassPanel implements Module {
 
 						ptuIds = interventions.getPtuIds();
 
-						for (Iterator<String> i = ptus.keySet().iterator(); i
-								.hasNext();) {
-							if (!ptuIds.contains(i.next())) {
-								i.remove();
-							}
-						}
-
-						for (String ptuId : ptuIds) {
-							if (ptus.get(ptuId) == null) {
-								ptus.put(ptuId, new Ptu(ptuId));
-							}
-						}
-
 						configChanged();
 						scheduler.update();
 					}
 				});
+
+		HistoryMapChangedEvent.subscribe(eventBus,
+				new HistoryMapChangedEvent.Handler() {
+
+					@Override
+					public void onHistoryMapChanged(HistoryMapChangedEvent event) {
+						historyMap = event.getHistoryMap();
+						configChanged();
+						scheduler.update();
+					}
+				});		
 
 		if (cmdBus != null) {
 			ColorMapChangedEvent.subscribe(cmdBus,
@@ -239,45 +231,30 @@ public class PtuView extends GlassPanel implements Module {
 	}
 
 	private Measurement addOrReplaceMeasurement(Measurement measurement) {
+		
 		String ptuId = measurement.getPtuId();
+		String name = measurement.getName();
 		if ((ptuIds == null) || !ptuIds.contains(ptuId))
 			return null;
 
-		Ptu ptu = ptus.get(ptuId);
+		Measurement lastValue = historyMap.getMeasurement(ptuId, name);
 
-		Measurement lastValue = null;
+		addRow(name);
 
-		String name = measurement.getName();
-		try {
-			if (ptu.getMeasurement(name) == null) {
-				units.put(name, measurement.getUnit());
-				displayNames.put(name, measurement.getDisplayName());
-				ptu.addMeasurement(measurement);
-				lastValue = measurement;
-			} else {
-				lastValue = ptu.addMeasurement(measurement);
-			}
-		} catch (APVSException e) {
-			log.warn("Could not add measurement", e);
-		}
+		return lastValue;
+	}
 
+	private void addRow(String name) {
 		if (!dataProvider.getList().contains(name)) {
 			dataProvider.getList().add(name);
 		}
-
-		return lastValue;
 	}
 
 	private void addColumn(final String ptuId) {
 		ClickableTextColumn<String> column = new ClickableTextColumn<String>() {
 			@Override
-			public String getValue(String object) {
-				Ptu ptu = ptus.get(ptuId);
-				if (ptu == null) {
-					return "";
-				}
-
-				Measurement m = ptu.getMeasurement(object);
+			public String getValue(String name) {
+				Measurement m = historyMap.getMeasurement(ptuId, name);
 				if (m == null) {
 					return "";
 				}
@@ -285,32 +262,25 @@ public class PtuView extends GlassPanel implements Module {
 			}
 
 			@Override
-			public void render(Context context, String object,
-					SafeHtmlBuilder sb) {
-				Ptu ptu = ptus.get(ptuId);
-				if (ptu == null) {
-					((ClickableTextCell) getCell()).render(context, "", sb);
-				} else {
-					String color = colorMap.get(ptuId);
-					boolean isSelected = selectionModel.isSelected(object);
-					if ((color != null) && isSelected) {
-						sb.append(SafeHtmlUtils
-								.fromSafeConstant("<div style=\"background:"
-										+ color + "\">"));
-					}
+			public void render(Context context, String name, SafeHtmlBuilder sb) {
+				String color = colorMap.get(ptuId);
+				boolean isSelected = selectionModel.isSelected(name);
+				if ((color != null) && isSelected) {
+					sb.append(SafeHtmlUtils
+							.fromSafeConstant("<div style=\"background:"
+									+ color + "\">"));
+				}
 
-					Measurement m = ptu.getMeasurement(object);
-					if (m != null) {
-						((ClickableTextCell) getCell()).render(context,
-								MeasurementView.decorate(getValue(object), m,
-										last), sb);
-					}
-					if ((color != null) && isSelected) {
-						sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
-					}
+				Measurement m = historyMap.getMeasurement(ptuId, name);
+				if (m != null) {
+					((ClickableTextCell) getCell()).render(context,
+							MeasurementView.decorate(getValue(name), m, last),
+							sb);
+				}
+				if ((color != null) && isSelected) {
+					sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
 				}
 			}
-
 		};
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		column.setFieldUpdater(new FieldUpdater<String, String>() {
@@ -343,61 +313,45 @@ public class PtuView extends GlassPanel implements Module {
 
 	private void configChanged() {
 
-		if (ptuIds != null) {
-			// Remove any dead columns
-			for (Iterator<Map.Entry<String, ClickableTextColumn<String>>> i = columns
-					.entrySet().iterator(); i.hasNext();) {
-				Map.Entry<String, ClickableTextColumn<String>> entry = i.next();
-				if (ptuIds.contains(entry.getKey()))
-					continue;
+		if (ptuIds == null) {
+			init();
+			return;
+		}
+		
+		// Remove any dead columns
+		for (Iterator<Map.Entry<String, ClickableTextColumn<String>>> i = columns
+				.entrySet().iterator(); i.hasNext();) {
+			Map.Entry<String, ClickableTextColumn<String>> entry = i.next();
+			if (ptuIds.contains(entry.getKey()))
+				continue;
 
-				ClickableTextColumn<String> column = entry.getValue();
-				table.removeColumn(column);
-				i.remove();
-			}
+			ClickableTextColumn<String> column = entry.getValue();
+			table.removeColumn(column);
+			i.remove();
+		}
 
-			// add any new columns...
-			boolean newColumns = false;
-			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
-				String ptuId = i.next();
-				ClickableTextColumn<String> column = columns.get(ptuId);
+		// add any new columns...
+		for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
+			String ptuId = i.next();
+			ClickableTextColumn<String> column = columns.get(ptuId);
 
-				if ((settings == null) || settings.isEnabled(ptuId)) {
-					if (column == null) {
-						addColumn(ptuId);
-						newColumns = true;
-					}
-				} else {
-					// remove a column that was disabled
-					if (column != null) {
-						table.removeColumn(column);
+			if ((settings == null) || settings.isEnabled(ptuId)) {
+				if (column == null) {
+					addColumn(ptuId);
+				}
+				
+				if (historyMap != null) {
+					for (Measurement measurement: historyMap.getMeasurements(ptuId)) {
+						addRow(measurement.getName());
 					}
 				}
+				
+			} else {
+				// remove a column that was disabled
+				if (column != null) {
+					table.removeColumn(column);
+				}
 			}
-			
-			if (newColumns) {
-				PtuServiceAsync.Util.getInstance().getMeasurements((List<String>)null, null, new AsyncCallback<List<Measurement>>() {
-
-							@Override
-							public void onSuccess(List<Measurement> result) {
-								for (Iterator<Measurement> i = result
-										.iterator(); i.hasNext();) {
-									last = addOrReplaceMeasurement(i
-											.next());
-								}
-								scheduler.update();
-							}
-
-							@Override
-							public void onFailure(Throwable caught) {
-								log.warn("PtuView getMeasurements failed "
-										+ caught);
-							}
-						});
-
-			}
-		} else {
-			init();
 		}
 	}
 

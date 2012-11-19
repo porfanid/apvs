@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client.settings;
+package ch.cern.atlas.apvs.client.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.domain.Intervention;
 
 public class InterventionMap implements Serializable {
 
