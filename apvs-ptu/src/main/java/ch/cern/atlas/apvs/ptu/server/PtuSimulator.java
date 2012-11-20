@@ -51,7 +51,8 @@ public class PtuSimulator extends Thread {
 			long then = now - deltaStartTime;
 			Date start = new Date(then);
 
-			ptu = new Ptu(ptuId.toString());
+			ptu = new Ptu(ptuId);
+			log.info("Creating "+ptuId);
 
 			try {
 				ptu.addMeasurement(new Temperature(ptuId, 25.7, start));

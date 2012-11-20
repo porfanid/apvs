@@ -36,6 +36,8 @@ public class PtuPushHandler extends PtuReconnectHandler {
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
 		super.channelConnected(ctx, e);
+		
+		System.out.println("Connected");
 
 		List<PtuSimulator> listOfSimulators = new ArrayList<PtuSimulator>(
 				ptuIds.length);
@@ -54,6 +56,7 @@ public class PtuPushHandler extends PtuReconnectHandler {
 	public void channelDisconnected(ChannelHandlerContext ctx,
 			ChannelStateEvent e) throws Exception {
 		super.channelDisconnected(ctx, e);
+		System.out.println("Disconnected");
 
 		List<PtuSimulator> listOfSimulators = simulators.get(e.getChannel());
 		if (listOfSimulators != null) {
