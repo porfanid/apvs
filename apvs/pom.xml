@@ -131,10 +131,6 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-dosimeter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
 		</dependency>
 		<dependency>

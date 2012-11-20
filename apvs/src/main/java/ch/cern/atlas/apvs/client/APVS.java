@@ -19,7 +19,6 @@ import ch.cern.atlas.apvs.client.ui.AudioSettingsView;
 import ch.cern.atlas.apvs.client.ui.AudioSummary;
 import ch.cern.atlas.apvs.client.ui.AudioView;
 import ch.cern.atlas.apvs.client.ui.CameraView;
-import ch.cern.atlas.apvs.client.ui.DosimeterView;
 import ch.cern.atlas.apvs.client.ui.EventView;
 import ch.cern.atlas.apvs.client.ui.GeneralInfoView;
 import ch.cern.atlas.apvs.client.ui.InterventionView;
@@ -160,8 +159,6 @@ public class APVS implements EntryPoint {
 					module = new AudioView();
 				} else if (id.startsWith("CameraView")) {
 					module = new CameraView();
-				} else if (id.startsWith("DosimeterView")) {
-					module = new DosimeterView();
 				} else if (id.startsWith("EventView")) {
 					module = new EventView();
 				} else if (id.startsWith("GeneralInfoView")) {

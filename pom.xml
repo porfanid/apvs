@@ -79,7 +79,6 @@
 		<module>apvs-atmosphere</module>
 		<module>apvs-charts</module>
 		<module>apvs-domain</module>
-		<module>apvs-dosimeter</module>
 		<module>apvs-eventbus</module>
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
@@ -287,11 +286,6 @@
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-domain</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.cern.atlas</groupId>
-				<artifactId>apvs-dosimeter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
