@@ -241,11 +241,13 @@ public class TimeView extends AbstractTimeView implements Module {
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement m = event.getMeasurement();
+						if (m.getName().equals(measurementName)) {
 
-						addPoint(m.getPtuId(), m.getDate().getTime(),
-								m.getValue());
+							addPoint(m.getPtuId(), m.getDate().getTime(),
+									m.getValue());
 
-						setUnit(m.getPtuId(), m.getUnit());
+							setUnit(m.getPtuId(), m.getUnit());
+						}
 					}
 				});
 	}
