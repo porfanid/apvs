@@ -12,11 +12,15 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.asteriskjava.live.AsteriskChannel;
+import org.asteriskjava.live.AsteriskQueueEntry;
 import org.asteriskjava.live.AsteriskServer;
+import org.asteriskjava.live.AsteriskServerListener;
 import org.asteriskjava.live.DefaultAsteriskServer;
 import org.asteriskjava.live.LiveException;
 import org.asteriskjava.live.MeetMeRoom;
+import org.asteriskjava.live.MeetMeUser;
 import org.asteriskjava.live.OriginateCallback;
+import org.asteriskjava.live.internal.AsteriskAgentImpl;
 import org.asteriskjava.manager.AuthenticationFailedException;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.ManagerConnectionFactory;
@@ -51,7 +55,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 public class AudioServiceImpl extends ResponsePollService implements
-		AudioService, ManagerEventListener {
+		AudioService, ManagerEventListener{
 
 	private static final long serialVersionUID = 1L;
 
@@ -284,6 +288,33 @@ public class AudioServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
+	public void muteUser(String room, String channel, String ptuId){
+		MeetMeRoom meetMeRoom = asteriskServer.getMeetMeRoom(room);
+		List<MeetMeUser> meetMeUsersList = (List<MeetMeUser>) meetMeRoom.getUsers();
+		for(int i=0; i<meetMeUsersList.size() ;i++){
+			if(meetMeUsersList.get(i).getChannel().getName().equals(channel)){
+				meetMeUsersList.get(i).mute();
+				voipAccounts.setMute(ptuId, true);
+				((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));	
+			}
+		}	
+	}
+
+	@Override
+	public void unMuteUser(String room, String channel, String ptuId){
+		MeetMeRoom meetMeRoom = asteriskServer.getMeetMeRoom(room);
+		List<MeetMeUser> meetMeUsersList = (List<MeetMeUser>) meetMeRoom.getUsers();
+		for(int i=0; i<meetMeUsersList.size() ;i++){
+			if(meetMeUsersList.get(i).getChannel().getName().equals(channel)){
+				meetMeUsersList.get(i).unmute();
+				voipAccounts.setMute(ptuId, false);
+				((RemoteEventBus) eventBus).fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
+			}
+		}	
+	}
+	
+	
+	@Override
 	public void usersList() throws AudioException {
 		usersList = new ArrayList<String>();
 		try {
@@ -305,6 +336,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	@Override
 	public void onManagerEvent(ManagerEvent event) {
+		//System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"+event.toString());
 		// NewChannelEvent
 		if (event instanceof NewChannelEvent) {
 			NewChannelEvent channel = (NewChannelEvent) event;
@@ -346,6 +378,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			System.out.println("Disconnected from Asterisk server");
 		}
 	}
+	
 
 	/*********************************************
 	 * Event Methods
@@ -438,8 +471,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		if (!conferenceRooms.roomExist(room)) {
 			System.out.println(room);
 			conferenceRooms.put(room, new Conference());		
-			conferenceRooms.get(room).setActivity(
-					voipAccounts.getActivity(ptuId));
+			conferenceRooms.get(room).setActivity(voipAccounts.getActivity(ptuId));
 		}
 
 		if (ptuId != null) {
@@ -506,5 +538,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		((RemoteEventBus) eventBus)
 				.fireEvent(new AsteriskStatusRemoteEvent(usersList));
 	}
+
+	
 
 }

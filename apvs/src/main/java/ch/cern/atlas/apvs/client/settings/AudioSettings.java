@@ -28,6 +28,7 @@ public class AudioSettings implements Serializable {
 		// Conference Call
 		String  room;
 		Boolean onConference;
+		Boolean mute;
 		
 		public Entry() {
 			username = "";
@@ -41,13 +42,17 @@ public class AudioSettings implements Serializable {
 			onCall = false;
 			
 			room = "";
+			mute = false;
 			onConference = false;
 		}
 
 		public String toString() {
-			return ("VoipAccount: username=" + username + "" + " number= "
-					+ number + " channel=" + channel + " destUser= " + destUser
-					+ " destPTU= " + destPTU + " status=" + status + " activity="+ activity + " onCall=" + onCall + " room="+ room + " onConference="+ onConference);
+			return ("VoipAccount: username=" + username + " number= " + number
+					+ " channel=" + channel + " destUser= " + destUser
+					+ " destPTU=" + destPTU + " status=" + status 
+					+ " activity=" + activity + " onCall=" + onCall 
+					+ " room=" + room + " onConference="+ onConference
+					+ " mute=" + mute);
 		}
 	}
 
@@ -157,6 +162,17 @@ public class AudioSettings implements Serializable {
 
 	public void setRoom(String ptuId, String conferenceRoom) {
 		entries.get(ptuId).room = conferenceRoom;
+	}
+	
+	
+	// Mute Methods
+	public boolean getMute(String ptuId){
+		Entry entry = entries.get(ptuId);
+		return (entry != null? entry.mute : true);
+	}
+	
+	public void setMute(String ptuId, boolean mute){
+		entries.get(ptuId).mute = mute;
 	}
 	
 	
