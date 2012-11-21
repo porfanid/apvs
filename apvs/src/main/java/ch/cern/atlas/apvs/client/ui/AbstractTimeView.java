@@ -27,13 +27,14 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 
 public class AbstractTimeView extends GlassPanel {
 
 	private static final int POINT_LIMIT = 200;
-	private static final String[] color = { "#AA4643", "#89A54E",
-			"#80699B", "#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
+	private static final String[] color = { "#AA4643", "#89A54E", "#80699B",
+			"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
 	private Map<String, Integer> pointsById;
 	private Map<String, Series> seriesById;
 	private Map<String, String> colorsById;
@@ -72,12 +73,12 @@ public class AbstractTimeView extends GlassPanel {
 				// FIXME String.format not supported
 				.setColors(
 						// String.format("%s, ", (Object[])color))
-						"#AA4643", "#89A54E", "#80699B", "#3D96AE",
-						"#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7")
+						"#AA4643", "#89A54E", "#80699B", "#3D96AE", "#DB843D",
+						"#92A8CD", "#A47D7C", "#B5CA92", "#4572A7")
 				.setType(Series.Type.LINE)
 				.setZoomType(Chart.ZoomType.X)
 				.setSizeToMatchContainer()
-//				.setWidth100()
+				// .setWidth100()
 				.setChartTitle(
 						title ? new ChartTitle().setText(name).setStyle(
 								new Style().setFontSize("12px")) : null)
@@ -110,7 +111,7 @@ public class AbstractTimeView extends GlassPanel {
 																.getYAsDouble());
 									}
 								}));
-		
+
 		if (height != null) {
 			chart.setHeight(height);
 		}
@@ -163,19 +164,28 @@ public class AbstractTimeView extends GlassPanel {
 		series.addPoint(time, value, true, shift, true);
 	}
 
+	private static final DateTimeFormat ddMMM = DateTimeFormat
+			.getFormat("dd MMM");
+	private static final DateTimeFormat ddMMMyyyy = DateTimeFormat
+			.getFormat("dd MMM yyyy");
+
+	@SuppressWarnings("deprecation")
 	private String getDateTime(long time) {
 		long now = new Date().getTime();
 		long nextMinute = now + (60 * 1000);
-		long yesterday = now - (24 * 60 * 1000);
+		long yesterday = now - (24 * 60 * 60 * 1000);
 		Date date = new Date(time);
+		String dateTime = PtuClientConstants.timeFormat.format(date);
 		if (time > nextMinute) {
-			return "<b>" + PtuClientConstants.timeFormat.format(date) +"<br/>"+PtuClientConstants.dateFormatOnly.format(date)
-					+ "</b>";
+			return "<b>" + dateTime + "<br/>" + ddMMM.format(date) + "</b>";
 		} else if (time < yesterday) {
-			return "<i>" + PtuClientConstants.timeFormat.format(date) +"<br/>"+PtuClientConstants.dateFormatOnly.format(date)
-					+ "</i>";
+			if (date.getYear() == new Date().getYear()) {
+				return "<i>" + dateTime + "<br/>" + ddMMM.format(date) + "</i>";
+			} else {
+				return "<i>" + dateTime + "<br/>" + ddMMMyyyy.format(date) + "</i>";				
+			}
 		}
-		return PtuClientConstants.timeFormat.format(date);
+		return dateTime;
 	}
 
 	protected void setUnit(String ptuId, String unit) {
@@ -183,7 +193,7 @@ public class AbstractTimeView extends GlassPanel {
 		if (series == null) {
 			return;
 		}
-		
+
 		if (chart == null) {
 			return;
 		}
