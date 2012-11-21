@@ -91,8 +91,11 @@ public class PtuSimulator extends Thread {
 					if (i % 5 == 0) {
 						Event event = nextEvent(ptu, new Date());
 						writer.write(event);
+						System.err.println(event);
 					} else {
-						writer.write(nextMeasurement(ptu, new Date()));
+						Measurement measurement = nextMeasurement(ptu, new Date());
+						writer.write(measurement);
+						System.err.println(measurement);
 					}
 					writer.newLine();
 					if (WRITE_MARKERS) {

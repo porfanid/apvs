@@ -232,7 +232,7 @@ public class MeasurementView extends GlassPanel implements Module {
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String s = getValue(name);
-				Measurement m = historyMap.getMeasurement(ptuId, name);
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
 				if (m == null) {
 					return;
 				}
@@ -257,13 +257,14 @@ public class MeasurementView extends GlassPanel implements Module {
 		ClickableHtmlColumn<String> unit = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				return historyMap.getUnit(name);
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				return m != null ?  m.getUnit() : "";
 			}
 
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String s = getValue(name);
-				Measurement m = historyMap.getMeasurement(ptuId, name);
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
 				if (m == null) {
 					return;
 				}
