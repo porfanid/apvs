@@ -26,6 +26,7 @@
 		<gwt-version>2.5.0</gwt-version>
 		<gwt-plugin-version>2.5.0</gwt-plugin-version>
 		<atmosphere-version>1.1.0-5b9299</atmosphere-version>
+		<atmosphere-ext-version>1.1.0-5b9299</atmosphere-ext-version>
 
 		<asterisk-java-version>38898d3a191ebce989c64a57b4fc43171424fa40</asterisk-java-version>
 		<c3p0-version>0.9.2-pre5</c3p0-version>

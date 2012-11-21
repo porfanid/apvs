@@ -21,6 +21,7 @@ import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
 import ch.cern.atlas.apvs.client.ui.PtuSelector;
+import ch.cern.atlas.apvs.eventbus.client.AtmosphereEventBus;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -30,6 +31,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class APVSClientFactory implements ClientFactory {
 
+	@SuppressWarnings("unused")
+	private AtmosphereEventBus atmosphereEventBus;
 	private RemoteEventBus localEventBus;
 	private final PlaceController placeController;
 	private final FileServiceAsync fileService = GWT.create(FileService.class);
@@ -42,9 +45,12 @@ public class APVSClientFactory implements ClientFactory {
 	private MeasurementView measurementView;
 
 	public APVSClientFactory() {
-		// AtmosphereGWTSerializer serializer =
-		// GWT.create(EventSerializer.class);
-		// eventBus = new AtmosphereEventBus(serializer);
+		// atmosphereEventBus keeps track of connections, not used for actual polling of events
+		// FIXME #284, re-enable
+//		AtmosphereGWTSerializer serializer = null; // GWT.create(EventSerializer.class);
+//		atmosphereEventBus = new AtmosphereEventBus(serializer);
+		
+		// used for events
 		RemoteEventBus remoteEventBus = new PollEventBus();
 		NamedEventBus.put("remote", remoteEventBus);
 		placeController = new PlaceController(remoteEventBus);
