@@ -58,11 +58,7 @@
             <groupId>ch.cern.atlas</groupId>
             <artifactId>apvs-ptu</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ch.cern.atlas</groupId>
-            <artifactId>apvs-dosimeter</artifactId>
-        </dependency>
-	</dependencies>
+    </dependencies>
 
 </project>
 
