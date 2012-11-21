@@ -12,7 +12,6 @@ public class ServerSettings extends AbstractServerSettings {
 	
 	public enum Entry {
 		ptuUrl("PTU URL"),
-		dosimeterUrl("Dosimeter URL"),
 		procedureUrl("Procedure URL"),
 		databaseUrl("Database URL"),
 		audioUrl("Audio URL");
@@ -75,10 +74,9 @@ public class ServerSettings extends AbstractServerSettings {
 	public ServerSettings(boolean setDefaults) {
 		if (!setDefaults)
 			return;
-		put(Entry.ptuUrl.toString(), "localhost:4005");
-		put(Entry.dosimeterUrl.toString(), "localhost:4001");
+		put(Entry.ptuUrl.toString(), "pcatlaswpss03:10123");
 		put(Entry.procedureUrl.toString(), "http://localhost:8890/apvs-procs/procedures");
-		put(Entry.databaseUrl.toString(), "PTU/atlas@//pcatlaswpss03.cern.ch:1521/XE");
+		put(Entry.databaseUrl.toString(), "wpss/atlas@//pcatlaswpss03.cern.ch:1521/XE");
 		put(Entry.audioUrl.toString(), "pcatlaswpss02.cern.ch:5038");
 	}
 	

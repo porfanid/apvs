@@ -6,8 +6,6 @@ import java.util.List;
 import org.atmosphere.gwt.client.AtmosphereClient;
 import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
 import org.atmosphere.gwt.client.AtmosphereListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -16,11 +14,9 @@ import com.google.gwt.core.client.GWT;
 
 public class AtmosphereEventBus extends RemoteEventBus {
 	
-	@SuppressWarnings("unused")
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
-
 	private AtmosphereClient client;
 
+	// NOTE serializer can be null, but note the exception in #284, thrown in "compiled" mode
 	public AtmosphereEventBus(AtmosphereGWTSerializer serializer) {
 		AtmosphereEventBusListener cometListener = new AtmosphereEventBusListener();
 		
@@ -56,33 +52,40 @@ public class AtmosphereEventBus extends RemoteEventBus {
 	}
 
 	public class AtmosphereEventBusListener implements AtmosphereListener {
-
+		
 		// atmosphere 1.0
 		public void onConnected(int heartbeat, int connectionID) {
+			System.err.println("EventBusListener connected (1.0) "+heartbeat+" "+connectionID);
 		}
 		
 		// atmosphere 1.1
 		public void onConnected(int heartbeat, String connectionUUID) {
+			System.err.println("EventBusListener connected (1.1+) "+heartbeat+" "+connectionUUID);
 		}
 
 		@Override
 		public void onBeforeDisconnected() {
+			System.err.println("EventBusListener before disconnect "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		@Override
 		public void onDisconnected() {
+			System.err.println("EventBusListener disconnected "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		@Override
 		public void onError(Throwable exception, boolean connected) {
+			System.err.println("EventBusListener error "+connected+" "+exception+" "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		@Override
 		public void onHeartbeat() {
+			System.err.println("EventBusListener heartbeat "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		@Override
 		public void onRefresh() {
+			System.err.println("EventBusListener refresh "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		/**
@@ -103,10 +106,12 @@ public class AtmosphereEventBus extends RemoteEventBus {
 
 		// atmosphere 1.0
 		public void onAfterRefresh() {
+			System.err.println("EventBusListener after refresh (1.0) "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		// atmosphere 1.1
 		public void onAfterRefresh(String connectionUUID) {
+			System.err.println("EventBusListener after refresh (1.1+) "+connectionUUID+" "+(client != null ? client.getConnectionUUID() : null));
 		}
 	}
 }

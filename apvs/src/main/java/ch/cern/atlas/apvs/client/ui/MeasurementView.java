@@ -52,11 +52,11 @@ public class MeasurementView extends GlassPanel implements Module {
 
 	private InterventionMap interventions;
 	private Measurement last = new Measurement();
-	private ListDataProvider<Measurement> dataProvider = new ListDataProvider<Measurement>();
-	private CellTable<Measurement> table = new CellTable<Measurement>();
-	private ListHandler<Measurement> columnSortHandler;
-	private ClickableHtmlColumn<Measurement> name;
-	private SingleSelectionModel<Measurement> selectionModel;
+	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
+	private CellTable<String> table = new CellTable<String>();
+	private ListHandler<String> columnSortHandler;
+	private ClickableHtmlColumn<String> name;
+	private SingleSelectionModel<String> selectionModel;
 
 	private List<String> show = null;
 
@@ -101,7 +101,7 @@ public class MeasurementView extends GlassPanel implements Module {
 		showDate = options.contains("Date");
 
 		if (selectable) {
-			selectionModel = new SingleSelectionModel<Measurement>();
+			selectionModel = new SingleSelectionModel<String>();
 		}
 
 		add(table, CENTER);
@@ -161,27 +161,30 @@ public class MeasurementView extends GlassPanel implements Module {
 			}
 		});
 
-		name = new ClickableHtmlColumn<Measurement>() {
+		name = new ClickableHtmlColumn<String>() {
 			@Override
-			public String getValue(Measurement object) {
-				return object.getDisplayName();
+			public String getValue(String name) {
+				return historyMap.getDisplayName(name);
 			}
 
 			@Override
-			public void render(Context context, Measurement object,
-					SafeHtmlBuilder sb) {
-				String s = getValue(object);
-				((ClickableTextCell) getCell()).render(context,
-						decorate(s, object), sb);
+			public void render(Context context, String name, SafeHtmlBuilder sb) {
+				String s = getValue(name);
+				Measurement m = historyMap.getMeasurement(ptuId, name);
+				if (m == null) {
+					return;
+				}
+				((ClickableTextCell) getCell()).render(context, decorate(s, m),
+						sb);
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(sortable);
 		if (selectable) {
-			name.setFieldUpdater(new FieldUpdater<Measurement, String>() {
+			name.setFieldUpdater(new FieldUpdater<String, String>() {
 
 				@Override
-				public void update(int index, Measurement object, String value) {
+				public void update(int index, String object, String value) {
 					selectMeasurement(object);
 				}
 			});
@@ -216,30 +219,34 @@ public class MeasurementView extends GlassPanel implements Module {
 		}
 				: null);
 
-		ClickableTextColumn<Measurement> value = new ClickableTextColumn<Measurement>() {
+		ClickableTextColumn<String> value = new ClickableTextColumn<String>() {
 			@Override
-			public String getValue(Measurement object) {
-				if ((object == null) || (object.getValue() == null)) {
+			public String getValue(String name) {
+				if ((name == null) || (historyMap == null) || (ptuId == null)) {
 					return "";
 				}
-				return format.format(object.getValue());
+				Measurement m = historyMap.getMeasurement(ptuId, name);
+				return m != null ? format.format(m.getValue()) : "";
 			}
 
 			@Override
-			public void render(Context context, Measurement object,
-					SafeHtmlBuilder sb) {
-				String s = getValue(object);
+			public void render(Context context, String name, SafeHtmlBuilder sb) {
+				String s = getValue(name);
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				if (m == null) {
+					return;
+				}
 				((ClickableTextCell) getCell()).render(context,
-						decorate(s, object, last), sb);
+						decorate(s, m, last), sb);
 			}
 
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		if (selectable) {
-			value.setFieldUpdater(new FieldUpdater<Measurement, String>() {
+			value.setFieldUpdater(new FieldUpdater<String, String>() {
 
 				@Override
-				public void update(int index, Measurement object, String value) {
+				public void update(int index, String object, String value) {
 					selectMeasurement(object);
 				}
 			});
@@ -247,27 +254,31 @@ public class MeasurementView extends GlassPanel implements Module {
 		table.addColumn(value, showHeader ? new TextHeader("Value")
 				: (Header<?>) null);
 
-		ClickableHtmlColumn<Measurement> unit = new ClickableHtmlColumn<Measurement>() {
+		ClickableHtmlColumn<String> unit = new ClickableHtmlColumn<String>() {
 			@Override
-			public String getValue(Measurement object) {
-				return object.getUnit();
+			public String getValue(String name) {
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				return m != null ?  m.getUnit() : "";
 			}
 
 			@Override
-			public void render(Context context, Measurement object,
-					SafeHtmlBuilder sb) {
-				String s = getValue(object);
-				((ClickableTextCell) getCell()).render(context,
-						decorate(s, object), sb);
+			public void render(Context context, String name, SafeHtmlBuilder sb) {
+				String s = getValue(name);
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				if (m == null) {
+					return;
+				}
+				((ClickableTextCell) getCell()).render(context, decorate(s, m),
+						sb);
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		unit.setSortable(sortable);
 		if (selectable) {
-			unit.setFieldUpdater(new FieldUpdater<Measurement, String>() {
+			unit.setFieldUpdater(new FieldUpdater<String, String>() {
 
 				@Override
-				public void update(int index, Measurement object, String value) {
+				public void update(int index, String object, String value) {
 					selectMeasurement(object);
 				}
 			});
@@ -275,27 +286,31 @@ public class MeasurementView extends GlassPanel implements Module {
 		table.addColumn(unit, showHeader ? new TextHeader("Unit")
 				: (Header<?>) null);
 
-		ClickableHtmlColumn<Measurement> date = new ClickableHtmlColumn<Measurement>() {
+		ClickableHtmlColumn<String> date = new ClickableHtmlColumn<String>() {
 			@Override
-			public String getValue(Measurement object) {
-				return PtuClientConstants.dateFormat.format(object.getDate());
+			public String getValue(String name) {
+				return PtuClientConstants.dateFormat.format(historyMap
+						.getMeasurement(ptuId, name).getDate());
 			}
 
 			@Override
-			public void render(Context context, Measurement object,
-					SafeHtmlBuilder sb) {
-				String s = getValue(object);
-				((ClickableTextCell) getCell()).render(context,
-						decorate(s, object), sb);
+			public void render(Context context, String name, SafeHtmlBuilder sb) {
+				String s = getValue(name);
+				Measurement m = historyMap.getMeasurement(ptuId, name);
+				if (m == null) {
+					return;
+				}
+				((ClickableTextCell) getCell()).render(context, decorate(s, m),
+						sb);
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		unit.setSortable(sortable);
 		if (selectable) {
-			unit.setFieldUpdater(new FieldUpdater<Measurement, String>() {
+			unit.setFieldUpdater(new FieldUpdater<String, String>() {
 
 				@Override
-				public void update(int index, Measurement object, String value) {
+				public void update(int index, String object, String value) {
 					selectMeasurement(object);
 				}
 			});
@@ -305,26 +320,28 @@ public class MeasurementView extends GlassPanel implements Module {
 					: (Header<?>) null);
 		}
 
-		List<Measurement> list = new ArrayList<Measurement>();
+		List<String> list = new ArrayList<String>();
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(list);
 
-		columnSortHandler = new ListHandler<Measurement>(dataProvider.getList());
-		columnSortHandler.setComparator(name, new Comparator<Measurement>() {
-			public int compare(Measurement o1, Measurement o2) {
-				if (o1 == o2) {
+		columnSortHandler = new ListHandler<String>(dataProvider.getList());
+		columnSortHandler.setComparator(name, new Comparator<String>() {
+			public int compare(String s1, String s2) {
+				if (s1 == s2) {
 					return 0;
 				}
 
-				if (o1 != null) {
-					return (o2 != null) ? o1.getName().compareTo(o2.getName())
-							: 1;
+				if (s1 != null) {
+					return s1.compareTo(s2);
 				}
 				return -1;
 			}
 		});
-		columnSortHandler.setComparator(value, new Comparator<Measurement>() {
-			public int compare(Measurement o1, Measurement o2) {
+		columnSortHandler.setComparator(value, new Comparator<String>() {
+			public int compare(String s1, String s2) {
+				Measurement o1 = historyMap.getMeasurement(ptuId, s1);
+				Measurement o2 = historyMap.getMeasurement(ptuId, s2);
+
 				if (o1 == o2) {
 					return 0;
 				}
@@ -340,8 +357,11 @@ public class MeasurementView extends GlassPanel implements Module {
 				return -1;
 			}
 		});
-		columnSortHandler.setComparator(unit, new Comparator<Measurement>() {
-			public int compare(Measurement o1, Measurement o2) {
+		columnSortHandler.setComparator(unit, new Comparator<String>() {
+			public int compare(String s1, String s2) {
+				Measurement o1 = historyMap.getMeasurement(ptuId, s1);
+				Measurement o2 = historyMap.getMeasurement(ptuId, s2);
+
 				if (o1 == o2) {
 					return 0;
 				}
@@ -353,8 +373,11 @@ public class MeasurementView extends GlassPanel implements Module {
 				return -1;
 			}
 		});
-		columnSortHandler.setComparator(date, new Comparator<Measurement>() {
-			public int compare(Measurement o1, Measurement o2) {
+		columnSortHandler.setComparator(date, new Comparator<String>() {
+			public int compare(String s1, String s2) {
+				Measurement o1 = historyMap.getMeasurement(ptuId, s1);
+				Measurement o2 = historyMap.getMeasurement(ptuId, s2);
+
 				if (o1 == o2) {
 					return 0;
 				}
@@ -376,8 +399,8 @@ public class MeasurementView extends GlassPanel implements Module {
 
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
-							Measurement m = selectionModel.getSelectedObject();
-							log.info(m + " " + event.getSource());
+							String s = selectionModel.getSelectedObject();
+							log.info(s + " " + event.getSource());
 						}
 					});
 		}
@@ -486,7 +509,7 @@ public class MeasurementView extends GlassPanel implements Module {
 		}
 
 		if (selectable) {
-			Measurement selection = selectionModel.getSelectedObject();
+			String selection = selectionModel.getSelectedObject();
 
 			if ((selection == null) && (dataProvider.getList().size() > 0)) {
 				selection = dataProvider.getList().get(0);
@@ -507,35 +530,26 @@ public class MeasurementView extends GlassPanel implements Module {
 	}
 
 	private Measurement replace(Measurement measurement) {
-		List<Measurement> list = dataProvider.getList();
 
-		int i = 0;
-		while (i < list.size()) {
-			if (list.get(i).getName().equals(measurement.getName())) {
-				break;
-			}
-			i++;
-		}
+		List<String> list = dataProvider.getList();
+		Measurement lastValue = historyMap.getMeasurement(
+				measurement.getPtuId(), measurement.getName());
 
-		Measurement lastValue = null;
-
-		if (i == list.size()) {
-			// end of list, not found, add ?
+		if (!list.contains(measurement.getName())) {
 			if ((show == null) || (show.size() == 0)
 					|| (show.contains(measurement.getName()))) {
-				list.add(measurement);
+				list.add(measurement.getName());
 				lastValue = measurement;
+			} else {
+				lastValue = null;
 			}
-		} else {
-			// found, replace
-			lastValue = list.set(i, measurement);
 		}
 
 		return lastValue;
 	}
 
-	private void selectMeasurement(Measurement measurement) {
-		SelectMeasurementEvent.fire(cmdBus, measurement.getName());
+	private void selectMeasurement(String name) {
+		SelectMeasurementEvent.fire(cmdBus, name);
 	}
 
 }

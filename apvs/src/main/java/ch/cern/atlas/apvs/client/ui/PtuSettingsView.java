@@ -17,8 +17,6 @@ import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Order;
-import ch.cern.atlas.apvs.dosimeter.shared.DosimeterPtuChangedEvent;
-import ch.cern.atlas.apvs.dosimeter.shared.DosimeterSerialNumbersChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ActionCell;
@@ -344,22 +342,22 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					}
 				});
 
-		DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
-				new DosimeterSerialNumbersChangedEvent.Handler() {
-
-					@Override
-					public void onDosimeterSerialNumbersChanged(
-							DosimeterSerialNumbersChangedEvent event) {
-						dosimeterSerialNumbers.clear();
-						dosimeterSerialNumbers.addAll(event
-								.getDosimeterSerialNumbers());
-						log.info("DOSI changed "
-								+ dosimeterSerialNumbers.size());
-
-						// FIXME, allow for setting not available as DOSI #
-						scheduler.update();
-					}
-				});
+//		DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
+//				new DosimeterSerialNumbersChangedEvent.Handler() {
+//
+//					@Override
+//					public void onDosimeterSerialNumbersChanged(
+//							DosimeterSerialNumbersChangedEvent event) {
+//						dosimeterSerialNumbers.clear();
+//						dosimeterSerialNumbers.addAll(event
+//								.getDosimeterSerialNumbers());
+//						log.info("DOSI changed "
+//								+ dosimeterSerialNumbers.size());
+//
+//						// FIXME, allow for setting not available as DOSI #
+//						scheduler.update();
+//					}
+//				});
 
 		scheduler.update();
 
@@ -381,7 +379,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 		((RemoteEventBus) eventBus).fireEvent(new PtuSettingsChangedRemoteEvent(
 				settings));
-		((RemoteEventBus) eventBus).fireEvent(new DosimeterPtuChangedEvent(
-				settings.getDosimeterToPtuMap()));
+//		((RemoteEventBus) eventBus).fireEvent(new DosimeterPtuChangedEvent(
+//				settings.getDosimeterToPtuMap()));
 	}
 }

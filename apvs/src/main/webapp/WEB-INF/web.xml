@@ -39,7 +39,6 @@
         <url-pattern>/apvs/eventBusService</url-pattern> 
         <url-pattern>/apvs/apvsServer</url-pattern> 
         <url-pattern>/apvs/apvsComet</url-pattern> 
-        <url-pattern>/apvs/apvsDosimeter</url-pattern>
         <url-pattern>/apvs/apvsPtu</url-pattern>
         <url-pattern>/apvs/apvsDb</url-pattern>
         <url-pattern>/apvs/apvsAudio</url-pattern>

@@ -53,7 +53,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
 
-		// add(new Brand("AWSS"));
+		// add(new Brand("ATWSS"));
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
 

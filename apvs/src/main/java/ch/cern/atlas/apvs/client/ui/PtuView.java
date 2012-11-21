@@ -96,7 +96,7 @@ public class PtuView extends GlassPanel implements Module {
 		ClickableHtmlColumn<String> name = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				return historyMap.getDisplayName(name);
+				return historyMap != null ? historyMap.getDisplayName(name) : name;
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -114,7 +114,7 @@ public class PtuView extends GlassPanel implements Module {
 		ClickableHtmlColumn<String> unit = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				return historyMap.getUnit(name);
+				return historyMap != null ? historyMap.getUnit(name) : "";
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -237,7 +237,7 @@ public class PtuView extends GlassPanel implements Module {
 		if ((ptuIds == null) || !ptuIds.contains(ptuId))
 			return null;
 
-		Measurement lastValue = historyMap.getMeasurement(ptuId, name);
+		Measurement lastValue = historyMap != null ? historyMap.getMeasurement(ptuId, name) : measurement;
 
 		addRow(name);
 
@@ -254,7 +254,7 @@ public class PtuView extends GlassPanel implements Module {
 		ClickableTextColumn<String> column = new ClickableTextColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				Measurement m = historyMap.getMeasurement(ptuId, name);
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
 				if (m == null) {
 					return "";
 				}
@@ -271,7 +271,7 @@ public class PtuView extends GlassPanel implements Module {
 									+ color + "\">"));
 				}
 
-				Measurement m = historyMap.getMeasurement(ptuId, name);
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
 				if (m != null) {
 					((ClickableTextCell) getCell()).render(context,
 							MeasurementView.decorate(getValue(name), m, last),

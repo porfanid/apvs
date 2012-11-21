@@ -57,7 +57,10 @@ public class History implements Serializable {
 	}
 
 	public Measurement getMeasurement() {
-		int lastIndex = data.length - 1;		
+		int lastIndex = data.length - 1;
+		if (lastIndex < 0) {
+			return null;
+		}
 		return new Measurement(ptuId, name, data[lastIndex][1], samplingRate, unit, new Date(data[lastIndex][0].longValue()));
 	}
 }

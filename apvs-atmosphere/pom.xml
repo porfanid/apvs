@@ -78,9 +78,9 @@
 		    		<configuration>
 					<groupId>org.atmosphere</groupId>
 					<artifactId>atmosphere-gwt-client</artifactId>
-					<version>${atmosphere-version}</version>
+					<version>${atmosphere-ext-version}</version>
 					<packaging>jar</packaging>
-					<file>atmosphere-gwt-client-${atmosphere-version}.jar</file>
+					<file>atmosphere-gwt-client-${atmosphere-ext-version}.jar</file>
 				</configuration>
 				<goals>
 					<goal>install-file</goal>
@@ -92,9 +92,9 @@
 		    		<configuration>
 					<groupId>org.atmosphere</groupId>
 					<artifactId>atmosphere-gwt-common</artifactId>
-					<version>${atmosphere-version}</version>
+					<version>${atmosphere-ext-version}</version>
 					<packaging>jar</packaging>
-					<file>atmosphere-gwt-common-${atmosphere-version}.jar</file>
+					<file>atmosphere-gwt-common-${atmosphere-ext-version}.jar</file>
 				</configuration>
 				<goals>
 					<goal>install-file</goal>
@@ -106,9 +106,9 @@
 		    		<configuration>
 					<groupId>org.atmosphere</groupId>
 					<artifactId>atmosphere-gwt-server</artifactId>
-					<version>${atmosphere-version}</version>
+					<version>${atmosphere-ext-version}</version>
 					<packaging>jar</packaging>
-					<file>atmosphere-gwt-server-${atmosphere-version}.jar</file>
+					<file>atmosphere-gwt-server-${atmosphere-ext-version}.jar</file>
 				</configuration>
 				<goals>
 					<goal>install-file</goal>
@@ -120,9 +120,9 @@
 		    		<configuration>
 					<groupId>org.atmosphere</groupId>
 					<artifactId>atmosphere-gwt-poll</artifactId>
-					<version>${atmosphere-version}</version>
+					<version>${atmosphere-ext-version}</version>
 					<packaging>jar</packaging>
-					<file>atmosphere-gwt-poll-${atmosphere-version}.jar</file>
+					<file>atmosphere-gwt-poll-${atmosphere-ext-version}.jar</file>
 				</configuration>
 				<goals>
 					<goal>install-file</goal>

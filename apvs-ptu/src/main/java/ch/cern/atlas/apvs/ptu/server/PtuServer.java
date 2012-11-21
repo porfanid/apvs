@@ -2,10 +2,15 @@ package ch.cern.atlas.apvs.ptu.server;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PtuServer {
 
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
+		Logger log = LoggerFactory.getLogger(PtuServer.class.getName());
+
 		if (args.length < 2) {
 			System.err.println("Usage: " + PtuServer.class.getSimpleName()
 					+ "[<host>] <port> <refresh> [IDs...]");
@@ -15,6 +20,8 @@ public class PtuServer {
 		try {
 			// is arg 0 port number ?
 			int port = Integer.parseInt(args[0]);
+			log.info("Creating pull server");
+			
 			String[] ids = null;
 			if (args.length > 2) {
 				ids = new String[args.length - 2];
@@ -23,6 +30,7 @@ public class PtuServer {
 			new PtuPullServer(port, Integer.parseInt(args[1]), ids).run();
 		} catch (NumberFormatException e) {
 
+			System.out.println("Creating push server");
 			// arg 0 is host
 			String[] ids = null;
 			if (args.length > 3) {

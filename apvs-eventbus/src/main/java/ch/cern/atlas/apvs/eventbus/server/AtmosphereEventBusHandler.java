@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.atmosphere.cpr.AtmosphereResourceEvent;
 import org.atmosphere.gwt.server.AtmosphereGwtHandler;
 import org.atmosphere.gwt.server.GwtAtmosphereResource;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 
     @Override
     public int doComet(GwtAtmosphereResource resource) throws ServletException, IOException {
-    	log.info("AtmosphereEventBusHandler.doComet()...");
+    	log.info("AtmosphereEventBusHandler.doComet()..."+resource.getConnectionUUID());
     	log.info(resource.getAtmosphereResource().getAtmosphereResourceEvent().toString());
         resource.getBroadcaster().setID("GWT_COMET");
         HttpSession session = resource.getAtmosphereResource().getRequest().getSession(false);
@@ -49,13 +50,13 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
             logger.debug("Url: " + resource.getAtmosphereResource().getRequest().getRequestURL()
                     + "?" + resource.getAtmosphereResource().getRequest().getQueryString());
         }
-        return NO_TIMEOUT;
+        return DO_COMET_RESUME;
     }
 
     @Override    
     public void doPost(HttpServletRequest postRequest, HttpServletResponse postResponse, List<?> messages, GwtAtmosphereResource resource) {
     	super.doPost(postRequest, postResponse, messages, resource);
-    	log.info("Post...");
+    	log.info("AtmosphereEventBusHandler.Post...");
     	for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
     		log.info("-- "+i.next().getClass());
     	}
@@ -64,7 +65,7 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
     @Override
     public void broadcast(List<?> messages, GwtAtmosphereResource resource) {
     	super.broadcast(messages, resource);
-    	log.info("bCast...");
+    	log.info("AtmosphereEventBusHandler.bCast...");
     	for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
     		log.info("-- "+i.next().getClass());
     	}
@@ -73,13 +74,31 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
     @Override
     public void broadcast(Object message, GwtAtmosphereResource resource) {
     	super.broadcast(message, resource);
-    	log.info("bCast..."+message.getClass());
+    	log.info("AtmosphereEventBusHandler.bCast..."+message.getClass());
     }
        
     @Override
     public void cometTerminated(GwtAtmosphereResource cometResponse, boolean serverInitiated) {
         super.cometTerminated(cometResponse, serverInitiated);
-        log.info("Comet disconnected");
+        log.info("AtmosphereEventBusHandler.Comet disconnected "+cometResponse.getConnectionUUID());
+    }
+    
+    @Override
+    public void disconnect(GwtAtmosphereResource resource) {
+    	super.disconnect(resource);
+        log.info("AtmosphereEventBusHandler.Comet disconnected "+resource.getConnectionUUID());
+    	log.info(resource.getAtmosphereResource().getAtmosphereResourceEvent().toString());
     }
 
+    @Override
+    public void onStateChange(AtmosphereResourceEvent event) throws IOException {
+    	// TODO Auto-generated method stub
+    	super.onStateChange(event);
+    	log.info("AtmosphereEventBusHandler.Commet stateChanged "+event.getMessage());
+    	log.info(event.getResource().uuid());
+
+    }
+    
+    // FIXME #284, its here where we need to broadcast the COnnectionUUIDsChanged event... however disconnect seems not to show up yet... 
+    
 }
