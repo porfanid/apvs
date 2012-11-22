@@ -40,11 +40,6 @@
       <destName>apvs-ptu.jar</destName>
       <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
     </file>
-    <file>
-      <source>${project.basedir}/../apvs-dosimeter/target/apvs-dosimeter-jar-with-dependencies.jar</source>
-      <destName>apvs-dosimeter.jar</destName>
-      <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
-    </file>
   </files>
 <!-- does not seem to work (below)
   <moduleSets>
@@ -53,7 +48,6 @@
       <includes>
         <include>ch.cern.atlas:apvs</include>
         <include>ch.cern.atlas:apvs-ptu</include>
-        <include>ch.cern.atlas:apvs-dosimeter</include>
       </includes>
       <binaries>
         <outputDirectory>lib/${artifactId}</outputDirectory>

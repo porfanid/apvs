@@ -81,21 +81,23 @@ public class HistoryManager {
 														measurement.getPtuId(),
 														measurement.getName());
 												if (history == null) {
-													history = new History(
-															measurement
-																	.getPtuId(),
-															measurement
-																	.getName(),
-															measurement
-																	.getSamplingRate(),
-															new Number[0][],
-															measurement
-																	.getUnit());
-													historyMap.put(history);
+													// NOTE #314, do not create a new History here... just ignore this PTU
+//													history = new History(
+//															measurement
+//																	.getPtuId(),
+//															measurement
+//																	.getName(),
+//															measurement
+//																	.getSamplingRate(),
+//															new Number[0][],
+//															measurement
+//																	.getUnit());
+//													historyMap.put(history);
+												} else {
+													history.addEntry(measurement
+															.getDate().getTime(),
+															measurement.getValue());
 												}
-												history.addEntry(measurement
-														.getDate().getTime(),
-														measurement.getValue());
 											}
 										});
 
