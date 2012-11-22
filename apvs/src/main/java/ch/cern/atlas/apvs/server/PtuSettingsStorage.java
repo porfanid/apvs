@@ -22,6 +22,8 @@ public class PtuSettingsStorage {
 	private static final String APVS_PTU_SETTINGS = "APVS.ptu.settings";
 	private static PtuSettingsStorage instance;
 	private PtuSettings settings;
+	
+	private final static boolean DEBUG = false;
 
 	public PtuSettingsStorage(final RemoteEventBus eventBus) {
 
@@ -43,7 +45,9 @@ public class PtuSettingsStorage {
 			
 			@Override
 			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
-				log.info("PTU Setting Storage: PTU IDS changed");
+				if (DEBUG) {
+					log.info("PTU Setting Storage: PTU IDS changed");
+				}
 				List<String> activePtuIds = event.getInterventionMap().getPtuIds();
 
 				boolean changed = false;

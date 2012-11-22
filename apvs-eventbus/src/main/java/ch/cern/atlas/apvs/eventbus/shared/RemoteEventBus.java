@@ -24,7 +24,9 @@ import com.google.web.bindery.event.shared.UmbrellaException;
 public class RemoteEventBus extends SimpleEventBus {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
+	private final static boolean DEBUG = false;
+
 	protected static <H> void dispatchEvent(RemoteEvent<H> event, H handler) {
 		event.dispatch(handler);
 	}
@@ -33,14 +35,15 @@ public class RemoteEventBus extends SimpleEventBus {
 		event.setSourceUUID(uuid);
 	}
 
-	protected static void setEventBusUuidOfEvent(RemoteEvent<?> event, long eventBusUUID) {
+	protected static void setEventBusUuidOfEvent(RemoteEvent<?> event,
+			long eventBusUUID) {
 		event.setEventBusUUID(eventBusUUID);
 	}
 
 	private interface Command {
 		void execute();
 	}
-	
+
 	private Long uuid = UUID.uuidLong(8);
 
 	private int firingDepth = 0;
@@ -51,7 +54,7 @@ public class RemoteEventBus extends SimpleEventBus {
 
 	public RemoteEventBus() {
 	}
-	
+
 	public Long getUUID() {
 		return uuid;
 	}
@@ -71,7 +74,9 @@ public class RemoteEventBus extends SimpleEventBus {
 	}
 
 	public void fireEvent(RemoteEvent<?> event) {
-		log.info("Fire event "+event.getClass());
+		if (DEBUG) {
+			log.info("Fire event " + event.getClass());
+		}
 		doFire(event, 0);
 	}
 
@@ -79,7 +84,9 @@ public class RemoteEventBus extends SimpleEventBus {
 		if (uuid == 0) {
 			throw new NullPointerException("Cannot fire from a 0 uuid");
 		}
-		log.info("Fire event "+event.getClass()+" "+uuid);
+		if (DEBUG) {
+			log.info("Fire event " + event.getClass() + " " + uuid);
+		}
 		doFire(event, uuid);
 	}
 
@@ -134,7 +141,7 @@ public class RemoteEventBus extends SimpleEventBus {
 			}
 
 			setEventBusUuidOfEvent(event, getUUID());
-			
+
 			List<H> handlers = getDispatchList(event.getAssociatedType(), uuid);
 			Set<Throwable> causes = null;
 
@@ -163,8 +170,7 @@ public class RemoteEventBus extends SimpleEventBus {
 		}
 	}
 
-	private <H> void doRemoveNow(RemoteEvent.Type<H> type, int uuid,
-			H handler) {
+	private <H> void doRemoveNow(RemoteEvent.Type<H> type, int uuid, H handler) {
 		List<H> l = getHandlerList(type, uuid);
 
 		boolean removed = l.remove(handler);
@@ -183,8 +189,8 @@ public class RemoteEventBus extends SimpleEventBus {
 		});
 	}
 
-	private <H> void enqueueRemove(final RemoteEvent.Type<H> type, final int uuid,
-			final H handler) {
+	private <H> void enqueueRemove(final RemoteEvent.Type<H> type,
+			final int uuid, final H handler) {
 		defer(new Command() {
 			public void execute() {
 				doRemoveNow(type, uuid, handler);
