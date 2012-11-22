@@ -124,7 +124,7 @@ Run:
 	
 Using FireFox open 
 
-	http://localhost:8888/apvs/index.html?gwt.codesvr=localhost:9997
+	http://localhost:8888/index.html?gwt.codesvr=localhost:9997
 	install the proper gwt plugin in firefox
 
 Mac: http://acleung.com/ff14-mac.xpi
@@ -139,7 +139,7 @@ Run:
 
 Using any browser open
 
-	http://localhost:8095/apvs/index.html
+	http://localhost:8095/index.html
 
 
 ## Release a version
