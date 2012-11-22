@@ -57,10 +57,10 @@ public class PtuJsonReader extends JsonReader {
 			} else if (type.equals("Event")) {
 				// FIXME #231
 				result.add(new Event(sender, (String) msg.get("Sensor"),
-						(String) msg.get("EventType"), Double
-								.parseDouble((String) msg.get("Value")), Double
-								.parseDouble((String) msg.get("Threshold")), "",
-						convertToDate(msg.get("Time"))));
+						(String) msg.get("EventType"), convertToDouble(msg
+								.get("Value")), convertToDouble(msg
+								.get("Threshold")), "", convertToDate(msg
+								.get("Time"))));
 			} else {
 				log.warn("Message type not implemented: " + type);
 			}
@@ -69,6 +69,17 @@ public class PtuJsonReader extends JsonReader {
 
 		// returns a list of messages
 		return result;
+	}
+
+	private Double convertToDouble(Object number) {
+		if ((number == null) || !(number instanceof String)) {
+			return null;
+		}
+		try {
+			return Double.parseDouble((String) number);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	@Override

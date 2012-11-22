@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.eventbus.server;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +11,8 @@ public class ServerEventBus extends RemoteEventBus {
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static ServerEventBus instance;
+
+	private final static boolean DEBUG = false;
 
 	private EventBusServiceHandler eventBusServiceHandler;
 
@@ -32,14 +33,17 @@ public class ServerEventBus extends RemoteEventBus {
 
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
-		log.info("Fire event "+event.getClass());
+		if (DEBUG) {
+			log.info("Fire event " + event.getClass());
+		}
 		doFire(event);
 	}
 
 	@Override
-	public void fireEventFromSource(RemoteEvent<?> event,
-			int uuid) {
-		log.info("Fire event "+event.getClass()+" "+uuid);
+	public void fireEventFromSource(RemoteEvent<?> event, int uuid) {
+		if (DEBUG) {
+			log.info("Fire event " + event.getClass() + " " + uuid);
+		}
 		doFire(event);
 	}
 

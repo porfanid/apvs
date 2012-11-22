@@ -45,6 +45,8 @@ public class DbHandler extends DbReconnectHandler {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
+	
+	private final static boolean DEBUG = false;
 
 	private InterventionMap interventions = new InterventionMap();
 
@@ -111,8 +113,7 @@ public class DbHandler extends DbReconnectHandler {
 	public HistoryMap getHistoryMap(List<String> ptuIdList) throws SQLException {
 		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id"
-				+ " and NAME = ?"
-				+ " order by DATETIME desc";
+				+ " and NAME = ?" + " order by DATETIME desc";
 
 		Connection connection = getConnection();
 		PreparedStatement historyQuery = connection.prepareStatement(sql);
@@ -142,8 +143,10 @@ public class DbHandler extends DbReconnectHandler {
 			Integer samplingRate = samplingRates.get(key);
 			map.put(new History(ptuId, sensor, samplingRate, deque
 					.toArray(new Number[deque.size()][]), units.get(key)));
-			log.info("Creating history for " + ptuId + " " + sensor + " "
-					+ deque.size() + " entries");
+			if (DEBUG) {
+				log.info("Creating history for " + ptuId + " " + sensor + " "
+						+ deque.size() + " entries");
+			}
 		}
 		return map;
 	}
@@ -157,9 +160,9 @@ public class DbHandler extends DbReconnectHandler {
 			Map<String, Integer> samplingRates,
 			Map<String, Deque<Number[]>> data, Map<String, String> units)
 			throws SQLException {
-		
+
 		historyQuery.setString(1, ptuId);
-		
+
 		Map<String, Long> lastTimes = new HashMap<String, Long>();
 
 		long time = 0;
@@ -198,6 +201,10 @@ public class DbHandler extends DbReconnectHandler {
 				if (unit.equals("mSv/h")) {
 					unit = "&micro;Sv/h";
 					value *= 1000;
+				}
+				if ((sensor.equals("Temparature") || sensor
+						.equals("BodyTemperature")) && unit.equals("C")) {
+					unit = "&deg;C";
 				}
 				units.put(key, unit);
 

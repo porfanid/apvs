@@ -30,6 +30,8 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	private ServerEventBus eventBus;
 	private Map<Long, ClientInfo> clients = new HashMap<Long, EventBusServiceHandler.ClientInfo>();
 
+	private final static boolean DEBUG = false;
+	
 	class ClientInfo {
 		long uuid;
 		SuspendInfo suspendInfo;
@@ -63,8 +65,10 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	 */
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
-		log.info("Server: Received event..." + event + " "
-				+ Long.toHexString(event.getEventBusUUID()).toUpperCase());
+		if (DEBUG) {
+			log.info("Server: Received event..." + event + " "
+					+ Long.toHexString(event.getEventBusUUID()).toUpperCase());
+		}
 		// add to queues
 		getClientInfo(event.getEventBusUUID());
 
@@ -83,12 +87,15 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 		List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
 		int d = info.eventQueue.drainTo(events);
 		if (d > 0) {
+			if (DEBUG) {
 			log.info("Returning " + events.size() + " for uuid "
 					+ Long.toHexString(eventBusUUID).toUpperCase());
+			}
 			return events;
 		} else {
-
-			log.info("Suspend " + Long.toHexString(eventBusUUID).toUpperCase());
+			if (DEBUG) {
+				log.info("Suspend " + Long.toHexString(eventBusUUID).toUpperCase());
+			}
 			info.suspendInfo = suspend();
 			return null;
 		}
@@ -100,7 +107,9 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	 * @param event
 	 */
 	void forwardEvent(RemoteEvent<?> event) {
-		log.info("Forward event " + event.getClass());
+		if (DEBUG) {
+			log.info("Forward event " + event.getClass());
+		}
 		sendToRemote(event);
 	}
 
@@ -123,8 +132,10 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 			}
 			m++;
 		}
-		log.info("Added event to " + n + " of " + m + " queues: " + event);
-
+		if (DEBUG) {
+			log.info("Added event to " + n + " of " + m + " queues: " + event);
+		}
+		
 		purgeQueues();
 	}
 
@@ -139,19 +150,24 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 
 			List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
 			int d = client.eventQueue.drainTo(events);
-			log.info("Drained " + d + " " + events.size() + " from queue " + m);
+			if (DEBUG) {
+				log.info("Drained " + d + " " + events.size() + " from queue " + m);
+			}
 			if (d > 0) {
 				try {
+					if (DEBUG) {
 					log.info("Server: Sending " + events.size()
 							+ " events to uuid "
 							+ Long.toHexString(client.uuid).toUpperCase());
-
+					}
 					// Debug print
+					if (DEBUG) {
 					for (Iterator<RemoteEvent<?>> j = events.iterator(); j
 							.hasNext();) {
 						RemoteEvent<?> event = j.next();
-						log.info("  "
+					log.info("  "
 								+ (event != null ? event.toString() : "null"));
+					}
 					}
 					client.suspendInfo.writeAndResume(events);
 					client.suspendInfo = null;
@@ -163,8 +179,10 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 				n++;
 			}
 		}
+		if (DEBUG) {
 		log.info("Purged " + n + " of " + m + " queues");
-	}
+		}
+		}
 
 	private ClientInfo getClientInfo(Long uuid) {
 		ClientInfo info = clients.get(uuid);
@@ -182,9 +200,12 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 		}
 
 		// Debug only
-		log.info("Clients: ");
-		for (Iterator<ClientInfo> i = clients.values().iterator(); i.hasNext();) {
-			log.info("  " + i.next());
+		if (DEBUG) {
+			log.info("Clients: ");
+			for (Iterator<ClientInfo> i = clients.values().iterator(); i
+					.hasNext();) {
+				log.info("  " + i.next());
+			}
 		}
 
 		return info;
