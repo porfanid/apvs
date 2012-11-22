@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
@@ -34,18 +33,14 @@ public class AudioView extends GlassPanel implements Module {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
-	private Conference conferenceMembers = new Conference();
 	private String ptuId; //= new String("PTU1234");
-	private static final String SUPERVISOR_ACCOUNT = "SIP/2000";
-	private static final String SUPERVISOR_NUMBER = "2000";
+	private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
+	private static final String SUPERVISOR_NUMBER = "2001";
 
 	private EventBus cmdBus;
 
-	private List<String> fieldName = new ArrayList<String>(
-			Arrays.asList(new String[] { "Status", "Private Call", "Group Call" }));
-	private List<Class<?>> classField = new ArrayList<Class<?>>(
-			Arrays.asList(new Class<?>[] { TextCell.class, ButtonCell.class,
-					ButtonCell.class }));
+	private List<String> fieldName = new ArrayList<String>(Arrays.asList(new String[] { "Status", "Private Call", "Group Call" }));
+	private List<Class<?>> classField = new ArrayList<Class<?>>(Arrays.asList(new Class<?>[] { TextCell.class, ButtonCell.class,ButtonCell.class }));
 
 	public AudioView() {
 	}
@@ -80,18 +75,6 @@ public class AudioView extends GlassPanel implements Module {
 		 */
 
 		add(table, CENTER);
-
-		// Field Name column
-		Column<String, String> fieldNameCol = new Column<String, String>(new TextCell()) {
-			@Override
-			public String getValue(String field) {
-				return field;
-			}
-		};
-		fieldNameCol.setHorizontalAlignment(ALIGN_CENTER);
-		//table.addColumn(fieldNameCol);
-
-		
 		
 		// Status/Action Field column
 		EditableCell fieldActionCell = new EditableCell(classField);
@@ -110,11 +93,6 @@ public class AudioView extends GlassPanel implements Module {
 					return (voipAccounts.getMute(ptuId) ? ("Unmute '") + voipAccounts.getUsername(ptuId) + "'" : ("Mute '") + voipAccounts.getUsername(ptuId) + "'");
 				else if(fieldName.equals("Kick/Add"))
 					return ( voipAccounts.getOnConference(ptuId)? ( (voipAccounts.getRoom(ptuId) == conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId))) ? ("Kick '" + voipAccounts.getActivity(ptuId) + "'") : ("Hangup from '" + voipAccounts.getActivity(ptuId) + "' conference")) : ("Add to '" + voipAccounts.getActivity(ptuId) + "'"));
-				/*else if (fieldName.equals("Conference"))
-					return "Close '" + voipAccounts.getActivity(ptuId)+ "' conference";
-				else if (conferenceMembers.containsUsername(fieldName)) {
-					return "BUTTONS OPTION goes here";
-				}*/
 				else
 					return null;
 			}
@@ -138,7 +116,7 @@ public class AudioView extends GlassPanel implements Module {
 
 					@Override
 					public void onSuccess(Void result) {
-						System.out.println("Conference success...");
+						System.out.println("Conference established...");
 					}
 				};
 
@@ -152,7 +130,7 @@ public class AudioView extends GlassPanel implements Module {
 
 					@Override
 					public void onSuccess(Void result) {
-						System.out.println("Conference success...");
+						System.out.println("Call Established...");
 					}
 				};
 
@@ -160,12 +138,12 @@ public class AudioView extends GlassPanel implements Module {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						System.err.println("FAIL HANGUP: " + caught);
+						System.err.println("FAIL HANGUP ESTABLISHMENT: " + caught);
 					}
 
 					@Override
 					public void onSuccess(Void result) {
-						System.out.println("Hangup Success...");
+						System.out.println("Call Hangup...");
 					}
 				};
 				
@@ -178,7 +156,7 @@ public class AudioView extends GlassPanel implements Module {
 
 					@Override
 					public void onSuccess(Void result) {
-						System.out.println("Mute Success...");
+						System.out.println("Mute/Unmute Success...");
 					}	
 				};
 
@@ -220,12 +198,8 @@ public class AudioView extends GlassPanel implements Module {
 					System.out.println(voipAccounts.getMute(ptuId));
 					if(voipAccounts.getMute(ptuId)){
 						AudioServiceAsync.Util.getInstance().unMuteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel(ptuId), ptuId, callbackMute);
-						//AudioServiceAsync.Util.getInstance().unMuteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel("PTU5678"), ptuId, callbackMute);
 					}else{
 						AudioServiceAsync.Util.getInstance().muteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel(ptuId), ptuId, callbackMute);
-						//AudioServiceAsync.Util.getInstance().muteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel("PTU5678"), ptuId, callbackMute);}
-						//System.out.println(voipAccounts.getChannel("PTU5678")+"   "+ voipAccounts.getChannel(ptuId));
-						//AudioServiceAsync.Util.getInstance().muteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel("PTU5678"), ptuId, callbackMute);
 					}
 					
 				} else if (fieldName.equals("Kick/Add")){
@@ -304,12 +278,9 @@ public class AudioView extends GlassPanel implements Module {
 				dataProvider.getList().clear();
 				dataProvider.getList().addAll(fieldName);
 			}
-				
-			
 		});
-
+		
 		return true;
-
 	}
 
 	@Override
