@@ -74,7 +74,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private AsteriskPing ping;
 
 	// Account Details
-	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
+	private static final String ASTERISK_URL = "pcatlaswpss02.cern.ch";
 	private static final String AMI_ACCOUNT = "manager";
 	private static final String PASSWORD = "password";
 
