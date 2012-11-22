@@ -5,22 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.asteriskjava.live.AsteriskChannel;
-import org.asteriskjava.live.AsteriskQueueEntry;
 import org.asteriskjava.live.AsteriskServer;
-import org.asteriskjava.live.AsteriskServerListener;
 import org.asteriskjava.live.DefaultAsteriskServer;
 import org.asteriskjava.live.LiveException;
 import org.asteriskjava.live.MeetMeRoom;
 import org.asteriskjava.live.MeetMeUser;
 import org.asteriskjava.live.OriginateCallback;
-import org.asteriskjava.live.internal.AsteriskAgentImpl;
 import org.asteriskjava.manager.AuthenticationFailedException;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.ManagerConnectionFactory;
@@ -68,7 +64,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private ArrayList<String> usersList;
 
 	private ScheduledExecutorService executorService;
-	private ScheduledFuture<?> connectFuture;
 	private boolean audioOk;
 	private boolean asteriskConnected;
 	private AsteriskPing ping;
@@ -131,8 +126,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		
 		ping  = new AsteriskPing(managerConnection);
 
-		this.connectFuture = executorService.scheduleAtFixedRate(
-				new Runnable() {
+		executorService.scheduleAtFixedRate( new Runnable() {
 
 					@Override
 					public void run() {
@@ -337,7 +331,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	@Override
 	public void onManagerEvent(ManagerEvent event) {
-		//System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"+event.toString());
 		// NewChannelEvent
 		if (event instanceof NewChannelEvent) {
 			NewChannelEvent channel = (NewChannelEvent) event;
