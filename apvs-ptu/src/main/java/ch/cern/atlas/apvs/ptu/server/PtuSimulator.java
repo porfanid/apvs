@@ -97,8 +97,9 @@ public class PtuSimulator extends Thread {
 						writer.write(measurement);
 						System.err.println(measurement);
 					}
-					writer.newLine();
+
 					if (WRITE_MARKERS) {
+						writer.write(0x00);
 						writer.write(0x13);
 					}
 					writer.flush();

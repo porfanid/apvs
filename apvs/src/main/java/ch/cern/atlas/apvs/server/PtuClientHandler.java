@@ -39,56 +39,64 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private final RemoteEventBus eventBus;
 
 	private List<Measurement> measurementChanged = new ArrayList<Measurement>();
-	
+
 	private boolean dosimeterOk;
 
 	public PtuClientHandler(ClientBootstrap bootstrap,
 			final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
-		
+
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
 				String type = event.getRequestedClassName();
 
-				if (type.equals(ConnectionStatusChangedRemoteEvent.class.getName())) {
-					ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq, isConnected());
-					ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, isConnected() && dosimeterOk);
+				if (type.equals(ConnectionStatusChangedRemoteEvent.class
+						.getName())) {
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,
+							ConnectionType.daq, isConnected());
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,
+							ConnectionType.dosimeter, isConnected()
+									&& dosimeterOk);
 				}
 			}
 		});
 	}
-	
+
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
-		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq, true);
-		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq,
+				true);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus,
+				ConnectionType.dosimeter, dosimeterOk);
 		super.channelConnected(ctx, e);
 	}
-	
+
 	@Override
 	public void channelDisconnected(ChannelHandlerContext ctx,
 			ChannelStateEvent e) throws Exception {
-		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq, false);
-		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq,
+				false);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus,
+				ConnectionType.dosimeter, dosimeterOk);
 		super.channelDisconnected(ctx, e);
 	}
-	
+
 	public void sendOrder(Order order) {
 		try {
 			System.out.println(PtuJsonWriter.objectToJson(order));
-			
+
 			ChannelBuffer buffer = ChannelBuffers.buffer(8192);
 			OutputStream os = new ChannelBufferOutputStream(buffer);
 			PtuJsonWriter writer = new PtuJsonWriter(os);
 			writer.write(0x10);
 			writer.write(order);
 			writer.write(0x13);
-			System.out.println("Sedning...");
-			
+			System.out.println("Sending...");
+
 			ChannelBufferOutputStream cos = (ChannelBufferOutputStream) os;
 			getChannel().write(cos.buffer()).awaitUninterruptibly();
 			System.out.println(PtuJsonWriter.objectToJson(order));
@@ -100,15 +108,27 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 	}
 
+	private final static boolean DEBUG = false;
+
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
 		// Print out the line received from the server.
 		String line = (String) event.getMessage();
+
+		if (DEBUG) {
+			for (int i = 0; i < line.length(); i++) {
+				char c = line.charAt(i);
+				System.err.println(c + " " + Integer.toString(c));
+			}
+		}
+
 		line = line.replaceAll("\u0000", "");
 		line = line.replaceAll("\u0010", "");
 		line = line.replaceAll("\u0013", "");
-		// log.info("'"+line+"'");
-		// log.info(len+" "+line.length());
+		if (DEBUG) {
+			log.info("'" + line + "'");
+			log.info("LineLength"+line.length());
+		}
 
 		List<Message> list;
 		try {
@@ -138,17 +158,21 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 
 	}
-	
+
 	private void handleMessage(Measurement message) throws APVSException {
 
 		// Scale down to microSievert
 		if (message.getUnit().equals("mSv")) {
-			message = new Measurement(message.getPtuId(), message.getName(), message.getValue().doubleValue()*1000, message.getSamplingRate(), "&micro;Sv", message.getDate());
+			message = new Measurement(message.getPtuId(), message.getName(),
+					message.getValue().doubleValue() * 1000,
+					message.getSamplingRate(), "&micro;Sv", message.getDate());
 		}
 		if (message.getUnit().equals("mSv/h")) {
-			message = new Measurement(message.getPtuId(), message.getName(), message.getValue().doubleValue()*1000, message.getSamplingRate(), "&micro;Sv/h", message.getDate());
+			message = new Measurement(message.getPtuId(), message.getName(),
+					message.getValue().doubleValue() * 1000,
+					message.getSamplingRate(), "&micro;Sv/h", message.getDate());
 		}
-		
+
 		measurementChanged.add(message);
 
 		sendEvents();
@@ -163,13 +187,15 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
 				message.getEventType(), message.getValue(), message
 						.getTheshold(), message.getUnit(), message.getDate())));
-		
+
 		if (message.getEventType().equals("DosConnectionStatus_OFF")) {
 			dosimeterOk = false;
-			ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+			ConnectionStatusChangedRemoteEvent.fire(eventBus,
+					ConnectionType.dosimeter, dosimeterOk);
 		} else if (message.getEventType().equals("DosConnectionStatus_ON")) {
 			dosimeterOk = true;
-			ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.dosimeter, dosimeterOk);
+			ConnectionStatusChangedRemoteEvent.fire(eventBus,
+					ConnectionType.dosimeter, dosimeterOk);
 		}
 	}
 

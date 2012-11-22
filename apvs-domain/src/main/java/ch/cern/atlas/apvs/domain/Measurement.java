@@ -39,6 +39,12 @@ public class Measurement implements Message, Serializable,
 		this.unit = unit;
 		this.date = date;
 
+		// Fix Unit for Body Temperature and Temperature
+		if ((name.equals("Temperature") || name.equals("BodyTemperature")) && unit.equals("C")) {
+			this.unit = "&deg;C";
+		}
+		
+		// Set better Display Name
 		if (name.equals("O2")) {
 			displayName = "O<sub>2</sub>";
 		} else if (name.equals("CO2")) {
@@ -46,7 +52,7 @@ public class Measurement implements Message, Serializable,
 		} else {
 			displayName = StringUtils.join(
 					StringUtils.splitByCharacterTypeCamelCase(name), ' ');
-		}
+		}	
 	}
 
 	public Measurement(String ptuId, String name, String displayName,

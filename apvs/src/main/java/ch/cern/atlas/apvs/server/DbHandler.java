@@ -199,6 +199,9 @@ public class DbHandler extends DbReconnectHandler {
 					unit = "&micro;Sv/h";
 					value *= 1000;
 				}
+				if ((sensor.equals("Temparature") || sensor.equals("BodyTemperature")) && unit.equals("C")) {
+					unit = "&deg;C";
+				}
 				units.put(key, unit);
 
 				// limit entry separation (reverse order)
