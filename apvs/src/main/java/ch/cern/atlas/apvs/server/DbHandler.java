@@ -126,8 +126,11 @@ public class DbHandler extends DbReconnectHandler {
 
 		try {
 			for (String ptuId : ptuIdList) {
-				getHistory(ptuId, historyQuery, ptuIds, sensors, samplingRates,
+				int entries = getHistory(ptuId, historyQuery, ptuIds, sensors, samplingRates,
 						data, units);
+				if (DEBUG) {
+					log.info("Entries for "+ptuId+" "+entries);
+				}
 			}
 		} finally {
 			historyQuery.close();
@@ -135,6 +138,7 @@ public class DbHandler extends DbReconnectHandler {
 		}
 
 		HistoryMap map = new HistoryMap();
+		int total = 0;
 		for (Entry<String, Deque<Number[]>> e : data.entrySet()) {
 			String key = e.getKey();
 			Deque<Number[]> deque = e.getValue();
@@ -147,15 +151,20 @@ public class DbHandler extends DbReconnectHandler {
 				log.info("Creating history for " + ptuId + " " + sensor + " "
 						+ deque.size() + " entries");
 			}
+			total += deque.size();
+		}
+		if (DEBUG) {
+			log.info("Total entries: "+total);
 		}
 		return map;
 	}
 
 	private static final long PERIOD = 48; // hours
-	private static final int MAX_ENTRIES = 1000; // number
+	private static final int MAX_TOTAL_ENTRIES = 100000; // number
+	private static final int MAX_ENTRIES = 10000; // number
 	private static final long MIN_INTERVAL = 5000; // ms
 
-	private void getHistory(String ptuId, PreparedStatement historyQuery,
+	private int getHistory(String ptuId, PreparedStatement historyQuery,
 			Map<String, String> ptuIds, Map<String, String> sensors,
 			Map<String, Integer> samplingRates,
 			Map<String, Deque<Number[]>> data, Map<String, String> units)
@@ -167,14 +176,15 @@ public class DbHandler extends DbReconnectHandler {
 
 		long time = 0;
 		long then = -1;
+		int totalEntries = 0;
 		int entries = 0;
 		ResultSet result = historyQuery.executeQuery();
 		try {
-			while (result.next() && (entries < MAX_ENTRIES)) {
-				entries++;
+			while (result.next() && (totalEntries < MAX_TOTAL_ENTRIES)) {
+				totalEntries++;
 				time = result.getTimestamp("datetime").getTime();
 				if (then < 0) {
-					then = time - (PERIOD * 60 * 60 * 1000);
+					then = time - (PERIOD * 60 * 60 * 1000L);
 				}
 				if (time < then) {
 					break;
@@ -188,7 +198,9 @@ public class DbHandler extends DbReconnectHandler {
 				ptuIds.put(key, ptuId);
 				sensors.put(key, sensor);
 				samplingRates.put(key, samplingRate);
-				lastTimes.put(key, new Date().getTime() + MIN_INTERVAL);
+				if (lastTimes.get(key) == null) {
+					lastTimes.put(key, time + 2*MIN_INTERVAL);
+				}
 
 				String unit = result.getString("unit");
 				double value = Double.parseDouble(result.getString("value"));
@@ -220,12 +232,17 @@ public class DbHandler extends DbReconnectHandler {
 						deque = new ArrayDeque<Number[]>(200);
 						data.put(key, deque);
 					}
-					deque.addFirst(entry);
+					if (deque.size() < MAX_ENTRIES) {
+						deque.addFirst(entry);
+						entries++;
+					}
 				}
 			}
 		} finally {
 			result.close();
 		}
+		
+		return entries;
 	}
 
 	@Override

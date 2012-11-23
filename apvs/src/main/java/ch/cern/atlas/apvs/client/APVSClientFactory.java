@@ -48,6 +48,7 @@ public class APVSClientFactory implements ClientFactory {
 
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
+// FIXME #284, re-enable, but reload gives NPE onDisconnect in atmosphere-gwt
 		AtmosphereGWTSerializer serializer = null; // GWT.create(EventSerializer.class);
 		atmosphereEventBus = new AtmosphereEventBus(serializer);
 		

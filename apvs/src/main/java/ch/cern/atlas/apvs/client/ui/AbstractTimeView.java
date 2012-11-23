@@ -169,23 +169,38 @@ public class AbstractTimeView extends GlassPanel {
 	private static final DateTimeFormat ddMMMyyyy = DateTimeFormat
 			.getFormat("dd MMM yyyy");
 
+	private static final long DAY = 24 * 60 * 60 * 1000L;
+	
 	@SuppressWarnings("deprecation")
 	private String getDateTime(long time) {
-		long now = new Date().getTime();
+		Date today = new Date();
+		long now = today.getTime();
 		long nextMinute = now + (60 * 1000);
-		long yesterday = now - (24 * 60 * 60 * 1000);
+		long yesterday = now - DAY;
+		long tomorrow = now + DAY;
 		Date date = new Date(time);
-		String dateTime = PtuClientConstants.timeFormat.format(date);
+		
+		String prefix = "";
+		String postfix = "";
+		String newline = "<br/>";
 		if (time > nextMinute) {
-			return "<b>" + dateTime + "<br/>" + ddMMM.format(date) + "</b>";
+			prefix = "<b>";
+			postfix = "</b>";
 		} else if (time < yesterday) {
-			if (date.getYear() == new Date().getYear()) {
-				return "<i>" + dateTime + "<br/>" + ddMMM.format(date) + "</i>";
+			prefix = "<i>";
+			postfix = "</i>";
+		}
+
+		String dateTime = PtuClientConstants.timeFormat.format(date);
+		if ((time < yesterday) || (time > tomorrow)) {
+			if (date.getYear() == today.getYear()) {
+				dateTime += newline + ddMMM.format(date);
 			} else {
-				return "<i>" + dateTime + "<br/>" + ddMMMyyyy.format(date) + "</i>";				
+				dateTime += newline + ddMMMyyyy.format(date);
 			}
 		}
-		return dateTime;
+
+		return prefix + dateTime + postfix;
 	}
 
 	protected void setUnit(String ptuId, String unit) {
