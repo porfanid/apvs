@@ -1,11 +1,13 @@
 package ch.cern.atlas.apvs.eventbus.shared;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class ConnectionUUIDsChangedEvent extends RemoteEvent<ConnectionUUIDsChangedEvent.Handler> {
+public class ConnectionUUIDsChangedEvent extends
+		RemoteEvent<ConnectionUUIDsChangedEvent.Handler> {
 
 	private static final long serialVersionUID = -360451669494831303L;
 
@@ -21,6 +23,11 @@ public class ConnectionUUIDsChangedEvent extends RemoteEvent<ConnectionUUIDsChan
 
 	private static final Type<ConnectionUUIDsChangedEvent.Handler> TYPE = new Type<ConnectionUUIDsChangedEvent.Handler>();
 
+	public static void fire(RemoteEventBus eventBus, ArrayList<String> uuids,
+			String connected, String disconnected) {
+		eventBus.fireEvent(new ConnectionUUIDsChangedEvent(uuids, connected, disconnected));
+	}
+
 	/**
 	 * Register a handler for events on the eventbus.
 	 * 
@@ -34,23 +41,29 @@ public class ConnectionUUIDsChangedEvent extends RemoteEvent<ConnectionUUIDsChan
 			ConnectionUUIDsChangedEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
-	
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) {
+
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+			Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
-		
-		eventBus.fireEvent(new RequestRemoteEvent(ConnectionUUIDsChangedEvent.class));
-		
+
+		eventBus.fireEvent(new RequestRemoteEvent(
+				ConnectionUUIDsChangedEvent.class));
+
 		return registration;
 	}
 
-	
-	private List<String> uuids;
-	
+	private ArrayList<String> uuids;
+	private String connected;
+	private String disconnected;
+
 	public ConnectionUUIDsChangedEvent() {
 	}
 
-	public ConnectionUUIDsChangedEvent(List<String> uuids) {
+	public ConnectionUUIDsChangedEvent(ArrayList<String> uuids, String connected,
+			String disconnected) {
 		this.uuids = uuids;
+		this.connected = connected;
+		this.disconnected = disconnected;
 	}
 
 	@Override
@@ -61,14 +74,24 @@ public class ConnectionUUIDsChangedEvent extends RemoteEvent<ConnectionUUIDsChan
 	public List<String> getConnectionUUIDs() {
 		return uuids;
 	}
-	
+
+	public String getConnected() {
+		return connected;
+	}
+
+	public String getDisconnected() {
+		return disconnected;
+	}
+
 	@Override
 	protected void dispatch(Handler handler) {
 		handler.onConnectionUUIDchanged(this);
 	}
-	
+
 	@Override
 	public String toString() {
-		return "ConnectionUUIDsChangedEvent "+uuids.size();
+		return "ConnectionUUIDsChangedEvent " + uuids.size() + " " + connected
+				+ " " + disconnected;
 	}
+
 }

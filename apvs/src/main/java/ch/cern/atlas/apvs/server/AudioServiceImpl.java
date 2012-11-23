@@ -161,11 +161,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 			
 			@Override
 			public void onConnectionUUIDchanged(ConnectionUUIDsChangedEvent event) {
-				for (String uuid: event.getConnectionUUIDs()) {
-					System.err.println("ConnectionUUID: "+uuid);
-				}
+				System.err.println("Supervisor Connect or Disconnect "+event);
 			}
-
 		});
 
 		AudioSettingsChangedRemoteEvent.subscribe(eventBus,
