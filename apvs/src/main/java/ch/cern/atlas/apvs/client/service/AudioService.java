@@ -18,6 +18,10 @@ public interface AudioService extends RemoteService {
 	void newConference(List<String> participants);
 
 	void addToConference(String callerOriginater, String conferenceRoom);
+	
+	void muteUser(String room, String channel, String ptuId);
+	
+	void unMuteUser(String room, String channel, String ptuId);
 
 	void usersList() throws AudioException;
 }
