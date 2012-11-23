@@ -676,8 +676,6 @@ public class DbHandler extends DbReconnectHandler {
 
 		if (!interventions.equals(newMap)) {
 			interventions = newMap;
-			System.err.println("Sent............." + eventBus.getUUID() + " "
-					+ interventions.hashCode());
 			InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 		}
 	}
