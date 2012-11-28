@@ -29,6 +29,22 @@ public class CameraView extends SimplePanel implements Module,
 	public static final String HELMET = "Helmet";
 	public static final String HAND = "Hand";
 
+	/**
+	 * Test Stream:
+	 * 
+	 * There is a properly setup test stream here:
+	 * 
+	 * http://www.wowzamedia.com/mobile.html
+	 * 
+	 * the direct RTSP URL is:
+	 * 
+	 * rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov
+	 * 
+	 * The test H.264 video on demand file is here:
+	 * 
+	 * http://www.wowzamedia.com/_h264/BigBuckBunny_175k.mov
+	 */
+
 	// FIXME
 	// private final String cameraURL = "rtsp://pcatlaswpss02:8554/worker1";
 	// private final String cameraURL =
@@ -61,7 +77,7 @@ public class CameraView extends SimplePanel implements Module,
 	private String options;
 	private boolean switchSource;
 	private boolean switchDestination;
-	
+
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	// FIXME #179 needs to change when we redo the iPad version
@@ -168,8 +184,11 @@ public class CameraView extends SimplePanel implements Module,
 
 	public boolean update() {
 		String cameraUrl = getCameraUrl(type, ptuId);
+		System.err.println("CameraURL: '"+ptuId+"' '"+cameraUrl+"'");
+		
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
 			image.setUrl(videoPoster);
+			image.setTitle("");
 			setWidget(image);
 			return false;
 		}
@@ -184,6 +203,7 @@ public class CameraView extends SimplePanel implements Module,
 			if (cameraUrl.endsWith(".mjpg")) {
 				log.info(cameraUrl);
 				image.setUrl(cameraUrl);
+				image.setTitle(cameraUrl);
 				setWidget(image);
 			} else {
 				Video video = Video.createIfSupported();
@@ -198,18 +218,20 @@ public class CameraView extends SimplePanel implements Module,
 					video.addSource(cameraUrl);
 				}
 				log.info(video.toString());
+				video.setTitle(cameraUrl);
 				setWidget(video);
 			}
 		} else if (cameraUrl.startsWith("rtsp://")) {
 			Widget video = new HTML(
 					"<embed width=\""
-							+ videoWidth
+							+ getOffsetWidth()
 							+ "\" height=\""
-							+ videoHeight
+							+ getOffsetHeight()
 							+ "\" src=\""
 							+ cameraUrl
 							+ "\" autoplay=\"true\" type=\"video/quicktime\" controller=\"true\" quitwhendone=\"false\" loop=\"false\"/></embed>");
 			log.info(video.toString());
+			video.setTitle(cameraUrl);
 			setWidget(video);
 		} else {
 			Widget video = new HTML(
@@ -225,6 +247,7 @@ public class CameraView extends SimplePanel implements Module,
 							+ cameraUrl
 							+ "', 'autohref', 'true', 'target', 'myself', 'controller', 'true', 'autoplay', 'true');</script>");
 			log.info(video.toString());
+			video.setTitle(cameraUrl);
 			setWidget(video);
 		}
 		return false;
