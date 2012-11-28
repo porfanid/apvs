@@ -98,4 +98,9 @@ public class PollEventBus extends RemoteEventBus {
 					}
 				});
 	}
+	
+	@Override
+	public String toString() {
+		return "PollEventBus";
+	}
 }

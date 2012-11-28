@@ -14,12 +14,17 @@ public class NamedEventBus {
 		busses = new HashMap<String, EventBus>();
 	}
 
-    static EventBus get(String name) {
+    static EventBus get(final String name) {
 		if (name.trim().equals("")) return null;
 		
 		EventBus bus = busses.get(name);
 		if (bus == null) {
-			bus = new SimpleEventBus();
+			bus = new SimpleEventBus() {
+				@Override
+				public String toString() {
+					return "NamedEventBus: "+name;
+				}
+			};
 			put(name, bus);
 		}
 		return bus;

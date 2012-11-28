@@ -269,4 +269,9 @@ public class RemoteEventBus extends SimpleEventBus {
 			map.remove(type);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return "RemoteEventBus";
+	}
 }
