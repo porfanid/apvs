@@ -31,7 +31,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuTabSelector extends HorizontalPanel implements Module {
 
-	@SuppressWarnings("unused")
+	private final static boolean TEST = true;
+
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private RemoteEventBus remoteEventBus;
@@ -103,7 +104,9 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 						interventions = event.getInterventionMap();
 
-						ptuIds = interventions.getPtuIds();
+						if (!TEST) {
+							ptuIds = interventions.getPtuIds();
+						}
 
 						scheduler.update();
 
@@ -114,6 +117,15 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 						}
 					}
 				});
+
+		if (TEST) {
+			ptuIds = new ArrayList<String>();
+			ptuIds.add("PTUdemo");
+			ptuIds.add("PTU1234");
+			ptuIds.add("PTU5678");
+			ptuIds.add("PTU007");
+			scheduler.update();
+		}
 
 		return true;
 	}
@@ -133,8 +145,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
 				final String id = i.next();
-				if ((settings != null) && !settings.isEnabled(id))
-					continue;
+
+				if (!TEST) {
+					if ((settings != null) && !settings.isEnabled(id)) {
+						continue;
+					}
+				}
 
 				final ToggleButton b = new ToggleButton(getName(id));
 				b.setDown(id.equals(selectedTab));
@@ -199,7 +215,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 	private void fireEvent(Event<?> event) {
 		for (Iterator<EventBus> i = eventBusses.iterator(); i.hasNext();) {
-			i.next().fireEvent(event);
+			EventBus eventBus = i.next();
+			if (TEST) {
+				System.err.println("Firing " + event + " to "
+						+ eventBus.toString());
+			}
+			eventBus.fireEvent(event);
 		}
 	}
 }
