@@ -31,7 +31,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuTabSelector extends HorizontalPanel implements Module {
 
-	private final static boolean TEST = true;
+	private final static boolean TEST = false;
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -65,7 +65,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		extraTabs = args.getArgs(1);
 
 		selectedTab = LocalStorage.getInstance().get(LocalStorage.SELECTED_TAB);
-		selectedPtuId = LocalStorage.getInstance().get(LocalStorage.PTU_ID);
+		selectedPtuId = LocalStorage.getInstance().get(LocalStorage.SELECTED_PTU_ID);
 
 		// listen to all event busses
 		for (final EventBus eventBus : eventBusses) {
@@ -166,10 +166,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 						radio(b);
 
 						fireEvent(new SelectTabEvent("Ptu"));
-
 						LocalStorage.getInstance().put(
 								LocalStorage.SELECTED_TAB, selectedTab);
+						
 						fireEvent(new SelectPtuEvent(selectedPtuId));
+						LocalStorage.getInstance().put(
+								LocalStorage.SELECTED_PTU_ID, selectedPtuId);						
 					}
 				});
 				add(b);
@@ -191,10 +193,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 					radio(b);
 
 					fireEvent(new SelectTabEvent(selectedTab));
-
 					LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB,
 							selectedTab);
+					
 					fireEvent(new SelectPtuEvent(selectedPtuId));
+					LocalStorage.getInstance().put(LocalStorage.SELECTED_PTU_ID,
+							selectedPtuId);
 				}
 			});
 			add(b);
