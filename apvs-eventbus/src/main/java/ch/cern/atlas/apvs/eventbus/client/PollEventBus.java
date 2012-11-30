@@ -74,13 +74,13 @@ public class PollEventBus extends RemoteEventBus {
 					@Override
 					public void onSuccess(List<RemoteEvent<?>> events) {
 					    log.info(getUUID()+": Received events..." + events.size());
-
+					    
 						// forward events locally
 						for (Iterator<RemoteEvent<?>> i = events.iterator(); i
 								.hasNext();) {
 
 							RemoteEvent<?> event = i.next();
-//						    log.info("Client: Received event..." + event);
+						    log.info("Client: Received event..." + event);
 							// do not fire your own events
 							if (event.getEventBusUUID() != getUUID()) {
 								PollEventBus.super.fireEvent(event);

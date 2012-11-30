@@ -31,7 +31,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	private Map<Long, ClientInfo> clients = new HashMap<Long, EventBusServiceHandler.ClientInfo>();
 
 	private final static boolean DEBUG = false;
-	
+
 	class ClientInfo {
 		long uuid;
 		SuspendInfo suspendInfo;
@@ -88,13 +88,14 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 		int d = info.eventQueue.drainTo(events);
 		if (d > 0) {
 			if (DEBUG) {
-			log.info("Returning " + events.size() + " for uuid "
-					+ Long.toHexString(eventBusUUID).toUpperCase());
+				log.info("Returning " + events.size() + " for uuid "
+						+ Long.toHexString(eventBusUUID).toUpperCase());
 			}
 			return events;
 		} else {
 			if (DEBUG) {
-				log.info("Suspend " + Long.toHexString(eventBusUUID).toUpperCase());
+				log.info("Suspend "
+						+ Long.toHexString(eventBusUUID).toUpperCase());
 			}
 			info.suspendInfo = suspend();
 			return null;
@@ -135,7 +136,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 		if (DEBUG) {
 			log.info("Added event to " + n + " of " + m + " queues: " + event);
 		}
-		
+
 		purgeQueues();
 	}
 
@@ -151,23 +152,25 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 			List<RemoteEvent<?>> events = new ArrayList<RemoteEvent<?>>();
 			int d = client.eventQueue.drainTo(events);
 			if (DEBUG) {
-				log.info("Drained " + d + " " + events.size() + " from queue " + m);
+				log.info("Drained " + d + " " + events.size() + " from queue "
+						+ m);
 			}
 			if (d > 0) {
 				try {
 					if (DEBUG) {
-					log.info("Server: Sending " + events.size()
-							+ " events to uuid "
-							+ Long.toHexString(client.uuid).toUpperCase());
+						log.info("Server: Sending " + events.size()
+								+ " events to uuid "
+								+ Long.toHexString(client.uuid).toUpperCase());
 					}
 					// Debug print
 					if (DEBUG) {
-					for (Iterator<RemoteEvent<?>> j = events.iterator(); j
-							.hasNext();) {
-						RemoteEvent<?> event = j.next();
-					log.info("  "
-								+ (event != null ? event.toString() : "null"));
-					}
+						for (Iterator<RemoteEvent<?>> j = events.iterator(); j
+								.hasNext();) {
+							RemoteEvent<?> event = j.next();
+							log.info("  "
+									+ (event != null ? event.toString()
+											: "null"));
+						}
 					}
 					client.suspendInfo.writeAndResume(events);
 					client.suspendInfo = null;
@@ -180,9 +183,9 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 			}
 		}
 		if (DEBUG) {
-		log.info("Purged " + n + " of " + m + " queues");
+			log.info("Purged " + n + " of " + m + " queues");
 		}
-		}
+	}
 
 	private ClientInfo getClientInfo(Long uuid) {
 		ClientInfo info = clients.get(uuid);
