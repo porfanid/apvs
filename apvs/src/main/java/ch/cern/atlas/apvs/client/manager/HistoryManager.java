@@ -5,10 +5,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -25,10 +25,12 @@ public class HistoryManager {
 	private HistoryMap historyMap;
 	private List<String> ptuIds;
 	private HandlerRegistration measurementRegistration;
+	private ClientFactory clientFactory;
 	private RemoteEventBus eventBus;
 
-	private HistoryManager(RemoteEventBus eventBus) {
-		this.eventBus = eventBus;
+	private HistoryManager(ClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
+		this.eventBus = clientFactory.getRemoteEventBus();
 
 		// subscribe
 		InterventionMapChangedRemoteEvent.subscribe(eventBus,
@@ -59,7 +61,7 @@ public class HistoryManager {
 		}
 
 		historyMap = new HistoryMap();
-		PtuServiceAsync.Util.getInstance().getHistoryMap(ptuIds,
+		clientFactory.getPtuService().getHistoryMap(ptuIds,
 				new AsyncCallback<HistoryMap>() {
 
 					@Override
@@ -111,9 +113,9 @@ public class HistoryManager {
 				});
 	}
 
-	public static HistoryManager getInstance(RemoteEventBus eventBus) {
+	public static HistoryManager getInstance(ClientFactory clientFactory) {
 		if (instance == null) {
-			instance = new HistoryManager(eventBus);
+			instance = new HistoryManager(clientFactory);
 		}
 		return instance;
 	}

@@ -9,18 +9,23 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.RpcRequestBuilder;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 public class PollEventBus extends RemoteEventBus {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private EventBusServiceAsync eventBusService;
-
+	
 	public PollEventBus() {
-		eventBusService = GWT.create(EventBusService.class);
-
+		this(null);
+	}
+	
+	public PollEventBus(RpcRequestBuilder requestBuilder) {
+		eventBusService = EventBusServiceAsync.Util.getInstance();
+		((ServiceDefTarget)eventBusService).setRpcRequestBuilder(requestBuilder);
 		getQueuedEvents();
 	}
 

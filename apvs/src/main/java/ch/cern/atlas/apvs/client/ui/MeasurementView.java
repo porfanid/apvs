@@ -139,7 +139,7 @@ public class MeasurementView extends GlassPanel implements Module {
 					}
 				});
 
-		HistoryMapChangedEvent.subscribe(remoteEventBus,
+		HistoryMapChangedEvent.subscribe(clientFactory,
 				new HistoryMapChangedEvent.Handler() {
 
 					@Override

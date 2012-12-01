@@ -1,8 +1,8 @@
 package ch.cern.atlas.apvs.client.event;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.manager.HistoryManager;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.web.bindery.event.shared.Event;
@@ -36,18 +36,18 @@ public class HistoryMapChangedEvent extends Event<HistoryMapChangedEvent.Handler
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(RemoteEventBus eventBus,
+	public static HandlerRegistration register(ClientFactory clientFactory,
 			HistoryMapChangedEvent.Handler handler) {
-		HistoryManager.getInstance(eventBus);
+		HistoryManager.getInstance(clientFactory);
 		
-		return eventBus.addHandler(TYPE, handler);
+		return clientFactory.getRemoteEventBus().addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(ClientFactory clientFactory,
 			HistoryMapChangedEvent.Handler handler) {
-		HandlerRegistration registration = register(eventBus, handler);
+		HandlerRegistration registration = register(clientFactory, handler);
 		
-		eventBus.fireEvent(new RequestEvent(HistoryMapChangedEvent.class));
+		clientFactory.getRemoteEventBus().fireEvent(new RequestEvent(HistoryMapChangedEvent.class));
 		
 		return registration;
 	}

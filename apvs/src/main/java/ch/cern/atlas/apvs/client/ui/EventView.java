@@ -9,7 +9,6 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
-import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.widget.ActionHeader;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
@@ -75,11 +74,11 @@ public class EventView extends GlassPanel implements Module {
 
 	protected boolean databaseOk;
 
-	public EventView() {
+	public EventView() {	
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory,
+	public boolean configure(Element element, final ClientFactory clientFactory,
 			Arguments args) {
 
 		String height = args.getArg(0);
@@ -148,7 +147,7 @@ public class EventView extends GlassPanel implements Module {
 			@Override
 			protected void onRangeChanged(HasData<Event> display) {
 
-				EventServiceAsync.Util.getInstance().getRowCount(ptuId,
+				clientFactory.getEventService().getRowCount(ptuId,
 						measurementName, new AsyncCallback<Integer>() {
 
 							@Override
@@ -180,7 +179,7 @@ public class EventView extends GlassPanel implements Module {
 					order[0] = new SortOrder("tbl_events.datetime", false);
 				}
 
-				EventServiceAsync.Util.getInstance().getTableData(range, order,
+				clientFactory.getEventService().getTableData(range, order,
 						ptuId, measurementName,
 						new AsyncCallback<List<Event>>() {
 

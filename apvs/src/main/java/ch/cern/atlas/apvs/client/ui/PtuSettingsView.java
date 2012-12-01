@@ -11,7 +11,6 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
@@ -62,7 +61,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory,
+	public boolean configure(Element element, final ClientFactory clientFactory,
 			Arguments args) {
 
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
@@ -125,7 +124,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 						+ object);
 				final Order order = new Order(object, "DosimeterID",
 						settings.getDosimeterSerialNumber(object));
-				PtuServiceAsync.Util.getInstance().handleOrder(order,
+				clientFactory.getPtuService().handleOrder(order,
 						new AsyncCallback<Void>() {
 
 							@Override
