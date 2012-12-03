@@ -68,7 +68,7 @@ public class AudioSummary extends GlassPanel implements Module {
 				new TextCell()) {
 			@Override
 			public String getValue(String object) {
-				return voipAccounts.getStatus(object);
+				return (voipAccounts.getStatus(object)?"Online":"Offline");
 			}
 		};
 		status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);

@@ -33,7 +33,7 @@ public class AudioView extends GlassPanel implements Module {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
-	private String ptuId; //= new String("PTU1234");
+	private String ptuId = new String("PTU5678");
 	private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
 	private static final String SUPERVISOR_NUMBER = "2001";
 
@@ -82,7 +82,7 @@ public class AudioView extends GlassPanel implements Module {
 			@Override
 			public Object getValue(String fieldName) {
 				if (fieldName.equals("Status"))
-					return ("Status: " + voipAccounts.getStatus(ptuId));
+						return ("Status: " + (voipAccounts.getStatus(ptuId)?"Online":"Offline"));
 				else if (fieldName.equals("Private Call"))
 					return ((voipAccounts.getOnCall(ptuId) ? "Hangup '": "Call '") + voipAccounts.getUsername(ptuId) + "'");
 				else if (fieldName.equals("Group Call"))
@@ -247,7 +247,7 @@ public class AudioView extends GlassPanel implements Module {
 					public void onAudioSettingsChanged(
 							AudioSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
-
+						
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(fieldName);
 					}

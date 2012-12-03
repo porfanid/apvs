@@ -243,7 +243,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		MeetMeRoom room = asteriskServer.getMeetMeRoom(conferenceRooms.newRoom());
 		for (int i = 0; i < participantsNumber.size(); i++) {
 			addToConference(participantsNumber.get(i), room.getRoomNumber()
-					+ ",qd");
+					+ ",qdr");
 		}
 	}
 
@@ -435,11 +435,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	// Users Register and Unregister
 	public void peerStatusEvent(PeerStatusEvent event) {
-		String status = event.getPeerStatus();
-		if (status.equals("Registered"))
-			status = "Online";
+		Boolean status;
+		String peerStatus = event.getPeerStatus();
+		if (peerStatus.equals("Registered"))
+			status = true;
 		else
-			status = "Offline";
+			status = false;
 
 		String number = event.getPeer();
 		String ptuId = voipAccounts.getPtuId(number);
