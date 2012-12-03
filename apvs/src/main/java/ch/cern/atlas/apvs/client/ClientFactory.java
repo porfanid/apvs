@@ -1,7 +1,12 @@
 package ch.cern.atlas.apvs.client;
 
+import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
+import ch.cern.atlas.apvs.client.service.DbServiceAsync;
+import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
+import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
+import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.CameraUI;
 import ch.cern.atlas.apvs.client.tablet.ImageUI;
 import ch.cern.atlas.apvs.client.tablet.MainMenuUI;
@@ -24,9 +29,13 @@ public interface ClientFactory {
 
 	PlaceController getPlaceController();
 
+	ServerServiceAsync getServerService();
 	FileServiceAsync getFileService();
-
 	PtuServiceAsync getPtuService();
+	AudioServiceAsync getAudioService();
+	DbServiceAsync getDbService();
+	EventServiceAsync getEventService();
+	InterventionServiceAsync getInterventionService();
 
 	MainMenuUI getHomeView();
 

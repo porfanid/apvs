@@ -1,11 +1,12 @@
 package ch.cern.atlas.apvs.client;
 
-import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
-
-import ch.cern.atlas.apvs.client.service.FileService;
+import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
+import ch.cern.atlas.apvs.client.service.DbServiceAsync;
+import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
-import ch.cern.atlas.apvs.client.service.PtuService;
+import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
+import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.tablet.CameraPanel;
 import ch.cern.atlas.apvs.client.tablet.CameraUI;
 import ch.cern.atlas.apvs.client.tablet.ImagePanel;
@@ -27,8 +28,8 @@ import ch.cern.atlas.apvs.eventbus.client.AtmosphereEventBus;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.PlaceController;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class APVSClientFactory implements ClientFactory {
@@ -37,8 +38,13 @@ public class APVSClientFactory implements ClientFactory {
 	private AtmosphereEventBus atmosphereEventBus;
 	private RemoteEventBus localEventBus;
 	private final PlaceController placeController;
-	private final FileServiceAsync fileService = GWT.create(FileService.class);
-	private PtuServiceAsync ptuService = GWT.create(PtuService.class);
+	private final ServerServiceAsync serverService = ServerServiceAsync.Util.getInstance();
+	private final FileServiceAsync fileService = FileServiceAsync.Util.getInstance();
+	private final PtuServiceAsync ptuService = PtuServiceAsync.Util.getInstance();
+	private final AudioServiceAsync audioService = AudioServiceAsync.Util.getInstance();
+	private final DbServiceAsync dbService = DbServiceAsync.Util.getInstance();
+	private final EventServiceAsync eventService = EventServiceAsync.Util.getInstance();
+	private final InterventionServiceAsync interventionService = InterventionServiceAsync.Util.getInstance();
 
 	private MainMenuUI homeView;
 	private ModelUI modelView;
@@ -49,16 +55,26 @@ public class APVSClientFactory implements ClientFactory {
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
 // FIXME #284, re-enable, but reload gives NPE onDisconnect in atmosphere-gwt
-		AtmosphereGWTSerializer serializer = null; // GWT.create(EventSerializer.class);
-		atmosphereEventBus = new AtmosphereEventBus(serializer);
-		
+//		AtmosphereGWTSerializer serializer = null; // GWT.create(EventSerializer.class);
+//		atmosphereEventBus = new AtmosphereEventBus(serializer);
+
+		AuthenticatingRequestBuilder requestBuilder = new AuthenticatingRequestBuilder();
+
+		((ServiceDefTarget)serverService).setRpcRequestBuilder(requestBuilder);
+		((ServiceDefTarget)fileService).setRpcRequestBuilder(requestBuilder);
+		((ServiceDefTarget)ptuService).setRpcRequestBuilder(requestBuilder);
+		((ServiceDefTarget)audioService).setRpcRequestBuilder(requestBuilder);
+		((ServiceDefTarget)dbService).setRpcRequestBuilder(requestBuilder);
+		((ServiceDefTarget)eventService).setRpcRequestBuilder(requestBuilder);
+		((ServiceDefTarget)interventionService).setRpcRequestBuilder(requestBuilder);
+
 		// used for events
-		RemoteEventBus remoteEventBus = new PollEventBus();
+		RemoteEventBus remoteEventBus = new PollEventBus(requestBuilder);
 		NamedEventBus.put("remote", remoteEventBus);
 		placeController = new PlaceController(remoteEventBus);
 		
 		// specially for now in iPad app
-		localEventBus = new RemoteEventBus();
+		localEventBus = new RemoteEventBus();		
 	}
 
 	@Override
@@ -163,5 +179,30 @@ public class APVSClientFactory implements ClientFactory {
 		ProcedureView v = new ProcedureView();
 		v.configure(null, this, new Arguments());
 		return v;
+	}
+
+	@Override
+	public ServerServiceAsync getServerService() {
+		return serverService;
+	}
+
+	@Override
+	public AudioServiceAsync getAudioService() {
+		return audioService;
+	}
+
+	@Override
+	public DbServiceAsync getDbService() {
+		return dbService;
+	}
+
+	@Override
+	public EventServiceAsync getEventService() {
+		return eventService;
+	}
+
+	@Override
+	public InterventionServiceAsync getInterventionService() {
+		return interventionService;
 	}
 }

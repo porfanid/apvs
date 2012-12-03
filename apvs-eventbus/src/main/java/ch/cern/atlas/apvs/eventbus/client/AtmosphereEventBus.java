@@ -114,4 +114,9 @@ public class AtmosphereEventBus extends RemoteEventBus {
 			System.err.println("EventBusListener after refresh (1.1+) "+connectionUUID+" "+(client != null ? client.getConnectionUUID() : null));
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return "AtmosphereEventBus";
+	}
 }

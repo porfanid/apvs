@@ -204,7 +204,7 @@ public class PtuView extends GlassPanel implements Module {
 					}
 				});
 
-		HistoryMapChangedEvent.subscribe(eventBus,
+		HistoryMapChangedEvent.subscribe(clientFactory,
 				new HistoryMapChangedEvent.Handler() {
 
 					@Override

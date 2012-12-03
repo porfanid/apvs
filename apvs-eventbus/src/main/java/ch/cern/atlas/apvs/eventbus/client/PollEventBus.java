@@ -9,18 +9,23 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.RpcRequestBuilder;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 public class PollEventBus extends RemoteEventBus {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private EventBusServiceAsync eventBusService;
-
+	
 	public PollEventBus() {
-		eventBusService = GWT.create(EventBusService.class);
-
+		this(null);
+	}
+	
+	public PollEventBus(RpcRequestBuilder requestBuilder) {
+		eventBusService = EventBusServiceAsync.Util.getInstance();
+		((ServiceDefTarget)eventBusService).setRpcRequestBuilder(requestBuilder);
 		getQueuedEvents();
 	}
 
@@ -74,13 +79,13 @@ public class PollEventBus extends RemoteEventBus {
 					@Override
 					public void onSuccess(List<RemoteEvent<?>> events) {
 					    log.info(getUUID()+": Received events..." + events.size());
-
+					    
 						// forward events locally
 						for (Iterator<RemoteEvent<?>> i = events.iterator(); i
 								.hasNext();) {
 
 							RemoteEvent<?> event = i.next();
-//						    log.info("Client: Received event..." + event);
+						    log.info("Client: Received event..." + event);
 							// do not fire your own events
 							if (event.getEventBusUUID() != getUUID()) {
 								PollEventBus.super.fireEvent(event);
@@ -97,5 +102,10 @@ public class PollEventBus extends RemoteEventBus {
 						getQueuedEvents();
 					}
 				});
+	}
+	
+	@Override
+	public String toString() {
+		return "PollEventBus";
 	}
 }

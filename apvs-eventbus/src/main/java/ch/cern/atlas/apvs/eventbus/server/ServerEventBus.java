@@ -63,4 +63,9 @@ public class ServerEventBus extends RemoteEventBus {
 			super.fireEvent(event);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return "ServerEventBus";
+	}
 }

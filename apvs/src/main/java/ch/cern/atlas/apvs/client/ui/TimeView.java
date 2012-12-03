@@ -102,7 +102,7 @@ public class TimeView extends AbstractTimeView implements Module {
 					}
 				});
 
-		HistoryMapChangedEvent.subscribe(eventBus,
+		HistoryMapChangedEvent.subscribe(clientFactory,
 				new HistoryMapChangedEvent.Handler() {
 
 					@Override

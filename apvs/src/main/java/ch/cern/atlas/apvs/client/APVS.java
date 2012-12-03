@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
@@ -85,14 +84,16 @@ public class APVS implements EntryPoint {
 		log.info("Starting APVS Version: " + build.version() + " - "
 				+ build.build());
 
-		ServerServiceAsync.Util.getInstance().isReady(
+		final ClientFactory clientFactory = GWT.create(ClientFactory.class);
+		
+		clientFactory.getServerService().isReady(
 				new AsyncCallback<Boolean>() {
 
 					@Override
 					public void onSuccess(Boolean result) {
 						if (result) {
 							log.info("Server ready");
-							start();
+							start(clientFactory);
 						} else {
 							onFailure(null);
 						}
@@ -106,9 +107,7 @@ public class APVS implements EntryPoint {
 				});
 	}
 
-	private void start() {
-
-		ClientFactory clientFactory = GWT.create(ClientFactory.class);
+	private void start(ClientFactory clientFactory) {
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
 		placeController = clientFactory.getPlaceController();

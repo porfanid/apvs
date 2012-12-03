@@ -7,7 +7,6 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -35,10 +34,10 @@ public class AudioSummary extends GlassPanel implements Module {
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory,
+	public boolean configure(Element element, final ClientFactory clientFactory,
 			Arguments args) {
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
-
+		
 		add(table, CENTER);
 
 		// PTU ID
@@ -111,7 +110,7 @@ public class AudioSummary extends GlassPanel implements Module {
 			public void update(int index, String object, String value) {				
 				if (voipAccounts.getOnCall(object))
 					
-					AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(object),new AsyncCallback<Void>() {
+					clientFactory.getAudioService().hangup(voipAccounts.getChannel(object),new AsyncCallback<Void>() {
 
 								@Override
 								public void onSuccess(Void result) {
@@ -126,7 +125,7 @@ public class AudioSummary extends GlassPanel implements Module {
 								}
 							});
 				else{
-					AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(object), "2000",new AsyncCallback<Void>() {
+					clientFactory.getAudioService().call(voipAccounts.getNumber(object), "2000",new AsyncCallback<Void>() {
 
 								@Override
 								public void onSuccess(Void result) {

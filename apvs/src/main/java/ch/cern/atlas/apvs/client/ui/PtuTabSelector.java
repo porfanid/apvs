@@ -31,7 +31,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuTabSelector extends HorizontalPanel implements Module {
 
-	@SuppressWarnings("unused")
+	private final static boolean TEST = false;
+
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private RemoteEventBus remoteEventBus;
@@ -64,7 +65,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		extraTabs = args.getArgs(1);
 
 		selectedTab = LocalStorage.getInstance().get(LocalStorage.SELECTED_TAB);
-		selectedPtuId = LocalStorage.getInstance().get(LocalStorage.PTU_ID);
+		selectedPtuId = LocalStorage.getInstance().get(LocalStorage.SELECTED_PTU_ID);
 
 		// listen to all event busses
 		for (final EventBus eventBus : eventBusses) {
@@ -103,7 +104,9 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 						interventions = event.getInterventionMap();
 
-						ptuIds = interventions.getPtuIds();
+						if (!TEST) {
+							ptuIds = interventions.getPtuIds();
+						}
 
 						scheduler.update();
 
@@ -114,6 +117,15 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 						}
 					}
 				});
+
+		if (TEST) {
+			ptuIds = new ArrayList<String>();
+			ptuIds.add("PTUdemo");
+			ptuIds.add("PTU1234");
+			ptuIds.add("PTU5678");
+			ptuIds.add("PTU007");
+			scheduler.update();
+		}
 
 		return true;
 	}
@@ -133,8 +145,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
 				final String id = i.next();
-				if ((settings != null) && !settings.isEnabled(id))
-					continue;
+
+				if (!TEST) {
+					if ((settings != null) && !settings.isEnabled(id)) {
+						continue;
+					}
+				}
 
 				final ToggleButton b = new ToggleButton(getName(id));
 				b.setDown(id.equals(selectedTab));
@@ -150,10 +166,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 						radio(b);
 
 						fireEvent(new SelectTabEvent("Ptu"));
-
 						LocalStorage.getInstance().put(
 								LocalStorage.SELECTED_TAB, selectedTab);
+						
 						fireEvent(new SelectPtuEvent(selectedPtuId));
+						LocalStorage.getInstance().put(
+								LocalStorage.SELECTED_PTU_ID, selectedPtuId);						
 					}
 				});
 				add(b);
@@ -175,10 +193,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 					radio(b);
 
 					fireEvent(new SelectTabEvent(selectedTab));
-
 					LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB,
 							selectedTab);
+					
 					fireEvent(new SelectPtuEvent(selectedPtuId));
+					LocalStorage.getInstance().put(LocalStorage.SELECTED_PTU_ID,
+							selectedPtuId);
 				}
 			});
 			add(b);
@@ -199,7 +219,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 	private void fireEvent(Event<?> event) {
 		for (Iterator<EventBus> i = eventBusses.iterator(); i.hasNext();) {
-			i.next().fireEvent(event);
+			EventBus eventBus = i.next();
+			if (TEST) {
+				System.err.println("Firing " + event + " to "
+						+ eventBus.toString());
+			}
+			eventBus.fireEvent(event);
 		}
 	}
 }

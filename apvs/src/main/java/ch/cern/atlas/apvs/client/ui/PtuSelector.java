@@ -41,7 +41,7 @@ public class PtuSelector extends VerticalFlowPanel {
 				} catch (NumberFormatException e) {
 					ptuId = null;
 				}
-				LocalStorage.getInstance().put(LocalStorage.PTU_ID, ptuId);
+				LocalStorage.getInstance().put(LocalStorage.SELECTED_PTU_ID, ptuId);
 				localEventBus.fireEvent(new SelectPtuEvent(ptuId));
 			}
 		});
@@ -66,7 +66,7 @@ public class PtuSelector extends VerticalFlowPanel {
 						ptuIds = event.getInterventionMap().getPtuIds();
 
 						ptuId = LocalStorage.getInstance().get(
-								LocalStorage.PTU_ID);
+								LocalStorage.SELECTED_PTU_ID);
 						((RemoteEventBus) localEventBus)
 								.fireEvent(new SelectPtuEvent(ptuId));
 						update();

@@ -99,13 +99,13 @@ public class InterventionView extends GlassPanel implements Module {
 	private boolean showUpdate;
 
 	public InterventionView() {
-		interventionService = InterventionServiceAsync.Util.getInstance();
-		// validator = Validation.buildDefaultValidatorFactory().getValidator();
 	}
 
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
+
+		interventionService = clientFactory.getInterventionService();
 
 		String height = args.getArg(0);
 

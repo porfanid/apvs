@@ -5,7 +5,7 @@ import com.google.gwt.storage.client.Storage;
 public class LocalStorage {
 
 	public static final String SELECTED_TAB = "SELECTED_TAB";
-	public static final String PTU_ID = "PTU_ID";
+	public static final String SELECTED_PTU_ID = "SELECTED_PTU_ID";
 	
 	private static LocalStorage instance;
 	private Storage store;
@@ -22,17 +22,26 @@ public class LocalStorage {
 	}
 
 	public void put(String key, String value) {
-		if (store == null) return;
+		if (store == null) {
+			return;
+		}
 		
-		if (value == null) store.removeItem(key);
+		if (value == null) {
+			store.removeItem(key);
+			return;
+		}
 		
 		store.setItem(key, value);
 	}
 	
 	public String get(String key) {
-		if (store == null) return null;
+		if (store == null) {
+			return null;
+		}
 		
-		return store.getItem(key);
+		String value = store.getItem(key);
+		
+		return value == null || value.equals("null") ? null : value;
 	}
 	
 	public void put(String key, Integer value) {
