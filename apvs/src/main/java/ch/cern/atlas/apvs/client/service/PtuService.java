@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.service;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
@@ -17,7 +18,7 @@ public interface PtuService extends RemoteService {
 	public List<Measurement> getMeasurements(List<String> ptuIdList, String name) throws ServiceException;
 	public List<Measurement> getMeasurements(String ptuId, String name) throws ServiceException;
 	
-	public HistoryMap getHistoryMap(List<String> ptuIdList) throws ServiceException;
+	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from) throws ServiceException;
 
 	public void handleOrder(Order order) throws ServiceException;
 }
