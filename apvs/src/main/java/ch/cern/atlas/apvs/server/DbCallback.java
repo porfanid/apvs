@@ -9,6 +9,8 @@ import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
+import ch.cern.atlas.apvs.client.settings.ServerSettings;
+
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class DbCallback {
@@ -54,6 +56,7 @@ public class DbCallback {
 									: "oracle.jdbc.OracleDriver");
 					datasource.setJdbcUrl("jdbc:" + (LOG_DB ? "log4jdbc:" : "")
 							+ "oracle:thin:" + url);
+					datasource.setPassword(ServerSettingsStorage.getPasswords().get(ServerSettings.Entry.databaseUrl.toString()));
 					
 					// FIXME check if this helps...
 					datasource.setMaxStatementsPerConnection(30);

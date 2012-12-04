@@ -43,7 +43,11 @@ public class ServerServiceImpl extends ResponsePollService implements
 
 	@Override
 	public boolean isReady() {
-
 		return true;
+	}
+	
+	@Override
+	public void setPassword(String name, String password) {
+		System.err.println("Setting pwd "+name+" "+password);
 	}
 }
