@@ -23,6 +23,7 @@ import org.asteriskjava.manager.ManagerConnectionFactory;
 import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
+import org.asteriskjava.manager.action.MonitorAction;
 import org.asteriskjava.manager.action.SipPeersAction;
 import org.asteriskjava.manager.event.BridgeEvent;
 import org.asteriskjava.manager.event.ConnectEvent;
@@ -69,7 +70,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private AsteriskPing ping;
 
 	// Account Details
-	private static final String ASTERISK_URL = "pcatlaswpss02.cern.ch";
+	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
 	private static final String AMI_ACCOUNT = "manager";
 	private static final String PASSWORD = "password";
 
@@ -80,6 +81,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final long ASTERISK_POOLING = 20000;
 
 	private static RemoteEventBus eventBus;
+	int i;
 
 	public AudioServiceImpl() {
 		if (eventBus != null)
@@ -105,7 +107,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-
+		i=0;
 		System.out.println("Starting Audio Service...");
 
 		voipAccounts = new AudioSettings();
@@ -380,17 +382,38 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String number = filterNumber(channel);
 		String ptuId = voipAccounts.getPtuId(number);
 
+		MonitorAction record = new MonitorAction(channel,"testapvsrecording"+i,"wav", true);
+		i++;
+		try {
+			managerConnection.sendAction(record);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		if (ptuId != null) {
 			voipAccounts.setChannel(ptuId, channel);
 			((RemoteEventBus) eventBus)
 					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
+			
+			//asteriskServer.originateToApplication(channel, "Monitor", "wav,testapvsrecording", TIMEOUT);
 			return;
 		}
-		System.err.println("NO PTU FOUND WITH NUMBER " + number);
+		System.err.println("#NewChannelEvent - NO PTU FOUND WITH NUMBER " + number);
 	}
 
 	// Bridge of Call Channels - Event only valid for private call
 	public void bridgeEvent(BridgeEvent event) {
+		System.out.println("EVENTOOOOOOOOOOOOOOOOOOOOOOOOOOO...."+event.toString());
 		String channel1 = event.getChannel1();
 		String number1 = filterNumber(channel1);
 		String ptuId1 = voipAccounts.getPtuId(number1);
@@ -411,7 +434,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			return;
 		}
-		System.err.println("NO PTUS FOUND WITH NUMBERS " + number1 + " & "
+		System.err.println("#BridgeEvent - NO PTUS FOUND WITH NUMBERS " + number1 + " & "
 				+ number2);
 	}
 
@@ -430,7 +453,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			return;
 		}
-		System.err.println("NO PTU FOUND WITH NUMBER " + number);
+		System.err.println("#HangupEvent - NO PTU FOUND WITH NUMBER " + number);
 	}
 
 	// Users Register and Unregister
@@ -450,7 +473,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			return;
 		}
-		System.err.println("NO PTU FOUND OR ASSIGNED WITH NUMBER " + number);
+		System.err.println("#PeerStatusEvent - NO PTU FOUND OR ASSIGNED WITH NUMBER " + number);
 	}
 
 	// MeetMe Join Event
@@ -483,7 +506,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			return;
 		}
 
-		System.err.println("NO PTU FOUND WITH NUMBER " + number);
+		System.err.println("#MeetMeJoinEvent - NO PTU FOUND WITH NUMBER " + number);
 	}
 
 	// MeetMe Leave Event
@@ -514,7 +537,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			return;
 		}
 
-		System.err.println("NO PTU FOUND WITH NUMBER " + number);
+		System.err.println("#MeetMeLeaveEvent - NO PTU FOUND WITH NUMBER " + number);
 	}
 
 	// MeetMe End Event
