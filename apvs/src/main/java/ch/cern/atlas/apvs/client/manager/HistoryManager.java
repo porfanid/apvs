@@ -62,7 +62,7 @@ public class HistoryManager {
 		}
 		
 		long now = new Date().getTime();
-		Date yesterday = new Date(now - (36 * 60 * 60 * 1000));
+		Date yesterday = new Date(now - (24 * 60 * 60 * 1000));
 
 		historyMap = new HistoryMap();
 		clientFactory.getPtuService().getHistoryMap(ptuIds, yesterday,
@@ -80,7 +80,7 @@ public class HistoryManager {
 											@Override
 											public void onMeasurementChanged(
 													MeasurementChangedEvent event) {
-												// Add entry to history
+												// Add entry to history, in the correct place
 												Measurement measurement = event
 														.getMeasurement();
 												History history = historyMap.get(
@@ -100,9 +100,11 @@ public class HistoryManager {
 //																	.getUnit());
 //													historyMap.put(history);
 												} else {
-													history.addEntry(measurement
-															.getDate().getTime(),
+													if (measurement.getDate().getTime() < new Date().getTime() + 60000) {
+														history.addEntry(measurement
+																.getDate().getTime(),
 															measurement.getValue());
+													}
 												}
 											}
 										});

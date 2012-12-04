@@ -5,14 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,11 +42,11 @@ public class DbHandler extends DbReconnectHandler {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
-	
-	private final static boolean DEBUG = false;
 
 	private InterventionMap interventions = new InterventionMap();
 
+	private static final boolean DEBUG = true;
+	
 	public DbHandler(final RemoteEventBus eventBus) {
 		super();
 		this.eventBus = eventBus;
@@ -110,28 +107,81 @@ public class DbHandler extends DbReconnectHandler {
 		}, 0, 30, TimeUnit.SECONDS);
 	}
 
-	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from) throws SQLException {
+	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
+			throws SQLException {
+		// NOTE: we could optimize the query by running a count and see if the #
+		// is not too large, then just move forward the from time.
 		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id"
 				+ " and NAME = ?"
 				+ (from != null ? " and datetime > ?" : "")
-				+ " order by DATETIME desc";
+				+ " order by DATETIME asc";
 
 		Connection connection = getConnection();
 		PreparedStatement historyQuery = connection.prepareStatement(sql);
 
-		Map<String, String> ptuIds = new HashMap<String, String>();
-		Map<String, String> sensors = new HashMap<String, String>();
-		Map<String, Integer> samplingRates = new HashMap<String, Integer>();
-		Map<String, Deque<Number[]>> data = new HashMap<String, Deque<Number[]>>();
-		Map<String, String> units = new HashMap<String, String>();
+		HistoryMap map = new HistoryMap();
 
 		try {
-			for (String ptuId : ptuIdList) {
-				int entries = getHistory(ptuId, from, historyQuery, ptuIds, sensors, samplingRates,
-						data, units);
+			for (String ptuId : ptuIdList) {				
+				historyQuery.setString(1, ptuId);
+
+				if (from != null) {
+					historyQuery.setTimestamp(2, new Timestamp(from.getTime()));
+				}
+
+				long now = new Date().getTime();
+				int total = 0;
+				ResultSet result = historyQuery.executeQuery();
+				try {
+					while (result.next()) {
+						long time = result.getTimestamp("datetime").getTime();
+						if (time > now + 60000) {
+							break;
+						}
+
+						total++;
+						
+						double value = Double.parseDouble(result
+								.getString("value"));
+						String sensor = result.getString("sensor");
+
+						History history = map.get(ptuId, sensor);
+						if (history == null) {
+							Integer samplingRate = Integer.parseInt(result
+									.getString("samplingrate"));
+
+							String unit = result.getString("unit");
+
+							// Scale down to microSievert
+							if (unit.equals("mSv")) {
+								unit = "&micro;Sv";
+								value *= 1000;
+							}
+							if (unit.equals("mSv/h")) {
+								unit = "&micro;Sv/h";
+								value *= 1000;
+							}
+							if ((sensor.equals("Temparature") || sensor
+									.equals("BodyTemperature"))
+									&& unit.equals("C")) {
+								unit = "&deg;C";
+							}
+
+							history = new History(ptuId, sensor, samplingRate,
+									unit);
+							map.put(history);
+						}
+
+						history.addEntry(time, value);						
+					}
+				} finally {
+					result.close();
+				}
+				
 				if (DEBUG) {
-					log.info("Entries for "+ptuId+" "+entries);
+					System.err.println("Total entries in history for " + ptuId + " "
+							+ total);
 				}
 			}
 		} finally {
@@ -139,112 +189,7 @@ public class DbHandler extends DbReconnectHandler {
 			connection.close();
 		}
 
-		HistoryMap map = new HistoryMap();
-		int total = 0;
-		for (Entry<String, Deque<Number[]>> e : data.entrySet()) {
-			String key = e.getKey();
-			Deque<Number[]> deque = e.getValue();
-			String ptuId = ptuIds.get(key);
-			String sensor = sensors.get(key);
-			Integer samplingRate = samplingRates.get(key);
-			map.put(new History(ptuId, sensor, samplingRate, deque
-					.toArray(new Number[deque.size()][]), units.get(key)));
-			if (DEBUG) {
-				log.info("Creating history for " + ptuId + " " + sensor + " "
-						+ deque.size() + " entries");
-			}
-			total += deque.size();
-		}
-		if (DEBUG) {
-			log.info("Total entries: "+total);
-		}
 		return map;
-	}
-
-	private static final int MAX_TOTAL_ENTRIES = 100000; // number
-	private static final int MAX_ENTRIES = 10000; // number
-	private static final long MIN_INTERVAL = 5000; // ms
-
-	private int getHistory(String ptuId, Date from, PreparedStatement historyQuery,
-			Map<String, String> ptuIds, Map<String, String> sensors,
-			Map<String, Integer> samplingRates,
-			Map<String, Deque<Number[]>> data, Map<String, String> units)
-			throws SQLException {
-
-		historyQuery.setString(1, ptuId);
-		
-		if (from != null) {
-			historyQuery.setTimestamp(2, new Timestamp(from.getTime()));
-		}
-
-		Map<String, Long> lastTimes = new HashMap<String, Long>();
-
-		long time = new Date().getTime();
-		long then = from.getTime();
-		int totalEntries = 0;
-		int entries = 0;
-		ResultSet result = historyQuery.executeQuery();
-		try {
-			while (result.next() && (totalEntries < MAX_TOTAL_ENTRIES)) {
-				time = result.getTimestamp("datetime").getTime();
-				if (time < then) {
-					break;
-				}
-				totalEntries++;
-
-				ptuId = result.getString("name");
-				String sensor = result.getString("sensor");
-				Integer samplingRate = Integer.parseInt(result
-						.getString("samplingrate"));
-				String key = ptuId + ":" + sensor;
-				ptuIds.put(key, ptuId);
-				sensors.put(key, sensor);
-				samplingRates.put(key, samplingRate);
-				if (lastTimes.get(key) == null) {
-					lastTimes.put(key, time + 2*MIN_INTERVAL);
-				}
-
-				String unit = result.getString("unit");
-				double value = Double.parseDouble(result.getString("value"));
-
-				// Scale down to microSievert
-				if (unit.equals("mSv")) {
-					unit = "&micro;Sv";
-					value *= 1000;
-				}
-				if (unit.equals("mSv/h")) {
-					unit = "&micro;Sv/h";
-					value *= 1000;
-				}
-				if ((sensor.equals("Temparature") || sensor
-						.equals("BodyTemperature")) && unit.equals("C")) {
-					unit = "&deg;C";
-				}
-				units.put(key, unit);
-
-				// limit entry separation (reverse order) // NOT USED for now
-//				if (lastTimes.get(key) - time > MIN_INTERVAL) {
-					lastTimes.put(key, time);
-
-					Number[] entry = new Number[2];
-					entry[0] = time;
-					entry[1] = value;
-					Deque<Number[]> deque = data.get(key);
-					if (deque == null) {
-						deque = new ArrayDeque<Number[]>(200);
-						data.put(key, deque);
-					}
-					if (deque.size() < MAX_ENTRIES) {
-						deque.addFirst(entry);
-						entries++;
-					}
-//				}
-			}
-		} finally {
-			result.close();
-		}
-		
-		return entries;
 	}
 
 	@Override

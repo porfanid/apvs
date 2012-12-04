@@ -141,7 +141,7 @@ public class AbstractTimeView extends GlassPanel {
 		chart.addSeries(series, true, false);
 	}
 
-	protected void addData(String ptuId, Number[][] data) {
+	protected void setData(String ptuId, Number[][] data) {
 		Series series = seriesById.get(ptuId);
 		series.setPoints(data != null ? data : new Number[0][2], false);
 		pointsById.put(ptuId, data != null ? data.length : 0);
