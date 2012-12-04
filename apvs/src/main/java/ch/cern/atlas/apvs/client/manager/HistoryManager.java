@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.manager;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -59,9 +60,12 @@ public class HistoryManager {
 			measurementRegistration.removeHandler();
 			measurementRegistration = null;
 		}
+		
+		long now = new Date().getTime();
+		Date yesterday = new Date(now - (36 * 60 * 60 * 1000));
 
 		historyMap = new HistoryMap();
-		clientFactory.getPtuService().getHistoryMap(ptuIds,
+		clientFactory.getPtuService().getHistoryMap(ptuIds, yesterday,
 				new AsyncCallback<HistoryMap>() {
 
 					@Override

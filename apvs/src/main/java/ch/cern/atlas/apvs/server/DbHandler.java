@@ -110,10 +110,12 @@ public class DbHandler extends DbReconnectHandler {
 		}, 0, 30, TimeUnit.SECONDS);
 	}
 
-	public HistoryMap getHistoryMap(List<String> ptuIdList) throws SQLException {
+	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from) throws SQLException {
 		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id"
-				+ " and NAME = ?" + " order by DATETIME desc";
+				+ " and NAME = ?"
+				+ (from != null ? " and datetime > ?" : "")
+				+ " order by DATETIME desc";
 
 		Connection connection = getConnection();
 		PreparedStatement historyQuery = connection.prepareStatement(sql);
@@ -126,7 +128,7 @@ public class DbHandler extends DbReconnectHandler {
 
 		try {
 			for (String ptuId : ptuIdList) {
-				int entries = getHistory(ptuId, historyQuery, ptuIds, sensors, samplingRates,
+				int entries = getHistory(ptuId, from, historyQuery, ptuIds, sensors, samplingRates,
 						data, units);
 				if (DEBUG) {
 					log.info("Entries for "+ptuId+" "+entries);
@@ -159,36 +161,36 @@ public class DbHandler extends DbReconnectHandler {
 		return map;
 	}
 
-	private static final long PERIOD = 48; // hours
 	private static final int MAX_TOTAL_ENTRIES = 100000; // number
 	private static final int MAX_ENTRIES = 10000; // number
 	private static final long MIN_INTERVAL = 5000; // ms
 
-	private int getHistory(String ptuId, PreparedStatement historyQuery,
+	private int getHistory(String ptuId, Date from, PreparedStatement historyQuery,
 			Map<String, String> ptuIds, Map<String, String> sensors,
 			Map<String, Integer> samplingRates,
 			Map<String, Deque<Number[]>> data, Map<String, String> units)
 			throws SQLException {
 
 		historyQuery.setString(1, ptuId);
+		
+		if (from != null) {
+			historyQuery.setTimestamp(2, new Timestamp(from.getTime()));
+		}
 
 		Map<String, Long> lastTimes = new HashMap<String, Long>();
 
-		long time = 0;
-		long then = -1;
+		long time = new Date().getTime();
+		long then = from.getTime();
 		int totalEntries = 0;
 		int entries = 0;
 		ResultSet result = historyQuery.executeQuery();
 		try {
 			while (result.next() && (totalEntries < MAX_TOTAL_ENTRIES)) {
-				totalEntries++;
 				time = result.getTimestamp("datetime").getTime();
-				if (then < 0) {
-					then = time - (PERIOD * 60 * 60 * 1000L);
-				}
 				if (time < then) {
 					break;
 				}
+				totalEntries++;
 
 				ptuId = result.getString("name");
 				String sensor = result.getString("sensor");
@@ -220,8 +222,8 @@ public class DbHandler extends DbReconnectHandler {
 				}
 				units.put(key, unit);
 
-				// limit entry separation (reverse order)
-				if (lastTimes.get(key) - time > MIN_INTERVAL) {
+				// limit entry separation (reverse order) // NOT USED for now
+//				if (lastTimes.get(key) - time > MIN_INTERVAL) {
 					lastTimes.put(key, time);
 
 					Number[] entry = new Number[2];
@@ -236,7 +238,7 @@ public class DbHandler extends DbReconnectHandler {
 						deque.addFirst(entry);
 						entries++;
 					}
-				}
+//				}
 			}
 		} finally {
 			result.close();

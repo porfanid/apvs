@@ -65,7 +65,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 				new EditableCell(ServerSettings.Entry.getCellClasses(), 50)) {
 			@Override
 			public Object getValue(String name) {
-				return settings.get(name);
+				return hidePwd(settings.get(name));
 			}
 
 			@Override
@@ -120,6 +120,24 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 	public boolean update() {
 		table.redraw();
 		return false;
+	}
+	
+	private String hidePwd(String s) {
+		if (s == null) {
+			return s;
+		}
+		
+		String[] part = s.split("\\@\\/\\/", 2);
+		if (part.length <= 1) {
+			return s;
+		}
+		
+		String[] userPwd = part[0].split("\\/", 2);
+		if (userPwd.length <= 1) {
+			return s;
+		}
+		
+		return userPwd[0]+"/@//"+part[1];
 	}
 
 }

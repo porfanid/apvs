@@ -38,21 +38,13 @@ public class Measurement implements Message, Serializable,
 		this.samplingRate = samplingRate;
 		this.unit = unit;
 		this.date = date;
+		this.displayName = null;
 
 		// Fix Unit for Body Temperature and Temperature
-		if ((name.equals("Temperature") || name.equals("BodyTemperature")) && unit.equals("C")) {
+		if ((name.equals("Temperature") || name.equals("BodyTemperature"))
+				&& unit.equals("C")) {
 			this.unit = "&deg;C";
 		}
-		
-		// Set better Display Name
-		if (name.equals("O2")) {
-			displayName = "O<sub>2</sub>";
-		} else if (name.equals("CO2")) {
-			displayName = "CO<sub>2</sub>";
-		} else {
-			displayName = StringUtils.join(
-					StringUtils.splitByCharacterTypeCamelCase(name), ' ');
-		}	
 	}
 
 	public Measurement(String ptuId, String name, String displayName,
@@ -71,7 +63,7 @@ public class Measurement implements Message, Serializable,
 	}
 
 	public String getDisplayName() {
-		return displayName;
+		return displayName != null ? displayName : getDisplayName(name);
 	}
 
 	public Number getValue() {
@@ -139,6 +131,17 @@ public class Measurement implements Message, Serializable,
 		return "Measurement(" + getPtuId() + "): name=" + getName() + " value="
 				+ getValue() + " sampling rate=" + getSamplingRate() + " unit="
 				+ getUnit() + " date: " + getDate();
+	}
+
+	public static String getDisplayName(String name) {
+		// NOTE: <sub> not supported in titles: http://sourceforge.net/p/gwt-highcharts/discussion/general/thread/4fbb5734/
+		if (name.equals("O2")) {
+			return "O\u2082";
+		} else if (name.equals("CO2")) {
+			return "CO\u2082";
+		}
+		return StringUtils.join(
+				StringUtils.splitByCharacterTypeCamelCase(name), ' ');
 	}
 
 }

@@ -165,7 +165,7 @@ public class TimeView extends AbstractTimeView implements Module {
 		}
 
 		if (ptuId == null) {
-			createChart(measurementName);
+			createChart(Measurement.getDisplayName(measurementName));
 			add(chart);
 
 			for (String ptuId : interventions.getPtuIds()) {
@@ -188,7 +188,7 @@ public class TimeView extends AbstractTimeView implements Module {
 		} else {
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
-				createChart(measurementName + " (" + ptuId + ")");
+				createChart(Measurement.getDisplayName(measurementName) + " (" + ptuId + ")");
 				add(chart);
 
 				addSeries(ptuId, getName(ptuId));

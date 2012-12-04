@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.server;
 
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -111,10 +112,10 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 	}
 
 	@Override
-	public HistoryMap getHistoryMap(List<String> ptuIdList)
+	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
 			throws ServiceException {
 		try {
-			return dbHandler.getHistoryMap(ptuIdList);
+			return dbHandler.getHistoryMap(ptuIdList, from);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}
