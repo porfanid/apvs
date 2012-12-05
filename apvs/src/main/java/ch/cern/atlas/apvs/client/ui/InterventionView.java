@@ -616,6 +616,44 @@ public class InterventionView extends GlassPanel implements Module {
 		});
 		table.addColumn(ptu, new TextHeader("PTU ID"), deviceFooter);
 
+		// Impact #
+		EditTextColumn<Intervention> impact = new EditTextColumn<Intervention>() {
+			@Override
+			public String getValue(Intervention object) {
+				return object.getImpactNumber() != null ? object
+						.getImpactNumber() : "";
+			}
+
+			@Override
+			public String getDataStoreName() {
+				// FIXME #250 check
+				return "tbl_inspections.impact";
+			}
+		};
+		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		impact.setSortable(true);
+		impact.setFieldUpdater(new FieldUpdater<Intervention, String>() {
+			@Override
+			public void update(int index, Intervention object, String value) {
+				interventionService.updateInterventionImpactNumber(
+						object.getId(), value, new AsyncCallback<Void>() {
+
+							@Override
+							public void onSuccess(Void result) {
+								scheduler.update();
+							}
+
+							@Override
+							public void onFailure(Throwable caught) {
+								log.warn("Failed " + caught);
+							}
+						});
+			}
+		});
+		table.addColumn(impact, new TextHeader("Impact #"),
+				new TextHeader(""));
+
+		
 		// Description
 		EditTextColumn<Intervention> description = new EditTextColumn<Intervention>() {
 			@Override

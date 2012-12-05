@@ -20,14 +20,15 @@ public class Intervention implements Serializable {
 	private String ptuId;
 	private Date startTime;
 	private Date endTime;
+	private String impactNumber;
 	private String description;
 
 	public Intervention() {
 	}
 	
 	public Intervention(int id, int userId, String fname, String lname, int deviceId, String ptuId, Date startTime,
-			Date endTime, String description) {
-		this(userId, deviceId, startTime, description);
+			Date endTime, String impactNumber, String description) {
+		this(userId, deviceId, startTime, impactNumber, description);
 		this.id = id;
 		this.fname = fname;
 		this.lname = lname;
@@ -35,11 +36,12 @@ public class Intervention implements Serializable {
 		this.endTime = endTime;
 	}
 
-	public Intervention(Integer userId, Integer deviceId, Date startTime, String description) {
+	public Intervention(Integer userId, Integer deviceId, Date startTime, String impactNumber, String description) {
 		this.id = 0;
 		this.userId = userId;
 		this.deviceId = deviceId;
 		this.startTime = startTime;
+		this.impactNumber = impactNumber;
 		this.description = description;
 	}
 
@@ -57,6 +59,14 @@ public class Intervention implements Serializable {
 
 	public String getPtuId() {
 		return ptuId;
+	}
+	
+	public String getImpactNumber() {
+		return impactNumber;
+	}
+	
+	public void setImpactNumber(String impactNumber) {
+		this.impactNumber = impactNumber;
 	}
 
 	public String getDescription() {
