@@ -60,31 +60,29 @@ public class DbCallback {
 							.setDriverClass(LOG_DB ? "net.sf.log4jdbc.DriverSpy"
 									: "oracle.jdbc.OracleDriver");
 					int pos = url.indexOf("@//");
-					if (pos >= 0) {
+					String pwd = ServerSettingsStorage.getPasswords().get(
+							ServerSettings.Entry.databaseUrl.toString());
+					
+					if (pos >= 0 && pwd != null && !pwd.equals("")) {
+						String user = url.substring(pos);
+						String shortUrl = url.substring(0, pos);
+						System.err.println("Loging in to " + user + " "
+								+ shortUrl + " " + pwd);
+
 						datasource.setJdbcUrl("jdbc:"
 								+ (LOG_DB ? "log4jdbc:" : "") + "oracle:thin:"
-								+ url.substring(pos));
-						datasource.setUser(url.substring(0, pos));
-						datasource.setPassword(ServerSettingsStorage
-								.getPasswords().get(
-										ServerSettings.Entry.databaseUrl
-												.toString()));
-						System.err.println("Loging in to "
-								+ url.substring(pos)
-								+ " "
-								+ url.substring(0, pos)
-								+ " "
-								+ ServerSettingsStorage.getPasswords().get(
-										ServerSettings.Entry.databaseUrl
-												.toString()));
+								+ shortUrl);
+						datasource.setUser(user);
+						datasource.setPassword(pwd);
+
+						// FIXME check if this helps...
+						datasource.setMaxStatementsPerConnection(30);
+
+						dbConnected(datasource);
+					
 					} else {
 						log.warn("Username 'user@//' not found in " + url);
 					}
-
-					// FIXME check if this helps...
-					datasource.setMaxStatementsPerConnection(30);
-
-					dbConnected(datasource);
 				} catch (SQLException e) {
 					exceptionCaught(e);
 				} catch (PropertyVetoException e) {
