@@ -64,8 +64,8 @@ public class DbCallback {
 							ServerSettings.Entry.databaseUrl.toString());
 					
 					if (pos >= 0 && pwd != null && !pwd.equals("")) {
-						String user = url.substring(pos);
-						String shortUrl = url.substring(0, pos);
+						String shortUrl = url.substring(pos);
+						String user = url.substring(0, pos);
 						System.err.println("Loging in to " + user + " "
 								+ shortUrl + " " + pwd);
 
