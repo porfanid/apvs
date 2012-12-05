@@ -254,8 +254,8 @@ public class DbHandler extends DbReconnectHandler {
 	public List<Intervention> getInterventions(Range range, SortOrder[] order)
 			throws SQLException {
 		// FIXME #250
-		String sql = "select tbl_inspections.id, tbl_users.fname, tbl_users.lname, tbl_devices.name, "
-				+ "tbl_inspections.starttime, tbl_inspections.endtime, tbl_inspections.dscr, tbl_users.id, tbl_devices.id "
+		String sql = "select tbl_inspections.ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
+				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, tbl_users.id, tbl_devices.id "
 				+ "from tbl_inspections "
 				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
@@ -275,12 +275,12 @@ public class DbHandler extends DbReconnectHandler {
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
 				// FIXME #250
 				list.add(new Intervention(result.getInt(1), result.getInt(8),
-						result.getString(2), result.getString(3), result
-								.getInt(9), result.getString(4), new Date(
-								result.getTimestamp(5).getTime()), result
-								.getTimestamp(6) != null ? new Date(result
-								.getTimestamp(6).getTime()), null, result
-								.getString(7)));
+						result.getString("fname"), result.getString("lname"), result
+								.getInt(9), result.getString("name"), new Date(
+								result.getTimestamp("starttime").getTime()), result
+								.getTimestamp("endtime") != null ? new Date(result
+								.getTimestamp("endtime").getTime()) : null, null, result
+								.getString("dscr")));
 			}
 		} finally {
 			result.close();
@@ -569,6 +569,7 @@ public class DbHandler extends DbReconnectHandler {
 				.prepareStatement("update tbl_inspections set impact = ? where id=?");
 
 		try {
+			System.err.println("Upadting impact");
 			updateInterventionImpactNumber.setString(1, impactNumber);
 			updateInterventionImpactNumber.setInt(2, id);
 			updateInterventionImpactNumber.executeUpdate();

@@ -341,6 +341,10 @@ public class InterventionView extends GlassPanel implements Module {
 								log.warn("Caught : " + caught);
 							}
 						});
+				
+				final TextBoxField impact = new TextBoxField(
+						"Impact Number");
+				fieldset.add(impact);
 
 				final TextAreaField description = new TextAreaField(
 						"Description");
@@ -365,7 +369,7 @@ public class InterventionView extends GlassPanel implements Module {
 						m.hide();
 
 						Intervention intervention = new Intervention(userField
-								.getId(), ptu.getId(), new Date(), description
+								.getId(), ptu.getId(), new Date(), impact.getValue(), description
 								.getValue());
 
 						interventionService.addIntervention(intervention,
