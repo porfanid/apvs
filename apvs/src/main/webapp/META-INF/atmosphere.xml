@@ -9,11 +9,12 @@
                         class-name="org.atmosphere.gwt.poll.AtmospherePollHandler">
         <property name="servletClass" value="ch.cern.atlas.apvs.eventbus.server.EventBusServiceHandler"/>
     </atmosphere-handler>
-
+<!-- 
     <atmosphere-handler context-root="/apvs/apvsComet"
                         class-name="ch.cern.atlas.apvs.server.AtmosphereHandler">
         <property name="heartbeat" value="20000"/>
     </atmosphere-handler>
+--> 
     <atmosphere-handler context-root="/apvs/apvsServer"
                         class-name="org.atmosphere.gwt.poll.AtmospherePollHandler">
         <property name="servletClass" value="ch.cern.atlas.apvs.server.ServerServiceImpl"/>

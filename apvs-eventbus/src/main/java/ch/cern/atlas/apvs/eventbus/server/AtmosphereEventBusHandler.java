@@ -29,7 +29,7 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = true;
 
 	private RemoteEventBus eventBus;
 
@@ -40,7 +40,8 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 		super.init(servletConfig);
 		log.info("AtmosphereEventBusHandler started...");
 		java.util.logging.Logger.getLogger("").setLevel(Level.INFO);
-		java.util.logging.Logger.getLogger("gwtcomettest").setLevel(Level.ALL);
+		java.util.logging.Logger.getLogger("org.atmosphere.gwt").setLevel(Level.ALL);
+		java.util.logging.Logger.getLogger("ch.cern.atlas.apvs").setLevel(Level.ALL);
 		java.util.logging.Logger.getLogger("").getHandlers()[0]
 				.setLevel(Level.ALL);
 		log.trace("Updated logging levels");
@@ -81,19 +82,22 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 		HttpSession session = resource.getAtmosphereResource().getRequest()
 				.getSession(false);
 		if (session != null) {
-			logger.debug("Got session with id: " + session.getId());
-			logger.debug("Time attribute: " + session.getAttribute("time"));
+			log.debug("Got session with id: " + session.getId());
+			log.debug("Time attribute: " + session.getAttribute("time"));
 		} else {
-			logger.warn("No session");
+			log.warn("No session");
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Url: "
+		if (log.isDebugEnabled()) {
+			log.debug("Url: "
 					+ resource.getAtmosphereResource().getRequest()
 							.getRequestURL()
 					+ "?"
 					+ resource.getAtmosphereResource().getRequest()
 							.getQueryString());
 		}
+
+		String agent = resource.getRequest().getHeader("user-agent");
+        logger.info(agent);
 		return DO_COMET_RESUME;
 	}
 

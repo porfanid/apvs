@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.client;
 
+import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
+
+import ch.cern.atlas.apvs.client.event.EventSerializer;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.service.DbServiceAsync;
 import ch.cern.atlas.apvs.client.service.EventServiceAsync;
@@ -28,6 +31,7 @@ import ch.cern.atlas.apvs.eventbus.client.AtmosphereEventBus;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -55,7 +59,7 @@ public class APVSClientFactory implements ClientFactory {
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
 // FIXME #284, re-enable, but reload gives NPE onDisconnect in atmosphere-gwt
-//		AtmosphereGWTSerializer serializer = null; // GWT.create(EventSerializer.class);
+//		AtmosphereGWTSerializer serializer = GWT.create(EventSerializer.class);
 //		atmosphereEventBus = new AtmosphereEventBus(serializer);
 
 		AuthenticatingRequestBuilder requestBuilder = new AuthenticatingRequestBuilder();

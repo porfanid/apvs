@@ -76,6 +76,7 @@ public class AtmosphereEventBus extends RemoteEventBus {
 		@Override
 		public void onError(Throwable exception, boolean connected) {
 			System.err.println("EventBusListener error "+connected+" "+exception+" "+(client != null ? client.getConnectionUUID() : null));
+			System.err.println("---------------- error "+exception.getCause());
 		}
 
 		@Override
@@ -93,6 +94,8 @@ public class AtmosphereEventBus extends RemoteEventBus {
 		 */
 		@Override
 		public void onMessage(List<?> messages) {
+			System.err.println("EventBusListener Messages "+messages.size());
+			
 			for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
 				Object message = i.next();
 				if (message instanceof RemoteEvent<?>) {
