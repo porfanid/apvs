@@ -19,6 +19,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private RemoteEventBus eventBus;
+	private ServerSettingsStorage serverSettingsStorage;
 
 	public ServerServiceImpl() {
 		log.info("Creating ServerService...");
@@ -31,7 +32,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 
 		log.info("Starting ServerService...");
 
-		ServerSettingsStorage.getInstance(eventBus);
+		serverSettingsStorage = ServerSettingsStorage.getInstance(eventBus);
 		PtuSettingsStorage.getInstance(eventBus);
 		AudioSettingsStorage.getInstance(eventBus);
 	}
@@ -48,6 +49,6 @@ public class ServerServiceImpl extends ResponsePollService implements
 	
 	@Override
 	public void setPassword(String name, String password) {
-		System.err.println("Setting pwd "+name+" "+password);
+		serverSettingsStorage.setPassword(name, password);
 	}
 }

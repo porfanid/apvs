@@ -110,4 +110,10 @@ public class ServerSettingsStorage {
 			store.setItem(APVS_SERVER_PWDS, jsonPwds);
 		}
 	}
+
+	public void setPassword(String name, String password) {
+		System.err.println("Storing "+name+" "+password);
+		pwds.put(name, password);
+		store();
+	}
 }

@@ -9,11 +9,16 @@ import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class DbCallback {
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	private ComboPooledDataSource datasource;
 	private ExecutorService executorService;
 	private Future<?> connectFuture;
@@ -54,10 +59,28 @@ public class DbCallback {
 					datasource
 							.setDriverClass(LOG_DB ? "net.sf.log4jdbc.DriverSpy"
 									: "oracle.jdbc.OracleDriver");
-					datasource.setJdbcUrl("jdbc:" + (LOG_DB ? "log4jdbc:" : "")
-							+ "oracle:thin:" + url);
-					datasource.setPassword(ServerSettingsStorage.getPasswords().get(ServerSettings.Entry.databaseUrl.toString()));
-					
+					int pos = url.indexOf("@//");
+					if (pos >= 0) {
+						datasource.setJdbcUrl("jdbc:"
+								+ (LOG_DB ? "log4jdbc:" : "") + "oracle:thin:"
+								+ url.substring(pos));
+						datasource.setUser(url.substring(0, pos));
+						datasource.setPassword(ServerSettingsStorage
+								.getPasswords().get(
+										ServerSettings.Entry.databaseUrl
+												.toString()));
+						System.err.println("Loging in to "
+								+ url.substring(pos)
+								+ " "
+								+ url.substring(0, pos)
+								+ " "
+								+ ServerSettingsStorage.getPasswords().get(
+										ServerSettings.Entry.databaseUrl
+												.toString()));
+					} else {
+						log.warn("Username 'user@//' not found in " + url);
+					}
+
 					// FIXME check if this helps...
 					datasource.setMaxStatementsPerConnection(30);
 

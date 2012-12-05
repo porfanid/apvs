@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.settings.ServerPwds;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.PasswordTextInputCell;
@@ -133,7 +132,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 					
 					@Override
 					public void onFailure(Throwable caught) {
-						Window.alert("Could not set password for "+object);
+						Window.alert("Could not set password for "+object+"\n"+caught);
 					}
 				});
 			}
