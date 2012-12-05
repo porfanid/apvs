@@ -143,7 +143,6 @@ public class EventView extends GlassPanel implements Module {
 
 		AsyncDataProvider<Event> dataProvider = new AsyncDataProvider<Event>() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			protected void onRangeChanged(HasData<Event> display) {
 
