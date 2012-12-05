@@ -26,7 +26,6 @@ import ch.cern.atlas.apvs.client.validation.ValidationFieldset;
 import ch.cern.atlas.apvs.client.validation.ValidationForm;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
-import ch.cern.atlas.apvs.client.widget.DataStoreName;
 import ch.cern.atlas.apvs.client.widget.EditTextColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
@@ -174,9 +173,8 @@ public class InterventionView extends GlassPanel implements Module {
 				SortOrder[] order = new SortOrder[sortList.size()];
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					// FIXME #88 remove cast
 					order[i] = new SortOrder(
-							((DataStoreName) info.getColumn())
+							info.getColumn()
 									.getDataStoreName(),
 							info.isAscending());
 				}
@@ -370,21 +368,6 @@ public class InterventionView extends GlassPanel implements Module {
 								.getId(), ptu.getId(), new Date(), description
 								.getValue());
 
-						// FIXME #194
-						// Set<ConstraintViolation<Intervention>> violations =
-						// validator
-						// .validate(intervention);
-						//
-						// if (!violations.isEmpty()) {
-						// StringBuffer errorMessage = new StringBuffer();
-						// for (ConstraintViolation<Intervention>
-						// constraintViolation : violations) {
-						// errorMessage.append('\n');
-						// errorMessage.append(constraintViolation
-						// .getMessage());
-						// }
-						// log.warn(errorMessage.toString());
-						// } else {
 						interventionService.addIntervention(intervention,
 								new AsyncCallback<Void>() {
 
@@ -509,20 +492,6 @@ public class InterventionView extends GlassPanel implements Module {
 						User user = new User(0, fname.getValue(), lname
 								.getValue(), cernId.getValue());
 
-						// FIXME #194
-						// Set<ConstraintViolation<User>> violations = validator
-						// .validate(user);
-						//
-						// if (!violations.isEmpty()) {
-						// StringBuffer errorMessage = new StringBuffer();
-						// for (ConstraintViolation<User> constraintViolation :
-						// violations) {
-						// errorMessage.append('\n');
-						// errorMessage.append(constraintViolation
-						// .getMessage());
-						// }
-						// log.warn(errorMessage.toString());
-						// } else {
 						interventionService.addUser(user,
 								new AsyncCallback<Void>() {
 
@@ -617,22 +586,6 @@ public class InterventionView extends GlassPanel implements Module {
 
 						Device device = new Device(0, ptuId.getValue(), ip
 								.getValue(), description.getValue());
-
-						// FIXME #194
-						// Set<ConstraintViolation<Device>> violations =
-						// validator
-						// .validate(device);
-						//
-						// if (!violations.isEmpty()) {
-						// StringBuffer errorMessage = new StringBuffer();
-						// for (ConstraintViolation<Device> constraintViolation
-						// : violations) {
-						// errorMessage.append('\n');
-						// errorMessage.append(constraintViolation
-						// .getMessage());
-						// }
-						// log.warn(errorMessage.toString());
-						// } else {
 
 						interventionService.addDevice(device,
 								new AsyncCallback<Void>() {
