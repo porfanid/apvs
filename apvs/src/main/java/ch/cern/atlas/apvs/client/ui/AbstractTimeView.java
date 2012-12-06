@@ -16,6 +16,7 @@ import org.moxieapps.gwt.highcharts.client.Style;
 import org.moxieapps.gwt.highcharts.client.ToolTip;
 import org.moxieapps.gwt.highcharts.client.ToolTipData;
 import org.moxieapps.gwt.highcharts.client.ToolTipFormatter;
+import org.moxieapps.gwt.highcharts.client.YAxis;
 import org.moxieapps.gwt.highcharts.client.labels.AxisLabelsData;
 import org.moxieapps.gwt.highcharts.client.labels.AxisLabelsFormatter;
 import org.moxieapps.gwt.highcharts.client.labels.DataLabels;
@@ -127,9 +128,14 @@ public class AbstractTimeView extends GlassPanel {
 				}));
 		chart.getXAxis().setAxisTitle(new AxisTitle().setText("Time"));
 
-		chart.getYAxis().setAllowDecimals(true);
+		YAxis yAxis = chart.getYAxis();
+		yAxis.setAllowDecimals(true);
+		yAxis.setAxisTitle(new AxisTitle().setText(""));
 
-		chart.getYAxis().setAxisTitle(new AxisTitle().setText(""));
+//		yAxis.setPlotBands(
+//				yAxis.createPlotBand().setColor("#FF0000").setFrom(100)
+//						.setTo(1000), yAxis.createPlotBand().setColor("#FF0000")
+//						.setFrom(10).setTo(20));
 	}
 
 	protected void addSeries(String ptuId, String name) {
@@ -170,7 +176,7 @@ public class AbstractTimeView extends GlassPanel {
 			.getFormat("dd MMM yyyy");
 
 	private static final long DAY = 24 * 60 * 60 * 1000L;
-	
+
 	@SuppressWarnings("deprecation")
 	private String getDateTime(long time) {
 		Date today = new Date();
@@ -179,7 +185,7 @@ public class AbstractTimeView extends GlassPanel {
 		long yesterday = now - DAY;
 		long tomorrow = now + DAY;
 		Date date = new Date(time);
-		
+
 		String prefix = "";
 		String postfix = "";
 		String newline = "<br/>";
