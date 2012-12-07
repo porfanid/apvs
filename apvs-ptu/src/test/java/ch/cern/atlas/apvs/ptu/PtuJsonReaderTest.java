@@ -24,8 +24,8 @@ public class PtuJsonReaderTest {
 	public void test() {
 		List<Message> list = (List<Message>)PtuJsonReader.toJava(json);
 		Assert.assertEquals(2, list.size());
-		System.err.println(list.get(0).toString());
-		System.err.println(list.get(1).toString());
+//		System.err.println(list.get(0).toString());
+//		System.err.println(list.get(1).toString());
 		Assert.assertEquals(msg0, list.get(0).toString());
 		Assert.assertEquals(msg1, list.get(1).toString());
 	}

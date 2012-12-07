@@ -48,7 +48,6 @@ public class PtuJsonReader extends JsonReader {
 		for (int i = 0; i < messages.length; i++) {
 			@SuppressWarnings("rawtypes")
 			JsonObject msg = msgs.get(i);
-			System.err.println("MSG "+i+" "+msg);
 			String type = (String) msg.get("Type");
 			if (type.equals("Measurement")) {
 				// FIXME #4
