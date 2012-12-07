@@ -111,6 +111,7 @@ public class DbHandler extends DbReconnectHandler {
 			throws SQLException {
 		// NOTE: we could optimize the query by running a count and see if the #
 		// is not too large, then just move forward the from time.
+		// FIXME #4, retrieve LOWLIMIT and HIGHLIMIT
 		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id"
 				+ " and NAME = ?"
@@ -142,15 +143,18 @@ public class DbHandler extends DbReconnectHandler {
 
 						total++;
 
+						String sensor = result.getString("sensor");
 						double value = Double.parseDouble(result
 								.getString("value"));
-						String sensor = result.getString("sensor");
+						// FIXME #4
+						double lowLimit = 0;
+						double highLimit = 175;
+
+						Integer samplingRate = Integer.parseInt(result
+								.getString("samplingrate"));
 
 						History history = map.get(ptuId, sensor);
 						if (history == null) {
-							Integer samplingRate = Integer.parseInt(result
-									.getString("samplingrate"));
-
 							String unit = result.getString("unit");
 
 							// Scale down to microSievert
@@ -168,12 +172,12 @@ public class DbHandler extends DbReconnectHandler {
 								unit = "&deg;C";
 							}
 
-							history = new History(ptuId, sensor, samplingRate,
-									unit);
+							history = new History(ptuId, sensor, unit);
 							map.put(history);
 						}
 
-						history.addEntry(time, value);
+						history.addEntry(time, value, lowLimit, highLimit,
+								samplingRate);
 					}
 				} finally {
 					result.close();
@@ -275,12 +279,12 @@ public class DbHandler extends DbReconnectHandler {
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
 				// FIXME #250
 				list.add(new Intervention(result.getInt(1), result.getInt(8),
-						result.getString("fname"), result.getString("lname"), result
-								.getInt(9), result.getString("name"), new Date(
-								result.getTimestamp("starttime").getTime()), result
-								.getTimestamp("endtime") != null ? new Date(result
-								.getTimestamp("endtime").getTime()) : null, null, result
-								.getString("dscr")));
+						result.getString("fname"), result.getString("lname"),
+						result.getInt(9), result.getString("name"), new Date(
+								result.getTimestamp("starttime").getTime()),
+						result.getTimestamp("endtime") != null ? new Date(
+								result.getTimestamp("endtime").getTime())
+								: null, null, result.getString("dscr")));
 			}
 		} finally {
 			result.close();
@@ -731,11 +735,11 @@ public class DbHandler extends DbReconnectHandler {
 					unit = "&micro;Sv/h";
 					value *= 1000;
 				}
+				// FIXME #4
 				Measurement m = new Measurement(result.getString("NAME"),
-						result.getString("SENSOR"), value,
+						result.getString("SENSOR"), value, 0, 175, unit,
 						Integer.parseInt(result.getString("SAMPLINGRATE")),
-						unit, new Date(result.getTimestamp("DATETIME")
-								.getTime()));
+						new Date(result.getTimestamp("DATETIME").getTime()));
 				list.add(m);
 			}
 		} finally {

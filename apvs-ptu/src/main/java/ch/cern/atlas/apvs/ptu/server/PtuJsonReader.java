@@ -48,11 +48,24 @@ public class PtuJsonReader extends JsonReader {
 		for (int i = 0; i < messages.length; i++) {
 			@SuppressWarnings("rawtypes")
 			JsonObject msg = msgs.get(i);
+			System.err.println("MSG "+i+" "+msg);
 			String type = (String) msg.get("Type");
 			if (type.equals("Measurement")) {
+				// FIXME #4
+				String lowLimit = (String)msg.get("LowLimit");
+				if (lowLimit == null) {
+					lowLimit = "0";
+				}
+				String highLimit = (String) msg.get("HighLimit");
+				if (highLimit == null) {
+					highLimit = "200";
+				}
 				result.add(new Measurement(sender, (String) msg.get("Sensor"),
 						Double.parseDouble((String) msg.get("Value")),
+						Double.parseDouble(lowLimit),
+						Double.parseDouble(highLimit),
 						(String) msg.get("Unit"),
+						Integer.parseInt((String) msg.get("SamplingRate")),
 						convertToDate(msg.get("Time"))));
 			} else if (type.equals("Event")) {
 				// FIXME #231

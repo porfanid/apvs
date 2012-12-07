@@ -60,7 +60,7 @@ public class HistoryManager {
 			measurementRegistration.removeHandler();
 			measurementRegistration = null;
 		}
-		
+
 		long now = new Date().getTime();
 		Date yesterday = new Date(now - (24 * 60 * 60 * 1000));
 
@@ -80,30 +80,44 @@ public class HistoryManager {
 											@Override
 											public void onMeasurementChanged(
 													MeasurementChangedEvent event) {
-												// Add entry to history, in the correct place
+												// Add entry to history, in the
+												// correct place
 												Measurement measurement = event
 														.getMeasurement();
 												History history = historyMap.get(
 														measurement.getPtuId(),
 														measurement.getName());
 												if (history == null) {
-													// NOTE #314, do not create a new History here... just ignore this PTU
-//													history = new History(
-//															measurement
-//																	.getPtuId(),
-//															measurement
-//																	.getName(),
-//															measurement
-//																	.getSamplingRate(),
-//															new Number[0][],
-//															measurement
-//																	.getUnit());
-//													historyMap.put(history);
+													// NOTE #314, do not create
+													// a new History here...
+													// just ignore this PTU
+													// history = new History(
+													// measurement
+													// .getPtuId(),
+													// measurement
+													// .getName(),
+													// measurement
+													// .getSamplingRate(),
+													// new Number[0][],
+													// measurement
+													// .getUnit());
+													// historyMap.put(history);
 												} else {
-													if (measurement.getDate().getTime() < new Date().getTime() + 60000) {
-														history.addEntry(measurement
-																.getDate().getTime(),
-															measurement.getValue());
+													if (measurement.getDate()
+															.getTime() < new Date()
+															.getTime() + 60000) {
+														history.addEntry(
+																measurement
+																		.getDate()
+																		.getTime(),
+																measurement
+																		.getValue(),
+																measurement
+																		.getLowLimit(),
+																measurement
+																		.getHighLimit(),
+																measurement
+																		.getSamplingRate());
 													}
 												}
 											}

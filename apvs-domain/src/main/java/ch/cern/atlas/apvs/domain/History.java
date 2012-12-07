@@ -9,22 +9,27 @@ public class History implements Serializable {
 
 	private String ptuId;
 	private String name;
-	private Integer samplingRate;
 	private Number[][] data;
 	private int index;
 	private String unit;
 
 	private final static int INITIAL_CAPACITY = 200;
+	private final static int TIME = 0;
+	private final static int VALUE = 1;
+	private final static int LOW_LIMIT = 2;
+	private final static int HIGH_LIMIT = 3;
+	private final static int SAMPLING_RATE = 4;
+
+	private final static int SIZE = SAMPLING_RATE + 1;
 
 	public History() {
 	}
 
-	public History(String ptuId, String name, Integer samplingRate, String unit) {
+	public History(String ptuId, String name, String unit) {
 		this.ptuId = ptuId;
 		this.name = name;
-		this.samplingRate = samplingRate;
 		this.unit = unit;
-		this.data = new Number[INITIAL_CAPACITY][2];
+		this.data = new Number[INITIAL_CAPACITY][SIZE];
 		index = 0;
 	}
 
@@ -39,6 +44,7 @@ public class History implements Serializable {
 	public Number[][] getData() {
 		Number[][] result = new Number[index][2];
 
+		// FIXME #4 maybe needs handcopy
 		System.arraycopy(data, 0, result, 0, index);
 		return result;
 	}
@@ -47,24 +53,30 @@ public class History implements Serializable {
 		return unit;
 	}
 
-	public boolean addEntry(long time, Number value) {
+	public boolean addEntry(long time, Number value, Number lowLimit,
+			Number highLimit, Integer samplingRate) {
 		if (index >= data.length) {
-			Number[][] newData = new Number[data.length * 2][2];			
+			Number[][] newData = new Number[data.length * 2][SIZE];
 			System.arraycopy(data, 0, newData, 0, data.length);
 			data = newData;
 		}
 
-		data[index][0] = time;
-		data[index][1] = value;
+		data[index][TIME] = time;
+		data[index][VALUE] = value;
+		data[index][LOW_LIMIT] = lowLimit;
+		data[index][HIGH_LIMIT] = highLimit;
+		data[index][SAMPLING_RATE] = samplingRate;
 		index++;
 
 		return true;
 	}
 
 	public Measurement getMeasurement() {
+		int last = index - 1;
 		return index == 0 ? null : new Measurement(ptuId, name,
-				data[index - 1][1], samplingRate, unit, new Date(
-						data[index - 1][0].longValue()));
+				data[last][VALUE], data[last][LOW_LIMIT],
+				data[last][HIGH_LIMIT], unit, data[last][SAMPLING_RATE].intValue(),
+				new Date(data[last][TIME].longValue()));
 	}
 
 	public int getSize() {

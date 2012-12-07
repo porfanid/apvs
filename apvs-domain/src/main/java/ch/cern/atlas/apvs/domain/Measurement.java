@@ -14,6 +14,8 @@ public class Measurement implements Message, Serializable,
 	private String name;
 	private String displayName;
 	private Number value;
+	private Number lowLimit;
+	private Number highLimit;
 	private String unit;
 	private Date date;
 	private Integer samplingRate;
@@ -21,23 +23,18 @@ public class Measurement implements Message, Serializable,
 	public Measurement() {
 	}
 
-	public Measurement(String name, Number value, String unit) {
-		this(null, name, value, 10000, unit, new Date());
-	}
-
-	public Measurement(String ptuId, String name, Number value, String unit,
-			Date date) {
-		this(ptuId, name, value, 10000, unit, date);
-	}
-
 	public Measurement(String ptuId, String name, Number value,
-			Integer samplingRate, String unit, Date date) {
+			Number lowLimit, Number highLimit, String unit,
+			Integer samplingRate, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
 		this.value = value;
-		this.samplingRate = samplingRate;
+		this.lowLimit = lowLimit;
+		this.highLimit = highLimit;
 		this.unit = unit;
+		this.samplingRate = samplingRate;
 		this.date = date;
+
 		this.displayName = null;
 
 		// Fix Unit for Body Temperature and Temperature
@@ -48,8 +45,10 @@ public class Measurement implements Message, Serializable,
 	}
 
 	public Measurement(String ptuId, String name, String displayName,
-			Number value, Integer samplingRate, String unit, Date date) {
-		this(ptuId, displayName, value, samplingRate, unit, date);
+			Number value, Number lowLimit, Number highLimit, String unit,
+			Integer samplingRate, Date date) {
+		this(ptuId, displayName, value, lowLimit, highLimit, unit,
+				samplingRate, date);
 		this.displayName = displayName;
 	}
 
@@ -70,12 +69,20 @@ public class Measurement implements Message, Serializable,
 		return value;
 	}
 
-	public Integer getSamplingRate() {
-		return samplingRate;
+	public Number getLowLimit() {
+		return lowLimit;
+	}
+
+	public Number getHighLimit() {
+		return highLimit;
 	}
 
 	public String getUnit() {
 		return unit;
+	}
+
+	public Integer getSamplingRate() {
+		return samplingRate;
 	}
 
 	public Date getDate() {
@@ -89,7 +96,7 @@ public class Measurement implements Message, Serializable,
 
 	@Override
 	public int compareTo(Measurement o) {
-		// FIXME include PTU
+		// FIXME include ptuId
 		return (o != null) ? getName().compareTo(o.getName()) : 1;
 	}
 
@@ -98,8 +105,10 @@ public class Measurement implements Message, Serializable,
 		return (getPtuId() != null ? getPtuId().hashCode() : 0)
 				+ (getName() != null ? getName().hashCode() : 0)
 				+ (getValue() != null ? getValue().hashCode() : 0)
-				+ (getSamplingRate() != null ? getSamplingRate().hashCode() : 0)
+				+ (getLowLimit() != null ? getLowLimit().hashCode() : 0)
+				+ (getHighLimit() != null ? getHighLimit().hashCode() : 0)
 				+ (getUnit() != null ? getUnit().hashCode() : 0)
+				+ (getSamplingRate() != null ? getSamplingRate().hashCode() : 0)
 				+ (getDate() != null ? getDate().hashCode() : 0)
 				+ (getType() != null ? getType().hashCode() : 0);
 	}
@@ -114,10 +123,14 @@ public class Measurement implements Message, Serializable,
 							.equals(m.getName()))
 					&& (getValue() == null ? m.getValue() == null : getValue()
 							.equals(m.getValue()))
-					&& (getSamplingRate() == null ? m.getSamplingRate() == null
-							: getSamplingRate().equals(m.getSamplingRate()))
+					&& (getLowLimit() == null ? m.getLowLimit() == null
+							: getLowLimit().equals(m.getLowLimit()))
+					&& (getHighLimit() == null ? m.getHighLimit() == null
+							: getHighLimit().equals(m.getHighLimit()))
 					&& (getUnit() == null ? m.getUnit() == null : getUnit()
 							.equals(m.getUnit()))
+					&& (getSamplingRate() == null ? m.getSamplingRate() == null
+							: getSamplingRate().equals(m.getSamplingRate()))
 					&& (getDate() == null ? m.getDate() == null : getDate()
 							.equals(m.getDate()))
 					&& (getType() == null ? m.getType() == null : getType()
@@ -129,12 +142,14 @@ public class Measurement implements Message, Serializable,
 	@Override
 	public String toString() {
 		return "Measurement(" + getPtuId() + "): name=" + getName() + " value="
-				+ getValue() + " sampling rate=" + getSamplingRate() + " unit="
-				+ getUnit() + " date: " + getDate();
+				+ getValue() + " lowLimit=" + getLowLimit() + " highLimit="
+				+ getHighLimit() + " unit=" + getUnit() + " sampling rate="
+				+ getSamplingRate() + " date: " + getDate();
 	}
 
 	public static String getDisplayName(String name) {
-		// NOTE: <sub> not supported in titles: http://sourceforge.net/p/gwt-highcharts/discussion/general/thread/4fbb5734/
+		// NOTE: <sub> not supported in titles:
+		// http://sourceforge.net/p/gwt-highcharts/discussion/general/thread/4fbb5734/
 		if (name.equals("O2")) {
 			return "O\u2082";
 		} else if (name.equals("CO2")) {

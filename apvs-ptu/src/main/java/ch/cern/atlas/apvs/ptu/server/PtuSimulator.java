@@ -30,7 +30,7 @@ public class PtuSimulator extends Thread {
 	private final int deltaStartTime = 12 * 3600 * 1000;
 	private final String ptuId;
 	private Ptu ptu;
-	
+
 	private final static boolean WRITE_MARKERS = true;
 
 	public PtuSimulator(String ptuId, int refresh) {
@@ -52,7 +52,7 @@ public class PtuSimulator extends Thread {
 			Date start = new Date(then);
 
 			ptu = new Ptu(ptuId);
-			log.info("Creating "+ptuId);
+			log.info("Creating " + ptuId);
 
 			try {
 				ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
@@ -93,7 +93,8 @@ public class PtuSimulator extends Thread {
 						writer.write(event);
 						System.err.println(event);
 					} else {
-						Measurement measurement = nextMeasurement(ptu, new Date());
+						Measurement measurement = nextMeasurement(ptu,
+								new Date());
 						writer.write(measurement);
 						System.err.println(measurement);
 					}
@@ -150,7 +151,8 @@ public class PtuSimulator extends Thread {
 
 	private Measurement nextMeasurement(Measurement m, Date d) {
 		return new Measurement(m.getPtuId(), m.getName(), m.getValue()
-				.doubleValue() + random.nextGaussian(), m.getUnit(), d);
+				.doubleValue() + random.nextGaussian(), m.getLowLimit(),
+				m.getHighLimit(), m.getUnit(), m.getSamplingRate(), d);
 	}
 
 	@SuppressWarnings("unused")

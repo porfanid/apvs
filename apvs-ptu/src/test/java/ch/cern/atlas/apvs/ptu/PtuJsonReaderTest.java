@@ -13,17 +13,19 @@ public class PtuJsonReaderTest {
 
 	String json = "{"+
 			"\"Sender\":\"PTU_88\",\"Receiver\":\"Broadcast\",\"FrameID\":\"0\",\"Acknowledge\":\"false\",\"Messages\":["+
-			"{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Time\":\"11/9/2012 10:02:25\",\"Method\":\"OneShoot\",\"Value\":\"33.19684099267707\",\"SamplingRate\":\"\",\"Unit\":\"ppm\"},"+
-			"{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Time\":\"11/9/2012 10:07:10\",\"Method\":\"OneShoot\",\"Value\":\"35.45927608218701\",\"SamplingRate\":\"\",\"Unit\":\"ppm\"}"+
+			"{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Time\":\"11/9/2012 10:02:25\",\"Method\":\"OneShoot\",\"Value\":\"33.19684099267707\",\"SamplingRate\":\"10000\",\"Unit\":\"ppm\"},"+
+			"{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Time\":\"11/9/2012 10:07:10\",\"Method\":\"OneShoot\",\"Value\":\"35.45927608218701\",\"SamplingRate\":\"15000\",\"Unit\":\"ppm\"}"+
 			"]}";
 	
-	String msg0 = "Measurement(PTU_88): name=Humidity value=33.19684099267707 sampling rate=10000 unit=ppm date: Tue Sep 11 10:02:25 CEST 2012";
-	String msg1 = "Measurement(PTU_88): name=Humidity value=35.45927608218701 sampling rate=10000 unit=ppm date: Tue Sep 11 10:07:10 CEST 2012";
+	String msg0 = "Measurement(PTU_88): name=Humidity value=33.19684099267707 lowLimit=0.0 highLimit=200.0 unit=ppm sampling rate=10000 date: Tue Sep 11 10:02:25 CEST 2012";
+	String msg1 = "Measurement(PTU_88): name=Humidity value=35.45927608218701 lowLimit=0.0 highLimit=200.0 unit=ppm sampling rate=15000 date: Tue Sep 11 10:07:10 CEST 2012";
 	
 	@Test
 	public void test() {
 		List<Message> list = (List<Message>)PtuJsonReader.toJava(json);
 		Assert.assertEquals(2, list.size());
+		System.err.println(list.get(0).toString());
+		System.err.println(list.get(1).toString());
 		Assert.assertEquals(msg0, list.get(0).toString());
 		Assert.assertEquals(msg1, list.get(1).toString());
 	}
