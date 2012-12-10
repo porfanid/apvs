@@ -159,7 +159,7 @@ public class DbHandler extends DbReconnectHandler {
 						History history = map.get(ptuId, sensor);
 						if (history == null) {
 
-							if ((sensor.equals("Temparature") || sensor
+							if ((sensor.equals("Temperature") || sensor
 									.equals("BodyTemperature"))
 									&& unit.equals("C")) {
 								unit = "&deg;C";
