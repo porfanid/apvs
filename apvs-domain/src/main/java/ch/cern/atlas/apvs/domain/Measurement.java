@@ -142,8 +142,7 @@ public class Measurement implements Message, Serializable,
 	@Override
 	public String toString() {
 		return "Measurement(" + getPtuId() + "): name=" + getName() + " value="
-				+ getValue() + " lowLimit=" + getLowLimit() + " highLimit="
-				+ getHighLimit() + " unit=" + getUnit() + " sampling rate="
+				+ getValue() + " unit=" + getUnit() + " sampling rate="
 				+ getSamplingRate() + " date: " + getDate();
 	}
 

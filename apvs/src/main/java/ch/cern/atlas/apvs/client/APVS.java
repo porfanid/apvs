@@ -74,7 +74,7 @@ public class APVS implements EntryPoint {
 	@SuppressWarnings("unused")
 	private SettingsPersister settingsPersister;
 
-	private String defaultPtuId = "PTU1234";
+	private String defaultPtuId = "PTUdemo";
 
 	@Override
 	public void onModuleLoad() {

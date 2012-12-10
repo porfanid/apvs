@@ -44,8 +44,19 @@ public class History implements Serializable {
 	public Number[][] getData() {
 		Number[][] result = new Number[index][2];
 
-		// FIXME #4 maybe needs handcopy
+		// FIXME #4 maybe needs handcopy, seems to work
 		System.arraycopy(data, 0, result, 0, index);
+		return result;
+	}
+
+	public Number[][] getLimits() {
+		Number[][] result = new Number[index][3];
+
+		for (int i = 0; i < index; i++) {
+			result[i][TIME] = data[i][TIME];
+			result[i][1] = data[i][LOW_LIMIT];
+			result[i][2] = data[i][HIGH_LIMIT];
+		}
 		return result;
 	}
 
@@ -75,8 +86,9 @@ public class History implements Serializable {
 		int last = index - 1;
 		return index == 0 ? null : new Measurement(ptuId, name,
 				data[last][VALUE], data[last][LOW_LIMIT],
-				data[last][HIGH_LIMIT], unit, data[last][SAMPLING_RATE].intValue(),
-				new Date(data[last][TIME].longValue()));
+				data[last][HIGH_LIMIT], unit,
+				data[last][SAMPLING_RATE].intValue(), new Date(
+						data[last][TIME].longValue()));
 	}
 
 	public int getSize() {

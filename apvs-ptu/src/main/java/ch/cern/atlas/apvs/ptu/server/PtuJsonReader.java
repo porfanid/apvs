@@ -51,19 +51,31 @@ public class PtuJsonReader extends JsonReader {
 			String type = (String) msg.get("Type");
 			if (type.equals("Measurement")) {
 				// FIXME #4
-				String lowLimit = (String)msg.get("LowLimit");
-				if (lowLimit == null) {
-					lowLimit = "0";
+				String sensor = (String) msg.get("Sensor");
+				String unit = (String) msg.get("Unit");
+				double value = Double.parseDouble((String) msg.get("Value"));
+
+				// String lowLimit = (String)msg.get("LowLimit");
+				double low = Limits.getLow(sensor).doubleValue();
+				// String highLimit = (String) msg.get("HighLimit");
+				double high = Limits.getHigh(sensor).doubleValue();
+
+				// Scale down to microSievert
+				if (unit.equals("mSv")) {
+					unit = "&micro;Sv";
+					value *= 1000;
+					low *= 1000;
+					high *= 1000;
 				}
-				String highLimit = (String) msg.get("HighLimit");
-				if (highLimit == null) {
-					highLimit = "200";
+				if (unit.equals("mSv/h")) {
+					unit = "&micro;Sv/h";
+					value *= 1000;
+					low *= 1000;
+					high *= 1000;
 				}
-				result.add(new Measurement(sender, (String) msg.get("Sensor"),
-						Double.parseDouble((String) msg.get("Value")),
-						Double.parseDouble(lowLimit),
-						Double.parseDouble(highLimit),
-						(String) msg.get("Unit"),
+
+				result.add(new Measurement(sender, sensor, value, low, high,
+						unit,
 						Integer.parseInt((String) msg.get("SamplingRate")),
 						convertToDate(msg.get("Time"))));
 			} else if (type.equals("Event")) {

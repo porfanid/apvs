@@ -79,7 +79,9 @@
 		<module>apvs-charts</module>
 		<module>apvs-domain</module>
 		<module>apvs-eventbus</module>
+<!--
 		<module>apvs-eventbus-demo</module>
+-->
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-log4jdbc</module>

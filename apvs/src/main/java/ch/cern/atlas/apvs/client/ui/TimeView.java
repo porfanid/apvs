@@ -220,7 +220,7 @@ public class TimeView extends AbstractTimeView implements Module {
 		if (history == null)
 			return;
 
-		setData(history.getPtuId(), history.getData());
+		setData(history.getPtuId(), history.getData(), history.getLimits());
 
 		setUnit(history.getPtuId(), history.getUnit());
 	}
@@ -246,7 +246,7 @@ public class TimeView extends AbstractTimeView implements Module {
 							MeasurementChangedEvent event) {
 						Measurement m = event.getMeasurement();
 						if (m.getName().equals(measurementName) && ((ptuId == null) || m.getPtuId().equals(ptuId)) && (m.getDate().getTime() < new Date().getTime()+MINUTE)) {
-							addPoint(m.getPtuId(), m.getDate().getTime(), m.getValue());
+							addPoint(m.getPtuId(), m.getDate().getTime(), m.getValue(), m.getLowLimit(), m.getHighLimit());
 							
 							setUnit(m.getPtuId(), m.getUnit());
 						}

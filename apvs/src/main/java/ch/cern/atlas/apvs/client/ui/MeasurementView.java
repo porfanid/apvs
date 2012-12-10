@@ -219,6 +219,41 @@ public class MeasurementView extends GlassPanel implements Module {
 		}
 				: null);
 
+		ClickableTextColumn<String> gauge = new ClickableTextColumn<String>() {
+			@Override
+			public String getValue(String name) {
+				if ((name == null) || (historyMap == null) || (ptuId == null)) {
+					return "";
+				}
+				Measurement m = historyMap.getMeasurement(ptuId, name);
+				return m != null ? m.getLowLimit()+" "+m.getHighLimit() : "";
+			}
+
+			@Override
+			public void render(Context context, String name, SafeHtmlBuilder sb) {
+				String s = getValue(name);
+				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				if (m == null) {
+					return;
+				}
+				((ClickableTextCell) getCell()).render(context,
+						decorate(s, m, last), sb);
+			}
+
+		};
+		gauge.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		if (selectable) {
+			gauge.setFieldUpdater(new FieldUpdater<String, String>() {
+
+				@Override
+				public void update(int index, String object, String value) {
+					selectMeasurement(object);
+				}
+			});
+		}
+		table.addColumn(gauge, showHeader ? new TextHeader("Limits")
+				: (Header<?>) null);
+
 		ClickableTextColumn<String> value = new ClickableTextColumn<String>() {
 			@Override
 			public String getValue(String name) {

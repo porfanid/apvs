@@ -33,6 +33,7 @@ import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.ptu.server.Limits;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.util.StringUtils;
 
@@ -147,25 +148,17 @@ public class DbHandler extends DbReconnectHandler {
 						double value = Double.parseDouble(result
 								.getString("value"));
 						// FIXME #4
-						double lowLimit = 0;
-						double highLimit = 175;
+						double lowLimit = Limits.getLow(sensor).doubleValue();
+						double highLimit = Limits.getHigh(sensor).doubleValue();
 
 						Integer samplingRate = Integer.parseInt(result
 								.getString("samplingrate"));
 
+						String unit = result.getString("unit");
+						
 						History history = map.get(ptuId, sensor);
 						if (history == null) {
-							String unit = result.getString("unit");
 
-							// Scale down to microSievert
-							if (unit.equals("mSv")) {
-								unit = "&micro;Sv";
-								value *= 1000;
-							}
-							if (unit.equals("mSv/h")) {
-								unit = "&micro;Sv/h";
-								value *= 1000;
-							}
 							if ((sensor.equals("Temparature") || sensor
 									.equals("BodyTemperature"))
 									&& unit.equals("C")) {
@@ -174,6 +167,20 @@ public class DbHandler extends DbReconnectHandler {
 
 							history = new History(ptuId, sensor, unit);
 							map.put(history);
+						}
+
+						// Scale down to microSievert
+						if (unit.equals("mSv")) {
+							unit = "&micro;Sv";
+							value *= 1000;
+							lowLimit *= 1000;
+							highLimit *= 1000;
+						}
+						if (unit.equals("mSv/h")) {
+							unit = "&micro;Sv/h";
+							value *= 1000;
+							lowLimit *= 1000;
+							highLimit *= 1000;
 						}
 
 						history.addEntry(time, value, lowLimit, highLimit,
@@ -723,21 +730,28 @@ public class DbHandler extends DbReconnectHandler {
 		List<Measurement> list = new ArrayList<Measurement>();
 		try {
 			while (result.next()) {
+				String sensor = result.getString("SENSOR");
 				String unit = result.getString("UNIT");
 				double value = Double.parseDouble(result.getString("VALUE"));
-
+				double low = Limits.getLow(sensor).doubleValue();
+				double high = Limits.getHigh(sensor).doubleValue();
+				
 				// Scale down to microSievert
 				if (unit.equals("mSv")) {
 					unit = "&micro;Sv";
 					value *= 1000;
+					low *= 1000;
+					high *= 1000;
 				}
 				if (unit.equals("mSv/h")) {
 					unit = "&micro;Sv/h";
 					value *= 1000;
+					low *= 1000;
+					high *= 1000;
 				}
 				// FIXME #4
 				Measurement m = new Measurement(result.getString("NAME"),
-						result.getString("SENSOR"), value, 0, 175, unit,
+						sensor, value, low, high, unit,
 						Integer.parseInt(result.getString("SAMPLINGRATE")),
 						new Date(result.getTimestamp("DATETIME").getTime()));
 				list.add(m);
