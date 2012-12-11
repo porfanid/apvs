@@ -21,7 +21,7 @@ public class Limits {
 		low.put("Temperature", 27);
 
 		high.put("BodyTemperature", 39);
-		high.put("CO2", 0.3);
+		high.put("CO2", 0.6);
 		high.put("DoseAccum", 0.5);
 		high.put("DoseRate", 0.0075);
 		high.put("HeartRate", 175);

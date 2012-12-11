@@ -18,6 +18,7 @@ import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.GaugeWidget;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -37,6 +38,7 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextHeader;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -81,6 +83,8 @@ public class MeasurementView extends GlassPanel implements Module {
 	private boolean databaseOk;
 
 	private HistoryMap historyMap;
+	
+	private GaugeWidget gaugeWidget;
 
 	public MeasurementView() {
 	}
@@ -88,6 +92,8 @@ public class MeasurementView extends GlassPanel implements Module {
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
+		
+		gaugeWidget = new GaugeWidget();
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
@@ -219,40 +225,40 @@ public class MeasurementView extends GlassPanel implements Module {
 		}
 				: null);
 
-		ClickableTextColumn<String> gauge = new ClickableTextColumn<String>() {
-			@Override
-			public String getValue(String name) {
-				if ((name == null) || (historyMap == null) || (ptuId == null)) {
-					return "";
-				}
-				Measurement m = historyMap.getMeasurement(ptuId, name);
-				return m != null ? m.getLowLimit()+" "+m.getHighLimit() : "";
-			}
-
-			@Override
-			public void render(Context context, String name, SafeHtmlBuilder sb) {
-				String s = getValue(name);
-				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
-				if (m == null) {
-					return;
-				}
-				((ClickableTextCell) getCell()).render(context,
-						decorate(s, m, last), sb);
-			}
-
-		};
-		gauge.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		if (selectable) {
-			gauge.setFieldUpdater(new FieldUpdater<String, String>() {
-
-				@Override
-				public void update(int index, String object, String value) {
-					selectMeasurement(object);
-				}
-			});
-		}
-		table.addColumn(gauge, showHeader ? new TextHeader("Limits")
-				: (Header<?>) null);
+//		ClickableTextColumn<String> gauge = new ClickableTextColumn<String>() {	
+//			@Override
+//			public String getValue(String name) {
+//				if ((name == null) || (historyMap == null) || (ptuId == null)) {
+//					return "";
+//				}
+//				Measurement m =  historyMap.getMeasurement(ptuId, name);
+//				return m != null ? m.getLowLimit()+" "+m.getHighLimit() : "";
+//			}
+//
+//			@Override
+//			public void render(Context context, String name, SafeHtmlBuilder sb) {
+//				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+//				if (m == null) {
+//					return;
+//				}
+//				gaugeWidget.setValue(m.getValue(), m.getLowLimit(), m.getHighLimit());
+//				sb.appendEscaped(gaugeWidget.getElement().getInnerHTML());
+//				Window.alert(gaugeWidget.getElement().getInnerHTML());
+//			}
+//
+//		};
+//		gauge.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+//		if (selectable) {
+//			gauge.setFieldUpdater(new FieldUpdater<String, String>() {
+//
+//				@Override
+//				public void update(int index, String object, String value) {
+//					selectMeasurement(object);
+//				}
+//			});
+//		}
+//		table.addColumn(gauge, showHeader ? new TextHeader("Limits")
+//				: (Header<?>) null);
 
 		ClickableTextColumn<String> value = new ClickableTextColumn<String>() {
 			@Override
