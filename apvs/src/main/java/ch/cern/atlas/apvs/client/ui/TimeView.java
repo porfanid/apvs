@@ -174,7 +174,7 @@ public class TimeView extends AbstractTimeView implements Module {
 				if ((settings == null) || settings.isEnabled(ptuId)) {
 
 					if (chart != null) {
-						addSeries(ptuId, getName(ptuId));
+						addSeries(ptuId, getName(ptuId), false);
 						addHistory(historyMap.get(ptuId, measurementName));
 						chart.setAnimation(false);
 					}
@@ -193,7 +193,7 @@ public class TimeView extends AbstractTimeView implements Module {
 				createChart(Measurement.getDisplayName(measurementName) + " (" + ptuId + ")");
 				add(chart);
 
-				addSeries(ptuId, getName(ptuId));
+				addSeries(ptuId, getName(ptuId), true);
 				addHistory(historyMap.get(ptuId, measurementName));
 
 				cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));

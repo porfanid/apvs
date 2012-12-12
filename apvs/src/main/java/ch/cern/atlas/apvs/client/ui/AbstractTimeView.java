@@ -139,7 +139,7 @@ public class AbstractTimeView extends GlassPanel {
 		yAxis.setAxisTitle(new AxisTitle().setText(""));
 	}
 
-	protected void addSeries(String ptuId, String name) {
+	protected void addSeries(String ptuId, String name, boolean showLimits) {
 
 		Series series = chart.createSeries().setName(name);
 		series.setType(Type.LINE);
@@ -148,14 +148,17 @@ public class AbstractTimeView extends GlassPanel {
 		seriesById.put(ptuId, series);
 		colorsById.put(ptuId, color[chart.getSeries().length]);
 
-		Series limitSeries = chart.createSeries();
-		limitSeries.setType(Type.AREA_RANGE);
-		limitSeries.setPlotOptions(new SeriesPlotOptions().setAnimation(false)
-				.setColor(new Color(161, 231, 231, 0.2))	// #3482d4
-				.setEnableMouseTracking(false));
-		limitSeriesById.put(ptuId, limitSeries);
+		if (showLimits) {
+			Series limitSeries = chart.createSeries();
+			limitSeries.setType(Type.AREA_RANGE);
+			limitSeries.setPlotOptions(new SeriesPlotOptions()
+					.setAnimation(false)
+					.setColor(new Color(161, 231, 231, 0.2)) // #3482d4
+					.setEnableMouseTracking(false));
+			limitSeriesById.put(ptuId, limitSeries);
 
-		chart.addSeries(limitSeries, true, false);
+			chart.addSeries(limitSeries, false, false);
+		}
 		chart.addSeries(series, true, false);
 	}
 
@@ -165,8 +168,10 @@ public class AbstractTimeView extends GlassPanel {
 		pointsById.put(ptuId, data != null ? data.length : 0);
 
 		Series limitSeries = limitSeriesById.get(ptuId);
-		limitSeries
-				.setPoints(limits != null ? limits : new Number[0][3], false);
+		if (limitSeries != null) {
+			limitSeries.setPoints(limits != null ? limits : new Number[0][3],
+					false);
+		}
 	}
 
 	protected void addPoint(String ptuId, long time, Number value,
@@ -187,8 +192,10 @@ public class AbstractTimeView extends GlassPanel {
 				.setEnabled(!shift)));
 
 		Series limitSeries = limitSeriesById.get(ptuId);
-		limitSeries.addPoint(new Point(time, lowLimit, highLimit), false,
-				shift, false);
+		if (limitSeries != null) {
+			limitSeries.addPoint(new Point(time, lowLimit, highLimit), false,
+					shift, false);
+		}
 		series.addPoint(time, value, true, shift, false);
 	}
 
