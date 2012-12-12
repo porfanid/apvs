@@ -35,12 +35,12 @@ public class Limits {
 	
 	public static Number getHigh(String name) {
 		double diff = high.get(name).doubleValue() - low.get(name).doubleValue();
-		return high.get(name).doubleValue() + r.nextGaussian()*0.01*diff;
+		return high.get(name).doubleValue(); // + r.nextGaussian()*0.01*diff;
 	}
 
 	public static Number getLow(String name) {
 		double diff = high.get(name).doubleValue() - low.get(name).doubleValue();
-		return low.get(name).doubleValue() + r.nextGaussian()*0.01*diff;
+		return low.get(name).doubleValue(); // + r.nextGaussian()*0.01*diff;
 	}
 
 }

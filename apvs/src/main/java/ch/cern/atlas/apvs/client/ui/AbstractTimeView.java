@@ -151,7 +151,7 @@ public class AbstractTimeView extends GlassPanel {
 		Series limitSeries = chart.createSeries();
 		limitSeries.setType(Type.AREA_RANGE);
 		limitSeries.setPlotOptions(new SeriesPlotOptions().setAnimation(false)
-				.setColor(new Color(0x34, 0x82, 0xd4, 0.2))	// #3482d4
+				.setColor(new Color(161, 231, 231, 0.2))	// #3482d4
 				.setEnableMouseTracking(false));
 		limitSeriesById.put(ptuId, limitSeries);
 
