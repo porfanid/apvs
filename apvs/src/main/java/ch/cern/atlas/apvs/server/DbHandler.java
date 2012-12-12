@@ -93,8 +93,7 @@ public class DbHandler extends DbReconnectHandler {
 			public void run() {
 				if (isConnected()) {
 					if (!checkConnection()) {
-						log.warn("DB no longer reachable, closing");
-						disconnect();
+						log.warn("DB no longer reachable");
 					}
 					try {
 						updateInterventions();
@@ -155,7 +154,7 @@ public class DbHandler extends DbReconnectHandler {
 								.getString("samplingrate"));
 
 						String unit = result.getString("unit");
-						
+
 						History history = map.get(ptuId, sensor);
 						if (history == null) {
 
@@ -735,7 +734,7 @@ public class DbHandler extends DbReconnectHandler {
 				double value = Double.parseDouble(result.getString("VALUE"));
 				double low = Limits.getLow(sensor).doubleValue();
 				double high = Limits.getHigh(sensor).doubleValue();
-				
+
 				// Scale down to microSievert
 				if (unit.equals("mSv")) {
 					unit = "&micro;Sv";
@@ -751,9 +750,9 @@ public class DbHandler extends DbReconnectHandler {
 				}
 				// FIXME #4
 				Measurement m = new Measurement(result.getString("NAME"),
-						sensor, value, low, high, unit,
-						Integer.parseInt(result.getString("SAMPLINGRATE")),
-						new Date(result.getTimestamp("DATETIME").getTime()));
+						sensor, value, low, high, unit, Integer.parseInt(result
+								.getString("SAMPLINGRATE")), new Date(result
+								.getTimestamp("DATETIME").getTime()));
 				list.add(m);
 			}
 		} finally {
