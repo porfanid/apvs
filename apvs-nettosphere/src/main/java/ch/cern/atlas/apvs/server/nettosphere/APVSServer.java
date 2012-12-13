@@ -32,7 +32,7 @@ public class APVSServer {
         server.start();
 
 //        logger.info("Server started on port: " + port);
-		log.info("APVS started on http://localhost:"+port+"/apvs/index.html");
+		log.info("APVS started on http://localhost:"+port+"/index.html");
     }
 }
 
