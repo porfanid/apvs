@@ -30,6 +30,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonWriter;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
+import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -127,7 +128,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		line = line.replaceAll("\u0013", "");
 		if (DEBUG) {
 			log.info("'" + line + "'");
-			log.info("LineLength"+line.length());
+			log.info("LineLength" + line.length());
 		}
 
 		List<Message> list;
@@ -161,23 +162,20 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private void handleMessage(Measurement message) throws APVSException {
 
-		// Scale down to microSievert
-		if (message.getUnit().equals("mSv")) {
-			message = new Measurement(message.getPtuId(), message.getName(),
-					message.getValue().doubleValue() * 1000,
-					message.getLowLimit().doubleValue() * 1000, 
-					message.getHighLimit().doubleValue() * 1000, 
-					"&micro;Sv", message.getSamplingRate(), message.getDate());
-		}
-		if (message.getUnit().equals("mSv/h")) {
-			message = new Measurement(message.getPtuId(), message.getName(),
-					message.getValue().doubleValue() * 1000,
-					message.getLowLimit().doubleValue() * 1000, 
-					message.getHighLimit().doubleValue() * 1000, 
-					"&micro;Sv/h", message.getSamplingRate(), message.getDate());
-		}
+		String unit = message.getUnit();
+		Number value = message.getValue();
+		Number low = message.getLowLimit();
+		Number high = message.getHighLimit();
 
-		measurementChanged.add(message);
+		// Scale down to microSievert
+		value = Scale.getValue(value, unit);
+		low = Scale.getLowLimit(low, unit);
+		high = Scale.getHighLimit(high, unit);
+		unit = Scale.getUnit(unit);
+
+		measurementChanged.add(new Measurement(message.getPtuId(), message
+				.getName(), value, low, high, unit, message.getSamplingRate(),
+				message.getDate()));
 
 		sendEvents();
 	}

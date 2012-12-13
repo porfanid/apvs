@@ -53,26 +53,18 @@ public class PtuJsonReader extends JsonReader {
 				// FIXME #4
 				String sensor = (String) msg.get("Sensor");
 				String unit = (String) msg.get("Unit");
-				double value = Double.parseDouble((String) msg.get("Value"));
+				Number value = Double.parseDouble((String) msg.get("Value"));
 
 				// String lowLimit = (String)msg.get("LowLimit");
-				double low = Limits.getLow(sensor).doubleValue();
+				Number low = Limits.getLow(sensor);
 				// String highLimit = (String) msg.get("HighLimit");
-				double high = Limits.getHigh(sensor).doubleValue();
+				Number high = Limits.getHigh(sensor);
 
 				// Scale down to microSievert
-				if (unit.equals("mSv")) {
-					unit = "&micro;Sv";
-					value *= 1000;
-					low *= 1000;
-					high *= 1000;
-				}
-				if (unit.equals("mSv/h")) {
-					unit = "&micro;Sv/h";
-					value *= 1000;
-					low *= 1000;
-					high *= 1000;
-				}
+				value = Scale.getValue(value, unit);
+				low = Scale.getLowLimit(low, unit);
+				high = Scale.getHighLimit(high, unit);
+				unit = Scale.getUnit(unit);
 
 				result.add(new Measurement(sender, sensor, value, low, high,
 						unit,

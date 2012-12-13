@@ -34,6 +34,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.Limits;
+import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.util.StringUtils;
 
@@ -144,11 +145,11 @@ public class DbHandler extends DbReconnectHandler {
 						total++;
 
 						String sensor = result.getString("sensor");
-						double value = Double.parseDouble(result
+						Number value = Double.parseDouble(result
 								.getString("value"));
 						// FIXME #4
-						double lowLimit = Limits.getLow(sensor).doubleValue();
-						double highLimit = Limits.getHigh(sensor).doubleValue();
+						Number low = Limits.getLow(sensor);
+						Number high = Limits.getHigh(sensor);
 
 						Integer samplingRate = Integer.parseInt(result
 								.getString("samplingrate"));
@@ -169,21 +170,12 @@ public class DbHandler extends DbReconnectHandler {
 						}
 
 						// Scale down to microSievert
-						if (unit.equals("mSv")) {
-							unit = "&micro;Sv";
-							value *= 1000;
-							lowLimit *= 1000;
-							highLimit *= 1000;
-						}
-						if (unit.equals("mSv/h")) {
-							unit = "&micro;Sv/h";
-							value *= 1000;
-							lowLimit *= 1000;
-							highLimit *= 1000;
-						}
+						value = Scale.getValue(value, unit);
+						low = Scale.getLowLimit(low, unit);
+						high = Scale.getHighLimit(high, unit);
+						unit = Scale.getUnit(unit);
 
-						history.addEntry(time, value, lowLimit, highLimit,
-								samplingRate);
+						history.addEntry(time, value, low, high, samplingRate);
 					}
 				} finally {
 					result.close();
@@ -731,23 +723,16 @@ public class DbHandler extends DbReconnectHandler {
 			while (result.next()) {
 				String sensor = result.getString("SENSOR");
 				String unit = result.getString("UNIT");
-				double value = Double.parseDouble(result.getString("VALUE"));
-				double low = Limits.getLow(sensor).doubleValue();
-				double high = Limits.getHigh(sensor).doubleValue();
+				Number value = Double.parseDouble(result.getString("VALUE"));
+				Number low = Limits.getLow(sensor);
+				Number high = Limits.getHigh(sensor);
 
 				// Scale down to microSievert
-				if (unit.equals("mSv")) {
-					unit = "&micro;Sv";
-					value *= 1000;
-					low *= 1000;
-					high *= 1000;
-				}
-				if (unit.equals("mSv/h")) {
-					unit = "&micro;Sv/h";
-					value *= 1000;
-					low *= 1000;
-					high *= 1000;
-				}
+				value = Scale.getValue(value, unit);
+				low = Scale.getLowLimit(low, unit);
+				high = Scale.getHighLimit(high, unit);
+				unit = Scale.getUnit(unit);
+
 				// FIXME #4
 				Measurement m = new Measurement(result.getString("NAME"),
 						sensor, value, low, high, unit, Integer.parseInt(result
