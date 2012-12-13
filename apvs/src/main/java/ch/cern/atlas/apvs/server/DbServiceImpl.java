@@ -41,7 +41,8 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 			return;
 
 		log.info("Starting DbService...");
-
+		dbHandler = new DbHandler(eventBus);
+		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
 
@@ -61,8 +62,6 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 						}
 					}
 				});
-
-		dbHandler = new DbHandler(eventBus);
 	}
 	
 	@Override

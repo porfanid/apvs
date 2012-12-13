@@ -50,7 +50,7 @@ public class DbHandler extends DbReconnectHandler {
 	private static final boolean DEBUG = false;
 
 	public DbHandler(final RemoteEventBus eventBus) {
-		super();
+		super(eventBus);
 		this.eventBus = eventBus;
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {

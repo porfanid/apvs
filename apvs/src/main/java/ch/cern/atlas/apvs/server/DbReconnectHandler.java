@@ -5,13 +5,16 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+
 public class DbReconnectHandler extends DbCallback {
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private String url;
 	private boolean reconnectNow;
 	
-	public DbReconnectHandler() {
+	public DbReconnectHandler(RemoteEventBus eventBus) {
+		super(eventBus);
 	}
 
 	@Override

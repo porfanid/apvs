@@ -22,7 +22,7 @@ public class ServerSettingsStorage {
 	private ServerSettings settings;
 	private ServerPwds pwds;
 
-	public ServerSettingsStorage(final RemoteEventBus eventBus) {
+	private ServerSettingsStorage(final RemoteEventBus eventBus) {
 
 		load();
 
@@ -59,8 +59,8 @@ public class ServerSettingsStorage {
 		return instance;
 	}
 	
-	public static ServerPwds getPasswords() {
-		return instance.pwds;
+	public ServerPwds getPasswords() {
+		return pwds;
 	}
 
 	private void load() {

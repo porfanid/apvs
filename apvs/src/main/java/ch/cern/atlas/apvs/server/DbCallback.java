@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -24,9 +25,12 @@ public class DbCallback {
 	private Future<?> connectFuture;
 	private Future<?> disconnectFuture;
 
+	private RemoteEventBus eventBus;
+
 	private final static boolean LOG_DB = false;
 
-	public DbCallback() {
+	public DbCallback(RemoteEventBus eventBus) {
+		this.eventBus = eventBus;
 		executorService = Executors.newSingleThreadExecutor();
 	}
 
@@ -60,9 +64,10 @@ public class DbCallback {
 							.setDriverClass(LOG_DB ? "net.sf.log4jdbc.DriverSpy"
 									: "oracle.jdbc.OracleDriver");
 					int pos = url.indexOf("@//");
-					String pwd = ServerSettingsStorage.getPasswords().get(
-							ServerSettings.Entry.databaseUrl.toString());
-					
+					String pwd = ServerSettingsStorage.getInstance(eventBus)
+							.getPasswords()
+							.get(ServerSettings.Entry.databaseUrl.toString());
+
 					if (pos >= 0 && pwd != null && !pwd.equals("")) {
 						String shortUrl = url.substring(pos);
 						String user = url.substring(0, pos);
@@ -79,7 +84,7 @@ public class DbCallback {
 						datasource.setMaxStatementsPerConnection(30);
 
 						dbConnected(datasource);
-					
+
 					} else {
 						log.warn("Username 'user@//' not found in " + url);
 					}
