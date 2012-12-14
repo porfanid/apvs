@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.server;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -159,9 +160,19 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 
 	}
+		
+	private final static long SECOND = 1000;
+	private final static long MINUTE = 60 * SECOND;
 
 	private void handleMessage(Measurement message) throws APVSException {
 
+		// Quick fix for #371
+		Date now = new Date();
+		if (message.getDate().getTime() < (now.getTime() - 5*MINUTE)) {
+			log.warn("UPDATE IGNORED, too old "+message.getDate()+" "+now+" "+message);
+			return;
+		}
+		
 		String unit = message.getUnit();
 		Number value = message.getValue();
 		Number low = message.getLowLimit();
