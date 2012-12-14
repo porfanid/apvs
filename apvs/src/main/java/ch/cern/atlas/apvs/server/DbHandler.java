@@ -156,6 +156,12 @@ public class DbHandler extends DbReconnectHandler {
 
 						String unit = result.getString("unit");
 
+						// Scale down to microSievert
+						value = Scale.getValue(value, unit);
+						low = Scale.getLowLimit(low, unit);
+						high = Scale.getHighLimit(high, unit);
+						unit = Scale.getUnit(unit);
+
 						History history = map.get(ptuId, sensor);
 						if (history == null) {
 
@@ -168,12 +174,6 @@ public class DbHandler extends DbReconnectHandler {
 							history = new History(ptuId, sensor, unit);
 							map.put(history);
 						}
-
-						// Scale down to microSievert
-						value = Scale.getValue(value, unit);
-						low = Scale.getLowLimit(low, unit);
-						high = Scale.getHighLimit(high, unit);
-						unit = Scale.getUnit(unit);
 
 						history.addEntry(time, value, low, high, samplingRate);
 					}
