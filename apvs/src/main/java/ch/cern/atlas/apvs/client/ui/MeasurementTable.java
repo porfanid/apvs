@@ -86,7 +86,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 	public boolean update() {
 		boolean result = super.update();
 
-		Window.alert("Update "+ptuId+" "+historyMap+" "+last);
+//		Window.alert("Update "+ptuId+" "+historyMap+" "+last);
 		
 		if ((historyMap != null) && (ptuId != null)) {
 
@@ -107,7 +107,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 		Integer row = rows.get(measurement.getName());
 		if (row == null) {
 			row = rows.size();
-			rows.put(last.getName(), row);
+			rows.put(measurement.getName(), row);
 		}
 
 		int col = 0;
