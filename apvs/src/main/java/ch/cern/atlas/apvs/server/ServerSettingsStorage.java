@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.settings.ServerPwds;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -16,10 +17,12 @@ public class ServerSettingsStorage {
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private static final String APVS_SERVER_SETTINGS = "APVS.server.settings";
+	private static final String APVS_SERVER_PWDS = "APVS.server.pwds";
 	private static ServerSettingsStorage instance;
 	private ServerSettings settings;
+	private ServerPwds pwds;
 
-	public ServerSettingsStorage(final RemoteEventBus eventBus) {
+	private ServerSettingsStorage(final RemoteEventBus eventBus) {
 
 		load();
 
@@ -55,6 +58,10 @@ public class ServerSettingsStorage {
 		}
 		return instance;
 	}
+	
+	public ServerPwds getPasswords() {
+		return pwds;
+	}
 
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
@@ -74,6 +81,15 @@ public class ServerSettingsStorage {
 		} else {
 			log.info("Server Settings Read");			
 		}
+		
+		String jsonPwds = store.getItem(APVS_SERVER_PWDS);
+		if (jsonPwds != null) {
+			pwds = (ServerPwds) JsonReader.toJava(jsonPwds);
+		}
+
+		if (pwds == null) {
+			pwds = new ServerPwds(true);
+		}
 	}
 
 	private void store() {
@@ -88,5 +104,16 @@ public class ServerSettingsStorage {
 		if (json != null) {
 			store.setItem(APVS_SERVER_SETTINGS, json);
 		}
+		
+		String jsonPwds = JsonWriter.toJson(pwds);
+		if (jsonPwds != null) {
+			store.setItem(APVS_SERVER_PWDS, jsonPwds);
+		}
+	}
+
+	public void setPassword(String name, String password) {
+		System.err.println("Storing "+name+" "+password);
+		pwds.put(name, password);
+		store();
 	}
 }

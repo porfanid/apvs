@@ -44,7 +44,7 @@ public class APVSServer {
 		// And start it up
 		try {
 			server.start();
-			log.info("APVS started on http://localhost:"+port+"/apvs/index.html");
+			log.info("APVS started on http://localhost:"+port+"/index.html");
 
 			server.join();
 		} catch (Exception e) {

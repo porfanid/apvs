@@ -187,6 +187,8 @@ public class CameraView extends SimplePanel implements Module,
 		System.err.println("CameraURL: '"+ptuId+"' '"+cameraUrl+"'");
 		
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
+			currentCameraUrl = null;
+
 			image.setUrl(videoPoster);
 			image.setTitle("");
 			setWidget(image);

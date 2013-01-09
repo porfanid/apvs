@@ -21,6 +21,7 @@ import ch.cern.atlas.apvs.client.ui.CameraView;
 import ch.cern.atlas.apvs.client.ui.EventView;
 import ch.cern.atlas.apvs.client.ui.GeneralInfoView;
 import ch.cern.atlas.apvs.client.ui.InterventionView;
+import ch.cern.atlas.apvs.client.ui.MeasurementTable;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.Module;
 import ch.cern.atlas.apvs.client.ui.PlaceView;
@@ -74,7 +75,7 @@ public class APVS implements EntryPoint {
 	@SuppressWarnings("unused")
 	private SettingsPersister settingsPersister;
 
-	private String defaultPtuId = "PTU1234";
+	private String defaultPtuId = "PTUdemo";
 
 	@Override
 	public void onModuleLoad() {
@@ -150,6 +151,8 @@ public class APVS implements EntryPoint {
 				// FIXME handle generically
 				if (id.startsWith("MeasurementView")) {
 					module = new MeasurementView();
+				} else if (id.startsWith("MeasurementTable")) {
+					module = new MeasurementTable();
 				} else if (id.startsWith("AudioSettingsView")) {
 					module = new AudioSettingsView();
 				} else if (id.startsWith("AudioSummary")) {

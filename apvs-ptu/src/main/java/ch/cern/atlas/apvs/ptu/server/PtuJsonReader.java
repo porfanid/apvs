@@ -50,9 +50,25 @@ public class PtuJsonReader extends JsonReader {
 			JsonObject msg = msgs.get(i);
 			String type = (String) msg.get("Type");
 			if (type.equals("Measurement")) {
-				result.add(new Measurement(sender, (String) msg.get("Sensor"),
-						Double.parseDouble((String) msg.get("Value")),
-						(String) msg.get("Unit"),
+				// FIXME #4
+				String sensor = (String) msg.get("Sensor");
+				String unit = (String) msg.get("Unit");
+				Number value = Double.parseDouble((String) msg.get("Value"));
+
+				// String lowLimit = (String)msg.get("LowLimit");
+				Number low = Limits.getLow(sensor);
+				// String highLimit = (String) msg.get("HighLimit");
+				Number high = Limits.getHigh(sensor);
+
+				// Scale down to microSievert
+				value = Scale.getValue(value, unit);
+				low = Scale.getLowLimit(low, unit);
+				high = Scale.getHighLimit(high, unit);
+				unit = Scale.getUnit(unit);
+
+				result.add(new Measurement(sender, sensor, value, low, high,
+						unit,
+						Integer.parseInt((String) msg.get("SamplingRate")),
 						convertToDate(msg.get("Time"))));
 			} else if (type.equals("Event")) {
 				// FIXME #231

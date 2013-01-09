@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,7 +174,7 @@ public class TimeView extends AbstractTimeView implements Module {
 				if ((settings == null) || settings.isEnabled(ptuId)) {
 
 					if (chart != null) {
-						addSeries(ptuId, getName(ptuId));
+						addSeries(ptuId, getName(ptuId), false);
 						addHistory(historyMap.get(ptuId, measurementName));
 						chart.setAnimation(false);
 					}
@@ -191,7 +193,7 @@ public class TimeView extends AbstractTimeView implements Module {
 				createChart(Measurement.getDisplayName(measurementName) + " (" + ptuId + ")");
 				add(chart);
 
-				addSeries(ptuId, getName(ptuId));
+				addSeries(ptuId, getName(ptuId), true);
 				addHistory(historyMap.get(ptuId, measurementName));
 
 				cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));
@@ -218,7 +220,7 @@ public class TimeView extends AbstractTimeView implements Module {
 		if (history == null)
 			return;
 
-		addData(history.getPtuId(), history.getData());
+		setData(history.getPtuId(), history.getData(), history.getLimits());
 
 		setUnit(history.getPtuId(), history.getUnit());
 	}
@@ -230,22 +232,22 @@ public class TimeView extends AbstractTimeView implements Module {
 		}
 	}
 
+	private final static long MINUTE = 60 * 1000; // 1 minute
+	
 	private void register() {
 		unregister();
 
 		measurementHandler = MeasurementChangedEvent.register(
 				clientFactory.getRemoteEventBus(),
 				new MeasurementChangedEvent.Handler() {
-
+					
 					@Override
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement m = event.getMeasurement();
-						if (m.getName().equals(measurementName)) {
-
-							addPoint(m.getPtuId(), m.getDate().getTime(),
-									m.getValue());
-
+						if (m.getName().equals(measurementName) && ((ptuId == null) || m.getPtuId().equals(ptuId)) && (m.getDate().getTime() < new Date().getTime()+MINUTE)) {
+							addPoint(m.getPtuId(), m.getDate().getTime(), m.getValue(), m.getLowLimit(), m.getHighLimit());
+							
 							setUnit(m.getPtuId(), m.getUnit());
 						}
 					}

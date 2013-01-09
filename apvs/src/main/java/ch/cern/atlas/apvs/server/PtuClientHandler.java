@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.server;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonWriter;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
+import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -127,7 +129,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		line = line.replaceAll("\u0013", "");
 		if (DEBUG) {
 			log.info("'" + line + "'");
-			log.info("LineLength"+line.length());
+			log.info("LineLength" + line.length());
 		}
 
 		List<Message> list;
@@ -158,22 +160,33 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 
 	}
+		
+	private final static long SECOND = 1000;
+	private final static long MINUTE = 60 * SECOND;
 
 	private void handleMessage(Measurement message) throws APVSException {
 
-		// Scale down to microSievert
-		if (message.getUnit().equals("mSv")) {
-			message = new Measurement(message.getPtuId(), message.getName(),
-					message.getValue().doubleValue() * 1000,
-					message.getSamplingRate(), "&micro;Sv", message.getDate());
+		// Quick fix for #371
+		Date now = new Date();
+		if (message.getDate().getTime() < (now.getTime() - 5*MINUTE)) {
+			log.warn("UPDATE IGNORED, too old "+message.getDate()+" "+now+" "+message);
+			return;
 		}
-		if (message.getUnit().equals("mSv/h")) {
-			message = new Measurement(message.getPtuId(), message.getName(),
-					message.getValue().doubleValue() * 1000,
-					message.getSamplingRate(), "&micro;Sv/h", message.getDate());
-		}
+		
+		String unit = message.getUnit();
+		Number value = message.getValue();
+		Number low = message.getLowLimit();
+		Number high = message.getHighLimit();
 
-		measurementChanged.add(message);
+		// Scale down to microSievert
+		value = Scale.getValue(value, unit);
+		low = Scale.getLowLimit(low, unit);
+		high = Scale.getHighLimit(high, unit);
+		unit = Scale.getUnit(unit);
+
+		measurementChanged.add(new Measurement(message.getPtuId(), message
+				.getName(), value, low, high, unit, message.getSamplingRate(),
+				message.getDate()));
 
 		sendEvents();
 	}

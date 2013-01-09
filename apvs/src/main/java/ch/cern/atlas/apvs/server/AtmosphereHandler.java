@@ -20,7 +20,8 @@ public class AtmosphereHandler extends AtmosphereGwtHandler {
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         Logger.getLogger("").setLevel(Level.INFO);
-        Logger.getLogger("gwtcomettest").setLevel(Level.ALL);
+        Logger.getLogger("org.atmosphere.gwt").setLevel(Level.ALL);
+        Logger.getLogger("ch.cern.atlas.apvs").setLevel(Level.ALL);
         Logger.getLogger("").getHandlers()[0].setLevel(Level.ALL);
         logger.trace("Updated logging levels");
     }
@@ -38,7 +39,9 @@ public class AtmosphereHandler extends AtmosphereGwtHandler {
         if (logger.isDebugEnabled()) {
             logger.debug("Url: " + resource.getAtmosphereResource().getRequest().getRequestURL()
                     + "?" + resource.getAtmosphereResource().getRequest().getQueryString());
-        }
+        }        
+        String agent = resource.getRequest().getHeader("user-agent");
+        logger.info(agent);
         return NO_TIMEOUT;
     }
 

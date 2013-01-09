@@ -19,7 +19,6 @@ public class HistoryMap implements Serializable {
 	private static final long serialVersionUID = -1943029642235865794L;
 
 	private Map<String, Map<String, History>> histories  = new HashMap<String, Map<String,History>>();
-	private Map<String, String> displayNames = new HashMap<String, String>();
 	private Map<String, String> units = new HashMap<String, String>();	
 	
 	public HistoryMap() {
@@ -42,12 +41,7 @@ public class HistoryMap implements Serializable {
 			histories.put(ptuId, ptu);
 		}
 		String name = history.getName();
-		Measurement measurement = history.getMeasurement();
-		if (measurement != null) {
-			displayNames.put(name, measurement.getDisplayName());
-			units.put(name, measurement.getUnit());
-		}
-		
+		units.put(name, history.getUnit());
 		return ptu.put(name, history);
 	}
 	
@@ -93,7 +87,7 @@ public class HistoryMap implements Serializable {
 	}
 	
 	public String getDisplayName(String name) {
-		return displayNames.get(name);
+		return Measurement.getDisplayName(name);
 	}
 
 	public String getUnit(String name) {

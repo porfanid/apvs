@@ -74,12 +74,12 @@ public class EventView extends GlassPanel implements Module {
 
 	protected boolean databaseOk;
 
-	public EventView() {	
+	public EventView() {
 	}
 
 	@Override
-	public boolean configure(Element element, final ClientFactory clientFactory,
-			Arguments args) {
+	public boolean configure(Element element,
+			final ClientFactory clientFactory, Arguments args) {
 
 		String height = args.getArg(0);
 
@@ -143,7 +143,6 @@ public class EventView extends GlassPanel implements Module {
 
 		AsyncDataProvider<Event> dataProvider = new AsyncDataProvider<Event>() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			protected void onRangeChanged(HasData<Event> display) {
 
@@ -167,11 +166,8 @@ public class EventView extends GlassPanel implements Module {
 				SortOrder[] order = new SortOrder[sortList.size()];
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					// FIXME #88 remove cast
-					order[i] = new SortOrder(
-							((ClickableTextColumn<Event>) info.getColumn())
-									.getDataStoreName(),
-							info.isAscending());
+					order[i] = new SortOrder(info.getColumn()
+							.getDataStoreName(), info.isAscending());
 				}
 
 				if (order.length == 0) {
@@ -464,7 +460,7 @@ public class EventView extends GlassPanel implements Module {
 						}
 					});
 		}
-		
+
 		return true;
 	}
 
@@ -522,7 +518,7 @@ public class EventView extends GlassPanel implements Module {
 		update.setVisible(needsUpdate());
 
 		// Re-sort the table
-//		RangeChangeEvent.fire(table, table.getVisibleRange());
+		// RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();
 
 		return false;

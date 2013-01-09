@@ -95,6 +95,16 @@ public class InterventionServiceImpl extends DbServiceImpl implements
 	}
 	
 	@Override
+	public void updateInterventionImpactNumber(int id, String impactNumber)
+			throws ServiceException {
+		try {
+			dbHandler.updateInterventionImpactNumber(id, impactNumber);
+		} catch (SQLException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+	
+	@Override
 	public void updateInterventionDescription(int id, String description)
 			throws ServiceException {
 		try {

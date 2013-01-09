@@ -25,6 +25,9 @@ public interface InterventionService extends TableService<Intervention>,
 
 	void endIntervention(int id, Date date) throws ServiceException;
 
+	void updateInterventionImpactNumber(int id, String impactNumber)
+			throws ServiceException;
+
 	void updateInterventionDescription(int id, String description)
 			throws ServiceException;
 

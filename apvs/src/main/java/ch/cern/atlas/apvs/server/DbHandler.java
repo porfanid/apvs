@@ -5,14 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +33,8 @@ import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.ptu.server.Limits;
+import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.util.StringUtils;
 
@@ -45,13 +44,13 @@ public class DbHandler extends DbReconnectHandler {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
-	
-	private final static boolean DEBUG = false;
 
 	private InterventionMap interventions = new InterventionMap();
 
+	private static final boolean DEBUG = false;
+
 	public DbHandler(final RemoteEventBus eventBus) {
-		super();
+		super(eventBus);
 		this.eventBus = eventBus;
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
@@ -95,8 +94,7 @@ public class DbHandler extends DbReconnectHandler {
 			public void run() {
 				if (isConnected()) {
 					if (!checkConnection()) {
-						log.warn("DB no longer reachable, closing");
-						disconnect();
+						log.warn("DB no longer reachable");
 					}
 					try {
 						updateInterventions();
@@ -110,28 +108,82 @@ public class DbHandler extends DbReconnectHandler {
 		}, 0, 30, TimeUnit.SECONDS);
 	}
 
-	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from) throws SQLException {
+	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
+			throws SQLException {
+		// NOTE: we could optimize the query by running a count and see if the #
+		// is not too large, then just move forward the from time.
+		// FIXME #4, retrieve LOWLIMIT and HIGHLIMIT
 		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id"
 				+ " and NAME = ?"
 				+ (from != null ? " and datetime > ?" : "")
-				+ " order by DATETIME desc";
+				+ " order by DATETIME asc";
 
 		Connection connection = getConnection();
 		PreparedStatement historyQuery = connection.prepareStatement(sql);
 
-		Map<String, String> ptuIds = new HashMap<String, String>();
-		Map<String, String> sensors = new HashMap<String, String>();
-		Map<String, Integer> samplingRates = new HashMap<String, Integer>();
-		Map<String, Deque<Number[]>> data = new HashMap<String, Deque<Number[]>>();
-		Map<String, String> units = new HashMap<String, String>();
+		HistoryMap map = new HistoryMap();
 
 		try {
 			for (String ptuId : ptuIdList) {
-				int entries = getHistory(ptuId, from, historyQuery, ptuIds, sensors, samplingRates,
-						data, units);
+				historyQuery.setString(1, ptuId);
+
+				if (from != null) {
+					historyQuery.setTimestamp(2, new Timestamp(from.getTime()));
+				}
+
+				long now = new Date().getTime();
+				int total = 0;
+				ResultSet result = historyQuery.executeQuery();
+				try {
+					while (result.next()) {
+						long time = result.getTimestamp("datetime").getTime();
+						if (time > now + 60000) {
+							break;
+						}
+
+						total++;
+
+						String sensor = result.getString("sensor");
+						Number value = Double.parseDouble(result
+								.getString("value"));
+						// FIXME #4
+						Number low = Limits.getLow(sensor);
+						Number high = Limits.getHigh(sensor);
+
+						Integer samplingRate = Integer.parseInt(result
+								.getString("samplingrate"));
+
+						String unit = result.getString("unit");
+
+						// Scale down to microSievert
+						value = Scale.getValue(value, unit);
+						low = Scale.getLowLimit(low, unit);
+						high = Scale.getHighLimit(high, unit);
+						unit = Scale.getUnit(unit);
+
+						History history = map.get(ptuId, sensor);
+						if (history == null) {
+
+							if ((sensor.equals("Temperature") || sensor
+									.equals("BodyTemperature"))
+									&& unit.equals("C")) {
+								unit = "&deg;C";
+							}
+
+							history = new History(ptuId, sensor, unit);
+							map.put(history);
+						}
+
+						history.addEntry(time, value, low, high, samplingRate);
+					}
+				} finally {
+					result.close();
+				}
+
 				if (DEBUG) {
-					log.info("Entries for "+ptuId+" "+entries);
+					System.err.println("Total entries in history for " + ptuId
+							+ " " + total);
 				}
 			}
 		} finally {
@@ -139,112 +191,7 @@ public class DbHandler extends DbReconnectHandler {
 			connection.close();
 		}
 
-		HistoryMap map = new HistoryMap();
-		int total = 0;
-		for (Entry<String, Deque<Number[]>> e : data.entrySet()) {
-			String key = e.getKey();
-			Deque<Number[]> deque = e.getValue();
-			String ptuId = ptuIds.get(key);
-			String sensor = sensors.get(key);
-			Integer samplingRate = samplingRates.get(key);
-			map.put(new History(ptuId, sensor, samplingRate, deque
-					.toArray(new Number[deque.size()][]), units.get(key)));
-			if (DEBUG) {
-				log.info("Creating history for " + ptuId + " " + sensor + " "
-						+ deque.size() + " entries");
-			}
-			total += deque.size();
-		}
-		if (DEBUG) {
-			log.info("Total entries: "+total);
-		}
 		return map;
-	}
-
-	private static final int MAX_TOTAL_ENTRIES = 100000; // number
-	private static final int MAX_ENTRIES = 10000; // number
-	private static final long MIN_INTERVAL = 5000; // ms
-
-	private int getHistory(String ptuId, Date from, PreparedStatement historyQuery,
-			Map<String, String> ptuIds, Map<String, String> sensors,
-			Map<String, Integer> samplingRates,
-			Map<String, Deque<Number[]>> data, Map<String, String> units)
-			throws SQLException {
-
-		historyQuery.setString(1, ptuId);
-		
-		if (from != null) {
-			historyQuery.setTimestamp(2, new Timestamp(from.getTime()));
-		}
-
-		Map<String, Long> lastTimes = new HashMap<String, Long>();
-
-		long time = new Date().getTime();
-		long then = from.getTime();
-		int totalEntries = 0;
-		int entries = 0;
-		ResultSet result = historyQuery.executeQuery();
-		try {
-			while (result.next() && (totalEntries < MAX_TOTAL_ENTRIES)) {
-				time = result.getTimestamp("datetime").getTime();
-				if (time < then) {
-					break;
-				}
-				totalEntries++;
-
-				ptuId = result.getString("name");
-				String sensor = result.getString("sensor");
-				Integer samplingRate = Integer.parseInt(result
-						.getString("samplingrate"));
-				String key = ptuId + ":" + sensor;
-				ptuIds.put(key, ptuId);
-				sensors.put(key, sensor);
-				samplingRates.put(key, samplingRate);
-				if (lastTimes.get(key) == null) {
-					lastTimes.put(key, time + 2*MIN_INTERVAL);
-				}
-
-				String unit = result.getString("unit");
-				double value = Double.parseDouble(result.getString("value"));
-
-				// Scale down to microSievert
-				if (unit.equals("mSv")) {
-					unit = "&micro;Sv";
-					value *= 1000;
-				}
-				if (unit.equals("mSv/h")) {
-					unit = "&micro;Sv/h";
-					value *= 1000;
-				}
-				if ((sensor.equals("Temparature") || sensor
-						.equals("BodyTemperature")) && unit.equals("C")) {
-					unit = "&deg;C";
-				}
-				units.put(key, unit);
-
-				// limit entry separation (reverse order) // NOT USED for now
-//				if (lastTimes.get(key) - time > MIN_INTERVAL) {
-					lastTimes.put(key, time);
-
-					Number[] entry = new Number[2];
-					entry[0] = time;
-					entry[1] = value;
-					Deque<Number[]> deque = data.get(key);
-					if (deque == null) {
-						deque = new ArrayDeque<Number[]>(200);
-						data.put(key, deque);
-					}
-					if (deque.size() < MAX_ENTRIES) {
-						deque.addFirst(entry);
-						entries++;
-					}
-//				}
-			}
-		} finally {
-			result.close();
-		}
-		
-		return entries;
 	}
 
 	@Override
@@ -308,8 +255,9 @@ public class DbHandler extends DbReconnectHandler {
 
 	public List<Intervention> getInterventions(Range range, SortOrder[] order)
 			throws SQLException {
-		String sql = "select tbl_inspections.id, tbl_users.fname, tbl_users.lname, tbl_devices.name, "
-				+ "tbl_inspections.starttime, tbl_inspections.endtime, tbl_inspections.dscr, tbl_users.id, tbl_devices.id "
+		// FIXME #250
+		String sql = "select tbl_inspections.ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
+				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, tbl_users.id, tbl_devices.id "
 				+ "from tbl_inspections "
 				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
@@ -327,13 +275,14 @@ public class DbHandler extends DbReconnectHandler {
 			}
 
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
+				// FIXME #250
 				list.add(new Intervention(result.getInt(1), result.getInt(8),
-						result.getString(2), result.getString(3), result
-								.getInt(9), result.getString(4), new Date(
-								result.getTimestamp(5).getTime()), result
-								.getTimestamp(6) != null ? new Date(result
-								.getTimestamp(6).getTime()) : null, result
-								.getString(7)));
+						result.getString("fname"), result.getString("lname"),
+						result.getInt(9), result.getString("name"), new Date(
+								result.getTimestamp("starttime").getTime()),
+						result.getTimestamp("endtime") != null ? new Date(
+								result.getTimestamp("endtime").getTime())
+								: null, null, result.getString("dscr")));
 			}
 		} finally {
 			result.close();
@@ -614,6 +563,26 @@ public class DbHandler extends DbReconnectHandler {
 		return list;
 	}
 
+	public void updateInterventionImpactNumber(int id, String impactNumber)
+			throws SQLException {
+		Connection connection = getConnection();
+		// FIXME #250, check
+		PreparedStatement updateInterventionImpactNumber = connection
+				.prepareStatement("update tbl_inspections set impact = ? where id=?");
+
+		try {
+			System.err.println("Upadting impact");
+			updateInterventionImpactNumber.setString(1, impactNumber);
+			updateInterventionImpactNumber.setInt(2, id);
+			updateInterventionImpactNumber.executeUpdate();
+
+			updateInterventions();
+		} finally {
+			updateInterventionImpactNumber.close();
+			connection.close();
+		}
+	}
+
 	public synchronized void updateInterventionDescription(int id,
 			String description) throws SQLException {
 		Connection connection = getConnection();
@@ -635,6 +604,7 @@ public class DbHandler extends DbReconnectHandler {
 	public synchronized Intervention getIntervention(String ptuId)
 			throws SQLException {
 		Connection connection = getConnection();
+		// FIXME #250
 		PreparedStatement getIntervention = connection
 				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
 						+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
@@ -647,12 +617,13 @@ public class DbHandler extends DbReconnectHandler {
 		ResultSet result = getIntervention.executeQuery();
 		try {
 			if (result.next()) {
+				// FIXME #250
 				return new Intervention(result.getInt("id"),
 						result.getInt("user_id"), result.getString("fname"),
 						result.getString("lname"), result.getInt("device_id"),
 						result.getString("name"),
 						result.getTimestamp("starttime"),
-						result.getTimestamp("endtime"),
+						result.getTimestamp("endtime"), null,
 						result.getString("dscr"));
 			}
 		} finally {
@@ -666,6 +637,7 @@ public class DbHandler extends DbReconnectHandler {
 	private synchronized void updateInterventions() throws SQLException {
 
 		Connection connection = getConnection();
+		// FIXME #250
 		PreparedStatement updateInterventions = connection
 				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
 						+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
@@ -679,12 +651,13 @@ public class DbHandler extends DbReconnectHandler {
 				String name = result.getString("name");
 				newMap.put(
 						name,
+						// FIXME #250
 						new Intervention(result.getInt("id"), result
 								.getInt("user_id"), result.getString("fname"),
 								result.getString("lname"), result
 										.getInt("device_id"), name, result
 										.getTimestamp("starttime"), result
-										.getTimestamp("endtime"), result
+										.getTimestamp("endtime"), null, result
 										.getString("dscr")));
 			}
 		} finally {
@@ -748,23 +721,23 @@ public class DbHandler extends DbReconnectHandler {
 		List<Measurement> list = new ArrayList<Measurement>();
 		try {
 			while (result.next()) {
+				String sensor = result.getString("SENSOR");
 				String unit = result.getString("UNIT");
-				double value = Double.parseDouble(result.getString("VALUE"));
+				Number value = Double.parseDouble(result.getString("VALUE"));
+				Number low = Limits.getLow(sensor);
+				Number high = Limits.getHigh(sensor);
 
 				// Scale down to microSievert
-				if (unit.equals("mSv")) {
-					unit = "&micro;Sv";
-					value *= 1000;
-				}
-				if (unit.equals("mSv/h")) {
-					unit = "&micro;Sv/h";
-					value *= 1000;
-				}
+				value = Scale.getValue(value, unit);
+				low = Scale.getLowLimit(low, unit);
+				high = Scale.getHighLimit(high, unit);
+				unit = Scale.getUnit(unit);
+
+				// FIXME #4
 				Measurement m = new Measurement(result.getString("NAME"),
-						result.getString("SENSOR"), value,
-						Integer.parseInt(result.getString("SAMPLINGRATE")),
-						unit, new Date(result.getTimestamp("DATETIME")
-								.getTime()));
+						sensor, value, low, high, unit, Integer.parseInt(result
+								.getString("SAMPLINGRATE")), new Date(result
+								.getTimestamp("DATETIME").getTime()));
 				list.add(m);
 			}
 		} finally {

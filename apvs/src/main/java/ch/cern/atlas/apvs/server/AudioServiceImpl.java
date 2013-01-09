@@ -163,7 +163,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			
 			@Override
 			public void onConnectionUUIDchanged(ConnectionUUIDsChangedEvent event) {
-				System.err.println("Supervisor Connect or Disconnect "+event);
+				System.err.println("****** Supervisor Connect or Disconnect "+event);
 			}
 		});
 
