@@ -23,6 +23,7 @@ import org.asteriskjava.manager.ManagerConnectionFactory;
 import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
+import org.asteriskjava.manager.action.MixMonitorMuteAction;
 import org.asteriskjava.manager.action.MonitorAction;
 import org.asteriskjava.manager.action.SipPeersAction;
 import org.asteriskjava.manager.event.BridgeEvent;
@@ -36,6 +37,7 @@ import org.asteriskjava.manager.event.MeetMeLeaveEvent;
 import org.asteriskjava.manager.event.NewChannelEvent;
 import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
+import org.asteriskjava.manager.response.ManagerResponse;
 
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.domain.Conference;
@@ -381,31 +383,32 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String channel = event.getChannel();
 		String number = filterNumber(channel);
 		String ptuId = voipAccounts.getPtuId(number);
-
-		MonitorAction record = new MonitorAction(channel,"testapvsrecording"+i,"wav", true);
-		i++;
-		try {
-			managerConnection.sendAction(record);
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		if (ptuId != null) {
 			voipAccounts.setChannel(ptuId, channel);
 			((RemoteEventBus) eventBus)
 					.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
 			
-			//asteriskServer.originateToApplication(channel, "Monitor", "wav,testapvsrecording", TIMEOUT);
+			MonitorAction record = new MonitorAction(channel, voipAccounts.getUsername(ptuId)+i,"wav", true);
+			i++;
+			try {
+				managerConnection.sendAction(record);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//asteriskServer.originateToApplication(channel, "MixMonitor", "Audiozinho.wav,V(-1)v(2) a,/", TIMEOUT);
+			
 			return;
 		}
 		System.err.println("#NewChannelEvent - NO PTU FOUND WITH NUMBER " + number);
@@ -413,11 +416,9 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	// Bridge of Call Channels - Event only valid for private call
 	public void bridgeEvent(BridgeEvent event) {
-		System.out.println("EVENTOOOOOOOOOOOOOOOOOOOOOOOOOOO...."+event.toString());
 		String channel1 = event.getChannel1();
 		String number1 = filterNumber(channel1);
 		String ptuId1 = voipAccounts.getPtuId(number1);
-
 		String channel2 = event.getChannel2();
 		String number2 = filterNumber(channel2);
 		String ptuId2 = voipAccounts.getPtuId(number2);
