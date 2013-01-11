@@ -31,7 +31,7 @@ public class DbCallback {
 
 	public DbCallback(RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
-		executorService = Executors.newSingleThreadExecutor();
+		executorService = Executors.newSingleThreadExecutor();		
 	}
 
 	public void dbConnected(DataSource datasource) throws SQLException {
@@ -127,6 +127,9 @@ public class DbCallback {
 	}
 
 	protected Connection getConnection() throws SQLException {
+		if (datasource == null) {
+			throw new SQLException("No Datasource (yet)");
+		}
 		return datasource.getConnection();
 	}
 }
