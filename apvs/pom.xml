@@ -130,10 +130,12 @@
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-asterisk</artifactId>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-atmosphere</artifactId>
 		</dependency>
+-->
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-charts</artifactId>
