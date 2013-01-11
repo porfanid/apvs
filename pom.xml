@@ -28,7 +28,7 @@
 		<atmosphere-ext-version>1.1.0.beta2</atmosphere-ext-version>
 
 		<asterisk-java-version>38898d3a191ebce989c64a57b4fc43171424fa40</asterisk-java-version>
-		<c3p0-version>0.9.2-pre8</c3p0-version>
+		<c3p0-version>0.9.2-pre5</c3p0-version>
 		<gwt-bootstrap-version>2.0.4.0</gwt-bootstrap-version>
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
 		<highcharts-version>1.5.0</highcharts-version>
@@ -54,11 +54,11 @@
 		<clean-plugin-version>2.5</clean-plugin-version>
 		<compiler-plugin-version>3.0</compiler-plugin-version>
 		<deploy-plugin-version>2.7</deploy-plugin-version>
-		<failsafe-plugin-version>2.12.4</failsafe-plugin-version>
+		<failsafe-plugin-version>2.13</failsafe-plugin-version>
 		<install-plugin-version>2.4</install-plugin-version>
 		<resources-plugin-version>2.6</resources-plugin-version>
 		<site-plugin-version>3.2</site-plugin-version>
-		<surefire-plugin-version>2.12.4</surefire-plugin-version>
+		<surefire-plugin-version>2.13</surefire-plugin-version>
 		<verifier-plugin-version>1.0</verifier-plugin-version>
 
 		<jar-plugin-version>2.4</jar-plugin-version>
@@ -91,23 +91,8 @@
 	</modules>
 
 	<profiles>
-    		<profile>
-			<id>gwt240</id>
-			<properties>
-				<gwt-version>2.4.0</gwt-version>
-				<gwt-plugin-version>2.4.0</gwt-plugin-version>
-				<atmosphere-version>1.0.4</atmosphere-version>
-				<atmosphere-ext-version>1.0.4</atmosphere-ext-version>
-			</properties>
-  	        </profile>
 		<profile>
 			<id>prod</id>
-			<properties>
-				<gwt-version>2.5.0</gwt-version>
-				<gwt-plugin-version>2.5.0</gwt-plugin-version>
-				<atmosphere-version>1.1.0-e37ee2</atmosphere-version>
-				<atmosphere-ext-version>1.1.0-f4ac92</atmosphere-ext-version>
-			</properties>
 			<modules>
 				<module>apvs-dist</module>
 				<module>apvs-nettosphere</module>
