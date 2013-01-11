@@ -39,10 +39,12 @@
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
 		</dependency>
+<!--
                 <dependency>
                         <groupId>ch.cern.atlas</groupId>
                         <artifactId>apvs-atmosphere</artifactId>
                 </dependency>
+-->
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
