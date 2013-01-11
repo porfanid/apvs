@@ -75,9 +75,7 @@
 	<modules>
 		<module>apvs</module>
 		<module>apvs-asterisk</module>
-<!--
 		<module>apvs-atmosphere</module>
--->
 		<module>apvs-charts</module>
 		<module>apvs-domain</module>
 		<module>apvs-eventbus</module>
