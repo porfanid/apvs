@@ -24,6 +24,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	public ServerServiceImpl() {
 		log.info("Creating ServerService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
+		serverSettingsStorage = ServerSettingsStorage.getInstance(eventBus);
 	}
 
 	@Override
@@ -32,7 +33,6 @@ public class ServerServiceImpl extends ResponsePollService implements
 
 		log.info("Starting ServerService...");
 
-		serverSettingsStorage = ServerSettingsStorage.getInstance(eventBus);
 		PtuSettingsStorage.getInstance(eventBus);
 		AudioSettingsStorage.getInstance(eventBus);
 	}
