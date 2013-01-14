@@ -49,7 +49,6 @@ public class ServerSettingsStorage {
 			}
 		});
 
-		//eventBus.fireEvent(new ServerSettingsChangedRemoteEvent(settings));
 	}
 
 	public static ServerSettingsStorage getInstance(RemoteEventBus eventBus) {
