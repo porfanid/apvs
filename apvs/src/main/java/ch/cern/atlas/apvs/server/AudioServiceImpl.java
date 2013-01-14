@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletConfig;
@@ -44,11 +45,13 @@ import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.event.AsteriskStatusRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
 import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
+import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.ConnectionUUIDsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -67,6 +70,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private ArrayList<String> usersList;
 
 	private ScheduledExecutorService executorService;
+	private ScheduledFuture<?>  future;
+	
 	private boolean audioOk;
 	private boolean asteriskConnected;
 	private AsteriskPing ping;
@@ -81,15 +86,49 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
 	private static final long ASTERISK_POOLING = 20000;
+	
+	private String asteriskUrl;
+	private String asteriskPwd;	
 
 	private static RemoteEventBus eventBus;
 	int i;
+	
+	public class ConnectionThread extends Thread {
 
+	    public void run() {
+
+			if (!asteriskConnected) {
+				System.out.println("Trying login in Asterisk Server on " + ASTERISK_URL.toLowerCase() + " ...");
+				try {
+					login();
+				} catch (AudioException e) {
+					System.err.println("Fail to login: " + e.getMessage());
+				}
+			}
+			
+			if (AudioServiceImpl.this.ping.isAlive()) {
+				audioOk = true;
+				ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
+			} else {
+				audioOk = false;
+				System.err.println("Asterisk Server is not available...");
+				ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
+			}
+	    }
+	}
+	
+	private ConnectionThread asteriskConnection;
+	
+	/*********************************************
+	* Constructor
+	**********************************************/
 	public AudioServiceImpl() {
 		if (eventBus != null)
 			return;
+		
 		System.out.println("Creating AudioService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
+		ServerSettingsStorage.getInstance(eventBus);
 		executorService = Executors.newSingleThreadScheduledExecutor();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
@@ -115,13 +154,89 @@ public class AudioServiceImpl extends ResponsePollService implements
 		voipAccounts = new AudioSettings();
 		conferenceRooms = new ConferenceRooms();
 		audioOk = false;
+		asteriskConnection = new ConnectionThread();
 		asteriskConnected = false;
 
-		// Asterisk Connection Manager
-		ManagerConnectionFactory factory = new ManagerConnectionFactory(
-				ASTERISK_URL, AMI_ACCOUNT, PASSWORD);
-		this.managerConnection = factory.createManagerConnection();
+		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+				new ServerSettingsChangedRemoteEvent.Handler() {
 
+					@Override
+					public void onServerSettingsChanged(ServerSettingsChangedRemoteEvent event) {
+						
+						ServerSettings settings = event.getServerSettings();
+
+						if (settings != null) {
+							String url = settings.get(ServerSettings.Entry.audioUrl.toString());
+							String pwd = ServerSettingsStorage.getInstance(eventBus).getPasswords().get(ServerSettings.Entry.audioUrl.toString());
+
+							if ( ((url != null) && !url.equals(asteriskUrl)) || ((pwd != null) && !pwd.equals(asteriskPwd)) ) {								
+								if(managerConnection != null){
+									managerConnection.removeEventListener(AudioServiceImpl.this);
+									future.cancel(true);
+								}
+								
+								asteriskUrl = url;
+								asteriskPwd = pwd;//ServerSettingsStorage.getInstance(eventBus).getPasswords().get(ServerSettings.Entry.audioUrl.toString());;
+								asteriskConnected = false;
+								
+								
+								// Asterisk Connection Manager
+								ManagerConnectionFactory factory = new ManagerConnectionFactory(asteriskUrl, AMI_ACCOUNT, asteriskPwd);
+								AudioServiceImpl.this.managerConnection = factory.createManagerConnection();
+
+								// Eases the communication with asterisk server
+								asteriskServer = new DefaultAsteriskServer(managerConnection);
+
+								// Event handler
+								managerConnection.addEventListener(AudioServiceImpl.this);
+								
+								ping  = new AsteriskPing(managerConnection);
+								future = executorService.scheduleAtFixedRate(asteriskConnection, 0, 20000, TimeUnit.MILLISECONDS);
+								
+							}
+						}
+					}
+				});
+		
+		//ScheduledFuture<?>  f = executorService.scheduleAtFixedRate(asteriskConnection, 10000, 20000, TimeUnit.MILLISECONDS);
+		//f.cancel(true);
+
+		
+		/*executorService.scheduleAtFixedRate( new Runnable() {
+
+			@Override
+			public void run() {
+				
+				System.err.println("Runnable...");
+
+				if (!asteriskConnected) {
+					System.out.println("Trying login in Asterisk Server on " + ASTERISK_URL.toLowerCase() + " ...");
+					try {
+						login();
+					} catch (AudioException e) {
+						System.err.println("Fail to login: " + e.getMessage());
+					}
+				}
+										
+				if (ping.isAlive()) {
+					audioOk = true;
+					System.err.println("Ok...");
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
+				} else {
+					audioOk = false;
+					System.err.println("Asterisk Server is not available...");
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
+				}
+			}
+		}, 1000, ASTERISK_POOLING, TimeUnit.MILLISECONDS);*/
+		
+		
+		
+		/*
+		// Asterisk Connection Manager
+		ManagerConnectionFactory factory = new ManagerConnectionFactory(ASTERISK_URL, AMI_ACCOUNT, PASSWORD);
+		this.managerConnection = factory.createManagerConnection();
+		 
 		// Eases the communication with asterisk server
 		asteriskServer = new DefaultAsteriskServer(managerConnection);
 
@@ -155,8 +270,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 							System.err.println("Asterisk Server is not available...");
 							ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 						}
-					}
+				}
 				}, 0, ASTERISK_POOLING, TimeUnit.MILLISECONDS);
+		*/
+		
+		
+		
 		
 		// FOR #281, uids may still change in the future, related to #284, at this moment any reload generated more uids... none is taken away on disconnect
 		ConnectionUUIDsChangedEvent.subscribe(eventBus, new ConnectionUUIDsChangedEvent.Handler() {
@@ -187,9 +306,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	}
 
-	// *********************************************
-	// Constructor
-
 	public void login() throws AudioException {
 		try {
 			managerConnection.login();
@@ -203,6 +319,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 		} catch (TimeoutException e) {
 			throw new AudioException("Login to Asterisk Timeout: "
 					+ e.getMessage());
+		}
+	}
+
+	public void logoff() throws AudioException {
+		try {
+			managerConnection.logoff();
+		} catch (IllegalStateException e) {
+			throw new AudioException(e.getMessage());
 		}
 	}
 
@@ -309,7 +433,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 		}	
 	}
 	
-	
 	@Override
 	public void usersList() throws AudioException {
 		usersList = new ArrayList<String>();
@@ -329,9 +452,9 @@ public class AudioServiceImpl extends ResponsePollService implements
 	/*********************************************
 	 * Event Handler
 	 *********************************************/
-
 	@Override
 	public void onManagerEvent(ManagerEvent event) {
+		System.out.println("!@#%^&*()!@#^&*()!@#^&*()!@#$%^&*(!@#%^&*(@#$%^&*("+event.toString());
 		// NewChannelEvent
 		if (event instanceof NewChannelEvent) {
 			NewChannelEvent channel = (NewChannelEvent) event;
@@ -373,7 +496,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 			System.out.println("Disconnected from Asterisk server");
 		}
 	}
-	
 
 	/*********************************************
 	 * Event Methods
@@ -555,6 +677,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				.fireEvent(new AsteriskStatusRemoteEvent(usersList));
 	}
 
-	
-
 }
+
+
+

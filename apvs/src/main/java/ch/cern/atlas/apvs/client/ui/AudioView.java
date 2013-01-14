@@ -175,6 +175,7 @@ public class AudioView extends GlassPanel implements Module {
 							AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptuId),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId)),callbackConference);
 						}
 					}
+					
 				} else if (fieldName.equals("Group Call")){
 					if (!voipAccounts.getOnConference(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT))) {
 						if (!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
@@ -189,6 +190,7 @@ public class AudioView extends GlassPanel implements Module {
 					} else {
 						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
 					}
+					
 				} else if (fieldName.equals("Conference")){
 					AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)),callbackHangup);
 					if( voipAccounts.getRoom(ptuId).equals(voipAccounts.getRoom(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT))))
