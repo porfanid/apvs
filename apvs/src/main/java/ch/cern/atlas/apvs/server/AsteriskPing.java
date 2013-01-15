@@ -24,16 +24,16 @@ public class AsteriskPing {
 			response = this.serverConnection.sendAction(ping, 10000);
 
 		} catch (IllegalArgumentException e1) {
-			System.out.println("Exception thrown in pooling server: "
+			System.out.println("Exception thrown in polling server: "
 					+ e1.getMessage());
 		} catch (IllegalStateException e1) {
-			System.out.println("Exception thrown in pooling server: "
+			System.out.println("Exception thrown in polling server: "
 					+ e1.getMessage());
 		} catch (IOException e1) {
-			System.out.println("Exception thrown in pooling server: "
+			System.out.println("Exception thrown in polling server: "
 					+ e1.getMessage());
 		} catch (TimeoutException e1) {
-			System.out.println("Exception thrown in pooling server: "
+			System.out.println("Exception thrown in polling server: "
 					+ e1.getMessage());
 		}
 		if (response instanceof PingResponse) {
