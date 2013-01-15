@@ -128,6 +128,9 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 					@Override
 					public void onSuccess(Void result) {
 						// ignore
+						((RemoteEventBus) eventBus)
+								.fireEvent(new ServerSettingsChangedRemoteEvent(
+										settings));
 					}
 					
 					@Override
