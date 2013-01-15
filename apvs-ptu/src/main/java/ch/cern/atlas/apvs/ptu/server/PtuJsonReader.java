@@ -55,10 +55,8 @@ public class PtuJsonReader extends JsonReader {
 				String unit = (String) msg.get("Unit");
 				Number value = Double.parseDouble((String) msg.get("Value"));
 
-				// String lowLimit = (String)msg.get("LowLimit");
-				Number low = Limits.getLow(sensor);
-				// String highLimit = (String) msg.get("HighLimit");
-				Number high = Limits.getHigh(sensor);
+				Number low = Double.parseDouble((String) msg.get("DownThreshold"));
+				Number high = Double.parseDouble((String) msg.get("UpThreshold"));
 
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);

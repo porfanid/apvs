@@ -33,7 +33,6 @@ import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-import ch.cern.atlas.apvs.ptu.server.Limits;
 import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.util.StringUtils;
@@ -113,7 +112,7 @@ public class DbHandler extends DbReconnectHandler {
 		// NOTE: we could optimize the query by running a count and see if the #
 		// is not too large, then just move forward the from time.
 		// FIXME #4, retrieve LOWLIMIT and HIGHLIMIT
-		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE from tbl_measurements, tbl_devices "
+		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE, METHOD, UP_THRES, DOWN_THRES from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id"
 				+ " and NAME = ?"
 				+ (from != null ? " and datetime > ?" : "")
@@ -147,9 +146,9 @@ public class DbHandler extends DbReconnectHandler {
 						String sensor = result.getString("sensor");
 						Number value = Double.parseDouble(result
 								.getString("value"));
-						// FIXME #4
-						Number low = Limits.getLow(sensor);
-						Number high = Limits.getHigh(sensor);
+
+						Number low = Double.parseDouble(result.getString("down_thres"));
+						Number high = Double.parseDouble(result.getString("up_thres"));
 
 						Integer samplingRate = Integer.parseInt(result
 								.getString("samplingrate"));
@@ -571,7 +570,7 @@ public class DbHandler extends DbReconnectHandler {
 				.prepareStatement("update tbl_inspections set impact = ? where id=?");
 
 		try {
-			System.err.println("Upadting impact");
+			System.err.println("Updating impact");
 			updateInterventionImpactNumber.setString(1, impactNumber);
 			updateInterventionImpactNumber.setInt(2, id);
 			updateInterventionImpactNumber.executeUpdate();
@@ -694,7 +693,7 @@ public class DbHandler extends DbReconnectHandler {
 	public List<Measurement> getMeasurements(List<String> ptuIdList, String name)
 			throws SQLException {
 
-		String sql = "select NAME, view_last_measurements_date.SENSOR, VALUE, SAMPLINGRATE, UNIT, view_last_measurements_date.DATETIME "
+		String sql = "select NAME, view_last_measurements_date.SENSOR, VALUE, SAMPLINGRATE, UNIT, METHOD, UP_THRES, DOWN_THRES, view_last_measurements_date.DATETIME "
 				+ "from view_last_measurements_date, tbl_measurements, tbl_devices "
 				+ "where view_last_measurements_date.datetime = tbl_measurements.datetime "
 				+ "and view_last_measurements_date.sensor = tbl_measurements.sensor "
@@ -724,8 +723,8 @@ public class DbHandler extends DbReconnectHandler {
 				String sensor = result.getString("SENSOR");
 				String unit = result.getString("UNIT");
 				Number value = Double.parseDouble(result.getString("VALUE"));
-				Number low = Limits.getLow(sensor);
-				Number high = Limits.getHigh(sensor);
+				Number low = Double.parseDouble(result.getString("DOWN_THRES"));
+				Number high = Double.parseDouble(result.getString("UP_THRES"));
 
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);
@@ -733,7 +732,6 @@ public class DbHandler extends DbReconnectHandler {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(unit);
 
-				// FIXME #4
 				Measurement m = new Measurement(result.getString("NAME"),
 						sensor, value, low, high, unit, Integer.parseInt(result
 								.getString("SAMPLINGRATE")), new Date(result
