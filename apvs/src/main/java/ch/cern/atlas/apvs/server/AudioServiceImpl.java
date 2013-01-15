@@ -75,13 +75,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	
 	private boolean audioOk;
 	private boolean asteriskConnected;
-	private AsteriskPing ping;
 	private ServerSettings auxSettings;
-
-	// Account Details
-	private static final String ASTERISK_URL = "pcatlaswpss01.cern.ch";
-	private static final String AMI_ACCOUNT = "manager";
-	private static final String PASSWORD = "password";
 
 	// Asterisk Placing Calls Details
 	private static final String CONTEXT = "internal";
@@ -95,31 +89,40 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static RemoteEventBus eventBus;
 	int i;
 	
-	public class ConnectionThread extends Thread {
-
-	    public void run() {
-	    	if (!asteriskConnected) {
-	    		System.out.println("Trying login in Asterisk Server on " + asteriskUrl + " ...");
-				try {
-					login();
-				} catch (AudioException e) {
-					System.err.println("Fail to login: " + e.getMessage());
-				}
-			}		
-	    	
+	public class AsteriskPingThread extends Thread {
+	    public void run() {		
 			if(new AsteriskPing(managerConnection).isAlive()) {
 				audioOk = true;
 				ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 			} else {
 				asteriskConnected=false;
 				audioOk = false;
+				asteriskUrl = new String();
 				System.err.println("Asterisk Server: " + asteriskUrl + " is not available...");
 				ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
+				((RemoteEventBus) eventBus).fireEvent(new ServerSettingsChangedRemoteEvent(auxSettings));
 			}
 	    }
-	}	
-	
-	private ConnectionThread asteriskConnection; 
+	}
+
+	public class AsteriskConnect extends Thread {
+	    public void run() {
+	    	while (!asteriskConnected) {
+	    		System.out.println("Trying login in Asterisk Server on " + asteriskUrl + " ...");
+				try {
+					login();
+					future = executorService.scheduleAtFixedRate(new AsteriskPingThread(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
+				} catch (AudioException e) {
+					System.err.println("Fail to login: " + e.getMessage());
+				}
+				try {
+					Thread.sleep(ASTERISK_POLLING);
+				} catch (InterruptedException e) {
+					System.err.println("Thread sleep error" + e.getMessage());
+				}
+			}
+	    }
+	}
 	
 	/*********************************************
 	* Constructor
@@ -156,7 +159,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 		voipAccounts = new AudioSettings();
 		conferenceRooms = new ConferenceRooms();
 		audioOk = false;
-		asteriskConnection = new ConnectionThread();
 		asteriskConnected = false;
 
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
@@ -197,8 +199,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 									// Event handler
 									managerConnection.addEventListener(AudioServiceImpl.this);
 									
-									ping  = new AsteriskPing(managerConnection);
-									future = executorService.scheduleAtFixedRate(asteriskConnection, 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
+									new AsteriskConnect().start();
 								}
 							}
 						}
