@@ -12,6 +12,7 @@ public class AsteriskPing {
 
 	private PingAction ping;
 	private ManagerConnection serverConnection;
+	private final static int TIMEOUT = 3000;
 
 	public AsteriskPing(ManagerConnection managerConnection) {
 		this.serverConnection = managerConnection;
@@ -21,7 +22,7 @@ public class AsteriskPing {
 	public boolean isAlive() {
 		ManagerResponse response = new ManagerResponse();
 		try {
-			response = this.serverConnection.sendAction(ping, 10000);
+			response = this.serverConnection.sendAction(ping, TIMEOUT);
 
 		} catch (IllegalArgumentException e1) {
 			System.out.println("Exception thrown in polling server: "
