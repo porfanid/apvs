@@ -7,9 +7,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +32,6 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.Scale;
-import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.util.StringUtils;
 
 import com.google.gwt.view.client.Range;
@@ -70,21 +67,6 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		});
 
-		MeasurementChangedEvent.register(eventBus,
-				new MeasurementChangedEvent.Handler() {
-
-					@Override
-					public void onMeasurementChanged(
-							MeasurementChangedEvent event) {
-						Measurement m = event.getMeasurement();
-						String key = m.getName();
-						String oldUnit = units.get(key);
-						if (oldUnit == null || !oldUnit.equals(m.getUnit())) {
-							units.put(key, m.getUnit());
-						}
-					}
-				});
-
 		ScheduledExecutorService executor = Executors
 				.newSingleThreadScheduledExecutor();
 		executor.scheduleAtFixedRate(new Runnable() {
@@ -111,7 +93,6 @@ public class DbHandler extends DbReconnectHandler {
 			throws SQLException {
 		// NOTE: we could optimize the query by running a count and see if the #
 		// is not too large, then just move forward the from time.
-		// FIXME #4, retrieve LOWLIMIT and HIGHLIMIT
 		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE, METHOD, UP_THRES, DOWN_THRES from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id"
 				+ " and NAME = ?"
@@ -328,14 +309,11 @@ public class DbHandler extends DbReconnectHandler {
 		}
 	}
 
-	// FIXME #231 until unit is in the DB
-	private Map<String, String> units = new HashMap<String, String>();
-
 	public List<Event> getEvents(Range range, SortOrder[] order, String ptuId,
 			String measurementName) throws SQLException {
 
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
-				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime "
+				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime, tbl_events.unit "
 				+ "from tbl_events "
 				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
 		if ((ptuId != null) || (measurementName != null)) {
@@ -377,7 +355,7 @@ public class DbHandler extends DbReconnectHandler {
 				String name = result.getString("name");
 				double value = getDouble(result.getString("value"));
 				double threshold = getDouble(result.getString("threshold"));
-				String unit = units.get(name) != null ? units.get(name) : "";
+				String unit = result.getString("unit");
 
 				list.add(new Event(name, result.getString("sensor"), result
 						.getString("event_type"), value, threshold, unit,
