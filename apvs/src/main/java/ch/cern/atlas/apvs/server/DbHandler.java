@@ -518,7 +518,7 @@ public class DbHandler extends DbReconnectHandler {
 	private List<Device> getDevices() throws SQLException {
 		Connection connection = getConnection();
 		PreparedStatement deviceQuery = connection
-				.prepareStatement("select ID, NAME, IP, DSCR from tbl_devices order by NAME");
+				.prepareStatement("select ID, NAME, IP, DSCR, MAC_ADDR, HOST_NAME from tbl_devices order by NAME");
 
 		try {
 			return getDeviceList(deviceQuery.executeQuery());
@@ -535,7 +535,8 @@ public class DbHandler extends DbReconnectHandler {
 			while (result.next()) {
 				list.add(new Device(result.getInt("ID"), result
 						.getString("NAME"), result.getString("IP"), result
-						.getString("DSCR")));
+						.getString("DSCR"), result.getString("MAC_ADDR"),
+						result.getString("HOST_NAME")));
 			}
 		} finally {
 			result.close();
