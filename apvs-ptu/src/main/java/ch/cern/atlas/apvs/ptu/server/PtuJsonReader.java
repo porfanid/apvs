@@ -55,8 +55,10 @@ public class PtuJsonReader extends JsonReader {
 				String unit = (String) msg.get("Unit");
 				Number value = Double.parseDouble((String) msg.get("Value"));
 
-				Number low = Double.parseDouble((String) msg.get("DownThreshold"));
-				Number high = Double.parseDouble((String) msg.get("UpThreshold"));
+				Number low = Double.parseDouble((String) msg
+						.get("DownThreshold"));
+				Number high = Double.parseDouble((String) msg
+						.get("UpThreshold"));
 
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);
@@ -69,12 +71,11 @@ public class PtuJsonReader extends JsonReader {
 						Integer.parseInt((String) msg.get("SamplingRate")),
 						convertToDate(msg.get("Time"))));
 			} else if (type.equals("Event")) {
-				// FIXME #231
 				result.add(new Event(sender, (String) msg.get("Sensor"),
 						(String) msg.get("EventType"), convertToDouble(msg
 								.get("Value")), convertToDouble(msg
-								.get("Threshold")), "", convertToDate(msg
-								.get("Time"))));
+								.get("Threshold")), (String) msg.get("Unit"),
+						convertToDate(msg.get("Time"))));
 			} else {
 				log.warn("Message type not implemented: " + type);
 			}
