@@ -75,7 +75,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 	
 	private boolean audioOk;
 	private boolean asteriskConnected;
-	private ServerSettings auxSettings;
 
 	// Asterisk Placing Calls Details
 	private static final String CONTEXT = "internal";
@@ -84,41 +83,44 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final long ASTERISK_POLLING = 5000;
 	
 	private String asteriskUrl;
-	private String asteriskPwd;	
-
+	private String asteriskPwd;
+	private String asteriskUser;
+	private String asteriskAddress;
+	
 	private static RemoteEventBus eventBus;
 	int i;
 	
-	public class AsteriskPingThread extends Thread {
-	    public void run() {		
-			if(new AsteriskPing(managerConnection).isAlive()) {
-				audioOk = true;
-				ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
-			} else {
-				asteriskConnected=false;
-				audioOk = false;
-				asteriskUrl = new String();
-				System.err.println("Asterisk Server: " + asteriskUrl + " is not available...");
-				ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
-				((RemoteEventBus) eventBus).fireEvent(new ServerSettingsChangedRemoteEvent(auxSettings));
-			}
-	    }
-	}
-
 	public class AsteriskConnect extends Thread {
-	    public void run() {
-	    	while (!asteriskConnected) {
+	    public void run() {			
+	    	if(!asteriskConnected) {
+				if(managerConnection != null){
+					managerConnection.removeEventListener(AudioServiceImpl.this);
+				}
+	    		// Asterisk Connection Manager
+				ManagerConnectionFactory factory = new ManagerConnectionFactory(asteriskUrl, asteriskUser, asteriskPwd);
+				AudioServiceImpl.this.managerConnection = factory.createManagerConnection();
+
+				// Eases the communication with asterisk server
+				asteriskServer = new DefaultAsteriskServer(managerConnection);
+
+				// Event handler
+				managerConnection.addEventListener(AudioServiceImpl.this);
+	    		
 	    		System.out.println("Trying login in Asterisk Server on " + asteriskUrl + " ...");
-				try {
+	    		try {
 					login();
-					future = executorService.scheduleAtFixedRate(new AsteriskPingThread(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
 				} catch (AudioException e) {
 					System.err.println("Fail to login: " + e.getMessage());
 				}
-				try {
-					Thread.sleep(ASTERISK_POLLING);
-				} catch (InterruptedException e) {
-					System.err.println("Thread sleep error" + e.getMessage());
+			} else{
+				if(new AsteriskPing(managerConnection).isAlive()) {
+					audioOk = true;
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
+				} else {
+					asteriskConnected=false;
+					audioOk = false;
+					System.err.println("Asterisk Server: " + asteriskUrl + " is not available...");
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 				}
 			}
 	    }
@@ -167,39 +169,29 @@ public class AudioServiceImpl extends ResponsePollService implements
 					@Override
 					public void onServerSettingsChanged(ServerSettingsChangedRemoteEvent event) {
 						ServerSettings settings = event.getServerSettings();
-						auxSettings = settings;
+
 						if (settings != null) {
 							
 							String url = settings.get(ServerSettings.Entry.audioUrl.toString());
 							String pwd = ServerSettingsStorage.getInstance(eventBus).getPasswords().get(ServerSettings.Entry.audioUrl.toString());
 
 
-							if ( ((url != null) && !url.equals(asteriskUrl)) || ((pwd != null) && !pwd.equals(asteriskPwd)) ) {								
+							if ( ((url != null) && !url.equals(asteriskAddress)) || ((pwd != null) && !pwd.equals(asteriskPwd)) ) {								
 								if(managerConnection != null){
 									managerConnection.removeEventListener(AudioServiceImpl.this);
 									future.cancel(false);
 								}
 								
-								asteriskUrl = url;
-								int pos = asteriskUrl.indexOf("@");
+								asteriskAddress = url;
+								int pos = asteriskAddress.indexOf("@");
 								if(pos > 0){
-									String shortUrl = url.substring(pos+1);
-									String asteriskUser = url.substring(0, pos);
+									asteriskUrl = url.substring(pos+1);
+									asteriskUser = url.substring(0, pos);
 									asteriskPwd = pwd;
 									asteriskConnected = false;
-									
-									
-									// Asterisk Connection Manager
-									ManagerConnectionFactory factory = new ManagerConnectionFactory(shortUrl, asteriskUser, asteriskPwd);
-									AudioServiceImpl.this.managerConnection = factory.createManagerConnection();
-	
-									// Eases the communication with asterisk server
-									asteriskServer = new DefaultAsteriskServer(managerConnection);
-	
-									// Event handler
-									managerConnection.addEventListener(AudioServiceImpl.this);
-									
-									new AsteriskConnect().start();
+									future = executorService.scheduleAtFixedRate(new AsteriskConnect(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
+								} else{
+									System.err.println("Audio URL does not follow the correct format -> username@asterisk_hostname");
 								}
 							}
 						}
@@ -365,16 +357,29 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void usersList() throws AudioException {
 		usersList = new ArrayList<String>();
-		try {
-			managerConnection.sendAction(new SipPeersAction());
-		} catch (IllegalArgumentException e) {
-			throw new AudioException(e.getMessage());
-		} catch (IllegalStateException e) {
-			throw new AudioException(e.getMessage());
-		} catch (IOException e) {
-			throw new AudioException(e.getMessage());
-		} catch (TimeoutException e) {
-			throw new AudioException("Timeout: " + e.getMessage());
+		if(managerConnection != null){
+			try {
+				managerConnection.sendAction(new SipPeersAction());
+			} catch (IllegalArgumentException e) {
+				usersList.add("Not available");
+				((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusRemoteEvent(usersList));
+				throw new AudioException(e.getMessage());
+			} catch (IllegalStateException e) {
+				usersList.add("Not available");
+				((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusRemoteEvent(usersList));
+				throw new AudioException(e.getMessage());
+			} catch (IOException e) {
+				usersList.add("Not available");
+				((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusRemoteEvent(usersList));
+				throw new AudioException(e.getMessage());
+			} catch (TimeoutException e) {
+				usersList.add("Not available");
+				((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusRemoteEvent(usersList));
+				throw new AudioException("Timeout: " + e.getMessage());
+			}	
+		} else{
+			usersList.add("Not available");
+			((RemoteEventBus) eventBus).fireEvent(new AsteriskStatusRemoteEvent(usersList));
 		}
 	}
 
