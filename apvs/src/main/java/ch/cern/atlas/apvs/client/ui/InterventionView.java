@@ -369,7 +369,7 @@ public class InterventionView extends GlassPanel implements Module {
 						m.hide();
 
 						Intervention intervention = new Intervention(userField
-								.getId(), ptu.getId(), new Date(), impact.getValue(), description
+								.getId(), ptu.getId(), new Date(), impact.getValue(), 0.0, description
 								.getValue());
 
 						interventionService.addIntervention(intervention,
@@ -630,8 +630,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				// FIXME #250 check
-				return "tbl_inspections.impact";
+				return "tbl_inspections.impact_num";
 			}
 		};
 		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -657,6 +656,23 @@ public class InterventionView extends GlassPanel implements Module {
 		table.addColumn(impact, new TextHeader("Impact #"),
 				new TextHeader(""));
 
+		// Rec Status
+		EditTextColumn<Intervention> recStatus = new EditTextColumn<Intervention>() {
+			@Override
+			public String getValue(Intervention object) {
+				return object.getRecStatus() != null ? Double.toString(object
+						.getRecStatus()) : "";
+			}
+
+			@Override
+			public String getDataStoreName() {
+				return "tbl_inspections.rec_status";
+			}
+		};
+		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		impact.setSortable(true);
+		table.addColumn(recStatus, new TextHeader("Rec Status"),
+				new TextHeader(""));
 		
 		// Description
 		EditTextColumn<Intervention> description = new EditTextColumn<Intervention>() {
