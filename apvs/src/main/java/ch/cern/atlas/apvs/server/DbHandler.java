@@ -128,8 +128,10 @@ public class DbHandler extends DbReconnectHandler {
 						Number value = Double.parseDouble(result
 								.getString("value"));
 
-						Number low = Double.parseDouble(result.getString("down_thres"));
-						Number high = Double.parseDouble(result.getString("up_thres"));
+						Number low = Double.parseDouble(result
+								.getString("down_thres"));
+						Number high = Double.parseDouble(result
+								.getString("up_thres"));
 
 						Integer samplingRate = Integer.parseInt(result
 								.getString("samplingrate"));
@@ -235,9 +237,9 @@ public class DbHandler extends DbReconnectHandler {
 
 	public List<Intervention> getInterventions(Range range, SortOrder[] order)
 			throws SQLException {
-		// FIXME #250
 		String sql = "select tbl_inspections.ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
-				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, tbl_users.id, tbl_devices.id "
+				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, "
+				+ "tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS, tbl_users.id, tbl_devices.id "
 				+ "from tbl_inspections "
 				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
@@ -255,14 +257,15 @@ public class DbHandler extends DbReconnectHandler {
 			}
 
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
-				// FIXME #250
 				list.add(new Intervention(result.getInt(1), result.getInt(8),
 						result.getString("fname"), result.getString("lname"),
 						result.getInt(9), result.getString("name"), new Date(
 								result.getTimestamp("starttime").getTime()),
 						result.getTimestamp("endtime") != null ? new Date(
 								result.getTimestamp("endtime").getTime())
-								: null, null, result.getString("dscr")));
+								: null, result.getString("impact_num"), result
+								.getDouble("rec_status"), result
+								.getString("dscr")));
 			}
 		} finally {
 			result.close();
@@ -543,9 +546,8 @@ public class DbHandler extends DbReconnectHandler {
 	public void updateInterventionImpactNumber(int id, String impactNumber)
 			throws SQLException {
 		Connection connection = getConnection();
-		// FIXME #250, check
 		PreparedStatement updateInterventionImpactNumber = connection
-				.prepareStatement("update tbl_inspections set impact = ? where id=?");
+				.prepareStatement("update tbl_inspections set impact_num = ? where id=?");
 
 		try {
 			System.err.println("Updating impact");
@@ -581,9 +583,10 @@ public class DbHandler extends DbReconnectHandler {
 	public synchronized Intervention getIntervention(String ptuId)
 			throws SQLException {
 		Connection connection = getConnection();
-		// FIXME #250
 		PreparedStatement getIntervention = connection
-				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
+				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, "
+						+ "tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, "
+						+ "tbl_inspections.DSCR, tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS from tbl_inspections "
 						+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
 						+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 						+ "where tbl_inspections.endtime is null "
@@ -594,13 +597,14 @@ public class DbHandler extends DbReconnectHandler {
 		ResultSet result = getIntervention.executeQuery();
 		try {
 			if (result.next()) {
-				// FIXME #250
 				return new Intervention(result.getInt("id"),
 						result.getInt("user_id"), result.getString("fname"),
 						result.getString("lname"), result.getInt("device_id"),
 						result.getString("name"),
 						result.getTimestamp("starttime"),
-						result.getTimestamp("endtime"), null,
+						result.getTimestamp("endtime"),
+						result.getString("impact_num"),
+						result.getDouble("rec_status"),
 						result.getString("dscr"));
 			}
 		} finally {
@@ -614,9 +618,10 @@ public class DbHandler extends DbReconnectHandler {
 	private synchronized void updateInterventions() throws SQLException {
 
 		Connection connection = getConnection();
-		// FIXME #250
 		PreparedStatement updateInterventions = connection
-				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR from tbl_inspections "
+				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, "
+						+ "tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, "
+						+ "tbl_inspections.DSCR, tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS from tbl_inspections "
 						+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
 						+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 						+ "where tbl_inspections.endtime is null");
@@ -628,13 +633,14 @@ public class DbHandler extends DbReconnectHandler {
 				String name = result.getString("name");
 				newMap.put(
 						name,
-						// FIXME #250
 						new Intervention(result.getInt("id"), result
 								.getInt("user_id"), result.getString("fname"),
 								result.getString("lname"), result
 										.getInt("device_id"), name, result
 										.getTimestamp("starttime"), result
-										.getTimestamp("endtime"), null, result
+										.getTimestamp("endtime"), result
+										.getString("impact_num"), result
+										.getDouble("rec_status"), result
 										.getString("dscr")));
 			}
 		} finally {
