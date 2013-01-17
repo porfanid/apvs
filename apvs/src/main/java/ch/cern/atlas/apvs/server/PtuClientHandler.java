@@ -110,14 +110,15 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 	}
 
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = true;
+	private final static boolean DEBUGPLUS = false;
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
 		// Print out the line received from the server.
 		String line = (String) event.getMessage();
 
-		if (DEBUG) {
+		if (DEBUGPLUS) {
 			for (int i = 0; i < line.length(); i++) {
 				char c = line.charAt(i);
 				System.err.println(c + " " + Integer.toString(c));
@@ -127,9 +128,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		line = line.replaceAll("\u0000", "");
 		line = line.replaceAll("\u0010", "");
 		line = line.replaceAll("\u0013", "");
-		if (DEBUG) {
+		if (DEBUGPLUS) {
 			log.info("'" + line + "'");
-			log.info("LineLength" + line.length());
+			log.info("LineLength " + line.length());
 		}
 
 		List<Message> list;
