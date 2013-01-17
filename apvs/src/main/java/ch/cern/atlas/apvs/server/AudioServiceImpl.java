@@ -189,7 +189,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 									asteriskUser = url.substring(0, pos);
 									asteriskPwd = pwd;
 									asteriskConnected = false;
-									future = executorService.scheduleAtFixedRate(new AsteriskConnect(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
+									if( (asteriskUrl != null) && (asteriskUser != null) )
+										future = executorService.scheduleAtFixedRate(new AsteriskConnect(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
 								} else{
 									System.err.println("Audio URL does not follow the correct format -> username@asterisk_hostname");
 								}
