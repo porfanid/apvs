@@ -41,6 +41,8 @@ import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
 import org.asteriskjava.manager.response.ManagerResponse;
 
+import com.google.gwt.user.client.Window;
+
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.event.AsteriskStatusRemoteEvent;
@@ -192,7 +194,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 									if( (asteriskUrl != null) && (asteriskUser != null) )
 										future = executorService.scheduleAtFixedRate(new AsteriskConnect(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
 								} else{
-									System.err.println("Audio URL does not follow the correct format -> username@asterisk_hostname");
+									System.err.println("Audio URL \""+ asteriskAddress +"\" does not follow the correct format -> username@asterisk_hostname");
 								}
 							}
 						}
