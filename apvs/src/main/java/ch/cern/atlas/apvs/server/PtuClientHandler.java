@@ -17,6 +17,7 @@ import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.domain.APVSException;
@@ -42,7 +43,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private List<Measurement> measurementChanged = new ArrayList<Measurement>();
 
-	private boolean dosimeterOk;
+	private Ternary dosimeterOk = Ternary.Unknown;
 
 	public PtuClientHandler(ClientBootstrap bootstrap,
 			final RemoteEventBus eventBus) {
@@ -60,8 +61,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
 							ConnectionType.daq, isConnected());
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.dosimeter, isConnected()
-									&& dosimeterOk);
+							ConnectionType.dosimeter, isConnected() ? dosimeterOk : Ternary.False);
 				}
 			}
 		});
@@ -128,8 +128,10 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		line = line.replaceAll("\u0000", "");
 		line = line.replaceAll("\u0010", "");
 		line = line.replaceAll("\u0013", "");
-		if (DEBUGPLUS) {
+		if (DEBUG) {
 			log.info("'" + line + "'");
+		}
+		if (DEBUGPLUS) {
 			log.info("LineLength " + line.length());
 		}
 
@@ -203,11 +205,11 @@ public class PtuClientHandler extends PtuReconnectHandler {
 						.getTheshold(), message.getUnit(), message.getDate())));
 
 		if (message.getEventType().equals("DosConnectionStatus_OFF")) {
-			dosimeterOk = false;
+			dosimeterOk = Ternary.False;
 			ConnectionStatusChangedRemoteEvent.fire(eventBus,
 					ConnectionType.dosimeter, dosimeterOk);
 		} else if (message.getEventType().equals("DosConnectionStatus_ON")) {
-			dosimeterOk = true;
+			dosimeterOk = Ternary.True;
 			ConnectionStatusChangedRemoteEvent.fire(eventBus,
 					ConnectionType.dosimeter, dosimeterOk);
 		}
