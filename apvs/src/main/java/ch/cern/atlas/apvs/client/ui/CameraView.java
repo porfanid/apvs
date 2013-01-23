@@ -14,14 +14,9 @@ import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.media.client.Video;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class CameraView extends SimplePanel implements Module,
+public class CameraView extends VideoView implements Module,
 		IsSwitchableWidget {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -55,20 +50,12 @@ public class CameraView extends SimplePanel implements Module,
 	// "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
 	// private final String cameraURL =
 	// "rtsp://quicktime.tc.columbia.edu:554/users/lrf10/movies/sixties.mov";
-	private String videoWidth;
-	private String videoHeight;
-	private String videoPoster = "Default-640x480.jpg";
-	private Image image;
 
 	private String type;
 
 	private String ptuId;
 
 	private PtuSettings settings;
-
-	private String currentCameraUrl;
-
-	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
 	private EventBus switchBus;
 	private EventBus cmdBus;
@@ -117,12 +104,8 @@ public class CameraView extends SimplePanel implements Module,
 
 	private void init(ClientFactory factory, String width, String height) {
 
-		this.videoWidth = width;
-		this.videoHeight = height;
-
-		image = new Image();
-		image.setWidth(videoWidth);
-		image.setHeight(videoHeight);
+		init(width, height);
+		
 		if (switchSource || switchDestination) {
 			image.addClickHandler(new ClickHandler() {
 
@@ -185,73 +168,6 @@ public class CameraView extends SimplePanel implements Module,
 	public boolean update() {
 		String cameraUrl = getCameraUrl(type, ptuId);
 		System.err.println("CameraURL: '"+ptuId+"' '"+cameraUrl+"'");
-		
-		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
-			currentCameraUrl = null;
-
-			image.setUrl(videoPoster);
-			image.setTitle("");
-			setWidget(image);
-			return false;
-		}
-
-		if (cameraUrl.equals(currentCameraUrl)) {
-			return false;
-		}
-
-		currentCameraUrl = cameraUrl;
-
-		if (cameraUrl.startsWith("http://")) {
-			if (cameraUrl.endsWith(".mjpg")) {
-				log.info(cameraUrl);
-				image.setUrl(cameraUrl);
-				image.setTitle(cameraUrl);
-				setWidget(image);
-			} else {
-				Video video = Video.createIfSupported();
-				if (video != null) {
-					video.setWidth(videoWidth);
-					video.setHeight(videoHeight);
-					video.setControls(true);
-					video.setAutoplay(true);
-					video.setPoster(videoPoster);
-					video.setMuted(true);
-					video.setLoop(true);
-					video.addSource(cameraUrl);
-				}
-				log.info(video.toString());
-				video.setTitle(cameraUrl);
-				setWidget(video);
-			}
-		} else if (cameraUrl.startsWith("rtsp://")) {
-			Widget video = new HTML(
-					"<embed width=\""
-							+ getOffsetWidth()
-							+ "\" height=\""
-							+ getOffsetHeight()
-							+ "\" src=\""
-							+ cameraUrl
-							+ "\" autoplay=\"true\" type=\"video/quicktime\" controller=\"true\" quitwhendone=\"false\" loop=\"false\"/></embed>");
-			log.info(video.toString());
-			video.setTitle(cameraUrl);
-			setWidget(video);
-		} else {
-			Widget video = new HTML(
-					quickTime
-							+ "<script language=\"javascript\" type=\"text/javascript\">"
-							+ "QT_WriteOBJECT('"
-							+ videoPoster
-							+ "', '"
-							+ videoWidth
-							+ "', '"
-							+ videoHeight
-							+ "', '', 'href', '"
-							+ cameraUrl
-							+ "', 'autohref', 'true', 'target', 'myself', 'controller', 'true', 'autoplay', 'true');</script>");
-			log.info(video.toString());
-			video.setTitle(cameraUrl);
-			setWidget(video);
-		}
-		return false;
+		return setUrl(cameraUrl);		
 	}
 }

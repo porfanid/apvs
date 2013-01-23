@@ -17,21 +17,28 @@ public class VideoView extends SimplePanel {
 	private String videoWidth;
 	private String videoHeight;
 	private String videoPoster = "Default-640x480.jpg";
-	private Image image;
+	protected Image image;
 	
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
+	protected VideoView() {
+	}
+	
 	public VideoView(String cameraUrl) {
-		setUrl(cameraUrl, "100%", "100%");
+		init("100%", "100%");
+		setUrl(cameraUrl);
 	}	
 	
-	public boolean setUrl(String cameraUrl, String width, String height) {	
+	protected void init(String width, String height) {
 		this.videoWidth = width;
 		this.videoHeight = height;
 		
 		image = new Image();
 		image.setWidth(videoWidth);
-		image.setHeight(videoHeight);
+		image.setHeight(videoHeight);		
+	}
+	
+	public boolean setUrl(String cameraUrl) {	
 		
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
 			currentCameraUrl = null;
