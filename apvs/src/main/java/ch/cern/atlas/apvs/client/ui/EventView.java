@@ -71,8 +71,8 @@ public class EventView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	protected Ternary daqOk;
-	protected Ternary databaseOk;
+	protected Ternary daqOk = Ternary.Unknown;
+	protected Ternary databaseOk = Ternary.Unknown;
 
 	public EventView() {
 	}

@@ -45,7 +45,11 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 	private EventBus cmdBus;
 
 	private String ptuId;
-	private Ternary audioOk, videoOk, daqOk, dosimeterOk, databaseOk;
+	private Ternary audioOk = Ternary.Unknown;
+	private Ternary videoOk = Ternary.Unknown;
+	private Ternary daqOk = Ternary.Unknown;
+	private Ternary dosimeterOk = Ternary.Unknown;
+	private Ternary databaseOk = Ternary.Unknown;
 	private InterventionMap interventions;
 
 	private boolean showHeader = true;

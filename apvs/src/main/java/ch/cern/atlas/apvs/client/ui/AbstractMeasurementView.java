@@ -55,8 +55,8 @@ public abstract class AbstractMeasurementView extends GlassPanel implements Modu
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	private Ternary daqOk;
-	private Ternary databaseOk;
+	private Ternary daqOk = Ternary.Unknown;
+	private Ternary databaseOk = Ternary.Unknown;
 
 	public AbstractMeasurementView() {
 	}

@@ -68,8 +68,8 @@ public class PtuView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	private Ternary daqOk;
-	private Ternary databaseOk;
+	private Ternary daqOk = Ternary.Unknown;
+	private Ternary databaseOk = Ternary.Unknown;
 
 	private HistoryMap historyMap;
 

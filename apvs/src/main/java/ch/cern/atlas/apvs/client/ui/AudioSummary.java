@@ -28,8 +28,8 @@ public class AudioSummary extends GlassPanel implements Module {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 
 	private AudioSettings voipAccounts = new AudioSettings();
-	protected Ternary audioOk;
-	protected Ternary databaseOk;
+	protected Ternary audioOk = Ternary.Unknown;
+	protected Ternary databaseOk = Ternary.Unknown;
 
 	public AudioSummary() {
 	}
