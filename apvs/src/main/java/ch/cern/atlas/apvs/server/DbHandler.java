@@ -125,15 +125,15 @@ public class DbHandler extends DbReconnectHandler {
 						total++;
 
 						String sensor = result.getString("sensor");
-						Number value = Double.parseDouble(result
+						Number value = toDouble(result
 								.getString("value"));
 
-						Number low = Double.parseDouble(result
+						Number low = toDouble(result
 								.getString("down_thres"));
-						Number high = Double.parseDouble(result
+						Number high = toDouble(result
 								.getString("up_thres"));
 
-						Integer samplingRate = Integer.parseInt(result
+						Integer samplingRate = toInt(result
 								.getString("samplingrate"));
 
 						String unit = result.getString("unit");
@@ -356,8 +356,8 @@ public class DbHandler extends DbReconnectHandler {
 
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
 				String name = result.getString("name");
-				double value = getDouble(result.getString("value"));
-				double threshold = getDouble(result.getString("threshold"));
+				Double value = toDouble(result.getString("value"));
+				Double threshold = toDouble(result.getString("threshold"));
 				String unit = result.getString("unit");
 
 				list.add(new Event(name, result.getString("sensor"), result
@@ -372,11 +372,12 @@ public class DbHandler extends DbReconnectHandler {
 		return list;
 	}
 
-	private double getDouble(String string) {
-		if (string == null)
-			return 0;
+	private Double toDouble(String string) {
+		return string != null ? Double.parseDouble(string) : null;
+	}
 
-		return Double.parseDouble(string);
+	private Integer toInt(String string) {
+		return string != null ? Integer.parseInt(string) : null;
 	}
 
 	public synchronized void addUser(User user) throws SQLException {
@@ -707,9 +708,9 @@ public class DbHandler extends DbReconnectHandler {
 			while (result.next()) {
 				String sensor = result.getString("SENSOR");
 				String unit = result.getString("UNIT");
-				Number value = Double.parseDouble(result.getString("VALUE"));
-				Number low = Double.parseDouble(result.getString("DOWN_THRES"));
-				Number high = Double.parseDouble(result.getString("UP_THRES"));
+				Number value = toDouble(result.getString("VALUE"));
+				Number low = toDouble(result.getString("DOWN_THRES"));
+				Number high = toDouble(result.getString("UP_THRES"));
 
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);
@@ -718,7 +719,7 @@ public class DbHandler extends DbReconnectHandler {
 				unit = Scale.getUnit(unit);
 
 				Measurement m = new Measurement(result.getString("NAME"),
-						sensor, value, low, high, unit, Integer.parseInt(result
+						sensor, value, low, high, unit, toInt(result
 								.getString("SAMPLINGRATE")), new Date(result
 								.getTimestamp("DATETIME").getTime()));
 				list.add(m);

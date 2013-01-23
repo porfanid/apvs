@@ -383,7 +383,7 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> value = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return object.getValue().toString();
+				return object.getValue() != null ? object.getValue().toString() : "";
 			}
 
 			@Override
@@ -407,7 +407,7 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> threshold = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return object.getTheshold().toString();
+				return object.getTheshold() != null ? object.getTheshold().toString() : "";
 			}
 
 			@Override
