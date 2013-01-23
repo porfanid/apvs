@@ -81,8 +81,8 @@ public class CameraTable extends DockPanel implements Module {
 		for(String ptuId: ptuIds) {
 			table.setWidget(row, column, new Label(ptuId));
 			table.getFlexCellFormatter().setColSpan(row, column, 1);
-			table.setWidget(row+1, column++, new VideoView(settings.getCameraUrl(ptuId, CameraView.HELMET)));
-			table.setWidget(row+1, column++, new VideoView(settings.getCameraUrl(ptuId, CameraView.HAND)));
+			table.setWidget(row+1, column++, new ImageView(settings.getCameraUrl(ptuId, CameraView.HELMET)));
+			table.setWidget(row+1, column++, new ImageView(settings.getCameraUrl(ptuId, CameraView.HAND)));
 			if (column >= 3) {
 				column = 0;
 				row++;

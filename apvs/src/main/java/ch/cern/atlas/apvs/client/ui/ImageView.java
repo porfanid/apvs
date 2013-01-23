@@ -9,7 +9,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class VideoView extends SimplePanel {
+public class ImageView extends SimplePanel {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -21,10 +21,10 @@ public class VideoView extends SimplePanel {
 	
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
-	protected VideoView() {
+	protected ImageView() {
 	}
 	
-	public VideoView(String cameraUrl) {
+	public ImageView(String cameraUrl) {
 		init("100%", "100%");
 		setUrl(cameraUrl);
 	}	

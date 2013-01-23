@@ -16,7 +16,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class CameraView extends VideoView implements Module,
+public class CameraView extends ImageView implements Module,
 		IsSwitchableWidget {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
