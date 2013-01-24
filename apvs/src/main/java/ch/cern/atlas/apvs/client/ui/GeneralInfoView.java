@@ -23,7 +23,6 @@ import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.DateCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
@@ -57,12 +56,12 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 	private String options;
 
 	private List<String> names = Arrays.asList(new String[] {
-			ConnectionType.audio.getString(), ConnectionType.video.getString(),
+			ConnectionType.audio.getString(), // ConnectionType.video.getString(),
 			ConnectionType.daq.getString(),
 			ConnectionType.dosimeter.getString(),
 			ConnectionType.database.getString(), "Start Time", "Duration" });
 	private List<Class<?>> classes = Arrays.asList(new Class<?>[] {
-			TextCell.class, TextCell.class, TextCell.class,
+			TextCell.class, /* TextCell.class, */ TextCell.class,
 			TextCell.class, TextCell.class, DateCell.class,
 			DurationCell.class });
 
