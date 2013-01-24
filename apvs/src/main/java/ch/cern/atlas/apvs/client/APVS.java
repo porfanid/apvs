@@ -13,6 +13,7 @@ import ch.cern.atlas.apvs.client.tablet.TabletMenuAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
+import ch.cern.atlas.apvs.client.ui.AlarmView;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.AudioSettingsView;
 import ch.cern.atlas.apvs.client.ui.AudioSummary;
@@ -154,6 +155,8 @@ public class APVS implements EntryPoint {
 					module = new MeasurementView();
 				} else if (id.startsWith("MeasurementTable")) {
 					module = new MeasurementTable();
+				} else if (id.startsWith("AlarmView")) {
+					module = new AlarmView();
 				} else if (id.startsWith("AudioSettingsView")) {
 					module = new AudioSettingsView();
 				} else if (id.startsWith("AudioSummary")) {

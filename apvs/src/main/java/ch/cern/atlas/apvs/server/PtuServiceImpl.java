@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.manager.AlarmManager;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -133,5 +134,20 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		System.err.println("Handle "+order);
 		
 		ptuClientHandler.sendOrder(order);
+	}
+	
+	@Override
+	public void clearPanicAlarm(String ptuId) throws ServiceException {
+		AlarmManager.getInstance(eventBus).clearPanicAlarm(ptuId);
+	}
+	
+	@Override
+	public void clearDoseAlarm(String ptuId) throws ServiceException {
+		AlarmManager.getInstance(eventBus).clearDoseAlarm(ptuId);
+	}
+	
+	@Override
+	public void clearFallAlarm(String ptuId) throws ServiceException {
+		AlarmManager.getInstance(eventBus).clearFallAlarm(ptuId);
 	}
 }

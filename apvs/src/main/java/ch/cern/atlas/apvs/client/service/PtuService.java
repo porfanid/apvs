@@ -21,4 +21,8 @@ public interface PtuService extends RemoteService {
 	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from) throws ServiceException;
 
 	public void handleOrder(Order order) throws ServiceException;
+	
+	public void clearPanicAlarm(String ptuId) throws ServiceException;
+	public void clearDoseAlarm(String ptuId) throws ServiceException;
+	public void clearFallAlarm(String ptuId) throws ServiceException;
 }

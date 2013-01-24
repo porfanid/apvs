@@ -1,21 +1,20 @@
 package ch.cern.atlas.apvs.client.ui;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.domain.AlarmMap;
+import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.Ternary;
+import ch.cern.atlas.apvs.client.event.AlarmMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
-import ch.cern.atlas.apvs.domain.Alarm;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.ButtonCell;
@@ -26,6 +25,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextHeader;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -49,7 +49,7 @@ public class AlarmView extends GlassPanel implements Module {
 			ButtonCell.class, ButtonCell.class, ButtonCell.class });
 
 	// FIXME should be on server
-	private Map<String, Alarm> alarmMap = new HashMap<String, Alarm>();
+	private AlarmMap alarms = new AlarmMap();
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -57,11 +57,11 @@ public class AlarmView extends GlassPanel implements Module {
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory,
-			Arguments args) {
+	public boolean configure(Element element,
+			final ClientFactory clientFactory, Arguments args) {
 
 		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
-		
+
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		options = args.getArg(1);
 
@@ -86,11 +86,11 @@ public class AlarmView extends GlassPanel implements Module {
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(names.get(0))) {
-					return alarmMap.get(ptuId).isPanic() ? "ALARM" : "cleared";
+					return alarms.isPanic(ptuId) ? "ALARM" : "cleared";
 				} else if (name.equals(names.get(1))) {
-					return alarmMap.get(ptuId).isDose() ? "ALARM" : "cleared";
+					return alarms.isDose(ptuId) ? "ALARM" : "cleared";
 				} else if (name.equals(names.get(2))) {
-					return alarmMap.get(ptuId).isFall() ? "ALARM" : "cleared";
+					return alarms.isFall(ptuId) ? "ALARM" : "cleared";
 				}
 				System.out.println("AlarmView name unknown '" + name + "'");
 				return "unknown";
@@ -106,14 +106,45 @@ public class AlarmView extends GlassPanel implements Module {
 			@Override
 			public void update(int index, String name, Object value) {
 				if (name.equals(names.get(0))) {
-					alarmMap.get(ptuId).setPanic(false);
+					clientFactory.getPtuService().clearPanicAlarm(ptuId,
+							new AsyncCallback<Void>() {
+
+								@Override
+								public void onFailure(Throwable caught) {
+									// FIXME
+								}
+
+								@Override
+								public void onSuccess(Void result) {
+								}
+							});
 				} else if (name.equals(names.get(1))) {
-					alarmMap.get(ptuId).setDose(false);
+					clientFactory.getPtuService().clearDoseAlarm(ptuId,
+							new AsyncCallback<Void>() {
+
+								@Override
+								public void onFailure(Throwable caught) {
+									// FIXME
+								}
+
+								@Override
+								public void onSuccess(Void result) {
+								}
+							});
 				} else if (name.equals(names.get(2))) {
-					alarmMap.get(ptuId).setFall(false);
+					clientFactory.getPtuService().clearFallAlarm(ptuId,
+							new AsyncCallback<Void>() {
+
+								@Override
+								public void onFailure(Throwable caught) {
+									// FIXME
+								}
+
+								@Override
+								public void onSuccess(Void result) {
+								}
+							});
 				}
-				
-				// Trigger change
 			}
 		});
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -122,8 +153,7 @@ public class AlarmView extends GlassPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(names);
 
-		ConnectionStatusChangedRemoteEvent.subscribe(
-				clientFactory.getRemoteEventBus(),
+		ConnectionStatusChangedRemoteEvent.subscribe(eventBus,
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
@@ -140,23 +170,16 @@ public class AlarmView extends GlassPanel implements Module {
 						showGlass(daqOk.not().isTrue());
 					}
 				});
-		
-		EventChangedEvent.register(eventBus, new EventChangedEvent.Handler() {
-			
-			@Override
-			public void onEventChanged(EventChangedEvent event) {
-				String eventType = event.getEvent().getEventType();
-				if (eventType.equals("PanicEvent")) {
-					alarmMap.get(ptuId).setPanic(true);
-				} else if (eventType.equals("DoseRateAlert")) {
-					alarmMap.get(ptuId).setDose(true);
-				} else if (eventType.equals("FallDetection")) {
-					alarmMap.get(ptuId).setFall(true);
-				}
-				
-				scheduler.update();
-			}
-		});
+
+		AlarmMapChangedEvent.subscribe(clientFactory,
+				new AlarmMapChangedEvent.Handler() {
+
+					@Override
+					public void onHistoryMapChanged(AlarmMapChangedEvent event) {
+						alarms = event.getAlarmMap();
+						scheduler.update();
+					}
+				});
 
 		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
@@ -166,7 +189,6 @@ public class AlarmView extends GlassPanel implements Module {
 				scheduler.update();
 			}
 		});
-		
 
 		return true;
 	}

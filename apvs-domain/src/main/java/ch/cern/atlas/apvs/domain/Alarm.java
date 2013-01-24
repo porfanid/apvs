@@ -7,9 +7,13 @@ public class Alarm implements Serializable {
 	private static final long serialVersionUID = -5562745209109162633L;
 
 	private String ptuId;
-	private boolean panic, dose, fall;
+	private boolean panic = true, dose, fall = true;
 	
 	public Alarm() {
+	}
+	
+	public Alarm(String ptuId) {
+		this.ptuId = ptuId;
 	}
 
 	public String getPtuId() {
