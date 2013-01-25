@@ -88,26 +88,23 @@ public class APVS implements EntryPoint {
 				+ build.build());
 
 		final ClientFactory clientFactory = GWT.create(ClientFactory.class);
-		
-		clientFactory.getServerService().isReady(
-				new AsyncCallback<Boolean>() {
 
-					@Override
-					public void onSuccess(Boolean result) {
-						if (result) {
-							log.info("Server ready");
-							start(clientFactory);
-						} else {
-							onFailure(null);
-						}
-					}
+		clientFactory.getServerService().isReady(new AsyncCallback<Boolean>() {
 
-					@Override
-					public void onFailure(Throwable caught) {
-						Window.alert("Server not ready. reload webpage "
-								+ caught);
-					}
-				});
+			@Override
+			public void onSuccess(Boolean supervisor) {
+				clientFactory.setSupervisor(supervisor);
+				log.info("Server ready, user is "
+						+ (supervisor ? "Supervisor" : "observer"));
+				start(clientFactory);
+
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("Server not ready. reload webpage " + caught);
+			}
+		});
 	}
 
 	private void start(ClientFactory clientFactory) {

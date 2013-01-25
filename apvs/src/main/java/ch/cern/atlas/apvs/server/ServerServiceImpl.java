@@ -44,6 +44,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 
 	@Override
 	public boolean isReady() {
+		// FIXME is a supervisor
 		return true;
 	}
 	
