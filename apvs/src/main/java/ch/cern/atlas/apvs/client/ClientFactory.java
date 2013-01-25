@@ -58,5 +58,7 @@ public interface ClientFactory {
 	ProcedureView getProcedureView(String width, String height);
 
 	ProcedureView getProcedureView(String width, String height, String url, String name, String step);
-
+	
+	void setSupervisor(boolean supervisor);
+	boolean isSupervisor();
 }

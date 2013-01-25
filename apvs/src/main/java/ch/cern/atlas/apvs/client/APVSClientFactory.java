@@ -56,6 +56,7 @@ public class APVSClientFactory implements ClientFactory {
 	private ProcedureMenuUI procedureView;
 	private PtuSelector ptuSelector;
 	private MeasurementView measurementView;
+	private boolean supervisor;
 
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
@@ -209,5 +210,15 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public InterventionServiceAsync getInterventionService() {
 		return interventionService;
+	}
+	
+	@Override
+	public void setSupervisor(boolean supervisor) {
+		this.supervisor = supervisor;
+	}
+	
+	@Override
+	public boolean isSupervisor() {
+		return supervisor;
 	}
 }
