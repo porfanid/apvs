@@ -11,9 +11,15 @@ import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 
 public class CameraTable extends DockPanel implements Module {
 
@@ -29,7 +35,7 @@ public class CameraTable extends DockPanel implements Module {
 			Arguments args) {
 		
 		add(table, CENTER);
-		
+				
 		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		
 		InterventionMapChangedRemoteEvent.subscribe(eventBus,
@@ -78,15 +84,29 @@ public class CameraTable extends DockPanel implements Module {
 		
 		int row = 0;
 		int column = 0;
+		int labelColumn = 0;
 		for(String ptuId: ptuIds) {
-			table.setWidget(row, column, new Label(ptuId));
-			table.getFlexCellFormatter().setColSpan(row, column, 1);
-			table.setWidget(row+1, column++, new ImageView(settings.getCameraUrl(ptuId, CameraView.HELMET)));
-			table.setWidget(row+1, column++, new ImageView(settings.getCameraUrl(ptuId, CameraView.HAND)));
+/* FIXME no labels as in Safari this sets the with of the column
+			Label label = new Label(ptuId);
+			label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			table.setWidget(row, labelColumn, label);
+			table.getFlexCellFormatter().setColSpan(row, labelColumn, 2);
+			labelColumn++;
+*/
+			Widget helmet = new ImageView(settings.getCameraUrl(ptuId, CameraView.HELMET));
+//			helmet.setWidth(width+"px");
+			table.setWidget(row, column++, helmet);
+// row+1 ipv row			
+			Widget hand = new ImageView(settings.getCameraUrl(ptuId, CameraView.HAND));
+//			hand.setWidth(width+"px");
+			table.setWidget(row, column++, hand);
+// row+1 ipv row
+			
 			if (column >= 3) {
 				column = 0;
+				labelColumn = 0;
 				row++;
-				row++;
+//				row++;
 			}
 		}
 	}

@@ -35,7 +35,7 @@ public class ImageView extends SimplePanel {
 		
 		image = new Image();
 		image.setWidth(videoWidth);
-		image.setHeight(videoHeight);		
+		image.setHeight(videoHeight);
 	}
 	
 	public boolean setUrl(String cameraUrl) {	
