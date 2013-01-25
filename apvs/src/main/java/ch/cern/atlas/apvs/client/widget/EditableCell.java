@@ -108,7 +108,7 @@ public class EditableCell extends AbstractCell<Object> {
 	}
 
 	private String getString(Object value) {
-		return value instanceof String ? (String) value : value.toString();
+		return value instanceof String ? (String) value : value == null ? null : value.toString();
 	}
 
 	@Override
