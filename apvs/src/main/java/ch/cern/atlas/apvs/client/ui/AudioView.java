@@ -14,6 +14,7 @@ import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
+import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -22,7 +23,6 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -46,7 +46,7 @@ public class AudioView extends GlassPanel implements Module {
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory,
+	public boolean configure(Element element, final ClientFactory clientFactory,
 			Arguments args) {
 		
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
@@ -78,7 +78,7 @@ public class AudioView extends GlassPanel implements Module {
 		
 		// Status/Action Field column
 		EditableCell fieldActionCell = new EditableCell(classField);
-		Column<String, Object> fieldActionCol = new Column<String, Object>(fieldActionCell) {
+		GenericColumn<String> fieldActionCol = new GenericColumn<String>(fieldActionCell) {
 			@Override
 			public Object getValue(String fieldName) {
 				if (fieldName.equals("Status"))
@@ -99,12 +99,17 @@ public class AudioView extends GlassPanel implements Module {
 		};
 		
 		fieldActionCol.setHorizontalAlignment(ALIGN_CENTER);
+		fieldActionCell.setEnabled(clientFactory.isSupervisor());
 		table.addColumn(fieldActionCol);
 		
 		fieldActionCol.setFieldUpdater(new FieldUpdater<String, Object>() {
 
 			@Override
 			public void update(int index, String fieldName, Object value) {
+				
+				if (!clientFactory.isSupervisor()) {
+					return;
+				}
 
 				AsyncCallback<Void> callbackConference = new AsyncCallback<Void>() {
 

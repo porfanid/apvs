@@ -95,7 +95,7 @@ public class APVS implements EntryPoint {
 			public void onSuccess(Boolean supervisor) {
 				clientFactory.setSupervisor(supervisor);
 				log.info("Server ready, user is "
-						+ (supervisor ? "Supervisor" : "observer"));
+						+ (supervisor ? "SUPERVISOR" : "OBSERVER"));
 				start(clientFactory);
 
 			}

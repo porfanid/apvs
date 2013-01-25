@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
+import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -78,9 +79,8 @@ public class AlarmView extends GlassPanel implements Module {
 		table.addColumn(name, showHeader ? new TextHeader("Name") : null);
 
 		EditableCell cell = new EditableCell(classes, 50);
-		cell.setDateFormat(PtuClientConstants.dateFormatNoSeconds);
 
-		Column<String, Object> column = new Column<String, Object>(cell) {
+		GenericColumn<String> column = new GenericColumn<String>(cell) {
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(names.get(0))) {
@@ -102,10 +102,15 @@ public class AlarmView extends GlassPanel implements Module {
 				getCell().render(context, getValue(name), sb);
 			}
 		};
+		column.setEnabled(clientFactory.isSupervisor());
 		column.setFieldUpdater(new FieldUpdater<String, Object>() {
 
 			@Override
 			public void update(int index, String name, Object value) {
+				if (!clientFactory.isSupervisor()) {
+					return;
+				}
+				
 				if (name.equals(names.get(0))) {
 					clientFactory.getPtuService().clearPanicAlarm(ptuId,
 							new AsyncCallback<Void>() {

@@ -79,7 +79,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			Arguments args) {
 
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
-
+		
 		/*
 		 * Addition of Asterisk account listing event
 		 */
@@ -102,6 +102,8 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		
 		add(table, CENTER);
 
+		setVisible(clientFactory.isSupervisor());		
+		
 		// ENABLED
 		Column<String, Boolean> enabled = new Column<String, Boolean>(
 				new CheckboxCell()) {

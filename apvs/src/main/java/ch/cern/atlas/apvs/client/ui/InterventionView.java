@@ -58,6 +58,7 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -101,7 +102,7 @@ public class InterventionView extends GlassPanel implements Module {
 	}
 
 	@Override
-	public boolean configure(Element element, ClientFactory clientFactory,
+	public boolean configure(Element element, final ClientFactory clientFactory,
 			Arguments args) {
 
 		interventionService = clientFactory.getInterventionService();
@@ -242,7 +243,7 @@ public class InterventionView extends GlassPanel implements Module {
 						: TextCell.class;
 			}
 		};
-		Column<Intervention, Object> endTime = new GenericColumn<Intervention>(
+		GenericColumn<Intervention> endTime = new GenericColumn<Intervention>(
 				cell) {
 			@Override
 			public String getValue(Intervention object) {
@@ -257,10 +258,14 @@ public class InterventionView extends GlassPanel implements Module {
 		};
 		endTime.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		endTime.setSortable(sortable);
+		endTime.setEnabled(clientFactory.isSupervisor());
 		endTime.setFieldUpdater(new FieldUpdater<Intervention, Object>() {
 
 			@Override
 			public void update(int index, Intervention object, Object value) {
+				if (!clientFactory.isSupervisor()) {
+					return;
+				}
 
 				if (Window.confirm("Are you sure")) {
 					interventionService.endIntervention(object.getId(),
@@ -421,7 +426,7 @@ public class InterventionView extends GlassPanel implements Module {
 			});
 		}
 		table.addColumn(duration, new TextHeader("Duration"),
-				interventionFooter);
+				clientFactory.isSupervisor() ? interventionFooter : null);
 
 		// Name
 		ClickableHtmlColumn<Intervention> name = new ClickableHtmlColumn<Intervention>() {
@@ -520,7 +525,8 @@ public class InterventionView extends GlassPanel implements Module {
 				m.show();
 			}
 		});
-		table.addColumn(name, new TextHeader("Name"), nameFooter);
+		table.addColumn(name, new TextHeader("Name"),
+				clientFactory.isSupervisor() ? nameFooter : null);
 
 		// PtuID
 		ClickableTextColumn<Intervention> ptu = new ClickableTextColumn<Intervention>() {
@@ -623,7 +629,8 @@ public class InterventionView extends GlassPanel implements Module {
 				m.show();
 			}
 		});
-		table.addColumn(ptu, new TextHeader("PTU ID"), deviceFooter);
+		table.addColumn(ptu, new TextHeader("PTU ID"),
+				clientFactory.isSupervisor() ? deviceFooter : null);
 
 		// Impact #
 		EditTextColumn<Intervention> impact = new EditTextColumn<Intervention>() {
@@ -643,6 +650,10 @@ public class InterventionView extends GlassPanel implements Module {
 		impact.setFieldUpdater(new FieldUpdater<Intervention, String>() {
 			@Override
 			public void update(int index, Intervention object, String value) {
+				if (!clientFactory.isSupervisor()) {
+					return;
+				}
+				
 				interventionService.updateInterventionImpactNumber(
 						object.getId(), value, new AsyncCallback<Void>() {
 
@@ -661,7 +672,7 @@ public class InterventionView extends GlassPanel implements Module {
 		table.addColumn(impact, new TextHeader("Impact #"), new TextHeader(""));
 
 		// Rec Status
-		EditTextColumn<Intervention> recStatus = new EditTextColumn<Intervention>() {
+	    TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
 			@Override
 			public String getValue(Intervention object) {
 				return object.getRecStatus() != null ? Double.toString(object
@@ -675,6 +686,7 @@ public class InterventionView extends GlassPanel implements Module {
 		};
 		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		impact.setSortable(true);
+		impact.setEnabled(clientFactory.isSupervisor());
 		table.addColumn(recStatus, new TextHeader("Rec Status"),
 				new TextHeader(""));
 
@@ -693,12 +705,17 @@ public class InterventionView extends GlassPanel implements Module {
 		};
 		description.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		description.setSortable(true);
+		description.setEnabled(clientFactory.isSupervisor());
 		description.setFieldUpdater(new FieldUpdater<Intervention, String>() {
 			@Override
 			public void update(int index, Intervention object, String value) {
+				if (!clientFactory.isSupervisor()) {
+					return;
+				}
+				
 				interventionService.updateInterventionDescription(
 						object.getId(), value, new AsyncCallback<Void>() {
-
+							
 							@Override
 							public void onSuccess(Void result) {
 								scheduler.update();

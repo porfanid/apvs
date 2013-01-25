@@ -46,6 +46,8 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
 		add(table);
 
+		setVisible(clientFactory.isSupervisor());
+
 		// name column
 		Column<String, Object> name = new Column<String, Object>(
 				new EditableCell(ServerSettings.Entry.getNameClasses(), 30)) {
