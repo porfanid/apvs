@@ -25,7 +25,7 @@ public class ImageView extends SimplePanel {
 	}
 	
 	public ImageView(String cameraUrl) {
-		init("100%", "100%");
+		init("100%", "");
 		setUrl(cameraUrl);
 	}	
 	
