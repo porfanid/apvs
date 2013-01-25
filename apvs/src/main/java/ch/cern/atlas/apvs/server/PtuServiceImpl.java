@@ -138,6 +138,7 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 	
 	@Override
 	public void clearPanicAlarm(String ptuId) throws ServiceException {
+		System.err.println("Clearing panic for "+ptuId);
 		AlarmManager.getInstance(eventBus).clearPanicAlarm(ptuId);
 	}
 	

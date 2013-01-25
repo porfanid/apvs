@@ -5,9 +5,8 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.event.AlarmMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
@@ -48,8 +47,7 @@ public class AlarmView extends GlassPanel implements Module {
 	private List<Class<?>> classes = Arrays.asList(new Class<?>[] {
 			ButtonCell.class, ButtonCell.class, ButtonCell.class });
 
-	// FIXME should be on server
-	private AlarmMap alarms = new AlarmMap();
+	private AlarmMap alarms;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -86,11 +84,14 @@ public class AlarmView extends GlassPanel implements Module {
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(names.get(0))) {
-					return alarms.isPanic(ptuId) ? "ALARM" : "cleared";
+					return alarms != null && alarms.isPanic(ptuId) ? "ALARM"
+							: "cleared";
 				} else if (name.equals(names.get(1))) {
-					return alarms.isDose(ptuId) ? "ALARM" : "cleared";
+					return alarms != null && alarms.isDose(ptuId) ? "ALARM"
+							: "cleared";
 				} else if (name.equals(names.get(2))) {
-					return alarms.isFall(ptuId) ? "ALARM" : "cleared";
+					return alarms != null && alarms.isFall(ptuId) ? "ALARM"
+							: "cleared";
 				}
 				System.out.println("AlarmView name unknown '" + name + "'");
 				return "unknown";
@@ -171,12 +172,14 @@ public class AlarmView extends GlassPanel implements Module {
 					}
 				});
 
-		AlarmMapChangedEvent.subscribe(clientFactory,
-				new AlarmMapChangedEvent.Handler() {
+		AlarmMapChangedRemoteEvent.subscribe(eventBus,
+				new AlarmMapChangedRemoteEvent.Handler() {
 
 					@Override
-					public void onHistoryMapChanged(AlarmMapChangedEvent event) {
+					public void onAlarmMapChanged(
+							AlarmMapChangedRemoteEvent event) {
 						alarms = event.getAlarmMap();
+						System.err.println("Alarms changed " + alarms);
 						scheduler.update();
 					}
 				});

@@ -3,7 +3,7 @@ package ch.cern.atlas.apvs.client.manager;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
-import ch.cern.atlas.apvs.client.event.AlarmMapChangedEvent;
+import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
@@ -19,6 +19,9 @@ public class AlarmManager {
 		this.eventBus = eventBus;
 		
 		alarms = new AlarmMap();
+		
+		alarms.setPanic("PTUdemo", true);
+		alarms.setDose("PTUdemo", true);
 
 		// subscribe
 		InterventionMapChangedRemoteEvent.subscribe(eventBus,
@@ -78,7 +81,7 @@ public class AlarmManager {
 
 
 	private void update() {		
-		AlarmMapChangedEvent.fire(eventBus, alarms);
+		AlarmMapChangedRemoteEvent.fire(eventBus, alarms);
 	}
 
 	public static AlarmManager getInstance(RemoteEventBus eventBus) {

@@ -7,7 +7,7 @@ public class Alarm implements Serializable {
 	private static final long serialVersionUID = -5562745209109162633L;
 
 	private String ptuId;
-	private boolean panic = true, dose, fall = true;
+	private boolean panic, dose, fall;
 	
 	public Alarm() {
 	}
@@ -44,6 +44,8 @@ public class Alarm implements Serializable {
 		this.dose = dose;
 	}
 
-
+	public String toString() {
+		return ptuId+" panic: "+panic+"; dose: "+dose+"; fall: "+fall;
+	}
 
 }

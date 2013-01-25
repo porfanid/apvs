@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,15 @@ public class AlarmMap implements Serializable {
 
 	@Override
 	public String toString() {
-		return "AlarmMap: "+alarms.size();
+		
+		StringBuffer s = new StringBuffer("AlarmMap: ");
+		s.append(alarms.size());
+		for (Iterator<Alarm> i = alarms.values().iterator(); i.hasNext(); ) {
+			s.append(", ");
+			s.append(i.next());
+		}
+		return s.toString(); 
+		
 	}
 
 }
