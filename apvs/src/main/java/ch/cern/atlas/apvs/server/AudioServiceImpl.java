@@ -58,6 +58,7 @@ import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.ConnectionUUIDsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 
 public class AudioServiceImpl extends ResponsePollService implements
 		AudioService, ManagerEventListener{
@@ -83,6 +84,10 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
 	private static final long ASTERISK_POLLING = 5000;
+	
+	//#FIXME Only Supervisor 2001 is supported 
+	private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
+	private static final String SUPERVISOR_NUMBER = "2001";
 	
 	private String asteriskUrl;
 	private String asteriskPwd;
@@ -115,15 +120,16 @@ public class AudioServiceImpl extends ResponsePollService implements
 					System.err.println("Fail to login: " + e.getMessage());
 				}
 			} else{
+				boolean audioFormerState = audioOk;
 				if(new AsteriskPing(managerConnection).isAlive()) {
 					audioOk = true;
-					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 				} else {
 					asteriskConnected=false;
 					audioOk = false;
 					System.err.println("Asterisk Server: " + asteriskUrl + " is not available...");
-					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 				}
+				if(audioFormerState != audioOk)
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 			}
 	    }
 	}
@@ -227,6 +233,29 @@ public class AudioServiceImpl extends ResponsePollService implements
 				conferenceRooms = event.getConferenceRooms();
 			}
 		});
+		
+		EventChangedEvent.register(eventBus, new EventChangedEvent.Handler() {
+			
+			@Override
+			public void onEventChanged(EventChangedEvent event) {
+					String type = event.getEvent().getEventType();
+					if(type.equals("Panic")){
+						List<String> channels = new ArrayList<String>();
+						channels.add(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)));	
+						
+						String ptuId = event.getEvent().getPtuId();
+						channels.add(voipAccounts.getChannel(ptuId));
+						
+						// Hangup Supervisor and PTU User from active calls
+						try{
+							hangupMultiple(channels);
+						} catch (AudioException e){
+							System.err.println("Failed to Hangup Channel" + e.getMessage());							
+						}
+							call(voipAccounts.getNumber(ptuId),SUPERVISOR_NUMBER);
+					}
+			}
+		} );
 
 	}
 
