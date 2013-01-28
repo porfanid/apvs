@@ -66,7 +66,7 @@ public class DbHandler extends DbReconnectHandler {
 				}
 			}
 		});
-
+		
 		ScheduledExecutorService executor = Executors
 				.newSingleThreadScheduledExecutor();
 		executor.scheduleAtFixedRate(new Runnable() {
@@ -106,10 +106,14 @@ public class DbHandler extends DbReconnectHandler {
 
 		try {
 			for (String ptuId : ptuIdList) {
+				// at most from fromTime or startTime
+				long startTime = interventions.get(ptuId).getStartTime().getTime();
+				long fromTime = from.getTime();
+				
 				historyQuery.setString(1, ptuId);
 
 				if (from != null) {
-					historyQuery.setTimestamp(2, new Timestamp(from.getTime()));
+					historyQuery.setTimestamp(2, new Timestamp(Math.max(startTime, fromTime)));
 				}
 
 				long now = new Date().getTime();
