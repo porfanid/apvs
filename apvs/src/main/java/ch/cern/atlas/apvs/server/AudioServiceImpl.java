@@ -84,6 +84,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final int PRIORITY = 1;
 	private static final int TIMEOUT = 20000;
 	private static final long ASTERISK_POLLING = 5000;
+	
 	//#FIXME Only Supervisor 2001 is supported 
 	private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
 	private static final String SUPERVISOR_NUMBER = "2001";
@@ -119,15 +120,16 @@ public class AudioServiceImpl extends ResponsePollService implements
 					System.err.println("Fail to login: " + e.getMessage());
 				}
 			} else{
+				boolean audioFormerState = audioOk;
 				if(new AsteriskPing(managerConnection).isAlive()) {
 					audioOk = true;
-					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 				} else {
 					asteriskConnected=false;
 					audioOk = false;
 					System.err.println("Asterisk Server: " + asteriskUrl + " is not available...");
-					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 				}
+				if(audioFormerState != audioOk)
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
 			}
 	    }
 	}
