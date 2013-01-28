@@ -64,5 +64,6 @@ public class ListBoxField extends ValidationField {
 	public void addItem(String item, int id) {
 		box.addItem(item);
 		ids.put(item, id);
+		validate(true);
 	}
 }

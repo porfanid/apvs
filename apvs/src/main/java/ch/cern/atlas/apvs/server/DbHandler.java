@@ -507,7 +507,7 @@ public class DbHandler extends DbReconnectHandler {
 	private synchronized List<Device> getNotBusyDevices() throws SQLException {
 		Connection connection = getConnection();
 		PreparedStatement notBusyDeviceQuery = connection
-				.prepareStatement("select ID, NAME, IP, DSCR from tbl_devices "
+				.prepareStatement("select ID, NAME, IP, DSCR, MAC_ADDR, HOST_NAME from tbl_devices "
 						+ "where id not in ("
 						+ "select device_id from tbl_inspections "
 						+ "where endtime is null) " + "order by NAME");
