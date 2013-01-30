@@ -717,7 +717,7 @@ public class DbHandler extends DbReconnectHandler {
 				Number high = toDouble(result.getString("UP_THRES"));
 
 				// if equal of low higher than high, no limits to be shown
-				if (low.doubleValue() >= high.doubleValue()) {
+				if (low != null && high != null && low.doubleValue() >= high.doubleValue()) {
 					low = null;
 					high = null;
 				}
