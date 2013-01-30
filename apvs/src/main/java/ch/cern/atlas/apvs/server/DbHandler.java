@@ -716,6 +716,12 @@ public class DbHandler extends DbReconnectHandler {
 				Number low = toDouble(result.getString("DOWN_THRES"));
 				Number high = toDouble(result.getString("UP_THRES"));
 
+				// if equal of low higher than high, no limits to be shown
+				if (low.doubleValue() >= high.doubleValue()) {
+					low = null;
+					high = null;
+				}
+				
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);
 				low = Scale.getLowLimit(low, unit);
