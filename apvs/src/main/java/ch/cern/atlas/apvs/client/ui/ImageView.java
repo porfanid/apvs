@@ -3,7 +3,10 @@ package ch.cern.atlas.apvs.client.ui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.media.client.Video;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -18,6 +21,7 @@ public class ImageView extends SimplePanel {
 	private String videoHeight;
 	private String videoPoster = "Default-640x480.jpg";
 	protected Image image;
+	private boolean isMovingJPEG;
 	
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
@@ -36,6 +40,20 @@ public class ImageView extends SimplePanel {
 		image = new Image();
 		image.setWidth(videoWidth);
 		image.setHeight(videoHeight);
+		
+		// keep setting URL for video not to get stuck
+//		Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {			
+//			
+//			@Override
+//			public boolean execute() {
+//				if ((currentCameraUrl != null) && isMovingJPEG) {
+//					Window.alert("Update..."+ImageView.this.hashCode());
+//					image.setUrl(currentCameraUrl);
+//				}
+//				
+//				return false;
+//			}
+//		}, 30000);
 	}
 	
 	public boolean setUrl(String cameraUrl) {	
@@ -46,6 +64,7 @@ public class ImageView extends SimplePanel {
 			image.setUrl(videoPoster);
 			image.setTitle("");
 			setWidget(image);
+			isMovingJPEG = false;
 			return false;
 		}
 
@@ -61,6 +80,7 @@ public class ImageView extends SimplePanel {
 				image.setUrl(cameraUrl);
 				image.setTitle(cameraUrl);
 				setWidget(image);
+				isMovingJPEG = true;
 			} else {
 				Video video = Video.createIfSupported();
 				if (video != null) {
@@ -76,6 +96,7 @@ public class ImageView extends SimplePanel {
 				log.info(video.toString());
 				video.setTitle(cameraUrl);
 				setWidget(video);
+				isMovingJPEG = false;
 			}
 		} else if (cameraUrl.startsWith("rtsp://")) {
 			Widget video = new HTML(
@@ -89,6 +110,7 @@ public class ImageView extends SimplePanel {
 			log.info(video.toString());
 			video.setTitle(cameraUrl);
 			setWidget(video);
+			isMovingJPEG = false;
 		} else {
 			Widget video = new HTML(
 					quickTime
@@ -105,6 +127,7 @@ public class ImageView extends SimplePanel {
 			log.info(video.toString());
 			video.setTitle(cameraUrl);
 			setWidget(video);
+			isMovingJPEG = false;
 		}
 		return true;
 	}
