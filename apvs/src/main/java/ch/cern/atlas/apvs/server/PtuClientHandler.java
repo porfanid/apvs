@@ -110,7 +110,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 	}
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 	private final static boolean DEBUGPLUS = false;
 
 	@Override
