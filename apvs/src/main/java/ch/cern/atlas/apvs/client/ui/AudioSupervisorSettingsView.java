@@ -1,0 +1,136 @@
+package ch.cern.atlas.apvs.client.ui;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioSupervisorStatusRemoteEvent;
+import ch.cern.atlas.apvs.client.settings.VoipAccount;
+import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
+import ch.cern.atlas.apvs.client.widget.GlassPanel;
+import ch.cern.atlas.apvs.client.widget.StringList;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.view.client.ListDataProvider;
+
+public class AudioSupervisorSettingsView extends GlassPanel implements Module {
+
+	private CellTable<VoipAccount> table = new CellTable<VoipAccount>();
+	private ListDataProvider<VoipAccount> dataProvider = new ListDataProvider<VoipAccount>();
+
+	private VoipAccount supervisor = new VoipAccount(true);
+	private List<String> supervisorsList = new ArrayList<String>();
+	private List<VoipAccount> supervisorsAccounts = new ArrayList<VoipAccount>(); 
+	
+	@Override
+	public boolean configure(Element element, ClientFactory clientFactory,
+			Arguments args) {
+		
+		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
+		
+		clientFactory.getAudioService().usersList(new AsyncCallback<Void>() {
+			
+			@Override
+			public void onSuccess(Void result) {
+				System.err.println("Supervisor SIP accounts listed...");
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				System.err.println("Fail to list Supervisor SIP accounts " + caught);				
+			}
+		});
+		add(table, CENTER);
+		
+		// Supervisor Label
+		Column<VoipAccount, String> supervisorLabel = new Column<VoipAccount, String> (new TextCell()) {
+			
+			@Override
+			public String getValue(VoipAccount object) {
+				return "Supervisor";
+			}
+		};
+		table.addColumn(supervisorLabel, "Account Type");
+		
+		// Account status
+		Column<VoipAccount, String> status = new Column<VoipAccount, String> (new TextCell()) {
+			
+			@Override
+			public String getValue(VoipAccount account) {
+				if(supervisorsList.contains("Not available"))
+					return "Unknown";
+				
+				return (supervisor.getStatus()?"Online":"Offline");
+			}
+		};
+		table.addColumn(status, "Account Status");
+		
+		//  SIP Account
+		Column<VoipAccount, String> account = new Column<VoipAccount, String> (new DynamicSelectionCell(new StringList<String>(supervisorsList))){
+			
+			@Override
+			public String getValue(VoipAccount object) {					
+					return object.getNumber();
+			}
+		};
+		account.setFieldUpdater(new FieldUpdater<VoipAccount, String>() {
+			
+			@Override
+			public void update(int index, VoipAccount object, String value) {
+				System.out.println(supervisorsAccounts.size());
+					for(int i=0; i<supervisorsAccounts.size(); i++){
+						if(supervisorsAccounts.get(i).getNumber().equals(value)){
+							System.out.println("SUPERVISOR OLD NUMBER="+supervisor.getNumber());
+							supervisor=supervisorsAccounts.get(i);
+							System.out.println("SUPERVISOR NEW NUMBER="+supervisor.getNumber());
+							eventBus.fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisor));
+							return;
+						}	
+					}
+			}
+		});
+		table.addColumn(account, "SIP Account");
+		
+		dataProvider.addDataDisplay(table);
+		dataProvider.getList().add(new VoipAccount());		
+
+		AudioSupervisorSettingsChangedRemoteEvent.subscribe(eventBus, new AudioSupervisorSettingsChangedRemoteEvent.Handler()  {
+			
+			@Override
+			public void onAudioSupervisorSettingsChanged(AudioSupervisorSettingsChangedRemoteEvent event) {
+					supervisor = event.getSupervisorSettings();	
+					dataProvider.getList().clear();
+					dataProvider.getList().add(supervisor);
+			}
+		});
+		
+		AudioSupervisorStatusRemoteEvent.subscribe(eventBus, new AudioSupervisorStatusRemoteEvent.Handler()  {
+			
+			@Override
+			public void onAudioSupervisorStatusChanged(AudioSupervisorStatusRemoteEvent event) {
+				System.out.println("Supervisor Listing Event");
+				supervisorsAccounts = event.getSupervisorsList();
+				supervisorsList.clear();
+				for(int i=0; i<supervisorsAccounts.size();i++){
+					supervisorsList.add(supervisorsAccounts.get(i).getNumber());
+				}	
+				dataProvider.getList().clear();
+				dataProvider.getList().add(supervisor);
+			}
+		});
+		return true;
+	}
+
+	@Override
+	public boolean update() {
+		return false;
+	}
+	
+}
