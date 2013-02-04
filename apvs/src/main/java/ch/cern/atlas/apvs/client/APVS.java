@@ -16,6 +16,7 @@ import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
 import ch.cern.atlas.apvs.client.ui.AlarmView;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.AudioSummary;
+import ch.cern.atlas.apvs.client.ui.AudioSupervisorSettingsView;
 import ch.cern.atlas.apvs.client.ui.AudioView;
 import ch.cern.atlas.apvs.client.ui.CameraTable;
 import ch.cern.atlas.apvs.client.ui.CameraView;
@@ -157,6 +158,8 @@ public class APVS implements EntryPoint {
 					module = new AudioSummary();
 				} else if (id.startsWith("AudioView")) {
 					module = new AudioView();
+				} else if (id.startsWith("AudioSupervisorSettingsView")) {
+					module = new AudioSupervisorSettingsView();
 				} else if (id.startsWith("CameraTable")) {
 					module = new CameraTable();
 				} else if (id.startsWith("CameraView")) {

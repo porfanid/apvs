@@ -34,7 +34,8 @@ public class ServerServiceImpl extends ResponsePollService implements
 		log.info("Starting ServerService...");
 
 		// FIXME, move this back to AudioSettings as ServerSettingsStorage is now created in ServerFactory
-		AudioSettingsStorage.getInstance(eventBus);
+		AudioUsersSettingsStorage.getInstance(eventBus);
+		AudioSupervisorSettingsStorage.getInstance(eventBus);
 	}
 
 	@Override

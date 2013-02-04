@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
@@ -13,6 +14,7 @@ import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
+import ch.cern.atlas.apvs.client.settings.VoipAccount;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
@@ -33,9 +35,10 @@ public class AudioView extends GlassPanel implements Module {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
-	private String ptuId = new String("PTU5678");
+	private String ptuId = new String("PTUWeb");
 	private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
 	private static final String SUPERVISOR_NUMBER = "2001";
+	private VoipAccount supervisorAccount = new VoipAccount();
 
 	private EventBus cmdBus;
 
@@ -73,7 +76,7 @@ public class AudioView extends GlassPanel implements Module {
  		 |______________|___________________________________|___________________________________|
  
 		 */
-
+		
 		add(table, CENTER);
 		
 		// Status/Action Field column
@@ -86,7 +89,7 @@ public class AudioView extends GlassPanel implements Module {
 				else if (fieldName.equals("Private Call"))
 					return ((voipAccounts.getOnCall(ptuId) ? "Hangup '": "Call '") + voipAccounts.getUsername(ptuId) + "'");
 				else if (fieldName.equals("Group Call"))
-					return ((!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId)) ? ("Make '"): (voipAccounts.getOnConference(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)) ? "Leave '": "Join '"))+ voipAccounts.getActivity(ptuId) + "' conference");
+					return ((!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId)) ? ("Make "): (voipAccounts.getOnConference(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)) ? "Leave ": "Join "))+ "Impact conference");
 				else if(fieldName.equals("Conference"))
 					return "Close '" + voipAccounts.getActivity(ptuId)+ "' conference";
 				else if(fieldName.equals("Mute/Unmute"))
@@ -99,14 +102,13 @@ public class AudioView extends GlassPanel implements Module {
 		};
 		
 		fieldActionCol.setHorizontalAlignment(ALIGN_CENTER);
-		fieldActionCell.setEnabled(clientFactory.isSupervisor());
+		fieldActionCol.setEnabled(clientFactory.isSupervisor());
 		table.addColumn(fieldActionCol);
 		
 		fieldActionCol.setFieldUpdater(new FieldUpdater<String, Object>() {
 
 			@Override
 			public void update(int index, String fieldName, Object value) {
-				
 				if (!clientFactory.isSupervisor()) {
 					return;
 				}
@@ -168,14 +170,14 @@ public class AudioView extends GlassPanel implements Module {
 				if (fieldName.equals("Private Call")) {
 					if (!voipAccounts.getOnCall(ptuId)) {
 						List<String> channels = new ArrayList<String>();
-						channels.add(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)));
+						channels.add(supervisorAccount.getChannel());//voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)));
 						channels.add(voipAccounts.getChannel(ptuId));
 						// Hangup Supervisor and PTU User from active calls
 						AudioServiceAsync.Util.getInstance().hangupMultiple(channels, callbackHangup);
 						AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(ptuId),SUPERVISOR_NUMBER, callbackCall);
 
 					} else {
-						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
+						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);//voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
 						if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
 							AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptuId),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId)),callbackConference);
 						}
@@ -247,19 +249,28 @@ public class AudioView extends GlassPanel implements Module {
 					}
 				});
 
-		AudioSettingsChangedRemoteEvent.subscribe(eventBus,
-				new AudioSettingsChangedRemoteEvent.Handler() {
+		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,
+				new AudioUsersSettingsChangedRemoteEvent.Handler() {
 
 					@Override
-					public void onAudioSettingsChanged(
-							AudioSettingsChangedRemoteEvent event) {
+					public void onAudioUsersSettingsChanged(
+							AudioUsersSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
-						
+						System.out.println("Just got the audio settings");
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(fieldName);
 					}
 				});
 
+		AudioSupervisorSettingsChangedRemoteEvent.subscribe(eventBus, new AudioSupervisorSettingsChangedRemoteEvent.Handler() {
+			
+			@Override
+			public void onAudioSupervisorSettingsChanged(
+					AudioSupervisorSettingsChangedRemoteEvent event) {
+						supervisorAccount = event.getSupervisorSettings();
+			}
+		});
+		
 		MeetMeRemoteEvent.subscribe(eventBus, new MeetMeRemoteEvent.Handler() {
 
 			@Override
@@ -270,9 +281,6 @@ public class AudioView extends GlassPanel implements Module {
 						classField.remove(3);
 					}
 				}
-
-				conferenceRooms = event.getConferenceRooms();
-				
 				
 				if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
 					fieldName.add("Conference");

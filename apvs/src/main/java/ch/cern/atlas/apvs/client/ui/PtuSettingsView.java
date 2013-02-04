@@ -9,12 +9,13 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.event.AsteriskStatusRemoteEvent;
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.settings.VoipAccount;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.StringList;
@@ -36,6 +37,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
@@ -65,6 +67,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	/*
 	 * Addition Variables declaration
 	 */
+	private List<VoipAccount> usersAccounts = new ArrayList<VoipAccount>();
 	private List<String> usersList = new ArrayList<String>();
 	private AudioSettings voipAccounts =  new AudioSettings();
 	/*
@@ -88,12 +91,12 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onSuccess(Void result) {
-				System.err.println("Asterisk SIP users listed...");
+				System.err.println("Workers SIP accounts listed...");
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println("Fail to list Asterisk SIP users " + caught);				
+				System.err.println("Fail to list workers SIP accounts " + caught);				
 			}
 		});
 		/*
@@ -147,7 +150,26 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
 		table.addColumn(name, "Name");
+		
+		/*
+		 * Addition on Activity
+		 */
+		//Impact Activity Name
+		//TODO
+		Column<String, String> impact = new Column<String, String>(new TextCell()) {
+			
+			@Override
+			public String getValue(String object) {
+				return interventions.get(object)!=null? interventions.get(object).getImpactNumber():"";
+			}
+		};
+		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		table.addColumn(impact, "Impact #");
+		/*
+		 * End of addition
+		 */
 
+		
 		// DOSIMETER
 		Column<String, String> dosimeter;
 		boolean useCompositeCell = false;
@@ -332,8 +354,15 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void update(int index, String object, String value) {
-				voipAccounts.setNumber(object, value);
-				eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
+				if(voipAccounts.contains(object)){
+					System.out.println("Condicao e verdadeira: " + value +" object "+ object);
+					voipAccounts.setNumber(object, value);
+					System.out.println("Voip: " + voipAccounts.getPtuIds());
+					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+				}
+				else{
+					System.out.println("Condicao e falsa");	
+				}
 			}
 		});
 		/*
@@ -341,30 +370,28 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		 */
 		
 		/*
-		 * Addition on Activity
+		 * Addition on SIP Account
 		 */
-		//Impact Activity Name
-		Column<String, String> activity = new Column<String, String>(new TextInputSizeCell(30)) {
+		//SIP Status 
+		Column<String, String> status = new Column<String, String>(new TextCell()){
 			
 			@Override
 			public String getValue(String object) {
-				return voipAccounts.getActivity(object);
+				for (int i=0; i<usersAccounts.size(); i++){
+					if(usersAccounts.get(i).getNumber().equals(voipAccounts.getNumber(object)))
+							return (usersAccounts.get(i).getStatus() ?"Online":"Offline");
+					
+				}
+				return "Unknown";
 			}
+					
 		};
-		activity.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		table.addColumn(activity, "Impact Activity Name");
-		
-		activity.setFieldUpdater(new FieldUpdater<String, String>() {
-			
-			@Override
-			public void update(int index, String object, String value) {
-				voipAccounts.setActivity(object, value);
-				eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(voipAccounts));
-			}
-		});
+		status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		table.addColumn(status, "Account Status");
 		/*
 		 * End of addition
 		 */
+		
 		
 		// SORTING
 		columnSortHandler = new ListHandler<String>(dataProvider.getList());
@@ -433,15 +460,15 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		/*
 		 * Addition of Audio settings change
 		 */
-		AudioSettingsChangedRemoteEvent.subscribe(eventBus,new AudioSettingsChangedRemoteEvent.Handler() {
+		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,new AudioUsersSettingsChangedRemoteEvent.Handler() {
 			
 			@Override
-			public void onAudioSettingsChanged(AudioSettingsChangedRemoteEvent event) {
+			public void onAudioUsersSettingsChanged(AudioUsersSettingsChangedRemoteEvent event) {
 				System.out.println("Audio Settings changed");
 				voipAccounts = event.getAudioSettings();
-
-				dataProvider.getList().clear();
-				dataProvider.getList().addAll(voipAccounts.getPtuIds());
+				scheduler.update();
+				//dataProvider.getList().clear();
+				//dataProvider.getList().addAll(voipAccounts.getPtuIds());
 			}
 		}); 		
 		
@@ -450,15 +477,20 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		 */
 		
 		/*
-		 * Addition of Asterisk account listing event
+		 * Addition of Audio users account listing event
 		 */
-		AsteriskStatusRemoteEvent.register(eventBus, new AsteriskStatusRemoteEvent.Handler() {
+		AudioUsersStatusRemoteEvent.register(eventBus, new AudioUsersStatusRemoteEvent.Handler() {
 			
 			@Override
-			public void onAsteriskStatusChange(AsteriskStatusRemoteEvent event) {
-				System.out.println("Asterisk Event");
+			public void onAudioUsersStatusChange(AudioUsersStatusRemoteEvent event) {
+				System.out.println("Users Listing Event");
+				
+				usersAccounts = event.getUsersList();
 				usersList.clear();
-				usersList.addAll(event.getAsteriskUsersList());
+				for(int i=0; i<usersAccounts.size();i++){
+					usersList.add(usersAccounts.get(i).getNumber());
+				}	
+				scheduler.update();
 			}
 		});	
 		/*
