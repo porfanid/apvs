@@ -29,6 +29,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
@@ -106,13 +107,13 @@ public class EventView extends GlassPanel implements Module {
 
 				table.getColumnSortList().clear();
 				table.getColumnSortList().push(new ColumnSortInfo(date, false));
+				ColumnSortEvent.fire(table, table.getColumnSortList());
 				scheduler.update();
 			}
 		});
 		update.setVisible(false);
 
-		compositeFooter = new CompositeHeader(
-				pager.getHeader(), update);
+		compositeFooter = new CompositeHeader(pager.getHeader(), update);
 
 		final TextArea msg = new TextArea();
 		// FIXME, not sure how to handle scroll bar and paging
@@ -386,7 +387,8 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> value = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return object.getValue() != null ? object.getValue().toString() : "";
+				return object.getValue() != null ? object.getValue().toString()
+						: "";
 			}
 
 			@Override
@@ -410,7 +412,8 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> threshold = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return object.getTheshold() != null ? object.getTheshold().toString() : "";
+				return object.getTheshold() != null ? object.getTheshold()
+						.toString() : "";
 			}
 
 			@Override
@@ -502,7 +505,8 @@ public class EventView extends GlassPanel implements Module {
 		} else {
 			if (ptuId == null) {
 				// add Ptu Column
-				table.insertColumn(1, ptu, new TextHeader(ptuHeader), compositeFooter);
+				table.insertColumn(1, ptu, new TextHeader(ptuHeader),
+						compositeFooter);
 			}
 		}
 
