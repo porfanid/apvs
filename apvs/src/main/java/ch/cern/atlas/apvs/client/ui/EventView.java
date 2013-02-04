@@ -62,6 +62,7 @@ public class EventView extends GlassPanel implements Module {
 
 	private ClickableTextColumn<Event> date;
 	private String ptuHeader;
+	private CompositeHeader compositeFooter;
 	private ClickableTextColumn<Event> ptu;
 	private String nameHeader;
 	private ClickableHtmlColumn<Event> name;
@@ -77,6 +78,7 @@ public class EventView extends GlassPanel implements Module {
 	public EventView() {
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean configure(Element element,
 			final ClientFactory clientFactory, Arguments args) {
@@ -107,8 +109,7 @@ public class EventView extends GlassPanel implements Module {
 		});
 		update.setVisible(false);
 
-		@SuppressWarnings("unchecked")
-		CompositeHeader compositeFooter = new CompositeHeader(
+		compositeFooter = new CompositeHeader(
 				pager.getHeader(), update);
 
 		final TextArea msg = new TextArea();
@@ -499,7 +500,7 @@ public class EventView extends GlassPanel implements Module {
 		} else {
 			if (ptuId == null) {
 				// add Ptu Column
-				table.insertColumn(1, ptu, ptuHeader);
+				table.insertColumn(1, ptu, new TextHeader(ptuHeader), compositeFooter);
 			}
 		}
 
