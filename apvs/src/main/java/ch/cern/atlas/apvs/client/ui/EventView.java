@@ -41,6 +41,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.Range;
+import com.google.gwt.view.client.RangeChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -517,10 +518,13 @@ public class EventView extends GlassPanel implements Module {
 		}
 
 		// show or hide update button
-		update.setVisible(needsUpdate());
+		boolean needsUpdate = needsUpdate();
+		update.setVisible(needsUpdate);
 
 		// Re-sort the table
-		// RangeChangeEvent.fire(table, table.getVisibleRange());
+		if (!needsUpdate) {
+			RangeChangeEvent.fire(table, table.getVisibleRange());
+		}
 		table.redraw();
 
 		return false;
