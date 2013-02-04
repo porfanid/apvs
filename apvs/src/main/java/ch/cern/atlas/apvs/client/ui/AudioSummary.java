@@ -5,7 +5,7 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
@@ -185,12 +185,12 @@ public class AudioSummary extends GlassPanel implements Module {
 					}
 				});
 
-		AudioSettingsChangedRemoteEvent.subscribe(eventBus,
-				new AudioSettingsChangedRemoteEvent.Handler() {
+		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,
+				new AudioUsersSettingsChangedRemoteEvent.Handler() {
 
 					@Override
-					public void onAudioSettingsChanged(
-							AudioSettingsChangedRemoteEvent event) {
+					public void onAudioUsersSettingsChanged(
+							AudioUsersSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
 
 						dataProvider.getList().clear();
