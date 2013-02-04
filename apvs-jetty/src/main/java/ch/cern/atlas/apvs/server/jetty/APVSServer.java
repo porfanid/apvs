@@ -3,7 +3,9 @@ package ch.cern.atlas.apvs.server.jetty;
 import java.net.URL;
 import java.security.ProtectionDomain;
 
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -17,8 +19,14 @@ public class APVSServer {
 	public static void main(String[] args) {
 		int port = Integer.parseInt(System.getProperty("port",
 				"" + DEFAULT_PORT_NO));
-		Server server = new Server(port);
-
+		Server server = new Server();
+		
+		// only access via localhost, hidden behind apache
+		Connector connector = new SelectChannelConnector();
+		connector.setHost("localhost");
+		connector.setPort(port);
+		server.addConnector(connector);
+		
 		ProtectionDomain domain = APVSServer.class.getProtectionDomain();
 		URL location = domain.getCodeSource().getLocation();
 

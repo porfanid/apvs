@@ -110,7 +110,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 	}
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 	private final static boolean DEBUGPLUS = false;
 
 	@Override
@@ -198,7 +198,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		String ptuId = message.getPtuId();
 		String sensor = message.getName();
 
-		log.info("EVENT " + message);
+//		log.info("EVENT " + message);
 
 		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
 				message.getEventType(), message.getValue(), message

@@ -63,50 +63,45 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	protected List<String> dosimeterSerialNumbers = new ArrayList<String>();
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
-	
+
 	/*
 	 * Addition Variables declaration
 	 */
 	private List<VoipAccount> usersAccounts = new ArrayList<VoipAccount>();
 	private List<String> usersList = new ArrayList<String>();
-	private AudioSettings voipAccounts =  new AudioSettings();
+	private AudioSettings voipAccounts = new AudioSettings();
+
 	/*
 	 * End of addition
 	 */
-	
+
 	public PtuSettingsView() {
 	}
 
 	@Override
-	public boolean configure(Element element, final ClientFactory clientFactory,
-			Arguments args) {
+	public boolean configure(Element element,
+			final ClientFactory clientFactory, Arguments args) {
 
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
-		
-		/*
-		 * Addition of Asterisk account listing event
-		 */
-		//Call RPC Method to List SIP Accounts
+
+		// Call RPC Method to List SIP Accounts
 		clientFactory.getAudioService().usersList(new AsyncCallback<Void>() {
-			
+
 			@Override
 			public void onSuccess(Void result) {
 				System.err.println("Workers SIP accounts listed...");
 			}
-			
+
 			@Override
 			public void onFailure(Throwable caught) {
 				System.err.println("Fail to list workers SIP accounts " + caught);				
 			}
 		});
-		/*
-		 * End of addition
-		 */
-		
+
 		add(table, CENTER);
 
-		setVisible(clientFactory.isSupervisor());		
-		
+		setVisible(clientFactory.isSupervisor());
+
 		// ENABLED
 		Column<String, Boolean> enabled = new Column<String, Boolean>(
 				new CheckboxCell()) {
@@ -151,11 +146,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		name.setSortable(true);
 		table.addColumn(name, "Name");
 		
-		/*
-		 * Addition on Activity
-		 */
 		//Impact Activity Name
-		//TODO
 		Column<String, String> impact = new Column<String, String>(new TextCell()) {
 			
 			@Override
@@ -165,131 +156,133 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		};
 		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(impact, "Impact #");
-		/*
-		 * End of addition
-		 */
-
 		
 		// DOSIMETER
-		Column<String, String> dosimeter;
-		boolean useCompositeCell = false;
+		boolean enableDosimeter = false;
+		Column<String, String> dosimeter = null;
+		if (enableDosimeter) {
+			boolean useCompositeCell = false;
 
-		final Delegate<String> setDosimeterSerialId = new Delegate<String>() {
-			@Override
-			public void execute(String object) {
-				System.out.println("Action program "
-						+ settings.getDosimeterSerialNumber(object) + " into "
-						+ object);
-				final Order order = new Order(object, "DosimeterID",
-						settings.getDosimeterSerialNumber(object));
-				clientFactory.getPtuService().handleOrder(order,
-						new AsyncCallback<Void>() {
+			final Delegate<String> setDosimeterSerialId = new Delegate<String>() {
+				@Override
+				public void execute(String object) {
+					System.out.println("Action program "
+							+ settings.getDosimeterSerialNumber(object)
+							+ " into " + object);
+					final Order order = new Order(object, "DosimeterID",
+							settings.getDosimeterSerialNumber(object));
+					clientFactory.getPtuService().handleOrder(order,
+							new AsyncCallback<Void>() {
 
+								@Override
+								public void onSuccess(Void result) {
+									log.info("Order " + order + " set");
+								}
+
+								@Override
+								public void onFailure(Throwable caught) {
+									log.warn("Order " + order + " failed "
+											+ caught);
+								}
+							});
+				}
+			};
+
+			if (useCompositeCell) {
+				// FIXME #275 could be done with cells, but could not get button
+				// and
+				// inout next to eachother, something with
+				// block level and inline elements AND table cells
+				List<HasCell<String, ?>> cells = new ArrayList<HasCell<String, ?>>();
+				cells.add(new HasCell<String, String>() {
+					Cell<String> action = new ActionCell<String>("Set to PTU",
+							setDosimeterSerialId);
+
+					@Override
+					public Cell<String> getCell() {
+						return action;
+					}
+
+					@Override
+					public FieldUpdater<String, String> getFieldUpdater() {
+						return null;
+					}
+
+					@Override
+					public String getValue(String object) {
+						return object;
+					}
+
+				});
+				cells.add(new HasCell<String, String>() {
+					Cell<String> cell = new TextInputSizeCell(10);
+
+					@Override
+					public Cell<String> getCell() {
+						return cell;
+					}
+
+					@Override
+					public FieldUpdater<String, String> getFieldUpdater() {
+						return new FieldUpdater<String, String>() {
 							@Override
-							public void onSuccess(Void result) {
-								log.info("Order " + order + " set");
+							public void update(int index, String object,
+									String value) {
+								settings.setDosimeterSerialNumber(object, value);
+								fireSettingsChangedEvent(eventBus, settings);
 							}
+						};
+					}
 
-							@Override
-							public void onFailure(Throwable caught) {
-								log.warn("Order " + order + " failed " + caught);
-							}
-						});
+					@Override
+					public String getValue(String object) {
+						return settings.getDosimeterSerialNumber(object);
+					}
+				});
+				dosimeter = new Column<String, String>(
+						new CompositeCell<String>(cells)) {
+
+					@Override
+					public String getValue(String object) {
+						return object;
+					}
+				};
+			} else {
+				dosimeter = new Column<String, String>(
+						new TextInputSizeCell(15)) {
+					@Override
+					public String getValue(String object) {
+						return settings.getDosimeterSerialNumber(object);
+					}
+				};
+				dosimeter.setFieldUpdater(new FieldUpdater<String, String>() {
+
+					@Override
+					public void update(int index, String object, String value) {
+						settings.setDosimeterSerialNumber(object, value);
+						fireSettingsChangedEvent(eventBus, settings);
+					}
+				});
 			}
-		};
+			dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+			dosimeter.setSortable(useCompositeCell);
+			table.addColumn(dosimeter, "Dosimeter #");
 
-		if (useCompositeCell) {
-			// FIXME #275 could be done with cells, but could not get button and
-			// inout next to eachother, something with
-			// block level and inline elements AND table cells
-			List<HasCell<String, ?>> cells = new ArrayList<HasCell<String, ?>>();
-			cells.add(new HasCell<String, String>() {
-				Cell<String> action = new ActionCell<String>("Set to PTU",
-						setDosimeterSerialId);
+			if (!useCompositeCell) {
+				Column<String, String> dosimeterSet = new Column<String, String>(
+						new ActionCell<String>("Set to PTU",
+								setDosimeterSerialId)) {
 
-				@Override
-				public Cell<String> getCell() {
-					return action;
-				}
-
-				@Override
-				public FieldUpdater<String, String> getFieldUpdater() {
-					return null;
-				}
-
-				@Override
-				public String getValue(String object) {
-					return object;
-				}
-
-			});
-			cells.add(new HasCell<String, String>() {
-				Cell<String> cell = new TextInputSizeCell(10);
-
-				@Override
-				public Cell<String> getCell() {
-					return cell;
-				}
-
-				@Override
-				public FieldUpdater<String, String> getFieldUpdater() {
-					return new FieldUpdater<String, String>() {
-						@Override
-						public void update(int index, String object,
-								String value) {
-							settings.setDosimeterSerialNumber(object, value);
-							fireSettingsChangedEvent(eventBus, settings);
-						}
-					};
-				}
-
-				@Override
-				public String getValue(String object) {
-					return settings.getDosimeterSerialNumber(object);
-				}
-			});
-			dosimeter = new Column<String, String>(new CompositeCell<String>(
-					cells)) {
-
-				@Override
-				public String getValue(String object) {
-					return object;
-				}
-			};
-		} else {
-			dosimeter = new Column<String, String>(new TextInputSizeCell(15)) {
-				@Override
-				public String getValue(String object) {
-					return settings.getDosimeterSerialNumber(object);
-				}
-			};
-			dosimeter.setFieldUpdater(new FieldUpdater<String, String>() {
-
-				@Override
-				public void update(int index, String object, String value) {
-					settings.setDosimeterSerialNumber(object, value);
-					fireSettingsChangedEvent(eventBus, settings);
-				}
-			});
-		}
-		dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		dosimeter.setSortable(useCompositeCell);
-		table.addColumn(dosimeter, "Dosimeter #");
-
-		if (!useCompositeCell) {
-			Column<String, String> dosimeterSet = new Column<String, String>(
-					new ActionCell<String>("Set to PTU", setDosimeterSerialId)) {
-
-				@Override
-				public String getValue(String object) {
-					return object;
-				}
-			};
-			dosimeterSet.setSortable(false);
-			dosimeterSet
-					.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-			table.addColumn(dosimeterSet, "Dosimeter #");
-
+					@Override
+					public String getValue(String object) {
+						return object;
+					}
+				};
+				dosimeterSet.setSortable(false);
+				dosimeterSet
+						.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+				table.addColumn(dosimeterSet, "Dosimeter #");
+			}
 		}
 
 		// HELMET URL
@@ -334,30 +327,28 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(new ArrayList<String>());
-		
-		/*
-		 * Addition on SIP Account
-		 */
-		//SIP Number 
-		Column<String, String> number = new Column<String, String>(new DynamicSelectionCell(new StringList<String>(usersList))){
-			
+
+		// SIP Number
+		Column<String, String> number = new Column<String, String>(
+				new DynamicSelectionCell(new StringList<String>(usersList))) {
+
 			@Override
 			public String getValue(String object) {
 				return voipAccounts.getNumber(object);
 			}
-					
+
 		};
 		number.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(number, "SIP Account");
-				
+
 		number.setFieldUpdater(new FieldUpdater<String, String>() {
-			
+
 			@Override
 			public void update(int index, String object, String value) {
 				if(voipAccounts.contains(object)){
-					System.out.println("Condicao e verdadeira: " + value +" object "+ object);
+					//System.out.println("Condicao e verdadeira: " + value +" object "+ object);
 					voipAccounts.setNumber(object, value);
-					System.out.println("Voip: " + voipAccounts.getPtuIds());
+					//System.out.println("Voip: " + voipAccounts.getPtuIds());
 					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
 				}
 				else{
@@ -365,13 +356,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				}
 			}
 		});
-		/*
-		 * End of addition
-		 */
-		
-		/*
-		 * Addition on SIP Account
-		 */
+
 		//SIP Status 
 		Column<String, String> status = new Column<String, String>(new TextCell()){
 			
@@ -388,11 +373,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		};
 		status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(status, "Account Status");
-		/*
-		 * End of addition
-		 */
-		
-		
+
 		// SORTING
 		columnSortHandler = new ListHandler<String>(dataProvider.getList());
 		columnSortHandler.setComparator(ptuId, new Comparator<String>() {
@@ -411,12 +392,17 @@ public class PtuSettingsView extends GlassPanel implements Module {
 						.compareTo(interventions.get(o2).getName());
 			}
 		});
-		columnSortHandler.setComparator(dosimeter, new Comparator<String>() {
-			public int compare(String o1, String o2) {
-				return settings.getDosimeterSerialNumber(o1).compareTo(
-						settings.getDosimeterSerialNumber(o2));
-			}
-		});
+		if (enableDosimeter) {
+			columnSortHandler.setComparator(dosimeter,
+					new Comparator<String>() {
+						public int compare(String o1, String o2) {
+							return settings
+									.getDosimeterSerialNumber(o1)
+									.compareTo(
+											settings.getDosimeterSerialNumber(o2));
+						}
+					});
+		}
 		columnSortHandler.setComparator(helmetUrl, new Comparator<String>() {
 			public int compare(String o1, String o2) {
 				return settings.getCameraUrl(o1, CameraView.HELMET).compareTo(
@@ -456,10 +442,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 						scheduler.update();
 					}
 				});
-		
-		/*
-		 * Addition of Audio settings change
-		 */
+
 		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,new AudioUsersSettingsChangedRemoteEvent.Handler() {
 			
 			@Override
@@ -471,14 +454,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				//dataProvider.getList().addAll(voipAccounts.getPtuIds());
 			}
 		}); 		
-		
-		/*
-		 * End of addition
-		 */
-		
-		/*
-		 * Addition of Audio users account listing event
-		 */
+
 		AudioUsersStatusRemoteEvent.register(eventBus, new AudioUsersStatusRemoteEvent.Handler() {
 			
 			@Override
@@ -493,27 +469,23 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				scheduler.update();
 			}
 		});	
-		/*
-		 * End of addition
-		 */
-		
 
-//		DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
-//				new DosimeterSerialNumbersChangedEvent.Handler() {
-//
-//					@Override
-//					public void onDosimeterSerialNumbersChanged(
-//							DosimeterSerialNumbersChangedEvent event) {
-//						dosimeterSerialNumbers.clear();
-//						dosimeterSerialNumbers.addAll(event
-//								.getDosimeterSerialNumbers());
-//						log.info("DOSI changed "
-//								+ dosimeterSerialNumbers.size());
-//
-//						// FIXME, allow for setting not available as DOSI #
-//						scheduler.update();
-//					}
-//				});
+		// DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
+		// new DosimeterSerialNumbersChangedEvent.Handler() {
+		//
+		// @Override
+		// public void onDosimeterSerialNumbersChanged(
+		// DosimeterSerialNumbersChangedEvent event) {
+		// dosimeterSerialNumbers.clear();
+		// dosimeterSerialNumbers.addAll(event
+		// .getDosimeterSerialNumbers());
+		// log.info("DOSI changed "
+		// + dosimeterSerialNumbers.size());
+		//
+		// // FIXME, allow for setting not available as DOSI #
+		// scheduler.update();
+		// }
+		// });
 
 		scheduler.update();
 
@@ -533,9 +505,9 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	private void fireSettingsChangedEvent(EventBus eventBus,
 			PtuSettings settings) {
 
-		((RemoteEventBus) eventBus).fireEvent(new PtuSettingsChangedRemoteEvent(
-				settings));
-//		((RemoteEventBus) eventBus).fireEvent(new DosimeterPtuChangedEvent(
-//				settings.getDosimeterToPtuMap()));
+		((RemoteEventBus) eventBus)
+				.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
+		// ((RemoteEventBus) eventBus).fireEvent(new DosimeterPtuChangedEvent(
+		// settings.getDosimeterToPtuMap()));
 	}
 }

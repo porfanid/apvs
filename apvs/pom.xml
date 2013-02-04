@@ -73,7 +73,7 @@
 				<executions>
 					<execution>
 						<configuration>
-							<extraJvmArgs>-Xmx1024m</extraJvmArgs>
+							<extraJvmArgs>-Xmx2048m</extraJvmArgs>
 						</configuration>
 						<goals>
 							<goal>generateAsync</goal>
