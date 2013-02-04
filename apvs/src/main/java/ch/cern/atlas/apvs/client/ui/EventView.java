@@ -103,6 +103,7 @@ public class EventView extends GlassPanel implements Module {
 				scrollPanel.setVerticalScrollPosition(scrollPanel
 						.getMinimumHorizontalScrollPosition());
 
+				table.getColumnSortList().clear();
 				table.getColumnSortList().push(new ColumnSortInfo(date, false));
 				scheduler.update();
 			}
