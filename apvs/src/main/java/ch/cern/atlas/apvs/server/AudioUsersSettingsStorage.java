@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.event.AudioSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -15,22 +15,22 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 
-public class AudioSettingsStorage {
+public class AudioUsersSettingsStorage {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
-	private static final String APVS_ASTERISK_SETTINGS = "APVS.asterisk.settings";
-	private static AudioSettingsStorage instance;
+	private static final String APVS_AUDIO_USERS_SETTINGS = "APVS.audioUsers.settings";
+	private static AudioUsersSettingsStorage instance;
 	private AudioSettings audioSettings;
 
-	public AudioSettingsStorage(final RemoteEventBus eventBus) {
+	public AudioUsersSettingsStorage(final RemoteEventBus eventBus) {
 
 		load();
 
-		AudioSettingsChangedRemoteEvent.register(eventBus, new AudioSettingsChangedRemoteEvent.Handler() {
+		AudioUsersSettingsChangedRemoteEvent.register(eventBus, new AudioUsersSettingsChangedRemoteEvent.Handler() {
 					
 					@Override
-					public void onAudioSettingsChanged(AudioSettingsChangedRemoteEvent event) {
+					public void onAudioUsersSettingsChanged(AudioUsersSettingsChangedRemoteEvent event) {
 						audioSettings = event.getAudioSettings();
 						store();	
 					}
@@ -55,7 +55,7 @@ public class AudioSettingsStorage {
 				}
 
 				if (changed) {
-					eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(audioSettings));
+					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(audioSettings));
 				}
 			}
 		});
@@ -64,18 +64,18 @@ public class AudioSettingsStorage {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
-				if (event.getRequestedClassName().equals(AudioSettingsChangedRemoteEvent.class.getName())) {
-					eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(audioSettings));
+				if (event.getRequestedClassName().equals(AudioUsersSettingsChangedRemoteEvent.class.getName())) {
+					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(audioSettings));
 				}
 			}
 		});
 
-		eventBus.fireEvent(new AudioSettingsChangedRemoteEvent(audioSettings));
+		eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(audioSettings));
 	}
 
-	public static AudioSettingsStorage getInstance(RemoteEventBus eventBus) {
+	public static AudioUsersSettingsStorage getInstance(RemoteEventBus eventBus) {
 		if (instance == null) {
-			instance = new AudioSettingsStorage(eventBus);
+			instance = new AudioUsersSettingsStorage(eventBus);
 		}
 		return instance;
 	}
@@ -87,7 +87,7 @@ public class AudioSettingsStorage {
 			return;
 		}
 
-		String json = store.getItem(APVS_ASTERISK_SETTINGS);
+		String json = store.getItem(APVS_AUDIO_USERS_SETTINGS);
 		
 		
 		//************** Audio Settings **************
@@ -112,7 +112,7 @@ public class AudioSettingsStorage {
 //		log.info("Storing json " + json);
 
 		if (json != null) {
-			store.setItem(APVS_ASTERISK_SETTINGS, json);
+			store.setItem(APVS_AUDIO_USERS_SETTINGS, json);
 		}
 	}
 }

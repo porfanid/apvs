@@ -7,39 +7,39 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class AudioSettingsChangedRemoteEvent extends
-		RemoteEvent<AudioSettingsChangedRemoteEvent.Handler> {
+public class AudioUsersSettingsChangedRemoteEvent extends
+		RemoteEvent<AudioUsersSettingsChangedRemoteEvent.Handler> {
 
 	private static final long serialVersionUID = 1L;
 
 	public interface Handler {
 
-		void onAudioSettingsChanged(AudioSettingsChangedRemoteEvent event);
+		void onAudioUsersSettingsChanged(AudioUsersSettingsChangedRemoteEvent event);
 	}
 
-	private static final Type<AudioSettingsChangedRemoteEvent.Handler> TYPE = new Type<AudioSettingsChangedRemoteEvent.Handler>();
+	private static final Type<AudioUsersSettingsChangedRemoteEvent.Handler> TYPE = new Type<AudioUsersSettingsChangedRemoteEvent.Handler>();
 
 	public static HandlerRegistration register(RemoteEventBus eventBus,
-			AudioSettingsChangedRemoteEvent.Handler handler) {
+			AudioUsersSettingsChangedRemoteEvent.Handler handler) {
 
 		return eventBus.addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			AudioSettingsChangedRemoteEvent.Handler handler) {
+			AudioUsersSettingsChangedRemoteEvent.Handler handler) {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(AudioSettingsChangedRemoteEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(AudioUsersSettingsChangedRemoteEvent.class));
 
 		return registration;
 	}
 
 	private AudioSettings voipAccounts;
 
-	public AudioSettingsChangedRemoteEvent() {
+	public AudioUsersSettingsChangedRemoteEvent() {
 	}
 
-	public AudioSettingsChangedRemoteEvent(AudioSettings voipAccount) {
+	public AudioUsersSettingsChangedRemoteEvent(AudioSettings voipAccount) {
 		this.voipAccounts = voipAccount;
 	}
 
@@ -48,13 +48,13 @@ public class AudioSettingsChangedRemoteEvent extends
 	}
 
 	@Override
-	public Type<AudioSettingsChangedRemoteEvent.Handler> getAssociatedType() {
+	public Type<AudioUsersSettingsChangedRemoteEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onAudioSettingsChanged(this);
+		handler.onAudioUsersSettingsChanged(this);
 	}
 
 }
