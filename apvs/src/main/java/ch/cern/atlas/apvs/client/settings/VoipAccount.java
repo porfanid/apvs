@@ -71,7 +71,7 @@ public class VoipAccount implements Serializable {
 	}
 		
 	public void setUsername(String username){
-		this.number = username;
+		this.username = username;
 	}
 	
 	// Number	
