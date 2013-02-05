@@ -271,25 +271,4 @@ public abstract class AbstractMeasurementView extends GlassPanel implements Modu
 	protected void selectMeasurement(String name) {
 		SelectMeasurementEvent.fire(cmdBus, name);
 	}
-
-	private void register() {
-		unregister();
-	
-		measurementHandler = MeasurementChangedEvent.register(
-				clientFactory.getRemoteEventBus(),
-				new MeasurementChangedEvent.Handler() {
-					
-					@Override
-					public void onMeasurementChanged(
-							MeasurementChangedEvent event) {
-						Measurement m = event.getMeasurement();
-						if (m.getName().equals(measurementName) && ((ptuId == null) || m.getPtuId().equals(ptuId)) && (m.getDate().getTime() < new Date().getTime()+MINUTE)) {
-							addPoint(m.getPtuId(), m.getDate().getTime(), m.getValue(), m.getLowLimit(), m.getHighLimit());
-							
-							setUnit(m.getPtuId(), m.getUnit());
-						}
-					}
-				});
-	}
-
 }
