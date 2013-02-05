@@ -37,7 +37,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 
 public class AbstractTimeView extends GlassPanel {
 
-	private static final int POINT_LIMIT = 200;
+	private static final int POINT_LIMIT = 2000; // 5 seconds basis, 12 pnts/min, 720/hour
 	private static final String[] color = { "#AA4643", "#89A54E", "#80699B",
 			"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
 	private Map<String, Integer> pointsById;

@@ -96,9 +96,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final long ASTERISK_POLLING = 5000;
 	
 	//Supervisor account is 2001 by default 
-	private static  String SUPERVISOR_ACCOUNT = "SIP/2000";
+	private static String SUPERVISOR_ACCOUNT = "SIP/2000";
 	private static String SUPERVISOR_NUMBER = "2000";
-	
 	
 	private String asteriskUrl;
 	private String asteriskPwd;

@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,6 @@ import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
-import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.dom.client.Element;
 import com.google.web.bindery.event.shared.EventBus;
@@ -233,24 +231,4 @@ public class TimeView extends AbstractTimeView implements Module {
 	}
 
 	private final static long MINUTE = 60 * 1000; // 1 minute
-	
-	private void register() {
-		unregister();
-
-		measurementHandler = MeasurementChangedEvent.register(
-				clientFactory.getRemoteEventBus(),
-				new MeasurementChangedEvent.Handler() {
-					
-					@Override
-					public void onMeasurementChanged(
-							MeasurementChangedEvent event) {
-						Measurement m = event.getMeasurement();
-						if (m.getName().equals(measurementName) && ((ptuId == null) || m.getPtuId().equals(ptuId)) && (m.getDate().getTime() < new Date().getTime()+MINUTE)) {
-							addPoint(m.getPtuId(), m.getDate().getTime(), m.getValue(), m.getLowLimit(), m.getHighLimit());
-							
-							setUnit(m.getPtuId(), m.getUnit());
-						}
-					}
-				});
-	}
 }
