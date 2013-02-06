@@ -72,6 +72,8 @@ public class AudioSupervisorSettingsStorage {
 		if (supervisorAccount == null) {
 			log.warn("Could not read Supervisor Settings, using defaults");
 			supervisorAccount = new VoipAccount(true);
+		}else{
+			log.info("Audio Supervisor Settings Read");
 		}
 		
 	}

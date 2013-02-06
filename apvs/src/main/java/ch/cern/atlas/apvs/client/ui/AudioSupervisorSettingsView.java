@@ -17,6 +17,7 @@ import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ListDataProvider;
 
@@ -84,12 +85,9 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void update(int index, VoipAccount object, String value) {
-				System.out.println(supervisorsAccounts.size());
 					for(int i=0; i<supervisorsAccounts.size(); i++){
 						if(supervisorsAccounts.get(i).getNumber().equals(value)){
-							System.out.println("SUPERVISOR OLD NUMBER="+supervisor.getNumber());
 							supervisor=supervisorsAccounts.get(i);
-							System.out.println("SUPERVISOR NEW NUMBER="+supervisor.getNumber());
 							eventBus.fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisor));
 							return;
 						}	
@@ -105,6 +103,7 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onAudioSupervisorSettingsChanged(AudioSupervisorSettingsChangedRemoteEvent event) {
+					System.out.println("Entrou onAudioSupervisorSettingsChanged");
 					supervisor = event.getSupervisorSettings();	
 					dataProvider.getList().clear();
 					dataProvider.getList().add(supervisor);

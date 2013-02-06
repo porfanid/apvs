@@ -155,6 +155,10 @@ public class AudioServiceImpl extends ResponsePollService implements
 		System.out.println("Creating AudioService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 		ServerSettingsStorage.getInstance(eventBus);
+		AudioUsersSettingsStorage.getInstance(eventBus);
+		AudioSupervisorSettingsStorage.getInstance(eventBus);
+		
+		
 		executorService = Executors.newSingleThreadScheduledExecutor();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
@@ -246,7 +250,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 							AudioSupervisorSettingsChangedRemoteEvent event) {
 						supervisorAccount = event.getSupervisorSettings(); 
 						SUPERVISOR_ACCOUNT = event.getSupervisorSettings().getNumber();
-						 SUPERVISOR_NUMBER = event.getSupervisorSettings().getNumber().substring(4);
 					}
 				});
 		

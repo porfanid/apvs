@@ -83,7 +83,7 @@ public class AudioUsersSettingsStorage {
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {
-			log.warn("Asterisk Settings will not be stored");
+			log.warn("Audio Users Settings will not be stored");
 			return;
 		}
 
@@ -98,6 +98,8 @@ public class AudioUsersSettingsStorage {
 		if (audioSettings == null) {
 			log.warn("Could not read Audio Settings, using defaults");
 			audioSettings = new AudioSettings();
+		}else{
+			log.info("Audio User Settings Read");		
 		}
 		
 	}
