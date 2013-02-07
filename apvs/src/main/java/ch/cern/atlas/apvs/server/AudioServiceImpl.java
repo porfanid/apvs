@@ -95,10 +95,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static final int TIMEOUT = 20000;
 	private static final long ASTERISK_POLLING = 5000;
 	
-	//Supervisor account is 2001 by default 
-	private static String SUPERVISOR_ACCOUNT = "SIP/2000";
-	private static String SUPERVISOR_NUMBER = "2000";
-	
 	private String asteriskUrl;
 	private String asteriskPwd;
 	private String asteriskUser;
@@ -249,15 +245,15 @@ public class AudioServiceImpl extends ResponsePollService implements
 					public void onAudioSupervisorSettingsChanged(
 							AudioSupervisorSettingsChangedRemoteEvent event) {
 						supervisorAccount = event.getSupervisorSettings(); 
-						SUPERVISOR_ACCOUNT = event.getSupervisorSettings().getAccount();
-						System.out.println(SUPERVISOR_ACCOUNT);
-						System.out.println("NULL" + supervisorAccount.getAccount());
-						if(supervisorAccount.parseNumber() != null){
-							SUPERVISOR_NUMBER = event.getSupervisorSettings().parseNumber();
-							System.out.println(SUPERVISOR_NUMBER);
-						}else{
-							System.out.println("RETORNOU NULL");
-						}
+						//SUPERVISOR_ACCOUNT = event.getSupervisorSettings().getAccount();
+						System.out.println(supervisorAccount.getNumber() + supervisorAccount.getAccount());
+						//System.out.println("NULL" + supervisorAccount.getAccount());
+						//if(supervisorAccount.parseNumber() != null){
+							//SUPERVISOR_NUMBER = event.getSupervisorSettings().parseNumber();
+							//System.out.println(SUPERVISOR_NUMBER);
+						//}else{
+							//System.out.println("RETORNOU NULL");
+						//}
 					}
 				});
 		
@@ -295,7 +291,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					String type = event.getEvent().getEventType();
 					if(type.equals("Panic")){
 						List<String> channels = new ArrayList<String>();
-						channels.add(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)));	
+						channels.add(supervisorAccount.getChannel());	
 						
 						String ptuId = event.getEvent().getPtuId();
 						channels.add(voipAccounts.getChannel(ptuId));
@@ -306,7 +302,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 						} catch (AudioException e){
 							System.err.println("Failed to Hangup Channel" + e.getMessage());							
 						}
-							call(voipAccounts.getNumber(ptuId),SUPERVISOR_NUMBER);
+							call(voipAccounts.getNumber(ptuId),supervisorAccount.getNumber());
 					}
 			}
 		} );
@@ -629,19 +625,27 @@ public class AudioServiceImpl extends ResponsePollService implements
 	public void hangupEvent(HangupEvent event) {
 		String channel = event.getChannel();
 		String number = filterNumber(channel);
-		String ptuId = voipAccounts.getPtuId(number);
-		System.out.println("O PTUID afkbaskjgnkjasndgjkfnaksjfnjkasndjkfnasjkfndkjans"+ptuId);
-		if (ptuId != null) {
-			voipAccounts.setChannel(ptuId, "");
-			voipAccounts.setDestPTUser(ptuId, "", "");
-			voipAccounts.setOnCall(ptuId, false);
-			voipAccounts.setOnConference(ptuId, false);
-			voipAccounts.setRoom(ptuId, "");
-			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+		
+		if(number.equals(supervisorAccount.getNumber())){
+			supervisorAccount.setChannel("");
+			supervisorAccount.setDestPTU("");
+			supervisorAccount.setDestUser(voipAccounts.getUsername(""));
+			supervisorAccount.setOnCall(false);
 			return;
+		}else{
+			String ptuId = voipAccounts.getPtuId(number);
+			System.out.println("O PTUID afkbaskjgnkjasndgjkfnaksjfnjkasndjkfnasjkfndkjans"+ptuId);
+			if (ptuId != null) {
+				voipAccounts.setChannel(ptuId, "");
+				voipAccounts.setDestPTUser(ptuId, "", "");
+				voipAccounts.setOnCall(ptuId, false);
+				voipAccounts.setOnConference(ptuId, false);
+				voipAccounts.setRoom(ptuId, "");
+				((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+				return;
+			}
 		}
-		System.err.println("#HangupEvent - NO PTU FOUND WITH NUMBER " + number);
+		System.err.println("#HangupEvent - NO DEVICE FOUND WITH NUMBER " + number);
 	}
 
 	// Users Register and Unregister

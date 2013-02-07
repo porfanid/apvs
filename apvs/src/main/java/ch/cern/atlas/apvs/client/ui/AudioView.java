@@ -36,8 +36,8 @@ public class AudioView extends GlassPanel implements Module {
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
 	private String ptuId = new String("PTUWeb");
-	private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
-	private static final String SUPERVISOR_NUMBER = "2001";
+	//private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
+	//private static final String SUPERVISOR_NUMBER = "2001";
 	private VoipAccount supervisorAccount = new VoipAccount();
 
 	private EventBus cmdBus;
@@ -89,7 +89,7 @@ public class AudioView extends GlassPanel implements Module {
 				else if (fieldName.equals("Private Call"))
 					return ((voipAccounts.getOnCall(ptuId) ? "Hangup '": "Call '") + voipAccounts.getUsername(ptuId) + "'");
 				else if (fieldName.equals("Group Call"))
-					return ((!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId)) ? ("Make "): (voipAccounts.getOnConference(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)) ? "Leave ": "Join "))+ "Impact conference");
+					return ((!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId)) ? ("Make "): (supervisorAccount.getOnConference() ? "Leave ": "Join "))+ "Impact conference");
 				else if(fieldName.equals("Conference"))
 					return "Close '" + voipAccounts.getActivity(ptuId)+ "' conference";
 				else if(fieldName.equals("Mute/Unmute"))
@@ -174,7 +174,7 @@ public class AudioView extends GlassPanel implements Module {
 						channels.add(voipAccounts.getChannel(ptuId));
 						// Hangup Supervisor and PTU User from active calls
 						AudioServiceAsync.Util.getInstance().hangupMultiple(channels, callbackHangup);
-						AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(ptuId),SUPERVISOR_NUMBER, callbackCall);
+						AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(ptuId),supervisorAccount.getNumber(), callbackCall);
 
 					} else {
 						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);//voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
@@ -184,24 +184,24 @@ public class AudioView extends GlassPanel implements Module {
 					}
 					
 				} else if (fieldName.equals("Group Call")){
-					if (!voipAccounts.getOnConference(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT))) {
+					if (!supervisorAccount.getOnConference()) {
 						if (!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
 							// Hangup Impact Activity Users from active calls
 							AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)),callbackHangup);
 							AudioServiceAsync.Util.getInstance().newConference(voipAccounts.getNumbersActivity(voipAccounts.getActivity(ptuId)),callbackConference);
 						} else{
 							// Hangup Supervisor from active calls
-							AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
-							AudioServiceAsync.Util.getInstance().addToConference(SUPERVISOR_ACCOUNT,voipAccounts.getRoom(ptuId),callbackConference);
+							AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
+							AudioServiceAsync.Util.getInstance().addToConference(supervisorAccount.getAccount(),voipAccounts.getRoom(ptuId),callbackConference);
 						}
 					} else {
-						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
+						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
 					}
 					
 				} else if (fieldName.equals("Conference")){
 					AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)),callbackHangup);
-					if( voipAccounts.getRoom(ptuId).equals(voipAccounts.getRoom(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT))))
-						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
+					if( voipAccounts.getRoom(ptuId).equals(supervisorAccount.getRoom()))
+						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
 					
 				} else if (fieldName.equals("Mute/Unmute")){
 					System.out.println(voipAccounts.getMute(ptuId));
