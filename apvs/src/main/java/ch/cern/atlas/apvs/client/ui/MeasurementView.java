@@ -161,8 +161,15 @@ public class MeasurementView extends AbstractMeasurementView {
 				if (m == null) {
 					return;
 				}
+				
+				sb.append(SafeHtmlUtils
+						.fromSafeConstant("<div style=\"background:"
+								+ "#AA4643" + "\">"));
+				
 				((ClickableTextCell) getCell()).render(context,
 						decorate(s, m, last), sb);
+				
+				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
 			}
 
 		};
