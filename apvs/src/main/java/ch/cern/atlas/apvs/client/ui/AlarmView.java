@@ -52,6 +52,9 @@ public class AlarmView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
+	private final static String ALARM = "<div class=\"alarm\">ALARM</div>";
+	private final static String CLEARED = "<div class=\"cleared\">Cleared</div>";
+	
 	public AlarmView() {
 	}
 
@@ -84,14 +87,14 @@ public class AlarmView extends GlassPanel implements Module {
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(names.get(0))) {
-					return alarms != null && alarms.isPanic(ptuId) ? "ALARM"
-							: "cleared";
+					return alarms != null && alarms.isPanic(ptuId) ? ALARM
+							: CLEARED;
 				} else if (name.equals(names.get(1))) {
-					return alarms != null && alarms.isDose(ptuId) ? "ALARM"
-							: "cleared";
+					return alarms != null && alarms.isDose(ptuId) ? ALARM
+							: CLEARED;
 				} else if (name.equals(names.get(2))) {
-					return alarms != null && alarms.isFall(ptuId) ? "ALARM"
-							: "cleared";
+					return alarms != null && alarms.isFall(ptuId) ? ALARM
+							: CLEARED;
 				}
 				System.out.println("AlarmView name unknown '" + name + "'");
 				return "unknown";

@@ -168,9 +168,10 @@ public class MeasurementView extends AbstractMeasurementView {
 				}
 
 				double c = m.getValue().doubleValue();
-				String status = c < m.getLowLimit().doubleValue() ? "lo-limit"
-						: c > m.getHighLimit().doubleValue() ? "hi-limit"
-								: "in-range";
+				double lo = m.getLowLimit().doubleValue();
+				double hi = m.getHighLimit().doubleValue();
+				String status = lo >= hi ? "in_range" : c < lo ? "lo-limit"
+						: c > hi ? "hi-limit" : "in-range";
 
 				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
 						+ status + "\">"));
