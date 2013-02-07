@@ -164,3 +164,8 @@ body {
 	background: green;
 	color: white;
 }
+
+.unknown {
+	background: yellow;
+	color: black;
+}

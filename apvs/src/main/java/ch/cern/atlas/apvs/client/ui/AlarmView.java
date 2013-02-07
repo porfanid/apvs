@@ -10,6 +10,7 @@ import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
+import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
@@ -22,6 +23,7 @@ import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextHeader;
@@ -52,8 +54,9 @@ public class AlarmView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	private final static String ALARM = "<div class=\"alarm\">ALARM</div>";
-	private final static String CLEARED = "<div class=\"cleared\">Cleared</div>";
+	private final static String ALARM = "alarm";
+	private final static String CLEARED = "cleared";
+	private final static String UNKNOWN = "unknown";
 	
 	public AlarmView() {
 	}
@@ -87,14 +90,14 @@ public class AlarmView extends GlassPanel implements Module {
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(names.get(0))) {
-					return alarms != null && alarms.isPanic(ptuId) ? ALARM
-							: CLEARED;
+					return alarms != null && alarms.isPanic(ptuId) ? "ALARM"
+							: "Cleared";
 				} else if (name.equals(names.get(1))) {
-					return alarms != null && alarms.isDose(ptuId) ? ALARM
-							: CLEARED;
+					return alarms != null && alarms.isDose(ptuId) ? "ALARM"
+							: "Cleared";
 				} else if (name.equals(names.get(2))) {
-					return alarms != null && alarms.isFall(ptuId) ? ALARM
-							: CLEARED;
+					return alarms != null && alarms.isFall(ptuId) ? "ALARM"
+							: "Cleared";
 				}
 				System.out.println("AlarmView name unknown '" + name + "'");
 				return "unknown";
@@ -102,7 +105,26 @@ public class AlarmView extends GlassPanel implements Module {
 
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
+				String status = "";
+				if (name.equals(names.get(0))) {
+					status = alarms != null && alarms.isPanic(ptuId) ? ALARM
+							: CLEARED;
+				} else if (name.equals(names.get(1))) {
+					status = alarms != null && alarms.isDose(ptuId) ? ALARM
+							: CLEARED;
+				} else if (name.equals(names.get(2))) {
+					status = alarms != null && alarms.isFall(ptuId) ? ALARM
+							: CLEARED;
+				} else {
+					status = UNKNOWN;
+				}
+			
+				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
+						+ status + "\">"));
+
 				getCell().render(context, getValue(name), sb);
+
+				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));				
 			}
 		};
 		column.setEnabled(clientFactory.isSupervisor());
