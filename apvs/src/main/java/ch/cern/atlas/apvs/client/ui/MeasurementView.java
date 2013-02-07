@@ -47,6 +47,8 @@ public class MeasurementView extends AbstractMeasurementView {
 
 		sortable = !options.contains("NoSort");
 
+		table.setWidth("100%");
+		
 		add(table, CENTER);
 
 		name = new ClickableHtmlColumn<String>() {
