@@ -142,5 +142,17 @@ body {
     bottom: 0px;
 }
 
+.hi-limit {
+	background: #AA4643;
+	color: white;
+}
 
+.lo-limit {
+	background: blue;
+	color: white;
+}
 
+.in-range {
+	background: yellow;
+	color: black;
+}
