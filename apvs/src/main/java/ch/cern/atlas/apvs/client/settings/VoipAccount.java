@@ -84,7 +84,7 @@ public class VoipAccount implements Serializable {
 	}
 
 	//Parse Number (eg. SIP/1000->1000)
-	public String parseNumber(){
+	public String getNumber(){
 		if(isSIPValid())
 			return (this.account.substring(4));
 		
