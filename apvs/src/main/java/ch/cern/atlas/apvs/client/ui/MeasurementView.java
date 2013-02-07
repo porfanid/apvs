@@ -172,7 +172,7 @@ public class MeasurementView extends AbstractMeasurementView {
 						: c > m.getHighLimit().doubleValue() ? "hi-limit"
 								: "in-range";
 
-				sb.append(SafeHtmlUtils.fromSafeConstant("<div style=\""
+				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
 						+ status + "\">"));
 
 				((ClickableTextCell) getCell()).render(context,
