@@ -249,7 +249,15 @@ public class AudioServiceImpl extends ResponsePollService implements
 					public void onAudioSupervisorSettingsChanged(
 							AudioSupervisorSettingsChangedRemoteEvent event) {
 						supervisorAccount = event.getSupervisorSettings(); 
-						SUPERVISOR_ACCOUNT = event.getSupervisorSettings().getNumber();
+						SUPERVISOR_ACCOUNT = event.getSupervisorSettings().getAccount();
+						System.out.println(SUPERVISOR_ACCOUNT);
+						System.out.println("NULL" + supervisorAccount.getAccount());
+						if(supervisorAccount.parseNumber() != null){
+							SUPERVISOR_NUMBER = event.getSupervisorSettings().parseNumber();
+							System.out.println(SUPERVISOR_NUMBER);
+						}else{
+							System.out.println("RETORNOU NULL");
+						}
 					}
 				});
 		
@@ -266,8 +274,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 								if( interventions.get(ptuIds.get(i)).getImpactNumber() !=null){
 									voipAccounts.setActivity(ptuIds.get(i), interventions.get(ptuIds.get(i)).getImpactNumber() );
 								}
-							}else{
-								System.out.println("False evaluation...");
 							}
 					}
 					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));

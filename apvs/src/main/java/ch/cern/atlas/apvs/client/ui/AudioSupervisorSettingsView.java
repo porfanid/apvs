@@ -78,7 +78,7 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public String getValue(VoipAccount object) {					
-					return object.getNumber();
+					return object.getAccount();
 			}
 		};
 		account.setFieldUpdater(new FieldUpdater<VoipAccount, String>() {
@@ -86,7 +86,7 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			@Override
 			public void update(int index, VoipAccount object, String value) {
 					for(int i=0; i<supervisorsAccounts.size(); i++){
-						if(supervisorsAccounts.get(i).getNumber().equals(value)){
+						if(supervisorsAccounts.get(i).getAccount().equals(value)){
 							supervisor=supervisorsAccounts.get(i);
 							eventBus.fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisor));
 							return;
@@ -118,7 +118,7 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 				supervisorsAccounts = event.getSupervisorsList();
 				supervisorsList.clear();
 				for(int i=0; i<supervisorsAccounts.size();i++){
-					supervisorsList.add(supervisorsAccounts.get(i).getNumber());
+					supervisorsList.add(supervisorsAccounts.get(i).getAccount());
 				}	
 				dataProvider.getList().clear();
 				dataProvider.getList().add(supervisor);

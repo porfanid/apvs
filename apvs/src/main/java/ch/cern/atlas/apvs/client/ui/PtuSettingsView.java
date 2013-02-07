@@ -363,7 +363,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			@Override
 			public String getValue(String object) {
 				for (int i=0; i<usersAccounts.size(); i++){
-					if(usersAccounts.get(i).getNumber().equals(voipAccounts.getNumber(object)))
+					if(usersAccounts.get(i).getAccount().equals(voipAccounts.getNumber(object)))
 							return (usersAccounts.get(i).getStatus() ?"Online":"Offline");
 					
 				}
@@ -464,7 +464,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				usersAccounts = event.getUsersList();
 				usersList.clear();
 				for(int i=0; i<usersAccounts.size();i++){
-					usersList.add(usersAccounts.get(i).getNumber());
+					usersList.add(usersAccounts.get(i).getAccount());
 				}	
 				scheduler.update();
 			}

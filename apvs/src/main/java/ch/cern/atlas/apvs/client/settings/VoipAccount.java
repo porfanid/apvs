@@ -6,7 +6,7 @@ public class VoipAccount implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String username;
-	private String number;
+	private String account;
 	private String channel;
 	private String destUser;
 	private String destPTU;
@@ -21,9 +21,9 @@ public class VoipAccount implements Serializable {
 		this(false);
 	}
 	
-	public VoipAccount(String number, Boolean status){
+	public VoipAccount(String account, Boolean status){
 		this.username = "";
-		this.number = number;
+		this.account = account;
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
@@ -35,9 +35,9 @@ public class VoipAccount implements Serializable {
 		this.onConference = false;
 	}
 	
-	public VoipAccount(String number) {
+	public VoipAccount(String account) {
 		this.username = "";
-		this.number = number;
+		this.account = account;
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
@@ -53,7 +53,7 @@ public class VoipAccount implements Serializable {
 		if(!setDefaults)
 			return;
 		this.username = "";
-		this.number = "";
+		this.account = "SIP/2001";
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
@@ -75,14 +75,32 @@ public class VoipAccount implements Serializable {
 	}
 	
 	// Number	
-	public String getNumber(){
-		return this.number;
+	public String getAccount(){
+		return this.account;
 	}
 		
-	public void setNumber(String number){
-		this.number = number;
+	public void setAccount(String account){
+		this.account = account;
 	}
 
+	//Parse Number (eg. SIP/1000->1000)
+	public String parseNumber(){
+		if(isSIPValid())
+			return (this.account.substring(4));
+		
+		return null;
+	}
+	
+	public boolean isSIPValid(){
+		if(this.account == null)
+			return false;
+		
+		if(this.account.contains("SIP/")){
+			return true;
+		}
+		return false;
+	}
+	
 	//Channel
 	public String getChannel(){
 		return this.channel;
