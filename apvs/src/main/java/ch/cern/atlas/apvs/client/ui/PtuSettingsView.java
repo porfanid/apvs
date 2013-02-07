@@ -367,7 +367,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 							return (usersAccounts.get(i).getStatus() ?"Online":"Offline");
 					
 				}
-				return "Unknown";
+				return "Unknown/ Not defined";
 			}
 					
 		};

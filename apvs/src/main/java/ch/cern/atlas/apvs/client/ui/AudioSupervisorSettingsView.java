@@ -60,19 +60,6 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 		};
 		table.addColumn(supervisorLabel, "Account Type");
 		
-		// Account status
-		Column<VoipAccount, String> status = new Column<VoipAccount, String> (new TextCell()) {
-			
-			@Override
-			public String getValue(VoipAccount account) {
-				if(supervisorsList.contains("Not available"))
-					return "Unknown";
-				
-				return (supervisor.getStatus()?"Online":"Offline");
-			}
-		};
-		table.addColumn(status, "Account Status");
-		
 		//  SIP Account
 		Column<VoipAccount, String> account = new Column<VoipAccount, String> (new DynamicSelectionCell(new StringList<String>(supervisorsList))){
 			
@@ -95,6 +82,22 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			}
 		});
 		table.addColumn(account, "SIP Account");
+		
+		// Account status
+		Column<VoipAccount, String> status = new Column<VoipAccount, String> (new TextCell()) {
+			
+			@Override
+			public String getValue(VoipAccount account) {
+				for (int i=0; i<supervisorsAccounts.size(); i++){
+					if(supervisorsAccounts.get(i).getStatus().equals(supervisor.getStatus()))
+							return (supervisorsAccounts.get(i).getStatus() ?"Online":"Offline");
+					
+				}
+				return "Unknown/ Not defined";
+				
+			}
+		};
+		table.addColumn(status, "Account Status");
 		
 		dataProvider.addDataDisplay(table);
 		dataProvider.getList().add(new VoipAccount());		
