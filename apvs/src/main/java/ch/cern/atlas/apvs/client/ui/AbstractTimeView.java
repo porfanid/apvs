@@ -32,12 +32,17 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.SeriesPlotOptions;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 
 public class AbstractTimeView extends GlassPanel {
 
-	private static final int POINT_LIMIT = 2000; // 5 seconds basis, 12 pnts/min, 720/hour
+	private static final int POINT_LIMIT = 2000; // 5 seconds basis, 12
+													// pnts/min, 720/hour
 	private static final String[] color = { "#AA4643", "#89A54E", "#80699B",
 			"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
 	private Map<String, Integer> pointsById;
@@ -56,6 +61,29 @@ public class AbstractTimeView extends GlassPanel {
 		seriesById = new HashMap<String, Series>();
 		colorsById = new HashMap<String, String>();
 		limitSeriesById = new HashMap<String, Series>();
+
+		// Fix for #289
+		Window.addResizeHandler(new ResizeHandler() {
+
+			@Override
+			public void onResize(ResizeEvent event) {
+				if ((chart != null) && (chart.isVisible())) {
+					// table, with 100% width, will be the same as old chart
+					Widget parent = chart.getParent();
+					if (parent != null) {
+						// div, corrected width
+						parent = parent.getParent();
+					}
+					if (parent != null) {
+						int width = parent.getOffsetWidth();
+						if (width > 0) {
+//							Window.alert("Setting width "+width+" from "+parent.getElement().getId());
+							chart.setSize(width, chart.getOffsetHeight(), false);
+						}
+					}
+				}
+			}
+		});
 	}
 
 	public Map<String, String> getColors() {
@@ -85,7 +113,8 @@ public class AbstractTimeView extends GlassPanel {
 						"#92A8CD", "#A47D7C", "#B5CA92", "#4572A7")
 				.setZoomType(Chart.ZoomType.X)
 				.setSizeToMatchContainer()
-				// .setWidth100()
+				.setWidth100()
+				.setHeight100()
 				.setChartTitle(
 						title ? new ChartTitle().setText(name).setStyle(
 								new Style().setFontSize("12px")) : null)

@@ -142,5 +142,30 @@ body {
     bottom: 0px;
 }
 
+.hi-limit {
+	background: #AA4643;
+	color: white;
+}
 
+.lo-limit {
+	background: #AA4643;
+	color: white;
+}
 
+.in-range {
+}
+
+.alarm button {
+	background: #AA4643;
+	color: white;
+}
+
+.cleared button {
+	background: green;
+	color: white;
+}
+
+.unknown button {
+	background: yellow;
+	color: black;
+}
