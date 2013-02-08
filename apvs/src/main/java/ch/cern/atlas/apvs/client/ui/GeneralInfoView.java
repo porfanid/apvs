@@ -79,6 +79,8 @@ public class GeneralInfoView extends VerticalFlowPanel implements Module {
 
 		showHeader = !options.contains("NoHeader");
 
+		table.setWidth("100%");
+		
 		add(table);
 
 		// name column

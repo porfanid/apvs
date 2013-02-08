@@ -69,6 +69,8 @@ public class AlarmView extends GlassPanel implements Module {
 
 		showHeader = !options.contains("NoHeader");
 
+		table.setWidth("100%");
+		
 		add(table);
 
 		// name column

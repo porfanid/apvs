@@ -77,6 +77,8 @@ public class AudioView extends GlassPanel implements Module {
  
 		 */
 		
+		table.setWidth("100%");
+
 		add(table, CENTER);
 		
 		// Status/Action Field column
