@@ -91,10 +91,8 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 				for (int i=0; i<supervisorsAccounts.size(); i++){
 					if(supervisorsAccounts.get(i).getStatus().equals(supervisor.getStatus()))
 							return (supervisorsAccounts.get(i).getStatus() ?"Online":"Offline");
-					
 				}
 				return "Not assigned";
-				
 			}
 		};
 		table.addColumn(status, "Account Status");
@@ -106,7 +104,6 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onAudioSupervisorSettingsChanged(AudioSupervisorSettingsChangedRemoteEvent event) {
-					System.out.println("Entrou onAudioSupervisorSettingsChanged");
 					supervisor = event.getSupervisorSettings();	
 					dataProvider.getList().clear();
 					dataProvider.getList().add(supervisor);
@@ -117,7 +114,6 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onAudioSupervisorStatusChanged(AudioSupervisorStatusRemoteEvent event) {
-				System.out.println("Supervisor Listing Event");
 				supervisorsAccounts = event.getSupervisorsList();
 				supervisorsList.clear();
 				for(int i=0; i<supervisorsAccounts.size();i++){

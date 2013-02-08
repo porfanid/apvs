@@ -64,16 +64,9 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	/*
-	 * Addition Variables declaration
-	 */
 	private List<VoipAccount> usersAccounts = new ArrayList<VoipAccount>();
 	private List<String> usersList = new ArrayList<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
-
-	/*
-	 * End of addition
-	 */
 
 	public PtuSettingsView() {
 	}
@@ -346,13 +339,8 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			@Override
 			public void update(int index, String object, String value) {
 				if(voipAccounts.contains(object)){
-					//System.out.println("Condicao e verdadeira: " + value +" object "+ object);
-					voipAccounts.setNumber(object, value);
-					//System.out.println("Voip: " + voipAccounts.getPtuIds());
+					voipAccounts.setNumber(object, value);;
 					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
-				}
-				else{
-					System.out.println("Condicao e falsa");	
 				}
 			}
 		});
@@ -365,7 +353,6 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				for (int i=0; i<usersAccounts.size(); i++){
 					if(usersAccounts.get(i).getAccount().equals(voipAccounts.getNumber(object)))
 							return (usersAccounts.get(i).getStatus() ?"Online":"Offline");
-					
 				}
 				return "Not assigned";
 			}
@@ -447,7 +434,6 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onAudioUsersSettingsChanged(AudioUsersSettingsChangedRemoteEvent event) {
-				System.out.println("Audio Settings changed");
 				voipAccounts = event.getAudioSettings();
 				scheduler.update();
 				//dataProvider.getList().clear();
@@ -458,9 +444,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		AudioUsersStatusRemoteEvent.register(eventBus, new AudioUsersStatusRemoteEvent.Handler() {
 			
 			@Override
-			public void onAudioUsersStatusChange(AudioUsersStatusRemoteEvent event) {
-				System.out.println("Users Listing Event");
-				
+			public void onAudioUsersStatusChange(AudioUsersStatusRemoteEvent event) {				
 				usersAccounts = event.getUsersList();
 				usersList.clear();
 				for(int i=0; i<usersAccounts.size();i++){

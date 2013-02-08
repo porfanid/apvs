@@ -25,6 +25,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -170,16 +171,17 @@ public class AudioView extends GlassPanel implements Module {
 				if (fieldName.equals("Private Call")) {
 					if (!voipAccounts.getOnCall(ptuId)) {
 						List<String> channels = new ArrayList<String>();
-						channels.add(supervisorAccount.getChannel());//voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)));
+						channels.add(supervisorAccount.getChannel());
 						channels.add(voipAccounts.getChannel(ptuId));
+						
 						// Hangup Supervisor and PTU User from active calls
 						AudioServiceAsync.Util.getInstance().hangupMultiple(channels, callbackHangup);
 						AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(ptuId),supervisorAccount.getNumber(), callbackCall);
 
 					} else {
-						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);//voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
-						if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
-							AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptuId),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId)),callbackConference);
+							AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
+							if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
+								AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptuId),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId)),callbackConference);
 						}
 					}
 					
@@ -256,7 +258,6 @@ public class AudioView extends GlassPanel implements Module {
 					public void onAudioUsersSettingsChanged(
 							AudioUsersSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
-						System.out.println("Just got the audio settings");
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(fieldName);
 					}
