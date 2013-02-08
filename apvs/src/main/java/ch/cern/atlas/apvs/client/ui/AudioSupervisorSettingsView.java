@@ -93,7 +93,7 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 							return (supervisorsAccounts.get(i).getStatus() ?"Online":"Offline");
 					
 				}
-				return "Unknown/ Not defined";
+				return "Not assigned";
 				
 			}
 		};
