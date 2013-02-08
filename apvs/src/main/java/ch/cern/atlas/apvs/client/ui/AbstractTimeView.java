@@ -68,7 +68,7 @@ public class AbstractTimeView extends GlassPanel {
 			public void onResize(ResizeEvent event) {
 				if (chart != null) {
 					Widget parent = chart.getParent();
-					Window.alert(parent.getOffsetWidth()+" "+parent.getOffsetHeight());
+					Window.alert(parent.getOffsetWidth()+" "+parent.getOffsetHeight()+" "+parent.toString()+" "+parent.getElement().getId());
 					if (parent != null) {
 						chart.setSize(parent.getOffsetWidth(),
 								chart.getOffsetHeight(), false);
