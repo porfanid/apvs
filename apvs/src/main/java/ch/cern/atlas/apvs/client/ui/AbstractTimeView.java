@@ -66,12 +66,18 @@ public class AbstractTimeView extends GlassPanel {
 
 			@Override
 			public void onResize(ResizeEvent event) {
-				if (chart != null) {
+				if ((chart != null) && (chart.isVisible())) {
+					// table, with 100% width, will be the same as old chart
 					Widget parent = chart.getParent();
-					Window.alert(parent.getOffsetWidth()+" "+parent.getOffsetHeight()+" "+parent.getParent().getOffsetWidth());
 					if (parent != null) {
-						chart.setSize(parent.getOffsetWidth(),
-								chart.getOffsetHeight(), false);
+						// div, corrected width
+						parent = chart.getParent();
+					}
+					if (parent != null) {
+						int width = parent.getOffsetWidth();
+						if (width > 0) {
+							chart.setSize(width, chart.getOffsetHeight(), false);
+						}
 					}
 				}
 			}
