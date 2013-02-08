@@ -155,17 +155,17 @@ body {
 .in-range {
 }
 
-.alarm {
+.alarm button {
 	background: #AA4643;
 	color: white;
 }
 
-.cleared {
+.cleared button {
 	background: green;
 	color: white;
 }
 
-.unknown {
+.unknown button {
 	background: yellow;
 	color: black;
 }
