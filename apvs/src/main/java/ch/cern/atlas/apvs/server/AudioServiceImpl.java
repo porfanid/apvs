@@ -11,8 +11,6 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import oracle.net.ano.SupervisorService;
-
 import org.asteriskjava.live.AsteriskChannel;
 import org.asteriskjava.live.AsteriskServer;
 import org.asteriskjava.live.DefaultAsteriskServer;
@@ -23,12 +21,9 @@ import org.asteriskjava.live.OriginateCallback;
 import org.asteriskjava.manager.AuthenticationFailedException;
 import org.asteriskjava.manager.ManagerConnection;
 import org.asteriskjava.manager.ManagerConnectionFactory;
-import org.asteriskjava.manager.ManagerConnectionState;
 import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
-import org.asteriskjava.manager.action.MixMonitorMuteAction;
-import org.asteriskjava.manager.action.MonitorAction;
 import org.asteriskjava.manager.action.SipPeersAction;
 import org.asteriskjava.manager.event.BridgeEvent;
 import org.asteriskjava.manager.event.ConnectEvent;
@@ -41,22 +36,19 @@ import org.asteriskjava.manager.event.MeetMeLeaveEvent;
 import org.asteriskjava.manager.event.NewChannelEvent;
 import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
-import org.asteriskjava.manager.response.ManagerResponse;
-
-import com.google.gwt.user.client.Window;
 
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
-import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorStatusRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
+import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
@@ -110,6 +102,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				if(managerConnection != null){
 					managerConnection.removeEventListener(AudioServiceImpl.this);
 				}
+				
 	    			// Asterisk Connection Manager
 				ManagerConnectionFactory factory = new ManagerConnectionFactory(asteriskUrl, asteriskUser, asteriskPwd);
 				AudioServiceImpl.this.managerConnection = factory.createManagerConnection();
@@ -242,18 +235,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 				new AudioSupervisorSettingsChangedRemoteEvent.Handler() {
 			
 					@Override
-					public void onAudioSupervisorSettingsChanged(
-							AudioSupervisorSettingsChangedRemoteEvent event) {
+					public void onAudioSupervisorSettingsChanged(AudioSupervisorSettingsChangedRemoteEvent event) {
 						supervisorAccount = event.getSupervisorSettings(); 
-						//SUPERVISOR_ACCOUNT = event.getSupervisorSettings().getAccount();
-						System.out.println(supervisorAccount.getNumber() + supervisorAccount.getAccount());
-						//System.out.println("NULL" + supervisorAccount.getAccount());
-						//if(supervisorAccount.parseNumber() != null){
-							//SUPERVISOR_NUMBER = event.getSupervisorSettings().parseNumber();
-							//System.out.println(SUPERVISOR_NUMBER);
-						//}else{
-							//System.out.println("RETORNOU NULL");
-						//}
 					}
 				});
 		
@@ -263,7 +246,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 			@Override
 			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
 					interventions = event.getInterventionMap();
-
 					List<String> ptuIds = voipAccounts.getPtuIds();
 					for(int i=0; i < ptuIds.size(); i++){
 							if( interventions.get(ptuIds.get(i)) != null){
@@ -342,15 +324,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 	 *********************************************/
 	@Override
 	public void call(String callerOriginater, String callerDestination) {
-		asteriskServer.originateToExtension(callerOriginater, CONTEXT,
-				callerDestination, PRIORITY, TIMEOUT);
+		asteriskServer.originateToExtension(callerOriginater, CONTEXT, callerDestination, PRIORITY, TIMEOUT);
 	}
 
 	@Override
 	public void hangup(String channel) throws AudioException {
-		HangupAction hangupCall = new HangupAction(channel);
+		//HangupAction hangupCall = new HangupAction(channel);
 		try {
-			managerConnection.sendAction(hangupCall);
+			managerConnection.sendAction(new HangupAction(channel));
 		} catch (IllegalArgumentException e) {
 			throw new AudioException(e.getMessage());
 		} catch (IllegalStateException e) {
@@ -540,8 +521,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
 				}
 		}else if(number.matches("SIP/2[0-9]{3}")){
-				supervisorAccount.setChannel(channel);
-				((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
+				if(number.equals(supervisorAccount.getAccount())){
+						System.out.println("create channel for supervisor");
+						supervisorAccount.setChannel(channel);
+						((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
+				}
 		}else{
 				System.err.println("#NewChannelEvent - NO PTU FOUND WITH NUMBER " + number);
 				return;
@@ -569,7 +553,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	// Bridge of Call Channels - Event only valid for private call
 	public void bridgeEvent(BridgeEvent event) {
-		
 		String channel1 = event.getChannel1();
 		String number1 = filterNumber(channel1);
 		
@@ -581,6 +564,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				if (ptuId1 != null){
 					if(number2.matches("SIP/1[0-9]{3}")){
 						String ptuId2 = voipAccounts.getPtuId(number2);
+						System.out.println("PTU: "+ ptuId2);
 						voipAccounts.setDestPTUser(ptuId1,voipAccounts.getUsername(ptuId2), ptuId2);
 						voipAccounts.setOnCall(ptuId1, true);
 						voipAccounts.setDestPTUser(ptuId2,voipAccounts.getUsername(ptuId1), ptuId1);
@@ -616,7 +600,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 				System.err.println("#BridgeEvent - ERROR IN ASSIGNMENT " + number1 + " & " + number2);
 				return;
 		}	
-		
 		((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
 		((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
 	}
@@ -626,11 +609,13 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String channel = event.getChannel();
 		String number = filterNumber(channel);
 		
-		if(number.equals(supervisorAccount.getNumber())){
+		if(number.equals(supervisorAccount.getAccount())){
 			supervisorAccount.setChannel("");
 			supervisorAccount.setDestPTU("");
 			supervisorAccount.setDestUser(voipAccounts.getUsername(""));
 			supervisorAccount.setOnCall(false);
+			supervisorAccount.setOnConference(false);
+			((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
 			return;
 		}else{
 			String ptuId = voipAccounts.getPtuId(number);
@@ -650,20 +635,20 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	// Users Register and Unregister
 	public void peerStatusEvent(PeerStatusEvent event) {
-		Boolean status;
-		String peerStatus = event.getPeerStatus();
-		if (peerStatus.equals("Registered"))
-			status = true;
-		else
-			status = false;
-
 		String number = event.getPeer();
-		String ptuId = voipAccounts.getPtuId(number);
-		if (ptuId != null) {
-			voipAccounts.setStatus(ptuId, status);
-			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
-			return;
+		
+		if(number.matches("SIP/1[0-9]{3}")){
+				String ptuId = voipAccounts.getPtuId(number);
+				if (ptuId != null) {
+					String peerStatus = event.getPeerStatus();
+					if (peerStatus.equals("Registered"))
+							voipAccounts.setStatus(ptuId, true);
+					else
+							voipAccounts.setStatus(ptuId, false);
+					
+					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+					return;
+				}
 		}
 		System.err.println("#PeerStatusEvent - NO PTU FOUND OR ASSIGNED WITH NUMBER " + number);
 	}
@@ -685,16 +670,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 			voipAccounts.setChannel(ptuId, channel);
 			voipAccounts.setRoom(ptuId, room);
 			voipAccounts.setOnConference(ptuId, true);
-			conferenceRooms.get(room).setUserNum(
-					conferenceRooms.get(room).getUserNum() + 1);
+			conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum() + 1);
 			conferenceRooms.get(room).addPtu(ptuId);
-			conferenceRooms.get(room).addUsername(
-					voipAccounts.getUsername(ptuId));
+			conferenceRooms.get(room).addUsername(voipAccounts.getUsername(ptuId));
 
-			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
-			((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(
-					conferenceRooms));
+			((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+			((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(conferenceRooms));
 			return;
 		}
 
@@ -716,16 +697,13 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 			voipAccounts.setOnConference(ptuId, false);
 
-			conferenceRooms.get(room).setUserNum(
-					conferenceRooms.get(room).getUserNum() - 1);
+			conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum() - 1);
 			int index = conferenceRooms.get(room).getPtuIds().indexOf(ptuId);
 			conferenceRooms.get(room).getPtuIds().remove(index);
 			conferenceRooms.get(room).getUsernames().remove(index);
 
-			((RemoteEventBus) eventBus)
-					.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
-			((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(
-					conferenceRooms));
+			((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+			((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(conferenceRooms));
 			return;
 		}
 
