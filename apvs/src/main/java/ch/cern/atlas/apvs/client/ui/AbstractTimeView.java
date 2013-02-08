@@ -71,12 +71,12 @@ public class AbstractTimeView extends GlassPanel {
 					Widget parent = chart.getParent();
 					if (parent != null) {
 						// div, corrected width
-						parent = chart.getParent();
+						parent = parent.getParent();
 					}
 					if (parent != null) {
 						int width = parent.getOffsetWidth();
 						if (width > 0) {
-							Window.alert("Setting width "+width+" from "+parent.getElement().getId());
+//							Window.alert("Setting width "+width+" from "+parent.getElement().getId());
 							chart.setSize(width, chart.getOffsetHeight(), false);
 						}
 					}
