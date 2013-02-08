@@ -32,13 +32,12 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.SeriesPlotOptions;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 
 public class AbstractTimeView extends GlassPanel {
 
@@ -68,7 +67,11 @@ public class AbstractTimeView extends GlassPanel {
 			@Override
 			public void onResize(ResizeEvent event) {
 				if (chart != null) {
-					chart.setSize(300, chart.getOffsetHeight(), false);
+					Widget parent = chart.getParent();
+					if (parent != null) {
+						chart.setSize(parent.getOffsetWidth(),
+								chart.getOffsetHeight(), false);
+					}
 				}
 			}
 		});
