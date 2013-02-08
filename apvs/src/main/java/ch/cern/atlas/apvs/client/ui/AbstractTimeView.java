@@ -62,6 +62,7 @@ public class AbstractTimeView extends GlassPanel {
 		colorsById = new HashMap<String, String>();
 		limitSeriesById = new HashMap<String, Series>();
 
+		// Fix for #289
 		Window.addResizeHandler(new ResizeHandler() {
 
 			@Override
