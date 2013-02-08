@@ -32,8 +32,11 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.SeriesPlotOptions;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Window;
 
 public class AbstractTimeView extends GlassPanel {
 
@@ -56,6 +59,16 @@ public class AbstractTimeView extends GlassPanel {
 		seriesById = new HashMap<String, Series>();
 		colorsById = new HashMap<String, String>();
 		limitSeriesById = new HashMap<String, Series>();
+		
+		Window.addResizeHandler(new ResizeHandler() {
+			
+			@Override
+			public void onResize(ResizeEvent event) {
+				if (chart != null) {
+					chart.setSizeToMatchContainer();
+				}
+			}
+		});
 	}
 
 	public Map<String, String> getColors() {
@@ -84,7 +97,7 @@ public class AbstractTimeView extends GlassPanel {
 						"#AA4643", "#89A54E", "#80699B", "#3D96AE", "#DB843D",
 						"#92A8CD", "#A47D7C", "#B5CA92", "#4572A7")
 				.setZoomType(Chart.ZoomType.X)
-//				.setSizeToMatchContainer()
+				.setSizeToMatchContainer()
 			    .setWidth100()
 			    .setHeight100()
 				.setChartTitle(
