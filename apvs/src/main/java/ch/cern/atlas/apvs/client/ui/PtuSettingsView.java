@@ -94,7 +94,8 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println("Fail to list workers SIP accounts " + caught);				
+				System.err.println("Fail to list workers SIP accounts "
+						+ caught);
 			}
 		});
 
@@ -145,18 +146,23 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
 		table.addColumn(name, "Name");
-		
-		//Impact Activity Name
-		Column<String, String> impact = new Column<String, String>(new TextCell()) {
-			
-			@Override
-			public String getValue(String object) {
-				return interventions.get(object)!=null? interventions.get(object).getImpactNumber():"";
-			}
-		};
-		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		table.addColumn(impact, "Impact #");
-		
+
+		// Impact Activity Name
+		boolean showImpactNumber = false;
+		if (showImpactNumber) {
+			Column<String, String> impact = new Column<String, String>(
+					new TextCell()) {
+
+				@Override
+				public String getValue(String object) {
+					return interventions.get(object) != null ? interventions
+							.get(object).getImpactNumber() : "";
+				}
+			};
+			impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			table.addColumn(impact, "Impact #");
+		}
+
 		// DOSIMETER
 		boolean enableDosimeter = false;
 		Column<String, String> dosimeter = null;
@@ -345,31 +351,35 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 			@Override
 			public void update(int index, String object, String value) {
-				if(voipAccounts.contains(object)){
-					//System.out.println("Condicao e verdadeira: " + value +" object "+ object);
+				if (voipAccounts.contains(object)) {
+					// System.out.println("Condicao e verdadeira: " + value
+					// +" object "+ object);
 					voipAccounts.setNumber(object, value);
-					//System.out.println("Voip: " + voipAccounts.getPtuIds());
-					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
-				}
-				else{
-					System.out.println("Condicao e falsa");	
+					// System.out.println("Voip: " + voipAccounts.getPtuIds());
+					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(
+							voipAccounts));
+				} else {
+					System.out.println("Condicao e falsa");
 				}
 			}
 		});
 
-		//SIP Status 
-		Column<String, String> status = new Column<String, String>(new TextCell()){
-			
+		// SIP Status
+		Column<String, String> status = new Column<String, String>(
+				new TextCell()) {
+
 			@Override
 			public String getValue(String object) {
-				for (int i=0; i<usersAccounts.size(); i++){
-					if(usersAccounts.get(i).getNumber().equals(voipAccounts.getNumber(object)))
-							return (usersAccounts.get(i).getStatus() ?"Online":"Offline");
-					
+				for (int i = 0; i < usersAccounts.size(); i++) {
+					if (usersAccounts.get(i).getNumber()
+							.equals(voipAccounts.getNumber(object)))
+						return (usersAccounts.get(i).getStatus() ? "Online"
+								: "Offline");
+
 				}
 				return "Unknown";
 			}
-					
+
 		};
 		status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(status, "Account Status");
@@ -443,32 +453,36 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					}
 				});
 
-		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,new AudioUsersSettingsChangedRemoteEvent.Handler() {
-			
-			@Override
-			public void onAudioUsersSettingsChanged(AudioUsersSettingsChangedRemoteEvent event) {
-				System.out.println("Audio Settings changed");
-				voipAccounts = event.getAudioSettings();
-				scheduler.update();
-				//dataProvider.getList().clear();
-				//dataProvider.getList().addAll(voipAccounts.getPtuIds());
-			}
-		}); 		
+		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,
+				new AudioUsersSettingsChangedRemoteEvent.Handler() {
 
-		AudioUsersStatusRemoteEvent.register(eventBus, new AudioUsersStatusRemoteEvent.Handler() {
-			
-			@Override
-			public void onAudioUsersStatusChange(AudioUsersStatusRemoteEvent event) {
-				System.out.println("Users Listing Event");
-				
-				usersAccounts = event.getUsersList();
-				usersList.clear();
-				for(int i=0; i<usersAccounts.size();i++){
-					usersList.add(usersAccounts.get(i).getNumber());
-				}	
-				scheduler.update();
-			}
-		});	
+					@Override
+					public void onAudioUsersSettingsChanged(
+							AudioUsersSettingsChangedRemoteEvent event) {
+						System.out.println("Audio Settings changed");
+						voipAccounts = event.getAudioSettings();
+						scheduler.update();
+						// dataProvider.getList().clear();
+						// dataProvider.getList().addAll(voipAccounts.getPtuIds());
+					}
+				});
+
+		AudioUsersStatusRemoteEvent.register(eventBus,
+				new AudioUsersStatusRemoteEvent.Handler() {
+
+					@Override
+					public void onAudioUsersStatusChange(
+							AudioUsersStatusRemoteEvent event) {
+						System.out.println("Users Listing Event");
+
+						usersAccounts = event.getUsersList();
+						usersList.clear();
+						for (int i = 0; i < usersAccounts.size(); i++) {
+							usersList.add(usersAccounts.get(i).getNumber());
+						}
+						scheduler.update();
+					}
+				});
 
 		// DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
 		// new DosimeterSerialNumbersChangedEvent.Handler() {
