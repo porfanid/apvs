@@ -437,9 +437,6 @@ public class PtuSettingsView extends GlassPanel implements Module {
 							PtuSettingsChangedRemoteEvent event) {
 						log.info("PTU Settings changed");
 						settings = event.getPtuSettings();
-						dataProvider.getList().clear();
-						dataProvider.getList().addAll(settings.getPtuIds());
-
 						scheduler.update();
 					}
 				});
@@ -451,6 +448,10 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
+						
+						dataProvider.getList().clear();
+						dataProvider.getList().addAll(interventions.getPtuIds());
+
 						scheduler.update();
 					}
 				});
