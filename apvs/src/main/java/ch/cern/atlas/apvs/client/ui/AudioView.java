@@ -25,6 +25,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -36,8 +37,8 @@ public class AudioView extends GlassPanel implements Module {
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
 	private String ptuId = new String("PTUWeb");
-	private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
-	private static final String SUPERVISOR_NUMBER = "2001";
+	//private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
+	//private static final String SUPERVISOR_NUMBER = "2001";
 	private VoipAccount supervisorAccount = new VoipAccount();
 
 	private EventBus cmdBus;
@@ -91,7 +92,7 @@ public class AudioView extends GlassPanel implements Module {
 				else if (fieldName.equals("Private Call"))
 					return ((voipAccounts.getOnCall(ptuId) ? "Hangup '": "Call '") + voipAccounts.getUsername(ptuId) + "'");
 				else if (fieldName.equals("Group Call"))
-					return ((!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId)) ? ("Make "): (voipAccounts.getOnConference(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)) ? "Leave ": "Join "))+ "Impact conference");
+					return ((!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId)) ? ("Make "): (supervisorAccount.getOnConference() ? "Leave ": "Join "))+ "Impact conference");
 				else if(fieldName.equals("Conference"))
 					return "Close '" + voipAccounts.getActivity(ptuId)+ "' conference";
 				else if(fieldName.equals("Mute/Unmute"))
@@ -172,38 +173,39 @@ public class AudioView extends GlassPanel implements Module {
 				if (fieldName.equals("Private Call")) {
 					if (!voipAccounts.getOnCall(ptuId)) {
 						List<String> channels = new ArrayList<String>();
-						channels.add(supervisorAccount.getChannel());//voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)));
+						channels.add(supervisorAccount.getChannel());
 						channels.add(voipAccounts.getChannel(ptuId));
+						
 						// Hangup Supervisor and PTU User from active calls
 						AudioServiceAsync.Util.getInstance().hangupMultiple(channels, callbackHangup);
-						AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(ptuId),SUPERVISOR_NUMBER, callbackCall);
+						AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(ptuId),supervisorAccount.getNumber(), callbackCall);
 
 					} else {
-						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);//voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
-						if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
-							AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptuId),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId)),callbackConference);
+							AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
+							if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
+								AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptuId),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId)),callbackConference);
 						}
 					}
 					
 				} else if (fieldName.equals("Group Call")){
-					if (!voipAccounts.getOnConference(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT))) {
+					if (!supervisorAccount.getOnConference()) {
 						if (!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
 							// Hangup Impact Activity Users from active calls
 							AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)),callbackHangup);
 							AudioServiceAsync.Util.getInstance().newConference(voipAccounts.getNumbersActivity(voipAccounts.getActivity(ptuId)),callbackConference);
 						} else{
 							// Hangup Supervisor from active calls
-							AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
-							AudioServiceAsync.Util.getInstance().addToConference(SUPERVISOR_ACCOUNT,voipAccounts.getRoom(ptuId),callbackConference);
+							AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
+							AudioServiceAsync.Util.getInstance().addToConference(supervisorAccount.getAccount(),voipAccounts.getRoom(ptuId),callbackConference);
 						}
 					} else {
-						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
+						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
 					}
 					
 				} else if (fieldName.equals("Conference")){
 					AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)),callbackHangup);
-					if( voipAccounts.getRoom(ptuId).equals(voipAccounts.getRoom(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT))))
-						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(voipAccounts.getPtuId(SUPERVISOR_ACCOUNT)),callbackHangup);
+					if( voipAccounts.getRoom(ptuId).equals(supervisorAccount.getRoom()))
+						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
 					
 				} else if (fieldName.equals("Mute/Unmute")){
 					System.out.println(voipAccounts.getMute(ptuId));
@@ -258,7 +260,6 @@ public class AudioView extends GlassPanel implements Module {
 					public void onAudioUsersSettingsChanged(
 							AudioUsersSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
-						System.out.println("Just got the audio settings");
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(fieldName);
 					}

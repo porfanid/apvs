@@ -60,25 +60,12 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 		};
 		table.addColumn(supervisorLabel, "Account Type");
 		
-		// Account status
-		Column<VoipAccount, String> status = new Column<VoipAccount, String> (new TextCell()) {
-			
-			@Override
-			public String getValue(VoipAccount account) {
-				if(supervisorsList.contains("Not available"))
-					return "Unknown";
-				
-				return (supervisor.getStatus()?"Online":"Offline");
-			}
-		};
-		table.addColumn(status, "Account Status");
-		
 		//  SIP Account
 		Column<VoipAccount, String> account = new Column<VoipAccount, String> (new DynamicSelectionCell(new StringList<String>(supervisorsList))){
 			
 			@Override
 			public String getValue(VoipAccount object) {					
-					return object.getNumber();
+					return object.getAccount();
 			}
 		};
 		account.setFieldUpdater(new FieldUpdater<VoipAccount, String>() {
@@ -86,7 +73,7 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			@Override
 			public void update(int index, VoipAccount object, String value) {
 					for(int i=0; i<supervisorsAccounts.size(); i++){
-						if(supervisorsAccounts.get(i).getNumber().equals(value)){
+						if(supervisorsAccounts.get(i).getAccount().equals(value)){
 							supervisor=supervisorsAccounts.get(i);
 							eventBus.fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisor));
 							return;
@@ -96,6 +83,20 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 		});
 		table.addColumn(account, "SIP Account");
 		
+		// Account status
+		Column<VoipAccount, String> status = new Column<VoipAccount, String> (new TextCell()) {
+			
+			@Override
+			public String getValue(VoipAccount account) {
+				for (int i=0; i<supervisorsAccounts.size(); i++){
+					if(supervisorsAccounts.get(i).getStatus().equals(supervisor.getStatus()))
+							return (supervisorsAccounts.get(i).getStatus() ?"Online":"Offline");
+				}
+				return "Not assigned";
+			}
+		};
+		table.addColumn(status, "Account Status");
+		
 		dataProvider.addDataDisplay(table);
 		dataProvider.getList().add(new VoipAccount());		
 
@@ -103,7 +104,6 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onAudioSupervisorSettingsChanged(AudioSupervisorSettingsChangedRemoteEvent event) {
-					System.out.println("Entrou onAudioSupervisorSettingsChanged");
 					supervisor = event.getSupervisorSettings();	
 					dataProvider.getList().clear();
 					dataProvider.getList().add(supervisor);
@@ -114,11 +114,10 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onAudioSupervisorStatusChanged(AudioSupervisorStatusRemoteEvent event) {
-				System.out.println("Supervisor Listing Event");
 				supervisorsAccounts = event.getSupervisorsList();
 				supervisorsList.clear();
 				for(int i=0; i<supervisorsAccounts.size();i++){
-					supervisorsList.add(supervisorsAccounts.get(i).getNumber());
+					supervisorsList.add(supervisorsAccounts.get(i).getAccount());
 				}	
 				dataProvider.getList().clear();
 				dataProvider.getList().add(supervisor);
