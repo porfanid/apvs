@@ -74,10 +74,10 @@ public class ServerSettings extends AbstractServerSettings {
 	public ServerSettings(boolean setDefaults) {
 		if (!setDefaults)
 			return;
-		put(Entry.ptuUrl.toString(), "pcatlaswpss03:10123");
-		put(Entry.procedureUrl.toString(), "http://localhost:8890/apvs-procs/procedures");
-		put(Entry.databaseUrl.toString(), "wpss@//pcatlaswpss03.cern.ch:1521/XE");
-		put(Entry.audioUrl.toString(), "atlas@pcatlaswpss02.cern.ch:5038");
+		put(Entry.ptuUrl.toString(), "pcatlaswpss03:10124");
+		put(Entry.procedureUrl.toString(), "");
+		put(Entry.databaseUrl.toString(), "wpss_new@//pcatlaswpss03.cern.ch:1521/XE");
+		put(Entry.audioUrl.toString(), "manager@pcatlaswpss02.cern.ch");
 	}
 	
 	public String toString() {

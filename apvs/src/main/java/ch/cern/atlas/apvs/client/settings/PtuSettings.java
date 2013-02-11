@@ -31,8 +31,8 @@ public class PtuSettings implements Serializable {
 		public Entry() {
 			enabled = true;
 			dosimeterSerialNo = "";
-			helmetUrl = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
-			handUrl = "http://quicktime.tc.columbia.edu/users/lrf10/movies/sixties.mov";
+			helmetUrl = "http://pcatlaswpss02:8X90/workerX.mjpg";
+			handUrl = "http://pcatlaswpss02:8X91/workerX.mjpg";
 		}
 
 		@Override
