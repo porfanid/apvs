@@ -57,7 +57,7 @@ public class AudioSupervisorSettingsStorage {
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {
-			log.warn("Audio Supervisor Settings will not be stored");
+			log.warn("Supervisor Audio Settings will not be stored");
 			return;
 		}
 
@@ -70,7 +70,7 @@ public class AudioSupervisorSettingsStorage {
 		}
 
 		if (supervisorAccount == null) {
-			log.warn("Could not read Supervisor Settings, using defaults");
+			log.warn("Could not read Supervisor Audio Settings, using defaults");
 			supervisorAccount = new VoipAccount(true);
 		}else{
 			log.info("Audio Supervisor Settings Read");

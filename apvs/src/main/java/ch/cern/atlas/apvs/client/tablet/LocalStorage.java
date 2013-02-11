@@ -6,6 +6,7 @@ public class LocalStorage {
 
 	public static final String SELECTED_TAB = "SELECTED_TAB";
 	public static final String SELECTED_PTU_ID = "SELECTED_PTU_ID";
+	public static final String SUPERVISOR_PWD = "SUPERVISOR_PWD";
 	
 	private static LocalStorage instance;
 	private Storage store;

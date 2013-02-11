@@ -169,3 +169,7 @@ body {
 	background: yellow;
 	color: black;
 }
+
+.footer-left {
+	float: left;
+}

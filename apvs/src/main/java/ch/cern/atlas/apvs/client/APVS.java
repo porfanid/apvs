@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
+import ch.cern.atlas.apvs.client.tablet.LocalStorage;
 import ch.cern.atlas.apvs.client.tablet.TabletHistoryObserver;
 import ch.cern.atlas.apvs.client.tablet.TabletMenuActivityMapper;
 import ch.cern.atlas.apvs.client.tablet.TabletMenuAnimationMapper;
@@ -35,6 +36,9 @@ import ch.cern.atlas.apvs.client.ui.PtuView;
 import ch.cern.atlas.apvs.client.ui.ServerSettingsView;
 import ch.cern.atlas.apvs.client.ui.Tab;
 import ch.cern.atlas.apvs.client.ui.TimeView;
+import ch.cern.atlas.apvs.client.widget.DialogResultEvent;
+import ch.cern.atlas.apvs.client.widget.DialogResultHandler;
+import ch.cern.atlas.apvs.client.widget.PasswordDialog;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -48,6 +52,8 @@ import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.mgwt.mvp.client.AnimatableDisplay;
@@ -78,6 +84,8 @@ public class APVS implements EntryPoint {
 	private SettingsPersister settingsPersister;
 
 	private String defaultPtuId = "PTUdemo";
+	
+	private ClientFactory clientFactory;
 
 	@Override
 	public void onModuleLoad() {
@@ -87,27 +95,63 @@ public class APVS implements EntryPoint {
 		log.info("Starting APVS Version: " + build.version() + " - "
 				+ build.build());
 
-		final ClientFactory clientFactory = GWT.create(ClientFactory.class);
+		clientFactory = GWT.create(ClientFactory.class);
 
-		clientFactory.getServerService().isReady(new AsyncCallback<Boolean>() {
-
-			@Override
-			public void onSuccess(Boolean supervisor) {
-				clientFactory.setSupervisor(supervisor);
-				log.info("Server ready, user is "
-						+ (supervisor ? "SUPERVISOR" : "OBSERVER"));
-				start(clientFactory);
-
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				Window.alert("Server not ready. reload webpage " + caught);
-			}
-		});
+		String pwd = LocalStorage.getInstance()
+				.get(LocalStorage.SUPERVISOR_PWD);
+		if (pwd != null) {
+			login(pwd);
+		} else {
+			prompt();
+		}
 	}
 
-	private void start(ClientFactory clientFactory) {
+	private void login(final String pwd) {
+		clientFactory.getServerService().isReady(pwd,
+				new AsyncCallback<Boolean>() {
+
+					@Override
+					public void onSuccess(Boolean supervisor) {
+						clientFactory.setSupervisor(supervisor);
+						log.info("Server ready, user is "
+								+ (supervisor ? "SUPERVISOR" : "OBSERVER"));
+						LocalStorage.getInstance().put(LocalStorage.SUPERVISOR_PWD, supervisor ? pwd : null);
+						start();
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						Window.alert("Server not ready. reload webpage "
+								+ caught);
+					}
+				});
+	}
+
+	private void prompt() {
+		final PasswordDialog pwdDialog = new PasswordDialog();
+		pwdDialog.addDialogResultHandler(new DialogResultHandler() {
+
+			@Override
+			public void onDialogResult(DialogResultEvent event) {
+				login(event.getResult());
+			}
+		});
+		pwdDialog.setModal(true);
+		pwdDialog.setGlassEnabled(true);
+		pwdDialog.setPopupPositionAndShow(new PositionCallback() {
+
+			@Override
+			public void setPosition(int offsetWidth, int offsetHeight) {
+				// center
+				pwdDialog.setPopupPosition(
+						(Window.getClientWidth() - offsetWidth) / 3,
+						(Window.getClientHeight() - offsetHeight) / 3);
+			}
+		});
+
+	}
+	
+	private void start() {
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
 		placeController = clientFactory.getPlaceController();
@@ -132,6 +176,15 @@ public class APVS implements EntryPoint {
 		for (int i = 0; i < divs.getLength(); i++) {
 			Element element = divs.getItem(i);
 			String id = element.getId();
+
+			if (id.equals("footer")) {
+				Label supervisor = new Label(
+						clientFactory.isSupervisor() ? "Supervisor"
+								: "Observer");
+				supervisor.addStyleName("footer-left");
+				RootPanel.get(id).insert(supervisor, 0);
+				continue;
+			}
 
 			String[] parts = id.split("\\(", 2);
 			if (parts.length == 2) {
@@ -194,7 +247,7 @@ public class APVS implements EntryPoint {
 					boolean add = module
 							.configure(element, clientFactory, args);
 					if (add && module instanceof IsWidget) {
-						RootPanel.get(element.getId()).add((IsWidget) module);
+						RootPanel.get(id).add((IsWidget) module);
 					}
 					newCode = true;
 				}

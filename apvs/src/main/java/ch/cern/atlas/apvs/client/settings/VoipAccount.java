@@ -182,4 +182,13 @@ public class VoipAccount implements Serializable {
 		this.onConference = onConference;
 	}
 	
+	public String toString() {
+		return ("VoipAccount: username=" + username + " account= " + account
+				+ " channel=" + channel + " destUser= " + destUser
+				+ " destPTU=" + destPTU + " status=" + status 
+				+ " activity=" + activity + " onCall=" + onCall 
+				+ " room=" + room + " onConference="+ onConference
+				+ " mute=" + mute);
+	}
+	
 }

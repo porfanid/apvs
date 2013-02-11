@@ -43,10 +43,17 @@ public class ServerServiceImpl extends ResponsePollService implements
 		super.destroy();
 	}
 
+	/**
+	 * return false if not supervisor
+	 */
 	@Override
-	public boolean isReady() {
-		// FIXME is a supervisor
-		return true;
+	public boolean isReady(String supervisorPassword) {
+		String pwd = System.getenv("APVSpwd");
+		if (pwd == null) {
+			log.error("NO Supervisor Password set!!! Set enviroment variable 'APVSpwd'");
+			return false;
+		}
+		return (supervisorPassword != null) && supervisorPassword.equals(pwd);
 	}
 	
 	@Override

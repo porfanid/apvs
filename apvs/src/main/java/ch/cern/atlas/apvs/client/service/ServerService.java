@@ -8,6 +8,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("apvsServer")
 public interface ServerService extends RemoteService {
-	public boolean isReady();
+	public boolean isReady(String supervisorPassword);
 	public void setPassword(String name, String password);
 }
