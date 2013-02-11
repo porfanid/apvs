@@ -8,9 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
@@ -37,7 +38,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
@@ -87,7 +87,8 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println("Fail to list workers SIP accounts " + caught);				
+				System.err.println("Fail to list workers SIP accounts "
+						+ caught);
 			}
 		});
 
@@ -138,18 +139,23 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
 		table.addColumn(name, "Name");
-		
-		//Impact Activity Name
-		Column<String, String> impact = new Column<String, String>(new TextCell()) {
-			
-			@Override
-			public String getValue(String object) {
-				return interventions.get(object)!=null? interventions.get(object).getImpactNumber():"";
-			}
-		};
-		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		table.addColumn(impact, "Impact #");
-		
+
+		// Impact Activity Name
+		boolean showImpactNumber = false;
+		if (showImpactNumber) {
+			Column<String, String> impact = new Column<String, String>(
+					new TextCell()) {
+
+				@Override
+				public String getValue(String object) {
+					return interventions.get(object) != null ? interventions
+							.get(object).getImpactNumber() : "";
+				}
+			};
+			impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			table.addColumn(impact, "Impact #");
+		}
+
 		// DOSIMETER
 		boolean enableDosimeter = false;
 		Column<String, String> dosimeter = null;
@@ -338,25 +344,30 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 			@Override
 			public void update(int index, String object, String value) {
-				if(voipAccounts.contains(object)){
-					voipAccounts.setNumber(object, value);;
-					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+				if (voipAccounts.contains(object)) {
+					voipAccounts.setNumber(object, value);
+					;
+					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(
+							voipAccounts));
 				}
 			}
 		});
 
-		//SIP Status 
-		Column<String, String> status = new Column<String, String>(new TextCell()){
-			
+		// SIP Status
+		Column<String, String> status = new Column<String, String>(
+				new TextCell()) {
+
 			@Override
 			public String getValue(String object) {
-				for (int i=0; i<usersAccounts.size(); i++){
-					if(usersAccounts.get(i).getAccount().equals(voipAccounts.getNumber(object)))
-							return (usersAccounts.get(i).getStatus() ?"Online":"Offline");
+				for (int i = 0; i < usersAccounts.size(); i++) {
+					if (usersAccounts.get(i).getAccount()
+							.equals(voipAccounts.getNumber(object)))
+						return (usersAccounts.get(i).getStatus() ? "Online"
+								: "Offline");
 				}
 				return "Not assigned";
 			}
-					
+
 		};
 		status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(status, "Account Status");
@@ -375,8 +386,22 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		});
 		columnSortHandler.setComparator(name, new Comparator<String>() {
 			public int compare(String o1, String o2) {
-				return interventions.get(o1).getName()
-						.compareTo(interventions.get(o2).getName());
+				Intervention i1 = interventions.get(o1);
+				Intervention i2 = interventions.get(o2);
+
+				if ((i1 == null) && (i2 == null)) {
+					return 0;
+				}
+
+				if (i1 == null) {
+					return -1;
+				}
+
+				if (i2 == null) {
+					return 1;
+				}
+
+				return i1.getName().compareTo(i2.getName());
 			}
 		});
 		if (enableDosimeter) {
@@ -412,9 +437,6 @@ public class PtuSettingsView extends GlassPanel implements Module {
 							PtuSettingsChangedRemoteEvent event) {
 						log.info("PTU Settings changed");
 						settings = event.getPtuSettings();
-						dataProvider.getList().clear();
-						dataProvider.getList().addAll(settings.getPtuIds());
-
 						scheduler.update();
 					}
 				});
@@ -426,33 +448,41 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
+						
+						dataProvider.getList().clear();
+						dataProvider.getList().addAll(interventions.getPtuIds());
+
 						scheduler.update();
 					}
 				});
 
-		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,new AudioUsersSettingsChangedRemoteEvent.Handler() {
-			
-			@Override
-			public void onAudioUsersSettingsChanged(AudioUsersSettingsChangedRemoteEvent event) {
-				voipAccounts = event.getAudioSettings();
-				scheduler.update();
-				//dataProvider.getList().clear();
-				//dataProvider.getList().addAll(voipAccounts.getPtuIds());
-			}
-		}); 		
+		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,
+				new AudioUsersSettingsChangedRemoteEvent.Handler() {
 
-		AudioUsersStatusRemoteEvent.register(eventBus, new AudioUsersStatusRemoteEvent.Handler() {
-			
-			@Override
-			public void onAudioUsersStatusChange(AudioUsersStatusRemoteEvent event) {				
-				usersAccounts = event.getUsersList();
-				usersList.clear();
-				for(int i=0; i<usersAccounts.size();i++){
-					usersList.add(usersAccounts.get(i).getAccount());
-				}	
-				scheduler.update();
-			}
-		});	
+					@Override
+					public void onAudioUsersSettingsChanged(
+							AudioUsersSettingsChangedRemoteEvent event) {
+						voipAccounts = event.getAudioSettings();
+						scheduler.update();
+						// dataProvider.getList().clear();
+						// dataProvider.getList().addAll(voipAccounts.getPtuIds());
+					}
+				});
+
+		AudioUsersStatusRemoteEvent.register(eventBus,
+				new AudioUsersStatusRemoteEvent.Handler() {
+
+					@Override
+					public void onAudioUsersStatusChange(
+							AudioUsersStatusRemoteEvent event) {
+						usersAccounts = event.getUsersList();
+						usersList.clear();
+						for (int i = 0; i < usersAccounts.size(); i++) {
+							usersList.add(usersAccounts.get(i).getAccount());
+						}
+						scheduler.update();
+					}
+				});
 
 		// DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
 		// new DosimeterSerialNumbersChangedEvent.Handler() {

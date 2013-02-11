@@ -4,7 +4,7 @@
 
 	<groupId>ch.cern.atlas</groupId>
 	<artifactId>apvs-project</artifactId>
-	<version>0.8.5-SNAPSHOT</version>
+	<version>0.9.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>APVS project</name>
 	<description>ATLAS Procedure Visualizer System</description>
@@ -22,8 +22,8 @@
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<gwt-version>2.5.0</gwt-version>
-		<gwt-plugin-version>2.5.0</gwt-plugin-version>
+		<gwt-version>2.5.1-rc1</gwt-version>
+		<gwt-plugin-version>2.5.1-SNAPSHOT</gwt-plugin-version>
 		<atmosphere-version>1.1.0.beta3</atmosphere-version>
 		<atmosphere-ext-version>1.1.0.beta3</atmosphere-ext-version>
 
@@ -39,7 +39,7 @@
 		<jetty7-version>7.6.0.v20120127</jetty7-version>
 		<jetty-plugin-version>${jetty7-version}</jetty-plugin-version>
 		<json-version>20090211</json-version>
-		<junit-version>4.10</junit-version>
+		<junit-version>4.11</junit-version>
 		<log4jdbc-version>1.2</log4jdbc-version>
 		<mgwt-version>1.0.1</mgwt-version>
 		<mockito-version>1.9.5</mockito-version>

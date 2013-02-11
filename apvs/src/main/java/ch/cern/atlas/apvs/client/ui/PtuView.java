@@ -90,6 +90,8 @@ public class PtuView extends GlassPanel implements Module {
 		init();
 
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
+		
+		table.setWidth("100%");
 
 		add(table, CENTER);
 

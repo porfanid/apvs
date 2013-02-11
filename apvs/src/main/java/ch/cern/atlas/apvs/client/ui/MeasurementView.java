@@ -42,10 +42,12 @@ public class MeasurementView extends AbstractMeasurementView {
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
-	
+
 		super.configure(element, clientFactory, args);
 
 		sortable = !options.contains("NoSort");
+
+		table.setWidth("100%");
 
 		add(table, CENTER);
 
@@ -107,40 +109,44 @@ public class MeasurementView extends AbstractMeasurementView {
 		}
 				: null);
 
-//		ClickableTextColumn<String> gauge = new ClickableTextColumn<String>() {	
-//			@Override
-//			public String getValue(String name) {
-//				if ((name == null) || (historyMap == null) || (ptuId == null)) {
-//					return "";
-//				}
-//				Measurement m =  historyMap.getMeasurement(ptuId, name);
-//				return m != null ? m.getLowLimit()+" "+m.getHighLimit() : "";
-//			}
-//
-//			@Override
-//			public void render(Context context, String name, SafeHtmlBuilder sb) {
-//				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
-//				if (m == null) {
-//					return;
-//				}
-//				gaugeWidget.setValue(m.getValue(), m.getLowLimit(), m.getHighLimit());
-//				sb.appendEscaped(gaugeWidget.getElement().getInnerHTML());
-//				Window.alert(gaugeWidget.getElement().getInnerHTML());
-//			}
-//
-//		};
-//		gauge.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-//		if (selectable) {
-//			gauge.setFieldUpdater(new FieldUpdater<String, String>() {
-//
-//				@Override
-//				public void update(int index, String object, String value) {
-//					selectMeasurement(object);
-//				}
-//			});
-//		}
-//		table.addColumn(gauge, showHeader ? new TextHeader("Limits")
-//				: (Header<?>) null);
+		// ClickableTextColumn<String> gauge = new ClickableTextColumn<String>()
+		// {
+		// @Override
+		// public String getValue(String name) {
+		// if ((name == null) || (historyMap == null) || (ptuId == null)) {
+		// return "";
+		// }
+		// Measurement m = historyMap.getMeasurement(ptuId, name);
+		// return m != null ? m.getLowLimit()+" "+m.getHighLimit() : "";
+		// }
+		//
+		// @Override
+		// public void render(Context context, String name, SafeHtmlBuilder sb)
+		// {
+		// Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId,
+		// name) : null;
+		// if (m == null) {
+		// return;
+		// }
+		// gaugeWidget.setValue(m.getValue(), m.getLowLimit(),
+		// m.getHighLimit());
+		// sb.appendEscaped(gaugeWidget.getElement().getInnerHTML());
+		// Window.alert(gaugeWidget.getElement().getInnerHTML());
+		// }
+		//
+		// };
+		// gauge.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		// if (selectable) {
+		// gauge.setFieldUpdater(new FieldUpdater<String, String>() {
+		//
+		// @Override
+		// public void update(int index, String object, String value) {
+		// selectMeasurement(object);
+		// }
+		// });
+		// }
+		// table.addColumn(gauge, showHeader ? new TextHeader("Limits")
+		// : (Header<?>) null);
 
 		ClickableTextColumn<String> value = new ClickableTextColumn<String>() {
 			@Override
@@ -155,12 +161,25 @@ public class MeasurementView extends AbstractMeasurementView {
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String s = getValue(name);
-				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				Measurement m = historyMap != null ? historyMap.getMeasurement(
+						ptuId, name) : null;
 				if (m == null) {
 					return;
 				}
+
+				double c = m.getValue().doubleValue();
+				double lo = m.getLowLimit().doubleValue();
+				double hi = m.getHighLimit().doubleValue();
+				String status = lo >= hi ? "in_range" : c < lo ? "lo-limit"
+						: c > hi ? "hi-limit" : "in-range";
+
+				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
+						+ status + "\">"));
+
 				((ClickableTextCell) getCell()).render(context,
 						decorate(s, m, last), sb);
+
+				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
 			}
 
 		};
@@ -180,14 +199,16 @@ public class MeasurementView extends AbstractMeasurementView {
 		ClickableHtmlColumn<String> unit = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
-				return m != null ?  m.getUnit() : "";
+				Measurement m = historyMap != null ? historyMap.getMeasurement(
+						ptuId, name) : null;
+				return m != null ? m.getUnit() : "";
 			}
 
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String s = getValue(name);
-				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				Measurement m = historyMap != null ? historyMap.getMeasurement(
+						ptuId, name) : null;
 				if (m == null) {
 					return;
 				}
@@ -330,13 +351,13 @@ public class MeasurementView extends AbstractMeasurementView {
 
 		return true;
 	}
-	
+
 	@Override
 	public boolean update() {
 		boolean result = super.update();
-		
+
 		table.redraw();
-		
+
 		return result;
 	}
 }

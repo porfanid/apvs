@@ -55,7 +55,19 @@ public class Intervention implements Serializable {
 		return userId;
 	}
 	
-	public String getName() {
+	public String getName() {		
+		if (((fname == null) || fname.equals("")) && ((lname == null) || lname.equals(""))) {
+			return "";
+		}
+		
+		if ((fname == null) || fname.equals("")) {
+			return lname;
+		}
+		
+		if ((lname == null) || lname.equals("")) {
+			return fname;
+		}
+		
 		return fname+" "+lname;
 	}
 
