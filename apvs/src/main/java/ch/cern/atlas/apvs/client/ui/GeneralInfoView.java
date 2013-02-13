@@ -61,14 +61,16 @@ public class GeneralInfoView extends GlassPanel implements Module {
 			.asList(new String[] {
 					ConnectionType.audio.getString(), // ConnectionType.video.getString(),
 					ConnectionType.daq.getString(),
-					ConnectionType.dosimeter.getString(),
+					// ConnectionType.dosimeter.getString(),
 					ConnectionType.databaseConnect.getString(),
 					ConnectionType.databaseUpdate.getString(), "Start Time",
 					"Duration" });
-	private List<Class<?>> classes = Arrays.asList(new Class<?>[] {
-			TextCell.class, /* TextCell.class, */
-			TextCell.class, TextCell.class, TextCell.class, TextCell.class,
-			DateCell.class, DurationCell.class });
+	private List<Class<?>> classes = Arrays
+			.asList(new Class<?>[] {
+					TextCell.class, // TextCell.class,
+					TextCell.class, // TextCell.class,
+					TextCell.class, TextCell.class, DateCell.class,
+					DurationCell.class });
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -112,9 +114,11 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					return daqOk;
 				} else if (name.equals(ConnectionType.dosimeter.getString())) {
 					return dosimeterOk;
-				} else if (name.equals(ConnectionType.databaseConnect.getString())) {
+				} else if (name.equals(ConnectionType.databaseConnect
+						.getString())) {
 					return databaseConnectOk;
-				} else if (name.equals(ConnectionType.databaseUpdate.getString())) {
+				} else if (name.equals(ConnectionType.databaseUpdate
+						.getString())) {
 					return databaseUpdateOk;
 				} else if (name.equals("Start Time")) {
 					return getStartTime();
