@@ -638,8 +638,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String number = event.getPeer();
 		
 		if(number.matches("SIP/1[0-9]{3}")){
-				String ptuId = voipAccounts.getPtuId(number);
-				if (ptuId != null) {
+				if (voipAccounts.getPtuId(number) !=null){
+					String ptuId = voipAccounts.getPtuId(number);
 					String peerStatus = event.getPeerStatus();
 					if (peerStatus.equals("Registered"))
 							voipAccounts.setStatus(ptuId, true);
