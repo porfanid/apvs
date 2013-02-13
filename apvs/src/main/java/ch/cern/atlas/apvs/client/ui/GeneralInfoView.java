@@ -27,6 +27,7 @@ import com.google.gwt.cell.client.DateCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextHeader;
@@ -126,9 +127,14 @@ public class GeneralInfoView extends GlassPanel implements Module {
 				Object s = getValue(name);
 				if (s instanceof Ternary) {
 					Ternary t = (Ternary)s;
-					s =  t.isTrue() ? "Ok" : t.isFalse() ? "Fail" : "Unknown";
+					s = t.isTrue() ? "Ok" : t.isFalse() ? "Fail" : "Unknown";
+					sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
+							+ s.toString().toLowerCase() + "\">"));
 				}
 				getCell().render(context, s, sb);
+				if (s instanceof Ternary) {
+					sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
+				}
 			}
 		};
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);

@@ -155,6 +155,8 @@ body {
 .in-range {
 }
 
+
+
 .alarm button {
 	background: #AA4643;
 	color: white;
@@ -173,3 +175,22 @@ body {
 .footer-left {
 	float: left;
 }
+
+
+.fail {
+	background: #AA4643;
+	color: white;
+}
+
+.unknown {
+	background: yellow;
+	color: black;
+}
+
+.ok {
+	background: green;
+	color: white;
+}
+
+
+
