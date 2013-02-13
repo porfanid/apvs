@@ -50,6 +50,8 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 		});
 		add(table, CENTER);
 		
+		setVisible(clientFactory.isSupervisor());
+		
 		// Supervisor Label
 		Column<VoipAccount, String> supervisorLabel = new Column<VoipAccount, String> (new TextCell()) {
 			
