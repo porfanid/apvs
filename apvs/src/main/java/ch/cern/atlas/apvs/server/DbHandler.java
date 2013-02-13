@@ -229,6 +229,9 @@ public class DbHandler extends DbReconnectHandler {
 		long time = result.getTimestamp("datetime").getTime();
 		updated = (time > now - (3 * 60000));
 
+		ConnectionStatusChangedRemoteEvent.fire(eventBus,
+				ConnectionType.databaseUpdate, updated);
+		
 		return updated;
 	}
 
