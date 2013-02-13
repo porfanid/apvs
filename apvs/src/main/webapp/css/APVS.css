@@ -192,5 +192,15 @@ body {
 	color: white;
 }
 
+.online {
+	background: green;
+	color: white;
+}
+
+.offline {
+	background: #AA4643;
+	color: white;
+}
+
 
 
