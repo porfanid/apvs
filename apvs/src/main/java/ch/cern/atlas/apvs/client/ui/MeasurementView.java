@@ -233,8 +233,9 @@ public class MeasurementView extends AbstractMeasurementView {
 		ClickableHtmlColumn<String> date = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				return PtuClientConstants.dateFormat.format(historyMap
-						.getMeasurement(ptuId, name).getDate());
+				Measurement measurement = historyMap.getMeasurement(ptuId, name);
+				return measurement != null ? PtuClientConstants.dateFormat.format(measurement
+						.getDate()) : "";
 			}
 
 			@Override

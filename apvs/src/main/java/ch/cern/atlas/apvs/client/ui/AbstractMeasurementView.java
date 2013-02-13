@@ -27,10 +27,11 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public abstract class AbstractMeasurementView extends GlassPanel implements Module {
+public abstract class AbstractMeasurementView extends GlassPanel implements
+		Module {
 
 	protected static NumberFormat format = NumberFormat.getFormat("0.00");
-	
+
 	protected HistoryMap historyMap;
 	protected InterventionMap interventions;
 	protected Measurement last = new Measurement();
@@ -232,7 +233,6 @@ public abstract class AbstractMeasurementView extends GlassPanel implements Modu
 
 	}
 
-
 	@Override
 	public boolean update() {
 		if (selectable) {
@@ -244,11 +244,10 @@ public abstract class AbstractMeasurementView extends GlassPanel implements Modu
 				selectMeasurement(selection);
 			}
 		}
-		
+
 		return false;
 	}
-	
-	
+
 	private Measurement replace(Measurement measurement) {
 
 		List<String> list = dataProvider.getList();

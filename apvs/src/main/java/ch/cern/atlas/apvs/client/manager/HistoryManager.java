@@ -72,56 +72,7 @@ public class HistoryManager {
 					public void onSuccess(HistoryMap result) {
 						historyMap = result;
 
-						// subscribe to further measurements
-						measurementRegistration = MeasurementChangedEvent
-								.register(eventBus,
-										new MeasurementChangedEvent.Handler() {
-
-											@Override
-											public void onMeasurementChanged(
-													MeasurementChangedEvent event) {
-												// Add entry to history, in the
-												// correct place
-												Measurement measurement = event
-														.getMeasurement();
-												History history = historyMap.get(
-														measurement.getPtuId(),
-														measurement.getName());
-												if (history == null) {
-													// NOTE #314, do not create
-													// a new History here...
-													// just ignore this PTU
-													// history = new History(
-													// measurement
-													// .getPtuId(),
-													// measurement
-													// .getName(),
-													// measurement
-													// .getSamplingRate(),
-													// new Number[0][],
-													// measurement
-													// .getUnit());
-													// historyMap.put(history);
-												} else {
-													if (measurement.getDate()
-															.getTime() < new Date()
-															.getTime() + 60000) {
-														history.addEntry(
-																measurement
-																		.getDate()
-																		.getTime(),
-																measurement
-																		.getValue(),
-																measurement
-																		.getLowLimit(),
-																measurement
-																		.getHighLimit(),
-																measurement
-																		.getSamplingRate());
-													}
-												}
-											}
-										});
+						subscribe();
 
 						HistoryMapChangedEvent.fire(eventBus, historyMap);
 					}
@@ -138,6 +89,38 @@ public class HistoryManager {
 			instance = new HistoryManager(clientFactory);
 		}
 		return instance;
+	}
+
+	private void subscribe() {
+		// subscribe to further measurements
+		measurementRegistration = MeasurementChangedEvent.register(eventBus,
+				new MeasurementChangedEvent.Handler() {
+
+					@Override
+					public void onMeasurementChanged(
+							MeasurementChangedEvent event) {
+						// Add entry to history, in the
+						// correct place
+						Measurement measurement = event.getMeasurement();
+						History history = historyMap.get(
+								measurement.getPtuId(), measurement.getName());
+						if (history == null) {
+							history = new History(measurement.getPtuId(),
+									measurement.getName(), measurement
+											.getUnit());
+							historyMap.put(history);
+						}
+						if (measurement.getDate().getTime() < new Date()
+								.getTime() + 60000) {
+							history.addEntry(measurement.getDate().getTime(),
+									measurement.getValue(),
+									measurement.getLowLimit(),
+									measurement.getHighLimit(),
+									measurement.getSamplingRate());
+						}
+
+					}
+				});
 	}
 
 }
