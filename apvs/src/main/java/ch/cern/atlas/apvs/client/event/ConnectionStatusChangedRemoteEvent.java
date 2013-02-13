@@ -15,7 +15,7 @@ public class ConnectionStatusChangedRemoteEvent extends
 
 	public enum ConnectionType {
 		audio("Audio Status"), video("Video Status"), daq("DAQ Status"), dosimeter(
-				"Dosimeter Status"), database("Database Status");
+				"Dosimeter Status"), databaseConnect("DB Connect Status"), databaseUpdate("DB Update Status");
 
 		private String s;
 

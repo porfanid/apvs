@@ -75,7 +75,7 @@ public class EventView extends GlassPanel implements Module {
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	protected Ternary daqOk = Ternary.Unknown;
-	protected Ternary databaseOk = Ternary.Unknown;
+	protected Ternary databaseConnect = Ternary.Unknown;
 
 	public EventView() {
 	}
@@ -215,14 +215,14 @@ public class EventView extends GlassPanel implements Module {
 						case daq:
 							daqOk = event.getStatus();
 							break;
-						case database:
-							databaseOk = event.getStatus();
+						case databaseConnect:
+							databaseConnect = event.getStatus();
 							break;
 						default:
 							break;
 						}
 
-						showGlass(daqOk.not().or(databaseOk.not()).isTrue());
+						showGlass(daqOk.not().or(databaseConnect.not()).isTrue());
 					}
 				});
 

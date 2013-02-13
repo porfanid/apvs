@@ -49,22 +49,26 @@ public class GeneralInfoView extends GlassPanel implements Module {
 	private Ternary videoOk = Ternary.Unknown;
 	private Ternary daqOk = Ternary.Unknown;
 	private Ternary dosimeterOk = Ternary.Unknown;
-	private Ternary databaseOk = Ternary.Unknown;
+	private Ternary databaseConnectOk = Ternary.Unknown;
+	private Ternary databaseUpdateOk = Ternary.Unknown;
 	private InterventionMap interventions;
 
 	private boolean showHeader = true;
 
 	private String options;
 
-	private List<String> names = Arrays.asList(new String[] {
-			ConnectionType.audio.getString(), // ConnectionType.video.getString(),
-			ConnectionType.daq.getString(),
-			ConnectionType.dosimeter.getString(),
-			ConnectionType.database.getString(), "Start Time", "Duration" });
+	private List<String> names = Arrays
+			.asList(new String[] {
+					ConnectionType.audio.getString(), // ConnectionType.video.getString(),
+					ConnectionType.daq.getString(),
+					ConnectionType.dosimeter.getString(),
+					ConnectionType.databaseConnect.getString(),
+					ConnectionType.databaseUpdate.getString(), "Start Time",
+					"Duration" });
 	private List<Class<?>> classes = Arrays.asList(new Class<?>[] {
-			TextCell.class, /* TextCell.class, */ TextCell.class,
-			TextCell.class, TextCell.class, DateCell.class,
-			DurationCell.class });
+			TextCell.class, /* TextCell.class, */
+			TextCell.class, TextCell.class, TextCell.class, TextCell.class,
+			DateCell.class, DurationCell.class });
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -81,7 +85,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 		showHeader = !options.contains("NoHeader");
 
 		table.setWidth("100%");
-		
+
 		add(table);
 
 		// name column
@@ -108,8 +112,10 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					return daqOk;
 				} else if (name.equals(ConnectionType.dosimeter.getString())) {
 					return dosimeterOk;
-				} else if (name.equals(ConnectionType.database.getString())) {
-					return databaseOk;
+				} else if (name.equals(ConnectionType.databaseConnect.getString())) {
+					return databaseConnectOk;
+				} else if (name.equals(ConnectionType.databaseUpdate.getString())) {
+					return databaseUpdateOk;
 				} else if (name.equals("Start Time")) {
 					return getStartTime();
 				} else if (name.equals("Duration")) {
@@ -126,7 +132,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				Object s = getValue(name);
 				if (s instanceof Ternary) {
-					Ternary t = (Ternary)s;
+					Ternary t = (Ternary) s;
 					s = t.isTrue() ? "Ok" : t.isFalse() ? "Fail" : "Unknown";
 					sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
 							+ s.toString().toLowerCase() + "\">"));
@@ -164,8 +170,11 @@ public class GeneralInfoView extends GlassPanel implements Module {
 						case dosimeter:
 							dosimeterOk = event.getStatus();
 							break;
-						case database:
-							databaseOk = event.getStatus();
+						case databaseConnect:
+							databaseConnectOk = event.getStatus();
+							break;
+						case databaseUpdate:
+							databaseUpdateOk = event.getStatus();
 							break;
 						default:
 							return;

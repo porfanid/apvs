@@ -57,7 +57,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	private Ternary daqOk = Ternary.Unknown;
-	private Ternary databaseOk = Ternary.Unknown;
+	private Ternary databaseConnect = Ternary.Unknown;
 
 	public AbstractMeasurementView() {
 	}
@@ -91,14 +91,14 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 						case daq:
 							daqOk = event.getStatus();
 							break;
-						case database:
-							databaseOk = event.getStatus();
+						case databaseConnect:
+							databaseConnect = event.getStatus();
 							break;
 						default:
 							break;
 						}
 
-						showGlass(daqOk.not().or(databaseOk.not()).isTrue());
+						showGlass(daqOk.not().or(databaseConnect.not()).isTrue());
 					}
 				});
 

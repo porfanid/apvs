@@ -29,7 +29,7 @@ public class AudioSummary extends GlassPanel implements Module {
 
 	private AudioSettings voipAccounts = new AudioSettings();
 	protected Ternary audioOk = Ternary.Unknown;
-	protected Ternary databaseOk = Ternary.Unknown;
+	protected Ternary databaseConnect = Ternary.Unknown;
 
 	public AudioSummary() {
 	}
@@ -161,14 +161,14 @@ public class AudioSummary extends GlassPanel implements Module {
 						case audio:
 							audioOk = event.getStatus();
 							break;
-						case database:
-							databaseOk = event.getStatus();
+						case databaseConnect:
+							databaseConnect = event.getStatus();
 							break;
 						default:
 							break;
 						}
 
-						showGlass(audioOk.not().or(databaseOk.not()).isTrue());
+						showGlass(audioOk.not().or(databaseConnect.not()).isTrue());
 					}
 				});
 

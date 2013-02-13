@@ -44,6 +44,8 @@ public class DbHandler extends DbReconnectHandler {
 	private InterventionMap interventions = new InterventionMap();
 
 	private static final boolean DEBUG = false;
+	
+	private boolean updated = false;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super(eventBus);
@@ -62,11 +64,13 @@ public class DbHandler extends DbReconnectHandler {
 				} else if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.database, isConnected());
+							ConnectionType.databaseConnect, isConnected());
+					ConnectionStatusChangedRemoteEvent.fire(eventBus,
+							ConnectionType.databaseUpdate, isUpdated());
 				}
 			}
 		});
-		
+
 		ScheduledExecutorService executor = Executors
 				.newSingleThreadScheduledExecutor();
 		executor.scheduleAtFixedRate(new Runnable() {
@@ -78,6 +82,9 @@ public class DbHandler extends DbReconnectHandler {
 						log.warn("DB no longer reachable");
 					}
 					try {
+						if (!checkUpdate()) {
+							log.warn("DB no longer updated");
+						}
 						updateInterventions();
 					} catch (SQLException e) {
 						log.warn(
@@ -107,13 +114,15 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			for (String ptuId : ptuIdList) {
 				// at most from fromTime or startTime
-				long startTime = interventions.get(ptuId).getStartTime().getTime();
+				long startTime = interventions.get(ptuId).getStartTime()
+						.getTime();
 				long fromTime = from.getTime();
-				
+
 				historyQuery.setString(1, ptuId);
 
 				if (from != null) {
-					historyQuery.setTimestamp(2, new Timestamp(Math.max(startTime, fromTime)));
+					historyQuery.setTimestamp(2,
+							new Timestamp(Math.max(startTime, fromTime)));
 				}
 
 				long now = new Date().getTime();
@@ -129,13 +138,10 @@ public class DbHandler extends DbReconnectHandler {
 						total++;
 
 						String sensor = result.getString("sensor");
-						Number value = toDouble(result
-								.getString("value"));
+						Number value = toDouble(result.getString("value"));
 
-						Number low = toDouble(result
-								.getString("down_thres"));
-						Number high = toDouble(result
-								.getString("up_thres"));
+						Number low = toDouble(result.getString("down_thres"));
+						Number high = toDouble(result.getString("up_thres"));
 
 						Integer samplingRate = toInt(result
 								.getString("samplingrate"));
@@ -185,7 +191,7 @@ public class DbHandler extends DbReconnectHandler {
 		super.dbConnected(datasource);
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
-				ConnectionType.database, true);
+				ConnectionType.databaseConnect, true);
 
 		updateInterventions();
 	}
@@ -195,10 +201,35 @@ public class DbHandler extends DbReconnectHandler {
 		super.dbDisconnected();
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
-				ConnectionType.database, false);
+				ConnectionType.databaseConnect, false);
+		ConnectionStatusChangedRemoteEvent.fire(eventBus,
+				ConnectionType.databaseUpdate, false);
 
 		interventions.clear();
 		InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
+	}
+	
+	private boolean isUpdated() {
+		return updated;
+	}
+	
+	private boolean checkUpdate() throws SQLException {
+		String sql = "select DATETIME from tbl_measurements order by DATETIME DESC";
+
+		Connection connection = getConnection();
+		PreparedStatement updateQuery = connection.prepareStatement(sql);
+
+		long now = new Date().getTime();
+		ResultSet result = updateQuery.executeQuery();
+
+		if (!result.next()) {
+			updated = false;
+		}
+
+		long time = result.getTimestamp("datetime").getTime();
+		updated = (time > now - (3 * 60000));
+		
+		return updated;
 	}
 
 	private String getSql(String sql, Range range, SortOrder[] order) {
@@ -717,11 +748,12 @@ public class DbHandler extends DbReconnectHandler {
 				Number high = toDouble(result.getString("UP_THRES"));
 
 				// if equal of low higher than high, no limits to be shown
-				if (low != null && high != null && low.doubleValue() >= high.doubleValue()) {
+				if (low != null && high != null
+						&& low.doubleValue() >= high.doubleValue()) {
 					low = null;
 					high = null;
 				}
-				
+
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);
 				low = Scale.getLowLimit(low, unit);
@@ -729,9 +761,9 @@ public class DbHandler extends DbReconnectHandler {
 				unit = Scale.getUnit(unit);
 
 				Measurement m = new Measurement(result.getString("NAME"),
-						sensor, value, low, high, unit, toInt(result
-								.getString("SAMPLINGRATE")), new Date(result
-								.getTimestamp("DATETIME").getTime()));
+						sensor, value, low, high, unit,
+						toInt(result.getString("SAMPLINGRATE")), new Date(
+								result.getTimestamp("DATETIME").getTime()));
 				list.add(m);
 			}
 		} finally {
