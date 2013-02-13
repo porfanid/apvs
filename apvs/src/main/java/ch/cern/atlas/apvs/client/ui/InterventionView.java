@@ -47,7 +47,9 @@ import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -101,8 +103,8 @@ public class InterventionView extends GlassPanel implements Module {
 	}
 
 	@Override
-	public boolean configure(Element element, final ClientFactory clientFactory,
-			Arguments args) {
+	public boolean configure(Element element,
+			final ClientFactory clientFactory, Arguments args) {
 
 		interventionService = clientFactory.getInterventionService();
 
@@ -291,6 +293,13 @@ public class InterventionView extends GlassPanel implements Module {
 			public String getValue() {
 				return "Start a new Intervention";
 			}
+
+			@Override
+			public boolean onPreviewColumnSortEvent(Context context,
+					Element elem, NativeEvent event) {
+				// events are handled, do not sort, fix for #454
+				return false;
+			}
 		};
 		interventionFooter.setUpdater(new ValueUpdater<String>() {
 
@@ -455,6 +464,13 @@ public class InterventionView extends GlassPanel implements Module {
 			public String getValue() {
 				return "Add a new User";
 			}
+			
+			@Override
+			public boolean onPreviewColumnSortEvent(Context context,
+					Element elem, NativeEvent event) {
+				// events are handled, do not sort, fix for #454
+				return false;
+			}
 		};
 		nameFooter.setUpdater(new ValueUpdater<String>() {
 
@@ -555,6 +571,13 @@ public class InterventionView extends GlassPanel implements Module {
 			public String getValue() {
 				return "Add a new PTU";
 			}
+			
+			@Override
+			public boolean onPreviewColumnSortEvent(Context context,
+					Element elem, NativeEvent event) {
+				// events are handled, do not sort, fix for #454
+				return false;
+			}
 		};
 		deviceFooter.setUpdater(new ValueUpdater<String>() {
 
@@ -652,7 +675,7 @@ public class InterventionView extends GlassPanel implements Module {
 				if (!clientFactory.isSupervisor()) {
 					return;
 				}
-				
+
 				interventionService.updateInterventionImpactNumber(
 						object.getId(), value, new AsyncCallback<Void>() {
 
@@ -671,7 +694,7 @@ public class InterventionView extends GlassPanel implements Module {
 		table.addColumn(impact, new TextHeader("Impact #"), new TextHeader(""));
 
 		// Rec Status
-	    TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
+		TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
 			@Override
 			public String getValue(Intervention object) {
 				return object.getRecStatus() != null ? Double.toString(object
@@ -711,10 +734,10 @@ public class InterventionView extends GlassPanel implements Module {
 				if (!clientFactory.isSupervisor()) {
 					return;
 				}
-				
+
 				interventionService.updateInterventionDescription(
 						object.getId(), value, new AsyncCallback<Void>() {
-							
+
 							@Override
 							public void onSuccess(Void result) {
 								scheduler.update();

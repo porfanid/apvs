@@ -3,6 +3,8 @@ package ch.cern.atlas.apvs.client.widget;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
 
@@ -36,6 +38,13 @@ public class ActionHeader extends Header<String> {
 		if (isVisible()) {
 			super.render(context, sb);
 		}
+	}
+	
+	@Override
+	public boolean onPreviewColumnSortEvent(Context context, Element elem,
+			NativeEvent event) {
+		// events are handled, do not sort, fix for #454
+		return false;
 	}
 	
 	private static class MyActionCell extends ActionCell<String> {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell.Delegate;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -196,6 +197,13 @@ public class PagerHeader extends AbstractPager {
 
 		header = new Header<String>(new CompositeCell<String>(cells)) {
 
+			@Override
+			public boolean onPreviewColumnSortEvent(Context context,
+					Element elem, NativeEvent event) {
+				// events are handled, do not sort, fix for #454
+				return false;
+			}
+			
 			@Override
 			public String getValue() {
 				return "Composite";

@@ -25,8 +25,10 @@ import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.ActionCell.Delegate;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
@@ -74,7 +76,6 @@ public class EventView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	protected Ternary daqOk = Ternary.Unknown;
 	protected Ternary databaseConnect = Ternary.Unknown;
 
 	public EventView() {
@@ -113,7 +114,14 @@ public class EventView extends GlassPanel implements Module {
 		});
 		update.setVisible(false);
 
-		compositeFooter = new CompositeHeader(pager.getHeader(), update);
+		compositeFooter = new CompositeHeader(pager.getHeader(), update) {
+			@Override
+			public boolean onPreviewColumnSortEvent(Context context,
+					Element elem, NativeEvent event) {
+				// events are handled, do not sort, fix for #454
+				return false;
+			}
+		};
 
 		final TextArea msg = new TextArea();
 		// FIXME, not sure how to handle scroll bar and paging
@@ -212,9 +220,6 @@ public class EventView extends GlassPanel implements Module {
 					public void onConnectionStatusChanged(
 							ConnectionStatusChangedRemoteEvent event) {
 						switch (event.getConnection()) {
-						case daq:
-							daqOk = event.getStatus();
-							break;
 						case databaseConnect:
 							databaseConnect = event.getStatus();
 							break;
@@ -222,7 +227,7 @@ public class EventView extends GlassPanel implements Module {
 							break;
 						}
 
-						showGlass(daqOk.not().or(databaseConnect.not()).isTrue());
+						showGlass(databaseConnect.not().isTrue());
 					}
 				});
 
@@ -527,6 +532,7 @@ public class EventView extends GlassPanel implements Module {
 
 		// Re-sort the table
 		if (!needsUpdate) {
+			ColumnSortEvent.fire(table, table.getColumnSortList());
 			RangeChangeEvent.fire(table, table.getVisibleRange());
 		}
 		table.redraw();

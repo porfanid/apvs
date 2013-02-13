@@ -27,6 +27,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.ActionCell.Delegate;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.CompositeCell;
@@ -34,6 +35,8 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.HasCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
@@ -367,7 +370,17 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				}
 				return "Not assigned";
 			}
-
+			
+			@Override
+			public void render(Context context, String object,
+					SafeHtmlBuilder sb) {
+				String value = getValue(object);
+				
+				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
+						+ value.toLowerCase() + "\">"));
+				getCell().render(context, value, sb);
+				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
+			}
 		};
 		status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(status, "Account Status");

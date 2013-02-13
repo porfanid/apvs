@@ -14,7 +14,10 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
@@ -95,6 +98,17 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 							return (supervisorsAccounts.get(i).getStatus() ?"Online":"Offline");
 				}
 				return "Not assigned";
+			}
+			
+			@Override
+			public void render(Context context, VoipAccount object,
+					SafeHtmlBuilder sb) {
+				String value = getValue(object);
+				
+				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
+						+ value.toLowerCase() + "\">"));
+				getCell().render(context, value, sb);
+				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
 			}
 		};
 		table.addColumn(status, "Account Status");

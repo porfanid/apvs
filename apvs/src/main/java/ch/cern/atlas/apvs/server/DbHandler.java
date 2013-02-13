@@ -44,7 +44,7 @@ public class DbHandler extends DbReconnectHandler {
 	private InterventionMap interventions = new InterventionMap();
 
 	private static final boolean DEBUG = false;
-	
+
 	private boolean updated = false;
 
 	public DbHandler(final RemoteEventBus eventBus) {
@@ -208,11 +208,11 @@ public class DbHandler extends DbReconnectHandler {
 		interventions.clear();
 		InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 	}
-	
+
 	private boolean isUpdated() {
 		return updated;
 	}
-	
+
 	private boolean checkUpdate() throws SQLException {
 		String sql = "select DATETIME from tbl_measurements order by DATETIME DESC";
 
@@ -228,6 +228,9 @@ public class DbHandler extends DbReconnectHandler {
 
 		long time = result.getTimestamp("datetime").getTime();
 		updated = (time > now - (3 * 60000));
+
+		ConnectionStatusChangedRemoteEvent.fire(eventBus,
+				ConnectionType.databaseUpdate, updated);
 		
 		return updated;
 	}
@@ -368,8 +371,9 @@ public class DbHandler extends DbReconnectHandler {
 		}
 
 		Connection connection = getConnection();
-		PreparedStatement statement = connection.prepareStatement(getSql(sql,
-				range, order));
+		String s = getSql(sql, range, order);
+		// log.info("SQL: "+s);
+		PreparedStatement statement = connection.prepareStatement(s);
 		int param = 1;
 		if (ptuId != null) {
 			statement.setString(param, ptuId);
