@@ -23,7 +23,8 @@ public class APVSServer {
 		
 		// only access via localhost, hidden behind apache
 		Connector connector = new SelectChannelConnector();
-		connector.setHost("localhost");
+//		connector.setHost("localhost");
+		connector.setHost("0.0.0.0");
 		connector.setPort(port);
 		server.addConnector(connector);
 		
