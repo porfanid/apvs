@@ -144,7 +144,7 @@ public class DbHandler extends DbReconnectHandler {
 
 						// Fix for #488, invalid db entry
 						if ((sensor == null) || (value == null) || (unit == null)) {
-							log.warn("MeasurementTable ID "+id+" contains <null> sensor, value or unit ("+sensor+", "+value+", "+unit+")");
+							log.warn("MeasurementTable ID "+id+" contains <null> sensor, value or unit ("+sensor+", "+value+", "+unit+") for ptu: "+ptuId);
 							continue;
 						}
 						
