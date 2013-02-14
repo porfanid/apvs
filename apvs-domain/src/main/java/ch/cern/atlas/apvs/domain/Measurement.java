@@ -38,8 +38,8 @@ public class Measurement implements Message, Serializable,
 		this.displayName = null;
 
 		// Fix Unit for Body Temperature and Temperature
-		if ((name.equals("Temperature") || name.equals("BodyTemperature"))
-				&& unit.equals("C")) {
+		if ((name != null) && (name.equals("Temperature") || name.equals("BodyTemperature"))
+				&& (unit != null) && unit.equals("C")) {
 			this.unit = "&deg;C";
 		}
 	}
