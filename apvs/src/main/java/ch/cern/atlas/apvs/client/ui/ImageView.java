@@ -1,13 +1,13 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.media.client.Video;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -54,6 +54,7 @@ public class ImageView extends SimplePanel {
 
 				if ((currentCameraUrl != null) && isMovingJPEG) {
 					image.setUrl(currentCameraUrl);
+					// Window.alert("Set URL to "+currentCameraUrl);
 				}
 
 				return true;
@@ -136,5 +137,4 @@ public class ImageView extends SimplePanel {
 		}
 		return true;
 	}
-
 }
