@@ -43,6 +43,11 @@ public class PtuJsonReader extends JsonReader {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		List<JsonObject> msgs = (List<JsonObject>) jsonObj.get("Messages");
+		// fix for #497
+		if (msgs == null) {
+			log.warn("No messages in JSON from "+sender);
+			return result;
+		}
 		JsonMessage[] messages = new JsonMessage[msgs.size()];
 
 		for (int i = 0; i < messages.length; i++) {
