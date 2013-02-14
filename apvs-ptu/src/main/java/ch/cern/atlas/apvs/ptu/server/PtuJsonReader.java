@@ -54,10 +54,11 @@ public class PtuJsonReader extends JsonReader {
 				String unit = (String) msg.get("Unit");
 				Number value = convertToDouble(msg.get("Value"));
 				String time = (String)msg.get("Time");
+				String samplingRate = (String) msg.get("SamplingRate");
 				
 				// fix for #486 and #490
 				if ((sensor == null) || (value == null) || (unit == null) || (time == null)) {
-					log.warn("PTU "+sender+": Measurement contains <null> sensor, value, unit or time ("+sensor+", "+value+", "+unit+", "+time+")");
+					log.warn("PTU "+sender+": Measurement contains <null> sensor, value, samplingrate, unit or time ("+sensor+", "+value+", "+unit+", "+samplingRate+", "+time+")");
 					continue;
 				}
 
@@ -72,7 +73,7 @@ public class PtuJsonReader extends JsonReader {
 
 				result.add(new Measurement(sender, sensor, value, low, high,
 						unit,
-						Integer.parseInt((String) msg.get("SamplingRate")),
+						Integer.parseInt(samplingRate),
 						convertToDate(time)));
 			} else if (type.equals("Event")) {
 				result.add(new Event(sender, (String) msg.get("Sensor"),
