@@ -23,7 +23,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<gwt-version>2.5.1-rc1</gwt-version>
-		<gwt-plugin-version>2.5.1-d39ce9f3d3f7465dbb15dc14280e59bd02ca2747</gwt-plugin-version>
+		<gwt-plugin-version>2.5.1-SNAPSHOT</gwt-plugin-version>
 		<atmosphere-version>1.1.0.beta3</atmosphere-version>
 		<atmosphere-ext-version>1.1.0.beta3</atmosphere-ext-version>
 
@@ -83,8 +83,8 @@
 		<module>apvs-eventbus</module>
 <!--
 		<module>apvs-eventbus-demo</module>
--->
 		<module>apvs-gwt-maven-plugin</module>
+-->
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-log4jdbc</module>
