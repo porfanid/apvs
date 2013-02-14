@@ -636,11 +636,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 	// Users Register and Unregister
 	public void peerStatusEvent(PeerStatusEvent event) {
 		String number = event.getPeer();
+		String peerStatus = event.getPeerStatus();
 		
 		if(number.matches("SIP/1[0-9]{3}")){
-				String ptuId = voipAccounts.getPtuId(number);
-				if (ptuId != null) {
-					String peerStatus = event.getPeerStatus();
+				if (voipAccounts.getPtuId(number) !=null){
+					String ptuId = voipAccounts.getPtuId(number);
 					if (peerStatus.equals("Registered"))
 							voipAccounts.setStatus(ptuId, true);
 					else
@@ -649,8 +649,18 @@ public class AudioServiceImpl extends ResponsePollService implements
 					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
 					return;
 				}
+		} else if (number.matches("SIP/2[0-9]{3}")){
+				if(number.equals(supervisorAccount.getAccount())){
+					if (peerStatus.equals("Registered"))
+						supervisorAccount.setStatus(true);
+					else
+						supervisorAccount.setStatus(false);
+				}
+				((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
+				return;
 		}
-		System.err.println("#PeerStatusEvent - NO PTU FOUND OR ASSIGNED WITH NUMBER " + number);
+		
+		System.err.println("#PeerStatusEvent - NO PTU OR SUPERVISOR FOUND OR ASSIGNED WITH NUMBER " + number);
 	}
 
 	// MeetMe Join Event
