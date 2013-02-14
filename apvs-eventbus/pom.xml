@@ -45,6 +45,10 @@
                         <artifactId>apvs-atmosphere</artifactId>
                 </dependency>
 -->
+                <dependency>
+                        <groupId>ch.cern.atlas</groupId>
+                        <artifactId>apvs-gwt-maven-plugin</artifactId>
+                </dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
