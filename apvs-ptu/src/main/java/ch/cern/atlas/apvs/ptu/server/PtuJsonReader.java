@@ -52,7 +52,13 @@ public class PtuJsonReader extends JsonReader {
 			if (type.equals("Measurement")) {
 				String sensor = (String) msg.get("Sensor");
 				String unit = (String) msg.get("Unit");
-				Number value = Double.parseDouble((String) msg.get("Value"));
+				Number value = convertToDouble(msg.get("Value"));
+				
+				// fix for #486
+				if ((sensor == null) || (value == null) || (unit == null)) {
+					log.warn("PTU "+sender+": Measurement contains <null> sensor, value or unit ("+sensor+", "+value+", "+unit+")");
+					continue;
+				}
 
 				Number low = convertToDouble(msg.get("DownThreshold"));
 				Number high = convertToDouble(msg.get("UpThreshold"));
