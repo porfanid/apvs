@@ -19,14 +19,22 @@ public class APVSServer {
 	public static void main(String[] args) {
 		int port = Integer.parseInt(System.getProperty("port",
 				"" + DEFAULT_PORT_NO));
-		Server server = new Server();
+
+		Server server;
 		
-		// only access via localhost, hidden behind apache
-		Connector connector = new SelectChannelConnector();
-//		connector.setHost("localhost");	// access only from localhost
-		connector.setHost("0.0.0.0");	// access from everywhere
-		connector.setPort(port);
-		server.addConnector(connector);
+		boolean onlyFromLocalHost = false;
+		// NOTE: doing this seems to sometimes freeze the server
+		if (onlyFromLocalHost) {
+			server = new Server();
+		
+			// only access via localhost, hidden behind apache
+			Connector connector = new SelectChannelConnector();
+			connector.setHost("localhost");	// access only from localhost
+			connector.setPort(port);
+			server.addConnector(connector);
+		} else {	
+			server = new Server(port);
+		}
 		
 		ProtectionDomain domain = APVSServer.class.getProtectionDomain();
 		URL location = domain.getCodeSource().getLocation();
