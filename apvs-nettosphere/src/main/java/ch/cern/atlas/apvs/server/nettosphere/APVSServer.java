@@ -24,7 +24,8 @@ public class APVSServer {
 		Config.Builder builder = new Config.Builder();
 		builder.resource(".")
             .port(port)
-            .host("127.0.0.1")
+//            .host("localhost")		// access only from localhost
+            .host("0.0.0.0")		// access from everywhere
 //            .configFile("META-INF/atmosphere.xml")
             .build();
         Nettosphere server = new Nettosphere.Builder().config(builder.build()).build();

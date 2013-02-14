@@ -100,7 +100,7 @@ public class DbHandler extends DbReconnectHandler {
 			throws SQLException {
 		// NOTE: we could optimize the query by running a count and see if the #
 		// is not too large, then just move forward the from time.
-		String sql = "select NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE, METHOD, UP_THRES, DOWN_THRES from tbl_measurements, tbl_devices "
+		String sql = "select tbl_measurements.ID, NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE, METHOD, UP_THRES, DOWN_THRES from tbl_measurements, tbl_devices "
 				+ "where tbl_measurements.device_id = tbl_devices.id"
 				+ " and NAME = ?"
 				+ (from != null ? " and datetime > ?" : "")
@@ -137,16 +137,23 @@ public class DbHandler extends DbReconnectHandler {
 
 						total++;
 
+						Integer id = result.getInt("id");
 						String sensor = result.getString("sensor");
 						Number value = toDouble(result.getString("value"));
+						String unit = result.getString("unit");
 
+						// Fix for #488, invalid db entry
+						if ((sensor == null) || (value == null) || (unit == null)) {
+							log.warn("MeasurementTable ID "+id+" contains <null> sensor, value or unit");
+							continue;
+						}
+						
 						Number low = toDouble(result.getString("down_thres"));
 						Number high = toDouble(result.getString("up_thres"));
 
 						Integer samplingRate = toInt(result
 								.getString("samplingrate"));
 
-						String unit = result.getString("unit");
 
 						// Scale down to microSievert
 						value = Scale.getValue(value, unit);
