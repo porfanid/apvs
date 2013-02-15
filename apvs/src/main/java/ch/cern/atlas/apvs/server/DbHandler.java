@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -46,10 +47,14 @@ public class DbHandler extends DbReconnectHandler {
 	private static final boolean DEBUG = false;
 
 	private boolean updated = false;
+	
+	private long time;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super(eventBus);
 		this.eventBus = eventBus;
+		
+		time = new Date().getTime();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
@@ -75,6 +80,8 @@ public class DbHandler extends DbReconnectHandler {
 				.newSingleThreadScheduledExecutor();
 		executor.scheduleAtFixedRate(new Runnable() {
 
+			ScheduledFuture<?> watchdog;
+			
 			@Override
 			public void run() {
 				if (isConnected()) {
@@ -86,14 +93,35 @@ public class DbHandler extends DbReconnectHandler {
 							log.warn("DB no longer updated");
 						}
 						updateInterventions();
+						
 					} catch (SQLException e) {
 						log.warn(
 								"Could not regularly-update intervention list: ",
 								e);
 					}
+					
+					if (watchdog != null) {
+						watchdog.cancel(false);
+					}
+					watchdog = scheduleWatchDog();
 				}
 			}
 		}, 0, 30, TimeUnit.SECONDS);
+		
+	}
+	
+	private ScheduledFuture<?> scheduleWatchDog() {
+		ScheduledExecutorService executor = Executors
+				.newSingleThreadScheduledExecutor();
+		return executor.schedule(new Runnable() {
+
+			@Override
+			public void run() {
+				Date now = new Date();
+				log.error("Failed to reset watchdog, terminating server at "+now+" after "+(now.getTime() - time)/1000+" seconds.");
+				System.exit(1);
+			}
+		}, 45, TimeUnit.SECONDS);				
 	}
 
 	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
@@ -227,12 +255,9 @@ public class DbHandler extends DbReconnectHandler {
 	private boolean checkUpdate() throws SQLException {
 		String sql = "select DATETIME from tbl_measurements order by DATETIME DESC";
 
-		System.err.println("get connection...");
 		Connection connection = getConnection();
-		System.err.println("prep statement...");
 		PreparedStatement updateQuery = connection.prepareStatement(sql);
 
-		System.err.println("run query...");
 		long now = new Date().getTime();
 		ResultSet result = updateQuery.executeQuery();
 
@@ -242,8 +267,6 @@ public class DbHandler extends DbReconnectHandler {
 		} else {
 			updated = false;
 		}
-		System.err.println("done");
-		System.err.println("");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseUpdate, updated);
