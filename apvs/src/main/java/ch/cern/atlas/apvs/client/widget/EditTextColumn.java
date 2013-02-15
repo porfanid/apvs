@@ -1,14 +1,14 @@
 package ch.cern.atlas.apvs.client.widget;
 
 import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 
-public abstract class EditTextColumn<T> extends Column<T, String> {
+public abstract class EditTextColumn<T> extends Column<T, String> implements DataStoreName {
 
 	private boolean enabled;
 	
@@ -41,5 +41,10 @@ public abstract class EditTextColumn<T> extends Column<T, String> {
 	
 	public boolean isEnabled() {
 		return enabled;
+	}
+	
+	@Override
+	public String getDataStoreName() {
+		return null;
 	}
 }

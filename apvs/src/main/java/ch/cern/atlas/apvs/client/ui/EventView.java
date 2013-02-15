@@ -15,6 +15,7 @@ import ch.cern.atlas.apvs.client.widget.ActionHeader;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.CompositeHeader;
+import ch.cern.atlas.apvs.client.widget.DataStoreName;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
@@ -115,7 +116,7 @@ public class EventView extends GlassPanel implements Module {
 		update.setVisible(false);
 
 		compositeFooter = new CompositeHeader(pager.getHeader(), update) {
-			@Override
+
 			public boolean onPreviewColumnSortEvent(Context context,
 					Element elem, NativeEvent event) {
 				// events are handled, do not sort, fix for #454
@@ -178,7 +179,7 @@ public class EventView extends GlassPanel implements Module {
 				SortOrder[] order = new SortOrder[sortList.size()];
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order[i] = new SortOrder(info.getColumn()
+					order[i] = new SortOrder(((DataStoreName)info.getColumn())
 							.getDataStoreName(), info.isAscending());
 				}
 

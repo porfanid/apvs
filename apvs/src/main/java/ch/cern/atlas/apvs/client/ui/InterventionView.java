@@ -26,6 +26,7 @@ import ch.cern.atlas.apvs.client.validation.ValidationFieldset;
 import ch.cern.atlas.apvs.client.validation.ValidationForm;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.client.widget.DataStoreName;
 import ch.cern.atlas.apvs.client.widget.EditTextColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
@@ -44,10 +45,10 @@ import com.github.gwtbootstrap.client.ui.ModalFooter;
 import com.github.gwtbootstrap.client.ui.constants.FormType;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
-import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -175,7 +176,7 @@ public class InterventionView extends GlassPanel implements Module {
 				SortOrder[] order = new SortOrder[sortList.size()];
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order[i] = new SortOrder(info.getColumn()
+					order[i] = new SortOrder(((DataStoreName)info.getColumn())
 							.getDataStoreName(), info.isAscending());
 				}
 
@@ -294,7 +295,6 @@ public class InterventionView extends GlassPanel implements Module {
 				return "Start a new Intervention";
 			}
 
-			@Override
 			public boolean onPreviewColumnSortEvent(Context context,
 					Element elem, NativeEvent event) {
 				// events are handled, do not sort, fix for #454
@@ -465,7 +465,6 @@ public class InterventionView extends GlassPanel implements Module {
 				return "Add a new User";
 			}
 			
-			@Override
 			public boolean onPreviewColumnSortEvent(Context context,
 					Element elem, NativeEvent event) {
 				// events are handled, do not sort, fix for #454
@@ -572,7 +571,6 @@ public class InterventionView extends GlassPanel implements Module {
 				return "Add a new PTU";
 			}
 			
-			@Override
 			public boolean onPreviewColumnSortEvent(Context context,
 					Element elem, NativeEvent event) {
 				// events are handled, do not sort, fix for #454
@@ -694,23 +692,23 @@ public class InterventionView extends GlassPanel implements Module {
 		table.addColumn(impact, new TextHeader("Impact #"), new TextHeader(""));
 
 		// Rec Status
-		TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
-			@Override
-			public String getValue(Intervention object) {
-				return object.getRecStatus() != null ? Double.toString(object
-						.getRecStatus()) : "";
-			}
-
-			@Override
-			public String getDataStoreName() {
-				return "tbl_inspections.rec_status";
-			}
-		};
-		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		impact.setSortable(true);
-		impact.setEnabled(clientFactory.isSupervisor());
-		table.addColumn(recStatus, new TextHeader("Rec Status"),
-				new TextHeader(""));
+//		TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
+//			@Override
+//			public String getValue(Intervention object) {
+//				return object.getRecStatus() != null ? Double.toString(object
+//						.getRecStatus()) : "";
+//			}
+//
+//			@Override
+//			public String getDataStoreName() {
+//				return "tbl_inspections.rec_status";
+//			}
+//		};
+//		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+//		impact.setSortable(true);
+//		impact.setEnabled(clientFactory.isSupervisor());
+//		table.addColumn(recStatus, new TextHeader("Rec Status"),
+//				new TextHeader(""));
 
 		// Description
 		EditTextColumn<Intervention> description = new EditTextColumn<Intervention>() {

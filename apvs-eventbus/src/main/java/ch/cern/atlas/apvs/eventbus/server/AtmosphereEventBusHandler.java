@@ -67,16 +67,16 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 	public int doComet(GwtAtmosphereResource resource) throws ServletException,
 			IOException {
 		if (DEBUG) {
-			log.info("AtmosphereEventBusHandler.doComet()..."
-					+ resource.getConnectionUUID());
-			log.info(resource.getAtmosphereResource()
-					.getAtmosphereResourceEvent().toString());
+//			log.info("AtmosphereEventBusHandler.doComet()..."
+//					+ resource.getConnectionUUID());
+//			log.info(resource.getAtmosphereResource()
+//					.getAtmosphereResourceEvent().toString());
 		}
-		String uuid = resource.getConnectionUUID();
-		if (uuid != null) {
-			uuids.add(uuid);
-			ConnectionUUIDsChangedEvent.fire(eventBus, uuids, uuid, null);
-		}
+//		String uuid = resource.getConnectionUUID();
+//		if (uuid != null) {
+//			uuids.add(uuid);
+//			ConnectionUUIDsChangedEvent.fire(eventBus, uuids, uuid, null);
+//		}
 
 		resource.getBroadcaster().setID("GWT_COMET");
 		HttpSession session = resource.getAtmosphereResource().getRequest()
@@ -98,7 +98,8 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 
 		String agent = resource.getRequest().getHeader("user-agent");
         logger.info(agent);
-		return DO_COMET_RESUME;
+//		return DO_COMET_RESUME;
+        return NO_TIMEOUT;
 	}
 
 	@Override
@@ -138,8 +139,8 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 			boolean serverInitiated) {
 		super.cometTerminated(cometResponse, serverInitiated);
 		if (DEBUG) {
-			log.info("AtmosphereEventBusHandler.Comet terminated "
-					+ cometResponse.getConnectionUUID());
+//			log.info("AtmosphereEventBusHandler.Comet terminated "
+//					+ cometResponse.getConnectionUUID());
 		}
 	}
 
@@ -147,17 +148,17 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 	public void disconnect(GwtAtmosphereResource resource) {
 		super.disconnect(resource);
 		if (DEBUG) {
-			log.info("AtmosphereEventBusHandler.Comet disconnected "
-					+ resource.getConnectionUUID());
-			log.info(resource.getAtmosphereResource()
-					.getAtmosphereResourceEvent().toString());
+//			log.info("AtmosphereEventBusHandler.Comet disconnected "
+//					+ resource.getConnectionUUID());
+//			log.info(resource.getAtmosphereResource()
+//					.getAtmosphereResourceEvent().toString());
 		}
 		
-		String uuid = resource.getConnectionUUID();
-		if (uuid != null) {
-			uuids.remove(uuid);
-			ConnectionUUIDsChangedEvent.fire(eventBus, uuids, null, uuid);
-		}
+//		String uuid = resource.getConnectionUUID();
+//		if (uuid != null) {
+//			uuids.remove(uuid);
+//			ConnectionUUIDsChangedEvent.fire(eventBus, uuids, null, uuid);
+//		}
 	}
 
 	@Override
