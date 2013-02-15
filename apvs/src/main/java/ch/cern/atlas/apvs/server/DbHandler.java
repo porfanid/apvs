@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -46,10 +47,14 @@ public class DbHandler extends DbReconnectHandler {
 	private static final boolean DEBUG = false;
 
 	private boolean updated = false;
+	
+	private long time;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super(eventBus);
 		this.eventBus = eventBus;
+		
+		time = new Date().getTime();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
@@ -75,6 +80,8 @@ public class DbHandler extends DbReconnectHandler {
 				.newSingleThreadScheduledExecutor();
 		executor.scheduleAtFixedRate(new Runnable() {
 
+			ScheduledFuture<?> watchdog;
+			
 			@Override
 			public void run() {
 				if (isConnected()) {
@@ -86,14 +93,35 @@ public class DbHandler extends DbReconnectHandler {
 							log.warn("DB no longer updated");
 						}
 						updateInterventions();
+						
 					} catch (SQLException e) {
 						log.warn(
 								"Could not regularly-update intervention list: ",
 								e);
 					}
+					
+					if (watchdog != null) {
+						watchdog.cancel(false);
+					}
+					watchdog = scheduleWatchDog();
 				}
 			}
 		}, 0, 30, TimeUnit.SECONDS);
+		
+	}
+	
+	private ScheduledFuture<?> scheduleWatchDog() {
+		ScheduledExecutorService executor = Executors
+				.newSingleThreadScheduledExecutor();
+		return executor.schedule(new Runnable() {
+
+			@Override
+			public void run() {
+				Date now = new Date();
+				log.error("Failed to reset watchdog, terminating server at "+now+" after "+(now.getTime() - time)/1000+" seconds.");
+				System.exit(1);
+			}
+		}, 45, TimeUnit.SECONDS);				
 	}
 
 	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
@@ -233,12 +261,12 @@ public class DbHandler extends DbReconnectHandler {
 		long now = new Date().getTime();
 		ResultSet result = updateQuery.executeQuery();
 
-		if (!result.next()) {
+		if (result.next()) {
+			long time = result.getTimestamp("datetime").getTime();
+			updated = (time > now - (3 * 60000));
+		} else {
 			updated = false;
 		}
-
-		long time = result.getTimestamp("datetime").getTime();
-		updated = (time > now - (3 * 60000));
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseUpdate, updated);

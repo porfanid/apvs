@@ -40,7 +40,6 @@ public class ActionHeader extends Header<String> {
 		}
 	}
 	
-	@Override
 	public boolean onPreviewColumnSortEvent(Context context, Element elem,
 			NativeEvent event) {
 		// events are handled, do not sort, fix for #454

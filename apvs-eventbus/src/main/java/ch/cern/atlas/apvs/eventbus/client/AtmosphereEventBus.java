@@ -63,30 +63,26 @@ public class AtmosphereEventBus extends RemoteEventBus {
 			System.err.println("EventBusListener connected (1.1+) "+heartbeat+" "+connectionUUID);
 		}
 
-		@Override
 		public void onBeforeDisconnected() {
-			System.err.println("EventBusListener before disconnect "+(client != null ? client.getConnectionUUID() : null));
+//			System.err.println("EventBusListener before disconnect "+(client != null ? client.getConnectionUUID() : null));
 		}
 
-		@Override
 		public void onDisconnected() {
-			System.err.println("EventBusListener disconnected "+(client != null ? client.getConnectionUUID() : null));
+//			System.err.println("EventBusListener disconnected "+(client != null ? client.getConnectionUUID() : null));
 		}
 
-		@Override
 		public void onError(Throwable exception, boolean connected) {
-			System.err.println("EventBusListener error "+connected+" "+exception+" "+(client != null ? client.getConnectionUUID() : null));
+//			System.err.println("EventBusListener error "+connected+" "+exception+" "+(client != null ? client.getConnectionUUID() : null));
 			System.err.println("---------------- error "+exception.getCause());
 		}
 
-		@Override
 		public void onHeartbeat() {
-			System.err.println("EventBusListener heartbeat "+(client != null ? client.getConnectionUUID() : null));
+//			System.err.println("EventBusListener heartbeat "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		@Override
 		public void onRefresh() {
-			System.err.println("EventBusListener refresh "+(client != null ? client.getConnectionUUID() : null));
+//			System.err.println("EventBusListener refresh "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		/**
@@ -109,12 +105,12 @@ public class AtmosphereEventBus extends RemoteEventBus {
 
 		// atmosphere 1.0
 		public void onAfterRefresh() {
-			System.err.println("EventBusListener after refresh (1.0) "+(client != null ? client.getConnectionUUID() : null));
+//			System.err.println("EventBusListener after refresh (1.0) "+(client != null ? client.getConnectionUUID() : null));
 		}
 
 		// atmosphere 1.1
 		public void onAfterRefresh(String connectionUUID) {
-			System.err.println("EventBusListener after refresh (1.1+) "+connectionUUID+" "+(client != null ? client.getConnectionUUID() : null));
+//			System.err.println("EventBusListener after refresh (1.1+) "+connectionUUID+" "+(client != null ? client.getConnectionUUID() : null));
 		}
 	}
 	

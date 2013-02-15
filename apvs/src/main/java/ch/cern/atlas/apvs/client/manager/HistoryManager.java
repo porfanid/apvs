@@ -62,7 +62,8 @@ public class HistoryManager {
 		}
 
 		long now = new Date().getTime();
-		Date yesterday = new Date(now - (24 * 60 * 60 * 1000));
+		// #502, reduce to one hour for now
+		Date yesterday = new Date(now - (/* 24 */ 60 * 60 * 1000));
 
 		historyMap = new HistoryMap();
 		clientFactory.getPtuService().getHistoryMap(ptuIds, yesterday,

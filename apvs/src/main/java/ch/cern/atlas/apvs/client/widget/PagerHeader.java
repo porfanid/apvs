@@ -197,7 +197,6 @@ public class PagerHeader extends AbstractPager {
 
 		header = new Header<String>(new CompositeCell<String>(cells)) {
 
-			@Override
 			public boolean onPreviewColumnSortEvent(Context context,
 					Element elem, NativeEvent event) {
 				// events are handled, do not sort, fix for #454
