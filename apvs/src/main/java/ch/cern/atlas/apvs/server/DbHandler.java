@@ -197,6 +197,8 @@ public class DbHandler extends DbReconnectHandler {
 	public void dbConnected(DataSource datasource) throws SQLException {
 		super.dbConnected(datasource);
 
+		log.info("DB disconnected");
+
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseConnect, true);
 
@@ -206,6 +208,8 @@ public class DbHandler extends DbReconnectHandler {
 	@Override
 	public void dbDisconnected() throws SQLException {
 		super.dbDisconnected();
+		
+		log.warn("DB disconnected");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseConnect, false);
@@ -378,6 +382,7 @@ public class DbHandler extends DbReconnectHandler {
 		}
 
 		Connection connection = getConnection();
+		
 		String s = getSql(sql, range, order);
 		// log.info("SQL: "+s);
 		PreparedStatement statement = connection.prepareStatement(s);
@@ -392,7 +397,7 @@ public class DbHandler extends DbReconnectHandler {
 		}
 
 		ResultSet result = statement.executeQuery();
-
+		
 		List<Event> list = new ArrayList<Event>(range.getLength());
 		try {
 			// FIXME, #173 using some SQL this may be faster
@@ -415,15 +420,26 @@ public class DbHandler extends DbReconnectHandler {
 			statement.close();
 			connection.close();
 		}
+				
 		return list;
 	}
 
 	private Double toDouble(String string) {
-		return string != null ? Double.parseDouble(string) : null;
+		try {
+			return string != null ? Double.parseDouble(string) : null;
+		} catch (NumberFormatException e) {
+			log.warn("NumberFormat Exception (toDouble) in DbHandler: '"+string+"'");
+			return null;
+		}
 	}
 
 	private Integer toInt(String string) {
-		return string != null ? Integer.parseInt(string) : null;
+		try {
+			return string != null ? Integer.parseInt(string) : null;
+		} catch (NumberFormatException e) {
+			log.warn("NumberFormat Exception (toInt) in DbHandler: '"+string+"'");
+			return null;
+		}
 	}
 
 	public synchronized void addUser(User user) throws SQLException {
