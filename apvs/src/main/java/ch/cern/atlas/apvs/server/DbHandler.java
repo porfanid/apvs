@@ -227,18 +227,23 @@ public class DbHandler extends DbReconnectHandler {
 	private boolean checkUpdate() throws SQLException {
 		String sql = "select DATETIME from tbl_measurements order by DATETIME DESC";
 
+		System.err.println("get connection...");
 		Connection connection = getConnection();
+		System.err.println("prep statement...");
 		PreparedStatement updateQuery = connection.prepareStatement(sql);
 
+		System.err.println("run query...");
 		long now = new Date().getTime();
 		ResultSet result = updateQuery.executeQuery();
 
-		if (!result.next()) {
+		if (result.next()) {
+			long time = result.getTimestamp("datetime").getTime();
+			updated = (time > now - (3 * 60000));
+		} else {
 			updated = false;
 		}
-
-		long time = result.getTimestamp("datetime").getTime();
-		updated = (time > now - (3 * 60000));
+		System.err.println("done");
+		System.err.println("");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseUpdate, updated);
