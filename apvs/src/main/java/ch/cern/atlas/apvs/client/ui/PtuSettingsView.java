@@ -365,7 +365,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				for (int i = 0; i < usersAccounts.size(); i++) {
 					if (usersAccounts.get(i).getAccount()
 							.equals(voipAccounts.getNumber(object)))
-						return (usersAccounts.get(i).getStatus() ? "Online"
+						return (voipAccounts.getStatus(object)/*usersAccounts.get(i).getStatus()*/ ? "Online"
 								: "Offline");
 				}
 				return "Not assigned";

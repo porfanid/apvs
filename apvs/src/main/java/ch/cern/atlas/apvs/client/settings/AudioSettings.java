@@ -3,8 +3,10 @@ package ch.cern.atlas.apvs.client.settings;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class AudioSettings implements Serializable {
 
@@ -84,6 +86,12 @@ public class AudioSettings implements Serializable {
 
 	public void setStatus(String ptuId, Boolean status) {
 		entries.get(ptuId).setStatus(status);
+	}
+	
+	// Define all PTU as status unknown
+	public void setUnkwonStatus(){
+		for(String ptuId : entries.keySet())
+			setStatus(ptuId, false);
 	}
 
 	
