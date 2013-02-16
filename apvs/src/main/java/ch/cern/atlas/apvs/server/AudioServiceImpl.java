@@ -112,6 +112,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 				// Event handler
 				managerConnection.addEventListener(AudioServiceImpl.this);
+				voipAccounts.setUnkwonStatus();
+				supervisorAccount.setStatus(false);
+				((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));	
+				((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));	
+
 	    		
 	    		System.out.println("Trying login in Asterisk Server on " + asteriskUrl + " ...");
 	    		try {
@@ -119,7 +124,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				} catch (AudioException e) {
 					System.err.println("Fail to login: " + e.getMessage());
 				}
-			} else{
+		} else{
 				boolean audioFormerState = audioOk;
 				if(new AsteriskPing(managerConnection).isAlive()) {
 					audioOk = true;
@@ -128,8 +133,13 @@ public class AudioServiceImpl extends ResponsePollService implements
 					audioOk = false;
 					System.err.println("Asterisk Server: " + asteriskUrl + " is not available...");
 				}
-				if(audioFormerState != audioOk)
+				if((audioFormerState != audioOk) && !audioOk){
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
+					voipAccounts.setUnkwonStatus();
+					supervisorAccount.setStatus(false);
+					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));	
+					((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));	
+				}
 			}
 	    }
 	}
@@ -651,9 +661,10 @@ public class AudioServiceImpl extends ResponsePollService implements
 						supervisorAccount.setStatus(true);
 					else
 						supervisorAccount.setStatus(false);
+					
+					((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
+					return;
 				}
-				((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
-				return;
 		}
 		
 		System.err.println("#PeerStatusEvent - NO PTU OR SUPERVISOR FOUND OR ASSIGNED WITH NUMBER " + number);
