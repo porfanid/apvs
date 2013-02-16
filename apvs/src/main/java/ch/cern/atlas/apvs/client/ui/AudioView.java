@@ -37,8 +37,6 @@ public class AudioView extends GlassPanel implements Module {
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
 	private String ptuId = new String("PTUWeb");
-	//private static final String SUPERVISOR_ACCOUNT = "SIP/2001";
-	//private static final String SUPERVISOR_NUMBER = "2001";
 	private VoipAccount supervisorAccount = new VoipAccount();
 
 	private EventBus cmdBus;
@@ -55,29 +53,6 @@ public class AudioView extends GlassPanel implements Module {
 		
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
-
-		/* 
-		 * TABLE SETUP
-		 * 
-		 	(TextCell)  	 (EditableCell=customizable)	
-		 ________________________________________________________________________________________
-		 |  Field Name  | Status/Action Field               | Status/Action Field               |
-		 |______________|___________________________________|___________________________________|
-		 | Status		|  		Online / Offline		    |  		Online / Offline		    | (textCell field)
-		 | Private Call |    Call/Hangup 'username'         |    Call/Hangup 'username'         | (buttonCell field) 
-		 | Group Call	| Join/Leave/Create 'IMPACT ACTION' | Join/Leave/Create 'IMPACT ACTION' | (buttonCell field)
-		 ****************************************************************************************
-		 * FOLLOWING ROWS ARE DYNAMICALLY ADDED													*
-		 * Mode = On conference																	*
-		 ****************************************************************************************
- 		 | Conference   | Close Conference (btn)			| Mute all users(btn)	 			|
- 		 | 'User 1'     | Kick (btn)  						| Mute 'User 1'(btn)   				|
- 		 | 'User 2'     | Kick(btn)			                | Mute 'User 2'(btn)				|
- 		 | 'User n'     | Kick(btn)  						| Mute 'User n'(btn)				|
- 		 |______________|___________________________________|___________________________________|
- 
-		 */
-		
 		table.setWidth("100%");
 
 		add(table, CENTER);

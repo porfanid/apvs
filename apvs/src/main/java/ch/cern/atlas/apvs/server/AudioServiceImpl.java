@@ -514,9 +514,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String number = filterNumber(channel);
 		if(number.matches("SIP/1[0-9]{3}")){
 				String ptuId = voipAccounts.getPtuId(number);
-				System.out.println("O PTUID" + ptuId +" O NUMBER "+ number);
 				if (ptuId != null) {
-					System.out.println("Entrou diferente de null");
 					voipAccounts.setChannel(ptuId, channel);
 					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
 				}
@@ -564,7 +562,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 				if (ptuId1 != null){
 					if(number2.matches("SIP/1[0-9]{3}")){
 						String ptuId2 = voipAccounts.getPtuId(number2);
-						System.out.println("PTU: "+ ptuId2);
 						voipAccounts.setDestPTUser(ptuId1,voipAccounts.getUsername(ptuId2), ptuId2);
 						voipAccounts.setOnCall(ptuId1, true);
 						voipAccounts.setDestPTUser(ptuId2,voipAccounts.getUsername(ptuId1), ptuId1);
@@ -619,7 +616,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 			return;
 		}else{
 			String ptuId = voipAccounts.getPtuId(number);
-			System.out.println("O PTUID afkbaskjgnkjasndgjkfnaksjfnjkasndjkfnasjkfndkjans"+ptuId);
 			if (ptuId != null) {
 				voipAccounts.setChannel(ptuId, "");
 				voipAccounts.setDestPTUser(ptuId, "", "");
@@ -671,7 +667,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String ptuId = voipAccounts.getPtuId(number);
 
 		if (!conferenceRooms.roomExist(room)) {
-			System.out.println(room);
+			//System.out.println(room);
 			conferenceRooms.put(room, new Conference());		
 			conferenceRooms.get(room).setActivity(voipAccounts.getActivity(ptuId));
 		}
