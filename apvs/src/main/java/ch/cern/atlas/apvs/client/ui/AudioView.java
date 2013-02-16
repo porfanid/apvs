@@ -183,7 +183,7 @@ public class AudioView extends GlassPanel implements Module {
 						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
 					
 				} else if (fieldName.equals("Mute/Unmute")){
-					System.out.println(voipAccounts.getMute(ptuId));
+					//System.out.println(voipAccounts.getMute(ptuId));
 					if(voipAccounts.getMute(ptuId)){
 						AudioServiceAsync.Util.getInstance().unMuteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel(ptuId), ptuId, callbackMute);
 					}else{
@@ -210,7 +210,6 @@ public class AudioView extends GlassPanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-					System.err.println("NEW PTU " + ptuId);
 					table.redraw();
 				}
 			});
