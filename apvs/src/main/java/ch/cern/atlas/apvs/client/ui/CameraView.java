@@ -166,8 +166,21 @@ public class CameraView extends ImageView implements Module,
 	}
 
 	public boolean update() {
-		String cameraUrl = getCameraUrl(type, ptuId);
-		System.err.println("CameraURL: '"+ptuId+"' '"+cameraUrl+"'");
-		return setUrl(cameraUrl);		
+		final String cameraUrl = getCameraUrl(type, ptuId);
+//		setUrl(null);
+//		Window.alert("CameraURL: '"+ptuId+"' 'null'");
+		
+		// fix for #465
+//		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			
+//			@Override
+//			public void execute() {
+				setUrl(cameraUrl);
+//				Window.alert("CameraURL: '"+ptuId+"' '"+cameraUrl+"'");
+//			}
+//		});
+		
+			
+		return false;
 	}
 }

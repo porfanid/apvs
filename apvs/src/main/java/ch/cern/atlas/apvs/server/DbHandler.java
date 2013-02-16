@@ -78,12 +78,13 @@ public class DbHandler extends DbReconnectHandler {
 
 		ScheduledExecutorService executor = Executors
 				.newSingleThreadScheduledExecutor();
-		executor.scheduleAtFixedRate(new Runnable() {
+		executor.scheduleWithFixedDelay(new Runnable() {
 
 			ScheduledFuture<?> watchdog;
 			
 			@Override
 			public void run() {
+				try {
 				if (isConnected()) {
 					if (!checkConnection()) {
 						log.warn("DB no longer reachable");
@@ -104,6 +105,9 @@ public class DbHandler extends DbReconnectHandler {
 						watchdog.cancel(false);
 					}
 					watchdog = scheduleWatchDog();
+				}
+				} catch (Exception e) {
+					log.error(e.getMessage());
 				}
 			}
 		}, 0, 30, TimeUnit.SECONDS);
@@ -261,11 +265,17 @@ public class DbHandler extends DbReconnectHandler {
 		long now = new Date().getTime();
 		ResultSet result = updateQuery.executeQuery();
 
-		if (result.next()) {
-			long time = result.getTimestamp("datetime").getTime();
-			updated = (time > now - (3 * 60000));
-		} else {
-			updated = false;
+		try {
+			if (result.next()) {
+				long time = result.getTimestamp("datetime").getTime();
+				updated = (time > now - (3 * 60000));
+			} else {
+				updated = false;
+			}
+		} finally {
+			result.close();
+			updateQuery.close();
+			connection.close();
 		}
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
