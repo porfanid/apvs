@@ -90,10 +90,10 @@ public class DbHandler extends DbReconnectHandler {
 						log.warn("DB no longer reachable");
 					}
 					try {
+						updateInterventions();
 						if (!checkUpdate()) {
 							log.warn("DB no longer updated");
 						}
-						updateInterventions();
 						
 					} catch (SQLException e) {
 						log.warn(
@@ -107,7 +107,7 @@ public class DbHandler extends DbReconnectHandler {
 					watchdog = scheduleWatchDog();
 				}
 				} catch (Exception e) {
-					log.error(e.getMessage());
+					log.warn(e.getMessage());
 				}
 			}
 		}, 0, 30, TimeUnit.SECONDS);
