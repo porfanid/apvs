@@ -62,7 +62,6 @@ public class CameraTable extends SimplePanel implements Module {
 						scheduler.update();
 					}
 				});
-
 		
 		return true;
 	}

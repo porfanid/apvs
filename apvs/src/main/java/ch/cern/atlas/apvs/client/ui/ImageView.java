@@ -1,13 +1,12 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Date;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.media.client.Video;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -44,28 +43,38 @@ public class ImageView extends SimplePanel {
 
 		// keep setting URL for video not to get stuck, FIXME #425 find a better
 		// way...
-		Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
+		// FIX seems to keep adding resources in Safari 
+		if (false) {
+			Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
 
-			@Override
-			public boolean execute() {
-				if (!isAttached()) {
-					return false;
+				@Override
+				public boolean execute() {
+					if (!isAttached()) {
+						return false;
+					}
+
+					if ((currentCameraUrl != null) && isMovingJPEG) {
+						image.setUrl(currentCameraUrl);
+						// Window.alert("Set URL to "+currentCameraUrl);
+					}
+
+					return true;
 				}
-
-				if ((currentCameraUrl != null) && isMovingJPEG) {
-					image.setUrl(currentCameraUrl);
-					// Window.alert("Set URL to "+currentCameraUrl);
-				}
-
-				return true;
-			}
-		}, 30000);
+			}, 30000);
+		}
 	}
 
 	public boolean setUrl(String cameraUrl) {
 
 		if ((cameraUrl == null) || cameraUrl.trim().equals("")) {
 			currentCameraUrl = null;
+
+			if (image != null) {
+				image.setUrl("");
+			}
+			image = new Image();
+			image.setWidth(videoWidth);
+			image.setHeight(videoHeight);
 
 			image.setUrl(videoPoster);
 			image.setTitle("");
@@ -83,6 +92,14 @@ public class ImageView extends SimplePanel {
 		if (cameraUrl.startsWith("http://")) {
 			if (cameraUrl.endsWith(".mjpg")) {
 				log.info(cameraUrl);
+
+				if (image != null) {
+					image.setUrl("");
+				}
+				image = new Image();
+				image.setWidth(videoWidth);
+				image.setHeight(videoHeight);
+
 				image.setUrl(cameraUrl);
 				image.setTitle(cameraUrl);
 				setWidget(image);
