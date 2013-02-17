@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -47,11 +48,14 @@
 						<phase>validate</phase>
 						<configuration>
 							<target>
-								<property name="src.dir" value="${project.build.directory}/generated-sources/gwt" />
+								<property name="src.dir"
+									value="${project.build.directory}/generated-sources/gwt" />
 								<property name="package.dir" value="ch/cern/atlas/apvs/client" />
 
-								<echo file="${src.dir}/${package.dir}/Build.properties" message="version = ${project.version}${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Build.properties" append="true" message="build = ${buildNumber}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									message="version = ${project.version}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									append="true" message="build = ${buildNumber}${line.separator}" />
 							</target>
 						</configuration>
 					</execution>
@@ -72,11 +76,20 @@
 				</configuration>
 				<executions>
 					<execution>
+						<id>GenerateAsync</id>
+						<configuration>
+							<servicePattern>**/service/*Service.java</servicePattern>
+						</configuration>
+						<goals>
+							<goal>generateAsync</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>Compile</id>
 						<configuration>
 							<extraJvmArgs>-Xmx2048m</extraJvmArgs>
 						</configuration>
 						<goals>
-							<goal>generateAsync</goal>
 							<goal>compile</goal>
 						</goals>
 					</execution>
@@ -109,19 +122,19 @@
 				</configuration>
 			</plugin>
 
-<plugin>
-    <artifactId>maven-clean-plugin</artifactId>
-    <configuration>
-        <filesets>
-            <fileset>
-                <directory>src/main/webapp/WEB-INF/classes</directory>
-            </fileset>
-            <fileset>
-                <directory>src/main/webapp/WEB-INF/lib</directory>
-            </fileset>
-        </filesets>
-    </configuration>
-</plugin>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>src/main/webapp/WEB-INF/classes</directory>
+						</fileset>
+						<fileset>
+							<directory>src/main/webapp/WEB-INF/lib</directory>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -130,12 +143,8 @@
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-asterisk</artifactId>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-atmosphere</artifactId>
-		</dependency>
--->
+		<!-- <dependency> <groupId>ch.cern.atlas</groupId> <artifactId>apvs-atmosphere</artifactId> 
+			</dependency> -->
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-charts</artifactId>
@@ -196,12 +205,8 @@
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-servlet</artifactId>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-elemental</artifactId>
-		</dependency>
--->
+		<!-- <dependency> <groupId>com.google.gwt</groupId> <artifactId>gwt-elemental</artifactId> 
+			</dependency> -->
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty</artifactId>

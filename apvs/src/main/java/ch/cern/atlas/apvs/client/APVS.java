@@ -4,10 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
-import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
@@ -55,6 +53,8 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.StyleInjector;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestException;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -278,7 +278,7 @@ public class APVS implements EntryPoint {
 				if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
 					ConnectionStatusChangedRemoteEvent.fire(remoteEventBus,
-							ConnectionType.databaseConnect, alive);
+							ConnectionType.server, alive);
 				}
 			}
 		});
@@ -288,7 +288,7 @@ public class APVS implements EntryPoint {
 			
 			@Override
 			public boolean execute() {
-				ServerServiceAsync.Util.getInstance().isAlive(new AsyncCallback<Void>() {
+				RequestBuilder request = PingServiceAsync.Util.getInstance().ping(new AsyncCallback<Void>() {
 					
 					@Override
 					public void onSuccess(Void result) {
@@ -305,9 +305,16 @@ public class APVS implements EntryPoint {
 					}
 				});
 				
+				request.setTimeoutMillis(10000);
+				try {
+					request.send();
+				} catch (RequestException e) {
+					e.printStackTrace();
+				}
+				
 				return false;
 			}
-		}, 30000);
+		}, 20000);
 		
 		if (newCode)
 			return;
