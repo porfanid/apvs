@@ -99,6 +99,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	public class AsteriskConnect extends Thread {
 	    public void run() {			
 	    	if(!asteriskConnected) {
+				audioOk = false;
 				if(managerConnection != null){
 					managerConnection.removeEventListener(AudioServiceImpl.this);
 				}
@@ -133,12 +134,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 					audioOk = false;
 					System.err.println("Asterisk Server: " + asteriskUrl + " is not available...");
 				}
-				if((audioFormerState != audioOk) && !audioOk){
+				if((audioFormerState != audioOk)){
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,ConnectionType.audio, audioOk);
-					voipAccounts.setUnkwonStatus();
-					supervisorAccount.setStatus(false);
-					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));	
-					((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));	
 				}
 			}
 	    }
@@ -678,22 +675,30 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String ptuId = voipAccounts.getPtuId(number);
 
 		if (!conferenceRooms.roomExist(room)) {
-			//System.out.println(room);
 			conferenceRooms.put(room, new Conference());		
 			conferenceRooms.get(room).setActivity(voipAccounts.getActivity(ptuId));
 		}
-
-		if (ptuId != null) {
-			voipAccounts.setChannel(ptuId, channel);
-			voipAccounts.setRoom(ptuId, room);
-			voipAccounts.setOnConference(ptuId, true);
-			conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum() + 1);
-			conferenceRooms.get(room).addPtu(ptuId);
-			conferenceRooms.get(room).addUsername(voipAccounts.getUsername(ptuId));
-
-			((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
-			((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(conferenceRooms));
-			return;
+		if(number.matches("SIP/1[0-9]{3}")){
+			if (ptuId != null) {
+				voipAccounts.setChannel(ptuId, channel);
+				voipAccounts.setRoom(ptuId, room);
+				voipAccounts.setOnConference(ptuId, true);
+				conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum() + 1);
+				conferenceRooms.get(room).addPtu(ptuId);
+				conferenceRooms.get(room).addUsername(voipAccounts.getUsername(ptuId));
+	
+				((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+				((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(conferenceRooms));
+				return;
+			}
+		}else if (number.matches("SIP/2[0-9]{3}")){
+			if(number.equals(supervisorAccount.getAccount())){
+				supervisorAccount.setOnConference(true);
+				supervisorAccount.setRoom(room);
+				supervisorAccount.setChannel(channel);
+				((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
+				return;
+			}
 		}
 
 		System.err.println("#MeetMeJoinEvent - NO PTU FOUND WITH NUMBER " + number);
@@ -706,24 +711,34 @@ public class AudioServiceImpl extends ResponsePollService implements
 		String room = event.getMeetMe();
 		String number = filterNumber(channel);
 		String ptuId = voipAccounts.getPtuId(number);
-		if (ptuId != null) {
-			if (voipAccounts.getChannel(ptuId).equals(channel))
-				voipAccounts.setChannel(ptuId, "");
-			if (voipAccounts.getRoom(ptuId).equals(room))
-				voipAccounts.setRoom(ptuId, "	");
-
-			voipAccounts.setOnConference(ptuId, false);
-
-			conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum() - 1);
-			int index = conferenceRooms.get(room).getPtuIds().indexOf(ptuId);
-			conferenceRooms.get(room).getPtuIds().remove(index);
-			conferenceRooms.get(room).getUsernames().remove(index);
-
-			((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
-			((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(conferenceRooms));
-			return;
+		
+		if(number.matches("SIP/1[0-9]{3}")){
+			if (ptuId != null) {
+				if (voipAccounts.getChannel(ptuId).equals(channel))
+					voipAccounts.setChannel(ptuId, "");
+				if (voipAccounts.getRoom(ptuId).equals(room))
+					voipAccounts.setRoom(ptuId, "	");
+	
+				voipAccounts.setOnConference(ptuId, false);
+	
+				conferenceRooms.get(room).setUserNum(conferenceRooms.get(room).getUserNum() - 1);
+				int index = conferenceRooms.get(room).getPtuIds().indexOf(ptuId);
+				conferenceRooms.get(room).getPtuIds().remove(index);
+				conferenceRooms.get(room).getUsernames().remove(index);
+	
+				((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+				((RemoteEventBus) eventBus).fireEvent(new MeetMeRemoteEvent(conferenceRooms));
+				return;
+			}
+		}else if (number.matches("SIP/2[0-9]{3}")){
+			if(number.equals(supervisorAccount.getAccount())){
+				supervisorAccount.setOnConference(false);
+				supervisorAccount.setRoom("");
+				supervisorAccount.setChannel("");
+				((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
+				return;
+			}
 		}
-
 		System.err.println("#MeetMeLeaveEvent - NO PTU FOUND WITH NUMBER " + number);
 	}
 
