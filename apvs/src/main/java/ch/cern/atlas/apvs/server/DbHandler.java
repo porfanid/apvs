@@ -44,7 +44,7 @@ public class DbHandler extends DbReconnectHandler {
 
 	private InterventionMap interventions = new InterventionMap();
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private boolean updated = false;
 
