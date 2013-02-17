@@ -313,7 +313,6 @@ public class APVS implements EntryPoint {
 					request.send();
 				} catch (RequestException e) {
 				}
-				Window.alert("Sent");
 				
 				return true;
 			}
