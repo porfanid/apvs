@@ -324,9 +324,9 @@ public class DbHandler extends DbReconnectHandler {
 
 	public List<Intervention> getInterventions(Range range, SortOrder[] order)
 			throws SQLException {
-		String sql = "select tbl_inspections.ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
+		String sql = "select tbl_inspections.ID as ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
 				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, "
-				+ "tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS, tbl_users.id, tbl_devices.id "
+				+ "tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS, tbl_users.id as USER_ID, tbl_devices.id as DEVICE_ID "
 				+ "from tbl_inspections "
 				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
@@ -344,9 +344,9 @@ public class DbHandler extends DbReconnectHandler {
 			}
 
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
-				list.add(new Intervention(result.getInt(1), result.getInt(8),
+				list.add(new Intervention(result.getInt("id"), result.getInt("user_id"),
 						result.getString("fname"), result.getString("lname"),
-						result.getInt(9), result.getString("name"), new Date(
+						result.getInt("device_id"), result.getString("name"), new Date(
 								result.getTimestamp("starttime").getTime()),
 						result.getTimestamp("endtime") != null ? new Date(
 								result.getTimestamp("endtime").getTime())
