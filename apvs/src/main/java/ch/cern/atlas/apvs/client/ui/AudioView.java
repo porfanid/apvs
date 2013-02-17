@@ -78,7 +78,7 @@ public class AudioView extends GlassPanel implements Module {
 				else if(fieldName.equals("Mute/Unmute"))
 					return (voipAccounts.getMute(ptuId) ? ("Unmute '") + voipAccounts.getUsername(ptuId) + "'" : ("Mute '") + voipAccounts.getUsername(ptuId) + "'");
 				else if(fieldName.equals("Kick/Add"))
-					return ( voipAccounts.getOnConference(ptuId)? ( (voipAccounts.getRoom(ptuId) == conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId))) ? ("Kick '" + voipAccounts.getActivity(ptuId) + "'") : ("Hangup from '" + voipAccounts.getActivity(ptuId) + "' conference")) : ("Add to '" + voipAccounts.getActivity(ptuId) + "'"));
+					return ( voipAccounts.getOnConference(ptuId)? ( (voipAccounts.getRoom(ptuId) == conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId))) ? ("Kick from '" + voipAccounts.getActivity(ptuId) + "'") : ("Hangup from '" + voipAccounts.getActivity(ptuId) + "' conference")) : ("Add to '" + voipAccounts.getActivity(ptuId) + "'"));
 				else
 					return null;
 			}
@@ -268,6 +268,7 @@ public class AudioView extends GlassPanel implements Module {
 
 			@Override
 			public void onMeetMeEvent(MeetMeRemoteEvent event) {
+				conferenceRooms = event.getConferenceRooms();
 				if (fieldName.size() > 3) {
 					while (fieldName.size() > 3) {
 						fieldName.remove(3);
