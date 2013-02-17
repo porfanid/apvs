@@ -3,7 +3,11 @@ package ch.cern.atlas.apvs.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
 import ch.cern.atlas.apvs.client.tablet.AppBundle;
 import ch.cern.atlas.apvs.client.tablet.HomePlace;
@@ -40,10 +44,13 @@ import ch.cern.atlas.apvs.client.widget.DialogResultEvent;
 import ch.cern.atlas.apvs.client.widget.DialogResultHandler;
 import ch.cern.atlas.apvs.client.widget.PasswordDialog;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
@@ -86,6 +93,8 @@ public class APVS implements EntryPoint {
 	private String defaultPtuId = "PTUdemo";
 	
 	private ClientFactory clientFactory;
+	
+	private boolean alive = false;
 
 	@Override
 	public void onModuleLoad() {
@@ -152,7 +161,7 @@ public class APVS implements EntryPoint {
 	}
 	
 	private void start() {
-
+		
 		remoteEventBus = clientFactory.getRemoteEventBus();
 		placeController = clientFactory.getPlaceController();
 
@@ -258,7 +267,48 @@ public class APVS implements EntryPoint {
 		// FIXME create tab buttons for each, select default one
 		clientFactory.getEventBus("ptu").fireEvent(
 				new SelectPtuEvent(defaultPtuId));
+		
+		// Server ALIVE status
+		RequestRemoteEvent.register(remoteEventBus, new RequestRemoteEvent.Handler() {
 
+			@Override
+			public void onRequestEvent(RequestRemoteEvent event) {
+				String type = event.getRequestedClassName();
+
+				if (type.equals(ConnectionStatusChangedRemoteEvent.class
+						.getName())) {
+					ConnectionStatusChangedRemoteEvent.fire(remoteEventBus,
+							ConnectionType.databaseConnect, alive);
+				}
+			}
+		});
+
+
+		Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+			
+			@Override
+			public boolean execute() {
+				ServerServiceAsync.Util.getInstance().isAlive(new AsyncCallback<Void>() {
+					
+					@Override
+					public void onSuccess(Void result) {
+						if (!alive) {
+							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, true);
+						}
+					}
+					
+					@Override
+					public void onFailure(Throwable caught) {
+						if (alive) {
+							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, false);							
+						}
+					}
+				});
+				
+				return false;
+			}
+		}, 30000);
+		
 		if (newCode)
 			return;
 

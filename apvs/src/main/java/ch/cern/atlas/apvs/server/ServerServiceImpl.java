@@ -43,6 +43,11 @@ public class ServerServiceImpl extends ResponsePollService implements
 		super.destroy();
 	}
 
+	@Override
+	public void isAlive() {
+		// do nothing
+	}
+	
 	/**
 	 * return false if not supervisor
 	 */

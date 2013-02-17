@@ -14,8 +14,9 @@ public class ConnectionStatusChangedRemoteEvent extends
 	private static final long serialVersionUID = 8865199851228810365L;
 
 	public enum ConnectionType {
-		audio("Audio Status"), video("Video Status"), daq("DAQ Status"), dosimeter(
-				"Dosimeter Status"), databaseConnect("DB Connect Status"), databaseUpdate("DB Update Status");
+		server("Server Status"), audio("Audio Status"), video("Video Status"), daq(
+				"DAQ Status"), dosimeter("Dosimeter Status"), databaseConnect(
+				"DB Connect Status"), databaseUpdate("DB Update Status");
 
 		private String s;
 
@@ -47,7 +48,8 @@ public class ConnectionStatusChangedRemoteEvent extends
 
 	public static void fire(RemoteEventBus eventBus, ConnectionType type,
 			boolean ok) {
-		eventBus.fireEvent(new ConnectionStatusChangedRemoteEvent(type, ok ? Ternary.True : Ternary.False));
+		eventBus.fireEvent(new ConnectionStatusChangedRemoteEvent(type,
+				ok ? Ternary.True : Ternary.False));
 	}
 
 	/**
@@ -80,7 +82,8 @@ public class ConnectionStatusChangedRemoteEvent extends
 	public ConnectionStatusChangedRemoteEvent() {
 	}
 
-	public ConnectionStatusChangedRemoteEvent(ConnectionType connection, Ternary status) {
+	public ConnectionStatusChangedRemoteEvent(ConnectionType connection,
+			Ternary status) {
 		this.connection = connection;
 		this.status = status;
 	}

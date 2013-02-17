@@ -45,6 +45,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 	private EventBus cmdBus;
 
 	private String ptuId;
+	private Ternary serverOk = Ternary.Unknown;
 	private Ternary audioOk = Ternary.Unknown;
 	private Ternary videoOk = Ternary.Unknown;
 	private Ternary daqOk = Ternary.Unknown;
@@ -59,6 +60,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 
 	private List<String> names = Arrays
 			.asList(new String[] {
+					ConnectionType.server.getString(),
 					ConnectionType.audio.getString(), // ConnectionType.video.getString(),
 					ConnectionType.daq.getString(),
 					// ConnectionType.dosimeter.getString(),
@@ -67,6 +69,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					"Duration" });
 	private List<Class<?>> classes = Arrays
 			.asList(new Class<?>[] {
+					TextCell.class,
 					TextCell.class, // TextCell.class,
 					TextCell.class, // TextCell.class,
 					TextCell.class, TextCell.class, DateCell.class,
@@ -106,7 +109,9 @@ public class GeneralInfoView extends GlassPanel implements Module {
 		Column<String, Object> column = new Column<String, Object>(cell) {
 			@Override
 			public Object getValue(String name) {
-				if (name.equals(ConnectionType.audio.getString())) {
+				if (name.equals(ConnectionType.server.getString())) {
+					return serverOk;
+				} else if (name.equals(ConnectionType.audio.getString())) {
 					return audioOk;
 				} else if (name.equals(ConnectionType.video.getString())) {
 					return videoOk;
@@ -161,6 +166,9 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					public void onConnectionStatusChanged(
 							ConnectionStatusChangedRemoteEvent event) {
 						switch (event.getConnection()) {
+						case server:
+							serverOk = event.getStatus();
+							break;
 						case audio:
 							audioOk = event.getStatus();
 							break;

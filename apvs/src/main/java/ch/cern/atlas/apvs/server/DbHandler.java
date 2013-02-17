@@ -47,13 +47,13 @@ public class DbHandler extends DbReconnectHandler {
 	private static final boolean DEBUG = false;
 
 	private boolean updated = false;
-	
+
 	private long time;
 
 	public DbHandler(final RemoteEventBus eventBus) {
 		super(eventBus);
 		this.eventBus = eventBus;
-		
+
 		time = new Date().getTime();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
@@ -81,39 +81,39 @@ public class DbHandler extends DbReconnectHandler {
 		executor.scheduleWithFixedDelay(new Runnable() {
 
 			ScheduledFuture<?> watchdog;
-			
+
 			@Override
 			public void run() {
 				try {
-				if (isConnected()) {
-					if (!checkConnection()) {
-						log.warn("DB no longer reachable");
-					}
-					try {
-						updateInterventions();
-						if (!checkUpdate()) {
-							log.warn("DB no longer updated");
+					if (isConnected()) {
+						if (!checkConnection()) {
+							log.warn("DB no longer reachable");
 						}
-						
-					} catch (SQLException e) {
-						log.warn(
-								"Could not regularly-update intervention list: ",
-								e);
+						try {
+							updateInterventions();
+							if (!checkUpdate()) {
+								log.warn("DB no longer updated");
+							}
+
+						} catch (SQLException e) {
+							log.warn(
+									"Could not regularly-update intervention list: ",
+									e);
+						}
+
+						if (watchdog != null) {
+							watchdog.cancel(false);
+						}
+						watchdog = scheduleWatchDog();
 					}
-					
-					if (watchdog != null) {
-						watchdog.cancel(false);
-					}
-					watchdog = scheduleWatchDog();
-				}
 				} catch (Exception e) {
 					log.warn(e.getMessage());
 				}
 			}
 		}, 0, 30, TimeUnit.SECONDS);
-		
+
 	}
-	
+
 	private ScheduledFuture<?> scheduleWatchDog() {
 		ScheduledExecutorService executor = Executors
 				.newSingleThreadScheduledExecutor();
@@ -122,10 +122,12 @@ public class DbHandler extends DbReconnectHandler {
 			@Override
 			public void run() {
 				Date now = new Date();
-				log.error("Failed to reset watchdog, terminating server at "+now+" after "+(now.getTime() - time)/1000+" seconds.");
+				log.error("Failed to reset watchdog, terminating server at "
+						+ now + " after " + (now.getTime() - time) / 1000
+						+ " seconds.");
 				System.exit(1);
 			}
-		}, 45, TimeUnit.SECONDS);				
+		}, 45, TimeUnit.SECONDS);
 	}
 
 	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
@@ -175,17 +177,21 @@ public class DbHandler extends DbReconnectHandler {
 						String unit = result.getString("unit");
 
 						// Fix for #488, invalid db entry
-						if ((sensor == null) || (value == null) || (unit == null)) {
-							log.warn("MeasurementTable ID "+id+" contains <null> sensor, value or unit ("+sensor+", "+value+", "+unit+") for ptu: "+ptuId);
+						if ((sensor == null) || (value == null)
+								|| (unit == null)) {
+							log.warn("MeasurementTable ID "
+									+ id
+									+ " contains <null> sensor, value or unit ("
+									+ sensor + ", " + value + ", " + unit
+									+ ") for ptu: " + ptuId);
 							continue;
 						}
-						
+
 						Number low = toDouble(result.getString("down_thres"));
 						Number high = toDouble(result.getString("up_thres"));
 
 						Integer samplingRate = toInt(result
 								.getString("samplingrate"));
-
 
 						// Scale down to microSievert
 						value = Scale.getValue(value, unit);
@@ -240,7 +246,7 @@ public class DbHandler extends DbReconnectHandler {
 	@Override
 	public void dbDisconnected() throws SQLException {
 		super.dbDisconnected();
-		
+
 		log.warn("DB disconnected");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
@@ -255,7 +261,7 @@ public class DbHandler extends DbReconnectHandler {
 	private boolean isUpdated() {
 		return updated;
 	}
-
+	
 	private boolean checkUpdate() throws SQLException {
 		String sql = "select DATETIME from tbl_measurements order by DATETIME DESC";
 
@@ -280,7 +286,7 @@ public class DbHandler extends DbReconnectHandler {
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseUpdate, updated);
-		
+
 		return updated;
 	}
 
@@ -344,10 +350,11 @@ public class DbHandler extends DbReconnectHandler {
 			}
 
 			for (int i = 0; i < range.getLength() && result.next(); i++) {
-				list.add(new Intervention(result.getInt("id"), result.getInt("user_id"),
-						result.getString("fname"), result.getString("lname"),
-						result.getInt("device_id"), result.getString("name"), new Date(
-								result.getTimestamp("starttime").getTime()),
+				list.add(new Intervention(result.getInt("id"), result
+						.getInt("user_id"), result.getString("fname"), result
+						.getString("lname"), result.getInt("device_id"), result
+						.getString("name"), new Date(result.getTimestamp(
+						"starttime").getTime()),
 						result.getTimestamp("endtime") != null ? new Date(
 								result.getTimestamp("endtime").getTime())
 								: null, result.getString("impact_num"), result
@@ -420,7 +427,7 @@ public class DbHandler extends DbReconnectHandler {
 		}
 
 		Connection connection = getConnection();
-		
+
 		String s = getSql(sql, range, order);
 		// log.info("SQL: "+s);
 		PreparedStatement statement = connection.prepareStatement(s);
@@ -435,7 +442,7 @@ public class DbHandler extends DbReconnectHandler {
 		}
 
 		ResultSet result = statement.executeQuery();
-		
+
 		List<Event> list = new ArrayList<Event>(range.getLength());
 		try {
 			// FIXME, #173 using some SQL this may be faster
@@ -458,7 +465,7 @@ public class DbHandler extends DbReconnectHandler {
 			statement.close();
 			connection.close();
 		}
-				
+
 		return list;
 	}
 
@@ -466,7 +473,8 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			return string != null ? Double.parseDouble(string) : null;
 		} catch (NumberFormatException e) {
-			log.warn("NumberFormat Exception (toDouble) in DbHandler: '"+string+"'");
+			log.warn("NumberFormat Exception (toDouble) in DbHandler: '"
+					+ string + "'");
 			return null;
 		}
 	}
@@ -475,7 +483,8 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			return string != null ? Integer.parseInt(string) : null;
 		} catch (NumberFormatException e) {
-			log.warn("NumberFormat Exception (toInt) in DbHandler: '"+string+"'");
+			log.warn("NumberFormat Exception (toInt) in DbHandler: '" + string
+					+ "'");
 			return null;
 		}
 	}
