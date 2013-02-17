@@ -22,6 +22,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class AudioSupervisorSettingsView extends GlassPanel implements Module {
@@ -94,8 +95,8 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			@Override
 			public String getValue(VoipAccount account) {
 				for (int i=0; i<supervisorsAccounts.size(); i++){
-					if(supervisorsAccounts.get(i).getStatus().equals(supervisor.getStatus()))
-							return (supervisorsAccounts.get(i).getStatus() ?"Online":"Offline");
+					if(supervisorsAccounts.get(i).getAccount().equals(supervisor.getAccount()))
+							return (supervisor.getStatus() ?"Online":"Offline");
 				}
 				return "Not assigned";
 			}
@@ -111,8 +112,9 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
 			}
 		};
+		status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(status, "Account Status");
-		
+
 		dataProvider.addDataDisplay(table);
 		dataProvider.getList().add(new VoipAccount());		
 

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
@@ -23,7 +24,10 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -59,11 +63,12 @@ public class AudioView extends GlassPanel implements Module {
 		
 		// Status/Action Field column
 		EditableCell fieldActionCell = new EditableCell(classField);
+		
 		GenericColumn<String> fieldActionCol = new GenericColumn<String>(fieldActionCell) {
 			@Override
 			public Object getValue(String fieldName) {
 				if (fieldName.equals("Status"))
-						return ("Status: " + (voipAccounts.getStatus(ptuId)?"Online":"Offline"));
+						return ((voipAccounts.getStatus(ptuId)?"Online":"Offline"));
 				else if (fieldName.equals("Private Call"))
 					return ((voipAccounts.getOnCall(ptuId) ? "Hangup '": "Call '") + voipAccounts.getUsername(ptuId) + "'");
 				else if (fieldName.equals("Group Call"))
@@ -77,6 +82,17 @@ public class AudioView extends GlassPanel implements Module {
 				else
 					return null;
 			}
+			@Override
+			public void render(Context context, String object,
+					SafeHtmlBuilder sb) {
+				String value = (String) getValue(object);
+				
+				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
+						+ value.toLowerCase() + "\">"));
+				getCell().render(context, value, sb);
+				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
+			}
+			
 		};
 		
 		fieldActionCol.setHorizontalAlignment(ALIGN_CENTER);
@@ -183,7 +199,7 @@ public class AudioView extends GlassPanel implements Module {
 						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
 					
 				} else if (fieldName.equals("Mute/Unmute")){
-					System.out.println(voipAccounts.getMute(ptuId));
+					//System.out.println(voipAccounts.getMute(ptuId));
 					if(voipAccounts.getMute(ptuId)){
 						AudioServiceAsync.Util.getInstance().unMuteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel(ptuId), ptuId, callbackMute);
 					}else{
@@ -210,7 +226,6 @@ public class AudioView extends GlassPanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptuId = event.getPtuId();
-					System.err.println("NEW PTU " + ptuId);
 					table.redraw();
 				}
 			});
