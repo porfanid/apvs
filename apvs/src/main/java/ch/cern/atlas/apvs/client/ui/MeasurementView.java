@@ -20,6 +20,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextHeader;
@@ -357,6 +358,8 @@ public class MeasurementView extends AbstractMeasurementView {
 	public boolean update() {
 		boolean result = super.update();
 
+		// resort the table
+		ColumnSortEvent.fire(table, table.getColumnSortList());
 		table.redraw();
 
 		return result;
