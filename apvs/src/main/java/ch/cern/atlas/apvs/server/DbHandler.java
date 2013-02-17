@@ -22,6 +22,7 @@ import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
+import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.domain.User;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
@@ -46,7 +47,7 @@ public class DbHandler extends DbReconnectHandler {
 
 	private static final boolean DEBUG = true;
 
-	private boolean updated = false;
+	private Ternary updated = Ternary.Unknown;
 
 	private long time;
 
@@ -71,7 +72,7 @@ public class DbHandler extends DbReconnectHandler {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
 							ConnectionType.databaseConnect, isConnected());
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseUpdate, isUpdated());
+							ConnectionType.databaseUpdate, updated);
 				}
 			}
 		});
@@ -257,10 +258,6 @@ public class DbHandler extends DbReconnectHandler {
 		interventions.clear();
 		InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 	}
-
-	private boolean isUpdated() {
-		return updated;
-	}
 	
 	private boolean checkUpdate() throws SQLException {
 		String sql = "select DATETIME from tbl_measurements order by DATETIME DESC";
@@ -274,9 +271,9 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			if (result.next()) {
 				long time = result.getTimestamp("datetime").getTime();
-				updated = (time > now - (3 * 60000));
+				updated = (time > now - (3 * 60000)) ? Ternary.True : Ternary.False;
 			} else {
-				updated = false;
+				updated = Ternary.False;
 			}
 		} finally {
 			result.close();
@@ -286,8 +283,8 @@ public class DbHandler extends DbReconnectHandler {
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseUpdate, updated);
-
-		return updated;
+		
+		return !updated.isFalse();
 	}
 
 	private String getSql(String sql, Range range, SortOrder[] order) {
