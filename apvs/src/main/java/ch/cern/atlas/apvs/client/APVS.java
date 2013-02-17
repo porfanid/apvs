@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -94,7 +95,7 @@ public class APVS implements EntryPoint {
 	
 	private ClientFactory clientFactory;
 	
-	private boolean alive = false;
+	private Ternary alive = Ternary.Unknown;
 
 	@Override
 	public void onModuleLoad() {
@@ -292,15 +293,17 @@ public class APVS implements EntryPoint {
 					
 					@Override
 					public void onSuccess(Void result) {
-						if (!alive) {
-							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, true);
+						if (!alive.isTrue()) {
+							alive = Ternary.True;
+							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive);
 						}
 					}
 					
 					@Override
 					public void onFailure(Throwable caught) {
-						if (alive) {
-							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, false);							
+						if (alive.isTrue()) {
+							alive = Ternary.False;
+							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive);							
 						}
 					}
 				});
