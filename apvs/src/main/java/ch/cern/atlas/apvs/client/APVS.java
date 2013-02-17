@@ -293,7 +293,6 @@ public class APVS implements EntryPoint {
 					
 					@Override
 					public void onSuccess(Void result) {
-						Window.alert("Sucess");
 						if (!alive.isTrue()) {
 							alive = Ternary.True;
 							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive);
@@ -302,7 +301,6 @@ public class APVS implements EntryPoint {
 					
 					@Override
 					public void onFailure(Throwable caught) {
-						Window.alert("Failure "+caught);
 						if (!alive.isFalse()) {
 							alive = Ternary.False;
 							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive);							
@@ -317,7 +315,7 @@ public class APVS implements EntryPoint {
 				}
 				Window.alert("Sent");
 				
-				return false;
+				return true;
 			}
 		}, 20000);
 		
