@@ -285,7 +285,7 @@ public class APVS implements EntryPoint {
 		});
 
 
-		Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+		Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
 			
 			@Override
 			public boolean execute() {
@@ -302,8 +302,8 @@ public class APVS implements EntryPoint {
 					
 					@Override
 					public void onFailure(Throwable caught) {
-						Window.alert("Failure");
-						if (alive.isTrue()) {
+						Window.alert("Failure "+caught);
+						if (!alive.isFalse()) {
 							alive = Ternary.False;
 							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive);							
 						}
@@ -314,7 +314,6 @@ public class APVS implements EntryPoint {
 				try {
 					request.send();
 				} catch (RequestException e) {
-					Window.alert("Error "+e);
 				}
 				Window.alert("Sent");
 				
