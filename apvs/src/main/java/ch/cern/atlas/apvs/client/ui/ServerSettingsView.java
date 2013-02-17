@@ -93,6 +93,10 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 			public void update(int index, String name, Object value) {
 				log.info("Updated " + index + " " + name + " " + value + " "
 						+ value.getClass());
+				if(name.equals("Audio URL") && !audioUrlExpression(value.toString())){
+					Window.alert("Audio URL \""+ value.toString() +"\" does not follow the correct format -> username@asterisk_hostname");
+					return;
+				}
 				settings.put(name, value.toString());
 				((RemoteEventBus) eventBus)
 						.fireEvent(new ServerSettingsChangedRemoteEvent(
@@ -186,6 +190,13 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 		}
 
 		return userPwd[0] + "/@//" + part[1];
+	}
+	
+	private boolean audioUrlExpression(String url){
+		if (url.indexOf("@")>0){
+			return true;
+		}
+		return false;
 	}
 
 }
