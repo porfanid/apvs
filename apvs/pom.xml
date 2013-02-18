@@ -286,11 +286,20 @@
 						</configuration>
 						<executions>
 							<execution>
+								<id>GenerateAsync</id>
 								<configuration>
-									<extraJvmArgs>-Xmx512m</extraJvmArgs>
+									<servicePattern>**/service/*Service.java</servicePattern>
 								</configuration>
 								<goals>
 									<goal>generateAsync</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>Compile</id>
+								<configuration>
+									<extraJvmArgs>-Xmx2048m</extraJvmArgs>
+								</configuration>
+								<goals>
 									<goal>compile</goal>
 								</goals>
 							</execution>
