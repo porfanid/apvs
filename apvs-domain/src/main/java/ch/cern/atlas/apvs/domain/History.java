@@ -2,6 +2,8 @@ package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class History implements Serializable {
 
@@ -14,6 +16,7 @@ public class History implements Serializable {
 	private String unit;
 
 	private final static int INITIAL_CAPACITY = 200;
+	private final static int INCREASE_CAPACITY = 200;
 	private final static int TIME = 0;
 	private final static int VALUE = 1;
 	private final static int LOW_LIMIT = 2;
@@ -21,6 +24,21 @@ public class History implements Serializable {
 	private final static int SAMPLING_RATE = 4;
 
 	private final static int SIZE = SAMPLING_RATE + 1;
+	private final static Map<String, Double> threshold;
+
+	static {
+		threshold = new HashMap<String, Double>();
+		threshold.put("BarometricPressure", 0.1);
+		threshold.put("BatteryLevel", 0.5);
+		threshold.put("BodyTemperature", 0.1);
+		threshold.put("CO2", 10.0);
+		threshold.put("DoseAccum", 1.0);
+		threshold.put("DoseRate", 0.5);
+		threshold.put("Heartbeat", 1.0);
+		threshold.put("Humidity", 0.5);
+		threshold.put("O2", 0.1);
+		threshold.put("Temperature", 0.5);
+	}
 
 	public History() {
 	}
@@ -68,11 +86,13 @@ public class History implements Serializable {
 			Number highLimit, Integer samplingRate) {
 		// Temporary FIX for #376 and #377 (PRISMA)
 		if (name.equalsIgnoreCase("DoseAccum") && (value.doubleValue() == 0)) {
+			// value ignored
 			return false;
 		}
-		
+
+		// add the new value
 		if (index >= data.length) {
-			Number[][] newData = new Number[data.length * 2][SIZE];
+			Number[][] newData = new Number[data.length + INCREASE_CAPACITY][SIZE];
 			System.arraycopy(data, 0, newData, 0, data.length);
 			data = newData;
 		}
@@ -82,9 +102,40 @@ public class History implements Serializable {
 		data[index][LOW_LIMIT] = lowLimit;
 		data[index][HIGH_LIMIT] = highLimit;
 		data[index][SAMPLING_RATE] = samplingRate;
+
+		// fix for #502
+		if (index > 1) {
+			// keep at least two values, forward the last one...
+			Number[] beforeLast = data[index - 2];
+			Number[] last = data[index - 1];
+			Number[] current = data[index];
+			if (equals(beforeLast, last) && equals(beforeLast, current)) {
+				// same value, just forward time
+				last[TIME] = time;
+				return false;
+			}
+		}
+
+		// make the new value real
 		index++;
 
 		return true;
+	}
+
+	private double getThreshold(String sensor) {
+		Double t = threshold.get(sensor);
+		if (t == null) {
+			System.err.println("Cannot find threshold for '"+sensor+"'");
+		}
+		return t != null ? t : 0.1;
+	}
+
+	// equals when value withing threshold, limits equal, samplingrate equal.
+	private boolean equals(Number[] m1, Number[] m2) {
+		return (Math.abs(m1[VALUE].doubleValue() - m2[VALUE].doubleValue()) < getThreshold(name))
+				&& m1[LOW_LIMIT].equals(m2[LOW_LIMIT])
+				&& m1[HIGH_LIMIT].equals(m2[HIGH_LIMIT])
+				&& m1[SAMPLING_RATE].equals(m2[SAMPLING_RATE]);
 	}
 
 	public Measurement getMeasurement() {

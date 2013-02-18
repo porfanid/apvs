@@ -138,7 +138,7 @@ public class Measurement implements Message, Serializable,
 		}
 		return super.equals(obj);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Measurement(" + getPtuId() + "): name=" + getName() + " value="

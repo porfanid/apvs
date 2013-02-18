@@ -170,8 +170,6 @@ public class DbHandler extends DbReconnectHandler {
 							break;
 						}
 
-						total++;
-
 						Integer id = result.getInt("id");
 						String sensor = result.getString("sensor");
 						Number value = toDouble(result.getString("value"));
@@ -213,7 +211,9 @@ public class DbHandler extends DbReconnectHandler {
 							map.put(history);
 						}
 
-						history.addEntry(time, value, low, high, samplingRate);
+						if (history.addEntry(time, value, low, high, samplingRate)) {
+							total++;
+						}
 					}
 				} finally {
 					result.close();

@@ -202,7 +202,7 @@ public class AbstractTimeView extends GlassPanel {
 					false);
 		}
 	}
-
+	
 	protected void addPoint(String ptuId, long time, Number value,
 			Number lowLimit, Number highLimit) {
 		Series series = seriesById.get(ptuId);
@@ -225,7 +225,9 @@ public class AbstractTimeView extends GlassPanel {
 			limitSeries.addPoint(new Point(time, lowLimit, highLimit), false,
 					shift, false);
 		}
-		series.addPoint(time, value, true, shift, false);
+
+		Point p = new Point(time, value);
+		series.addPoint(p, true, shift, false);
 	}
 
 	private static final DateTimeFormat ddMMM = DateTimeFormat
