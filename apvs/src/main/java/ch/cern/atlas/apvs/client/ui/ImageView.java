@@ -43,8 +43,9 @@ public class ImageView extends SimplePanel {
 
 		// keep setting URL for video not to get stuck, FIXME #425 find a better
 		// way...
-		// FIX seems to keep adding resources in Safari 
-		if (false) {
+		// FIX seems to keep adding resources in Safari (WebKit), so avoid this
+		boolean keepSettingUrl = !Window.Navigator.getUserAgent().contains("WebKit");
+		if (keepSettingUrl) {
 			Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
 
 				@Override
