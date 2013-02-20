@@ -91,15 +91,17 @@ public class CameraTable extends SimplePanel implements Module {
 
 			Widget helmet = new ImageView(settings.getCameraUrl(ptuId, CameraView.HELMET));
 			table.setWidget(row+1, column, helmet);
-			table.getCellFormatter().setWidth(row+1, column, "25%");
+			// 25%
+			table.getCellFormatter().setWidth(row+1, column, "50%");
 			column++;
 
-			Widget hand = new ImageView(settings.getCameraUrl(ptuId, CameraView.HAND));
-			table.setWidget(row+1, column, hand);
-			table.getCellFormatter().setWidth(row+1, column, "25%");
-			column++;
+//			Widget hand = new ImageView(settings.getCameraUrl(ptuId, CameraView.HAND));
+//			table.setWidget(row+1, column, hand);
+//			table.getCellFormatter().setWidth(row+1, column, "25%");
+//			column++;
 			
-			if (column >= 3) {
+			// 3
+			if (column >= 2) {
 				column = 0;
 				labelColumn = 0;
 				row++;
