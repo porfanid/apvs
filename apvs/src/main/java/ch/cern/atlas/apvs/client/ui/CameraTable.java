@@ -86,7 +86,8 @@ public class CameraTable extends SimplePanel implements Module {
 			Label label = new Label(ptuId);
 			label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 			table.setWidget(row, labelColumn, label);
-			table.getFlexCellFormatter().setColSpan(row, labelColumn, 2);
+			// 2
+			table.getFlexCellFormatter().setColSpan(row, labelColumn, 1);
 			labelColumn++;
 
 			Widget helmet = new ImageView(settings.getCameraUrl(ptuId, CameraView.HELMET));

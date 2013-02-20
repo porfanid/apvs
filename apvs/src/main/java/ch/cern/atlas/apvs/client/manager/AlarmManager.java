@@ -20,9 +20,6 @@ public class AlarmManager {
 		
 		alarms = new AlarmMap();
 		
-		alarms.setPanic("PTUdemo", true);
-		alarms.setDose("PTUdemo", true);
-
 		// subscribe
 		InterventionMapChangedRemoteEvent.subscribe(eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
