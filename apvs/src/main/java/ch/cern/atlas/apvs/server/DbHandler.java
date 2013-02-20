@@ -211,7 +211,8 @@ public class DbHandler extends DbReconnectHandler {
 							map.put(history);
 						}
 
-						if (history.addEntry(time, value, low, high, samplingRate)) {
+						if (history.addEntry(time, value, low, high,
+								samplingRate)) {
 							total++;
 						}
 					}
@@ -258,7 +259,7 @@ public class DbHandler extends DbReconnectHandler {
 		interventions.clear();
 		InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 	}
-	
+
 	private boolean checkUpdate() throws SQLException {
 		String sql = "select DATETIME from tbl_measurements order by DATETIME DESC";
 
@@ -271,7 +272,8 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			if (result.next()) {
 				long time = result.getTimestamp("datetime").getTime();
-				updated = (time > now - (3 * 60000)) ? Ternary.True : Ternary.False;
+				updated = (time > now - (3 * 60000)) ? Ternary.True
+						: Ternary.False;
 			} else {
 				updated = Ternary.False;
 			}
@@ -283,7 +285,7 @@ public class DbHandler extends DbReconnectHandler {
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseUpdate, updated);
-		
+
 		return !updated.isFalse();
 	}
 
@@ -335,8 +337,9 @@ public class DbHandler extends DbReconnectHandler {
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
 
 		Connection connection = getConnection();
-		PreparedStatement statement = connection.prepareStatement(getSql(sql,
-				range, order));
+		String fullSql = getSql(sql, range, order);
+//		System.err.println(fullSql);
+		PreparedStatement statement = connection.prepareStatement(fullSql);
 		ResultSet result = statement.executeQuery();
 
 		List<Intervention> list = new ArrayList<Intervention>(range.getLength());

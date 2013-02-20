@@ -255,7 +255,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "tbl_inspections.starttime";
+				return "tbl_inspections.endtime";
 			}
 		};
 		endTime.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
