@@ -103,6 +103,7 @@ public class PtuJsonReader extends JsonReader {
 		try {
 			return Double.parseDouble((String) number);
 		} catch (NumberFormatException e) {
+			log.warn("NumberFormatException "+number+" "+e);
 			return null;
 		}
 	}

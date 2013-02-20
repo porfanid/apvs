@@ -250,7 +250,6 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 
 	private Measurement replace(Measurement measurement) {
 		if (measurement == null) {
-			// FIXME #515 should not happen
 			return null;
 		}
 

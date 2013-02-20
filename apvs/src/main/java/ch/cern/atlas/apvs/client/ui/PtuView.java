@@ -345,7 +345,7 @@ public class PtuView extends GlassPanel implements Module {
 				
 				if (historyMap != null) {
 					for (Measurement measurement: historyMap.getMeasurements(ptuId)) {
-						// FIXME #515 should not happen
+						// #515 null in case no value was every recorded
 						if (measurement != null) {
 							addRow(measurement.getName());
 						}

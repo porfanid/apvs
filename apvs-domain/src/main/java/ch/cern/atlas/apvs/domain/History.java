@@ -84,12 +84,6 @@ public class History implements Serializable {
 
 	public boolean addEntry(long time, Number value, Number lowLimit,
 			Number highLimit, Integer samplingRate) {
-		// Temporary FIX for #376 and #377 (PRISMA)
-		if (name.equalsIgnoreCase("DoseAccum") && (value.doubleValue() == 0)) {
-			// value ignored
-			return false;
-		}
-
 		// add the new value
 		if (index >= data.length) {
 			Number[][] newData = new Number[data.length + INCREASE_CAPACITY][SIZE];
