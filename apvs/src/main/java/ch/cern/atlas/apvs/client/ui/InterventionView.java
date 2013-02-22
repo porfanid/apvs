@@ -483,7 +483,7 @@ public class InterventionView extends GlassPanel implements Module {
 				fieldset.add(fname);
 
 				final TextBoxField lname = new TextBoxField("Last Name",
-						new StringValidator(4, 50, "*"));
+						new StringValidator(2, 50, "*"));
 				fieldset.add(lname);
 
 				final TextBoxField cernId = new TextBoxField("CERN ID",
