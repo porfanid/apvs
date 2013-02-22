@@ -523,7 +523,7 @@ public class DbHandler extends DbReconnectHandler {
 			throws SQLException {
 		Connection connection = getConnection();
 		PreparedStatement addIntervention = connection
-				.prepareStatement("insert into tbl_inspections (user_id, device_id, starttime, dscr) values (?, ?, ?, ?)");
+				.prepareStatement("insert into tbl_inspections (user_id, device_id, starttime, dscr, impact_num) values (?, ?, ?, ?, ?)");
 
 		try {
 			addIntervention.setInt(1, intervention.getUserId());
@@ -531,6 +531,7 @@ public class DbHandler extends DbReconnectHandler {
 			addIntervention.setTimestamp(3, new Timestamp(intervention
 					.getStartTime().getTime()));
 			addIntervention.setString(4, intervention.getDescription());
+			addIntervention.setString(5, intervention.getImpactNumber());
 			addIntervention.executeUpdate();
 
 			updateInterventions();
