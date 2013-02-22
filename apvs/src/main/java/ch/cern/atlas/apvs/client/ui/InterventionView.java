@@ -176,8 +176,10 @@ public class InterventionView extends GlassPanel implements Module {
 				SortOrder[] order = new SortOrder[sortList.size()];
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order[i] = new SortOrder(((DataStoreName)info.getColumn())
-							.getDataStoreName(), info.isAscending());
+					order[i] = new SortOrder(
+							((DataStoreName) info.getColumn())
+									.getDataStoreName(),
+							info.isAscending());
 				}
 
 				if (order.length == 0) {
@@ -464,7 +466,7 @@ public class InterventionView extends GlassPanel implements Module {
 			public String getValue() {
 				return "Add a new User";
 			}
-			
+
 			public boolean onPreviewColumnSortEvent(Context context,
 					Element elem, NativeEvent event) {
 				// events are handled, do not sort, fix for #454
@@ -570,7 +572,7 @@ public class InterventionView extends GlassPanel implements Module {
 			public String getValue() {
 				return "Add a new PTU";
 			}
-			
+
 			public boolean onPreviewColumnSortEvent(Context context,
 					Element elem, NativeEvent event) {
 				// events are handled, do not sort, fix for #454
@@ -590,10 +592,15 @@ public class InterventionView extends GlassPanel implements Module {
 				final TextBoxField ip = new TextBoxField("IP");
 				fieldset.add(ip);
 
-				final TextBoxField macAddress = new TextBoxField("MAC Address");
+				final String macAddressFormat = "XX:XX:XX:XX:XX:XX";
+				final TextBoxField macAddress = new TextBoxField("MAC Address",
+						new StringValidator(macAddressFormat.length(),
+								macAddressFormat.length(), "Enter "
+										+ macAddressFormat));
 				fieldset.add(macAddress);
 
-				final TextBoxField hostName = new TextBoxField("Host Name");
+				final TextBoxField hostName = new TextBoxField("Host Name",
+						new StringValidator(3, 50, "Enter valid hostname"));
 				fieldset.add(hostName);
 
 				final TextAreaField description = new TextAreaField(
@@ -692,23 +699,23 @@ public class InterventionView extends GlassPanel implements Module {
 		table.addColumn(impact, new TextHeader("Impact #"), new TextHeader(""));
 
 		// Rec Status
-//		TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
-//			@Override
-//			public String getValue(Intervention object) {
-//				return object.getRecStatus() != null ? Double.toString(object
-//						.getRecStatus()) : "";
-//			}
-//
-//			@Override
-//			public String getDataStoreName() {
-//				return "tbl_inspections.rec_status";
-//			}
-//		};
-//		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-//		impact.setSortable(true);
-//		impact.setEnabled(clientFactory.isSupervisor());
-//		table.addColumn(recStatus, new TextHeader("Rec Status"),
-//				new TextHeader(""));
+		// TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
+		// @Override
+		// public String getValue(Intervention object) {
+		// return object.getRecStatus() != null ? Double.toString(object
+		// .getRecStatus()) : "";
+		// }
+		//
+		// @Override
+		// public String getDataStoreName() {
+		// return "tbl_inspections.rec_status";
+		// }
+		// };
+		// impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		// impact.setSortable(true);
+		// impact.setEnabled(clientFactory.isSupervisor());
+		// table.addColumn(recStatus, new TextHeader("Rec Status"),
+		// new TextHeader(""));
 
 		// Description
 		EditTextColumn<Intervention> description = new EditTextColumn<Intervention>() {
