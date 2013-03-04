@@ -507,11 +507,13 @@ public class DbHandler extends DbReconnectHandler {
 	public synchronized void addDevice(Device device) throws SQLException {
 		Connection connection = getConnection();
 		PreparedStatement addDevice = connection
-				.prepareStatement("insert into tbl_devices (name, ip, dscr) values (?, ?, ?)");
+				.prepareStatement("insert into tbl_devices (name, ip, dscr, mac_addr, host_name) values (?, ?, ?, ?, ?)");
 		try {
 			addDevice.setString(1, device.getName());
 			addDevice.setString(2, device.getIp());
 			addDevice.setString(3, device.getDescription());
+			addDevice.setString(4, device.getMacAddress());
+			addDevice.setString(5, device.getHostName());
 			addDevice.executeUpdate();
 		} finally {
 			addDevice.close();
