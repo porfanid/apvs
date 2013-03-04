@@ -20,9 +20,12 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.domain.APVSException;
-import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
+import ch.cern.atlas.apvs.domain.Error;
+import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
@@ -45,6 +48,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private Ternary dosimeterOk = Ternary.Unknown;
 
+	private  PtuSettings settings;
+
 	public PtuClientHandler(ClientBootstrap bootstrap,
 			final RemoteEventBus eventBus) {
 		super(bootstrap);
@@ -63,6 +68,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
 							ConnectionType.dosimeter, isConnected() ? dosimeterOk : Ternary.False);
 				}
+			}
+		});
+		
+		PtuSettingsChangedRemoteEvent.subscribe(eventBus, new PtuSettingsChangedRemoteEvent.Handler() {
+			
+			@Override
+			public void onPtuSettingsChanged(PtuSettingsChangedRemoteEvent event) {
+				settings = event.getPtuSettings();
 			}
 		});
 	}
@@ -149,6 +162,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 						handleMessage((Event) message);
 					} else if (message instanceof Error) {
 						handleMessage((Error) message);
+					} else if (message instanceof GeneralConfiguration) {
+						handleMessage((GeneralConfiguration) message);
 					} else {
 						log.warn("Error: unknown Message Type: "
 								+ message.getType());
@@ -212,6 +227,17 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			dosimeterOk = Ternary.True;
 			ConnectionStatusChangedRemoteEvent.fire(eventBus,
 					ConnectionType.dosimeter, dosimeterOk);
+		}
+	}
+	
+	private void handleMessage(GeneralConfiguration message) {
+		String ptuId = message.getPtuId();
+		String dosimeterId = message.getDosimeterId();
+		
+		if (settings != null) {
+			settings.setDosimeterSerialNumber(ptuId, dosimeterId);
+			
+			eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
 		}
 	}
 

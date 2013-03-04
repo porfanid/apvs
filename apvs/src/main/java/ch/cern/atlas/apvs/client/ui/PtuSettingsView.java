@@ -27,8 +27,8 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.ActionCell.Delegate;
-import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -71,6 +71,8 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	private List<String> usersList = new ArrayList<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 
+	private Delegate<String> setDosimeterSerialId = null;
+	
 	public PtuSettingsView() {
 	}
 
@@ -160,35 +162,38 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		}
 
 		// DOSIMETER
-		boolean enableDosimeter = false;
+		boolean enableDosimeter = true;
+		boolean enableDosimeterChange = false;
 		Column<String, String> dosimeter = null;
 		if (enableDosimeter) {
 			boolean useCompositeCell = false;
 
-			final Delegate<String> setDosimeterSerialId = new Delegate<String>() {
-				@Override
-				public void execute(String object) {
-					System.out.println("Action program "
-							+ settings.getDosimeterSerialNumber(object)
-							+ " into " + object);
-					final Order order = new Order(object, "DosimeterID",
-							settings.getDosimeterSerialNumber(object));
-					clientFactory.getPtuService().handleOrder(order,
-							new AsyncCallback<Void>() {
+			if (enableDosimeterChange) {
+				setDosimeterSerialId = new Delegate<String>() {
+					@Override
+					public void execute(String object) {
+						System.out.println("Action program "
+								+ settings.getDosimeterSerialNumber(object)
+								+ " into " + object);
+						final Order order = new Order(object, "DosimeterID",
+								settings.getDosimeterSerialNumber(object));
+						clientFactory.getPtuService().handleOrder(order,
+								new AsyncCallback<Void>() {
 
-								@Override
-								public void onSuccess(Void result) {
-									log.info("Order " + order + " set");
-								}
+									@Override
+									public void onSuccess(Void result) {
+										log.info("Order " + order + " set");
+									}
 
-								@Override
-								public void onFailure(Throwable caught) {
-									log.warn("Order " + order + " failed "
-											+ caught);
-								}
-							});
-				}
-			};
+									@Override
+									public void onFailure(Throwable caught) {
+										log.warn("Order " + order + " failed "
+												+ caught);
+									}
+								});
+					}
+				};
+			}
 
 			if (useCompositeCell) {
 				// FIXME #275 could be done with cells, but could not get button
@@ -251,26 +256,32 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				};
 			} else {
 				dosimeter = new Column<String, String>(
-						new TextInputSizeCell(15)) {
+				// new TextInputSizeCell(15)) {
+						new TextCell()) {
 					@Override
 					public String getValue(String object) {
 						return settings.getDosimeterSerialNumber(object);
 					}
 				};
-				dosimeter.setFieldUpdater(new FieldUpdater<String, String>() {
+				if (enableDosimeterChange) {
+					dosimeter
+							.setFieldUpdater(new FieldUpdater<String, String>() {
 
-					@Override
-					public void update(int index, String object, String value) {
-						settings.setDosimeterSerialNumber(object, value);
-						fireSettingsChangedEvent(eventBus, settings);
-					}
-				});
+								@Override
+								public void update(int index, String object,
+										String value) {
+									settings.setDosimeterSerialNumber(object,
+											value);
+									fireSettingsChangedEvent(eventBus, settings);
+								}
+							});
+				}
 			}
 			dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 			dosimeter.setSortable(useCompositeCell);
 			table.addColumn(dosimeter, "Dosimeter #");
 
-			if (!useCompositeCell) {
+			if (!useCompositeCell && enableDosimeterChange) {
 				Column<String, String> dosimeterSet = new Column<String, String>(
 						new ActionCell<String>("Set to PTU",
 								setDosimeterSerialId)) {
@@ -365,17 +376,20 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				for (int i = 0; i < usersAccounts.size(); i++) {
 					if (usersAccounts.get(i).getAccount()
 							.equals(voipAccounts.getNumber(object)))
-						return (voipAccounts.getStatus(object)/*usersAccounts.get(i).getStatus()*/ ? "Online"
+						return (voipAccounts.getStatus(object)/*
+															 * usersAccounts.get(
+															 * i).getStatus()
+															 */? "Online"
 								: "Offline");
 				}
 				return "Not assigned";
 			}
-			
+
 			@Override
 			public void render(Context context, String object,
 					SafeHtmlBuilder sb) {
 				String value = getValue(object);
-				
+
 				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
 						+ value.toLowerCase() + "\">"));
 				getCell().render(context, value, sb);
@@ -461,9 +475,10 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
-						
+
 						dataProvider.getList().clear();
-						dataProvider.getList().addAll(interventions.getPtuIds());
+						dataProvider.getList()
+								.addAll(interventions.getPtuIds());
 
 						scheduler.update();
 					}

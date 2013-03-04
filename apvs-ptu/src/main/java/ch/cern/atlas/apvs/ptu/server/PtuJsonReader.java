@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
+import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 
 import com.cedarsoftware.util.io.JsonReader;
 
@@ -86,6 +87,8 @@ public class PtuJsonReader extends JsonReader {
 								.get("Value")), convertToDouble(msg
 								.get("Threshold")), (String) msg.get("Unit"),
 						convertToDate(msg.get("Time"))));
+			} else if (type.equals("GeneralConfiguration")) {
+				result.add(new GeneralConfiguration(sender, (String) msg.get("DosimeterID")));
 			} else {
 				log.warn("Message type not implemented: " + type);
 			}

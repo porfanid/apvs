@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Report;
 import ch.cern.atlas.apvs.domain.SensorOrder;
+import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 
 public class JsonHeader {
 
@@ -36,6 +37,8 @@ public class JsonHeader {
 			messages[0] = new JsonSensorOrder(message);
 		} else if (message instanceof Order) {
 			messages[0] = new JsonOrder(message);
+		} else if (message instanceof GeneralConfiguration) {
+			messages[0] = new JsonGeneralConfiguration(message);
 		} else {
 			throw new APVSException("ERROR: do not know how to write message of type: "+message.getClass());
 		}
