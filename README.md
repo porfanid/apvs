@@ -10,96 +10,14 @@ of simulators to mimic the DAQ behaviour and run the system without APVS DAQ.
 ### Copy a version of AWSS
 
    git clone git://github.com/CERN/apvs.git
-   
-### Setup Nexus
 
-Download nexus from http://www.sonatype.org/nexus/ and install.
-
-* On Windows install and start nexus by running the command using admin privileges, (Right mouse click on application->Run as Administrator):
-	
-    .../nexus-<version number>/bin > nexus install
-    .../nexus-<version number>/bin > nexus start
-
-* On MacOS install and start nexus by creating a file ~/Library/LaunchAgents/nexus.plist with the following content:
-
-```xml
-	<?xml version="1.0" encoding="UTF-8"?>
-	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-	<plist version="1.0">
-	<dict>
-		<key>KeepAlive</key>
-		<false/>
-		<key>Label</key>
-		<string>nexus</string>
-		<key>ProgramArguments</key>
-		<array>
-			<string>/...absolute directory to nexus installation.../nexus/bin/nexus</string>
-			<string>start</string>
-		</array>
-		<key>RunAtLoad</key>
-		<true/>
-	</dict>
-	</plist>
-```
-
-then reboot to start up nexus.
-
-Nexus will be availble under: http://localhost:8081/nexus, log in with admin/admin123, go to Users, right click admin, and set a password.
-
-### Setup Maven
-
-* Create file settings.xml for maven in ~/.m2/settings.xml with the following content:
-
-```xml
-	<settings>
-	
-	  <mirrors>
-	    <mirror>
-	      <!--This sends everything else to /public -->
-	      <id>nexus</id>
-	      <mirrorOf>*</mirrorOf>
-	      <url>http://localhost:8081/nexus/content/groups/public</url>
-	    </mirror>
-	  </mirrors>
-	
-	  <profiles>
-	    <profile>
-	      <id>nexus</id>
-	      <!--Enable snapshots for the built in central repo to direct -->
-	      <!--all requests to nexus via the mirror -->
-	      <repositories>
-	        <repository>
-	          <id>central</id>
-	          <url>http://central</url>
-	          <releases><enabled>true</enabled></releases>
-	          <snapshots><enabled>true</enabled></snapshots>
-	        </repository>
-	      </repositories>
-	     <pluginRepositories>
-	        <pluginRepository>
-	          <id>central</id>
-	          <url>http://central</url>
-	          <releases><enabled>true</enabled></releases>
-	          <snapshots><enabled>true</enabled></snapshots>
-	        </pluginRepository>
-	      </pluginRepositories>
-	    </profile>
-	  </profiles>
-	    
-	  <activeProfiles>
-	    <!--make the profile active all the time -->
-	    <activeProfile>nexus</activeProfile>
-	  </activeProfiles>
-	</settings>
-```
-
-Note: Windows users should make sure the .m2 directory is on a local disk (and not DFS) by changing the system settings.xml to point to aa local repo directory
-
-	<localRepository>/path/to/local/repo/</localRepository>
-
-Further info in: http://maven.apache.org/guides/mini/guide-configuring-maven.html
+### Install Maven
 
 More info on maven: http://maven.apache.org/guides/getting-started/index.html 
+
+### Install ojdbc driver
+
+We have this one somewhere on DropBox
 
 ## Building
 
@@ -127,15 +45,10 @@ Using FireFox open
 	http://localhost:8888/index.html?gwt.codesvr=localhost:9997
 	install the proper gwt plugin in firefox
 
-Mac: http://acleung.com/ff14-mac.xpi
-Windows: http://acleung.com/ff14-win.xpi
-
-These plugins change all the time, just use any higher version number when needed. 
-
 ### Run the Jetty version
 
 Run:
-	<apvs project directory>/apvs-jetty > java -jar target/apvs-jetty.war
+	<apvs project directory>/run-prod.sh
 
 Using any browser open
 
