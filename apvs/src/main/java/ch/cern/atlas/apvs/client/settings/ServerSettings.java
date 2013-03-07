@@ -77,7 +77,7 @@ public class ServerSettings extends AbstractServerSettings {
 
 		put(Entry.ptuUrl.toString(), "pcatlaswpss03:10124");
 		put(Entry.procedureUrl.toString(), "");
-		put(Entry.databaseUrl.toString(), "wpss_new@//pcatlaswpss03.cern.ch:1521/XE");
+		put(Entry.databaseUrl.toString(), "wpss_new@//pcatlaswpss01.cern.ch:1521/XE");
 		put(Entry.audioUrl.toString(), "manager@pcatlaswpss02.cern.ch");
 	}
 	

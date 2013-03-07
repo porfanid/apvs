@@ -17,6 +17,7 @@ import ch.cern.atlas.apvs.client.ui.CameraView;
 public class PtuSettings implements Serializable {
 
 	private static final long serialVersionUID = -5390424254145424045L;
+	private static final String videoServer = "pcatlaswpss02";
 
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
@@ -29,10 +30,15 @@ public class PtuSettings implements Serializable {
 		String handUrl;
 
 		public Entry() {
+			// Serializable
+		}
+
+		public Entry(String ptuId) {
 			enabled = true;
 			dosimeterSerialNo = "";
-			helmetUrl = "http://pcatlaswpss02:8X90/workerX.mjpg";
-			handUrl = "http://pcatlaswpss02:8X91/workerX.mjpg";
+			String id = Integer.toHexString(Integer.parseInt(ptuId.substring(ptuId.length()-1, ptuId.length())));
+			helmetUrl = "http://"+videoServer+":8"+id+"90/worker"+id+".mjpg";
+			handUrl = "http://"+videoServer+":8"+id+"91/worker"+id+".mjpg";
 		}
 
 		@Override
@@ -102,7 +108,7 @@ public class PtuSettings implements Serializable {
 
 	public boolean add(String ptuId) {
 		if (!entries.containsKey(ptuId)) {
-			entries.put(ptuId, new Entry());
+			entries.put(ptuId, new Entry(ptuId));
 			return true;
 		}
 		return false;
