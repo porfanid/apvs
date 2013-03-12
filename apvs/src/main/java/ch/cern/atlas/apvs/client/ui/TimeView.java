@@ -1,13 +1,10 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Date;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
-import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
@@ -16,24 +13,20 @@ import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
-import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
-import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.dom.client.Element;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class TimeView extends AbstractTimeView implements Module {
+public class TimeView extends SpecificTimeView implements Module {
 
 	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private HandlerRegistration measurementHandler;
-
 	private String ptuId = null;
+	private boolean ptuIdIsFixed = false;
 	private PtuSettings settings;
 	private InterventionMap interventions;
 	private HistoryMap historyMap;
@@ -42,7 +35,7 @@ public class TimeView extends AbstractTimeView implements Module {
 	private EventBus cmdBus;
 	private String options;
 
-	private ClientFactory clientFactory;
+	private ClientFactory factory;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -53,7 +46,7 @@ public class TimeView extends AbstractTimeView implements Module {
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
 
-		this.clientFactory = clientFactory;
+		this.factory = clientFactory;
 
 		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 
@@ -61,6 +54,12 @@ public class TimeView extends AbstractTimeView implements Module {
 		cmdBus = clientFactory.getEventBus(args.getArg(1));
 		options = args.getArg(2);
 		measurementName = args.getArg(3);
+		ptuId = args.getArg(4);
+		if (ptuId.equals("")) {
+			ptuId = null;
+		} else {
+			ptuIdIsFixed = true;
+		}
 
 		this.title = !options.contains("NoTitle");
 		this.export = !options.contains("NoExport");
@@ -115,14 +114,16 @@ public class TimeView extends AbstractTimeView implements Module {
 				});
 
 		if (cmdBus != null) {
-			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+			if (!ptuIdIsFixed) {
+				SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
-				@Override
-				public void onPtuSelected(final SelectPtuEvent event) {
-					ptuId = event.getPtuId();
-					scheduler.update();
-				}
-			});
+					@Override
+					public void onPtuSelected(final SelectPtuEvent event) {
+						ptuId = event.getPtuId();
+						scheduler.update();
+					}
+				});
+			}
 
 			SelectMeasurementEvent.subscribe(cmdBus,
 					new SelectMeasurementEvent.Handler() {
@@ -174,7 +175,7 @@ public class TimeView extends AbstractTimeView implements Module {
 				if ((settings == null) || settings.isEnabled(ptuId)) {
 
 					if (chart != null) {
-						addSeries(ptuId, getName(ptuId), false);
+						addSeries(ptuId, getName(ptuId, interventions), false);
 						addHistory(historyMap.get(ptuId, measurementName));
 						chart.setAnimation(false);
 					}
@@ -182,7 +183,7 @@ public class TimeView extends AbstractTimeView implements Module {
 
 			}
 
-			register();
+			register(factory, measurementName, null);
 
 			if (cmdBus != null) {
 				ColorMapChangedEvent.fire(cmdBus, getColors());
@@ -190,75 +191,13 @@ public class TimeView extends AbstractTimeView implements Module {
 		} else {
 			if ((settings == null) || settings.isEnabled(ptuId)) {
 
-				createChart(Measurement.getDisplayName(measurementName) + " ("
-						+ ptuId + ")");
-				add(chart);
-
-				addSeries(ptuId, getName(ptuId), true);
-				addHistory(historyMap.get(ptuId, measurementName));
-
+				createSingleChart(factory, measurementName, ptuId, historyMap, interventions, true);
+				
 				cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));
-
-				register();
 			}
 		}
 
 		return false;
-	}
-
-	private String getName(String ptuId) {
-		if (interventions == null) {
-			return ptuId;
-		}
-		Intervention intervention = interventions.get(ptuId);
-		return ((intervention != null) && !intervention.getName().equals("") ? intervention
-				.getName() + " - "
-				: "")
-				+ "" + ptuId;
-	}
-
-	private void addHistory(History history) {
-		if (history == null)
-			return;
-
-		setData(history.getPtuId(), history.getData(), history.getLimits());
-
-		setUnit(history.getPtuId(), history.getUnit());
-	}
-
-	private void unregister() {
-		if (measurementHandler != null) {
-			measurementHandler.removeHandler();
-			measurementHandler = null;
-		}
-	}
-
-	private final static long MINUTE = 60 * 1000; // 1 minute
-
-	private void register() {
-		unregister();
-
-		measurementHandler = MeasurementChangedEvent.register(
-				clientFactory.getRemoteEventBus(),
-				new MeasurementChangedEvent.Handler() {
-
-					@Override
-					public void onMeasurementChanged(
-							MeasurementChangedEvent event) {
-						Measurement m = event.getMeasurement();
-						if (m.getName().equals(measurementName)
-								&& ((ptuId == null) || m.getPtuId().equals(
-										ptuId))
-								&& (m.getDate().getTime() < new Date()
-										.getTime() + MINUTE)) {
-							addPoint(m.getPtuId(), m.getDate().getTime(),
-									m.getValue(), m.getLowLimit(),
-									m.getHighLimit());
-
-							setUnit(m.getPtuId(), m.getUnit());
-						}
-					}
-				});
 	}
 
 }

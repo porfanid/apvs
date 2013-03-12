@@ -2,8 +2,12 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.List;
 
+import org.moxieapps.gwt.highcharts.client.Chart;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
+import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -22,13 +26,18 @@ public class CameraTable extends SimplePanel implements Module {
 	private FlexTable table = new FlexTable();
 	private PtuSettings settings;
 	private InterventionMap interventions;
+	private HistoryMap historyMap;
 	private List<String> ptuIds;
 	
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
+	
+	private ClientFactory factory;
 
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
+		
+		this.factory = clientFactory;
 		
 		table.setWidth("100%");
 		add(table);
@@ -63,6 +72,18 @@ public class CameraTable extends SimplePanel implements Module {
 					}
 				});
 		
+		HistoryMapChangedEvent.subscribe(clientFactory,
+				new HistoryMapChangedEvent.Handler() {
+
+					@Override
+					public void onHistoryMapChanged(HistoryMapChangedEvent event) {
+						historyMap = event.getHistoryMap();
+						configChanged();
+						scheduler.update();
+					}
+				});
+
+		
 		return true;
 	}
 	
@@ -74,7 +95,7 @@ public class CameraTable extends SimplePanel implements Module {
 	private void configChanged() {
 		table.clear();
 		
-		if ((ptuIds == null) || (settings == null)) {
+		if ((ptuIds == null) || (settings == null) || (historyMap == null)) {
 			return;
 		}
 		
@@ -94,6 +115,14 @@ public class CameraTable extends SimplePanel implements Module {
 			table.setWidget(row+1, column, helmet);
 			// 25%
 			table.getCellFormatter().setWidth(row+1, column, "50%");
+			
+//			SpecificTimeView timeView = new SpecificTimeView();
+//			Chart chart = timeView.createSingleChart(factory, "DoseRate", ptuId, historyMap, interventions, false);
+//			Label chart = new Label("TEST "+(row+2)+" "+column+" "+ptuId);
+//			table.setWidget(row+2, column, chart);
+			// 25%
+//			table.getCellFormatter().setWidth(row+2, column, "50%");
+
 			column++;
 
 //			Widget hand = new ImageView(settings.getCameraUrl(ptuId, CameraView.HAND));
@@ -105,8 +134,7 @@ public class CameraTable extends SimplePanel implements Module {
 			if (column >= 2) {
 				column = 0;
 				labelColumn = 0;
-				row++;
-				row++;
+				row += 2;
 			}
 		}
 	}
