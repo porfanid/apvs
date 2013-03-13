@@ -1,58 +1,48 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.timeout.IdleState;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
+
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.handler.timeout.IdleState;
-import org.jboss.netty.handler.timeout.IdleStateAwareChannelUpstreamHandler;
-import org.jboss.netty.handler.timeout.IdleStateEvent;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timeout;
-import org.jboss.netty.util.Timer;
-import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PtuReconnectHandler extends IdleStateAwareChannelUpstreamHandler {
+public class PtuReconnectHandler extends ChannelDuplexHandler {
 	private static final int RECONNECT_DELAY = 20;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private ClientBootstrap bootstrap;
+	private Bootstrap bootstrap;
 
 	private InetSocketAddress address;
 	private Channel channel;
 	private Timer reconnectTimer;
 	private boolean reconnectNow;
 
-	public PtuReconnectHandler(ClientBootstrap bootstrap) {
-		this.bootstrap = bootstrap;		
+	public PtuReconnectHandler(Bootstrap bootstrap) {
+		this.bootstrap = bootstrap;
 	}
 
 	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
-			throws Exception {
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		log.info("Connected to PTU");
-		channel = e.getChannel();
-		super.channelConnected(ctx, e);
+		channel = ctx.channel();
+		super.channelActive(ctx);
 	}
 
 	@Override
-	public void channelDisconnected(ChannelHandlerContext ctx,
-			ChannelStateEvent e) throws Exception {
-		log.info("Disconnected from " + e.getChannel().getRemoteAddress());
-		super.channelDisconnected(ctx, e);
-	}
-
-	@Override
-	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
-			throws Exception {
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		// handle closed connection
 		log.info("Closed PTU socket ");
 
@@ -73,27 +63,42 @@ public class PtuReconnectHandler extends IdleStateAwareChannelUpstreamHandler {
 			}, RECONNECT_DELAY, TimeUnit.SECONDS);
 		}
 
-		super.channelClosed(ctx, e);
+		super.channelInactive(ctx);
 	}
-	
-	@Override
-    public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) {
-        if (e.getState() == IdleState.READER_IDLE) {
-            e.getChannel().close();
-        } else if (e.getState() == IdleState.WRITER_IDLE) {
-//            e.getChannel().write(new PingMessage());
-        }
-    }
 
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-		if (e.getCause() instanceof ConnectException) {
+	@Override
+	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
+			throws Exception {
+		if (evt instanceof IdleState) {
+			IdleState e = (IdleState) evt;
+			if (e == IdleState.READER_IDLE) {
+				ctx.channel().close();
+			} else if (e == IdleState.WRITER_IDLE) {
+				// ctx.channel().write(new PingMessage());
+			}
+		}
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable caught) {
+		if (caught instanceof ConnectException) {
 			log.warn("Connection Refused");
-		} else if (e.getCause() instanceof SocketException) {
+		} else if (caught instanceof SocketException) {
 			log.warn("Network is unreachable");
 		} else {
-			log.warn("Unexpected exception from downstream.", e.getCause());
+			log.warn("Unexpected exception from downstream.", caught);
 		}
-		e.getChannel().close();
+		ctx.channel().close();
+	}
+
+	@Override
+	public void inboundBufferUpdated(ChannelHandlerContext ctx)
+			throws Exception {
+	}
+
+	@Override
+	public void flush(ChannelHandlerContext ctx, ChannelPromise promise)
+			throws Exception {
 	}
 
 	public void connect(InetSocketAddress newAddress) {
@@ -122,11 +127,11 @@ public class PtuReconnectHandler extends IdleStateAwareChannelUpstreamHandler {
 			channel = null;
 		}
 	}
-	
+
 	public boolean isConnected() {
-		return channel != null && channel.isConnected();
+		return channel != null && channel.isActive();
 	}
-	
+
 	public Channel getChannel() {
 		return channel;
 	}

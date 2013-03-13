@@ -1,13 +1,19 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.BufType;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.CharsetUtil;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
-
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timer;
 
 public class PtuPushServer {
 
@@ -27,10 +33,8 @@ public class PtuPushServer {
 
 	public void run() throws IOException {
 		// Configure the client.
-		ClientBootstrap bootstrap = new ClientBootstrap(
-				new NioClientSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
+		Bootstrap bootstrap = new Bootstrap();
+		bootstrap.channel(NioSocketChannel.class);
 
 		if (CONNECT_FOR_EVERY_MESSAGE) {
 			PtuConnectPushHandler handler = new PtuConnectPushHandler();
@@ -39,10 +43,18 @@ public class PtuPushServer {
 		} else {
 			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
 
-			Timer timer = new HashedWheelTimer();
-
-			// Configure the pipeline factory.
-			bootstrap.setPipelineFactory(new PtuPipelineFactory(timer, handler));
+			bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+				@Override
+				protected void initChannel(SocketChannel ch) throws Exception {
+					ch.pipeline().addLast(
+							new IdleStateHandler(60, 30, 0),
+							new DelimiterBasedFrameDecoder(8192, Unpooled
+									.wrappedBuffer(new byte[] { 0x13 })),
+							new StringDecoder(CharsetUtil.UTF_8),
+							new StringEncoder(BufType.BYTE, CharsetUtil.UTF_8), 
+							new PtuServerHandler(refresh, ids));
+				}
+			});
 
 			// Start the connection attempt.
 			handler.connect(new InetSocketAddress(host, port));

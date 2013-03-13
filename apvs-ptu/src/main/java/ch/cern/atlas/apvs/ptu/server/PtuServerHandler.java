@@ -1,21 +1,20 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.handler.timeout.IdleStateAwareChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PtuServerHandler extends IdleStateAwareChannelUpstreamHandler {
+public class PtuServerHandler extends
+		ChannelInboundMessageHandlerAdapter<String> {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -34,9 +33,8 @@ public class PtuServerHandler extends IdleStateAwareChannelUpstreamHandler {
 	}
 
 	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
-			throws Exception {
-		log.info("Connected from " + e.getChannel().getRemoteAddress());
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		log.info("Connected from " + ctx.channel().remoteAddress());
 
 		List<PtuSimulator> listOfSimulators = new ArrayList<PtuSimulator>(
 				ptuIds.length);
@@ -44,46 +42,43 @@ public class PtuServerHandler extends IdleStateAwareChannelUpstreamHandler {
 			String ptuId = ptuIds[i];
 
 			PtuSimulator simulator = new PtuSimulator(ptuId, refresh,
-					e.getChannel());
+					ctx.channel());
 			listOfSimulators.add(simulator);
 			simulator.start();
 		}
 
-		simulators.put(e.getChannel(), listOfSimulators);
+		simulators.put(ctx.channel(), listOfSimulators);
 
-		super.channelConnected(ctx, e);
+		super.channelActive(ctx);
 	}
 
 	@Override
-	public void channelDisconnected(ChannelHandlerContext ctx,
-			ChannelStateEvent e) throws Exception {
-		log.info("Disconnected from " + e.getChannel().getRemoteAddress());
-		List<PtuSimulator> listOfSimulators = simulators.get(e.getChannel());
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		log.info("Disconnected from " + ctx.channel().remoteAddress());
+		List<PtuSimulator> listOfSimulators = simulators.get(ctx.channel());
 		if (listOfSimulators != null) {
 			log.info("Interrupting Threads...");
 			for (Iterator<PtuSimulator> i = listOfSimulators.iterator(); i
 					.hasNext();) {
 				i.next().interrupt();
 			}
-			simulators.remove(e.getChannel());
+			simulators.remove(ctx.channel());
 		}
 
-		super.channelDisconnected(ctx, e);
+		super.channelInactive(ctx);
 	}
 
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
-
-		String request = (String) e.getMessage();
-		log.info(request);
-		String response = request;
-		e.getChannel().write(response);
+	protected void messageReceived(ChannelHandlerContext ctx, String msg)
+			throws Exception {
+		log.info(msg);
+		ctx.channel().write(msg);
 	}
 
 	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		// Close the connection when an exception is raised.
-		log.warn("Unexpected exception from downstream.", e.getCause());
-		e.getChannel().close();
+		log.warn("Unexpected exception from downstream.", cause);
+		ctx.channel().close();
 	}
 }
