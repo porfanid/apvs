@@ -39,18 +39,7 @@ public class PtuPullServer {
 			bootstrap.channel(NioServerSocketChannel.class);
 
 			// Set up the pipeline factory.
-			bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-				@Override
-				protected void initChannel(SocketChannel ch) throws Exception {
-					ch.pipeline().addLast(
-							new IdleStateHandler(60, 30, 0),
-							new DelimiterBasedFrameDecoder(8192, Unpooled
-									.wrappedBuffer(new byte[] { 0x13 })),
-							new StringDecoder(CharsetUtil.UTF_8),
-							new StringEncoder(BufType.BYTE, CharsetUtil.UTF_8),
-							new PtuServerHandler(refresh, ids));
-				}
-			});
+			bootstrap.childHandler(new PtuChannelInitializer(new PtuServerHandler(refresh, ids)));
 
 			// Bind and start to accept incoming connections.
 			ChannelFuture f = bootstrap.bind(new InetSocketAddress(port))

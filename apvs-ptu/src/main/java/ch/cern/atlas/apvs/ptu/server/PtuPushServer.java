@@ -1,16 +1,7 @@
 package ch.cern.atlas.apvs.ptu.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.BufType;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.CharsetUtil;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -43,18 +34,7 @@ public class PtuPushServer {
 		} else {
 			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
 
-			bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-				@Override
-				protected void initChannel(SocketChannel ch) throws Exception {
-					ch.pipeline().addLast(
-							new IdleStateHandler(60, 30, 0),
-							new DelimiterBasedFrameDecoder(8192, Unpooled
-									.wrappedBuffer(new byte[] { 0x13 })),
-							new StringDecoder(CharsetUtil.UTF_8),
-							new StringEncoder(BufType.BYTE, CharsetUtil.UTF_8), 
-							new PtuServerHandler(refresh, ids));
-				}
-			});
+			bootstrap.handler(new PtuChannelInitializer(new PtuServerHandler(refresh, ids)));
 
 			// Start the connection attempt.
 			handler.connect(new InetSocketAddress(host, port));

@@ -2,9 +2,8 @@ package ch.cern.atlas.apvs.ptu.server;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
+import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PtuReconnectHandler extends ChannelDuplexHandler {
+public abstract class PtuReconnectHandler extends ChannelInboundMessageHandlerAdapter<String> {
 	private static final int RECONNECT_DELAY = 20;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -89,16 +88,6 @@ public class PtuReconnectHandler extends ChannelDuplexHandler {
 			log.warn("Unexpected exception from downstream.", caught);
 		}
 		ctx.channel().close();
-	}
-
-	@Override
-	public void inboundBufferUpdated(ChannelHandlerContext ctx)
-			throws Exception {
-	}
-
-	@Override
-	public void flush(ChannelHandlerContext ctx, ChannelPromise promise)
-			throws Exception {
 	}
 
 	public void connect(InetSocketAddress newAddress) {

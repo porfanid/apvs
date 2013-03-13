@@ -1,6 +1,9 @@
 package ch.cern.atlas.apvs.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.io.IOException;
@@ -96,22 +99,20 @@ public class PtuClientHandler extends PtuReconnectHandler {
 				ConnectionType.dosimeter, dosimeterOk);
 		super.channelInactive(ctx);
 	}
-	
-	
 
 	public void sendOrder(Order order) {
 		try {
 			System.out.println(PtuJsonWriter.objectToJson(order));
 
-			ChannelBuffer buffer = ChannelBuffers.buffer(8192);
-			OutputStream os = new ChannelBufferOutputStream(buffer);
+			ByteBuf buffer = Unpooled.buffer(8192);
+			OutputStream os = new ByteBufOutputStream(buffer);
 			PtuJsonWriter writer = new PtuJsonWriter(os);
 			writer.write(0x10);
 			writer.write(order);
 			writer.write(0x13);
 			System.out.println("Sending...");
 
-			ChannelBufferOutputStream cos = (ChannelBufferOutputStream) os;
+			ByteBufOutputStream cos = (ByteBufOutputStream) os;
 			getChannel().write(cos.buffer()).awaitUninterruptibly();
 			System.out.println(PtuJsonWriter.objectToJson(order));
 			writer.close();
@@ -124,11 +125,12 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private final static boolean DEBUG = false;
 	private final static boolean DEBUGPLUS = false;
-
+	
+	
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
+	protected void messageReceived(ChannelHandlerContext ctx, String msg) {
 		// Print out the line received from the server.
-		String line = (String) event.getMessage();
+		String line = msg;
 
 		if (DEBUGPLUS) {
 			for (int i = 0; i < line.length(); i++) {

@@ -2,14 +2,11 @@ package ch.cern.atlas.apvs.server;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
 
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -26,6 +23,7 @@ import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
+import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
 
 /**
  * @author Mark Donszelmann
@@ -64,8 +62,7 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
 		
 		// Configure the pipeline factory.
-		Timer timer = new HashedWheelTimer();
-		bootstrap.setPipelineFactory(new PtuPipelineFactory(timer, ptuClientHandler));
+		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler));
 		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
