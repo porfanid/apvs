@@ -48,7 +48,7 @@
 		<mgwt-version>1.0.1</mgwt-version>
 		<mockito-version>1.9.5</mockito-version>
 		<netty-version>3.6.3.Final</netty-version>
-		<nettosphere-version>2.0.0.beta1</nettosphere-version>
+		<nettosphere-version>2.0.0.RC1</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
 		<slf4j-version>1.7.2</slf4j-version>
