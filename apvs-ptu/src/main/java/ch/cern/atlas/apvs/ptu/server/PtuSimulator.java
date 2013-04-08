@@ -1,15 +1,16 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.Random;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBufferOutputStream;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,8 +73,8 @@ public class PtuSimulator extends Thread {
 
 			OutputStream os;
 			if (channel != null) {
-				ChannelBuffer buffer = ChannelBuffers.buffer(8192);
-				os = new ChannelBufferOutputStream(buffer);
+				ByteBuf buffer = Unpooled.buffer(8192);
+				os = new ByteBufOutputStream(buffer);
 			} else {
 				os = new ByteArrayOutputStream();
 			}
@@ -128,7 +129,7 @@ public class PtuSimulator extends Thread {
 
 	protected synchronized OutputStream sendBufferAndClear(OutputStream os) {
 		if (channel != null) {
-			ChannelBufferOutputStream cos = (ChannelBufferOutputStream) os;
+			ByteBufOutputStream cos = (ByteBufOutputStream) os;
 			channel.write(cos.buffer()).awaitUninterruptibly();
 			cos.buffer().clear();
 		} else {

@@ -1,13 +1,10 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.socket.nio.NioSocketChannel;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
-
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timer;
 
 public class PtuPushServer {
 
@@ -27,10 +24,8 @@ public class PtuPushServer {
 
 	public void run() throws IOException {
 		// Configure the client.
-		ClientBootstrap bootstrap = new ClientBootstrap(
-				new NioClientSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
+		Bootstrap bootstrap = new Bootstrap();
+		bootstrap.channel(NioSocketChannel.class);
 
 		if (CONNECT_FOR_EVERY_MESSAGE) {
 			PtuConnectPushHandler handler = new PtuConnectPushHandler();
@@ -39,10 +34,7 @@ public class PtuPushServer {
 		} else {
 			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
 
-			Timer timer = new HashedWheelTimer();
-
-			// Configure the pipeline factory.
-			bootstrap.setPipelineFactory(new PtuPipelineFactory(timer, handler));
+			bootstrap.handler(new PtuChannelInitializer(new PtuServerHandler(refresh, ids)));
 
 			// Start the connection attempt.
 			handler.connect(new InetSocketAddress(host, port));

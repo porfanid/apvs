@@ -1,18 +1,16 @@
 package ch.cern.atlas.apvs.server;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.socket.nio.NioSocketChannel;
+
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +23,7 @@ import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.ptu.server.PtuPipelineFactory;
+import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
 
 /**
  * @author Mark Donszelmann
@@ -57,16 +55,14 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 
 		//FIXME - Change the declaring location before ServerSettingsChangedRemoteEvent
 		// Configure the client.
-		ClientBootstrap bootstrap = new ClientBootstrap(
-				new NioClientSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
+		Bootstrap bootstrap = new Bootstrap();
+		bootstrap.channel(NioSocketChannel.class);
+
 		//FIXME - Change the declaring location before ServerSettingsChangedRemoteEvent
 		ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
 		
 		// Configure the pipeline factory.
-		Timer timer = new HashedWheelTimer();
-		bootstrap.setPipelineFactory(new PtuPipelineFactory(timer, ptuClientHandler));
+		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler));
 		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {

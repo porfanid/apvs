@@ -1,5 +1,11 @@
 package ch.cern.atlas.apvs.server;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -7,13 +13,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBufferOutputStream;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +22,8 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.Connec
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.domain.APVSException;
-import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Error;
+import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
@@ -48,10 +47,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private Ternary dosimeterOk = Ternary.Unknown;
 
-	private  PtuSettings settings;
+	private PtuSettings settings;
 
-	public PtuClientHandler(ClientBootstrap bootstrap,
-			final RemoteEventBus eventBus) {
+	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
 
@@ -66,53 +64,55 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
 							ConnectionType.daq, isConnected());
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.dosimeter, isConnected() ? dosimeterOk : Ternary.False);
+							ConnectionType.dosimeter,
+							isConnected() ? dosimeterOk : Ternary.False);
 				}
 			}
 		});
-		
-		PtuSettingsChangedRemoteEvent.subscribe(eventBus, new PtuSettingsChangedRemoteEvent.Handler() {
-			
-			@Override
-			public void onPtuSettingsChanged(PtuSettingsChangedRemoteEvent event) {
-				settings = event.getPtuSettings();
-			}
-		});
+
+		PtuSettingsChangedRemoteEvent.subscribe(eventBus,
+				new PtuSettingsChangedRemoteEvent.Handler() {
+
+					@Override
+					public void onPtuSettingsChanged(
+							PtuSettingsChangedRemoteEvent event) {
+						settings = event.getPtuSettings();
+					}
+				});
 	}
 
 	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
+	public void channelActive(ChannelHandlerContext ctx)
 			throws Exception {
 		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq,
 				true);
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.dosimeter, dosimeterOk);
-		super.channelConnected(ctx, e);
+		super.channelActive(ctx);
 	}
 
 	@Override
-	public void channelDisconnected(ChannelHandlerContext ctx,
-			ChannelStateEvent e) throws Exception {
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq,
 				false);
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.dosimeter, dosimeterOk);
-		super.channelDisconnected(ctx, e);
+		super.channelInactive(ctx);
 	}
 
 	public void sendOrder(Order order) {
 		try {
 			System.out.println(PtuJsonWriter.objectToJson(order));
 
-			ChannelBuffer buffer = ChannelBuffers.buffer(8192);
-			OutputStream os = new ChannelBufferOutputStream(buffer);
+			ByteBuf buffer = Unpooled.buffer(8192);
+			OutputStream os = new ByteBufOutputStream(buffer);
 			PtuJsonWriter writer = new PtuJsonWriter(os);
 			writer.write(0x10);
 			writer.write(order);
 			writer.write(0x13);
 			System.out.println("Sending...");
 
-			ChannelBufferOutputStream cos = (ChannelBufferOutputStream) os;
+			ByteBufOutputStream cos = (ByteBufOutputStream) os;
 			getChannel().write(cos.buffer()).awaitUninterruptibly();
 			System.out.println(PtuJsonWriter.objectToJson(order));
 			writer.close();
@@ -125,11 +125,12 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private final static boolean DEBUG = false;
 	private final static boolean DEBUGPLUS = false;
-
+	
+	
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) {
+	public void messageReceived(ChannelHandlerContext ctx, String msg) {
 		// Print out the line received from the server.
-		String line = (String) event.getMessage();
+		String line = msg;
 
 		if (DEBUGPLUS) {
 			for (int i = 0; i < line.length(); i++) {
@@ -178,7 +179,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 
 	}
-		
+
 	private final static long SECOND = 1000;
 	private final static long MINUTE = 60 * SECOND;
 
@@ -186,11 +187,12 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 		// Quick fix for #371
 		Date now = new Date();
-		if (message.getDate().getTime() < (now.getTime() - 5*MINUTE)) {
-			log.warn("UPDATE IGNORED, too old "+message.getDate()+" "+now+" "+message);
+		if (message.getDate().getTime() < (now.getTime() - 5 * MINUTE)) {
+			log.warn("UPDATE IGNORED, too old " + message.getDate() + " " + now
+					+ " " + message);
 			return;
 		}
-		
+
 		String unit = message.getUnit();
 		Number value = message.getValue();
 		Number low = message.getLowLimit();
@@ -213,7 +215,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		String ptuId = message.getPtuId();
 		String sensor = message.getName();
 
-//		log.info("EVENT " + message);
+		// log.info("EVENT " + message);
 
 		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
 				message.getEventType(), message.getValue(), message
@@ -229,14 +231,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					ConnectionType.dosimeter, dosimeterOk);
 		}
 	}
-	
+
 	private void handleMessage(GeneralConfiguration message) {
 		String ptuId = message.getPtuId();
 		String dosimeterId = message.getDosimeterId();
-		
+
 		if (settings != null) {
 			settings.setDosimeterSerialNumber(ptuId, dosimeterId);
-			
+
 			eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
 		}
 	}
