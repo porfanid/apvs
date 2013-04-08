@@ -62,7 +62,7 @@
 						</overlay>
 						<overlay>
 							<groupId>io.netty</groupId>
-							<artifactId>netty</artifactId>
+							<artifactId>netty-all</artifactId>
 							<type>jar</type>
 						</overlay>
 						<overlay>
