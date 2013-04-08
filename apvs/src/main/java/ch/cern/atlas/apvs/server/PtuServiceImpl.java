@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
@@ -52,6 +54,8 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		super.init(config);
 
 		log.info("Starting PtuService...");
+		
+		EventLoopGroup group = new NioEventLoopGroup();
 
 		//FIXME - Change the declaring location before ServerSettingsChangedRemoteEvent
 		// Configure the client.
@@ -62,6 +66,7 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
 		
 		// Configure the pipeline factory.
+		bootstrap.group(group);
 		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler));
 		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,

@@ -1,10 +1,10 @@
 package ch.cern.atlas.apvs.client.widget;
 
 import com.google.gwt.cell.client.ActionCell;
+import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.HasCell;
-import com.google.gwt.cell.client.ActionCell.Delegate;
 
 public class AudioActionCell implements HasCell<String, String> {
 	    private ActionCell<String> cell;

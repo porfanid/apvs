@@ -4,6 +4,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.io.IOException;
@@ -38,6 +39,8 @@ import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
+// FIXME not really sure...but was working in netty 3.5 without this... so was shared...
+@Sharable
 public class PtuClientHandler extends PtuReconnectHandler {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());

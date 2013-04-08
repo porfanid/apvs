@@ -5,7 +5,6 @@ import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.Window;
 
 public abstract class GenericColumn<T> extends Column<T, Object> implements DataStoreName {
 

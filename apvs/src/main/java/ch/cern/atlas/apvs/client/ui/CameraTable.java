@@ -2,8 +2,6 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.List;
 
-import org.moxieapps.gwt.highcharts.client.Chart;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;

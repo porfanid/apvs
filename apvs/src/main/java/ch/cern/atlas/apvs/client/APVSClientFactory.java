@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client;
 
-import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
-
-import ch.cern.atlas.apvs.client.event.EventSerializer;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
 import ch.cern.atlas.apvs.client.service.DbServiceAsync;
 import ch.cern.atlas.apvs.client.service.EventServiceAsync;
@@ -30,9 +27,7 @@ import ch.cern.atlas.apvs.client.ui.PtuSelector;
 import ch.cern.atlas.apvs.eventbus.client.AtmosphereEventBus;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.server.ServerSettingsStorage;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.web.bindery.event.shared.EventBus;

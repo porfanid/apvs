@@ -56,7 +56,7 @@
 
 		<!-- in order on http://maven.apache.org/plugins/index.html -->
 		<clean-plugin-version>2.5</clean-plugin-version>
-		<compiler-plugin-version>3.0</compiler-plugin-version>
+		<compiler-plugin-version>3.1</compiler-plugin-version>
 		<deploy-plugin-version>2.7</deploy-plugin-version>
 		<failsafe-plugin-version>2.14</failsafe-plugin-version>
 		<install-plugin-version>2.4</install-plugin-version>
