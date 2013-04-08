@@ -69,7 +69,7 @@ public class PtuPushHandler extends PtuReconnectHandler {
 	}
 	
 	@Override
-	protected void messageReceived(ChannelHandlerContext ctx, String msg)
+	public void messageReceived(ChannelHandlerContext ctx, String msg)
 			throws Exception {
 		// ignored
 	}

@@ -69,7 +69,7 @@ public class PtuServerHandler extends
 	}
 
 	@Override
-	protected void messageReceived(ChannelHandlerContext ctx, String msg)
+	public void messageReceived(ChannelHandlerContext ctx, String msg)
 			throws Exception {
 		log.info(msg);
 		ctx.channel().write(msg);

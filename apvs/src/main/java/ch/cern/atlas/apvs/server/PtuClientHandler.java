@@ -128,7 +128,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	
 	
 	@Override
-	protected void messageReceived(ChannelHandlerContext ctx, String msg) {
+	public void messageReceived(ChannelHandlerContext ctx, String msg) {
 		// Print out the line received from the server.
 		String line = msg;
 
