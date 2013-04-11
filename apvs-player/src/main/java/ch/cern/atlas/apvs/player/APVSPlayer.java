@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.player;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.moxieapps.gwt.highcharts.client.Legend;
 import org.moxieapps.gwt.highcharts.client.Legend.Align;
 import org.moxieapps.gwt.highcharts.client.Legend.Layout;
 import org.moxieapps.gwt.highcharts.client.Legend.VerticalAlign;
+import org.moxieapps.gwt.highcharts.client.Point;
 import org.moxieapps.gwt.highcharts.client.RangeSelector;
 import org.moxieapps.gwt.highcharts.client.RangeSelector.Button;
 import org.moxieapps.gwt.highcharts.client.RangeSelector.ButtonType;
@@ -33,8 +35,13 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.SeriesPlotOptions;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayNumber;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.Random;
+import com.google.gwt.jsonp.client.JsonpRequestBuilder;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class APVSPlayer implements EntryPoint {
@@ -125,14 +132,6 @@ public class APVSPlayer implements EntryPoint {
 						s += " <br></br>" + data.getSeriesName(i) + ": " + data.getYAsDouble(i) + " \u00b5Sv/h";
 					}
 				}
-				
-//		        $.each(this.points, function(i, point) {
-//		            if (i % 2) {
-//		                s += ' '+point.y +' \u00b5Sv';
-//			    } else {
-//		                s += ' <br></br>'+point.series.name+': '+point.y +' \u00b5Sv/h';
-//		            }
-//		        });
 			    return s;
 			}
 		}));
@@ -156,28 +155,62 @@ public class APVSPlayer implements EntryPoint {
 				.setMin(0)
 				.setOption("height", 200)
 				.setOption("top", 500);
+		
+		String url = "http://atlas.web.cern.ch/Atlas/TCOORD/CavCom/plot-data.php";
+//		url = "http://ws.geonames.org/postalCodeLookupJSON?postalcode=M1&country=GB&maxRows=4";
+		JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
+		jsonp.requestObject(url, new AsyncCallback<JsArray<JavaScriptObject>>() {
+			
+			@Override
+			public void onSuccess(JsArray<JavaScriptObject> dataArray) {
+				chart.removeAllSeries();
+				seriesByName.clear();
+				
+				for (int i=0; i<dataArray.length(); i++) {
+					JavaScriptObject data = dataArray.get(i);
+					String name = nativeGetName(data);
+					Series series = chart.createSeries().setName(name);
+					seriesByName.put(name, series);
+					
+					Point[] points = getPoints(data);
+					series.setPoints(points);
+					
+					if (name.startsWith("Dose-")) {
+						series.setYAxis(1);
+						series.setOption("showInLegend", false);
+						series.setOption("tooltip/enabled", false);
+						series.setOption("tooltip/crosshairs", false);
+					}
 
-		String name = "888888";
-		Series rateSeries = chart.createSeries()
-				.setName(name);
-		seriesByName.put(name, rateSeries);
-		
-		String doseName = "Dose-"+name;
-		Series doseSeries = chart.createSeries()
-				.setName(doseName)
-				.setYAxis(1)
-				.setOption("showInLegend", false)
-				.setOption("tooltip/enabled", false)
-				.setOption("tooltip/crosshairs", false);
-		seriesByName.put(doseName, doseSeries);
-		for (int i=0; i<1000; i++) {
-			rateSeries.addPoint(i*353635, Random.nextDouble());
-			doseSeries.addPoint(i*353635, Random.nextDouble());
-		}
-		
-		chart.addSeries(rateSeries);
-		chart.addSeries(doseSeries);
-		
+					chart.addSeries(series, true, false);
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert(""+caught);
+			}
+		});
+
 		RootPanel.get("chart").add(chart);
 	}
+	
+    private static Point[] getPoints(JavaScriptObject nativeSeries) {
+        ArrayList<Point> convertedPoints = new ArrayList<Point>();
+        JsArray<JsArrayNumber> nativePoints = nativeGetData(nativeSeries);
+        for (int i = 0; i < nativePoints.length(); i++) {
+            JsArrayNumber nativePoint = nativePoints.get(i);
+            Point point = new Point(nativePoint.get(0), nativePoint.get(1));
+            convertedPoints.add(point);
+        }
+        return convertedPoints.toArray(new Point[convertedPoints.size()]);
+    }
+
+    private static native JsArray<JsArrayNumber> nativeGetData(JavaScriptObject series) /*-{
+    	return series.data;
+	}-*/;
+
+	private static native String nativeGetName(JavaScriptObject series) /*-{
+    	return series.name;
+	}-*/;
 }
