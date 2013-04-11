@@ -28,6 +28,8 @@ import org.moxieapps.gwt.highcharts.client.StockChart;
 import org.moxieapps.gwt.highcharts.client.ToolTip;
 import org.moxieapps.gwt.highcharts.client.ToolTipData;
 import org.moxieapps.gwt.highcharts.client.ToolTipFormatter;
+import org.moxieapps.gwt.highcharts.client.events.AxisSetExtremesEvent;
+import org.moxieapps.gwt.highcharts.client.events.AxisSetExtremesEventHandler;
 import org.moxieapps.gwt.highcharts.client.events.SeriesLegendItemClickEvent;
 import org.moxieapps.gwt.highcharts.client.events.SeriesLegendItemClickEventHandler;
 import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
@@ -110,9 +112,13 @@ public class APVSPlayer implements EntryPoint {
 						new Button().setType(ButtonType.ALL).setText("All"))
 				.setInputEnabled(false).setSelected(2));
 
-		chart.getNavigator().setOption("dataGrouping/approximation", "high");
-		chart.getNavigator().setOption("dataGrouping/smoothed", true);
-		chart.getNavigator().setOption("dataGrouping/enabled", true);
+		chart.getNavigator()
+				.setOption("dataGrouping/approximation", "high")
+				.setOption("dataGrouping/smoothed", true)
+				.setOption("dataGrouping/enabled", true)
+				.setAdaptToUpdatedData(false);
+		
+		chart.setOption("scrollbar/liveRedraw", false);
 
 		chart.setTitle(new ChartTitle().setText("ATLAS Dosimeters - $name"),
 				new ChartSubtitle().setText("TBD ")); // +unixToLocalTime($unixStart,
@@ -142,7 +148,18 @@ public class APVSPlayer implements EntryPoint {
 		chart.getXAxis()
 				.setType(
 						org.moxieapps.gwt.highcharts.client.Axis.Type.DATE_TIME)
-				.setOption("ordinal", false);
+				.setOption("ordinal", false)
+				.setOption("minRange", 3600 * 1000) // 1 Hour
+				.setAxisSetExtremesEventHandler(new AxisSetExtremesEventHandler() {
+					
+					@Override
+					public boolean onSetExtremes(AxisSetExtremesEvent event) {
+						GWT.log("changed: "+event.getMin()+" "+event.getMax());
+						
+						getData(chart, event.getMin().longValue(), event.getMax().longValue());
+						return true;
+					}
+				});
 
 		chart.getYAxis(0)
 				.setAxisTitleText("Rate [\u00b5Sv/h]")
@@ -159,13 +176,23 @@ public class APVSPlayer implements EntryPoint {
 				.setOption("height", 200)
 				.setOption("top", 500);
 		
-		String url = "http://atlas.web.cern.ch/Atlas/TCOORD/CavCom/plot-data.php";
+		RootPanel.get("chart").add(chart);
+
+		getData(chart, 0, new Date().getTime());
+	}
+	
+	private void getData(final StockChart chart, long start, long end) {
+		chart.showLoading("Loading data from server...");
+		
+		String url = "http://atlas.web.cern.ch/Atlas/TCOORD/CavCom/plot-data.php?start="+start+"&end="+end;
 //		url = "http://ws.geonames.org/postalCodeLookupJSON?postalcode=M1&country=GB&maxRows=4";
 		JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
 		jsonp.requestObject(url, new AsyncCallback<JsArray<JavaScriptObject>>() {
 			
 			@Override
 			public void onSuccess(JsArray<JavaScriptObject> dataArray) {
+				chart.hideLoading();
+				
 				chart.removeAllSeries();
 				seriesByName.clear();
 				
@@ -198,11 +225,11 @@ public class APVSPlayer implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert(""+caught);
+				chart.hideLoading();
+				Window.alert(""+caught);				
 			}
 		});
 
-		RootPanel.get("chart").add(chart);
 	}
 	
     private static Point[] getPoints(JavaScriptObject nativeSeries) {
