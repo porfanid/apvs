@@ -48,6 +48,9 @@ public class APVSPlayer implements EntryPoint {
 
 	static final Logger logger = Logger.getLogger(APVSPlayer.class.getName());
 
+	private static final String[] color = { "#AA4643", "#89A54E", "#80699B",
+		"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
+
 	private Map<String, Series> seriesByName;
 	
 	@Override
@@ -166,6 +169,7 @@ public class APVSPlayer implements EntryPoint {
 				chart.removeAllSeries();
 				seriesByName.clear();
 				
+				int c = 0;
 				for (int i=0; i<dataArray.length(); i++) {
 					JavaScriptObject data = dataArray.get(i);
 					String name = nativeGetName(data);
@@ -175,11 +179,17 @@ public class APVSPlayer implements EntryPoint {
 					Point[] points = getPoints(data);
 					series.setPoints(points);
 					
+					series.setOption("dataGrouping/enabled", false);
+					series.setOption("color",  color[c]);
+					
+					// Dose is always second
 					if (name.startsWith("Dose-")) {
 						series.setYAxis(1);
 						series.setOption("showInLegend", false);
 						series.setOption("tooltip/enabled", false);
 						series.setOption("tooltip/crosshairs", false);
+						c++;
+						c = c % color.length;
 					}
 
 					chart.addSeries(series, true, false);
