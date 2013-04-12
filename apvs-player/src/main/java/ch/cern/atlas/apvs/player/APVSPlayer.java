@@ -54,6 +54,7 @@ public class APVSPlayer implements EntryPoint {
 		"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
 
 	private Map<String, Series> seriesByName;
+	private Series navigatorSeries;
 	
 	@Override
 	public void onModuleLoad() {
@@ -76,7 +77,7 @@ public class APVSPlayer implements EntryPoint {
 		chart.setWidth100();
 		chart.setHeight100();
 		
-		chart.setType(Type.LINE);
+		chart.setType(Type.SPLINE);
 		chart.setOption("chart/zoomType", "x");
 		chart.setAnimation(false);
 
@@ -110,13 +111,17 @@ public class APVSPlayer implements EntryPoint {
 						new Button().setType(ButtonType.MINUTE).setCount(180)
 								.setText("3h"),
 						new Button().setType(ButtonType.ALL).setText("All"))
-				.setInputEnabled(false).setSelected(2));
+				.setInputEnabled(false)
+				.setSelected(2)
+				.setEnabled(false));
 
-		chart.getNavigator()
+		chart.getNavigator().getSeries()
+				.setType(Type.LINE)
 				.setOption("dataGrouping/approximation", "high")
 				.setOption("dataGrouping/smoothed", true)
-				.setOption("dataGrouping/enabled", true)
-				.setAdaptToUpdatedData(false);
+				.setOption("dataGrouping/enabled", true);
+		
+		chart.getNavigator().setAdaptToUpdatedData(false);
 		
 		chart.setOption("scrollbar/liveRedraw", false);
 
@@ -149,7 +154,7 @@ public class APVSPlayer implements EntryPoint {
 				.setType(
 						org.moxieapps.gwt.highcharts.client.Axis.Type.DATE_TIME)
 				.setOption("ordinal", false)
-				.setOption("minRange", 3600 * 1000) // 1 Hour
+				.setOption("minRange", 10 * 60 * 1000) // 10 Minutes
 				.setAxisSetExtremesEventHandler(new AxisSetExtremesEventHandler() {
 					
 					@Override
@@ -157,7 +162,7 @@ public class APVSPlayer implements EntryPoint {
 						GWT.log("changed: "+event.getMin()+" "+event.getMax());
 						
 						getData(chart, event.getMin().longValue(), event.getMax().longValue());
-						return true;
+						return false;
 					}
 				});
 
@@ -175,14 +180,20 @@ public class APVSPlayer implements EntryPoint {
 				.setMin(0)
 				.setOption("height", 200)
 				.setOption("top", 500);
-		
-		RootPanel.get("chart").add(chart);
 
-		getData(chart, 0, new Date().getTime());
+		@SuppressWarnings("deprecation")
+		long tStart = new Date(2013-1900, 2-1, 15).getTime();
+		long tEnd = new Date().getTime();
+
+		RootPanel.get("chart").add(chart);
+		
+		chart.getXAxis().setExtremes(tStart, tEnd, true, false);
 	}
 	
-	private void getData(final StockChart chart, long start, long end) {
+	private void getData(final StockChart chart, final long start, final long end) {
 		chart.showLoading("Loading data from server...");
+		GWT.log("data: "+start+" "+end+" "+(end - start));		
+		GWT.log("binWidth: "+(end-start)/400);		
 		
 		String url = "http://atlas.web.cern.ch/Atlas/TCOORD/CavCom/plot-data.php?start="+start+"&end="+end;
 //		url = "http://ws.geonames.org/postalCodeLookupJSON?postalcode=M1&country=GB&maxRows=4";
@@ -195,6 +206,10 @@ public class APVSPlayer implements EntryPoint {
 				
 				chart.removeAllSeries();
 				seriesByName.clear();
+
+				int nBins = 400;
+				long binWidth = (end  - start) / nBins; 
+				double[] hist = new double[nBins];
 				
 				int c = 0;
 				for (int i=0; i<dataArray.length(); i++) {
@@ -218,9 +233,27 @@ public class APVSPlayer implements EntryPoint {
 						c++;
 						c = c % color.length;
 					}
-
+					
 					chart.addSeries(series, true, false);
+					
+					if (navigatorSeries == null) {
+						addHist(data, hist, start, binWidth);
+					}
 				}
+				
+				if (navigatorSeries == null) {
+					navigatorSeries = chart.getNavigator().getSeries();
+					Point[] navPoints = new Point[nBins];
+					for (int i=0; i<hist.length; i++) {
+						navPoints[i] = new Point(i*binWidth + start, hist[i]);
+					}
+					navigatorSeries.setPoints(navPoints, true);
+					
+					for (int j=0; j<navigatorSeries.getPoints().length; j++) {
+						GWT.log(j+" "+navigatorSeries.getPoints()[j].getX()+" "+navigatorSeries.getPoints()[j].getY());
+					}
+				}
+
 			}
 			
 			@Override
@@ -230,6 +263,16 @@ public class APVSPlayer implements EntryPoint {
 			}
 		});
 
+	}
+	
+	private static void addHist(JavaScriptObject nativeSeries, double[] hist, long start, long binWidth) {
+        JsArray<JsArrayNumber> nativePoints = nativeGetData(nativeSeries);
+        for (int i = 0; i < nativePoints.length(); i++) {
+        	JsArrayNumber nativePoint = nativePoints.get(i);
+        	int bin = (int)((nativePoint.get(0) - start) / binWidth);
+        	GWT.log(bin+" "+start+" "+nativePoint.get(0)+" "+binWidth);
+        	hist[bin] = Math.max(hist[bin], nativePoint.get(1));
+        }
 	}
 	
     private static Point[] getPoints(JavaScriptObject nativeSeries) {
