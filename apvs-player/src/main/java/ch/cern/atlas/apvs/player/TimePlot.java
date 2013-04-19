@@ -68,7 +68,7 @@ public class TimePlot extends DockPanel {
 		colorIndexByName = new HashMap<String, Integer>();
 
 		jsonp = new JsonpRequestBuilder();
-		jsonp.setTimeout(60000);
+		jsonp.setTimeout(20000);
 		
 		url = "http://atlas.web.cern.ch/Atlas/TCOORD/CavCom/plot-data.php";
 	}
@@ -131,8 +131,7 @@ public class TimePlot extends DockPanel {
 		chart = new StockChart();
 
 		chart.setSizeToMatchContainer();
-		chart.setWidth100();
-		chart.setHeight100();
+		chart.setWidth100();	
 		
 		chart.setType(Type.AREA);
 		chart.setOption("chart/zoomType", "x");
@@ -210,31 +209,40 @@ public class TimePlot extends DockPanel {
 						org.moxieapps.gwt.highcharts.client.Axis.Type.DATE_TIME)
 				.setOption("ordinal", false)
 				.setOption("minRange", 10 * 60 * 1000) // 10 Minutes
+				.setOffset(0)
 				.setAxisSetExtremesEventHandler(new AxisSetExtremesEventHandler() {
 					
 					@Override
 					public boolean onSetExtremes(AxisSetExtremesEvent event) {
-						GWT.log("changed: "+event.getMin()+" "+event.getMax());
-						
 						getData(event.getMin().longValue(), event.getMax().longValue());
 						return false;
 					}
 				});
 
+		int titleHeight = 50;
+		int rateChartHeight = 400;
+		int doseChartHeight = 200;
+		int chartSeparator = 50;
+		int navigatorHeight = 100;
+		int correction = 7;
+		int chartHeight = titleHeight + rateChartHeight + chartSeparator + doseChartHeight + navigatorHeight - correction;
+		
 		chart.getYAxis(0)
 				.setAxisTitleText("Rate [\u00b5Sv/h]")
 				.setOffset(0)
 				.setLineWidth(2)
 				.setMin(0)
-				.setOption("height", 400);
+				.setOption("height", rateChartHeight);
 
 		chart.getYAxis(1)
 				.setAxisTitleText("Dose [\u00b5Sv]")
 				.setOffset(0)
 				.setLineWidth(2)
 				.setMin(0)
-				.setOption("height", 200)
-				.setOption("top", 500);		
+				.setOption("height", doseChartHeight)
+				.setOption("top", titleHeight + rateChartHeight + chartSeparator);
+		
+		chart.setHeight(chartHeight);		
 	}
 	
 	private int colorIndex = 0;
@@ -293,17 +301,7 @@ public class TimePlot extends DockPanel {
 			@Override
 			public void onSuccess(JsArray<JavaScriptObject> dataArray) {
 				chart.hideLoading();
-								
-				// remove all but the first (NAV) series
-//				int i=0;
-//				for (Series series : chart.getSeries()) {
-//					if (i > 0) {
-//						chart.removeSeries(series, false);
-//					}
-//					i++;
-//				}
-//				seriesByName.clear();
-				
+												
 				setData(dataArray, start, end);
 			}
 			
