@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.moxieapps.gwt.highcharts.client.Axis;
 import org.moxieapps.gwt.highcharts.client.ChartSubtitle;
 import org.moxieapps.gwt.highcharts.client.ChartTitle;
 import org.moxieapps.gwt.highcharts.client.Credits;
@@ -77,9 +76,6 @@ public class TimePlot extends DockPanel {
 			public void onSuccess(JsArray<JavaScriptObject> dataArray) {
 				createPlot();
 				
-				// normal data
-				setData(dataArray);
-
 				// Nav Plot
 				int nBins = 400;
 				long binWidth = (end  - start) / nBins; 
@@ -103,13 +99,16 @@ public class TimePlot extends DockPanel {
 				
 				Point[] navPoints = new Point[nBins];
 				for (int i=0; i<hist.length; i++) {
-					navPoints[i] = new Point(i*binWidth + start, 20); //hist[i]);
+					navPoints[i] = new Point(i*binWidth + start, hist[i]);
 				}
+						
+				// create special series for navigator as we cannot seem to use the standard series
+				chart.addSeries(chart.createSeries().setName("NAV").setPoints(navPoints).setOption("visible", false).setOption("showInLegend", false));	
+				chart.getNavigator().setBaseSeries(0);
 				
-				chart.getNavigator().getSeries().setPoints(navPoints);
-				
-//				chart.addSeries(chart.createSeries().setName("NAV").setPoints(navPoints));
-				
+				// add normal data
+				setData(dataArray);
+
 				add(chart, CENTER);
 			}
 
@@ -248,12 +247,12 @@ public class TimePlot extends DockPanel {
 			
 			
 			if (name.startsWith("Dose-")) {
-				series.setYAxis(1);
-				series.setOption("showInLegend", false);
-				series.setOption("tooltip/enabled", false);
-				series.setOption("tooltip/crosshairs", false);
-				series.setType(Type.LINE);
-				series.setPoints(getPoints(data, false));
+				series.setYAxis(1)
+					.setOption("showInLegend", false)
+					.setOption("tooltip/enabled", false)
+					.setOption("tooltip/crosshairs", false)
+					.setType(Type.LINE)
+					.setPoints(getPoints(data, false));
 
 				// Dose is always second
 				c++;
@@ -278,7 +277,14 @@ public class TimePlot extends DockPanel {
 			public void onSuccess(JsArray<JavaScriptObject> dataArray) {
 				chart.hideLoading();
 				
-				chart.removeAllSeries();
+				// remove all but the first (NAV) series
+				int i=0;
+				for (Series series : chart.getSeries()) {
+					if (i > 0) {
+						chart.removeSeries(series, false);
+					}
+					i++;
+				}
 				seriesByName.clear();
 				
 				setData(dataArray);
