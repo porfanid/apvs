@@ -48,11 +48,14 @@ public class TimePlot extends DockPanel {
 	
 	private static final Logger logger = Logger.getLogger(TimePlot.class.getName());
 
-	private static final String[] color = { "#AA4643", "#89A54E", "#80699B",
+	private static final String[] colors = { "#AA4643", "#89A54E", "#80699B",
 		"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
 
+	private static final String dosePrefix = "Dose-";
+	
 	private StockChart chart;
 	private Map<String, Series> seriesByName;
+	private Map<String, Integer> colorIndexByName;
 	private String url;
 	private JsonpRequestBuilder jsonp;
 	private String name;
@@ -62,6 +65,7 @@ public class TimePlot extends DockPanel {
 		.setUseUTC(true)));
 
 		seriesByName = new HashMap<String, Series>();
+		colorIndexByName = new HashMap<String, Integer>();
 
 		jsonp = new JsonpRequestBuilder();
 		jsonp.setTimeout(60000);
@@ -87,7 +91,7 @@ public class TimePlot extends DockPanel {
 				for (int i=0; i<dataArray.length(); i++) {
 					JavaScriptObject data = dataArray.get(i);
 					String name = nativeGetName(data);
-					if (name.startsWith("Dose-")) {
+					if (name.startsWith(dosePrefix)) {
 						continue;
 					}
 			        JsArray<JsArrayNumber> nativePoints = nativeGetData(data);
@@ -142,7 +146,7 @@ public class TimePlot extends DockPanel {
 					
 					@Override
 					public boolean onClick(SeriesLegendItemClickEvent event) {
-						Series series = seriesByName.get("Dose-"+event.getSeriesName());
+						Series series = seriesByName.get(dosePrefix+event.getSeriesName());
 						if (series == null) return true;
 						if (event.isVisible()) {
 							series.hide();
@@ -233,41 +237,50 @@ public class TimePlot extends DockPanel {
 				.setOption("top", 500);		
 	}
 	
+	private int colorIndex = 0;
+	
+	private Series get(String seriesName) {
+		Series series = seriesByName.get(seriesName);
+		if (series == null) {
+			series = chart.createSeries().setName(seriesName);
+			chart.addSeries(series, false, false);
+			seriesByName.put(seriesName, series);
+			
+			int color;
+			if (seriesName.startsWith(dosePrefix)) {
+				color = colorIndexByName.get(seriesName.substring(dosePrefix.length()));
+				
+				series.setYAxis(1)
+					.setOption("showInLegend", false)
+					.setOption("tooltip/enabled", false)
+					.setOption("tooltip/crosshairs", false)
+					.setType(Type.LINE);
+				
+			} else {
+				color = colorIndex;
+				colorIndex++;
+				colorIndex %= colors.length;
+			}
+			colorIndexByName.put(seriesName, color);
+			series.setOption("color",  colors[color]);
+			
+			series.setOption("dataGrouping/enabled", false);
+		}
+		return series;
+	}
+	
 	private void setData(JsArray<JavaScriptObject> dataArray, long start, long end) {
 		
 		chart.setTitle(new ChartTitle().setText("ATLAS Dosimeters"+(name != null ? " - "+name : "")),
 				new ChartSubtitle().setText(unixToLocalTime(start, end)));
 		
-		int c = 0;
 		for (int i=0; i<dataArray.length(); i++) {
 			JavaScriptObject data = dataArray.get(i);
 			String seriesName = nativeGetName(data);
-			Series series = chart.createSeries().setName(seriesName);
-			seriesByName.put(seriesName, series);
-			
-			
-			series.setOption("dataGrouping/enabled", false);
-			series.setOption("color",  color[c]);
-			
-			
-			if (seriesName.startsWith("Dose-")) {
-				series.setYAxis(1)
-					.setOption("showInLegend", false)
-					.setOption("tooltip/enabled", false)
-					.setOption("tooltip/crosshairs", false)
-					.setType(Type.LINE)
-					.setPoints(getPoints(data, false));
-
-				// Dose is always second
-				c++;
-				c = c % color.length;
-			} else {
-				series.setPoints(getPoints(data, true));
-			}
-			
-			chart.addSeries(series, true, false);
-			
+			get(seriesName).setPoints(getPoints(data, !seriesName.startsWith(dosePrefix)));
 		}
+		
+		chart.redraw();
 	}
 	
 	private void getData(final long start, final long end) {
@@ -282,14 +295,14 @@ public class TimePlot extends DockPanel {
 				chart.hideLoading();
 								
 				// remove all but the first (NAV) series
-				int i=0;
-				for (Series series : chart.getSeries()) {
-					if (i > 0) {
-						chart.removeSeries(series, false);
-					}
-					i++;
-				}
-				seriesByName.clear();
+//				int i=0;
+//				for (Series series : chart.getSeries()) {
+//					if (i > 0) {
+//						chart.removeSeries(series, false);
+//					}
+//					i++;
+//				}
+//				seriesByName.clear();
 				
 				setData(dataArray, start, end);
 			}
