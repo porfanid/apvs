@@ -55,6 +55,7 @@ public class TimePlot extends DockPanel {
 	private Map<String, Series> seriesByName;
 	private String url;
 	private JsonpRequestBuilder jsonp;
+	private String name;
 	
 	public TimePlot() {
 		Highcharts.setOptions(new Options().setGlobal(new Global()
@@ -68,7 +69,9 @@ public class TimePlot extends DockPanel {
 		url = "http://atlas.web.cern.ch/Atlas/TCOORD/CavCom/plot-data.php";
 	}
 	
-	public void plot(final long start, final long end) {
+	public void plot(final long start, final long end, String name) {
+		
+		this.name = name;
 		
 		jsonp.requestObject(url+"?start="+start+"&end="+end, new AsyncCallback<JsArray<JavaScriptObject>>() {
 
@@ -107,7 +110,7 @@ public class TimePlot extends DockPanel {
 				chart.getNavigator().setBaseSeries(0);
 				
 				// add normal data
-				setData(dataArray);
+				setData(dataArray, start, end);
 
 				add(chart, CENTER);
 			}
@@ -175,10 +178,6 @@ public class TimePlot extends DockPanel {
 		
 		chart.setOption("scrollbar/liveRedraw", false);
 
-		chart.setTitle(new ChartTitle().setText("ATLAS Dosimeters - $name"),
-				new ChartSubtitle().setText("TBD ")); // +unixToLocalTime($unixStart,
-														// $unixEnd)));
-
 		chart.setLegend(new Legend().setEnabled(true).setY(100)
 				.setLayout(Layout.VERTICAL).setBorderWidth(2)
 				.setAlign(Align.RIGHT).setVerticalAlign(VerticalAlign.TOP));
@@ -232,21 +231,24 @@ public class TimePlot extends DockPanel {
 				.setOption("top", 500);		
 	}
 	
-	private void setData(JsArray<JavaScriptObject> dataArray) {
+	private void setData(JsArray<JavaScriptObject> dataArray, long start, long end) {
+		
+		chart.setTitle(new ChartTitle().setText("ATLAS Dosimeters"+(name != null ? " - "+name : "")),
+				new ChartSubtitle().setText(unixToLocalTime(start, end)));
 		
 		int c = 0;
 		for (int i=0; i<dataArray.length(); i++) {
 			JavaScriptObject data = dataArray.get(i);
-			String name = nativeGetName(data);
-			Series series = chart.createSeries().setName(name);
-			seriesByName.put(name, series);
+			String seriesName = nativeGetName(data);
+			Series series = chart.createSeries().setName(seriesName);
+			seriesByName.put(seriesName, series);
 			
 			
 			series.setOption("dataGrouping/enabled", false);
 			series.setOption("color",  color[c]);
 			
 			
-			if (name.startsWith("Dose-")) {
+			if (seriesName.startsWith("Dose-")) {
 				series.setYAxis(1)
 					.setOption("showInLegend", false)
 					.setOption("tooltip/enabled", false)
@@ -276,7 +278,7 @@ public class TimePlot extends DockPanel {
 			@Override
 			public void onSuccess(JsArray<JavaScriptObject> dataArray) {
 				chart.hideLoading();
-				
+								
 				// remove all but the first (NAV) series
 				int i=0;
 				for (Series series : chart.getSeries()) {
@@ -287,7 +289,7 @@ public class TimePlot extends DockPanel {
 				}
 				seriesByName.clear();
 				
-				setData(dataArray);
+				setData(dataArray, start, end);
 			}
 			
 			@Override
@@ -324,5 +326,17 @@ public class TimePlot extends DockPanel {
 	private static native String nativeGetName(JavaScriptObject series) /*-{
     	return series.name;
 	}-*/;
+	
+	private static DateTimeFormat dateFormat1 = DateTimeFormat.getFormat("EEEE, d MMMM yyyy <b>HH:mm</b> - ");
+	private static DateTimeFormat dateFormat2 = DateTimeFormat.getFormat("d MMMM yyyy");
+	private static DateTimeFormat dateFormat3 = DateTimeFormat.getFormat("<b>HH:mm</b>");
+	private static DateTimeFormat dateFormat4 = DateTimeFormat.getFormat("d MMMM yyyy <b>HH:mm</b>");
 
+	private static String unixToLocalTime(long start, long end) {
+		Date startDate = new Date(start);
+		Date endDate = new Date(end);
+		String result = dateFormat1.format(startDate);
+		result += dateFormat2.format(startDate).equals(dateFormat2.format(endDate)) ? dateFormat3.format(endDate) : dateFormat4.format(endDate);	
+		return result;
+	}
 }

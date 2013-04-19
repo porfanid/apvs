@@ -27,7 +27,7 @@ public class APVSPlayer implements EntryPoint {
 		long end = new Date().getTime();
 		
 		TimePlot plot = new TimePlot();
-		plot.plot(start, end);
+		plot.plot(start, end, "Test");
 		
 		RootPanel.get("chart").add(plot);
 	}
