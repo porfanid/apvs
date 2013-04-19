@@ -184,9 +184,11 @@ public class TimePlot extends DockPanel {
 
 		chart.setToolTip(new ToolTip().setFormatter(new ToolTipFormatter() {
 			
+			private final DateTimeFormat dateFormat = DateTimeFormat.getFormat("EEEE, d MMMM yyyy HH:mm:ss");
+			
 			@Override
 			public String format(ToolTipData data) {
-				String s = "<b>" + DateTimeFormat.getFormat("EEEE, d MMMM yyyy HH:mm:ss").format(new Date(data.getXAsLong()))+"</b>";
+				String s = "<b>" + dateFormat.format(new Date(data.getXAsLong()))+"</b>";
 
 				for (int i=0; i<data.getPointsLength(); i++) {
 					if (i % 2 > 0) {
