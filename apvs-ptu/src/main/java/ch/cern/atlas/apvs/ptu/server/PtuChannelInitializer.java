@@ -26,7 +26,7 @@ public class PtuChannelInitializer extends ChannelInitializer<SocketChannel> {
 				new DelimiterBasedFrameDecoder(8192, Unpooled
 						.wrappedBuffer(new byte[] { 0x13 })),
 				new StringDecoder(CharsetUtil.UTF_8),
-				new StringEncoder(BufType.BYTE, CharsetUtil.UTF_8),
+				new StringEncoder(CharsetUtil.UTF_8),
 				handler);
 	}
 }

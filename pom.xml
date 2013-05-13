@@ -47,11 +47,11 @@
 		<log4jdbc-version>1.2</log4jdbc-version>
 		<mgwt-version>1.0.1</mgwt-version>
 		<mockito-version>1.9.5</mockito-version>
-		<netty-version>4.0.0.CR1</netty-version>
-		<nettosphere-version>2.0.0.RC1</nettosphere-version>
+		<netty-version>4.0.0.CR2</netty-version>
+		<nettosphere-version>2.0.0.RC2</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
-		<slf4j-version>1.7.2</slf4j-version>
+		<slf4j-version>1.7.5</slf4j-version>
 		<validation-api-version>1.0.0.GA</validation-api-version>
 
 		<!-- in order on http://maven.apache.org/plugins/index.html -->
