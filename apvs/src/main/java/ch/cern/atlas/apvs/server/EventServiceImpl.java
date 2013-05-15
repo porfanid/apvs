@@ -3,6 +3,9 @@ package ch.cern.atlas.apvs.server;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
 import ch.cern.atlas.apvs.client.service.EventService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.service.SortOrder;
@@ -14,8 +17,17 @@ import com.google.gwt.view.client.Range;
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class EventServiceImpl extends DbServiceImpl implements EventService {
+public class EventServiceImpl extends ResponsePollService implements EventService {
 
+	private DbHandler dbHandler;
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		
+		dbHandler = DbHandler.getInstance();
+	}
+	
 	@Override
 	public int getRowCount() throws ServiceException {
 		try {

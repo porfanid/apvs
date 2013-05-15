@@ -40,6 +40,7 @@ import com.google.gwt.view.client.Range;
 
 public class DbHandler extends DbReconnectHandler {
 
+	private static DbHandler handler;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
 
@@ -51,7 +52,7 @@ public class DbHandler extends DbReconnectHandler {
 
 	private long time;
 
-	public DbHandler(final RemoteEventBus eventBus) {
+	private DbHandler(final RemoteEventBus eventBus) {
 		super(eventBus);
 		this.eventBus = eventBus;
 
@@ -113,6 +114,13 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		}, 0, 30, TimeUnit.SECONDS);
 
+	}
+	
+	public static DbHandler getInstance() {
+		if (handler == null) {
+			handler = new DbHandler(APVSServerFactory.getInstance().getEventBus());
+		}
+		return handler;
 	}
 
 	private ScheduledFuture<?> scheduleWatchDog() {

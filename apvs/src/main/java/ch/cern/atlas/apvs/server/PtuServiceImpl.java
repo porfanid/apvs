@@ -31,7 +31,7 @@ import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class PtuServiceImpl extends DbServiceImpl implements PtuService {
+public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -41,6 +41,8 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 
 	private RemoteEventBus eventBus;
 	private PtuClientHandler ptuClientHandler;
+
+	private DbHandler dbHandler;
 
 	public PtuServiceImpl() {
 		log.info("Creating PtuService...");
@@ -54,6 +56,8 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		super.init(config);
 
 		log.info("Starting PtuService...");
+		
+		dbHandler = DbHandler.getInstance();
 		
 		EventLoopGroup group = new NioEventLoopGroup();
 

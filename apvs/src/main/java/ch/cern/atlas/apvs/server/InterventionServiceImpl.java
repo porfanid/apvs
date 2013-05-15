@@ -4,6 +4,9 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
 import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.User;
@@ -17,9 +20,18 @@ import com.google.gwt.view.client.Range;
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class InterventionServiceImpl extends DbServiceImpl implements
+public class InterventionServiceImpl extends ResponsePollService implements
 		InterventionService {
 
+	private DbHandler dbHandler;
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		
+		dbHandler = DbHandler.getInstance();
+	}
+	
 	@Override
 	public int getRowCount() throws ServiceException {
 		try {
