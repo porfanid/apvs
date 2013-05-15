@@ -51,11 +51,16 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private Ternary dosimeterOk = Ternary.Unknown;
 
 	private PtuSettings settings;
+	
+	private DbHandler dbHandler;
+	private SensorMap sensorMap;
 
 	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
-
+		
+		dbHandler = DbHandler.getInstance();
+		
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
@@ -92,6 +97,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.dosimeter, dosimeterOk);
 		super.channelActive(ctx);
+		
+		sensorMap = dbHandler.getSensorMap();
 	}
 
 	@Override
@@ -128,7 +135,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private final static boolean DEBUG = false;
 	private final static boolean DEBUGPLUS = false;
-	
 	
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, String msg) {
@@ -196,6 +202,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			return;
 		}
 
+		String ptuId = message.getPtuId();
+		String sensor = message.getName();
+		
+		if (!sensorMap.isEnabled(ptuId, sensor)) {
+//			log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " + sensor);
+			return;			
+		}
+		
 		String unit = message.getUnit();
 		Number value = message.getValue();
 		Number low = message.getLowLimit();
@@ -207,8 +221,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		high = Scale.getHighLimit(high, unit);
 		unit = Scale.getUnit(unit);
 
-		measurementChanged.add(new Measurement(message.getPtuId(), message
-				.getName(), value, low, high, unit, message.getSamplingRate(),
+		measurementChanged.add(new Measurement(ptuId, sensor, value, low, high, unit, message.getSamplingRate(),
 				message.getDate()));
 
 		sendEvents();

@@ -141,6 +141,10 @@ public class DbHandler extends DbReconnectHandler {
 
 	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
 			throws SQLException {
+		
+		// FIXME could be part of the SQL
+		SensorMap sensorMap = getSensorMap();
+		
 		// NOTE: we could optimize the query by running a count and see if the #
 		// is not too large, then just move forward the from time.
 		String sql = "select tbl_measurements.ID, NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE, METHOD, UP_THRES, DOWN_THRES from tbl_measurements, tbl_devices "
@@ -205,6 +209,10 @@ public class DbHandler extends DbReconnectHandler {
 						low = Scale.getLowLimit(low, unit);
 						high = Scale.getHighLimit(high, unit);
 						unit = Scale.getUnit(unit);
+						
+						if (!sensorMap.isEnabled(ptuId, sensor)) {
+							continue;
+						}
 
 						History history = map.get(ptuId, sensor);
 						if (history == null) {
@@ -798,6 +806,9 @@ public class DbHandler extends DbReconnectHandler {
 	 */
 	public List<Measurement> getMeasurements(List<String> ptuIdList, String name)
 			throws SQLException {
+		
+		// FIXME could be part of the SQL
+		SensorMap sensorMap = getSensorMap();
 
 		String sql = "select NAME, view_last_measurements_date.SENSOR, VALUE, SAMPLINGRATE, UNIT, METHOD, UP_THRES, DOWN_THRES, view_last_measurements_date.DATETIME "
 				+ "from view_last_measurements_date, tbl_measurements, tbl_devices "
@@ -826,7 +837,13 @@ public class DbHandler extends DbReconnectHandler {
 		List<Measurement> list = new ArrayList<Measurement>();
 		try {
 			while (result.next()) {
+				String ptuId = result.getString("NAME");
 				String sensor = result.getString("SENSOR");
+				
+				if (!sensorMap.isEnabled(ptuId, sensor)) {
+					continue;
+				}
+				
 				String unit = result.getString("UNIT");
 				Number value = toDouble(result.getString("VALUE"));
 				Number low = toDouble(result.getString("DOWN_THRES"));
@@ -845,7 +862,7 @@ public class DbHandler extends DbReconnectHandler {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(unit);
 
-				Measurement m = new Measurement(result.getString("NAME"),
+				Measurement m = new Measurement(ptuId,
 						sensor, value, low, high, unit,
 						toInt(result.getString("SAMPLINGRATE")), new Date(
 								result.getTimestamp("DATETIME").getTime()));
@@ -857,5 +874,37 @@ public class DbHandler extends DbReconnectHandler {
 			connection.close();
 		}
 		return list;
+	}
+
+	public SensorMap getSensorMap() {
+		SensorMap sensorMap = new SensorMap();
+		
+		String sql = "select NAME, SENSOR, ENABLED from tbl_sensors join tbl_devices on tbl_sensors.DEVICE_ID = tbl_devices.id";
+
+		Connection connection;
+		try {
+			connection = getConnection();
+			PreparedStatement statement = connection.prepareStatement(sql);
+			
+			ResultSet result = statement.executeQuery();
+			try {
+				while (result.next()) {
+					String sensor = result.getString("SENSOR");
+					String ptuId = result.getString("NAME");
+					String value = result.getString("ENABLED");
+					
+					sensorMap.setEnabled(ptuId, sensor, value == null ? true : value.equalsIgnoreCase("y"));
+				}
+			} finally {
+				result.close();
+				statement.close();
+				connection.close();
+			}
+		} catch (SQLException e) {
+			// ignore, just return unfilled map
+			System.err.println("WARNING Failed to retrieve sensor map");
+		}
+		
+		return sensorMap;
 	}
 }
