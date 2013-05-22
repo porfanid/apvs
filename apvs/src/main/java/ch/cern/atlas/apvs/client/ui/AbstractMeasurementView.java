@@ -255,6 +255,9 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		
 		// FIXME 611, remove when above works
 		String sensor = measurement.getName();
+		if (sensor == null) {
+			return null;
+		}
 		if (sensor.equalsIgnoreCase("BodyTemperature")) {
 			return null;
 		}
