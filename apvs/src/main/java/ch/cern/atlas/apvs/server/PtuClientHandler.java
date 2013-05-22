@@ -210,6 +210,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			return;			
 		}
 		
+		// FIXME 611, remove when above works
+		if (sensor.equalsIgnoreCase("BodyTemperature")) {
+			return;
+		}
+		if (ptuId.equalsIgnoreCase("") && sensor.equalsIgnoreCase("")) {
+			return;
+		}	
+		
 		String unit = message.getUnit();
 		Number value = message.getValue();
 		Number low = message.getLowLimit();
