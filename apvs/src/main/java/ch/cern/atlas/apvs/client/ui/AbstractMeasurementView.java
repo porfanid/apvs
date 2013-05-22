@@ -258,6 +258,9 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		if (sensor == null) {
 			return null;
 		}
+		if (ptuId == null) {
+			return null;
+		}
 		if (sensor.equalsIgnoreCase("BodyTemperature")) {
 			return null;
 		}
