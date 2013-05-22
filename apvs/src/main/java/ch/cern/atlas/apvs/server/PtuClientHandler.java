@@ -209,18 +209,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 //			log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " + sensor);
 			return;			
 		}
-		
-		// FIXME 611, remove when above works
-		if (sensor.equalsIgnoreCase("BodyTemperature")) {
-			return;
-		}
-		if ((ptuId.equalsIgnoreCase("PTU-01") || (ptuId.equalsIgnoreCase("PTU-02"))) && sensor.equalsIgnoreCase("BarometricPressure")) {
-			return;
-		}	
-		if (sensor.equalsIgnoreCase("CO2")) {
-			return;
-		}	
-		
+				
 		String unit = message.getUnit();
 		Number value = message.getValue();
 		Number low = message.getLowLimit();

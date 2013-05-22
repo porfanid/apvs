@@ -252,6 +252,18 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		if (measurement == null) {
 			return null;
 		}
+		
+		// FIXME 611, remove when above works
+		String sensor = measurement.getName();
+		if (sensor.equalsIgnoreCase("BodyTemperature")) {
+			return null;
+		}
+		if ((ptuId.equalsIgnoreCase("PTU-01") || (ptuId.equalsIgnoreCase("PTU-02"))) && sensor.equalsIgnoreCase("BarometricPressure")) {
+			return null;
+		}	
+		if (sensor.equalsIgnoreCase("CO2")) {
+			return null;
+		}	
 
 		List<String> list = dataProvider.getList();
 		Measurement lastValue = historyMap.getMeasurement(
