@@ -214,7 +214,10 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		if (sensor.equalsIgnoreCase("BodyTemperature")) {
 			return;
 		}
-		if (ptuId.equalsIgnoreCase("") && sensor.equalsIgnoreCase("")) {
+		if ((ptuId.equalsIgnoreCase("PTU-01") || (ptuId.equalsIgnoreCase("PTU-02"))) && sensor.equalsIgnoreCase("BarometricPressure")) {
+			return;
+		}	
+		if ((ptuId.equalsIgnoreCase("PTU-01") || (ptuId.equalsIgnoreCase("PTU-03"))) && sensor.equalsIgnoreCase("CO2")) {
 			return;
 		}	
 		
