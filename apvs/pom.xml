@@ -194,6 +194,10 @@
 			<artifactId>c3p0</artifactId>
 		</dependency>
 		<dependency>
+      			<groupId>com.google.gwt.eventbinder</groupId>
+      			<artifactId>eventbinder</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
 		</dependency>
@@ -261,6 +265,21 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/gwt-slider-bar-1.0.jar</systemPath>
 		</dependency>
+
+<dependency>
+  <groupId>com.google.gwt.gwtmockito</groupId>
+  <artifactId>gwtmockito</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.mockito</groupId>
+  <artifactId>mockito-all</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>junit</groupId>
+  <artifactId>junit</artifactId>
+</dependency>
 
 	</dependencies>
 

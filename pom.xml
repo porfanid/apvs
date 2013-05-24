@@ -29,6 +29,7 @@
 
 		<asterisk-java-version>f8c8f014253745783149ecbe0fed3faa074a7368</asterisk-java-version>
 		<c3p0-version>0.9.2.1</c3p0-version>
+                <eventbinder-version>1.0.0</eventbinder-version>
 		<gwt-bootstrap-version>2.2.1.0</gwt-bootstrap-version>
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
 		<highcharts-version>1.5.0</highcharts-version>
@@ -44,6 +45,7 @@
 		<log4jdbc-version>1.2</log4jdbc-version>
 		<mgwt-version>1.0.1</mgwt-version>
 		<mockito-version>1.9.5</mockito-version>
+		<gwtmockito-version>1.0.0</gwtmockito-version>
 		<netty-version>4.0.0.CR2</netty-version>
 		<nettosphere-version>2.0.0.RC2</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
@@ -439,6 +441,12 @@
 			</dependency>
 
 			<dependency>
+      				<groupId>com.google.gwt.eventbinder</groupId>
+      				<artifactId>eventbinder</artifactId>
+      				<version>${eventbinder-version}</version>
+    			</dependency>
+
+			<dependency>
 				<groupId>net.sf</groupId>
 				<artifactId>log4jdbc4</artifactId>
 				<version>${log4jdbc-version}</version>
@@ -453,6 +461,12 @@
 				<artifactId>mockito-all</artifactId>
 				<version>${mockito-version}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+  				<groupId>com.google.gwt.gwtmockito</groupId>
+  				<artifactId>gwtmockito</artifactId>
+  				<version>${gwtmockito-version}</version>
+  				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
