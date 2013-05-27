@@ -2,8 +2,7 @@ package ch.cern.atlas.apvs.ptu;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import ch.cern.atlas.apvs.domain.Message;
