@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.ptu.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.io.IOException;
@@ -33,7 +35,11 @@ public class PtuPushServer {
 			handler.run(host, port, refresh);
 		} else {
 			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
-
+			
+			EventLoopGroup group = new NioEventLoopGroup();
+			
+			
+			bootstrap.group(group);
 			bootstrap.handler(new PtuChannelInitializer(new PtuServerHandler(refresh, ids)));
 
 			// Start the connection attempt.

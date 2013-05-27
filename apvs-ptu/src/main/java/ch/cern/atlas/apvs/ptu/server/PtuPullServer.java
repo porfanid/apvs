@@ -5,6 +5,8 @@ import io.netty.buffer.BufType;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
@@ -36,6 +38,10 @@ public class PtuPullServer {
 		// Configure the server.
 		ServerBootstrap bootstrap = new ServerBootstrap();
 		try {
+			
+			EventLoopGroup group = new NioEventLoopGroup();
+			
+			bootstrap.group(group);
 			bootstrap.channel(NioServerSocketChannel.class);
 
 			// Set up the pipeline factory.
