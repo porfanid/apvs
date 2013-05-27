@@ -24,8 +24,8 @@
 
 		<gwt-version>2.5.1</gwt-version>
 		<gwt-plugin-version>2.5.1</gwt-plugin-version>
-		<atmosphere-version>1.1.0.RC2</atmosphere-version>
-		<atmosphere-ext-version>1.1.0.beta3</atmosphere-ext-version>
+		<atmosphere-version>1.1.0.RC3</atmosphere-version>
+		<atmosphere-ext-version>1.1.0.RC2</atmosphere-ext-version>
 
 		<asterisk-java-version>f8c8f014253745783149ecbe0fed3faa074a7368</asterisk-java-version>
 		<c3p0-version>0.9.2.1</c3p0-version>
@@ -47,7 +47,7 @@
 		<mgwt-version>1.0.1</mgwt-version>
 		<mockito-version>1.9.5</mockito-version>
 		<gwtmockito-version>1.0.0</gwtmockito-version>
-		<netty-version>4.0.0.CR2</netty-version>
+		<netty-version>4.0.0.CR3</netty-version>
 		<nettosphere-version>2.0.0.RC2</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
