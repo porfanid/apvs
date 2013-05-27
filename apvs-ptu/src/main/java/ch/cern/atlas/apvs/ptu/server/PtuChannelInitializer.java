@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.ptu.server;
 
-import io.netty.buffer.BufType;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
