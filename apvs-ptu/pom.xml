@@ -88,6 +88,10 @@
                         <artifactId>log4jdbc4</artifactId>
                 </dependency>
  		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+		</dependency>
+ 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
