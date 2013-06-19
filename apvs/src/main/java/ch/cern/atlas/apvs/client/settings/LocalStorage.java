@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client.tablet;
+package ch.cern.atlas.apvs.client.settings;
 
 import com.google.gwt.storage.client.Storage;
 

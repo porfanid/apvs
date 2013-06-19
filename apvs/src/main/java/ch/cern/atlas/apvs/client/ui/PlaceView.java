@@ -7,16 +7,11 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PlaceChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
-import ch.cern.atlas.apvs.client.tablet.CameraPlace;
-import ch.cern.atlas.apvs.client.tablet.HomePlace;
-import ch.cern.atlas.apvs.client.tablet.ImagePlace;
-import ch.cern.atlas.apvs.client.tablet.ProcedurePlace;
 import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.place.shared.Place;
@@ -84,6 +79,7 @@ public class PlaceView extends SimplePanel implements Module,
 						log.info("PLACE CHANGED " + event);
 						Place place = event.getPlace();
 
+/* MGWT
 						if (place instanceof HomePlace) {
 							Image image = new Image(defaultImage);
 							image.setWidth(width + "" + Unit.PX);
@@ -114,7 +110,7 @@ public class PlaceView extends SimplePanel implements Module,
 									procedurePlace.getStep()));
 							return;
 						}
-
+*/
 						Image image = new Image(defaultImage);
 						image.setWidth(width);
 						setWidget(image);

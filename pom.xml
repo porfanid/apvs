@@ -44,7 +44,9 @@
 		<json-version>20090211</json-version>
 		<junit-version>4.11</junit-version>
 		<log4jdbc-version>1.2</log4jdbc-version>
+<!--
 		<mgwt-version>1.0.1</mgwt-version>
+-->
 		<mockito-version>1.9.5</mockito-version>
 		<gwtmockito-version>1.0.0</gwtmockito-version>
 		<netty-version>4.0.0.CR3</netty-version>
@@ -497,11 +499,13 @@
 				<version>${json-version}</version>
 				<scope>runtime</scope>
 			</dependency>
+<!--
 			<dependency>
 				<groupId>com.googlecode.mgwt</groupId>
 				<artifactId>mgwt</artifactId>
 				<version>${mgwt-version}</version>
 			</dependency>
+-->
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-server</artifactId>

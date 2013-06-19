@@ -219,10 +219,12 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>com.googlecode.mgwt</groupId>
 			<artifactId>mgwt</artifactId>
 		</dependency>
+-->
 		<dependency>
 			<groupId>com.moxie</groupId>
 			<artifactId>highcharts</artifactId>

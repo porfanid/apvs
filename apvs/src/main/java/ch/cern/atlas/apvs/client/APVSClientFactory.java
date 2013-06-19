@@ -7,19 +7,6 @@ import ch.cern.atlas.apvs.client.service.FileServiceAsync;
 import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
-import ch.cern.atlas.apvs.client.tablet.CameraPanel;
-import ch.cern.atlas.apvs.client.tablet.CameraUI;
-import ch.cern.atlas.apvs.client.tablet.ImagePanel;
-import ch.cern.atlas.apvs.client.tablet.ImageUI;
-import ch.cern.atlas.apvs.client.tablet.MainMenuList;
-import ch.cern.atlas.apvs.client.tablet.MainMenuUI;
-import ch.cern.atlas.apvs.client.tablet.ModelPanel;
-import ch.cern.atlas.apvs.client.tablet.ModelUI;
-import ch.cern.atlas.apvs.client.tablet.ProcedureMenuPanel;
-import ch.cern.atlas.apvs.client.tablet.ProcedureMenuUI;
-import ch.cern.atlas.apvs.client.tablet.ProcedureNavigator;
-import ch.cern.atlas.apvs.client.tablet.ProcedurePanel;
-import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
@@ -46,13 +33,16 @@ public class APVSClientFactory implements ClientFactory {
 	private final EventServiceAsync eventService = EventServiceAsync.Util.getInstance();
 	private final InterventionServiceAsync interventionService = InterventionServiceAsync.Util.getInstance();
 
-	private MainMenuUI homeView;
-	private ModelUI modelView;
-	private ProcedureMenuUI procedureView;
 	private PtuSelector ptuSelector;
 	private MeasurementView measurementView;
 	private boolean supervisor;
 
+	/* MGWT
+	private MainMenuUI homeView;
+	private ModelUI modelView;
+	private ProcedureMenuUI procedureView;
+    */
+	
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
 // FIXME #284, re-enable, but reload gives NPE onDisconnect in atmosphere-gwt
@@ -103,7 +93,7 @@ public class APVSClientFactory implements ClientFactory {
 		return ptuService;
 	}
 
-
+/* MGWT
 	@Override
 	public MainMenuUI getHomeView() {
 		if (homeView== null) {
@@ -119,7 +109,8 @@ public class APVSClientFactory implements ClientFactory {
 		}
 		return modelView;
 	}
-
+*/ 
+	
 	@Override
 	public PtuSelector getPtuSelector() {
 //		if (ptuSelector == null) {
@@ -137,6 +128,7 @@ public class APVSClientFactory implements ClientFactory {
 		return measurementView;
 	}
 
+/* MGWT
 	@Override
 	public CameraUI getCameraView(String type) {
 		return new CameraPanel(this, type);
@@ -164,7 +156,7 @@ public class APVSClientFactory implements ClientFactory {
 	public ProcedureNavigator getProcedureNavigator() {
 		return new ProcedureNavigator(localEventBus);
 	}
-
+*/
 	@Override
 	public ProcedureView getProcedureView(String width, String height) {
 		// FIXME #178 width and height ignored

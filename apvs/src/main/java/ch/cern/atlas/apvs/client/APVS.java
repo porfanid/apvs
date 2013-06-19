@@ -7,16 +7,8 @@ import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.settings.LocalStorage;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
-import ch.cern.atlas.apvs.client.tablet.AppBundle;
-import ch.cern.atlas.apvs.client.tablet.HomePlace;
-import ch.cern.atlas.apvs.client.tablet.LocalStorage;
-import ch.cern.atlas.apvs.client.tablet.TabletHistoryObserver;
-import ch.cern.atlas.apvs.client.tablet.TabletMenuActivityMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletMenuAnimationMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
 import ch.cern.atlas.apvs.client.ui.AlarmView;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.AudioSummary;
@@ -45,7 +37,6 @@ import ch.cern.atlas.apvs.client.widget.PasswordDialog;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
-import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -53,7 +44,6 @@ import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.place.shared.PlaceController;
@@ -63,18 +53,6 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.googlecode.mgwt.mvp.client.AnimatableDisplay;
-import com.googlecode.mgwt.mvp.client.AnimatingActivityManager;
-import com.googlecode.mgwt.mvp.client.AnimationMapper;
-import com.googlecode.mgwt.mvp.client.history.MGWTPlaceHistoryHandler;
-import com.googlecode.mgwt.ui.client.MGWT;
-import com.googlecode.mgwt.ui.client.MGWTSettings;
-import com.googlecode.mgwt.ui.client.MGWTSettings.ViewPort;
-import com.googlecode.mgwt.ui.client.MGWTSettings.ViewPort.DENSITY;
-import com.googlecode.mgwt.ui.client.dialog.TabletPortraitOverlay;
-import com.googlecode.mgwt.ui.client.layout.MasterRegionHandler;
-import com.googlecode.mgwt.ui.client.layout.OrientationRegionHandler;
 
 /**
  * @author Mark Donszelmann
@@ -321,10 +299,11 @@ public class APVS implements EntryPoint {
 		if (newCode)
 			return;
 
-		startWorker();
+// MGWT		startWorker();
 		return;
 	}
 
+/* MGWT
 	private void startWorker() {
 
 		// MGWTColorScheme.setBaseColor("#56a60D");
@@ -377,7 +356,7 @@ public class APVS implements EntryPoint {
 				clientFactory.getRemoteEventBus(), new HomePlace());
 		historyHandler.handleCurrentHistory();
 	}
-
+*/
 	/*
 	 * private void createPhoneDisplay(ClientFactory clientFactory) {
 	 * AnimatableDisplay display = GWT.create(AnimatableDisplay.class);
@@ -396,6 +375,7 @@ public class APVS implements EntryPoint {
 	 * 
 	 * }
 	 */
+/* MGWT
 	private void createTabletDisplay(ClientFactory clientFactory) {
 		SimplePanel navContainer = new SimplePanel();
 		navContainer.getElement().setId("nav");
@@ -441,4 +421,5 @@ public class APVS implements EntryPoint {
 		RootPanel.get().add(mainContainer);
 
 	}
+*/
 }
