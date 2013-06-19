@@ -17,6 +17,7 @@ public class ServerStorage {
 
 	private static ServerStorage instance;
 	private Properties properties = new Properties();
+	private boolean readOnly = false;
 
 	public ServerStorage() throws FileNotFoundException, IOException {
 		try {
@@ -25,7 +26,12 @@ public class ServerStorage {
 			log.info("File " + APVS_SERVER_SETTINGS_FILE
 					+ " not found, created one.");
 		}
-		properties.store(new FileWriter(APVS_SERVER_SETTINGS_FILE), comment);
+		try {
+			properties.store(new FileWriter(APVS_SERVER_SETTINGS_FILE), comment);
+		} catch (IOException e) {
+			readOnly = true;
+			log.warn("Cannot store Server Settings: "+e.getMessage());
+		}
 	}
 
 	public static ServerStorage getLocalStorageIfSupported() {
@@ -46,7 +52,10 @@ public class ServerStorage {
 
 	public void setItem(String name, String value) {
 		properties.setProperty(name, value);
-
+		if (readOnly) {
+			return;
+		}
+		
 		try {
 			properties
 					.store(new FileWriter(APVS_SERVER_SETTINGS_FILE), comment);
