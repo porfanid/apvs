@@ -170,4 +170,6 @@ public class AtmosphereEventBusHandler extends AtmosphereGwtHandler {
 			log.info(event.getResource().uuid());
 		}
 	}
+	
+	
 }

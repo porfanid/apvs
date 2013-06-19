@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.atmosphere.gwt.poll.AtmospherePollService;
 import org.slf4j.Logger;
@@ -20,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.eventbus.client.EventBusService;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
+
+import com.google.gwt.user.server.rpc.SerializationPolicy;
 
 @SuppressWarnings("serial")
 public class EventBusServiceHandler extends AtmospherePollService implements
@@ -212,5 +215,13 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 		}
 
 		return info;
+	}
+
+	@Override
+	protected SerializationPolicy doGetSerializationPolicy(
+			HttpServletRequest request, String moduleBaseURL, String strongName) {
+		return super.doGetSerializationPolicy(request,
+				ServerSerialization.getModuleBaseURL(request, moduleBaseURL),
+				strongName);
 	}
 }
