@@ -8,8 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class Ptu implements Serializable {
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class Ptu implements Serializable, IsSerializable {
 	
 	private static final long serialVersionUID = 1933500417755260216L;
 	

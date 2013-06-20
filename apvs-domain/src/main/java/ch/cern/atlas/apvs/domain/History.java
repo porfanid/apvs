@@ -5,7 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class History implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class History implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 2802095781867809709L;
 

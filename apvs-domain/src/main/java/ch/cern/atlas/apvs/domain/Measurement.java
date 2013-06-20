@@ -3,9 +3,12 @@ package ch.cern.atlas.apvs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.cern.atlas.apvs.util.StringUtils;
 
-public class Measurement implements Message, Serializable,
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class Measurement implements Message, Serializable, IsSerializable, 
 		Comparable<Measurement> {
 
 	private static final long serialVersionUID = -906069262585850986L;

@@ -2,7 +2,10 @@ package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
 
-public class GeneralConfiguration implements Message, Serializable,
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class GeneralConfiguration implements Message, Serializable, IsSerializable, 
 		Comparable<GeneralConfiguration> {
 
 	private static final long serialVersionUID = 4796032680266987232L;

@@ -3,7 +3,10 @@ package ch.cern.atlas.apvs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Event implements Message, Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class Event implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5549380949230727273L;
 	
