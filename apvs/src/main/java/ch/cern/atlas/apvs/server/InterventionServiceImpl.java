@@ -14,8 +14,6 @@ import ch.cern.atlas.apvs.client.service.InterventionService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 
-import com.google.gwt.view.client.Range;
-
 /**
  * @author Mark Donszelmann
  */
@@ -42,10 +40,10 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public List<Intervention> getTableData(Range range, SortOrder[] order)
+	public List<Intervention> getTableData(int start, int length, SortOrder[] order)
 			throws ServiceException {
 		try {
-			return dbHandler.getInterventions(range, order);
+			return dbHandler.getInterventions(start, length, order);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}

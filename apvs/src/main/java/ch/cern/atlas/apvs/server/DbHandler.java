@@ -36,7 +36,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.util.StringUtils;
 
-import com.google.gwt.view.client.Range;
 
 public class DbHandler extends DbReconnectHandler {
 
@@ -305,7 +304,7 @@ public class DbHandler extends DbReconnectHandler {
 		return !updated.isFalse();
 	}
 
-	private String getSql(String sql, Range range, SortOrder[] order) {
+	private String getSql(String sql, int start, int length, SortOrder[] order) {
 		StringBuffer s = new StringBuffer(sql);
 		for (int i = 0; i < order.length; i++) {
 			if (i == 0) {
@@ -343,7 +342,7 @@ public class DbHandler extends DbReconnectHandler {
 		}
 	}
 
-	public List<Intervention> getInterventions(Range range, SortOrder[] order)
+	public List<Intervention> getInterventions(int start, int length, SortOrder[] order)
 			throws SQLException {
 		String sql = "select tbl_inspections.ID as ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
 				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, "
@@ -353,19 +352,19 @@ public class DbHandler extends DbReconnectHandler {
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
 
 		Connection connection = getConnection();
-		String fullSql = getSql(sql, range, order);
+		String fullSql = getSql(sql, start, length, order);
 //		System.err.println(fullSql);
 		PreparedStatement statement = connection.prepareStatement(fullSql);
 		ResultSet result = statement.executeQuery();
 
-		List<Intervention> list = new ArrayList<Intervention>(range.getLength());
+		List<Intervention> list = new ArrayList<Intervention>(length);
 		try {
 			// FIXME, #173 using some SQL this may be faster
 			// skip to start, result.absolute not implemented by Oracle
-			for (int i = 0; i < range.getStart() && result.next(); i++) {
+			for (int i = 0; i < start && result.next(); i++) {
 			}
 
-			for (int i = 0; i < range.getLength() && result.next(); i++) {
+			for (int i = 0; i < length && result.next(); i++) {
 				list.add(new Intervention(result.getInt("id"), result
 						.getInt("user_id"), result.getString("fname"), result
 						.getString("lname"), result.getInt("device_id"), result
@@ -422,7 +421,7 @@ public class DbHandler extends DbReconnectHandler {
 		}
 	}
 
-	public List<Event> getEvents(Range range, SortOrder[] order, String ptuId,
+	public List<Event> getEvents(int start, int length, SortOrder[] order, String ptuId,
 			String measurementName) throws SQLException {
 
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
@@ -444,7 +443,7 @@ public class DbHandler extends DbReconnectHandler {
 
 		Connection connection = getConnection();
 
-		String s = getSql(sql, range, order);
+		String s = getSql(sql, start, length, order);
 		// log.info("SQL: "+s);
 		PreparedStatement statement = connection.prepareStatement(s);
 		int param = 1;
@@ -459,14 +458,14 @@ public class DbHandler extends DbReconnectHandler {
 
 		ResultSet result = statement.executeQuery();
 
-		List<Event> list = new ArrayList<Event>(range.getLength());
+		List<Event> list = new ArrayList<Event>(length);
 		try {
 			// FIXME, #173 using some SQL this may be faster
 			// skip to start, result.absolute not implemented by Oracle
-			for (int i = 0; i < range.getStart() && result.next(); i++) {
+			for (int i = 0; i < start && result.next(); i++) {
 			}
 
-			for (int i = 0; i < range.getLength() && result.next(); i++) {
+			for (int i = 0; i < length && result.next(); i++) {
 				String name = result.getString("name");
 				Double value = toDouble(result.getString("value"));
 				Double threshold = toDouble(result.getString("threshold"));

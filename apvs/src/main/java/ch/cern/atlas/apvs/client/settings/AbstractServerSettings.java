@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractServerSettings implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public abstract class AbstractServerSettings implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 5654940808477419548L;
 

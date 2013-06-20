@@ -188,7 +188,7 @@ public class EventView extends GlassPanel implements Module {
 					order[0] = new SortOrder("tbl_events.datetime", false);
 				}
 
-				clientFactory.getEventService().getTableData(range, order,
+				clientFactory.getEventService().getTableData(range.getStart(), range.getLength(), order,
 						ptuId, measurementName,
 						new AsyncCallback<List<Event>>() {
 

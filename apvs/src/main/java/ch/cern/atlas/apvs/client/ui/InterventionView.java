@@ -186,7 +186,7 @@ public class InterventionView extends GlassPanel implements Module {
 					order[0] = new SortOrder("tbl_inspections.starttime", false);
 				}
 
-				interventionService.getTableData(range, order,
+				interventionService.getTableData(range.getStart(), range.getLength(), order,
 						new AsyncCallback<List<Intervention>>() {
 
 							@Override

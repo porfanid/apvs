@@ -10,11 +10,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 
 
-public class HistoryMap implements Serializable {
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class HistoryMap implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -1943029642235865794L;
 

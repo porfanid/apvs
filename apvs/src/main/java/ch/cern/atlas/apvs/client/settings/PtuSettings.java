@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.cern.atlas.apvs.client.ui.CameraView;
 
 /**
@@ -14,14 +16,16 @@ import ch.cern.atlas.apvs.client.ui.CameraView;
  * @author duns
  * 
  */
-public class PtuSettings implements Serializable {
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class PtuSettings implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5390424254145424045L;
 	private static final String videoServer = "pcatlaswpss02";
 
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
-	public static class Entry implements Serializable {
+	//NOTE: implements IsSerializable in case serialization file cannot be found
+	public static class Entry implements Serializable, IsSerializable {
 		private static final long serialVersionUID = 1L;
 
 		Boolean enabled;

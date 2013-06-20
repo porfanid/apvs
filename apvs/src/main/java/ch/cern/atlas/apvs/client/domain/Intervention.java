@@ -5,7 +5,10 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
-public class Intervention implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class Intervention implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 2578285814293336298L;
 

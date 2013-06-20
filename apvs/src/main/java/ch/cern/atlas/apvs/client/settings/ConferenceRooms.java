@@ -6,9 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.cern.atlas.apvs.client.domain.Conference;
 
-public class ConferenceRooms implements Serializable {
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class ConferenceRooms implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 1L;
 
