@@ -1,10 +1,13 @@
 package ch.cern.atlas.apvs.client.event;
 
+import java.io.Serializable;
+
 import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -13,7 +16,8 @@ public class ConnectionStatusChangedRemoteEvent extends
 
 	private static final long serialVersionUID = 8865199851228810365L;
 
-	public enum ConnectionType {
+	//NOTE: implements IsSerializable in case serialization file cannot be found
+	public enum ConnectionType implements Serializable, IsSerializable {
 		server("Server Status"), audio("Audio Status"), video("Video Status"), daq(
 				"DAQ Status"), dosimeter("Dosimeter Status"), databaseConnect(
 				"DB Connect Status"), databaseUpdate("DB Update Status");

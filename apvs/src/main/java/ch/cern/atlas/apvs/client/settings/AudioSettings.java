@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AudioSettings implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class AudioSettings implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 1L;
 	private Map<String, VoipAccount> entries = new HashMap<String, VoipAccount>();
