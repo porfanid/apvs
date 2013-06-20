@@ -50,7 +50,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	public boolean isReady(String supervisorPassword) {
 		String pwd = System.getenv("APVSpwd");
 		if (pwd == null) {
-			log.error("NO Supervisor Password set!!! Set enviroment variable 'APVSpwd'");
+			log.warn("NO Supervisor Password set!!! Set enviroment variable 'APVSpwd'");
 			return false;
 		}
 		return (supervisorPassword != null) && supervisorPassword.equals(pwd);
