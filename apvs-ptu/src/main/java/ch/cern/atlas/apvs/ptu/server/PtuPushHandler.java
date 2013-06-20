@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.ptu.server;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.MessageList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class PtuPushHandler extends PtuReconnectHandler {
 	}
 	
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, String msg)
+	public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msg)
 			throws Exception {
 		// ignored
 	}

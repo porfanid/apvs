@@ -1,7 +1,7 @@
 package ch.cern.atlas.apvs.ptu.server;
 
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
@@ -12,9 +12,9 @@ import io.netty.util.CharsetUtil;
 
 public class PtuChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-	private ChannelInboundMessageHandlerAdapter<String> handler;
+	private ChannelInboundHandlerAdapter handler;
 
-	public PtuChannelInitializer(ChannelInboundMessageHandlerAdapter<String> handler) {
+	public PtuChannelInitializer(ChannelInboundHandlerAdapter handler) {
 		this.handler = handler;
 	}
 	

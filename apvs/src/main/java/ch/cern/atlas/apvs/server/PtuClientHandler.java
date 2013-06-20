@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.MessageList;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -137,9 +138,13 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private final static boolean DEBUGPLUS = false;
 	
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, String msg) {
+	public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) {
 		// Print out the line received from the server.
-		String line = msg;
+		// FIXME #634, not sure if this is correct
+		String line = "";
+		for (Object msg: msgs) {
+			line += msg.toString();
+		}
 
 		if (DEBUGPLUS) {
 			for (int i = 0; i < line.length(); i++) {
