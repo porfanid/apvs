@@ -1,12 +1,10 @@
 package ch.cern.atlas.apvs.server;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.xml.soap.SOAPException;
-import javax.xml.transform.TransformerException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +64,11 @@ public class ServerServiceImpl extends ResponsePollService implements
 		}
 		
 		if (isSecure()) {
+			for (Iterator<Entry<String, String>> i = System.getenv().entrySet().iterator(); i.hasNext(); ) {
+				Entry<String, String> entry = i.next();
+				System.err.println("'"+entry.getKey()+"'='"+entry.getValue()+"'");
+			}
+			
 			String fullName = getEnv("ADFS_FULLNAME", "Unknown Person");
 			String email = getEnv("REMOTE_USER", "");
 			boolean isSupervisor = false;
