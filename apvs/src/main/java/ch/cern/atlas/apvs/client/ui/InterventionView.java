@@ -528,7 +528,6 @@ public class InterventionView extends GlassPanel implements Module {
 									}
 								});
 					}
-					// }
 				});
 
 				ValidationForm form = new ValidationForm(ok, cancel);

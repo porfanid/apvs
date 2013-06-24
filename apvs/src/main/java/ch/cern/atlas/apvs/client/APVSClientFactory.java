@@ -6,6 +6,7 @@ import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
 import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
+import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
@@ -34,7 +35,7 @@ public class APVSClientFactory implements ClientFactory {
 
 	private PtuSelector ptuSelector;
 	private MeasurementView measurementView;
-	private boolean supervisor;
+	private User user;
 	
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
@@ -143,12 +144,22 @@ public class APVSClientFactory implements ClientFactory {
 	}
 	
 	@Override
-	public void setSupervisor(boolean supervisor) {
-		this.supervisor = supervisor;
+	public void setUser(User user) {
+		this.user = user;
 	}
 	
 	@Override
 	public boolean isSupervisor() {
-		return supervisor;
+		return user.isSupervisor();
+	}
+	
+	@Override
+	public String getFullName() {
+		return user.getFullName();
+	}
+	
+	@Override
+	public String getEmail() {
+		return user.getEmail();
 	}
 }

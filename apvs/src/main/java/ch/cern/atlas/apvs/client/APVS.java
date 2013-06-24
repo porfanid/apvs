@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.settings.LocalStorage;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
 import ch.cern.atlas.apvs.client.ui.AlarmView;
@@ -84,33 +85,67 @@ public class APVS implements EntryPoint {
 				+ build.build());
 
 		clientFactory = GWT.create(ClientFactory.class);
-
-		String pwd = LocalStorage.getInstance()
-				.get(LocalStorage.SUPERVISOR_PWD);
-		if (pwd != null) {
-			login(pwd);
-		} else {
-			prompt();
-		}
+		
+		clientFactory.getServerService().isReady(new AsyncCallback<Boolean>() {
+			
+			@Override
+			public void onSuccess(Boolean result) {
+				checkSecure();
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("Server not ready. reload webpage "
+						+ caught);
+			}
+		});
 	}
 
+	private void checkSecure() {
+		clientFactory.getServerService().isSecure(new AsyncCallback<Boolean>() {
+			
+			@Override
+			public void onSuccess(Boolean secure) {
+				if (secure) {
+					login(null);
+				} else {
+					// not secure try with plain password
+					String pwd = LocalStorage.getInstance()
+							.get(LocalStorage.SUPERVISOR_PWD);
+					if (pwd != null) {
+						login(pwd);
+					} else {
+						prompt();
+					}					
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				// possibly secure, but do not check if supervisor
+				start();
+			}
+		});
+	}
+	
 	private void login(final String pwd) {
-		clientFactory.getServerService().isReady(pwd,
-				new AsyncCallback<Boolean>() {
+		clientFactory.getServerService().getUser(pwd,
+				new AsyncCallback<User>() {
 
 					@Override
-					public void onSuccess(Boolean supervisor) {
-						clientFactory.setSupervisor(supervisor);
+					public void onSuccess(User user) {
+						clientFactory.setUser(user);
 						log.info("Server ready, user is "
-								+ (supervisor ? "SUPERVISOR" : "OBSERVER"));
-						LocalStorage.getInstance().put(LocalStorage.SUPERVISOR_PWD, supervisor ? pwd : null);
+								+ (user.isSupervisor() ? "SUPERVISOR" : "OBSERVER"));
+						LocalStorage.getInstance().put(LocalStorage.SUPERVISOR_PWD, user.isSupervisor() ? pwd : null);
 						start();
 					}
 
 					@Override
 					public void onFailure(Throwable caught) {
-						Window.alert("Server not ready. reload webpage "
-								+ caught);
+						// ignore problem, start as an observer
+						clientFactory.setUser(new User("Unknown", "", false));
+						start();
 					}
 				});
 	}
@@ -166,8 +201,9 @@ public class APVS implements EntryPoint {
 
 			if (id.equals("footer")) {
 				Label supervisor = new Label(
-						clientFactory.isSupervisor() ? "Supervisor"
-								: "Observer");
+						clientFactory.getFullName()+" : "+
+						(clientFactory.isSupervisor() ? "Supervisor"
+								: "Observer"));
 				supervisor.addStyleName("footer-left");
 				RootPanel.get(id).insert(supervisor, 0);
 				continue;
