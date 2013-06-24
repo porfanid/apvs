@@ -40,20 +40,4 @@ public interface ClientFactory {
 	
 	void setSupervisor(boolean supervisor);
 	boolean isSupervisor();
-
-	/* MGWT
-	MainMenuUI getHomeView();
-
-	ModelUI getModelView();
-
-	CameraUI getCameraView(String type);
-
-	ProcedureMenuUI getProcedureMenuView();
-
-	ImageUI getImagePanel(String url);
-
-	ProcedureUI getProcedurePanel(String url, String name, String step);
-	
-	ProcedureNavigator getProcedureNavigator();
-	*/
 }

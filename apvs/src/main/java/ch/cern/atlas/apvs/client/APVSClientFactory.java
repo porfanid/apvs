@@ -23,7 +23,6 @@ public class APVSClientFactory implements ClientFactory {
 
 	@SuppressWarnings("unused")
 	private AtmosphereEventBus atmosphereEventBus;
-	private RemoteEventBus localEventBus;
 	private final PlaceController placeController;
 	private final ServerServiceAsync serverService = ServerServiceAsync.Util.getInstance();
 	private final FileServiceAsync fileService = FileServiceAsync.Util.getInstance();
@@ -36,12 +35,6 @@ public class APVSClientFactory implements ClientFactory {
 	private PtuSelector ptuSelector;
 	private MeasurementView measurementView;
 	private boolean supervisor;
-
-	/* MGWT
-	private MainMenuUI homeView;
-	private ModelUI modelView;
-	private ProcedureMenuUI procedureView;
-    */
 	
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
@@ -62,10 +55,7 @@ public class APVSClientFactory implements ClientFactory {
 		// used for events
 		RemoteEventBus remoteEventBus = new PollEventBus(requestBuilder);
 		NamedEventBus.put("remote", remoteEventBus);
-		placeController = new PlaceController(remoteEventBus);
-		
-		// specially for now in iPad app
-		localEventBus = new RemoteEventBus();
+		placeController = new PlaceController(remoteEventBus);		
 	}
 
 	@Override
@@ -92,24 +82,6 @@ public class APVSClientFactory implements ClientFactory {
 	public PtuServiceAsync getPtuService() {
 		return ptuService;
 	}
-
-/* MGWT
-	@Override
-	public MainMenuUI getHomeView() {
-		if (homeView== null) {
-			homeView = new MainMenuList(this);
-		}
-		return homeView;
-	}
-
-	@Override
-	public ModelUI getModelView() {
-		if (modelView == null) {
-			modelView = new ModelPanel(this);
-		}
-		return modelView;
-	}
-*/ 
 	
 	@Override
 	public PtuSelector getPtuSelector() {
@@ -128,35 +100,6 @@ public class APVSClientFactory implements ClientFactory {
 		return measurementView;
 	}
 
-/* MGWT
-	@Override
-	public CameraUI getCameraView(String type) {
-		return new CameraPanel(this, type);
-	}
-
-	@Override
-	public ProcedureMenuUI getProcedureMenuView() {
-		if (procedureView == null) {
-			procedureView = new ProcedureMenuPanel(this);
-		}
-		return procedureView;
-	}
-	
-	@Override
-	public ImageUI getImagePanel(String url) {
-		return new ImagePanel(url);
-	}
-
-	@Override
-	public ProcedureUI getProcedurePanel(String url, String name, String step) {
-		return new ProcedurePanel(this, url, name, step);
-	}
-	
-	@Override
-	public ProcedureNavigator getProcedureNavigator() {
-		return new ProcedureNavigator(localEventBus);
-	}
-*/
 	@Override
 	public ProcedureView getProcedureView(String width, String height) {
 		// FIXME #178 width and height ignored

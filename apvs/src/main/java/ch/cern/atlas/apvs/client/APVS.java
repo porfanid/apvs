@@ -160,7 +160,6 @@ public class APVS implements EntryPoint {
 			return;
 		}
 
-		boolean newCode = false;
 		for (int i = 0; i < divs.getLength(); i++) {
 			Element element = divs.getItem(i);
 			String id = element.getId();
@@ -237,9 +236,7 @@ public class APVS implements EntryPoint {
 					if (add && module instanceof IsWidget) {
 						RootPanel.get(id).add((IsWidget) module);
 					}
-					newCode = true;
 				}
-
 			}
 		}
 
@@ -296,130 +293,6 @@ public class APVS implements EntryPoint {
 			}
 		}, 20000);
 		
-		if (newCode)
-			return;
-
-// MGWT		startWorker();
 		return;
 	}
-
-/* MGWT
-	private void startWorker() {
-
-		// MGWTColorScheme.setBaseColor("#56a60D");
-		// MGWTColorScheme.setFontColor("#eee");
-		//
-		// MGWTStyle.setDefaultBundle((MGWTClientBundle)
-		// GWT.create(MGWTStandardBundle.class));
-		// MGWTStyle.getDefaultClientBundle().getMainCss().ensureInjected();
-
-		ViewPort viewPort = new MGWTSettings.ViewPort();
-		viewPort.setTargetDensity(DENSITY.MEDIUM);
-		viewPort.setUserScaleAble(false).setMinimumScale(1.0)
-				.setMinimumScale(1.0).setMaximumScale(1.0);
-
-		MGWTSettings settings = new MGWTSettings();
-		settings.setViewPort(viewPort);
-		// settings.setIconUrl("logo.png");
-		// settings.setAddGlosToIcon(true);
-		settings.setFullscreen(true);
-		settings.setPreventScrolling(true);
-
-		MGWT.applySettings(settings);
-
-		final ClientFactory clientFactory = new APVSClientFactory();
-
-		// Start PlaceHistoryHandler with our PlaceHistoryMapper
-		TabletPlaceHistoryMapper historyMapper = GWT
-				.create(TabletPlaceHistoryMapper.class);
-
-		if (MGWT.getOsDetection().isTablet()) {
-
-			// very nasty workaround because GWT does not corretly support
-			// @media
-			StyleInjector.inject(AppBundle.INSTANCE.css().getText());
-
-			createTabletDisplay(clientFactory);
-		} else {
-
-			createTabletDisplay(clientFactory);
-			// createPhoneDisplay(clientFactory);
-
-		}
-
-		TabletHistoryObserver historyObserver = new TabletHistoryObserver();
-
-		MGWTPlaceHistoryHandler historyHandler = new MGWTPlaceHistoryHandler(
-				historyMapper, historyObserver);
-
-		historyHandler.register(clientFactory.getPlaceController(),
-				clientFactory.getRemoteEventBus(), new HomePlace());
-		historyHandler.handleCurrentHistory();
-	}
-*/
-	/*
-	 * private void createPhoneDisplay(ClientFactory clientFactory) {
-	 * AnimatableDisplay display = GWT.create(AnimatableDisplay.class);
-	 * 
-	 * PhoneActivityMapper appActivityMapper = new PhoneActivityMapper(
-	 * clientFactory);
-	 * 
-	 * PhoneAnimationMapper appAnimationMapper = new PhoneAnimationMapper();
-	 * 
-	 * AnimatingActivityManager activityManager = new AnimatingActivityManager(
-	 * appActivityMapper, appAnimationMapper, clientFactory.getEventBus());
-	 * 
-	 * activityManager.setDisplay(display);
-	 * 
-	 * RootPanel.get().add(display);
-	 * 
-	 * }
-	 */
-/* MGWT
-	private void createTabletDisplay(ClientFactory clientFactory) {
-		SimplePanel navContainer = new SimplePanel();
-		navContainer.getElement().setId("nav");
-		navContainer.getElement().addClassName("landscapeonly");
-		AnimatableDisplay navDisplay = GWT.create(AnimatableDisplay.class);
-
-		final TabletPortraitOverlay tabletPortraitOverlay = new TabletPortraitOverlay();
-
-		new OrientationRegionHandler(navContainer, tabletPortraitOverlay,
-				navDisplay);
-		new MasterRegionHandler(clientFactory.getRemoteEventBus(), "nav",
-				tabletPortraitOverlay);
-
-		ActivityMapper navActivityMapper = new TabletMenuActivityMapper(
-				clientFactory);
-
-		AnimationMapper navAnimationMapper = new TabletMenuAnimationMapper();
-
-		AnimatingActivityManager navActivityManager = new AnimatingActivityManager(
-				navActivityMapper, navAnimationMapper,
-				clientFactory.getRemoteEventBus());
-
-		navActivityManager.setDisplay(navDisplay);
-
-		RootPanel.get().add(navContainer);
-
-		SimplePanel mainContainer = new SimplePanel();
-		mainContainer.getElement().setId("main");
-		AnimatableDisplay mainDisplay = GWT.create(AnimatableDisplay.class);
-
-		TabletPanelActivityMapper tabletMainActivityMapper = new TabletPanelActivityMapper(
-				clientFactory);
-
-		AnimationMapper tabletMainAnimationMapper = new TabletPanelAnimationMapper();
-
-		AnimatingActivityManager mainActivityManager = new AnimatingActivityManager(
-				tabletMainActivityMapper, tabletMainAnimationMapper,
-				clientFactory.getRemoteEventBus());
-
-		mainActivityManager.setDisplay(mainDisplay);
-		mainContainer.setWidget(mainDisplay);
-
-		RootPanel.get().add(mainContainer);
-
-	}
-*/
 }

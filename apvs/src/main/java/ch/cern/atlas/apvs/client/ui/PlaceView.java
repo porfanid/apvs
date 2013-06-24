@@ -79,38 +79,6 @@ public class PlaceView extends SimplePanel implements Module,
 						log.info("PLACE CHANGED " + event);
 						Place place = event.getPlace();
 
-/* MGWT
-						if (place instanceof HomePlace) {
-							Image image = new Image(defaultImage);
-							image.setWidth(width + "" + Unit.PX);
-							setWidget(image);
-							return;
-						}
-
-						if (place instanceof ImagePlace) {
-							ImagePlace imagePlace = (ImagePlace) place;
-							Image image = new Image(imagePlace.getUrl());
-							image.setWidth(width);
-							setWidget(image);
-							return;
-						}
-
-						if (place instanceof CameraPlace) {
-							CameraPlace cameraPlace = (CameraPlace) place;
-							setWidget(new CameraView(clientFactory, cameraPlace
-									.getType(), width, height));
-							return;
-						}
-
-						if (place instanceof ProcedurePlace) {
-							ProcedurePlace procedurePlace = (ProcedurePlace) place;
-							setWidget(clientFactory.getProcedureView(width,
-									height, procedurePlace.getUrl(),
-									procedurePlace.getName(),
-									procedurePlace.getStep()));
-							return;
-						}
-*/
 						Image image = new Image(defaultImage);
 						image.setWidth(width);
 						setWidget(image);
