@@ -50,7 +50,9 @@ public interface ServerService extends RemoteService {
 	
 	public boolean isSecure();
 
-	public User getUser(String pwd);
+	public User login(String pwd);
+	
+	public User getUser();
 		
 	public void setPassword(String name, String password);
 }

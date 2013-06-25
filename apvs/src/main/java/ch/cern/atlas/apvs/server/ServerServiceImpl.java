@@ -71,11 +71,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	}
 		
 	@Override
-	public User getUser(String supervisorPassword) {
-		if (user != null) {
-			return user;
-		}
-		
+	public User login(String supervisorPassword) {
 		if (isSecure()) {
 						
 			String fullName = getHeader("ADFS_FULLNAME", "Unknown Person");
@@ -95,12 +91,20 @@ public class ServerServiceImpl extends ResponsePollService implements
 			if (pwd == null) {
 				log.warn("NO Supervisor Password set!!! Set enviroment variable 'APVSpwd'");
 			} else {
-				System.err.println("***** "+supervisorPassword+" "+pwd);
 				isSupervisor = (supervisorPassword != null) && supervisorPassword.equals(pwd);
 			}
 			user = new User("Unknown Person", "", isSupervisor);
 		}
-		System.err.println("User: "+user);			
+		log.info("User: "+user);			
+		return user;
+	}
+	
+	@Override
+	public User getUser() {
+		if (user == null) {
+			user = login(null);
+		}
+		
 		return user;
 	}
 		

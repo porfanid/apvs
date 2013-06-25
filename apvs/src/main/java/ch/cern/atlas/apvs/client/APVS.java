@@ -129,7 +129,7 @@ public class APVS implements EntryPoint {
 	}
 	
 	private void login(final String pwd) {
-		clientFactory.getServerService().getUser(pwd,
+		clientFactory.getServerService().login(pwd,
 				new AsyncCallback<User>() {
 
 					@Override
