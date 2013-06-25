@@ -1,13 +1,20 @@
 package ch.cern.atlas.apvs.server;
 
+import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
+import oracle.net.aso.e;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gwt.user.server.rpc.RPCRequest;
 
 import ch.cern.atlas.apvs.client.service.ServerService;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -46,7 +53,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	public void destroy() {
 		super.destroy();
 	}
-
+	
 	@Override
 	public boolean isReady() {
 		return true;
@@ -58,12 +65,27 @@ public class ServerServiceImpl extends ResponsePollService implements
 	}
 	
 	@Override
+	protected String readContent(HttpServletRequest request)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		System.err.println(request.getAuthType()+" "+request.getRequestURI()+" "+request.getContextPath()+" "+request.getQueryString());
+		
+		for (Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements(); ) {
+			String key = e.nextElement();
+			System.err.println("   "+key+" "+request.getHeader(key));
+		}
+		
+		return super.readContent(request);
+	}
+	
+	@Override
 	public User getUser(String supervisorPassword) {
 		if (user != null) {
 			return user;
 		}
 		
 		if (isSecure()) {
+			
 			for (Iterator<Entry<String, String>> i = System.getenv().entrySet().iterator(); i.hasNext(); ) {
 				Entry<String, String> entry = i.next();
 				System.err.println("'"+entry.getKey()+"'='"+entry.getValue()+"'");
