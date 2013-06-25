@@ -2,19 +2,15 @@ package ch.cern.atlas.apvs.server;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import oracle.net.aso.e;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gwt.user.server.rpc.RPCRequest;
 
 import ch.cern.atlas.apvs.client.service.ServerService;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -31,6 +27,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	private RemoteEventBus eventBus;
 	private ServerSettingsStorage serverSettingsStorage;
 	private User user = null;
+	private Map<String, String> headers = new HashMap<String, String>();
 
 	public ServerServiceImpl() {
 		log.info("Creating ServerService...");
@@ -43,15 +40,24 @@ public class ServerServiceImpl extends ResponsePollService implements
 		super.init(config);
 
 		log.info("Starting ServerService...");
-
-		// FIXME, move this back to AudioSettings as ServerSettingsStorage is now created in ServerFactory
-		//AudioUsersSettingsStorage.getInstance(eventBus);
-		//AudioSupervisorSettingsStorage.getInstance(eventBus);
 	}
 
 	@Override
 	public void destroy() {
 		super.destroy();
+	}
+	
+	@Override
+	protected String readContent(HttpServletRequest request)
+			throws ServletException, IOException {
+		headers.clear();
+		for (@SuppressWarnings("unchecked")
+		Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements(); ) {
+			String key = e.nextElement();
+			headers.put(key, request.getHeader(key));
+		}
+				
+		return super.readContent(request);
 	}
 	
 	@Override
@@ -61,30 +67,9 @@ public class ServerServiceImpl extends ResponsePollService implements
 	
 	@Override
 	public boolean isSecure() {
-		return true;
+		return getHeader("HTTPS", "").equalsIgnoreCase("on");
 	}
-	
-	@Override
-	protected String readContent(HttpServletRequest request)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		System.err.println(request.getAuthType()+" "+request.getRequestURI()+" "+request.getContextPath()+" "+request.getRemoteUser());
 		
-		System.err.println("Headers");
-		for (Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements(); ) {
-			String key = e.nextElement();
-			System.err.println("   "+key+" "+request.getHeader(key));
-		}
-		
-		System.err.println("Attributes");
-		for (Enumeration<String> e = request.getAttributeNames(); e.hasMoreElements(); ) {
-			String key = e.nextElement();
-			System.err.println("   "+key+" "+request.getAttribute(key));
-		}
-		
-		return super.readContent(request);
-	}
-	
 	@Override
 	public User getUser(String supervisorPassword) {
 		if (user != null) {
@@ -92,14 +77,9 @@ public class ServerServiceImpl extends ResponsePollService implements
 		}
 		
 		if (isSecure()) {
-			
-			for (Iterator<Entry<String, String>> i = System.getenv().entrySet().iterator(); i.hasNext(); ) {
-				Entry<String, String> entry = i.next();
-				System.err.println("'"+entry.getKey()+"'='"+entry.getValue()+"'");
-			}
-			
-			String fullName = getEnv("ADFS_FULLNAME", "Unknown Person");
-			String email = getEnv("REMOTE_USER", "");
+						
+			String fullName = getHeader("ADFS_FULLNAME", "Unknown Person");
+			String email = getHeader("REMOTE_USER", "");
 			boolean isSupervisor = false;
 			try {
 				isSupervisor = EgroupCheck.check("atlas-upgrade-web-atwss-supervisors", email);
@@ -110,11 +90,12 @@ public class ServerServiceImpl extends ResponsePollService implements
 			user = new User(fullName, email, isSupervisor);
 		} else {
 			// not secure, we use simple plain password to become supervisor
-			String pwd = System.getenv("APVSpwd");
+			String pwd = getEnv("APVSpwd", null);
 			boolean isSupervisor = false;
 			if (pwd == null) {
 				log.warn("NO Supervisor Password set!!! Set enviroment variable 'APVSpwd'");
 			} else {
+				System.err.println("***** "+supervisorPassword+" "+pwd);
 				isSupervisor = (supervisorPassword != null) && supervisorPassword.equals(pwd);
 			}
 			user = new User("Unknown Person", "", isSupervisor);
@@ -130,6 +111,11 @@ public class ServerServiceImpl extends ResponsePollService implements
 	
 	private String getEnv(String env, String defaultValue) {
 		String value = System.getenv(env);
+		return value != null ? value : defaultValue;
+	}
+	
+	private String getHeader(String env, String defaultValue) {
+		String value = headers.get(env);
 		return value != null ? value : defaultValue;
 	}
 }
