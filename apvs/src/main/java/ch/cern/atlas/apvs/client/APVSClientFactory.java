@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
@@ -35,7 +36,9 @@ public class APVSClientFactory implements ClientFactory {
 
 	private PtuSelector ptuSelector;
 	private MeasurementView measurementView;
+	private boolean secure;
 	private User user;
+	private Proxy proxy;
 	
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
@@ -56,7 +59,13 @@ public class APVSClientFactory implements ClientFactory {
 		// used for events
 		RemoteEventBus remoteEventBus = new PollEventBus(requestBuilder);
 		NamedEventBus.put("remote", remoteEventBus);
-		placeController = new PlaceController(remoteEventBus);		
+		placeController = new PlaceController(remoteEventBus);	
+		
+		secure = false;
+		
+		proxy = new Proxy();		
+		proxy.put("/streams/1/helmet/", "http://pcatlaswpss02:8190/");
+		proxy.put("/streams/1/hand/", "http://pcatlaswpss02:8191/");
 	}
 
 	@Override
@@ -144,6 +153,16 @@ public class APVSClientFactory implements ClientFactory {
 	}
 	
 	@Override
+	public void setSecure(boolean secure) {
+		this.secure = secure;
+	}
+	
+	@Override
+	public boolean isSecure() {
+		return secure;
+	}
+	
+	@Override
 	public void setUser(User user) {
 		this.user = user;
 	}
@@ -161,5 +180,10 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public String getEmail() {
 		return user.getEmail();
+	}
+
+	@Override
+	public Proxy getProxy() {
+		return proxy;
 	}
 }

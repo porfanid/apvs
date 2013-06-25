@@ -106,6 +106,7 @@ public class APVS implements EntryPoint {
 			
 			@Override
 			public void onSuccess(Boolean secure) {
+				clientFactory.setSecure(secure);
 				if (secure) {
 					login(null);
 				} else {

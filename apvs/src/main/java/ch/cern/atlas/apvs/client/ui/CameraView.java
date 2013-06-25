@@ -67,6 +67,8 @@ public class CameraView extends ImageView implements Module,
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
+	private ClientFactory factory;
+
 	// FIXME #179 needs to change when we redo the iPad version
 	public CameraView(ClientFactory factory, final String type, String width,
 			String height) {
@@ -104,6 +106,8 @@ public class CameraView extends ImageView implements Module,
 
 	private void init(ClientFactory factory, String width, String height) {
 
+		this.factory = factory;
+		
 		init(width, height);
 		
 		if (switchSource || switchDestination) {
@@ -162,7 +166,8 @@ public class CameraView extends ImageView implements Module,
 			return null;
 		}
 
-		return settings.getCameraUrl(ptuId, type);
+		String url = settings.getCameraUrl(ptuId, type);
+		return factory.isSecure() ? factory.getProxy().getReverseUrl(url) : url; 
 	}
 
 	public boolean update() {

@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
 import ch.cern.atlas.apvs.client.ui.PtuSelector;
@@ -39,8 +40,13 @@ public interface ClientFactory {
 
 	ProcedureView getProcedureView(String width, String height, String url, String name, String step);
 	
+	void setSecure(boolean secure);
+	boolean isSecure();
+	
 	void setUser(User user);
 	boolean isSupervisor();
 	String getFullName();
 	String getEmail();
+	
+	Proxy getProxy();
 }
