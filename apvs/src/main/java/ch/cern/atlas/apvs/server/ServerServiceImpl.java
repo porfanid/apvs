@@ -70,9 +70,16 @@ public class ServerServiceImpl extends ResponsePollService implements
 		// TODO Auto-generated method stub
 		System.err.println(request.getAuthType()+" "+request.getRequestURI()+" "+request.getContextPath()+" "+request.getRemoteUser());
 		
+		System.err.println("Headers");
 		for (Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements(); ) {
 			String key = e.nextElement();
 			System.err.println("   "+key+" "+request.getHeader(key));
+		}
+		
+		System.err.println("Attributes");
+		for (Enumeration<String> e = request.getAttributeNames(); e.hasMoreElements(); ) {
+			String key = e.nextElement();
+			System.err.println("   "+key+" "+request.getAttribute(key));
 		}
 		
 		return super.readContent(request);
