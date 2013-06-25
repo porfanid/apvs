@@ -63,9 +63,12 @@ public class APVSClientFactory implements ClientFactory {
 		
 		secure = false;
 		
+		// FIXME, need a smarted proxy, uses full urls at this moment
 		proxy = new Proxy();		
-		proxy.put("/streams/1/helmet/", "http://pcatlaswpss02:8190/");
-		proxy.put("/streams/1/hand/", "http://pcatlaswpss02:8191/");
+//		proxy.put("/streams/1/helmet/", "http://pcatlaswpss02:8190/");
+//		proxy.put("/streams/1/hand/", "http://pcatlaswpss02:8191/");
+		proxy.put("http://atwss.cern.ch/streams/1/helmet/", "http://pcatlaswpss02:8190/");
+		proxy.put("http://atwss.cern.ch/streams/1/hand/", "http://pcatlaswpss02:8191/");
 	}
 
 	@Override

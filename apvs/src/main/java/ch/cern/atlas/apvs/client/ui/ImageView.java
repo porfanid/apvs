@@ -23,6 +23,7 @@ public class ImageView extends SimplePanel {
 	protected Image image;
 	private boolean isMovingJPEG;
 
+	// FIXME #645 needs 'APVS' in front of it if it is proxied
 	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
 
 	protected ImageView() {
