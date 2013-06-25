@@ -68,7 +68,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	protected String readContent(HttpServletRequest request)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		System.err.println(request.getAuthType()+" "+request.getRequestURI()+" "+request.getContextPath()+" "+request.getQueryString());
+		System.err.println(request.getAuthType()+" "+request.getRequestURI()+" "+request.getContextPath()+" "+request.getRemoteUser());
 		
 		for (Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements(); ) {
 			String key = e.nextElement();
