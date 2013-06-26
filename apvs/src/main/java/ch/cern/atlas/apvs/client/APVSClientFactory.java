@@ -61,14 +61,7 @@ public class APVSClientFactory implements ClientFactory {
 		NamedEventBus.put("remote", remoteEventBus);
 		placeController = new PlaceController(remoteEventBus);	
 		
-		secure = false;
-		
-		// FIXME, need a smarted proxy, uses full urls at this moment
-		proxy = new Proxy();		
-//		proxy.put("/streams/1/helmet/", "http://pcatlaswpss02:8190/");
-//		proxy.put("/streams/1/hand/", "http://pcatlaswpss02:8191/");
-		proxy.put("http://atwss.cern.ch/streams/1/helmet/", "http://pcatlaswpss02:8190/");
-		proxy.put("http://atwss.cern.ch/streams/1/hand/", "http://pcatlaswpss02:8191/");
+		secure = false;		
 	}
 
 	@Override
@@ -157,7 +150,7 @@ public class APVSClientFactory implements ClientFactory {
 	
 	@Override
 	public void setSecure(boolean secure) {
-		this.secure = secure;
+		this.secure = secure;		
 	}
 	
 	@Override
@@ -185,6 +178,11 @@ public class APVSClientFactory implements ClientFactory {
 		return user.getEmail();
 	}
 
+	@Override
+	public void setProxy(Proxy proxy) {
+		this.proxy = proxy;
+	}
+	
 	@Override
 	public Proxy getProxy() {
 		return proxy;

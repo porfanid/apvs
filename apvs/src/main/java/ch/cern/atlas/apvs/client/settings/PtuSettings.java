@@ -7,10 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.ui.CameraView;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * 
@@ -91,17 +90,17 @@ public class PtuSettings implements Serializable, IsSerializable {
 		entries.get(object).dosimeterSerialNo = value;
 	}
 
-	public String getCameraUrl(String ptuId, String type) {
+	public String getCameraUrl(String ptuId, String type, Proxy proxy) {
 		Entry entry = entries.get(ptuId);
-		return entry != null ? type.equals(CameraView.HELMET) ? entry.helmetUrl
-				: entry.handUrl : "";
+		return entry != null ? type.equals(CameraView.HELMET) ? proxy.getReverseUrl(entry.helmetUrl)
+				: proxy.getReverseUrl(entry.handUrl) : "";
 	}
 
-	public void setCameraUrl(String ptuId, String type, String value) {
+	public void setCameraUrl(String ptuId, String type, String value, Proxy proxy) {
 		if (type.equals(CameraView.HELMET)) {
-			entries.get(ptuId).helmetUrl = value;
+			entries.get(ptuId).helmetUrl = proxy.getUrl(value);
 		} else {
-			entries.get(ptuId).handUrl = value;
+			entries.get(ptuId).handUrl = proxy.getUrl(value);
 		}
 	}
 

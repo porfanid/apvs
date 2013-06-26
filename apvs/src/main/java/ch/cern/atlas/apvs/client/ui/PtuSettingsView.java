@@ -303,14 +303,14 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				new TextInputSizeCell(50)) {
 			@Override
 			public String getValue(String object) {
-				return settings.getCameraUrl(object, CameraView.HELMET);
+				return settings.getCameraUrl(object, CameraView.HELMET, clientFactory.getProxy());
 			}
 		};
 		helmetUrl.setFieldUpdater(new FieldUpdater<String, String>() {
 
 			@Override
 			public void update(int index, String object, String value) {
-				settings.setCameraUrl(object, CameraView.HELMET, value);
+				settings.setCameraUrl(object, CameraView.HELMET, value, clientFactory.getProxy());
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
@@ -323,14 +323,14 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				new TextInputSizeCell(50)) {
 			@Override
 			public String getValue(String object) {
-				return settings.getCameraUrl(object, CameraView.HAND);
+				return settings.getCameraUrl(object, CameraView.HAND, clientFactory.getProxy());
 			}
 		};
 		handUrl.setFieldUpdater(new FieldUpdater<String, String>() {
 
 			@Override
 			public void update(int index, String object, String value) {
-				settings.setCameraUrl(object, CameraView.HAND, value);
+				settings.setCameraUrl(object, CameraView.HAND, value, clientFactory.getProxy());
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
@@ -444,14 +444,14 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		}
 		columnSortHandler.setComparator(helmetUrl, new Comparator<String>() {
 			public int compare(String o1, String o2) {
-				return settings.getCameraUrl(o1, CameraView.HELMET).compareTo(
-						settings.getCameraUrl(o2, CameraView.HELMET));
+				return settings.getCameraUrl(o1, CameraView.HELMET, clientFactory.getProxy()).compareTo(
+						settings.getCameraUrl(o2, CameraView.HELMET, clientFactory.getProxy()));
 			}
 		});
 		columnSortHandler.setComparator(handUrl, new Comparator<String>() {
 			public int compare(String o1, String o2) {
-				return settings.getCameraUrl(o1, CameraView.HAND).compareTo(
-						settings.getCameraUrl(o2, CameraView.HAND));
+				return settings.getCameraUrl(o1, CameraView.HAND, clientFactory.getProxy()).compareTo(
+						settings.getCameraUrl(o2, CameraView.HAND, clientFactory.getProxy()));
 			}
 		});
 		table.addColumnSortHandler(columnSortHandler);

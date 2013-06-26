@@ -28,6 +28,5 @@ public class APVSServerFactory {
 	
 	public RemoteEventBus getEventBus() {
 		return eventBus;
-	}
-	
+	}	
 }

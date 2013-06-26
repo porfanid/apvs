@@ -48,5 +48,6 @@ public interface ClientFactory {
 	String getFullName();
 	String getEmail();
 	
+	void setProxy(Proxy proxy);
 	Proxy getProxy();
 }

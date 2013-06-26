@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
@@ -161,17 +162,17 @@ public class CameraView extends ImageView implements Module,
 		switchDestination = !switchDestination;
 	}
 
-	private String getCameraUrl(String type, String ptuId) {
+	private String getCameraUrl(String type, String ptuId, Proxy proxy) {
 		if ((settings == null) || (ptuId == null)) {
 			return null;
 		}
 
-		String url = settings.getCameraUrl(ptuId, type);
+		String url = settings.getCameraUrl(ptuId, type, proxy);
 		return factory.isSecure() ? factory.getProxy().getReverseUrl(url) : url; 
 	}
 
 	public boolean update() {
-		final String cameraUrl = getCameraUrl(type, ptuId);
+		final String cameraUrl = getCameraUrl(type, ptuId, factory.getProxy());
 //		setUrl(null);
 //		Window.alert("CameraURL: '"+ptuId+"' 'null'");
 		

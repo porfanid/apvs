@@ -109,8 +109,7 @@ public class CameraTable extends SimplePanel implements Module {
 			table.getFlexCellFormatter().setColSpan(row, labelColumn, 1);
 			labelColumn++;
 
-			String url = settings.getCameraUrl(ptuId, CameraView.HELMET);
-			Widget helmet = new ImageView(factory.isSecure() ? factory.getProxy().getReverseUrl(url) : url);
+			Widget helmet = new ImageView(settings.getCameraUrl(ptuId, CameraView.HELMET, factory.getProxy()));
 			table.setWidget(row+1, column, helmet);
 			// 25%
 			table.getCellFormatter().setWidth(row+1, column, "50%");
@@ -124,8 +123,7 @@ public class CameraTable extends SimplePanel implements Module {
 
 			column++;
 
-// 			String url2 = settings.getCameraUrl(ptuId, CameraView.HAND)
-//			Widget hand = new ImageView(factory.isSecure() ? factory.getProxy().getReverseUrl(url2) : url2);
+//			Widget hand = new ImageView(settings.getCameraUrl(ptuId, CameraView.HAND, factory.getProxy()));
 //			table.setWidget(row+1, column, hand);
 //			table.getCellFormatter().setWidth(row+1, column, "25%");
 //			column++;

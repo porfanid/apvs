@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.Connec
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.settings.LocalStorage;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
 import ch.cern.atlas.apvs.client.ui.AlarmView;
 import ch.cern.atlas.apvs.client.ui.Arguments;
@@ -107,6 +108,14 @@ public class APVS implements EntryPoint {
 			@Override
 			public void onSuccess(Boolean secure) {
 				clientFactory.setSecure(secure);
+				// FIXME, need a smarter proxy, uses full urls at this moment
+				Proxy proxy = new Proxy(secure);		
+//				proxy.put("/streams/1/helmet/", "http://pcatlaswpss02:8190/");
+//				proxy.put("/streams/1/hand/", "http://pcatlaswpss02:8191/");
+				proxy.put("http://atwss.cern.ch/streams/1/helmet/", "http://pcatlaswpss02:8190/");
+				proxy.put("http://atwss.cern.ch/streams/1/hand/", "http://pcatlaswpss02:8191/");
+				clientFactory.setProxy(proxy);
+
 				if (secure) {
 					login(null);
 				} else {
@@ -124,6 +133,8 @@ public class APVS implements EntryPoint {
 			@Override
 			public void onFailure(Throwable caught) {
 				// possibly secure, but do not check if supervisor
+				clientFactory.setSecure(false);
+				clientFactory.setProxy(new Proxy(false));
 				start();
 			}
 		});

@@ -95,7 +95,8 @@ public class ServerServiceImpl extends ResponsePollService implements
 			}
 			user = new User("Unknown Person", "", isSupervisor);
 		}
-		log.info("User: "+user);			
+		log.info("User: "+user);
+		
 		return user;
 	}
 	
