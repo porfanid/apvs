@@ -112,8 +112,10 @@ public class APVS implements EntryPoint {
 				Proxy proxy = new Proxy(secure);		
 //				proxy.put("/streams/1/helmet/", "http://pcatlaswpss02:8190/");
 //				proxy.put("/streams/1/hand/", "http://pcatlaswpss02:8191/");
+//				proxy.put("/APVS/", "http://localhost:8095/");
 				proxy.put("http://atwss.cern.ch/streams/1/helmet/", "http://pcatlaswpss02:8190/");
 				proxy.put("http://atwss.cern.ch/streams/1/hand/", "http://pcatlaswpss02:8191/");
+				proxy.put("http://atwss.cern.ch/APVS/", "http://localhost:8095/");
 				clientFactory.setProxy(proxy);
 
 				if (secure) {

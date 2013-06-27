@@ -70,16 +70,6 @@ public class CameraView extends ImageView implements Module,
 
 	private ClientFactory factory;
 
-	// FIXME #179 needs to change when we redo the iPad version
-	public CameraView(ClientFactory factory, final String type, String width,
-			String height) {
-
-		cmdBus = factory.getEventBus("ptu");
-		this.type = type;
-
-		init(factory, width, height);
-	}
-
 	public CameraView() {
 	}
 
@@ -105,11 +95,11 @@ public class CameraView extends ImageView implements Module,
 		return true;
 	}
 
-	private void init(ClientFactory factory, String width, String height) {
+	protected void init(ClientFactory factory, String width, String height) {
 
 		this.factory = factory;
 		
-		init(width, height);
+		super.init(factory, width, height);
 		
 		if (switchSource || switchDestination) {
 			image.addClickHandler(new ClickHandler() {
@@ -167,8 +157,7 @@ public class CameraView extends ImageView implements Module,
 			return null;
 		}
 
-		String url = settings.getCameraUrl(ptuId, type, proxy);
-		return factory.isSecure() ? factory.getProxy().getReverseUrl(url) : url; 
+		return factory.getProxy().getReverseUrl(settings.getCameraUrl(ptuId, type, proxy)); 
 	}
 
 	public boolean update() {

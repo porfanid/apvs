@@ -3,6 +3,8 @@ package ch.cern.atlas.apvs.client.ui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.ClientFactory;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.media.client.Video;
@@ -22,19 +24,23 @@ public class ImageView extends SimplePanel {
 	private String videoPoster = "Default-640x480.jpg";
 	protected Image image;
 	private boolean isMovingJPEG;
+	
+	private ClientFactory factory;
 
-	// FIXME #645 needs 'APVS' in front of it if it is proxied
-	private final static String quickTime = "<script type=\"text/javascript\" language=\"javascript\" src=\"quicktime/AC_QuickTime.js\"></script>";
+	// FIXME #644 can use 
+//	private final static String quickTime = "/quicktime/AC_QuickTime.js";
+	private final static String quickTime = "http://localhost:8095/quicktime/AC_QuickTime.js";
 
 	protected ImageView() {
 	}
 
-	public ImageView(String cameraUrl) {
-		init("100%", "");
+	public ImageView(ClientFactory factory, String cameraUrl) {
+		init(factory, "100%", "");
 		setUrl(cameraUrl);
 	}
 
-	protected void init(String width, String height) {
+	protected void init(ClientFactory factory, String width, String height) {
+		this.factory = factory;
 		this.videoWidth = width;
 		this.videoHeight = height;
 
@@ -138,7 +144,7 @@ public class ImageView extends SimplePanel {
 			isMovingJPEG = false;
 		} else {
 			Widget video = new HTML(
-					quickTime
+					getQuickTime()
 							+ "<script language=\"javascript\" type=\"text/javascript\">"
 							+ "QT_WriteOBJECT('"
 							+ videoPoster
@@ -155,5 +161,9 @@ public class ImageView extends SimplePanel {
 			isMovingJPEG = false;
 		}
 		return true;
+	}
+	
+	private String getQuickTime() {
+		return "<script type=\"text/javascript\" language=\"javascript\" src=\""+factory.getProxy().getReverseUrl(quickTime)+"\"></script>";
 	}
 }
