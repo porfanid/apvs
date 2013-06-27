@@ -97,7 +97,7 @@ public class ImageView extends SimplePanel {
 
 		currentCameraUrl = cameraUrl;
 
-		if (cameraUrl.startsWith("http://")) {
+		if (cameraUrl.startsWith("http://") || cameraUrl.startsWith("https://")) {
 			if (cameraUrl.endsWith(".mjpg")) {
 				log.info(cameraUrl);
 
