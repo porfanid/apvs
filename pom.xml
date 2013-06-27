@@ -28,6 +28,8 @@
 		<atmosphere-ext-version>1.1.0.RC3</atmosphere-ext-version>
 
 		<asterisk-java-version>f8c8f014253745783149ecbe0fed3faa074a7368</asterisk-java-version>
+		<commons-io-version>2.0.1</commons-io-version>
+		<commons-lang-version>2.6</commons-lang-version>
 		<c3p0-version>0.9.2.1</c3p0-version>
                 <eventbinder-version>1.0.0</eventbinder-version>
 		<gwt-bootstrap-version>2.2.1.0</gwt-bootstrap-version>
@@ -44,6 +46,7 @@
 		<jetty-plugin-version>${jetty8-version}</jetty-plugin-version>
 		<json-version>20090211</json-version>
 		<junit-version>4.11</junit-version>
+	        <logback-version>0.9.29</logback-version>
 		<log4jdbc-version>1.2</log4jdbc-version>
 <!--
 		<mgwt-version>1.0.1</mgwt-version>
@@ -90,6 +93,9 @@
 		<module>apvs-eventbus</module>
 <!--
 		<module>apvs-eventbus-demo</module>
+-->
+		<module>apvs-httpd-conf-reader</module>
+<!--
 		<module>apvs-gwt-maven-plugin</module>
 -->
 		<module>apvs-jetty</module>
@@ -322,6 +328,11 @@
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-eventbus-demo</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>gr.xe</groupId>
+				<artifactId>apvs-httpd-conf-reader</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -601,7 +612,30 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit-version}</version>
+				<scope>test</scope>
 			</dependency>
+
+	               <dependency>
+        	                <groupId>ch.qos.logback</groupId>
+                	        <artifactId>logback-classic</artifactId>
+                        	<version>${logback-version}</version>
+                	</dependency>
+                	<dependency>
+                        	<groupId>ch.qos.logback</groupId>
+                        	<artifactId>logback-core</artifactId>
+                        	<version>${logback-version}</version>
+                	</dependency>
+	                <dependency>
+        	                <groupId>commons-lang</groupId>
+                	        <artifactId>commons-lang</artifactId>
+                        	<version>${commons-lang-version}</version>
+                	</dependency>
+	                <dependency>
+        	                <groupId>commons-io</groupId>
+                	        <artifactId>commons-io</artifactId>
+                        	<version>${commons-io-version}</version>
+                	</dependency>
+
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
