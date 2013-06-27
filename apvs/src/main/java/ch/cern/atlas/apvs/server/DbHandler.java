@@ -252,7 +252,7 @@ public class DbHandler extends DbReconnectHandler {
 	public void dbConnected(DataSource datasource) throws SQLException {
 		super.dbConnected(datasource);
 
-		log.info("DB disconnected");
+		log.info("DB connected");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseConnect, true);
