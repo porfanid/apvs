@@ -75,7 +75,7 @@
 		<jar-plugin-version>2.4</jar-plugin-version>
 		<war-plugin-version>2.3</war-plugin-version>
 
-		<javadoc-plugin-version>2.9</javadoc-plugin-version>
+		<javadoc-plugin-version>2.9.1</javadoc-plugin-version>
 
 		<antrun-plugin-version>1.7</antrun-plugin-version>
 		<assembly-plugin-version>2.4</assembly-plugin-version>
@@ -94,9 +94,6 @@
 		<module>apvs-eventbus</module>
 <!--
 		<module>apvs-eventbus-demo</module>
--->
-		<module>apvs-httpd-conf-reader</module>
-<!--
 		<module>apvs-gwt-maven-plugin</module>
 -->
 		<module>apvs-jetty</module>
@@ -329,11 +326,6 @@
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-eventbus-demo</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>gr.xe</groupId>
-				<artifactId>apvs-httpd-conf-reader</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

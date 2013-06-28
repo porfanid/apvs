@@ -154,10 +154,6 @@
 			<artifactId>apvs-eventbus</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>gr.xe</groupId>
-			<artifactId>apvs-httpd-conf-reader</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-ptu</artifactId>
 		</dependency>
@@ -266,6 +262,10 @@
                 <dependency>
                         <groupId>org.javassist</groupId>
                         <artifactId>javassist</artifactId>
+                </dependency>
+                <dependency>
+                         <groupId>commons-io</groupId>
+                         <artifactId>commons-io</artifactId>
                 </dependency>
                 <dependency>
                          <groupId>commons-configuration</groupId>

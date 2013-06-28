@@ -19,7 +19,7 @@ public class Proxy implements Serializable, IsSerializable {
 	public Proxy() {
 		// serializable
 	}
-	
+
 	public Proxy(boolean active) {
 		this.active = active;
 	}
@@ -49,5 +49,17 @@ public class Proxy implements Serializable, IsSerializable {
 			}
 		}
 		return url;
+	}
+	
+	public String toString() {
+		StringBuffer b = new StringBuffer("Proxy: \n");
+		for (int i=0; i<forward.size(); i++) {
+			b.append("   ");
+			b.append(forward.get(i));
+			b.append(" <-> ");
+			b.append(reverse.get(i));
+			b.append("\n");
+		}
+		return b.toString();
 	}
 }
