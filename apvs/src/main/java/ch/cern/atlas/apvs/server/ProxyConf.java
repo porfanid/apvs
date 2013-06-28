@@ -12,9 +12,7 @@ import ch.cern.atlas.apvs.client.settings.Proxy;
 
 public class ProxyConf {
 
-	public static Proxy load(InputStream in) throws IOException {
-		Proxy proxy = new Proxy();
-
+	public static Proxy load(InputStream in, Proxy proxy) throws IOException {
 		Pattern pattern = Pattern
 				.compile("^ProxyPass[\\s]+([^\\s]+)[\\s]+([^\\s]+)");
 

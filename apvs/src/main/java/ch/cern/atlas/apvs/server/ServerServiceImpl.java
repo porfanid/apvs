@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.server;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.service.ServerService;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 /**
@@ -28,6 +30,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 	private ServerSettingsStorage serverSettingsStorage;
 	private User user = null;
 	private Map<String, String> headers = new HashMap<String, String>();
+	private boolean secure;
 
 	public ServerServiceImpl() {
 		log.info("Creating ServerService...");
@@ -66,13 +69,24 @@ public class ServerServiceImpl extends ResponsePollService implements
 	}
 	
 	@Override
-	public boolean isSecure() {
-		return getHeader("HTTPS", "").equalsIgnoreCase("on");
+	public Proxy getProxy() {
+		secure = getHeader("HTTPS", "").equalsIgnoreCase("on");
+		
+		String proxyFile = "httpd-proxy.conf";
+		Proxy proxy = new Proxy(secure, "https://atwss.cern.ch");
+		try {
+			proxy = ProxyConf.load(new FileInputStream(proxyFile), proxy);
+			log.info(proxy.toString());
+		} catch (IOException e) {
+			log.warn("Cannot read '"+proxyFile+"'");
+		}
+		
+		return proxy;
 	}
 		
 	@Override
 	public User login(String supervisorPassword) {
-		if (isSecure()) {
+		if (secure) {
 						
 			String fullName = getHeader("ADFS_FULLNAME", "Unknown Person");
 			String email = getHeader("REMOTE_USER", "");

@@ -15,17 +15,23 @@ public class Proxy implements Serializable, IsSerializable {
 	private List<String> forward = new ArrayList<String>();
 	private List<String> reverse = new ArrayList<String>();
 	private boolean active;
+	private String prefix;
 
 	public Proxy() {
-		// serializable
+		this(true, "");
 	}
 
-	public Proxy(boolean active) {
+	public Proxy(boolean active, String prefix) {
 		this.active = active;
+		this.prefix = prefix;
+	}
+	
+	public boolean isActive() {
+		return active;
 	}
 
 	public void put(String src, String dst) {
-		forward.add(src);
+		forward.add(prefix+src);
 		reverse.add(dst);
 	}
 
@@ -43,9 +49,9 @@ public class Proxy implements Serializable, IsSerializable {
 		}
 
 		for (int index = 0; index < src.size(); index++) {
-			String prefix = src.get(index);
-			if (url.startsWith(prefix)) {
-				return dst.get(index) + url.substring(prefix.length());
+			String find = src.get(index);
+			if (url.startsWith(find)) {
+				return dst.get(index) + url.substring(find.length());
 			}
 		}
 		return url;
@@ -62,4 +68,5 @@ public class Proxy implements Serializable, IsSerializable {
 		}
 		return b.toString();
 	}
+
 }

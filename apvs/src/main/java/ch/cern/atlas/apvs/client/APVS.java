@@ -91,7 +91,7 @@ public class APVS implements EntryPoint {
 			
 			@Override
 			public void onSuccess(Boolean result) {
-				checkSecure();
+				getProxy();
 			}
 			
 			@Override
@@ -102,23 +102,16 @@ public class APVS implements EntryPoint {
 		});
 	}
 
-	private void checkSecure() {
-		clientFactory.getServerService().isSecure(new AsyncCallback<Boolean>() {
+	private void getProxy() {
+		clientFactory.getServerService().getProxy(new AsyncCallback<Proxy>() {
 			
 			@Override
-			public void onSuccess(Boolean secure) {
-				clientFactory.setSecure(secure);
-				// FIXME, need a smarter proxy, uses full urls at this moment
-				Proxy proxy = new Proxy(secure);		
-//				proxy.put("/streams/1/helmet/", "http://pcatlaswpss02:8190/");
-//				proxy.put("/streams/1/hand/", "http://pcatlaswpss02:8191/");
-//				proxy.put("/APVS/", "http://localhost:8095/");
-				proxy.put("https://atwss.cern.ch/streams/1/helmet/", "http://pcatlaswpss02:8190/");
-				proxy.put("https://atwss.cern.ch/streams/1/hand/", "http://pcatlaswpss02:8191/");
-				proxy.put("https://atwss.cern.ch/APVS/", "http://localhost:8095/");
+			public void onSuccess(Proxy proxy) {
+				clientFactory.setSecure(proxy.isActive());
+
 				clientFactory.setProxy(proxy);
 
-				if (secure) {
+				if (proxy.isActive()) {
 					login(null);
 				} else {
 					// not secure try with plain password
@@ -136,7 +129,7 @@ public class APVS implements EntryPoint {
 			public void onFailure(Throwable caught) {
 				// possibly secure, but do not check if supervisor
 				clientFactory.setSecure(false);
-				clientFactory.setProxy(new Proxy(false));
+				clientFactory.setProxy(new Proxy(false, ""));
 				start();
 			}
 		});

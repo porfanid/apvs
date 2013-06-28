@@ -2,6 +2,8 @@ package ch.cern.atlas.apvs.client.service;
 
 import java.io.Serializable;
 
+import ch.cern.atlas.apvs.client.settings.Proxy;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -48,7 +50,7 @@ public interface ServerService extends RemoteService {
 	
 	public boolean isReady();
 	
-	public boolean isSecure();
+	public Proxy getProxy();
 
 	public User login(String pwd);
 	
