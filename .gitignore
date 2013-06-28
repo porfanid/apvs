@@ -9,3 +9,4 @@ bin
 /release.properties
 pom.xml.releaseBackup
 /EgroupCheckConf.properties
+/httpd-proxy.conf
