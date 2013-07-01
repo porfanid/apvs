@@ -113,7 +113,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 				// Event handler
 				managerConnection.addEventListener(AudioServiceImpl.this);
-				voipAccounts.setUnkwonStatus();
+				voipAccounts.setUnknownStatus();
 				supervisorAccount.setStatus(false);
 				((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));	
 				((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));	

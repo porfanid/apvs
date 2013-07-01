@@ -177,10 +177,12 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-runtime</artifactId>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-compat-jbossweb</artifactId>
 		</dependency>
+-->
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-compat-tomcat</artifactId>

@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client.settings;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -27,6 +28,10 @@ public abstract class AbstractServerSettings implements Serializable, IsSerializ
 
 	public String put(String name, boolean value) {
 		return map.put(name, Boolean.toString(value));
+	}
+	
+	public Set<String> getKeys() {
+		return map.keySet();
 	}
 
 }

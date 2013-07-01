@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.server;
 
+import java.util.Iterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,13 +11,10 @@ import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
-
 public class ServerSettingsStorage {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private static final String APVS_SERVER_SETTINGS = "APVS.server.settings";
 	private static final String APVS_SERVER_PWDS = "APVS.server.pwds";
 	private static ServerSettingsStorage instance;
@@ -44,7 +43,8 @@ public class ServerSettingsStorage {
 			public void onRequestEvent(RequestRemoteEvent event) {
 				if (event.getRequestedClassName().equals(
 						ServerSettingsChangedRemoteEvent.class.getName())) {
-					eventBus.fireEvent(new ServerSettingsChangedRemoteEvent(settings));
+					eventBus.fireEvent(new ServerSettingsChangedRemoteEvent(
+							(ServerSettings) settings));
 				}
 			}
 		});
@@ -57,7 +57,7 @@ public class ServerSettingsStorage {
 		}
 		return instance;
 	}
-	
+
 	public ServerPwds getPasswords() {
 		return pwds;
 	}
@@ -69,25 +69,20 @@ public class ServerSettingsStorage {
 			return;
 		}
 
-		String json = store.getItem(APVS_SERVER_SETTINGS);
-		if (json != null) {
-			settings = (ServerSettings) JsonReader.toJava(json);
+		settings = new ServerSettings(true);
+
+		for (Iterator<String> i = store.getKeys(APVS_SERVER_SETTINGS).iterator(); i
+				.hasNext();) {
+			String key = i.next();
+			settings.put(key, store.getString(APVS_SERVER_SETTINGS+"."+key));
 		}
 
-		if (settings == null) {
-			log.warn("Could not read Server Settings, using defaults");
-			settings = new ServerSettings(true);
-		} else {
-			log.info("Server Settings Read");			
-		}
-		
-		String jsonPwds = store.getItem(APVS_SERVER_PWDS);
-		if (jsonPwds != null) {
-			pwds = (ServerPwds) JsonReader.toJava(jsonPwds);
-		}
+		log.info("Server Settings Read");
 
-		if (pwds == null) {
-			pwds = new ServerPwds(true);
+		pwds = new ServerPwds(true);
+		for (Iterator<String> i = store.getKeys(APVS_SERVER_PWDS).iterator(); i.hasNext();) {
+			String key = i.next();
+			pwds.put(key, store.getString(APVS_SERVER_PWDS+"."+key));
 		}
 	}
 
@@ -97,21 +92,19 @@ public class ServerSettingsStorage {
 			return;
 		}
 
-		String json = JsonWriter.toJson(settings);
-//		log.info("Storing json " + json);
-
-		if (json != null) {
-			store.setItem(APVS_SERVER_SETTINGS, json);
+		for (Iterator<String> i = settings.getKeys().iterator(); i.hasNext();) {
+			String key = i.next();
+			store.setItem(APVS_SERVER_SETTINGS + "." + key, settings.get(key));
 		}
-		
-		String jsonPwds = JsonWriter.toJson(pwds);
-		if (jsonPwds != null) {
-			store.setItem(APVS_SERVER_PWDS, jsonPwds);
+
+		for (Iterator<String> i = pwds.getKeys().iterator(); i.hasNext();) {
+			String key = i.next();
+			store.setItem(APVS_SERVER_PWDS + "." + key, pwds.get(key));
 		}
 	}
 
 	public void setPassword(String name, String password) {
-		System.err.println("Storing "+name+" "+password);
+		System.err.println("Storing " + name + " " + password);
 		pwds.put(name, password);
 		store();
 	}

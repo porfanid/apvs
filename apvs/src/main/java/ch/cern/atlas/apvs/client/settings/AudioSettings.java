@@ -73,6 +73,10 @@ public class AudioSettings implements Serializable, IsSerializable {
 		entries.get(ptuId).setDestUser(userDest);
 	}
 	
+	public void setDestPTU(String ptuId, String PTUDest) {
+		entries.get(ptuId).setDestPTU(PTUDest);
+	}
+	
 	public void setDestPTUser(String ptuId, String userDest, String PTUDest) {
 		entries.get(ptuId).setDestUser(userDest);
 		entries.get(ptuId).setDestPTU(PTUDest);
@@ -90,7 +94,7 @@ public class AudioSettings implements Serializable, IsSerializable {
 	}
 	
 	// Define all PTU as status unknown
-	public void setUnkwonStatus(){
+	public void setUnknownStatus(){
 		for(String ptuId : entries.keySet())
 			setStatus(ptuId, false);
 	}
