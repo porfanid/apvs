@@ -55,6 +55,19 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-ptu</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-domain</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

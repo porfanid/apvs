@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ch.cern.atlas.apvs.domain.Message;
+import ch.cern.atlas.apvs.domain.Packet;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 
 public class PtuJsonReaderTest {
@@ -21,7 +22,8 @@ public class PtuJsonReaderTest {
 	
 	@Test
 	public void test() {
-		List<Message> list = (List<Message>)PtuJsonReader.toJava(json);
+		Packet packet = PtuJsonReader.toJava(json);
+		List<Message> list = packet.getMessages();
 		Assert.assertEquals(2, list.size());
 //		System.err.println(list.get(0).toString());
 //		System.err.println(list.get(1).toString());

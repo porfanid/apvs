@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.domain.Event;
-import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
+import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Packet;
 
 import com.cedarsoftware.util.io.JsonReader;
 
@@ -32,22 +31,22 @@ public class PtuJsonReader extends JsonReader {
 
 	@Override
 	public Object readObject() throws IOException {
-		List<Message> result = new ArrayList<Message>();
-
 		@SuppressWarnings("rawtypes")
 		JsonObject jsonObj = (JsonObject) readIntoJsonMaps();
 
 		String sender = (String) jsonObj.get("Sender");
-		// String receiver = (String) jsonObj.get("Receiver");
-		// String frameID = (String) jsonObj.get("FrameID");
-		// String acknowledge = (String) jsonObj.get("Acknowledge");
+		String receiver = (String) jsonObj.get("Receiver");
+		Integer frameID = convertToInteger(jsonObj.get("FrameID"));
+		Boolean acknowledge = convertToBoolean(jsonObj.get("Acknowledge"));
+		
+		Packet packet = new Packet(sender, receiver, frameID, acknowledge);
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		List<JsonObject> msgs = (List<JsonObject>) jsonObj.get("Messages");
 		// fix for #497
 		if (msgs == null) {
 			log.warn("No messages in JSON from "+sender);
-			return result;
+			return packet;
 		}
 		JsonMessage[] messages = new JsonMessage[msgs.size()];
 
@@ -77,26 +76,26 @@ public class PtuJsonReader extends JsonReader {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(unit);
 
-				result.add(new Measurement(sender, sensor, value, low, high,
+				packet.addMessage(new Measurement(sender, sensor, value, low, high,
 						unit,
 						Integer.parseInt(samplingRate),
 						convertToDate(time)));
 			} else if (type.equals("Event")) {
-				result.add(new Event(sender, (String) msg.get("Sensor"),
+				packet.addMessage(new Event(sender, (String) msg.get("Sensor"),
 						(String) msg.get("EventType"), convertToDouble(msg
 								.get("Value")), convertToDouble(msg
 								.get("Threshold")), (String) msg.get("Unit"),
 						convertToDate(msg.get("Time"))));
 			} else if (type.equals("GeneralConfiguration")) {
-				result.add(new GeneralConfiguration(sender, (String) msg.get("DosimeterID")));
+				packet.addMessage(new GeneralConfiguration(sender, (String) msg.get("DosimeterID")));
 			} else {
 				log.warn("Message type not implemented: " + type);
 			}
 			// FIXME add other types of messages, #115 #112 #114
 		}
 
-		// returns a list of messages
-		return result;
+		// returns packet with a list of messages
+		return packet;
 	}
 
 	private Double convertToDouble(Object number) {
@@ -111,6 +110,30 @@ public class PtuJsonReader extends JsonReader {
 		}
 	}
 
+	private Integer convertToInteger(Object number) {
+		if ((number == null) || !(number instanceof String)) {
+			return null;
+		}
+		try {
+			return Integer.parseInt((String) number);
+		} catch (NumberFormatException e) {
+			log.warn("NumberFormatException "+number+" "+e);
+			return null;
+		}
+	}
+
+	private boolean convertToBoolean(Object state) {
+		if ((state == null) || !(state instanceof String)) {
+			return false;
+		}
+		try {
+			return Boolean.parseBoolean((String) state);
+		} catch (NumberFormatException e) {
+			log.warn("NumberFormatException "+state+" "+e);
+			return false;
+		}
+	}
+
 	@Override
 	protected Date convertToDate(Object rhs) {
 		try {
@@ -120,17 +143,17 @@ public class PtuJsonReader extends JsonReader {
 		}
 	}
 
-	public static List<Message> jsonToJava(String json) throws IOException {
+	public static Packet jsonToJava(String json) throws IOException {
 		ByteArrayInputStream ba = new ByteArrayInputStream(
 				json.getBytes("UTF-8"));
 		PtuJsonReader jr = new PtuJsonReader(ba, false);
 		@SuppressWarnings("unchecked")
-		List<Message> result = (List<Message>) jr.readObject();
+		Packet result = (Packet) jr.readObject();
 		jr.close();
 		return result;
 	}
 
-	public static List<Message> toJava(String json) {
+	public static Packet toJava(String json) {
 		try {
 			return jsonToJava(json);
 		} catch (Exception ignored) {

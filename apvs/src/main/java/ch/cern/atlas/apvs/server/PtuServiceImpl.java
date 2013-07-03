@@ -71,7 +71,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		
 		// Configure the pipeline factory.
 		bootstrap.group(group);
-		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler));
+		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler, true));
 		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
