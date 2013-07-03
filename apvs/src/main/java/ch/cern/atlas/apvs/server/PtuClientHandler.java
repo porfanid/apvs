@@ -165,7 +165,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 		List<Message> list;
 		try {
-			list = PtuJsonReader.jsonToJava(line);
+			list = PtuJsonReader.jsonToJava(line).getMessages();
 			for (Iterator<Message> i = list.iterator(); i.hasNext();) {
 				Message message = i.next();
 				try {
