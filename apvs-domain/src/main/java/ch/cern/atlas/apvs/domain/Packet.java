@@ -12,18 +12,18 @@ public class Packet implements Serializable, IsSerializable {
 
 	private String sender;
 	private String receiver;
-	private int frameId;
-	private boolean acknowledge;
+	private Integer frameID;
+	private Boolean acknowledge;
 	
 	List<Message> messages = new ArrayList<Message>();
 	
 	public Packet() {
 	}
 	
-	public Packet(String sender, String receiver, int frameId, boolean acknowledge) {
+	public Packet(String sender, String receiver, int frameID, boolean acknowledge) {
 		this.sender = sender;
 		this.receiver = receiver;
-		this.frameId = frameId;
+		this.frameID = frameID;
 		this.acknowledge = acknowledge;
 	}
 	
@@ -36,7 +36,7 @@ public class Packet implements Serializable, IsSerializable {
 	}
 		
 	public String toString() {
-		return "Packet "+sender+" "+receiver+" "+frameId+" "+acknowledge+" "+messages.size();
+		return "Packet "+sender+" "+receiver+" "+frameID+" "+acknowledge+" "+messages.size();
 	}
 	
 }

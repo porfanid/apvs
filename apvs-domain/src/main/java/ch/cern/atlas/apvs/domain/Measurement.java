@@ -13,12 +13,13 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	private static final long serialVersionUID = -906069262585850986L;
 
-	private String ptuId;
+	private volatile String ptuId;
+	private volatile String displayName;
+	private String type = "Measurement";
 	private String name;
-	private String displayName;
-	private Number value;
-	private Number lowLimit;
-	private Number highLimit;
+	private Double value;
+	private Double lowLimit;
+	private Double highLimit;
 	private String unit;
 	private Date date;
 	private Integer samplingRate;
@@ -26,8 +27,8 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	public Measurement() {
 	}
 
-	public Measurement(String ptuId, String name, Number value,
-			Number lowLimit, Number highLimit, String unit,
+	public Measurement(String ptuId, String name, Double value,
+			Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
@@ -48,7 +49,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	}
 
 	public Measurement(String ptuId, String name, String displayName,
-			Number value, Number lowLimit, Number highLimit, String unit,
+			Double value, Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
 		this(ptuId, displayName, value, lowLimit, highLimit, unit,
 				samplingRate, date);
@@ -68,15 +69,15 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		return displayName != null ? displayName : getDisplayName(name);
 	}
 
-	public Number getValue() {
+	public Double getValue() {
 		return value;
 	}
 
-	public Number getLowLimit() {
+	public Double getLowLimit() {
 		return lowLimit;
 	}
 
-	public Number getHighLimit() {
+	public Double getHighLimit() {
 		return highLimit;
 	}
 
@@ -94,7 +95,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	@Override
 	public String getType() {
-		return "Measurement";
+		return type;
 	}
 
 	@Override

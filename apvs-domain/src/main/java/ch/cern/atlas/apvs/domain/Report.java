@@ -10,7 +10,8 @@ public class Report implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -2218198847285152101L;
 
-	private String ptuId;
+	private volatile String ptuId;
+	private String type = "Report";
 	private Number batteryLevel;
 	private boolean cameraHandheld;
 	private boolean cameraHelmet;
@@ -56,6 +57,6 @@ public class Report implements Message, Serializable, IsSerializable {
 
 	@Override
 	public String getType() {
-		return "Report";
+		return type;
 	}
 }

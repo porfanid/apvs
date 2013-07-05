@@ -216,9 +216,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 				
 		String unit = message.getUnit();
-		Number value = message.getValue();
-		Number low = message.getLowLimit();
-		Number high = message.getHighLimit();
+		Double value = message.getValue();
+		Double low = message.getLowLimit();
+		Double high = message.getHighLimit();
 
 		// Scale down to microSievert
 		value = Scale.getValue(value, unit);

@@ -9,7 +9,9 @@ public class GeneralConfiguration implements Message, Serializable, IsSerializab
 		Comparable<GeneralConfiguration> {
 
 	private static final long serialVersionUID = 4796032680266987232L;
-	private String ptuId;
+	
+	private volatile String ptuId;
+	private String type = "GeneralConfiguration";
 	private String dosimeterId;
 
 	public GeneralConfiguration() {
@@ -31,7 +33,7 @@ public class GeneralConfiguration implements Message, Serializable, IsSerializab
 
 	@Override
 	public String getType() {
-		return "GeneralConfiguration";
+		return type;
 	}
 
 	@Override

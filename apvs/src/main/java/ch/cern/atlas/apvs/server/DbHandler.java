@@ -183,7 +183,7 @@ public class DbHandler extends DbReconnectHandler {
 
 						Integer id = result.getInt("id");
 						String sensor = result.getString("sensor");
-						Number value = toDouble(result.getString("value"));
+						Double value = toDouble(result.getString("value"));
 						String unit = result.getString("unit");
 
 						// Fix for #488, invalid db entry
@@ -197,8 +197,8 @@ public class DbHandler extends DbReconnectHandler {
 							continue;
 						}
 
-						Number low = toDouble(result.getString("down_thres"));
-						Number high = toDouble(result.getString("up_thres"));
+						Double low = toDouble(result.getString("down_thres"));
+						Double high = toDouble(result.getString("up_thres"));
 
 						Integer samplingRate = toInt(result
 								.getString("samplingrate"));
@@ -844,9 +844,9 @@ public class DbHandler extends DbReconnectHandler {
 				}
 				
 				String unit = result.getString("UNIT");
-				Number value = toDouble(result.getString("VALUE"));
-				Number low = toDouble(result.getString("DOWN_THRES"));
-				Number high = toDouble(result.getString("UP_THRES"));
+				Double value = toDouble(result.getString("VALUE"));
+				Double low = toDouble(result.getString("DOWN_THRES"));
+				Double high = toDouble(result.getString("UP_THRES"));
 
 				// if equal of low higher than high, no limits to be shown
 				if (low != null && high != null

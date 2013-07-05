@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.ptu.server;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -15,42 +16,91 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 
 	public PtuJsonWriter(OutputStream out) throws IOException {
 		super(out);
+
+		addWriter(Date.class, new JsonClassWriter() {
+
+			@Override
+			public void writePrimitiveForm(Object o, Writer out)
+					throws IOException {
+				out.write("\"" + PtuServerConstants.dateFormat.format((Date) o)
+						+ "\"");
+			}
+
+			@Override
+			public void write(Object o, boolean showType, Writer out)
+					throws IOException {
+			}
+
+			@Override
+			public boolean hasPrimitiveForm() {
+				return true;
+			}
+		});
+
+		addWriter(String.class, new JsonClassWriter() {
+
+			@Override
+			public void writePrimitiveForm(Object o, Writer out)
+					throws IOException {
+				out.write("\"" + (String) o + "\"");
+			}
+
+			@Override
+			public void write(Object o, boolean showType, Writer out)
+					throws IOException {
+			}
+
+			@Override
+			public boolean hasPrimitiveForm() {
+				return true;
+			}
+		});
+
 	}
-	
+
 	@Override
-	protected void writeImpl(Object obj, boolean showType) throws IOException {
-		if (obj instanceof Boolean || obj instanceof Long
-				|| obj instanceof Double) {
-			writePrimitive(obj);
+	protected void writePrimitive(Object obj) throws IOException {
+		if (obj instanceof Character) {
+			writeJsonUtf8String(String.valueOf(obj), _out);
+		} else if (obj instanceof Boolean) {
+			_out.write("\""
+					+ (((Boolean) obj).booleanValue() ? "True" : "False")
+					+ "\"");
 		} else {
-			super.writeImpl(obj, false);
+			_out.write("\"" + obj.toString() + "\"");
 		}
 	}
 
 	@Override
-	protected void writeFieldName(String name) throws IOException {
-		super.writeFieldName(Character.toUpperCase(name.charAt(0)) + name.substring(1));
-	}
-
-	@Override
-	protected void writeDate(Object obj, boolean showType) throws IOException {
-		String value = "\"" + PtuServerConstants.dateFormat.format((Date) obj) + "\"";
-
-		if (showType) {
-			_out.write('{');
-			writeType(obj);
-			_out.write(',');
-			_out.write("\"value\":");
-			_out.write(value);
-			_out.write('}');
-		} else {
-			_out.write(value);
+	protected void writeFieldName(String name, Writer out) throws IOException {
+		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+		if (name.equals("Name")) {
+			name = "Sensor";
 		}
+		if (name.equals("LowLimit")) {
+			name = "DownThreshold";
+		}
+		if (name.equals("HighLimit")) {
+			name = "UpThreshold";
+		}
+		super.writeFieldName(name, out);
 	}
 
 	@Override
 	public void newLine() throws IOException {
-		_out.append("\n");
+		// out.append("\n");
+	}
+
+	@Override
+	protected void writeImpl(Object obj, boolean showType) throws IOException {
+		super.writeImpl(obj, false);
+	}
+
+	@Override
+	public void write(Object obj) throws IOException {
+		// do not trace refs
+		writeImpl(obj, false);
+		flush();
 	}
 
 	// FIXME could be optimized with multi messages in one header
@@ -63,7 +113,7 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 			newLine();
 		}
 	}
-	
+
 	@Override
 	public void write(Message message) throws IOException {
 		writeImpl(new JsonHeader(message), false);

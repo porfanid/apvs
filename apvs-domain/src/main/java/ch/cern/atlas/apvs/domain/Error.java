@@ -11,7 +11,8 @@ public class Error implements Message, Serializable, IsSerializable {
 	
 	private static final long serialVersionUID = -7278595154796058932L;
 
-	private String ptuId;
+	private volatile String ptuId;
+	private String type = "Error";
 	private Integer errorNo;
 	private String description;
 	private String criticality;
@@ -51,6 +52,6 @@ public class Error implements Message, Serializable, IsSerializable {
 
 	@Override
 	public String getType() {
-		return "Error";
+		return type;
 	}
 }

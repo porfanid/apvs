@@ -10,7 +10,8 @@ public class Event implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5549380949230727273L;
 	
-	private String ptuId;
+	private volatile String ptuId;
+	private String type = "Event";
 	private String name;
 	private String eventType;
 	private Number value;
@@ -62,7 +63,7 @@ public class Event implements Message, Serializable, IsSerializable {
 
 	@Override
 	public String getType() {
-		return "Event";
+		return type;
 	}
 
 	
