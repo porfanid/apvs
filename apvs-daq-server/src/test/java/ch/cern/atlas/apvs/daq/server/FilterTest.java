@@ -58,7 +58,7 @@ public class FilterTest {
 	
 //	@Test
 	public void twoTimesSameValue() {
-		l.add(m0);
+		f.filter(m0, l, r);
 		boolean b = f.filter(m1, l, r);
 		Assert.assertFalse(b);
 		Assert.assertEquals(2, l.size());
@@ -68,70 +68,84 @@ public class FilterTest {
 
 //	@Test
 	public void threeTimesSameValue() {
-		l.add(m0);
-		l.add(m1);
+		f.filter(m0, l, r);
+		f.filter(m1, l, r);
 		boolean b = f.filter(m2, l, r);
 		Assert.assertTrue(b);
 		Assert.assertEquals(2, l.size());
 		Assert.assertEquals(m0, l.get(0));
-		Assert.assertEquals(m2, l.get(1));
+		Assert.assertEquals(m1.getValue(), l.get(1).getValue());
+		Assert.assertEquals(m2.getDate(), l.get(1).getDate());
 	}
 	
 //	@Test
 	public void valueAboveResulotion() {
-		l.add(m0);
-		l.add(m1);
+		f.filter(m0, l, r);
+		f.filter(m1, l, r);
+		f.filter(m2, l, r);
 		boolean b = f.filter(m5, l, r);
 		Assert.assertFalse(b);
 		Assert.assertEquals(3, l.size());
 		Assert.assertEquals(m0, l.get(0));
-		Assert.assertEquals(m1, l.get(0));
-		Assert.assertEquals(m5, l.get(1));
+		Assert.assertEquals(m2, l.get(1));
+		Assert.assertEquals(m5, l.get(2));
 	}
 	
 //	@Test
 	public void valueBelowResolution() {
-		l.add(m0);
-		l.add(m1);
+		f.filter(m0, l, r);
+		f.filter(m1, l, r);
+		f.filter(m2, l, r);
 		boolean b = f.filter(m3, l, r);
-		Assert.assertFalse(b);
-		Assert.assertEquals(2, l.size());
+		Assert.assertTrue(b);
+		Assert.assertEquals(3, l.size());
 		Assert.assertEquals(m0, l.get(0));
-		Assert.assertEquals(m1, l.get(0));
-		Assert.assertEquals(m1.getValue(), l.get(1).getValue());
-		Assert.assertEquals(m3.getDate(), l.get(1).getDate());
+		Assert.assertEquals(m2, l.get(1));
+		Assert.assertEquals(m2.getValue(), l.get(2).getValue());
+		Assert.assertEquals(m3.getDate(), l.get(2).getDate());
 	}
 	
 //	@Test
 	public void secondValueAboveResolution() {
-		Assert.fail();
+		f.filter(m0, l, r);
+		f.filter(m1, l, r);
+		f.filter(m2, l, r);
+		f.filter(m3, l, r);		// first
+		boolean b = f.filter(m5, l, r);		// second
+		Assert.assertFalse(b);
+		Assert.assertEquals(3, l.size());
+		Assert.assertEquals(m0, l.get(0));
+		Assert.assertEquals(m2.getValue(), l.get(1).getValue());
+		Assert.assertEquals(m3.getDate(), l.get(1).getDate());
+		Assert.assertEquals(m5, l.get(2));
 	}
 	
 //	@Test
 	public void secondValueBelowResolution() {
-		Assert.fail();
+		f.filter(m0, l, r);
+		f.filter(m1, l, r);
+		f.filter(m2, l, r);
+		f.filter(m3, l, r);		// first
+		boolean b = f.filter(m4, l, r);		// second
+		Assert.assertTrue(b);
+		Assert.assertEquals(2, l.size());
+		Assert.assertEquals(m0, l.get(0));
+		Assert.assertEquals(m2.getValue(), l.get(1).getValue());
+		Assert.assertEquals(m4.getDate(), l.get(1).getDate());
 	}
-	
-//	@Test
-	public void thirdValueAboveResolution() {
-		Assert.fail();
-	}
-	
-//	@Test
-	public void thirdValueBelowResolution() {
-		Assert.fail();
-	}
-	
+		
 //	@Test
 	public void disconnectAfterLastValue() {
-		Assert.fail();
+		f.filter(m0, l, r);
+		f.filter(m1, l, r);
+		f.filter(m2, l, r);
+		// disconnect !
+		boolean b = f.filter(null, l, r);
+		Assert.assertTrue(b);
+		Assert.assertEquals(2, l.size());
+		Assert.assertFalse(l.get(l.size()-1).isConnected());
 	}
-	
-//	@Test
-	public void limitChange() {
-		Assert.fail();
-	}
-	
+		
 	@Test
 	public void discardChange() {
 		Filter d = new Filter() {
@@ -185,4 +199,25 @@ public class FilterTest {
 		Assert.assertEquals(1, l.size());
 		Assert.assertEquals(t1, l.get(l.size()-1).getDate());
 	}
+	
+	@Test
+	public void disconnectChange() {
+		Filter d = new Filter() {
+
+			@Override
+			public boolean filter(Measurement current, List<Measurement> list,
+					double resolution) {
+				list.get(list.size()-1).disconnect();
+				return true;
+			}
+		};
+		
+		l.add(m0);
+		boolean update = d.filter(m1, l, 0.001);
+		Assert.assertTrue(update);
+		Assert.assertEquals(1, l.size());
+		Assert.assertFalse(l.get(l.size()-1).isConnected());
+	}
+	
+
 }
