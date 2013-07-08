@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.server;
+package ch.cern.atlas.apvs.ptu.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -19,7 +19,7 @@ public class RemoveDelimiterDecoder extends ByteToMessageDecoder {
 		int len = in.readableBytes();
 		for (int i = 0; i < len; i++) {
 			byte b = in.readByte();
-			if ((b != 0x10) && (b != 0x13)) {
+			if ((b != 0x10) && (b != 0x13) && (b != 0x00)) {
 				o.writeByte(b);
 			}
 		}

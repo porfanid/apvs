@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,14 +21,16 @@ import com.cedarsoftware.util.io.JsonReader;
 public class PtuJsonReader extends JsonReader {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-
+	private InputStream in;
+	
 	public PtuJsonReader(InputStream in) {
 		this(in, true);
 	}
 
 	public PtuJsonReader(InputStream in, boolean noObjects) {
-		super(in, noObjects);
-
+		super(in, true);
+		this.in = in;
+		
 		addReader(Date.class, new JsonClassReader() {
 
 			@Override
@@ -43,6 +44,8 @@ public class PtuJsonReader extends JsonReader {
 
 	@Override
 	public Object readObject() throws IOException {
+		System.err.println("PTU: "+in.available());
+		
 		JsonObject<?, ?> jsonObj = (JsonObject<?, ?>) super.readObject();
 		String sender = (String) jsonObj.get("Sender");
 		String receiver = (String) jsonObj.get("Receiver");

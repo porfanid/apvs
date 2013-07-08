@@ -23,6 +23,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	private String unit;
 	private Date date;
 	private Integer samplingRate;
+	private boolean connected = true;
 
 	public Measurement() {
 	}
@@ -162,4 +163,17 @@ public class Measurement implements Message, Serializable, IsSerializable,
 				StringUtils.splitByCharacterTypeCamelCase(name), ' ');
 	}
 
+	// to update the measurement in case of no changes
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public boolean isConnected() {
+		return connected;
+	}
+
+	public void disconnect() {
+		connected = false;
+	}
+	
 }

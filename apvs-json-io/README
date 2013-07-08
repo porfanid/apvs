@@ -5,6 +5,6 @@ svn checkout http://json-io.googlecode.com/svn/trunk/ json-io
 - make writeImpl, writePrimitive and _out protected
 - line 1628, skip VOLATILE: if (((field.getModifiers() & Modifier.STATIC) == 0) && ((field.getModifiers() & Modifier.VOLATILE) == 0))
 - line 1504, call writeFieldName, to capitalize and change some names: writeFieldName(field.getName(), out);
-- 
+- lin 663 removed BufferedReader to be able to continue reading stream after first json msg passes 
 
 - test does not run in maven at this time
