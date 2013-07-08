@@ -2,17 +2,17 @@ package ch.cern.atlas.apvs.daq.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
+import ch.cern.atlas.apvs.ptu.server.RemoveDelimiterDecoder;
 
 public class DaqServer {
 //	private Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -35,8 +35,17 @@ public class DaqServer {
 			bootstrap.group(bossGroup, workerGroup);
 			bootstrap.channel(NioServerSocketChannel.class);
 
-			bootstrap.childHandler(new PtuChannelInitializer(
-					new DaqMessageHandler(), false));
+			bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+				@Override
+				protected void initChannel(SocketChannel ch) throws Exception {
+					ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
+					ch.pipeline().addLast(new RemoveDelimiterDecoder());
+					ch.pipeline().addLast(new DaqMessageHandler());
+//					ch.pipeline().addLast(new StringDecoder(CharsetUtil.UTF_8));
+//					ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8));
+//					ch.pipeline().addLast(fin);
+				}
+			});
 			
 			bootstrap.option(ChannelOption.SO_BACKLOG, 128);
 			bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);

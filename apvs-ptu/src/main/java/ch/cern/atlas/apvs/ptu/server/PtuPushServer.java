@@ -15,8 +15,6 @@ public class PtuPushServer {
 	private final int refresh;
 	private final String[] ids;
 
-	private boolean CONNECT_FOR_EVERY_MESSAGE = false;
-
 	public PtuPushServer(String host, int port, int refresh, String[] ids) {
 		this.host = host;
 		this.port = port;
@@ -29,22 +27,16 @@ public class PtuPushServer {
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class);
 
-		if (CONNECT_FOR_EVERY_MESSAGE) {
-			PtuConnectPushHandler handler = new PtuConnectPushHandler();
-			
-			handler.run(host, port, refresh);
-		} else {
-			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
-			
-			EventLoopGroup group = new NioEventLoopGroup();
-			
-			
-			bootstrap.group(group);
-			bootstrap.handler(new PtuChannelInitializer(new PtuServerHandler(refresh, ids), true));
+		PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
 
-			// Start the connection attempt.
-			handler.connect(new InetSocketAddress(host, port));
-		}
+		EventLoopGroup group = new NioEventLoopGroup();
+
+		bootstrap.group(group);
+		bootstrap.handler(new PtuChannelInitializer(new PtuServerHandler(
+				refresh, ids), true));
+
+		// Start the connection attempt.
+		handler.connect(new InetSocketAddress(host, port));
 	}
 
 	public static void main(String[] args) throws Exception {

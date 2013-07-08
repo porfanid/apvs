@@ -15,6 +15,7 @@ import io.netty.util.CharsetUtil;
 import java.net.InetSocketAddress;
 
 import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
+import ch.cern.atlas.apvs.ptu.server.RemoveDelimiterDecoder;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;

@@ -162,4 +162,9 @@ public class Measurement implements Message, Serializable, IsSerializable,
 				StringUtils.splitByCharacterTypeCamelCase(name), ' ');
 	}
 
+	// to update the measurement in case of no changes
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
 }
