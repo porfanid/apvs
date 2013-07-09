@@ -1,14 +1,11 @@
 package com.cedarsoftware.util.io;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -658,15 +655,15 @@ public class JsonReader implements Closeable
     public JsonReader(InputStream in, boolean noObjects)
     {
         _noObjects = noObjects;
-        try
-        {
-            _in = new FastPushbackReader(new BufferedReader(new InputStreamReader(in, "UTF-8")));
-//            _in = new FastPushbackReader(new InputStreamReader(in, "UTF-8"));
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            throw new RuntimeException("Your JVM does not support UTF-8.  Get a new JVM.", e);
-        }
+//        try
+//        {
+//            _in = new FastPushbackReader(new BufferedReader(new InputStreamReader(in, "UTF-8")));
+            _in = new FastPushbackReader2(in);
+//        }
+//        catch (UnsupportedEncodingException e)
+//        {
+//            throw new RuntimeException("Your JVM does not support UTF-8.  Get a new JVM.", e);
+//        }
     }
 
     /**
@@ -679,9 +676,7 @@ public class JsonReader implements Closeable
      * @throws IOException for stream errors or parsing errors.
      */
     public Object readObject() throws IOException
-    {
-    	System.err.println("JSON: "+_in.ready());
-    	
+    {    	
         Object o = readJsonObject();
         if (o == EMPTY_OBJECT)
         {
@@ -1443,8 +1438,6 @@ public class JsonReader implements Closeable
         boolean objectRead = false;
         final FastPushbackReader in = _in;
         
-        System.err.println("B "+in.getPos());
-
         while (!done)
         {
             int c;
@@ -1525,7 +1518,6 @@ public class JsonReader implements Closeable
 
                 case STATE_READ_POST_VALUE:
                     c = skipWhitespaceRead();
-                    System.err.println(c+" "+Integer.toString(c));
                     if (c == -1 && objectRead)
                     {
                         throw new IOException("EOF reached before closing '}'");
@@ -1545,8 +1537,6 @@ public class JsonReader implements Closeable
                     break;
             }
         }
-
-        System.err.println("E "+in.getPos());
 
         if (_noObjects && object.isPrimitive())
         {
@@ -2357,9 +2347,9 @@ public class JsonReader implements Closeable
      */
     private static class FastPushbackReader extends FilterReader
     {
-        private final int[] _buf;
-        private int _idx;
-        private long _pos;
+        protected final int[] _buf;
+        protected int _idx;
+        protected long _pos;
 
         private FastPushbackReader(Reader reader, int size)
         {
@@ -2415,5 +2405,51 @@ public class JsonReader implements Closeable
             super.close();
             _pos = 0;
         }
+    }
+    
+    /** 
+     * Same as above but based on simple InputStream withou buffer
+     * 
+     * @author duns
+     *
+     */
+    private static class FastPushbackReader2 extends FastPushbackReader {
+         
+        private InputStream in;
+
+    	private FastPushbackReader2(InputStream in) {
+    		super(new Reader() {
+
+				@Override
+				public void close() throws IOException {
+					// ignored
+				}
+
+				@Override
+				public int read(char[] arg0, int arg1, int arg2)
+						throws IOException {
+					return 0;
+				}
+    			
+    		});	// Fake object...
+    		this.in = in;
+    	}
+    	
+        public int read() throws IOException
+        {
+            _pos++;
+            if (_idx < _buf.length)
+            {
+                return _buf[_idx++];
+            }
+            return in.read();
+        }
+
+        public void close() throws IOException
+        {
+            in.close();
+            _pos = 0;
+        }
+   	
     }
 }

@@ -44,8 +44,6 @@ public class PtuJsonReader extends JsonReader {
 
 	@Override
 	public Object readObject() throws IOException {
-		System.err.println("PTU: "+in.available());
-		
 		JsonObject<?, ?> jsonObj = (JsonObject<?, ?>) super.readObject();
 		String sender = (String) jsonObj.get("Sender");
 		String receiver = (String) jsonObj.get("Receiver");

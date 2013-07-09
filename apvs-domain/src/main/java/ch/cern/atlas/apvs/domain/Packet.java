@@ -27,6 +27,22 @@ public class Packet implements Serializable, IsSerializable {
 		this.acknowledge = acknowledge;
 	}
 	
+	public String getSender() {
+		return sender;
+	}
+
+	public String getReceiver() {
+		return receiver;
+	}
+
+	public Integer getFrameID() {
+		return frameID;
+	}
+
+	public Boolean getAcknowledge() {
+		return acknowledge;
+	}
+
 	public void addMessage(Message msg) {
 		messages.add(msg);
 	}
@@ -38,5 +54,6 @@ public class Packet implements Serializable, IsSerializable {
 	public String toString() {
 		return "Packet "+sender+" "+receiver+" "+frameID+" "+acknowledge+" "+messages.size();
 	}
+
 	
 }

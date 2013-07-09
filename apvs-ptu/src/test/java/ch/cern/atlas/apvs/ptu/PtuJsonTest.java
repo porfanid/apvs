@@ -28,11 +28,11 @@ public class PtuJsonTest {
 
 	String parsedJson = "{"
 			+ "\"Sender\":\"PTU_88\",\"Receiver\":\"Broadcast\",\"FrameID\":\"0\",\"Acknowledge\":\"False\",\"Messages\":["
-			+ "{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Value\":\"33.19684099267707\",\"DownThreshold\":\"50.0\",\"UpThreshold\":\"130.0\",\"Unit\":\"ppm\",\"Date\":\"04/07/2013 15:42:53\",\"SamplingRate\":\"60000\"},"
-			+ "{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Value\":\"35.45927608218701\",\"DownThreshold\":\"50.0\",\"UpThreshold\":\"130.0\",\"Unit\":\"ppm\",\"Date\":\"04/07/2013 21:16:13\",\"SamplingRate\":\"60000\"}"
+			+ "{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Value\":\"33.19684099267707\",\"DownThreshold\":\"50.0\",\"UpThreshold\":\"130.0\",\"Unit\":\"ppm\",\"Date\":\"04/07/2013 15:42:53\",\"SamplingRate\":\"60000\",\"Connected\":\"True\"},"
+			+ "{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Value\":\"35.45927608218701\",\"DownThreshold\":\"50.0\",\"UpThreshold\":\"130.0\",\"Unit\":\"ppm\",\"Date\":\"04/07/2013 21:16:13\",\"SamplingRate\":\"60000\",\"Connected\":\"True\"}"
 			+ "]}";
 
-//	@Test
+	@Test
 	public void readerTest() throws IOException {
 
 		Packet packet = PtuJsonReader.jsonToJava(json);
@@ -49,19 +49,20 @@ public class PtuJsonTest {
 	@Test
 	public void streamReaderTest() throws IOException {
 		ByteArrayInputStream ba = new ByteArrayInputStream(
-				(json + json+"EXTRA").getBytes("UTF-8"));
+				(json + json).getBytes("UTF-8"));
 		System.err.println("Len "+json.length());
 		PtuJsonReader jr = new PtuJsonReader(ba, true);
-		Packet result = (Packet) jr.readObject();
-		System.err.println(result);		
-		Packet r2 = (Packet) jr.readObject();
-		System.err.println(r2);
-//		jr.close();
-		System.err.println(ba.available());
-		System.err.println(ba.read());
+		Packet packet1 = (Packet) jr.readObject();
+//		System.err.println(packet1);
+		Assert.assertEquals("PTU_88", packet1.getSender());
+		Packet packet2 = (Packet) jr.readObject();
+//		System.err.println(packet2);
+		Assert.assertEquals("PTU_88", packet1.getSender());
+		ba.close();
+		jr.close();
 	}
 
-//	@Test
+	@Test
 	public void writerTest() throws ParseException {
 		Packet packet = new Packet("PTU_88", "Broadcast", 0, false);
 		packet.addMessage(new Humidity("PTU_88", 33.19684099267707,
