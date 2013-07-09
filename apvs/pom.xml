@@ -182,7 +182,6 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-compat-jbossweb</artifactId>
 		</dependency>
--->
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-compat-tomcat</artifactId>
@@ -191,6 +190,7 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-compat-tomcat7</artifactId>
 		</dependency>
+-->
 		<dependency>
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
