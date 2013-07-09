@@ -21,7 +21,6 @@ import com.cedarsoftware.util.io.JsonReader;
 public class PtuJsonReader extends JsonReader {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	private InputStream in;
 	
 	public PtuJsonReader(InputStream in) {
 		this(in, true);
@@ -29,7 +28,6 @@ public class PtuJsonReader extends JsonReader {
 
 	public PtuJsonReader(InputStream in, boolean noObjects) {
 		super(in, true);
-		this.in = in;
 		
 		addReader(Date.class, new JsonClassReader() {
 

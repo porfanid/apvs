@@ -57,7 +57,7 @@ public class PtuJsonTest {
 		Assert.assertEquals("PTU_88", packet1.getSender());
 		Packet packet2 = (Packet) jr.readObject();
 //		System.err.println(packet2);
-		Assert.assertEquals("PTU_88", packet1.getSender());
+		Assert.assertEquals("PTU_88", packet2.getSender());
 		ba.close();
 		jr.close();
 	}
