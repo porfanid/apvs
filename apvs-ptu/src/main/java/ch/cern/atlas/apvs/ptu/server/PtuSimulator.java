@@ -20,6 +20,8 @@ import ch.cern.atlas.apvs.domain.Report;
 
 public class PtuSimulator extends Thread {
 
+	private static final boolean DEBUG_PARTIAL_MESSAGES = false;
+	
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private final Channel channel;
@@ -82,7 +84,7 @@ public class PtuSimulator extends Thread {
 								new Date());
 					}
 					String json = PtuJsonWriter.objectToJson(new JsonHeader(msg));
-					System.err.println(json +" "+json.length());
+//					System.err.println(json +" "+json.length());
 					
 					if (WRITE_MARKERS) {
 						StringBuffer b = new StringBuffer();
@@ -94,7 +96,7 @@ public class PtuSimulator extends Thread {
 					}
 										
 					if (channel != null) {
-						if (json.length() > 75) {
+						if (DEBUG_PARTIAL_MESSAGES && (json.length() > 75)) {
 							write(json.substring(0, 75));
 							json = json.substring(75, json.length());
 							Thread.sleep(1000);
@@ -128,7 +130,7 @@ public class PtuSimulator extends Thread {
 			public void operationComplete(
 					Future<? super Void> future)
 					throws Exception {
-				System.err.println("Sent "+msg+" "+msg.length()+" "+future.isSuccess());
+//				System.err.println("Sent "+msg+" "+msg.length()+" "+future.isSuccess());
 			}
 		});
 	}
