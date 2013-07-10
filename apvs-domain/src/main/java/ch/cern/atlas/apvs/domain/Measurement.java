@@ -3,27 +3,48 @@ package ch.cern.atlas.apvs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import ch.cern.atlas.apvs.util.StringUtils;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 //NOTE: implements IsSerializable in case serialization file cannot be found
+@Entity
+@Table( name = "TBL_MEASUREMENTS" )
 public class Measurement implements Message, Serializable, IsSerializable, 
 		Comparable<Measurement> {
 
 	private static final long serialVersionUID = -906069262585850986L;
 
-	private volatile String ptuId;
-	private volatile String displayName;
-	private String type = "Measurement";
-	private String name;
-	private Double value;
-	private Double lowLimit;
-	private Double highLimit;
-	private String unit;
+    private Long id;
+// device id
 	private Date date;
+	private Double value;
+	private String unit;
+	private String method;
 	private Integer samplingRate;
+	private String name;
+	private Double highLimit;
+	private Double lowLimit;
+	
+// FIXME to be added to the DB
 	private boolean connected = true;
+
+	private volatile String ptuId;
+	private volatile transient String displayName;
+	private transient String type = "Measurement";
+
 
 	public Measurement() {
 	}
@@ -31,14 +52,14 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	public Measurement(String ptuId, String name, Double value,
 			Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
-		this.ptuId = ptuId;
-		this.name = name;
-		this.value = value;
-		this.lowLimit = lowLimit;
-		this.highLimit = highLimit;
-		this.unit = unit;
-		this.samplingRate = samplingRate;
-		this.date = date;
+		setPtuId(ptuId);
+		setName(name);
+		setValue(value);
+		setLowLimit(lowLimit);
+		setHighLimit(highLimit);
+		setUnit(unit);
+		setSamplingRate(samplingRate);
+		setDate(date);
 
 		this.displayName = null;
 
@@ -56,47 +77,132 @@ public class Measurement implements Message, Serializable, IsSerializable,
 				samplingRate, date);
 		this.displayName = displayName;
 	}
-
+	
+	@Id
+	@GeneratedValue(generator="increment")
+	@GenericGenerator(name="increment", strategy = "increment")
+	@Column(name = "ID", length=15)
+	public Long getId() {
+		return id;
+	}
+	
+	@SuppressWarnings("unused")
+	private void setId(Long id) {
+		this.id = id;
+	}
+	
 	@Override
 	public String getPtuId() {
 		return ptuId;
 	}
+	
+	private void setPtuId(String ptuId) {
+		this.ptuId = ptuId;
+	}
 
+	@Column(name = "SENSOR", length=50)
 	public String getName() {
 		return name;
 	}
+	
+	private void setName(String name) {
+		this.name = name;
+	}
 
+	@Transient
 	public String getDisplayName() {
 		return displayName != null ? displayName : getDisplayName(name);
 	}
 
+	@Column(name = "VALUE", length=1024)
+	@Type(type="double_string")
 	public Double getValue() {
 		return value;
 	}
+	
+	private void setValue(Double value) {
+		this.value = value;
+	}
 
+	@Column(name = "DOWN_THRES", length=20)
+	@Type(type="double_string")
 	public Double getLowLimit() {
 		return lowLimit;
 	}
+	
+	private void setLowLimit(Double lowLimit) {
+		this.lowLimit = lowLimit;
+	}
 
+	@Column(name = "UP_THRES", length=20)
+	@Type(type="double_string")
 	public Double getHighLimit() {
 		return highLimit;
 	}
 
+	private void setHighLimit(Double highLimit) {
+		this.highLimit = highLimit;
+	}
+
+	@Column(name = "UNIT", length=20)
 	public String getUnit() {
 		return unit;
 	}
+	
+	private void setUnit(String unit) {
+		this.unit = unit;
+	}
+	
+	@Column(name = "METHOD", length=20)
+	public String getMethod() {
+		return method;
+	}
+	
+	@SuppressWarnings("unused")
+	private void setMethod(String method) {
+		this.method = method;
+	}
 
+	@Column(name = "SAMPLING_RATE", length=20)
+	@Type(type="integer_string")
 	public Integer getSamplingRate() {
 		return samplingRate;
 	}
+	
+	private void setSamplingRate(Integer samplingRate) {
+		this.samplingRate = samplingRate;
+	}
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "DATETIME")
 	public Date getDate() {
 		return date;
 	}
 
+	// to update the measurement in case of no changes
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
 	@Override
+	@Transient
 	public String getType() {
 		return type;
+	}
+	
+	
+	@Type(type="yes_no")
+	@Column(name = "CONNECTED", length=1)
+	public boolean isConnected() {
+		return connected;
+	}
+	
+	private void setConnected(boolean connected) {
+		this.connected = connected;
+	}
+
+	public void disconnect() {
+		setConnected(false);
 	}
 
 	@Override
@@ -161,19 +267,5 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		}
 		return StringUtils.join(
 				StringUtils.splitByCharacterTypeCamelCase(name), ' ');
-	}
-
-	// to update the measurement in case of no changes
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	public boolean isConnected() {
-		return connected;
-	}
-
-	public void disconnect() {
-		connected = false;
-	}
-	
+	}	
 }

@@ -34,6 +34,8 @@
                 <eventbinder-version>1.0.0</eventbinder-version>
 		<gwt-bootstrap-version>2.2.1.0</gwt-bootstrap-version>
 		<gwt-bootstrap-version>2.3.2.0-20130617.001501-5</gwt-bootstrap-version>
+		<h2-version>1.3.172</h2-version>
+		<hibernate-version>4.2.3.Final</hibernate-version>
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
 		<highcharts-version>1.5.0</highcharts-version>
 		<hudson-gwt-slf4j-version>2.1.2</hudson-gwt-slf4j-version>
@@ -645,6 +647,16 @@
 				<artifactId>validation-api</artifactId>
 				<version>${validation-api-version}</version>
 				<classifier>sources</classifier>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>${h2-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-core</artifactId>
+				<version>${hibernate-version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
