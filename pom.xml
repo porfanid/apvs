@@ -72,7 +72,7 @@
 		<verifier-plugin-version>1.0</verifier-plugin-version>
 
 		<jar-plugin-version>2.4</jar-plugin-version>
-		<war-plugin-version>2.3</war-plugin-version>
+		<war-plugin-version>2.4</war-plugin-version>
 
 		<javadoc-plugin-version>2.9.1</javadoc-plugin-version>
 
