@@ -28,8 +28,8 @@ public class PtuJsonTest {
 
 	String parsedJson = "{"
 			+ "\"Sender\":\"PTU_88\",\"Receiver\":\"Broadcast\",\"FrameID\":\"0\",\"Acknowledge\":\"False\",\"Messages\":["
-			+ "{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Value\":\"33.19684099267707\",\"DownThreshold\":\"50.0\",\"UpThreshold\":\"130.0\",\"Unit\":\"ppm\",\"Date\":\"04/07/2013 15:42:53\",\"SamplingRate\":\"60000\",\"Connected\":\"True\"},"
-			+ "{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Value\":\"35.45927608218701\",\"DownThreshold\":\"50.0\",\"UpThreshold\":\"130.0\",\"Unit\":\"ppm\",\"Date\":\"04/07/2013 21:16:13\",\"SamplingRate\":\"60000\",\"Connected\":\"True\"}"
+			+ "{\"Id\":null,\"Date\":\"04/07/2013 15:42:53\",\"Value\":\"33.19684099267707\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":\"True\",\"Type\":\"Measurement\"},"
+			+ "{\"Id\":null,\"Date\":\"04/07/2013 21:16:13\",\"Value\":\"35.45927608218701\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":\"True\",\"Type\":\"Measurement\"}"
 			+ "]}";
 
 	@Test
@@ -71,7 +71,7 @@ public class PtuJsonTest {
 				PtuServerConstants.dateFormat.parse("04/07/2013 21:16:13")));
 
 		String output = PtuJsonWriter.toJson(packet);
-		// System.err.println(output);
+		System.err.println(output);
 		Assert.assertEquals(parsedJson, output);
 	}
 }
