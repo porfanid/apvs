@@ -13,6 +13,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.cern.atlas.apvs.hibernate.types.DoubleStringType;
+import ch.cern.atlas.apvs.hibernate.types.IntegerStringType;
+
 public class MeasurementTest {
 	private SessionFactory sessionFactory;
 

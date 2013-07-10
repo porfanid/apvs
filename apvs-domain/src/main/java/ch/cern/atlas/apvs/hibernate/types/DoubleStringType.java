@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.domain;
+package ch.cern.atlas.apvs.hibernate.types;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
