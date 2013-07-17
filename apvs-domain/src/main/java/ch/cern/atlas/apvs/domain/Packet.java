@@ -52,7 +52,11 @@ public class Packet implements Serializable, IsSerializable {
 	}
 		
 	public String toString() {
-		return "Packet "+sender+" "+receiver+" "+frameID+" "+acknowledge+" "+messages.size();
+		String s = "Packet sender:"+sender+", receiver:"+receiver+", frameId:"+frameID+", ack:"+acknowledge+", #messages:"+messages.size();
+		for (Message m: messages) {
+			s += "\n   "+m.toString();
+		}
+		return s;
 	}
 
 	

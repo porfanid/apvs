@@ -30,7 +30,7 @@ public class PtuServer {
 			new PtuPullServer(port, Integer.parseInt(args[1]), ids).run();
 		} catch (NumberFormatException e) {
 
-			System.out.println("Creating push server");
+			log.info("Creating push server");
 			// arg 0 is host
 			String[] ids = null;
 			if (args.length > 3) {

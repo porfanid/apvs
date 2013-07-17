@@ -1,4 +1,6 @@
-package ch.cern.atlas.apvs.server;
+package ch.cern.atlas.apvs.ptu.server;
+
+import ch.cern.atlas.apvs.domain.Packet;
 
 import com.google.web.bindery.event.shared.Event;
 
@@ -11,22 +13,22 @@ public class MessageEvent extends Event<MessageEvent.Handler> {
 	public static final Type<MessageEvent.Handler> TYPE = new Type<MessageEvent.Handler>();
 
 	private String prefix;
-	private String msg;
+	private Packet packet;
 	
 	public MessageEvent() {
 	}
 
-	public MessageEvent(String prefix, String msg) {
+	public MessageEvent(String prefix, Packet packet) {
 		this.prefix = prefix;
-		this.msg = msg;
+		this.packet = packet;
 	}
 	
 	public String getPrefix() {
 		return prefix;
 	}
 	
-	public String getMessage() {
-		return msg;
+	public Packet getPacket() {
+		return packet;
 	}
 	
 	@Override
@@ -41,7 +43,7 @@ public class MessageEvent extends Event<MessageEvent.Handler> {
 	
 	@Override
 	public String toString() {
-		return "MessageEvent "+prefix+" "+msg;
+		return "MessageEvent "+prefix+" "+packet;
 	}
 
 }

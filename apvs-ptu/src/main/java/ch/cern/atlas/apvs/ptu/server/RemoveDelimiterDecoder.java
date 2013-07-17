@@ -6,8 +6,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.MessageList;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RemoveDelimiterDecoder extends ByteToMessageDecoder {
 	
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	public RemoveDelimiterDecoder() {
 	}
 	

@@ -77,6 +77,9 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 		if (name.equals("Name")) {
 			name = "Sensor";
 		}
+		if (name.equals("Date")) {
+			name = "Time";
+		}
 		if (name.equals("LowLimit")) {
 			name = "DownThreshold";
 		}

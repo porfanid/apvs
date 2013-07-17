@@ -9,7 +9,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Event implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5549380949230727273L;
-	
+
 	private volatile String ptuId;
 	private String type = "Event";
 	private String name;
@@ -22,7 +22,8 @@ public class Event implements Message, Serializable, IsSerializable {
 	public Event() {
 	}
 
-	public Event(String ptuId, String name, String eventType, Number value, Number threshold, String unit, Date date) {
+	public Event(String ptuId, String name, String eventType, Number value,
+			Number threshold, String unit, Date date) {
 		this.ptuId = ptuId;
 		this.name = name;
 		this.eventType = eventType;
@@ -32,7 +33,7 @@ public class Event implements Message, Serializable, IsSerializable {
 		this.date = date;
 	}
 
-    @Override
+	@Override
 	public String getPtuId() {
 		return ptuId;
 	}
@@ -48,7 +49,7 @@ public class Event implements Message, Serializable, IsSerializable {
 	public Number getValue() {
 		return value;
 	}
-	
+
 	public Number getTheshold() {
 		return threshold;
 	}
@@ -66,8 +67,12 @@ public class Event implements Message, Serializable, IsSerializable {
 		return type;
 	}
 
-	
+	@Override
 	public String toString() {
-		return getDate()+"PTU: "+getPtuId()+" Sensor: "+getName()+" Type: "+getEventType()+" Value: "+getValue()+" Unit: "+getUnit()+" Threshold: "+getTheshold();
+		return "Event(" + getPtuId() + "): name:" + getName() + ", type: "
+				+ getEventType() + ", value:" + getValue() + ", unit:"
+				+ getUnit() + ", threshold:" + getTheshold() + ", date:"
+				+ getDate();
 	}
+
 }

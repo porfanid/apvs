@@ -23,13 +23,13 @@ public class PtuJsonTest {
 			+ "{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Time\":\"11/09/2012 10:07:10\",\"Method\":\"OneShoot\",\"Value\":\"35.45927608218701\",\"SamplingRate\":\"15000\",\"Unit\":\"ppm\",\"DownThreshold\":\"33.0\",\"UpThreshold\":\"35.7\"}"
 			+ "]}";
 
-	String msg0 = "Measurement(PTU_88): name=Humidity value=33.19684099267707 unit=ppm sampling rate=10000 date: Tue Sep 11 10:02:25 CEST 2012";
-	String msg1 = "Measurement(PTU_88): name=Humidity value=35.45927608218701 unit=ppm sampling rate=15000 date: Tue Sep 11 10:07:10 CEST 2012";
+	String msg0 = "Measurement(PTU_88): name:Humidity, value:33.19684099267707, unit:ppm, sampling rate:10000, date:Tue Sep 11 10:02:25 CEST 2012";
+	String msg1 = "Measurement(PTU_88): name:Humidity, value:35.45927608218701, unit:ppm, sampling rate:15000, date:Tue Sep 11 10:07:10 CEST 2012";
 
 	String parsedJson = "{"
 			+ "\"Sender\":\"PTU_88\",\"Receiver\":\"Broadcast\",\"FrameID\":\"0\",\"Acknowledge\":\"False\",\"Messages\":["
-			+ "{\"Id\":null,\"Date\":\"04/07/2013 15:42:53\",\"Value\":\"33.19684099267707\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":\"True\",\"Type\":\"Measurement\"},"
-			+ "{\"Id\":null,\"Date\":\"04/07/2013 21:16:13\",\"Value\":\"35.45927608218701\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":\"True\",\"Type\":\"Measurement\"}"
+			+ "{\"Id\":null,\"Time\":\"04/07/2013 15:42:53\",\"Value\":\"33.19684099267707\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":\"True\",\"Type\":\"Measurement\"},"
+			+ "{\"Id\":null,\"Time\":\"04/07/2013 21:16:13\",\"Value\":\"35.45927608218701\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":\"True\",\"Type\":\"Measurement\"}"
 			+ "]}";
 
 	@Test
@@ -50,7 +50,7 @@ public class PtuJsonTest {
 	public void streamReaderTest() throws IOException {
 		ByteArrayInputStream ba = new ByteArrayInputStream(
 				(json + json).getBytes("UTF-8"));
-		System.err.println("Len "+json.length());
+//		System.err.println("Len "+json.length());
 		PtuJsonReader jr = new PtuJsonReader(ba, true);
 		Packet packet1 = (Packet) jr.readObject();
 //		System.err.println(packet1);
@@ -71,7 +71,7 @@ public class PtuJsonTest {
 				PtuServerConstants.dateFormat.parse("04/07/2013 21:16:13")));
 
 		String output = PtuJsonWriter.toJson(packet);
-		System.err.println(output);
+//		System.err.println(output);
 		Assert.assertEquals(parsedJson, output);
 	}
 }

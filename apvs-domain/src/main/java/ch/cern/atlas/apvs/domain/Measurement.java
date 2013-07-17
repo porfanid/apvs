@@ -252,9 +252,9 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	
 	@Override
 	public String toString() {
-		return "Measurement(" + getPtuId() + "): name=" + getName() + " value="
-				+ getValue() + " unit=" + getUnit() + " sampling rate="
-				+ getSamplingRate() + " date: " + getDate();
+		return "Measurement(" + getPtuId() + "): name:" + getName() + ", value:"
+				+ getValue() + ", unit:" + getUnit() + ", sampling rate:"
+				+ getSamplingRate() + ", date:" + getDate();
 	}
 
 	public static String getDisplayName(String name) {
