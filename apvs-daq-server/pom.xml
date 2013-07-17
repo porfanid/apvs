@@ -11,7 +11,7 @@
 
 	<artifactId>apvs-daq-server</artifactId>
 	<packaging>jar</packaging>
-	<name>APVS DAQ Server</name>
+	<name>APVS daq server</name>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
