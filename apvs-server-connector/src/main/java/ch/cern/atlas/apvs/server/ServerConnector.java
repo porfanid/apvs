@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -53,7 +54,15 @@ public class ServerConnector {
 		bin.handler(new ChannelInitializer<SocketChannel>() {
 			@Override
 			protected void initChannel(SocketChannel ch) throws Exception {
-				ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
+				ch.pipeline().addLast(new IdleStateHandler(60, 30, 0) {
+					@Override
+					public void userEventTriggered(ChannelHandlerContext ctx,
+							Object evt) throws Exception {
+						// TODO Auto-generated method stub
+						super.userEventTriggered(ctx, evt);
+						System.err.println("*** "+evt);
+					}
+				});
 				ch.pipeline().addLast(new RemoveDelimiterDecoder());
 				ch.pipeline().addLast(new JsonMessageDecoder());
 				ch.pipeline().addLast(new JsonMessageEncoder());

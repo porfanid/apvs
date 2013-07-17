@@ -55,7 +55,7 @@
 -->
 		<mockito-version>1.9.5</mockito-version>
 		<gwtmockito-version>1.0.0</gwtmockito-version>
-		<netty-version>4.0.0.CR9</netty-version>
+		<netty-version>4.0.0.Final</netty-version>
 		<nettosphere-version>2.0.0.RC4</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>

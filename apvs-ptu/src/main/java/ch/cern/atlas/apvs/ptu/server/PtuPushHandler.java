@@ -3,7 +3,6 @@ package ch.cern.atlas.apvs.ptu.server;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,10 +67,15 @@ public class PtuPushHandler extends PtuReconnectHandler {
 			simulators.remove(ctx.channel());
 		}
 	}
-	
+
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msg)
+	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
 		// ignored
 	}
+
+	@Override
+	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+		// ignored
+	};
 }

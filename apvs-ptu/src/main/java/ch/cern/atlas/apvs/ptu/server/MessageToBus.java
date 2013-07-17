@@ -3,8 +3,11 @@ package ch.cern.atlas.apvs.ptu.server;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+
+import java.net.SocketAddress;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +64,9 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 			}
 		});
 	}
-
+	
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, Packet packet)
+	public void channelRead0(ChannelHandlerContext ctx, Packet packet)
 			throws Exception {
 
 		// System.err.println(prefix + " '" + packet + "'");
@@ -90,5 +93,29 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 				+ ctx.channel().remoteAddress());
 		
 		this.ctx = ctx;
+	}
+	
+	@Override
+	public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
+			throws Exception {
+		SocketAddress remote = ctx.channel().remoteAddress();
+		if (evt instanceof IdleState) {
+			switch ((IdleState) evt) {
+			case ALL_IDLE:
+			case READER_IDLE:
+				log.warn("Channel read-idle or all-idle, closing "+remote);
+				ctx.channel().close();
+				break;
+			case WRITER_IDLE:
+				log.warn("Channel write-idle, pinging "+remote+"...");
+				ctx.channel().write(new Packet("DaqServer", "Ping", 0, false));
+				break;
+			default:
+				log.warn("Unknown idle state "+evt+" for "+remote);
+				break;
+			};
+		} else {
+			super.userEventTriggered(ctx, evt);
+		}
 	}
 }
