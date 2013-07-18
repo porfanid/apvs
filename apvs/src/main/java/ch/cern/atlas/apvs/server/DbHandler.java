@@ -18,7 +18,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
@@ -28,14 +27,16 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.SortOrder;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.util.StringUtils;
-
 
 public class DbHandler extends DbReconnectHandler {
 
@@ -114,10 +115,11 @@ public class DbHandler extends DbReconnectHandler {
 		}, 0, 30, TimeUnit.SECONDS);
 
 	}
-	
+
 	public static DbHandler getInstance() {
 		if (handler == null) {
-			handler = new DbHandler(APVSServerFactory.getInstance().getEventBus());
+			handler = new DbHandler(APVSServerFactory.getInstance()
+					.getEventBus());
 		}
 		return handler;
 	}
@@ -140,10 +142,10 @@ public class DbHandler extends DbReconnectHandler {
 
 	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
 			throws SQLException {
-		
+
 		// FIXME could be part of the SQL
 		SensorMap sensorMap = getSensorMap();
-		
+
 		// NOTE: we could optimize the query by running a count and see if the #
 		// is not too large, then just move forward the from time.
 		String sql = "select tbl_measurements.ID, NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE, METHOD, UP_THRES, DOWN_THRES from tbl_measurements, tbl_devices "
@@ -208,7 +210,7 @@ public class DbHandler extends DbReconnectHandler {
 						low = Scale.getLowLimit(low, unit);
 						high = Scale.getHighLimit(high, unit);
 						unit = Scale.getUnit(unit);
-						
+
 						if (!sensorMap.isEnabled(ptuId, sensor)) {
 							continue;
 						}
@@ -342,8 +344,8 @@ public class DbHandler extends DbReconnectHandler {
 		}
 	}
 
-	public List<Intervention> getInterventions(int start, int length, SortOrder[] order)
-			throws SQLException {
+	public List<Intervention> getInterventions(int start, int length,
+			SortOrder[] order) throws SQLException {
 		String sql = "select tbl_inspections.ID as ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
 				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, "
 				+ "tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS, tbl_users.id as USER_ID, tbl_devices.id as DEVICE_ID "
@@ -353,7 +355,7 @@ public class DbHandler extends DbReconnectHandler {
 
 		Connection connection = getConnection();
 		String fullSql = getSql(sql, start, length, order);
-//		System.err.println(fullSql);
+		// System.err.println(fullSql);
 		PreparedStatement statement = connection.prepareStatement(fullSql);
 		ResultSet result = statement.executeQuery();
 
@@ -421,8 +423,8 @@ public class DbHandler extends DbReconnectHandler {
 		}
 	}
 
-	public List<Event> getEvents(int start, int length, SortOrder[] order, String ptuId,
-			String measurementName) throws SQLException {
+	public List<Event> getEvents(int start, int length, SortOrder[] order,
+			String ptuId, String measurementName) throws SQLException {
 
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
 				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime, tbl_events.unit "
@@ -525,9 +527,9 @@ public class DbHandler extends DbReconnectHandler {
 				.prepareStatement("insert into tbl_devices (name, ip, dscr, mac_addr, host_name) values (?, ?, ?, ?, ?)");
 		try {
 			addDevice.setString(1, device.getName());
-			addDevice.setString(2, device.getIp());
+			addDevice.setString(2, device.getIp().getHostAddress());
 			addDevice.setString(3, device.getDescription());
-			addDevice.setString(4, device.getMacAddress());
+			addDevice.setString(4, device.getMacAddress().toString());
 			addDevice.setString(5, device.getHostName());
 			addDevice.executeUpdate();
 		} finally {
@@ -662,9 +664,10 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			while (result.next()) {
 				list.add(new Device(result.getInt("ID"), result
-						.getString("NAME"), result.getString("IP"), result
-						.getString("DSCR"), result.getString("MAC_ADDR"),
-						result.getString("HOST_NAME")));
+						.getString("NAME"), InetAddress.getByName(result
+						.getString("IP")), result.getString("DSCR"),
+						new MacAddress(result.getString("MAC_ADDR")), result
+								.getString("HOST_NAME")));
 			}
 		} finally {
 			result.close();
@@ -805,7 +808,7 @@ public class DbHandler extends DbReconnectHandler {
 	 */
 	public List<Measurement> getMeasurements(List<String> ptuIdList, String name)
 			throws SQLException {
-		
+
 		// FIXME could be part of the SQL
 		SensorMap sensorMap = getSensorMap();
 
@@ -838,11 +841,11 @@ public class DbHandler extends DbReconnectHandler {
 			while (result.next()) {
 				String ptuId = result.getString("NAME");
 				String sensor = result.getString("SENSOR");
-				
+
 				if (!sensorMap.isEnabled(ptuId, sensor)) {
 					continue;
 				}
-				
+
 				String unit = result.getString("UNIT");
 				Double value = toDouble(result.getString("VALUE"));
 				Double low = toDouble(result.getString("DOWN_THRES"));
@@ -861,10 +864,9 @@ public class DbHandler extends DbReconnectHandler {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(unit);
 
-				Measurement m = new Measurement(ptuId,
-						sensor, value, low, high, unit,
-						toInt(result.getString("SAMPLINGRATE")), new Date(
-								result.getTimestamp("DATETIME").getTime()));
+				Measurement m = new Measurement(ptuId, sensor, value, low,
+						high, unit, toInt(result.getString("SAMPLINGRATE")),
+						new Date(result.getTimestamp("DATETIME").getTime()));
 				list.add(m);
 			}
 		} finally {
@@ -877,22 +879,23 @@ public class DbHandler extends DbReconnectHandler {
 
 	public SensorMap getSensorMap() {
 		SensorMap sensorMap = new SensorMap();
-		
+
 		String sql = "select NAME, SENSOR, ENABLED from tbl_sensors join tbl_devices on tbl_sensors.DEVICE_ID = tbl_devices.id";
 
 		Connection connection;
 		try {
 			connection = getConnection();
 			PreparedStatement statement = connection.prepareStatement(sql);
-			
+
 			ResultSet result = statement.executeQuery();
 			try {
 				while (result.next()) {
 					String sensor = result.getString("SENSOR");
 					String ptuId = result.getString("NAME");
 					String value = result.getString("ENABLED");
-					
-					sensorMap.setEnabled(ptuId, sensor, value == null ? true : value.equalsIgnoreCase("y"));
+
+					sensorMap.setEnabled(ptuId, sensor, value == null ? true
+							: value.equalsIgnoreCase("y"));
 				}
 			} finally {
 				result.close();
@@ -903,7 +906,7 @@ public class DbHandler extends DbReconnectHandler {
 			// ignore, just return unfilled map
 			System.err.println("WARNING Failed to retrieve sensor map");
 		}
-		
+
 		return sensorMap;
 	}
 }

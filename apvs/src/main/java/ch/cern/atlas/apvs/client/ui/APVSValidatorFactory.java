@@ -2,9 +2,9 @@ package ch.cern.atlas.apvs.client.ui;
 
 import javax.validation.Validator;
 
-import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.User;
+import ch.cern.atlas.apvs.domain.Device;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.validation.client.AbstractGwtValidatorFactory;

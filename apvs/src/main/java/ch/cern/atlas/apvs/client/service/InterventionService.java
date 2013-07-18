@@ -3,9 +3,9 @@ package ch.cern.atlas.apvs.client.service;
 import java.util.Date;
 import java.util.List;
 
-import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.User;
+import ch.cern.atlas.apvs.domain.Device;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;

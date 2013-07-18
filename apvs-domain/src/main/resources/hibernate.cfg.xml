@@ -28,6 +28,7 @@
 		<property name="hbm2ddl.auto">create</property>
 
 		<!-- Names the annotated entity class -->
+		<mapping class="ch.cern.atlas.apvs.domain.Device" />
 		<mapping class="ch.cern.atlas.apvs.domain.Measurement" />
 
 	</session-factory>
