@@ -46,7 +46,7 @@ public class AlarmManager {
 			@Override
 			public void onEventChanged(EventChangedEvent event) {
 				String eventType = event.getEvent().getEventType();
-				String ptuId = event.getEvent().getPtuId();
+				String ptuId = event.getEvent().getDevice().getName();
 
 				if (eventType.equals("PanicEvent")) {
 					alarms.setPanic(ptuId, true);

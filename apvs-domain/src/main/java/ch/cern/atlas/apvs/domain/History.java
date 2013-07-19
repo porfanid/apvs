@@ -137,7 +137,7 @@ public class History implements Serializable, IsSerializable {
 
 	public Measurement getMeasurement() {
 		int last = index - 1;
-		return index == 0 ? null : new Measurement(ptuId, name,
+		return index == 0 ? null : new Measurement(new Device(ptuId), name,
 				data[last][VALUE].doubleValue(), data[last][LOW_LIMIT].doubleValue(),
 				data[last][HIGH_LIMIT].doubleValue(), unit,
 				data[last][SAMPLING_RATE].intValue(), new Date(

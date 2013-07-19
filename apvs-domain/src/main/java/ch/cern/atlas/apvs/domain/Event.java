@@ -10,7 +10,7 @@ public class Event implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5549380949230727273L;
 
-	private volatile String ptuId;
+	private volatile Device device;
 	private String type = "Event";
 	private String name;
 	private String eventType;
@@ -22,9 +22,10 @@ public class Event implements Message, Serializable, IsSerializable {
 	public Event() {
 	}
 
-	public Event(String ptuId, String name, String eventType, Number value,
+	public Event(Device device, String name, String eventType, Number value,
 			Number threshold, String unit, Date date) {
-		this.ptuId = ptuId;
+
+		this.device = device;
 		this.name = name;
 		this.eventType = eventType;
 		this.value = value;
@@ -34,8 +35,8 @@ public class Event implements Message, Serializable, IsSerializable {
 	}
 
 	@Override
-	public String getPtuId() {
-		return ptuId;
+	public Device getDevice() {
+		return device;
 	}
 
 	public String getName() {
@@ -69,7 +70,7 @@ public class Event implements Message, Serializable, IsSerializable {
 
 	@Override
 	public String toString() {
-		return "Event(" + getPtuId() + "): name:" + getName() + ", type: "
+		return "Event(" + getDevice().getName() + "): name:" + getName() + ", type: "
 				+ getEventType() + ", value:" + getValue() + ", unit:"
 				+ getUnit() + ", threshold:" + getTheshold() + ", date:"
 				+ getDate();

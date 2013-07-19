@@ -241,7 +241,7 @@ public class EventView extends GlassPanel implements Module {
 						if (event == null)
 							return;
 
-						if (((ptuId == null) || event.getPtuId().equals(ptuId))
+						if (((ptuId == null) || event.getDevice().getName().equals(ptuId))
 								&& ((measurementName == null) || event
 										.getName().equals(measurementName))) {
 							showUpdate = true;
@@ -316,7 +316,7 @@ public class EventView extends GlassPanel implements Module {
 		ptu = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return object.getPtuId();
+				return object.getDevice().getName();
 			}
 
 			@Override

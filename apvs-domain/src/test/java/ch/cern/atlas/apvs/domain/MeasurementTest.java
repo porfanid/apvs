@@ -41,13 +41,18 @@ public class MeasurementTest {
 	@SuppressWarnings({ "rawtypes" })
 	@Test
 	public void testBasicUsage() {
-		Measurement m1 = new Measurement("PTU_88", "Temperature", 22.4, 20.0,
+		Device d1 = new Device("PTU_88", InetAddress.getByName("ptu_88"), "ptu 88", null, "ptu_88.cern.ch");
+		Device d2 = new Device("PTU_99", InetAddress.getByName("ptu_99"), "ptu 99", null, "ptu_99.cern.ch");
+		
+		Measurement m1 = new Measurement(d1, "Temperature", 22.4, 20.0,
 				25.0, "Degrees", 60000, new Date());
-		Measurement m2 = new Measurement("PTU_99", "Temperature", 22.8, 20.0, 25.0,
+		Measurement m2 = new Measurement(d2, "Temperature", 22.8, 20.0, 25.0,
 				"Degrees", 60000, new Date());
 
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
+		session.save(d1);
+		session.save(d2);
 		session.save(m1);
 		session.save(m2);
 		session.getTransaction().commit();

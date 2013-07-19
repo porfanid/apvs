@@ -76,15 +76,15 @@ public class SpecificTimeView extends AbstractTimeView {
 							MeasurementChangedEvent event) {
 						Measurement m = event.getMeasurement();
 						if (m.getName().equals(measurementName)
-								&& ((ptuId == null) || m.getPtuId().equals(
+								&& ((ptuId == null) || m.getDevice().getName().equals(
 										ptuId))
 								&& (m.getDate().getTime() < new Date()
 										.getTime() + MINUTE)) {
-							addPoint(m.getPtuId(), m.getDate().getTime(),
+							addPoint(m.getDevice().getName(), m.getDate().getTime(),
 									m.getValue(), m.getLowLimit(),
 									m.getHighLimit());
 
-							setUnit(m.getPtuId(), m.getUnit());
+							setUnit(m.getDevice().getName(), m.getUnit());
 						}
 					}
 				});

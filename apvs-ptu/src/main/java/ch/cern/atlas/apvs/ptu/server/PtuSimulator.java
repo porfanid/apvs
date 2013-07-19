@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.domain.APVSException;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
@@ -52,18 +53,19 @@ public class PtuSimulator extends Thread {
 			long then = now - deltaStartTime;
 			Date start = new Date(then);
 
-			ptu = new Ptu(ptuId);
+			Device device = new Device(ptuId);
+			ptu = new Ptu(device);
 			log.info("Creating " + ptuId);
 
 			try {
-				ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
-				ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
-				ptu.addMeasurement(new CO2(ptuId, 2.5, start));
-				ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
-				ptu.addMeasurement(new HeartRate(ptuId, 120, start));
-				ptu.addMeasurement(new DoseAccum(ptuId, 0.042, start));
-				ptu.addMeasurement(new DoseRate(ptuId, 0.001, start));
-				ptu.addMeasurement(new O2(ptuId, 85.2, start));
+				ptu.addMeasurement(new Temperature(device, 25.7, start));
+				ptu.addMeasurement(new Humidity(device, 31.4, start));
+				ptu.addMeasurement(new CO2(device, 2.5, start));
+				ptu.addMeasurement(new BodyTemperature(device, 37.2, start));
+				ptu.addMeasurement(new HeartRate(device, 120, start));
+				ptu.addMeasurement(new DoseAccum(device, 0.042, start));
+				ptu.addMeasurement(new DoseRate(device, 0.001, start));
+				ptu.addMeasurement(new O2(device, 85.2, start));
 			} catch (APVSException e) {
 				log.warn("Could not add measurement", e);
 			}
@@ -148,14 +150,14 @@ public class PtuSimulator extends Thread {
 	}
 
 	private Measurement nextMeasurement(Measurement m, Date d) {
-		return new Measurement(m.getPtuId(), m.getName(), m.getValue()
+		return new Measurement(m.getDevice(), m.getName(), m.getValue()
 				.doubleValue() + random.nextGaussian(), m.getLowLimit(),
 				m.getHighLimit(), m.getUnit(), m.getSamplingRate(), d);
 	}
 
 	@SuppressWarnings("unused")
 	private Report nextReport(Ptu ptu, Date d) {
-		return new Report(ptu.getPtuId(), random.nextGaussian(),
+		return new Report(ptu.getDevice(), random.nextGaussian(),
 				random.nextBoolean(), random.nextBoolean(),
 				random.nextBoolean(), d);
 	}
@@ -167,7 +169,7 @@ public class PtuSimulator extends Thread {
 		double d2 = random.nextDouble();
 		String unit = "";
 
-		return new Event(ptu.getPtuId(), name, "UpLevel", Math.max(d1, d2),
+		return new Event(ptu.getDevice(), name, "UpLevel", Math.max(d1, d2),
 				Math.min(d1, d2), unit, d);
 	}
 }

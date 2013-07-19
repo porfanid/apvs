@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -49,6 +50,7 @@ public class PtuJsonReader extends JsonReader {
 		Boolean acknowledge = convertToBoolean(jsonObj.get("Acknowledge"));
 
 		Packet packet = new Packet(sender, receiver, frameID, acknowledge);
+		Device device = new Device(sender);
 		
 		Object[] msgs = ((JsonObject<?, ?>)jsonObj.get("Messages")).getArray();
 		// fix for #497
@@ -88,17 +90,17 @@ public class PtuJsonReader extends JsonReader {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(unit);
 
-				packet.addMessage(new Measurement(sender, sensor, value, low,
+				packet.addMessage(new Measurement(device, sensor, value, low,
 						high, unit, Integer.parseInt(samplingRate),
 						convertToDate(time)));
 			} else if (type.equals("Event")) {
-				packet.addMessage(new Event(sender, (String) msg.get("Sensor"),
+				packet.addMessage(new Event(device, (String) msg.get("Sensor"),
 						(String) msg.get("EventType"), convertToDouble(msg
 								.get("Value")), convertToDouble(msg
 								.get("Threshold")), (String) msg.get("Unit"),
 						convertToDate(msg.get("Time"))));
 			} else if (type.equals("GeneralConfiguration")) {
-				packet.addMessage(new GeneralConfiguration(sender, (String) msg
+				packet.addMessage(new GeneralConfiguration(device, (String) msg
 						.get("DosimeterID")));
 			} else {
 				log.warn("Message type not implemented: " + type);

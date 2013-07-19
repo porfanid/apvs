@@ -473,7 +473,7 @@ public class DbHandler extends DbReconnectHandler {
 				Double threshold = toDouble(result.getString("threshold"));
 				String unit = result.getString("unit");
 
-				list.add(new Event(name, result.getString("sensor"), result
+				list.add(new Event(new Device(name), result.getString("sensor"), result
 						.getString("event_type"), value, threshold, unit,
 						new Date(result.getTimestamp("datetime").getTime())));
 			}
@@ -864,7 +864,7 @@ public class DbHandler extends DbReconnectHandler {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(unit);
 
-				Measurement m = new Measurement(ptuId, sensor, value, low,
+				Measurement m = new Measurement(new Device(ptuId), sensor, value, low,
 						high, unit, toInt(result.getString("SAMPLINGRATE")),
 						new Date(result.getTimestamp("DATETIME").getTime()));
 				list.add(m);

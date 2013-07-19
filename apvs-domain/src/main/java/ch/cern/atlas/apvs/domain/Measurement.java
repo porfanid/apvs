@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -27,8 +28,8 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	private static final long serialVersionUID = -906069262585850986L;
 
+	private volatile Device device;
     private Long id;
-// device id
 	private Date date;
 	private Double value;
 	private String unit;
@@ -41,18 +42,17 @@ public class Measurement implements Message, Serializable, IsSerializable,
 // FIXME to be added to the DB
 	private boolean connected = true;
 
-	private volatile String ptuId;
 	private volatile transient String displayName;
 	private transient String type = "Measurement";
 
 
 	public Measurement() {
 	}
-
-	public Measurement(String ptuId, String name, Double value,
+	
+	public Measurement(Device device, String name, Double value,
 			Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
-		setPtuId(ptuId);
+		setDevice(device);
 		setName(name);
 		setValue(value);
 		setLowLimit(lowLimit);
@@ -68,13 +68,12 @@ public class Measurement implements Message, Serializable, IsSerializable,
 				&& (unit != null) && unit.equals("C")) {
 			this.unit = "&deg;C";
 		}
-	}
-
-	public Measurement(String ptuId, String name, String displayName,
-			Double value, Double lowLimit, Double highLimit, String unit,
+	}	
+	
+	public Measurement(Device device, String name, String displayName, Double value,
+			Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
-		this(ptuId, displayName, value, lowLimit, highLimit, unit,
-				samplingRate, date);
+		this(device, name, value, lowLimit, highLimit, unit, samplingRate, date);
 		this.displayName = displayName;
 	}
 	
@@ -90,16 +89,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	private void setId(Long id) {
 		this.id = id;
 	}
-	
-	@Override
-	public String getPtuId() {
-		return ptuId;
-	}
-	
-	private void setPtuId(String ptuId) {
-		this.ptuId = ptuId;
-	}
-
+		
 	@Column(name = "SENSOR", length=50)
 	public String getName() {
 		return name;
@@ -204,6 +194,16 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	public void disconnect() {
 		setConnected(false);
 	}
+	
+	@Override
+	@ManyToOne
+	public Device getDevice() {
+		return device;
+	}
+	
+	private void setDevice(Device device) {
+		this.device = device;
+	}
 
 	@Override
 	public int compareTo(Measurement o) {
@@ -213,7 +213,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	@Override
 	public int hashCode() {
-		return (getPtuId() != null ? getPtuId().hashCode() : 0)
+		return (getDevice() != null ? getDevice().hashCode() : 0)
 				+ (getName() != null ? getName().hashCode() : 0)
 				+ (getValue() != null ? getValue().hashCode() : 0)
 				+ (getLowLimit() != null ? getLowLimit().hashCode() : 0)
@@ -228,8 +228,8 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	public boolean equals(Object obj) {
 		if ((obj != null) && (obj instanceof Measurement)) {
 			Measurement m = (Measurement) obj;
-			return (getPtuId() == null ? m.getPtuId() == null : getPtuId()
-					.equals(m.getPtuId()))
+			return (getDevice() == null ? m.getDevice() == null : getDevice()
+					.equals(m.getDevice()))
 					&& (getName() == null ? m.getName() == null : getName()
 							.equals(m.getName()))
 					&& (getValue() == null ? m.getValue() == null : getValue()
@@ -252,7 +252,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	
 	@Override
 	public String toString() {
-		return "Measurement(" + getPtuId() + "): name:" + getName() + ", value:"
+		return "Measurement(" + getDevice().getName() + "): name:" + getName() + ", value:"
 				+ getValue() + ", unit:" + getUnit() + ", sampling rate:"
 				+ getSamplingRate() + ", date:" + getDate();
 	}

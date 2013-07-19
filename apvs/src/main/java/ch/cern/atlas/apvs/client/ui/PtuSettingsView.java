@@ -22,6 +22,7 @@ import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -71,7 +72,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	private List<String> usersList = new ArrayList<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 
-	private Delegate<String> setDosimeterSerialId = null;
+	private Delegate<Device> setDosimeterSerialId = null;
 	
 	public PtuSettingsView() {
 	}
@@ -169,14 +170,14 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			boolean useCompositeCell = false;
 
 			if (enableDosimeterChange) {
-				setDosimeterSerialId = new Delegate<String>() {
+				setDosimeterSerialId = new Delegate<Device>() {
 					@Override
-					public void execute(String object) {
+					public void execute(Device device) {
 						System.out.println("Action program "
-								+ settings.getDosimeterSerialNumber(object)
-								+ " into " + object);
-						final Order order = new Order(object, "DosimeterID",
-								settings.getDosimeterSerialNumber(object));
+								+ settings.getDosimeterSerialNumber(device.getName())
+								+ " into " + device);
+						final Order order = new Order(device, "DosimeterID",
+								settings.getDosimeterSerialNumber(device.getName()));
 						clientFactory.getPtuService().handleOrder(order,
 								new AsyncCallback<Void>() {
 
@@ -201,23 +202,24 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				// inout next to eachother, something with
 				// block level and inline elements AND table cells
 				List<HasCell<String, ?>> cells = new ArrayList<HasCell<String, ?>>();
-				cells.add(new HasCell<String, String>() {
-					Cell<String> action = new ActionCell<String>("Set to PTU",
+				cells.add(new HasCell<String, Device>() {
+					Cell<Device> action = new ActionCell<Device>("Set to PTU",
 							setDosimeterSerialId);
 
 					@Override
-					public Cell<String> getCell() {
+					public Cell<Device> getCell() {
 						return action;
 					}
 
 					@Override
-					public FieldUpdater<String, String> getFieldUpdater() {
+					public FieldUpdater<String, Device> getFieldUpdater() {
 						return null;
 					}
 
 					@Override
-					public String getValue(String object) {
-						return object;
+					public Device getValue(String object) {
+						// FIXME look at this again
+						return new Device(object);
 					}
 
 				});
@@ -282,13 +284,14 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			table.addColumn(dosimeter, "Dosimeter #");
 
 			if (!useCompositeCell && enableDosimeterChange) {
-				Column<String, String> dosimeterSet = new Column<String, String>(
-						new ActionCell<String>("Set to PTU",
+				Column<String, Device> dosimeterSet = new Column<String, Device>(
+						new ActionCell<Device>("Set to PTU",
 								setDosimeterSerialId)) {
 
 					@Override
-					public String getValue(String object) {
-						return object;
+					public Device getValue(String object) {
+						// FIXME look at this again
+						return new Device(object);
 					}
 				};
 				dosimeterSet.setSortable(false);

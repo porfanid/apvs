@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Packet;
 import ch.cern.atlas.apvs.ptu.server.Humidity;
@@ -64,10 +65,11 @@ public class PtuJsonTest {
 
 	@Test
 	public void writerTest() throws ParseException {
-		Packet packet = new Packet("PTU_88", "Broadcast", 0, false);
-		packet.addMessage(new Humidity("PTU_88", 33.19684099267707,
+		Device device = new Device("PTU_88");
+		Packet packet = new Packet(device.getName(), "Broadcast", 0, false);
+		packet.addMessage(new Humidity(device, 33.19684099267707,
 				PtuServerConstants.dateFormat.parse("04/07/2013 15:42:53")));
-		packet.addMessage(new Humidity("PTU_88", 35.45927608218701,
+		packet.addMessage(new Humidity(device, 35.45927608218701,
 				PtuServerConstants.dateFormat.parse("04/07/2013 21:16:13")));
 
 		String output = PtuJsonWriter.toJson(packet);

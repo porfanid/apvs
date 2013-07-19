@@ -23,6 +23,7 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.Connec
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.domain.APVSException;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
@@ -203,7 +204,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			return;
 		}
 
-		String ptuId = message.getPtuId();
+		String ptuId = message.getDevice().getName();
 		String sensor = message.getName();
 		
 		if (!sensorMap.isEnabled(ptuId, sensor)) {
@@ -222,19 +223,19 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		high = Scale.getHighLimit(high, unit);
 		unit = Scale.getUnit(unit);
 
-		measurementChanged.add(new Measurement(ptuId, sensor, value, low, high, unit, message.getSamplingRate(),
+		measurementChanged.add(new Measurement(message.getDevice(), sensor, value, low, high, unit, message.getSamplingRate(),
 				message.getDate()));
 
 		sendEvents();
 	}
 
 	private void handleMessage(Event message) {
-		String ptuId = message.getPtuId();
+		Device device = message.getDevice();
 		String sensor = message.getName();
 
 		// log.info("EVENT " + message);
 
-		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
+		eventBus.fireEvent(new EventChangedEvent(new Event(device, sensor,
 				message.getEventType(), message.getValue(), message
 						.getTheshold(), message.getUnit(), message.getDate())));
 
@@ -250,7 +251,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	private void handleMessage(GeneralConfiguration message) {
-		String ptuId = message.getPtuId();
+		String ptuId = message.getDevice().getName();
 		String dosimeterId = message.getDosimeterId();
 
 		if (settings != null) {

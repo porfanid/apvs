@@ -104,9 +104,9 @@ public class HistoryManager {
 						// correct place
 						Measurement measurement = event.getMeasurement();
 						History history = historyMap.get(
-								measurement.getPtuId(), measurement.getName());
+								measurement.getDevice().getName(), measurement.getName());
 						if (history == null) {
-							history = new History(measurement.getPtuId(),
+							history = new History(measurement.getDevice().getName(),
 									measurement.getName(), measurement
 											.getUnit());
 							historyMap.put(history);

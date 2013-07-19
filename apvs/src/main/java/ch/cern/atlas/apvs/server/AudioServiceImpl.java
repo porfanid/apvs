@@ -282,7 +282,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 						List<String> channels = new ArrayList<String>();
 						channels.add(supervisorAccount.getChannel());	
 						
-						String ptuId = event.getEvent().getPtuId();
+						String ptuId = event.getEvent().getDevice().getName();
 						channels.add(voipAccounts.getChannel(ptuId));
 						
 						// Hangup Supervisor and PTU User from active calls

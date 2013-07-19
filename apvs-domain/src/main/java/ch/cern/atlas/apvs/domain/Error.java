@@ -8,10 +8,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 //NOTE: implements IsSerializable in case serialization file cannot be found
 public class Error implements Message, Serializable, IsSerializable {
 
-	
 	private static final long serialVersionUID = -7278595154796058932L;
 
-	private volatile String ptuId;
+	private volatile Device device;
 	private String type = "Error";
 	private Integer errorNo;
 	private String description;
@@ -21,17 +20,18 @@ public class Error implements Message, Serializable, IsSerializable {
 	public Error() {
 	}
 
-	public Error(String ptuId, Integer errorNo, String description, String criticality, Date date) {
-		this.ptuId = ptuId;
+	public Error(Device device, Integer errorNo, String description,
+			String criticality, Date date) {
+		this.device = device;
 		this.errorNo = errorNo;
 		this.description = description;
 		this.criticality = criticality;
 		this.date = date;
 	}
 
-    @Override
-	public String getPtuId() {
-		return ptuId;
+	@Override
+	public Device getDevice() {
+		return device;
 	}
 
 	public Integer getErrorNo() {

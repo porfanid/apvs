@@ -37,6 +37,11 @@ public class Device implements Serializable, IsSerializable {
 		// Serialization
 	}
 	
+	// FIXME can be removed if we use devices everywhere
+	public Device(String name) {
+		this(name, null, null, null, null);
+	}
+	
 	// FIXME can be removed when using hibernate
 	public Device(int id, String name, InetAddress ip, String description, MacAddress macAddress, String hostName) {
 		this(name, ip, description, macAddress, hostName);
