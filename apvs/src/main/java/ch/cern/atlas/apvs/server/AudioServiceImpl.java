@@ -1,7 +1,10 @@
 package ch.cern.atlas.apvs.server;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,6 +27,7 @@ import org.asteriskjava.manager.ManagerConnectionFactory;
 import org.asteriskjava.manager.ManagerEventListener;
 import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.HangupAction;
+import org.asteriskjava.manager.action.MonitorAction;
 import org.asteriskjava.manager.action.SipPeersAction;
 import org.asteriskjava.manager.event.BridgeEvent;
 import org.asteriskjava.manager.event.ConnectEvent;
@@ -247,17 +251,28 @@ public class AudioServiceImpl extends ResponsePollService implements
 					}
 				});
 		
-		
+	
 		InterventionMapChangedRemoteEvent.subscribe(eventBus, new InterventionMapChangedRemoteEvent.Handler() {
 			
 			@Override
 			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
 					interventions = event.getInterventionMap();
 					List<String> ptuIds = voipAccounts.getPtuIds();
+					System.out.println("VOIPACCOUNTS: " +ptuIds.toString());
+					System.out.println("INTERVENTIONS: " + interventions.getPtuIds());
 					for(int i=0; i < ptuIds.size(); i++){
 							if( interventions.get(ptuIds.get(i)) != null){
+
 								if( interventions.get(ptuIds.get(i)).getImpactNumber() !=null){
+									System.out.println("IMPACT NUMBER:" + interventions.get(ptuIds.get(i)).getImpactNumber() + 
+											" DESCRIPTION:"+interventions.get(ptuIds.get(i)).getDescription() + 
+											" ID:"+interventions.get(ptuIds.get(i)).getId() +
+											" NAME:"+interventions.get(ptuIds.get(i)).getName()
+											);
 									voipAccounts.setActivity(ptuIds.get(i), interventions.get(ptuIds.get(i)).getImpactNumber() );
+								}
+								else{
+									voipAccounts.setActivity(ptuIds.get(i),"");
 								}
 							}
 					}
@@ -517,6 +532,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 	 *********************************************/
 	// New Channel
 	public void newChannelEvent(NewChannelEvent event) {
+		DateFormat dateFormat = new SimpleDateFormat("yyMMdd-HH.mm.ss");
+		Date date = new Date();
+		System.out.println(dateFormat.format(date));
+		MonitorAction record = new MonitorAction();
+		
 		String channel = event.getChannel();
 		String number = filterNumber(channel);
 		if(number.matches("SIP/1[0-9]{3}")){
@@ -524,12 +544,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 				if (ptuId != null) {
 					voipAccounts.setChannel(ptuId, channel);
 					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
+					record = new MonitorAction(channel, /*voipAccounts.getUsername(ptuId)*/ptuId+"INTERVENTIONFIELD"+"-"+dateFormat.format(date),"wav", true);
 				}
 		}else if(number.matches("SIP/2[0-9]{3}")){
 				if(number.equals(supervisorAccount.getAccount())){
 						System.out.println("create channel for supervisor");
 						supervisorAccount.setChannel(channel);
 						((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));
+						record = new MonitorAction(channel, /*voipAccounts.getUsername(ptuId)*/"Supervisor-"+"INTERVENTIONFIELD"+dateFormat.format(date),"wav", true);
 				}
 		}else{
 				System.err.println("#NewChannelEvent - NO PTU FOUND WITH NUMBER " + number);
@@ -537,19 +559,19 @@ public class AudioServiceImpl extends ResponsePollService implements
 		}
 			
 		//TODO - Store audio files by intervention number 
-		/*MonitorAction record = new MonitorAction(channel, voipAccounts.getUsername(ptuId)+i,"wav", true);
-		i++;
+		//MonitorAction record = new MonitorAction(channel, /*voipAccounts.getUsername(ptuId)*/ptuId+"-"+date,"wav", true);
+		//i++;
 		try {
 			managerConnection.sendAction(record);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			e.getMessage();
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			e.getMessage();
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.getMessage();
 		} catch (TimeoutException e) {
-			e.printStackTrace();
-		}*/
+			e.getMessage();
+		}
 		
 		//TODO
 		//asteriskServer.originateToApplication(channel, "MixMonitor", "Audiozinho.wav,V(-1)v(2) a,/", TIMEOUT);
