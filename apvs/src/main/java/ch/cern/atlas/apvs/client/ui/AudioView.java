@@ -28,6 +28,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -38,7 +39,7 @@ public class AudioView extends GlassPanel implements Module {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
-	private String ptuId = new String("PTUWeb");
+	private String ptuId = new String();//"PTUWeb");
 	private VoipAccount supervisorAccount = new VoipAccount();
 
 	private EventBus cmdBus;
@@ -92,6 +93,7 @@ public class AudioView extends GlassPanel implements Module {
 			}
 			
 		};
+
 		
 		fieldActionCol.setHorizontalAlignment(ALIGN_CENTER);
 		fieldActionCol.setEnabled(clientFactory.isSupervisor());
@@ -178,6 +180,7 @@ public class AudioView extends GlassPanel implements Module {
 					
 				} else if (fieldName.equals("Group Call")){
 					if (!supervisorAccount.getOnConference()) {
+						//Window.alert(voipAccounts.getActivity(ptuId));
 						if (!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
 							// Hangup Impact Activity Users from active calls
 							AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)),callbackHangup);
@@ -214,9 +217,13 @@ public class AudioView extends GlassPanel implements Module {
 					return;
 			}
 		});
-
+		
 		dataProvider.addDataDisplay(table);
-		dataProvider.setList(new ArrayList<String>());
+
+		dataProvider.getList().clear();
+		dataProvider.getList().addAll(fieldName);
+
+		//dataProvider.setList(new ArrayList<String>());
 
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
@@ -248,10 +255,36 @@ public class AudioView extends GlassPanel implements Module {
 					public void onAudioUsersSettingsChanged(
 							AudioUsersSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
+						//Window.alert("IMPACT NUMBER:" + voipAccounts.getActivity("PTU-02") );
+						
+						if (fieldName.size() > 3) {
+							while (fieldName.size() > 3) {
+								fieldName.remove(3);
+								classField.remove(3);
+							}
+						}
+						
+						boolean a = (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts.getActivity(ptuId) == null));
+						//Window.alert(voipAccounts.getUsername(ptuId)+ ": " +String.valueOf(a));
+						if(!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts.getActivity(ptuId) == null)){
+							if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
+								fieldName.add("Conference");
+								classField.add(ButtonCell.class);
+								fieldName.add("Mute/Unmute");
+								classField.add(ButtonCell.class);
+								fieldName.add("Kick/Add");
+								classField.add(ButtonCell.class);
+							}
+							else{
+								fieldName.add("Group Call");
+								classField.add(ButtonCell.class);
+							}
+						}
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(fieldName);
+
 					}
-				});
+		});
 
 		AudioSupervisorSettingsChangedRemoteEvent.subscribe(eventBus, new AudioSupervisorSettingsChangedRemoteEvent.Handler() {
 			

@@ -5,14 +5,15 @@ import java.io.Serializable;
 public class VoipAccount implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private String username;
-	private String account;
+	private String username; //Intevention
+	private String account;	
 	private String channel;
 	private String destUser;
 	private String destPTU;
 	private Boolean status = false;
 	private Boolean onCall;
 	private String activity;
+	private String impact;
 	private String room;
 	private Boolean mute;
 	private Boolean onConference;
