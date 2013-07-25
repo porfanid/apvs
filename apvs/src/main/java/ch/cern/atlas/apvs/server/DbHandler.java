@@ -369,6 +369,48 @@ public class DbHandler extends DbReconnectHandler {
 
 		return list;
 	}
+	
+	//ADDED BY ALEX - CHECK WITH MARK
+	public List<Intervention> getOpenInterventions()
+			throws SQLException {
+		String sql = "select tbl_inspections.ID as ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
+				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, "
+				+ "tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS, tbl_users.id as USER_ID, tbl_devices.id as DEVICE_ID "
+				+ "from tbl_inspections "
+				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
+				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
+				+ "where tbl_inspections.endtime is null";
+
+		Connection connection = getConnection();
+//		System.err.println(fullSql);
+		PreparedStatement statement = connection.prepareStatement(sql);
+		ResultSet result = statement.executeQuery();
+
+		List<Intervention> list = new ArrayList<Intervention>();
+		try {
+			// FIXME, #173 using some SQL this may be faster
+			// skip to start, result.absolute not implemented by Oracle
+
+			while(result.next()){
+				list.add(new Intervention(result.getInt("id"), result
+						.getInt("user_id"), result.getString("fname"), result
+						.getString("lname"), result.getInt("device_id"), result
+						.getString("name"), new Date(result.getTimestamp(
+						"starttime").getTime()),
+						result.getTimestamp("endtime") != null ? new Date(
+								result.getTimestamp("endtime").getTime())
+								: null, result.getString("impact_num"), result
+								.getDouble("rec_status"), result
+								.getString("dscr")));
+			}
+		} finally {
+			result.close();
+			statement.close();
+			connection.close();
+		}
+
+		return list;
+	}
 
 	public int getEventCount(String ptuId, String measurementName)
 			throws SQLException {

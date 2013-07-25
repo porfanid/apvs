@@ -37,4 +37,6 @@ public interface InterventionService extends TableService<Intervention>,
 
 	List<Device> getDevices(boolean notBusy) throws ServiceException;
 
+	List<Intervention> getOpenInterventions() throws ServiceException;
+	
 }
