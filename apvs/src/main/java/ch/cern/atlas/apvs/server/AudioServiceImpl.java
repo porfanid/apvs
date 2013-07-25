@@ -42,7 +42,9 @@ import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
 
 import ch.cern.atlas.apvs.client.AudioException;
+import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Conference;
+import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorStatusRemoteEvent;
@@ -54,6 +56,7 @@ import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.AudioService;
+import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -62,6 +65,7 @@ import ch.cern.atlas.apvs.eventbus.shared.ConnectionUUIDsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
+
 
 public class AudioServiceImpl extends ResponsePollService implements
 		AudioService, ManagerEventListener{
@@ -75,12 +79,17 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private VoipAccount supervisorAccount;
 	private ConferenceRooms conferenceRooms;
 	private InterventionMap interventions;
+	
+	//private InterventionServiceAsync interventionService;
 
 	private List<VoipAccount> usersList;
 	private List<VoipAccount> supervisorsList;
 
 	private ScheduledExecutorService executorService;
 	private ScheduledFuture<?>  future;
+	private ScheduledExecutorService executorService2;
+	private ScheduledFuture<?>  future2;
+	
 	
 	private boolean audioOk;
 	private boolean asteriskConnected;
@@ -99,6 +108,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private static RemoteEventBus eventBus;
 	// FIXME - Remove to use Intervention number
 	int i;
+	
+	//private InterventionServiceAsync interventionService;
+	//final ClientFactory clientFactory;
+
+
 	
 	public class AsteriskConnect extends Thread {
 	    public void run() {			
@@ -129,7 +143,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				} catch (AudioException e) {
 					System.err.println("Fail to login: " + e.getMessage());
 				}
-		} else{
+	    	}else{
 				boolean audioFormerState = audioOk;
 				if(new AsteriskPing(managerConnection).isAlive()) {
 					audioOk = true;
@@ -143,6 +157,36 @@ public class AudioServiceImpl extends ResponsePollService implements
 				}
 			}
 	    }
+	}
+	
+	public class InterventionUpdateList extends Thread {
+	    public void run(){ 
+	    	System.out.println("ENTROU");
+	    	InterventionServiceImpl asd = new InterventionServiceImpl();
+	    	List<Intervention> listopen = new ArrayList<Intervention>();
+	    	try {
+				listopen = asd.getOpenInterventions();
+				System.out.println("NUMBER OF OPEN INTERVENTIONS= " + listopen.size());
+			} catch (ServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    	/*
+	    	interventionService.getOpenInterventions(new AsyncCallback<List<Intervention>>() {
+
+					@Override
+					public void onSuccess(List<Intervention> result) {
+						System.out.println("NUMBER OF OPEN INTERVENTIONS= " + result.size());
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						
+					}
+				});*/
+	    	
+	    }	
+	    	
 	}
 	
 	/*********************************************
@@ -160,7 +204,9 @@ public class AudioServiceImpl extends ResponsePollService implements
 		
 		
 		executorService = Executors.newSingleThreadScheduledExecutor();
+		executorService2 = Executors.newSingleThreadScheduledExecutor();
 
+		
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
@@ -185,7 +231,10 @@ public class AudioServiceImpl extends ResponsePollService implements
 		supervisorAccount = new VoipAccount();
 		conferenceRooms = new ConferenceRooms();
 		audioOk = false;
-		asteriskConnected = false;
+		asteriskConnected = false; 
+		//interventionService = clientFactory.getInterventionService();
+		//future2 = executorService2.scheduleAtFixedRate(new InterventionUpdateList(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
+
 
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
@@ -310,6 +359,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 					}
 			}
 		} );
+		
+		future2 = executorService2.scheduleAtFixedRate(new InterventionUpdateList(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
 
 	}
 
