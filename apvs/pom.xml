@@ -236,7 +236,7 @@
 			<artifactId>asterisk-java</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.jvnet.hudson.main</groupId>
+			<groupId>org.hudsonci.libs</groupId>
 			<artifactId>hudson-gwt-slf4j</artifactId>
 		</dependency>
 		<dependency>
