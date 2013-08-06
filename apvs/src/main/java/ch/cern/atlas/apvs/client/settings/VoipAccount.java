@@ -2,49 +2,54 @@ package ch.cern.atlas.apvs.client.settings;
 
 import java.io.Serializable;
 
+import ch.cern.atlas.apvs.client.domain.Intervention;
+
 public class VoipAccount implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private String username; //Intevention
 	private String account;	
 	private String channel;
-	private String destUser;
-	private String destPTU;
-	private Boolean status = false;
-	private Boolean onCall;
-	private String activity;
-	private String impact;
+	private String destUser; 
+	private String destPTU; 
+	private Boolean status = false; 
 	private String room;
 	private Boolean mute;
-	private Boolean onConference;
+	private Boolean onConference;	
+	private Boolean onCall;
+	private Intervention intervention;
+//	private String username; //Intevention
+//	private String activity; //Intervention
+//	private String impact; //Intervention
 	
 	public VoipAccount() {
 		this(false);
 	}
 	
 	public VoipAccount(String account, Boolean status){
-		this.username = "";
+//		this.username = "";
+		this.intervention = new Intervention();
 		this.account = account;
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
 		this.status = status;
 		this.onCall = false;
-		this.activity = "";
+//		this.activity = "";
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
 	}
 	
 	public VoipAccount(String account) {
-		this.username = "";
+//		this.username = "";
+		this.intervention = new Intervention();
 		this.account = account;
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
 		this.status = false;
 		this.onCall = false;
-		this.activity = "";
+//		this.activity = "";
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
@@ -53,14 +58,15 @@ public class VoipAccount implements Serializable {
 	public VoipAccount(boolean setDefaults) {
 		if(!setDefaults)
 			return;
-		this.username = "";
+//		this.username = "";
+		this.intervention = new Intervention();
 		this.account = "SIP/2001";
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
 		this.status = false;
 		this.onCall = false;
-		this.activity = "";
+//		this.activity = "";
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
@@ -68,12 +74,16 @@ public class VoipAccount implements Serializable {
 
 	// Username	
 	public String getUsername(){
-		return this.username;
+		return this.intervention.getName();
 	}
 		
 	public void setUsername(String username){
-		this.username = username;
+		this.intervention.setName(username);
 	}
+
+//	public void setUsername(String username){
+//		this.username = username;
+//	}
 	
 	// Number	
 	public String getAccount(){
@@ -157,13 +167,13 @@ public class VoipAccount implements Serializable {
 	}
 	
 	//Activity
-	public String getActivity(){
-		return this.activity;
-	}
-	
-	public void setActivity(String activity){
-		this.activity = activity;
-	}
+//	public String getActivity(){
+//		return this.activity;
+//	}
+//	
+//	public void setActivity(String activity){
+//		this.activity = activity;
+//	}
 	
 	//Mute
 	public Boolean getMute(){
