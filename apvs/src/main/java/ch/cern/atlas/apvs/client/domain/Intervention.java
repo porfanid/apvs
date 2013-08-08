@@ -1,4 +1,4 @@
-Fpackage ch.cern.atlas.apvs.client.domain;
+package ch.cern.atlas.apvs.client.domain;
 
 import java.io.Serializable;
 import java.util.Date;
