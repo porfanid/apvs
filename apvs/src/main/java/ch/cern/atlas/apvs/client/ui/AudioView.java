@@ -187,27 +187,27 @@ public class AudioView extends GlassPanel implements Module {
 						channels.add(voipAccounts.getChannel(ptuId));
 
 						// Hangup Supervisor and PTU User from active calls
-						AudioServiceAsync.Util.getInstance().hangupMultiple(
-								channels, callbackHangup);
-						AudioServiceAsync.Util.getInstance().call(
-								voipAccounts.getNumber(ptuId),
-								supervisorAccount.getNumber(), callbackCall);
+//						AudioServiceAsync.Util.getInstance().hangupMultiple(
+//								channels, callbackHangup);
+//						AudioServiceAsync.Util.getInstance().call(
+//								voipAccounts.getNumber(ptuId),
+//								supervisorAccount.getNumber(), callbackCall);
 
 					} else {
-						AudioServiceAsync.Util.getInstance().hangup(
-								supervisorAccount.getChannel(), callbackHangup);
-						if (conferenceRooms
-								.conferenceOfActivityExist(voipAccounts
-										.getActivity(ptuId))) {
-							AudioServiceAsync.Util
-									.getInstance()
-									.addToConference(
-											voipAccounts.getNumber(ptuId),
-											conferenceRooms
-													.roomOfActivity(voipAccounts
-															.getActivity(ptuId)),
-											callbackConference);
-						}
+//						AudioServiceAsync.Util.getInstance().hangup(
+//								supervisorAccount.getChannel(), callbackHangup);
+//						if (conferenceRooms
+//								.conferenceOfActivityExist(voipAccounts
+//										.getActivity(ptuId))) {
+//							AudioServiceAsync.Util
+//									.getInstance()
+//									.addToConference(
+//											voipAccounts.getNumber(ptuId),
+//											conferenceRooms
+//													.roomOfActivity(voipAccounts
+//															.getActivity(ptuId)),
+//											callbackConference);
+//						}
 					}
 
 				} else if (fieldName.equals("Group Call")) {
@@ -217,67 +217,67 @@ public class AudioView extends GlassPanel implements Module {
 								.conferenceOfActivityExist(voipAccounts
 										.getActivity(ptuId))) {
 							// Hangup Impact Activity Users from active calls
-							AudioServiceAsync.Util
-									.getInstance()
-									.hangupMultiple(
-											voipAccounts
-													.getActiveChannelsActivity(voipAccounts
-															.getActivity(ptuId)),
-											callbackHangup);
-							AudioServiceAsync.Util.getInstance().newConference(
-									voipAccounts
-											.getNumbersActivity(voipAccounts
-													.getActivity(ptuId)),
-									callbackConference);
+//							AudioServiceAsync.Util
+//									.getInstance()
+//									.hangupMultiple(
+//											voipAccounts
+//													.getActiveChannelsActivity(voipAccounts
+//															.getActivity(ptuId)),
+//											callbackHangup);
+//							AudioServiceAsync.Util.getInstance().newConference(
+//									voipAccounts
+//											.getNumbersActivity(voipAccounts
+//													.getActivity(ptuId)),
+//									callbackConference);
 						} else {
 							// Hangup Supervisor from active calls
-							AudioServiceAsync.Util.getInstance().hangup(
-									supervisorAccount.getChannel(),
-									callbackHangup);
-							AudioServiceAsync.Util.getInstance()
-									.addToConference(
-											supervisorAccount.getAccount(),
-											voipAccounts.getRoom(ptuId),
-											callbackConference);
+//							AudioServiceAsync.Util.getInstance().hangup(
+//									supervisorAccount.getChannel(),
+//									callbackHangup);
+//							AudioServiceAsync.Util.getInstance()
+//									.addToConference(
+//											supervisorAccount.getAccount(),
+//											voipAccounts.getRoom(ptuId),
+//											callbackConference);
 						}
 					} else {
-						AudioServiceAsync.Util.getInstance().hangup(
-								supervisorAccount.getChannel(), callbackHangup);
+//						AudioServiceAsync.Util.getInstance().hangup(
+//								supervisorAccount.getChannel(), callbackHangup);
 					}
 
 				} else if (fieldName.equals("Conference")) {
-					AudioServiceAsync.Util.getInstance().hangupMultiple(
-							voipAccounts.getActiveChannelsActivity(voipAccounts
-									.getActivity(ptuId)), callbackHangup);
-					if (voipAccounts.getRoom(ptuId).equals(
-							supervisorAccount.getRoom()))
-						AudioServiceAsync.Util.getInstance().hangup(
-								supervisorAccount.getChannel(), callbackHangup);
+//					AudioServiceAsync.Util.getInstance().hangupMultiple(
+//							voipAccounts.getActiveChannelsActivity(voipAccounts
+//									.getActivity(ptuId)), callbackHangup);
+//					if (voipAccounts.getRoom(ptuId).equals(
+//							supervisorAccount.getRoom()))
+//						AudioServiceAsync.Util.getInstance().hangup(
+//								supervisorAccount.getChannel(), callbackHangup);
 
 				} else if (fieldName.equals("Mute/Unmute")) {
 					// System.out.println(voipAccounts.getMute(ptuId));
 					if (voipAccounts.getMute(ptuId)) {
-						AudioServiceAsync.Util.getInstance().unMuteUser(
-								voipAccounts.getRoom(ptuId),
-								voipAccounts.getChannel(ptuId), ptuId,
-								callbackMute);
+//						AudioServiceAsync.Util.getInstance().unMuteUser(
+//								voipAccounts.getRoom(ptuId),
+//								voipAccounts.getChannel(ptuId), ptuId,
+//								callbackMute);
 					} else {
-						AudioServiceAsync.Util.getInstance().muteUser(
-								voipAccounts.getRoom(ptuId),
-								voipAccounts.getChannel(ptuId), ptuId,
-								callbackMute);
+//						AudioServiceAsync.Util.getInstance().muteUser(
+//								voipAccounts.getRoom(ptuId),
+//								voipAccounts.getChannel(ptuId), ptuId,
+//								callbackMute);
 					}
 
 				} else if (fieldName.equals("Kick/Add")) {
-					if (voipAccounts.getOnConference(ptuId))
-						AudioServiceAsync.Util.getInstance().hangup(
-								voipAccounts.getChannel(ptuId), callbackHangup);
-					else
-						AudioServiceAsync.Util.getInstance().addToConference(
-								voipAccounts.getNumber(ptuId),
-								conferenceRooms.roomOfActivity(voipAccounts
-										.getActivity(ptuId)),
-								callbackConference);
+//					if (voipAccounts.getOnConference(ptuId))
+//						AudioServiceAsync.Util.getInstance().hangup(
+//								voipAccounts.getChannel(ptuId), callbackHangup);
+//					else
+//						AudioServiceAsync.Util.getInstance().addToConference(
+//								voipAccounts.getNumber(ptuId),
+//								conferenceRooms.roomOfActivity(voipAccounts
+//										.getActivity(ptuId)),
+//								callbackConference);
 
 				} else
 					return;

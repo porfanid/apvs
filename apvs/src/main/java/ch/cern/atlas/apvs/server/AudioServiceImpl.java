@@ -285,30 +285,30 @@ public class AudioServiceImpl extends ResponsePollService implements
 			}
 		});
 
-		EventChangedEvent.register(eventBus, new EventChangedEvent.Handler() {
-
-			@Override
-			public void onEventChanged(EventChangedEvent event) {
-				String type = event.getEvent().getEventType();
-				if (type.equals("Panic")) {
-					List<String> channels = new ArrayList<String>();
-					channels.add(supervisorAccount.getChannel());
-
-					String ptuId = event.getEvent().getDevice().getName();
-					channels.add(voipAccounts.getChannel(ptuId));
-
-					// Hangup Supervisor and PTU User from active calls
-					try {
-						hangupMultiple(channels);
-					} catch (AudioException e) {
-						System.err.println("Failed to Hangup Channel"
-								+ e.getMessage());
-					}
-					call(voipAccounts.getNumber(ptuId),
-							supervisorAccount.getNumber());
-				}
-			}
-		});
+//		EventChangedEvent.register(eventBus, new EventChangedEvent.Handler() {
+//
+//			@Override
+//			public void onEventChanged(EventChangedEvent event) {
+//				String type = event.getEvent().getEventType();
+//				if (type.equals("Panic")) {
+//					List<String> channels = new ArrayList<String>();
+//					channels.add(supervisorAccount.getChannel());
+//
+//					String ptuId = event.getEvent().getDevice().getName();
+//					channels.add(voipAccounts.getChannel(ptuId));
+//
+//					// Hangup Supervisor and PTU User from active calls
+//					try {
+//						hangupMultiple(channels);
+//					} catch (AudioException e) {
+//						System.err.println("Failed to Hangup Channel"
+//								+ e.getMessage());
+//					}
+//					call(voipAccounts.getNumber(ptuId),
+//							supervisorAccount.getNumber());
+//				}
+//			}
+//		});
 
 	}
 
