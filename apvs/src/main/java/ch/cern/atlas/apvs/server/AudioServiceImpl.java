@@ -572,12 +572,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				((RemoteEventBus) eventBus)
 						.fireEvent(new AudioUsersSettingsChangedRemoteEvent(
 								voipAccounts));
-				record = new MonitorAction(channel, /*
-													 * voipAccounts.getUsername(
-													 * ptuId)
-													 */ptuId
-						+ "INTERVENTIONFIELD" + "-" + dateFormat.format(date),
-						"wav", true);
+				record = new MonitorAction(channel, voipAccounts.getIntervention(ptuId).getId()+ "-" + dateFormat.format(date),"wav", true);
 			}
 		} else if (number.matches("SIP/2[0-9]{3}")) {
 			if (number.equals(supervisorAccount.getAccount())) {
@@ -586,12 +581,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				((RemoteEventBus) eventBus)
 						.fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(
 								supervisorAccount));
-				record = new MonitorAction(channel, /*
-													 * voipAccounts.getUsername(
-													 * ptuId)
-													 */"Supervisor-"
-						+ "INTERVENTIONFIELD" + dateFormat.format(date), "wav",
-						true);
+				record = new MonitorAction(channel,"Supervisor -" + dateFormat.format(date), "wav",true);
 			}
 		} else {
 			System.err.println("#NewChannelEvent - NO PTU FOUND WITH NUMBER "
