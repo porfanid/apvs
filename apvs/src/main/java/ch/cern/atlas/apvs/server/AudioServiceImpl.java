@@ -42,7 +42,6 @@ import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
 
 import ch.cern.atlas.apvs.client.AudioException;
-import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
@@ -80,15 +79,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private ConferenceRooms conferenceRooms;
 	private InterventionMap interventions;
 	
-	//private InterventionServiceAsync interventionService;
 
 	private List<VoipAccount> usersList;
 	private List<VoipAccount> supervisorsList;
 
 	private ScheduledExecutorService executorService;
 	private ScheduledFuture<?>  future;
-	private ScheduledExecutorService executorService2;
-	private ScheduledFuture<?>  future2;
 	
 	
 	private boolean audioOk;
@@ -109,7 +105,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 	// FIXME - Remove to use Intervention number
 	int i;
 	
-	//private InterventionServiceAsync interventionService;
 	//final ClientFactory clientFactory;
 
 
@@ -122,7 +117,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					managerConnection.removeEventListener(AudioServiceImpl.this);
 				}
 				
-	    			// Asterisk Connection Manager
+	    		// Asterisk Connection Manager
 				ManagerConnectionFactory factory = new ManagerConnectionFactory(asteriskUrl, asteriskUser, asteriskPwd);
 				AudioServiceImpl.this.managerConnection = factory.createManagerConnection();
 
@@ -159,36 +154,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 	    }
 	}
 	
-	public class InterventionUpdateList extends Thread {
-	    public void run(){ 
-	    	System.out.println("ENTROU");
-	    	InterventionServiceImpl asd = new InterventionServiceImpl();
-	    	List<Intervention> listopen = new ArrayList<Intervention>();
-	    	try {
-				listopen = asd.getOpenInterventions();
-				System.out.println("NUMBER OF OPEN INTERVENTIONS= " + listopen.size());
-			} catch (ServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    	/*
-	    	interventionService.getOpenInterventions(new AsyncCallback<List<Intervention>>() {
-
-					@Override
-					public void onSuccess(List<Intervention> result) {
-						System.out.println("NUMBER OF OPEN INTERVENTIONS= " + result.size());
-					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						
-					}
-				});*/
-	    	
-	    }	
-	    	
-	}
-	
 	/*********************************************
 	* Constructor
 	**********************************************/
@@ -202,10 +167,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		AudioUsersSettingsStorage.getInstance(eventBus);
 		AudioSupervisorSettingsStorage.getInstance(eventBus);
 		
-		
 		executorService = Executors.newSingleThreadScheduledExecutor();
-		executorService2 = Executors.newSingleThreadScheduledExecutor();
-
 		
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
@@ -232,9 +194,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 		conferenceRooms = new ConferenceRooms();
 		audioOk = false;
 		asteriskConnected = false; 
-		//interventionService = clientFactory.getInterventionService();
-		//future2 = executorService2.scheduleAtFixedRate(new InterventionUpdateList(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
-
 
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
@@ -299,35 +258,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 						supervisorAccount = event.getSupervisorSettings(); 
 					}
 				});
-		
-	
-		InterventionMapChangedRemoteEvent.subscribe(eventBus, new InterventionMapChangedRemoteEvent.Handler() {
-			
-			@Override
-			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
-					interventions = event.getInterventionMap();
-					List<String> ptuIds = voipAccounts.getPtuIds();
-					System.out.println("VOIPACCOUNTS: " +ptuIds.toString());
-					System.out.println("INTERVENTIONS: " + interventions.getPtuIds());
-					for(int i=0; i < ptuIds.size(); i++){
-							if( interventions.get(ptuIds.get(i)) != null){
-
-								if( interventions.get(ptuIds.get(i)).getImpactNumber() !=null){
-									System.out.println("IMPACT NUMBER:" + interventions.get(ptuIds.get(i)).getImpactNumber() + 
-											" DESCRIPTION:"+interventions.get(ptuIds.get(i)).getDescription() + 
-											" ID:"+interventions.get(ptuIds.get(i)).getId() +
-											" NAME:"+interventions.get(ptuIds.get(i)).getName()
-											);
-									voipAccounts.setActivity(ptuIds.get(i), interventions.get(ptuIds.get(i)).getImpactNumber() );
-								}
-								else{
-									voipAccounts.setActivity(ptuIds.get(i),"");
-								}
-							}
-					}
-					((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));
-			}
-		});
 
 		MeetMeRemoteEvent.subscribe(eventBus, new MeetMeRemoteEvent.Handler() {
 
@@ -360,8 +290,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 			}
 		} );
 		
-		future2 = executorService2.scheduleAtFixedRate(new InterventionUpdateList(), 0, ASTERISK_POLLING, TimeUnit.MILLISECONDS);
 
+		
 	}
 
 	public void login() throws AudioException {
