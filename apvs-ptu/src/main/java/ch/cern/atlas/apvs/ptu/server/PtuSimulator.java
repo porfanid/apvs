@@ -1,13 +1,10 @@
 package ch.cern.atlas.apvs.ptu.server;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.Random;
 
@@ -15,13 +12,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.domain.APVSException;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.domain.Report;
 
 public class PtuSimulator extends Thread {
 
+	private static final boolean DEBUG_PARTIAL_MESSAGES = false;
+	
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private final Channel channel;
@@ -52,18 +53,19 @@ public class PtuSimulator extends Thread {
 			long then = now - deltaStartTime;
 			Date start = new Date(then);
 
-			ptu = new Ptu(ptuId);
+			Device device = new Device(ptuId);
+			ptu = new Ptu(device);
 			log.info("Creating " + ptuId);
 
 			try {
-				ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
-				ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
-				ptu.addMeasurement(new CO2(ptuId, 2.5, start));
-				ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
-				ptu.addMeasurement(new HeartRate(ptuId, 120, start));
-				ptu.addMeasurement(new DoseAccum(ptuId, 0.042, start));
-				ptu.addMeasurement(new DoseRate(ptuId, 0.001, start));
-				ptu.addMeasurement(new O2(ptuId, 85.2, start));
+				ptu.addMeasurement(new Temperature(device, 25.7, start));
+				ptu.addMeasurement(new Humidity(device, 31.4, start));
+				ptu.addMeasurement(new CO2(device, 2.5, start));
+				ptu.addMeasurement(new BodyTemperature(device, 37.2, start));
+				ptu.addMeasurement(new HeartRate(device, 120, start));
+				ptu.addMeasurement(new DoseAccum(device, 0.042, start));
+				ptu.addMeasurement(new DoseRate(device, 0.001, start));
+				ptu.addMeasurement(new O2(device, 85.2, start));
 			} catch (APVSException e) {
 				log.warn("Could not add measurement", e);
 			}
@@ -71,42 +73,39 @@ public class PtuSimulator extends Thread {
 
 			then += defaultWait + random.nextInt(extraWait);
 
-			OutputStream os;
-			if (channel != null) {
-				ByteBuf buffer = Unpooled.buffer(8192);
-				os = new ByteBufOutputStream(buffer);
-			} else {
-				os = new ByteArrayOutputStream();
-			}
-
 			int i = 1;
-
 			try {
 				// now loop at current time
 				while (!isInterrupted()) {
-					@SuppressWarnings("resource")
-					PtuJsonWriter writer = new PtuJsonWriter(os);
-					if (WRITE_MARKERS) {
-						writer.write(0x10);
-					}
+					Message msg;
+					
 					if (i % 5 == 0) {
-						Event event = nextEvent(ptu, new Date());
-						writer.write(event);
-						System.err.println(event);
+						msg = nextEvent(ptu, new Date());
 					} else {
-						Measurement measurement = nextMeasurement(ptu,
+						msg = nextMeasurement(ptu,
 								new Date());
-						writer.write(measurement);
-						System.err.println(measurement);
 					}
-
+					String json = PtuJsonWriter.objectToJson(new JsonHeader(msg));
+//					System.err.println(json +" "+json.length());
+					
 					if (WRITE_MARKERS) {
-						writer.write(0x00);
-						writer.write(0x13);
+						StringBuffer b = new StringBuffer();
+						b.append((char)0x10);
+						b.append(json);
+						b.append((char)0x00);
+						b.append((char)0x13);
+						json = b.toString();
 					}
-					writer.flush();
-
-					os = sendBufferAndClear(os);
+										
+					if (channel != null) {
+						if (DEBUG_PARTIAL_MESSAGES && (json.length() > 75)) {
+							write(json.substring(0, 75));
+							json = json.substring(75, json.length());
+							Thread.sleep(1000);
+						}
+						write(json);
+					}
+					
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
 					System.out.print(".");
 					System.out.flush();
@@ -126,16 +125,16 @@ public class PtuSimulator extends Thread {
 			}
 		}
 	}
-
-	protected synchronized OutputStream sendBufferAndClear(OutputStream os) {
-		if (channel != null) {
-			ByteBufOutputStream cos = (ByteBufOutputStream) os;
-			channel.write(cos.buffer()).awaitUninterruptibly();
-			cos.buffer().clear();
-		} else {
-			os = new ByteArrayOutputStream();
-		}
-		return os;
+	
+	private void write(final String msg) {
+		channel.write(msg).addListener(new GenericFutureListener<Future<? super Void>>() {
+			@Override
+			public void operationComplete(
+					Future<? super Void> future)
+					throws Exception {
+//				System.err.println("Sent "+msg+" "+msg.length()+" "+future.isSuccess());
+			}
+		});
 	}
 
 	private Measurement nextMeasurement(Ptu ptu, Date d) {
@@ -151,14 +150,14 @@ public class PtuSimulator extends Thread {
 	}
 
 	private Measurement nextMeasurement(Measurement m, Date d) {
-		return new Measurement(m.getPtuId(), m.getName(), m.getValue()
+		return new Measurement(m.getDevice(), m.getName(), m.getValue()
 				.doubleValue() + random.nextGaussian(), m.getLowLimit(),
 				m.getHighLimit(), m.getUnit(), m.getSamplingRate(), d);
 	}
 
 	@SuppressWarnings("unused")
 	private Report nextReport(Ptu ptu, Date d) {
-		return new Report(ptu.getPtuId(), random.nextGaussian(),
+		return new Report(ptu.getDevice(), random.nextGaussian(),
 				random.nextBoolean(), random.nextBoolean(),
 				random.nextBoolean(), d);
 	}
@@ -170,7 +169,7 @@ public class PtuSimulator extends Thread {
 		double d2 = random.nextDouble();
 		String unit = "";
 
-		return new Event(ptu.getPtuId(), name, "UpLevel", Math.max(d1, d2),
+		return new Event(ptu.getDevice(), name, "UpLevel", Math.max(d1, d2),
 				Math.min(d1, d2), unit, d);
 	}
 }

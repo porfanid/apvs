@@ -5,7 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class History implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class History implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 2802095781867809709L;
 
@@ -134,9 +137,9 @@ public class History implements Serializable {
 
 	public Measurement getMeasurement() {
 		int last = index - 1;
-		return index == 0 ? null : new Measurement(ptuId, name,
-				data[last][VALUE], data[last][LOW_LIMIT],
-				data[last][HIGH_LIMIT], unit,
+		return index == 0 ? null : new Measurement(new Device(ptuId), name,
+				data[last][VALUE].doubleValue(), data[last][LOW_LIMIT].doubleValue(),
+				data[last][HIGH_LIMIT].doubleValue(), unit,
 				data[last][SAMPLING_RATE].intValue(), new Date(
 						data[last][TIME].longValue()));
 	}

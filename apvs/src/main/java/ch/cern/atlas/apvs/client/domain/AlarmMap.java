@@ -8,10 +8,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.cern.atlas.apvs.domain.Alarm;
 
 
-public class AlarmMap implements Serializable {
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class AlarmMap implements Serializable, IsSerializable {
 
 
 	private static final long serialVersionUID = -7761956767282031317L;

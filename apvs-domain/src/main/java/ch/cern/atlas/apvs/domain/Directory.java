@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Directory extends DirectoryEntry implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class Directory extends DirectoryEntry implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5848041198612728113L;
 	protected List<DirectoryEntry> entries = new ArrayList<DirectoryEntry>();

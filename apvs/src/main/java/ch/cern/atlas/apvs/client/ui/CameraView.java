@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
@@ -67,15 +68,7 @@ public class CameraView extends ImageView implements Module,
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	// FIXME #179 needs to change when we redo the iPad version
-	public CameraView(ClientFactory factory, final String type, String width,
-			String height) {
-
-		cmdBus = factory.getEventBus("ptu");
-		this.type = type;
-
-		init(factory, width, height);
-	}
+	private ClientFactory factory;
 
 	public CameraView() {
 	}
@@ -102,9 +95,11 @@ public class CameraView extends ImageView implements Module,
 		return true;
 	}
 
-	private void init(ClientFactory factory, String width, String height) {
+	protected void init(ClientFactory factory, String width, String height) {
 
-		init(width, height);
+		this.factory = factory;
+		
+		super.init(factory, width, height);
 		
 		if (switchSource || switchDestination) {
 			image.addClickHandler(new ClickHandler() {
@@ -157,16 +152,16 @@ public class CameraView extends ImageView implements Module,
 		switchDestination = !switchDestination;
 	}
 
-	private String getCameraUrl(String type, String ptuId) {
+	private String getCameraUrl(String type, String ptuId, Proxy proxy) {
 		if ((settings == null) || (ptuId == null)) {
 			return null;
 		}
 
-		return settings.getCameraUrl(ptuId, type);
+		return factory.getProxy().getReverseUrl(settings.getCameraUrl(ptuId, type, proxy)); 
 	}
 
 	public boolean update() {
-		final String cameraUrl = getCameraUrl(type, ptuId);
+		final String cameraUrl = getCameraUrl(type, ptuId, factory.getProxy());
 //		setUrl(null);
 //		Window.alert("CameraURL: '"+ptuId+"' 'null'");
 		

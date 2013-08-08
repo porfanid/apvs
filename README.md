@@ -47,6 +47,9 @@ Using FireFox open
 
 ### Run the Jetty version
 
+Configure:
+	copy EgroupCheckConfExample.properties to EgroupCheckConf.properties and edit username and pwd to access the supervisors e-group
+
 Run:
 	<apvs project directory>/run-prod.sh
 
@@ -60,4 +63,13 @@ Using any browser open
 Set JAVA_HOME to the proper java installation otherwise `mvn release:perform` will fail on calling `javadoc`
 
 Make sure to run with -Pprod
+
+
+## Run behind apache
+
+Configure:
+        shibolleth
+	copy httpd-proxy-example.conf to httpd-proxy.conf and edit to point to correct video and apvs server
+	add pointer from httpd.conf to httpd-procy.conf
+
 

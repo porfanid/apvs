@@ -23,6 +23,7 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.Connec
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.domain.APVSException;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
@@ -51,11 +52,16 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private Ternary dosimeterOk = Ternary.Unknown;
 
 	private PtuSettings settings;
+	
+	private DbHandler dbHandler;
+	private SensorMap sensorMap;
 
 	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
-
+		
+		dbHandler = DbHandler.getInstance();
+		
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
@@ -92,6 +98,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.dosimeter, dosimeterOk);
 		super.channelActive(ctx);
+		
+		sensorMap = dbHandler.getSensorMap();
 	}
 
 	@Override
@@ -129,11 +137,11 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private final static boolean DEBUG = false;
 	private final static boolean DEBUGPLUS = false;
 	
-	
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, String msg) {
+	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		// Print out the line received from the server.
-		String line = msg;
+		// FIXME #634, not sure if this is correct
+		String line = msg.toString();
 
 		if (DEBUGPLUS) {
 			for (int i = 0; i < line.length(); i++) {
@@ -154,7 +162,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 		List<Message> list;
 		try {
-			list = PtuJsonReader.jsonToJava(line);
+			list = PtuJsonReader.jsonToJava(line).getMessages();
 			for (Iterator<Message> i = list.iterator(); i.hasNext();) {
 				Message message = i.next();
 				try {
@@ -196,10 +204,18 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			return;
 		}
 
+		String ptuId = message.getDevice().getName();
+		String sensor = message.getName();
+		
+		if (!sensorMap.isEnabled(ptuId, sensor)) {
+//			log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " + sensor);
+			return;			
+		}
+				
 		String unit = message.getUnit();
-		Number value = message.getValue();
-		Number low = message.getLowLimit();
-		Number high = message.getHighLimit();
+		Double value = message.getValue();
+		Double low = message.getLowLimit();
+		Double high = message.getHighLimit();
 
 		// Scale down to microSievert
 		value = Scale.getValue(value, unit);
@@ -207,20 +223,19 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		high = Scale.getHighLimit(high, unit);
 		unit = Scale.getUnit(unit);
 
-		measurementChanged.add(new Measurement(message.getPtuId(), message
-				.getName(), value, low, high, unit, message.getSamplingRate(),
+		measurementChanged.add(new Measurement(message.getDevice(), sensor, value, low, high, unit, message.getSamplingRate(),
 				message.getDate()));
 
 		sendEvents();
 	}
 
 	private void handleMessage(Event message) {
-		String ptuId = message.getPtuId();
+		Device device = message.getDevice();
 		String sensor = message.getName();
 
 		// log.info("EVENT " + message);
 
-		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
+		eventBus.fireEvent(new EventChangedEvent(new Event(device, sensor,
 				message.getEventType(), message.getValue(), message
 						.getTheshold(), message.getUnit(), message.getDate())));
 
@@ -236,7 +251,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	private void handleMessage(GeneralConfiguration message) {
-		String ptuId = message.getPtuId();
+		String ptuId = message.getDevice().getName();
 		String dosimeterId = message.getDosimeterId();
 
 		if (settings != null) {

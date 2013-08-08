@@ -1,5 +1,9 @@
 package ch.cern.atlas.apvs.client.domain;
 
+import java.io.Serializable;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * Using Kleene's Logic
  * 
@@ -8,7 +12,8 @@ package ch.cern.atlas.apvs.client.domain;
  * @author duns
  *
  */
-public enum Ternary {
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public enum Ternary implements Serializable, IsSerializable {
 	True("True"), False("False"), Unknown("Unknown");
 
 	private String s;

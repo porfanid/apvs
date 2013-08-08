@@ -31,7 +31,7 @@ import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class PtuServiceImpl extends DbServiceImpl implements PtuService {
+public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -41,6 +41,8 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 
 	private RemoteEventBus eventBus;
 	private PtuClientHandler ptuClientHandler;
+
+	private DbHandler dbHandler;
 
 	public PtuServiceImpl() {
 		log.info("Creating PtuService...");
@@ -55,6 +57,8 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 
 		log.info("Starting PtuService...");
 		
+		dbHandler = DbHandler.getInstance();
+		
 		EventLoopGroup group = new NioEventLoopGroup();
 
 		//FIXME - Change the declaring location before ServerSettingsChangedRemoteEvent
@@ -67,7 +71,7 @@ public class PtuServiceImpl extends DbServiceImpl implements PtuService {
 		
 		// Configure the pipeline factory.
 		bootstrap.group(group);
-		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler));
+		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler, true));
 		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {

@@ -7,16 +7,11 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PlaceChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
-import ch.cern.atlas.apvs.client.tablet.CameraPlace;
-import ch.cern.atlas.apvs.client.tablet.HomePlace;
-import ch.cern.atlas.apvs.client.tablet.ImagePlace;
-import ch.cern.atlas.apvs.client.tablet.ProcedurePlace;
 import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.place.shared.Place;
@@ -83,37 +78,6 @@ public class PlaceView extends SimplePanel implements Module,
 
 						log.info("PLACE CHANGED " + event);
 						Place place = event.getPlace();
-
-						if (place instanceof HomePlace) {
-							Image image = new Image(defaultImage);
-							image.setWidth(width + "" + Unit.PX);
-							setWidget(image);
-							return;
-						}
-
-						if (place instanceof ImagePlace) {
-							ImagePlace imagePlace = (ImagePlace) place;
-							Image image = new Image(imagePlace.getUrl());
-							image.setWidth(width);
-							setWidget(image);
-							return;
-						}
-
-						if (place instanceof CameraPlace) {
-							CameraPlace cameraPlace = (CameraPlace) place;
-							setWidget(new CameraView(clientFactory, cameraPlace
-									.getType(), width, height));
-							return;
-						}
-
-						if (place instanceof ProcedurePlace) {
-							ProcedurePlace procedurePlace = (ProcedurePlace) place;
-							setWidget(clientFactory.getProcedureView(width,
-									height, procedurePlace.getUrl(),
-									procedurePlace.getName(),
-									procedurePlace.getStep()));
-							return;
-						}
 
 						Image image = new Image(defaultImage);
 						image.setWidth(width);

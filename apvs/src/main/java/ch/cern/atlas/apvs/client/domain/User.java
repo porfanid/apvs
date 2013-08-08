@@ -5,7 +5,10 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class User implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class User implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -1423459851493629177L;
 

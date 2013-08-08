@@ -1,6 +1,8 @@
 package ch.cern.atlas.apvs.ptu.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.io.IOException;
@@ -12,8 +14,6 @@ public class PtuPushServer {
 	private final int port;
 	private final int refresh;
 	private final String[] ids;
-
-	private boolean CONNECT_FOR_EVERY_MESSAGE = false;
 
 	public PtuPushServer(String host, int port, int refresh, String[] ids) {
 		this.host = host;
@@ -27,18 +27,16 @@ public class PtuPushServer {
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class);
 
-		if (CONNECT_FOR_EVERY_MESSAGE) {
-			PtuConnectPushHandler handler = new PtuConnectPushHandler();
-			
-			handler.run(host, port, refresh);
-		} else {
-			PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
+		PtuPushHandler handler = new PtuPushHandler(bootstrap, ids, refresh);
 
-			bootstrap.handler(new PtuChannelInitializer(new PtuServerHandler(refresh, ids)));
+		EventLoopGroup group = new NioEventLoopGroup();
 
-			// Start the connection attempt.
-			handler.connect(new InetSocketAddress(host, port));
-		}
+		bootstrap.group(group);
+		bootstrap.handler(new PtuChannelInitializer(new PtuServerHandler(
+				refresh, ids), true));
+
+		// Start the connection attempt.
+		handler.connect(new InetSocketAddress(host, port));
 	}
 
 	public static void main(String[] args) throws Exception {

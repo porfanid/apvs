@@ -3,8 +3,12 @@ package ch.cern.atlas.apvs.client.settings;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-public abstract class AbstractServerSettings implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public abstract class AbstractServerSettings implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 5654940808477419548L;
 
@@ -24,6 +28,10 @@ public abstract class AbstractServerSettings implements Serializable {
 
 	public String put(String name, boolean value) {
 		return map.put(name, Boolean.toString(value));
+	}
+	
+	public Set<String> getKeys() {
+		return map.keySet();
 	}
 
 }

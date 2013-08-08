@@ -126,7 +126,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 				// Event handler
 				managerConnection.addEventListener(AudioServiceImpl.this);
-				voipAccounts.setUnkwonStatus();
+				voipAccounts.setUnknownStatus();
 				supervisorAccount.setStatus(false);
 				((RemoteEventBus) eventBus).fireEvent(new AudioUsersSettingsChangedRemoteEvent(voipAccounts));	
 				((RemoteEventBus) eventBus).fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(supervisorAccount));	
@@ -276,7 +276,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 						List<String> channels = new ArrayList<String>();
 						channels.add(supervisorAccount.getChannel());	
 						
-						String ptuId = event.getEvent().getPtuId();
+						String ptuId = event.getEvent().getDevice().getName();
 						channels.add(voipAccounts.getChannel(ptuId));
 						
 						// Hangup Supervisor and PTU User from active calls

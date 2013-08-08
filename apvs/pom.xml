@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>ch.cern.atlas</groupId>
 		<artifactId>apvs-project</artifactId>
-		<version>0.9.4-SNAPSHOT</version>
+		<version>0.9.5-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>apvs</artifactId>
@@ -177,6 +177,7 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-runtime</artifactId>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-compat-jbossweb</artifactId>
@@ -189,9 +190,14 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-compat-tomcat7</artifactId>
 		</dependency>
+-->
 		<dependency>
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
+		</dependency>
+		<dependency>
+      			<groupId>com.google.gwt.eventbinder</groupId>
+      			<artifactId>eventbinder</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>
@@ -215,10 +221,12 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>com.googlecode.mgwt</groupId>
 			<artifactId>mgwt</artifactId>
 		</dependency>
+-->
 		<dependency>
 			<groupId>com.moxie</groupId>
 			<artifactId>highcharts</artifactId>
@@ -228,7 +236,7 @@
 			<artifactId>asterisk-java</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.jvnet.hudson.main</groupId>
+			<groupId>org.hudsonci.libs</groupId>
 			<artifactId>hudson-gwt-slf4j</artifactId>
 		</dependency>
 		<dependency>
@@ -253,6 +261,18 @@
 			<artifactId>hibernate-validator</artifactId>
 			<classifier>sources</classifier>
 		</dependency>
+                <dependency>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                </dependency>
+                <dependency>
+                         <groupId>commons-io</groupId>
+                         <artifactId>commons-io</artifactId>
+                </dependency>
+                <dependency>
+                         <groupId>commons-configuration</groupId>
+                         <artifactId>commons-configuration</artifactId>
+                </dependency>
 
 		<dependency>
 			<groupId>com.kiouri</groupId>
@@ -261,6 +281,21 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/gwt-slider-bar-1.0.jar</systemPath>
 		</dependency>
+
+<dependency>
+  <groupId>com.google.gwt.gwtmockito</groupId>
+  <artifactId>gwtmockito</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.mockito</groupId>
+  <artifactId>mockito-all</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>junit</groupId>
+  <artifactId>junit</artifactId>
+</dependency>
 
 	</dependencies>
 

@@ -150,8 +150,8 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 	 */
 	public static SafeHtml decorate(String s, Measurement current,
 			Measurement last) {
-		if ((current != null) && (last != null) && (current.getPtuId() != null)
-				&& (current.getPtuId().equals(last.getPtuId()))
+		if ((current != null) && (last != null) && (current.getDevice().getName() != null)
+				&& (current.getDevice().getName().equals(last.getDevice().getName()))
 				&& (current.getName() != null)
 				&& current.getName().equals(last.getName())) {
 			double c = current.getValue().doubleValue();
@@ -224,7 +224,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement measurement = event.getMeasurement();
-						if (measurement.getPtuId().equals(ptuId)) {
+						if (measurement.getDevice().getName().equals(ptuId)) {
 							last = replace(measurement);
 							scheduler.update();
 						}
@@ -252,10 +252,28 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		if (measurement == null) {
 			return null;
 		}
+		
+		// FIXME 611, remove when above works
+		String sensor = measurement.getName();
+		if (sensor == null) {
+			return null;
+		}
+		if (ptuId == null) {
+			return null;
+		}
+		if (sensor.equalsIgnoreCase("BodyTemperature")) {
+			return null;
+		}
+		if ((ptuId.equalsIgnoreCase("PTU-01") || (ptuId.equalsIgnoreCase("PTU-02"))) && sensor.equalsIgnoreCase("BarometricPressure")) {
+			return null;
+		}	
+		if (sensor.equalsIgnoreCase("CO2")) {
+			return null;
+		}	
 
 		List<String> list = dataProvider.getList();
 		Measurement lastValue = historyMap.getMeasurement(
-				measurement.getPtuId(), measurement.getName());
+				measurement.getDevice().getName(), measurement.getName());
 
 		if (!list.contains(measurement.getName())) {
 			if ((show == null) || (show.size() == 0)

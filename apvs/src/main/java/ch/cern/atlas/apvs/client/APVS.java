@@ -7,16 +7,10 @@ import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.service.ServerService.User;
+import ch.cern.atlas.apvs.client.settings.LocalStorage;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.SettingsPersister;
-import ch.cern.atlas.apvs.client.tablet.AppBundle;
-import ch.cern.atlas.apvs.client.tablet.HomePlace;
-import ch.cern.atlas.apvs.client.tablet.LocalStorage;
-import ch.cern.atlas.apvs.client.tablet.TabletHistoryObserver;
-import ch.cern.atlas.apvs.client.tablet.TabletMenuActivityMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletMenuAnimationMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletPanelActivityMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletPanelAnimationMapper;
-import ch.cern.atlas.apvs.client.tablet.TabletPlaceHistoryMapper;
 import ch.cern.atlas.apvs.client.ui.AlarmView;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.AudioSummary;
@@ -45,7 +39,6 @@ import ch.cern.atlas.apvs.client.widget.PasswordDialog;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
-import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -53,7 +46,6 @@ import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.place.shared.PlaceController;
@@ -63,18 +55,6 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.googlecode.mgwt.mvp.client.AnimatableDisplay;
-import com.googlecode.mgwt.mvp.client.AnimatingActivityManager;
-import com.googlecode.mgwt.mvp.client.AnimationMapper;
-import com.googlecode.mgwt.mvp.client.history.MGWTPlaceHistoryHandler;
-import com.googlecode.mgwt.ui.client.MGWT;
-import com.googlecode.mgwt.ui.client.MGWTSettings;
-import com.googlecode.mgwt.ui.client.MGWTSettings.ViewPort;
-import com.googlecode.mgwt.ui.client.MGWTSettings.ViewPort.DENSITY;
-import com.googlecode.mgwt.ui.client.dialog.TabletPortraitOverlay;
-import com.googlecode.mgwt.ui.client.layout.MasterRegionHandler;
-import com.googlecode.mgwt.ui.client.layout.OrientationRegionHandler;
 
 /**
  * @author Mark Donszelmann
@@ -106,33 +86,73 @@ public class APVS implements EntryPoint {
 				+ build.build());
 
 		clientFactory = GWT.create(ClientFactory.class);
-
-		String pwd = LocalStorage.getInstance()
-				.get(LocalStorage.SUPERVISOR_PWD);
-		if (pwd != null) {
-			login(pwd);
-		} else {
-			prompt();
-		}
+		
+		clientFactory.getServerService().isReady(new AsyncCallback<Boolean>() {
+			
+			@Override
+			public void onSuccess(Boolean result) {
+				getProxy();
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("Server not ready. reload webpage "
+						+ caught);
+			}
+		});
 	}
 
+	private void getProxy() {
+		clientFactory.getServerService().getProxy(new AsyncCallback<Proxy>() {
+			
+			@Override
+			public void onSuccess(Proxy proxy) {
+				clientFactory.setSecure(proxy.isActive());
+
+				clientFactory.setProxy(proxy);
+
+				if (proxy.isActive()) {
+					login(null);
+				} else {
+					// not secure try with plain password
+					String pwd = LocalStorage.getInstance()
+							.get(LocalStorage.SUPERVISOR_PWD);
+					if (pwd != null) {
+						login(pwd);
+					} else {
+						prompt();
+					}					
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				// possibly secure, but do not check if supervisor
+				clientFactory.setSecure(false);
+				clientFactory.setProxy(new Proxy(false, ""));
+				start();
+			}
+		});
+	}
+	
 	private void login(final String pwd) {
-		clientFactory.getServerService().isReady(pwd,
-				new AsyncCallback<Boolean>() {
+		clientFactory.getServerService().login(pwd,
+				new AsyncCallback<User>() {
 
 					@Override
-					public void onSuccess(Boolean supervisor) {
-						clientFactory.setSupervisor(supervisor);
+					public void onSuccess(User user) {
+						clientFactory.setUser(user);
 						log.info("Server ready, user is "
-								+ (supervisor ? "SUPERVISOR" : "OBSERVER"));
-						LocalStorage.getInstance().put(LocalStorage.SUPERVISOR_PWD, supervisor ? pwd : null);
+								+ (user.isSupervisor() ? "SUPERVISOR" : "OBSERVER"));
+						LocalStorage.getInstance().put(LocalStorage.SUPERVISOR_PWD, user.isSupervisor() ? pwd : null);
 						start();
 					}
 
 					@Override
 					public void onFailure(Throwable caught) {
-						Window.alert("Server not ready. reload webpage "
-								+ caught);
+						// ignore problem, start as an observer
+						clientFactory.setUser(new User("Unknown", "", false));
+						start();
 					}
 				});
 	}
@@ -182,15 +202,15 @@ public class APVS implements EntryPoint {
 			return;
 		}
 
-		boolean newCode = false;
 		for (int i = 0; i < divs.getLength(); i++) {
 			Element element = divs.getItem(i);
 			String id = element.getId();
 
 			if (id.equals("footer")) {
 				Label supervisor = new Label(
-						clientFactory.isSupervisor() ? "Supervisor"
-								: "Observer");
+						clientFactory.getFullName()+" : "+
+						(clientFactory.isSupervisor() ? "Supervisor"
+								: "Observer"));
 				supervisor.addStyleName("footer-left");
 				RootPanel.get(id).insert(supervisor, 0);
 				continue;
@@ -259,9 +279,7 @@ public class APVS implements EntryPoint {
 					if (add && module instanceof IsWidget) {
 						RootPanel.get(id).add((IsWidget) module);
 					}
-					newCode = true;
 				}
-
 			}
 		}
 
@@ -318,127 +336,6 @@ public class APVS implements EntryPoint {
 			}
 		}, 20000);
 		
-		if (newCode)
-			return;
-
-		startWorker();
 		return;
-	}
-
-	private void startWorker() {
-
-		// MGWTColorScheme.setBaseColor("#56a60D");
-		// MGWTColorScheme.setFontColor("#eee");
-		//
-		// MGWTStyle.setDefaultBundle((MGWTClientBundle)
-		// GWT.create(MGWTStandardBundle.class));
-		// MGWTStyle.getDefaultClientBundle().getMainCss().ensureInjected();
-
-		ViewPort viewPort = new MGWTSettings.ViewPort();
-		viewPort.setTargetDensity(DENSITY.MEDIUM);
-		viewPort.setUserScaleAble(false).setMinimumScale(1.0)
-				.setMinimumScale(1.0).setMaximumScale(1.0);
-
-		MGWTSettings settings = new MGWTSettings();
-		settings.setViewPort(viewPort);
-		// settings.setIconUrl("logo.png");
-		// settings.setAddGlosToIcon(true);
-		settings.setFullscreen(true);
-		settings.setPreventScrolling(true);
-
-		MGWT.applySettings(settings);
-
-		final ClientFactory clientFactory = new APVSClientFactory();
-
-		// Start PlaceHistoryHandler with our PlaceHistoryMapper
-		TabletPlaceHistoryMapper historyMapper = GWT
-				.create(TabletPlaceHistoryMapper.class);
-
-		if (MGWT.getOsDetection().isTablet()) {
-
-			// very nasty workaround because GWT does not corretly support
-			// @media
-			StyleInjector.inject(AppBundle.INSTANCE.css().getText());
-
-			createTabletDisplay(clientFactory);
-		} else {
-
-			createTabletDisplay(clientFactory);
-			// createPhoneDisplay(clientFactory);
-
-		}
-
-		TabletHistoryObserver historyObserver = new TabletHistoryObserver();
-
-		MGWTPlaceHistoryHandler historyHandler = new MGWTPlaceHistoryHandler(
-				historyMapper, historyObserver);
-
-		historyHandler.register(clientFactory.getPlaceController(),
-				clientFactory.getRemoteEventBus(), new HomePlace());
-		historyHandler.handleCurrentHistory();
-	}
-
-	/*
-	 * private void createPhoneDisplay(ClientFactory clientFactory) {
-	 * AnimatableDisplay display = GWT.create(AnimatableDisplay.class);
-	 * 
-	 * PhoneActivityMapper appActivityMapper = new PhoneActivityMapper(
-	 * clientFactory);
-	 * 
-	 * PhoneAnimationMapper appAnimationMapper = new PhoneAnimationMapper();
-	 * 
-	 * AnimatingActivityManager activityManager = new AnimatingActivityManager(
-	 * appActivityMapper, appAnimationMapper, clientFactory.getEventBus());
-	 * 
-	 * activityManager.setDisplay(display);
-	 * 
-	 * RootPanel.get().add(display);
-	 * 
-	 * }
-	 */
-	private void createTabletDisplay(ClientFactory clientFactory) {
-		SimplePanel navContainer = new SimplePanel();
-		navContainer.getElement().setId("nav");
-		navContainer.getElement().addClassName("landscapeonly");
-		AnimatableDisplay navDisplay = GWT.create(AnimatableDisplay.class);
-
-		final TabletPortraitOverlay tabletPortraitOverlay = new TabletPortraitOverlay();
-
-		new OrientationRegionHandler(navContainer, tabletPortraitOverlay,
-				navDisplay);
-		new MasterRegionHandler(clientFactory.getRemoteEventBus(), "nav",
-				tabletPortraitOverlay);
-
-		ActivityMapper navActivityMapper = new TabletMenuActivityMapper(
-				clientFactory);
-
-		AnimationMapper navAnimationMapper = new TabletMenuAnimationMapper();
-
-		AnimatingActivityManager navActivityManager = new AnimatingActivityManager(
-				navActivityMapper, navAnimationMapper,
-				clientFactory.getRemoteEventBus());
-
-		navActivityManager.setDisplay(navDisplay);
-
-		RootPanel.get().add(navContainer);
-
-		SimplePanel mainContainer = new SimplePanel();
-		mainContainer.getElement().setId("main");
-		AnimatableDisplay mainDisplay = GWT.create(AnimatableDisplay.class);
-
-		TabletPanelActivityMapper tabletMainActivityMapper = new TabletPanelActivityMapper(
-				clientFactory);
-
-		AnimationMapper tabletMainAnimationMapper = new TabletPanelAnimationMapper();
-
-		AnimatingActivityManager mainActivityManager = new AnimatingActivityManager(
-				tabletMainActivityMapper, tabletMainAnimationMapper,
-				clientFactory.getRemoteEventBus());
-
-		mainActivityManager.setDisplay(mainDisplay);
-		mainContainer.setWidget(mainDisplay);
-
-		RootPanel.get().add(mainContainer);
-
 	}
 }

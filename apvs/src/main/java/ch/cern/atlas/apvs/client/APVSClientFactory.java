@@ -6,20 +6,9 @@ import ch.cern.atlas.apvs.client.service.EventServiceAsync;
 import ch.cern.atlas.apvs.client.service.FileServiceAsync;
 import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
+import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
-import ch.cern.atlas.apvs.client.tablet.CameraPanel;
-import ch.cern.atlas.apvs.client.tablet.CameraUI;
-import ch.cern.atlas.apvs.client.tablet.ImagePanel;
-import ch.cern.atlas.apvs.client.tablet.ImageUI;
-import ch.cern.atlas.apvs.client.tablet.MainMenuList;
-import ch.cern.atlas.apvs.client.tablet.MainMenuUI;
-import ch.cern.atlas.apvs.client.tablet.ModelPanel;
-import ch.cern.atlas.apvs.client.tablet.ModelUI;
-import ch.cern.atlas.apvs.client.tablet.ProcedureMenuPanel;
-import ch.cern.atlas.apvs.client.tablet.ProcedureMenuUI;
-import ch.cern.atlas.apvs.client.tablet.ProcedureNavigator;
-import ch.cern.atlas.apvs.client.tablet.ProcedurePanel;
-import ch.cern.atlas.apvs.client.tablet.ProcedureUI;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
@@ -36,7 +25,6 @@ public class APVSClientFactory implements ClientFactory {
 
 	@SuppressWarnings("unused")
 	private AtmosphereEventBus atmosphereEventBus;
-	private RemoteEventBus localEventBus;
 	private final PlaceController placeController;
 	private final ServerServiceAsync serverService = ServerServiceAsync.Util.getInstance();
 	private final FileServiceAsync fileService = FileServiceAsync.Util.getInstance();
@@ -46,13 +34,12 @@ public class APVSClientFactory implements ClientFactory {
 	private final EventServiceAsync eventService = EventServiceAsync.Util.getInstance();
 	private final InterventionServiceAsync interventionService = InterventionServiceAsync.Util.getInstance();
 
-	private MainMenuUI homeView;
-	private ModelUI modelView;
-	private ProcedureMenuUI procedureView;
 	private PtuSelector ptuSelector;
 	private MeasurementView measurementView;
-	private boolean supervisor;
-
+	private boolean secure;
+	private User user;
+	private Proxy proxy;
+	
 	public APVSClientFactory() {
 		// atmosphereEventBus keeps track of connections, not used for actual polling of events
 // FIXME #284, re-enable, but reload gives NPE onDisconnect in atmosphere-gwt
@@ -72,10 +59,9 @@ public class APVSClientFactory implements ClientFactory {
 		// used for events
 		RemoteEventBus remoteEventBus = new PollEventBus(requestBuilder);
 		NamedEventBus.put("remote", remoteEventBus);
-		placeController = new PlaceController(remoteEventBus);
+		placeController = new PlaceController(remoteEventBus);	
 		
-		// specially for now in iPad app
-		localEventBus = new RemoteEventBus();
+		secure = false;		
 	}
 
 	@Override
@@ -102,24 +88,7 @@ public class APVSClientFactory implements ClientFactory {
 	public PtuServiceAsync getPtuService() {
 		return ptuService;
 	}
-
-
-	@Override
-	public MainMenuUI getHomeView() {
-		if (homeView== null) {
-			homeView = new MainMenuList(this);
-		}
-		return homeView;
-	}
-
-	@Override
-	public ModelUI getModelView() {
-		if (modelView == null) {
-			modelView = new ModelPanel(this);
-		}
-		return modelView;
-	}
-
+	
 	@Override
 	public PtuSelector getPtuSelector() {
 //		if (ptuSelector == null) {
@@ -135,34 +104,6 @@ public class APVSClientFactory implements ClientFactory {
 			measurementView.configure(null, this, new Arguments());
 //		}
 		return measurementView;
-	}
-
-	@Override
-	public CameraUI getCameraView(String type) {
-		return new CameraPanel(this, type);
-	}
-
-	@Override
-	public ProcedureMenuUI getProcedureMenuView() {
-		if (procedureView == null) {
-			procedureView = new ProcedureMenuPanel(this);
-		}
-		return procedureView;
-	}
-	
-	@Override
-	public ImageUI getImagePanel(String url) {
-		return new ImagePanel(url);
-	}
-
-	@Override
-	public ProcedureUI getProcedurePanel(String url, String name, String step) {
-		return new ProcedurePanel(this, url, name, step);
-	}
-	
-	@Override
-	public ProcedureNavigator getProcedureNavigator() {
-		return new ProcedureNavigator(localEventBus);
 	}
 
 	@Override
@@ -208,12 +149,42 @@ public class APVSClientFactory implements ClientFactory {
 	}
 	
 	@Override
-	public void setSupervisor(boolean supervisor) {
-		this.supervisor = supervisor;
+	public void setSecure(boolean secure) {
+		this.secure = secure;		
+	}
+	
+	@Override
+	public boolean isSecure() {
+		return secure;
+	}
+	
+	@Override
+	public void setUser(User user) {
+		this.user = user;
 	}
 	
 	@Override
 	public boolean isSupervisor() {
-		return supervisor;
+		return user.isSupervisor();
+	}
+	
+	@Override
+	public String getFullName() {
+		return user.getFullName();
+	}
+	
+	@Override
+	public String getEmail() {
+		return user.getEmail();
+	}
+
+	@Override
+	public void setProxy(Proxy proxy) {
+		this.proxy = proxy;
+	}
+	
+	@Override
+	public Proxy getProxy() {
+		return proxy;
 	}
 }

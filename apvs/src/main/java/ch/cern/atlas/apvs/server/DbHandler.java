@@ -18,7 +18,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
@@ -28,18 +27,20 @@ import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.SortOrder;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.util.StringUtils;
 
-import com.google.gwt.view.client.Range;
-
 public class DbHandler extends DbReconnectHandler {
 
+	private static DbHandler handler;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private final RemoteEventBus eventBus;
 
@@ -51,7 +52,7 @@ public class DbHandler extends DbReconnectHandler {
 
 	private long time;
 
-	public DbHandler(final RemoteEventBus eventBus) {
+	private DbHandler(final RemoteEventBus eventBus) {
 		super(eventBus);
 		this.eventBus = eventBus;
 
@@ -115,6 +116,14 @@ public class DbHandler extends DbReconnectHandler {
 
 	}
 
+	public static DbHandler getInstance() {
+		if (handler == null) {
+			handler = new DbHandler(APVSServerFactory.getInstance()
+					.getEventBus());
+		}
+		return handler;
+	}
+
 	private ScheduledFuture<?> scheduleWatchDog() {
 		ScheduledExecutorService executor = Executors
 				.newSingleThreadScheduledExecutor();
@@ -133,6 +142,10 @@ public class DbHandler extends DbReconnectHandler {
 
 	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
 			throws SQLException {
+
+		// FIXME could be part of the SQL
+		SensorMap sensorMap = getSensorMap();
+
 		// NOTE: we could optimize the query by running a count and see if the #
 		// is not too large, then just move forward the from time.
 		String sql = "select tbl_measurements.ID, NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE, METHOD, UP_THRES, DOWN_THRES from tbl_measurements, tbl_devices "
@@ -172,7 +185,7 @@ public class DbHandler extends DbReconnectHandler {
 
 						Integer id = result.getInt("id");
 						String sensor = result.getString("sensor");
-						Number value = toDouble(result.getString("value"));
+						Double value = toDouble(result.getString("value"));
 						String unit = result.getString("unit");
 
 						// Fix for #488, invalid db entry
@@ -186,8 +199,8 @@ public class DbHandler extends DbReconnectHandler {
 							continue;
 						}
 
-						Number low = toDouble(result.getString("down_thres"));
-						Number high = toDouble(result.getString("up_thres"));
+						Double low = toDouble(result.getString("down_thres"));
+						Double high = toDouble(result.getString("up_thres"));
 
 						Integer samplingRate = toInt(result
 								.getString("samplingrate"));
@@ -197,6 +210,10 @@ public class DbHandler extends DbReconnectHandler {
 						low = Scale.getLowLimit(low, unit);
 						high = Scale.getHighLimit(high, unit);
 						unit = Scale.getUnit(unit);
+
+						if (!sensorMap.isEnabled(ptuId, sensor)) {
+							continue;
+						}
 
 						History history = map.get(ptuId, sensor);
 						if (history == null) {
@@ -237,7 +254,7 @@ public class DbHandler extends DbReconnectHandler {
 	public void dbConnected(DataSource datasource) throws SQLException {
 		super.dbConnected(datasource);
 
-		log.info("DB disconnected");
+		log.info("DB connected");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseConnect, true);
@@ -289,7 +306,7 @@ public class DbHandler extends DbReconnectHandler {
 		return !updated.isFalse();
 	}
 
-	private String getSql(String sql, Range range, SortOrder[] order) {
+	private String getSql(String sql, int start, int length, SortOrder[] order) {
 		StringBuffer s = new StringBuffer(sql);
 		for (int i = 0; i < order.length; i++) {
 			if (i == 0) {
@@ -327,8 +344,8 @@ public class DbHandler extends DbReconnectHandler {
 		}
 	}
 
-	public List<Intervention> getInterventions(Range range, SortOrder[] order)
-			throws SQLException {
+	public List<Intervention> getInterventions(int start, int length,
+			SortOrder[] order) throws SQLException {
 		String sql = "select tbl_inspections.ID as ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
 				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, "
 				+ "tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS, tbl_users.id as USER_ID, tbl_devices.id as DEVICE_ID "
@@ -337,19 +354,19 @@ public class DbHandler extends DbReconnectHandler {
 				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
 
 		Connection connection = getConnection();
-		String fullSql = getSql(sql, range, order);
-//		System.err.println(fullSql);
+		String fullSql = getSql(sql, start, length, order);
+		// System.err.println(fullSql);
 		PreparedStatement statement = connection.prepareStatement(fullSql);
 		ResultSet result = statement.executeQuery();
 
-		List<Intervention> list = new ArrayList<Intervention>(range.getLength());
+		List<Intervention> list = new ArrayList<Intervention>(length);
 		try {
 			// FIXME, #173 using some SQL this may be faster
 			// skip to start, result.absolute not implemented by Oracle
-			for (int i = 0; i < range.getStart() && result.next(); i++) {
+			for (int i = 0; i < start && result.next(); i++) {
 			}
 
-			for (int i = 0; i < range.getLength() && result.next(); i++) {
+			for (int i = 0; i < length && result.next(); i++) {
 				list.add(new Intervention(result.getInt("id"), result
 						.getInt("user_id"), result.getString("fname"), result
 						.getString("lname"), result.getInt("device_id"), result
@@ -448,8 +465,8 @@ public class DbHandler extends DbReconnectHandler {
 		}
 	}
 
-	public List<Event> getEvents(Range range, SortOrder[] order, String ptuId,
-			String measurementName) throws SQLException {
+	public List<Event> getEvents(int start, int length, SortOrder[] order,
+			String ptuId, String measurementName) throws SQLException {
 
 		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
 				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime, tbl_events.unit "
@@ -470,7 +487,7 @@ public class DbHandler extends DbReconnectHandler {
 
 		Connection connection = getConnection();
 
-		String s = getSql(sql, range, order);
+		String s = getSql(sql, start, length, order);
 		// log.info("SQL: "+s);
 		PreparedStatement statement = connection.prepareStatement(s);
 		int param = 1;
@@ -485,20 +502,20 @@ public class DbHandler extends DbReconnectHandler {
 
 		ResultSet result = statement.executeQuery();
 
-		List<Event> list = new ArrayList<Event>(range.getLength());
+		List<Event> list = new ArrayList<Event>(length);
 		try {
 			// FIXME, #173 using some SQL this may be faster
 			// skip to start, result.absolute not implemented by Oracle
-			for (int i = 0; i < range.getStart() && result.next(); i++) {
+			for (int i = 0; i < start && result.next(); i++) {
 			}
 
-			for (int i = 0; i < range.getLength() && result.next(); i++) {
+			for (int i = 0; i < length && result.next(); i++) {
 				String name = result.getString("name");
 				Double value = toDouble(result.getString("value"));
 				Double threshold = toDouble(result.getString("threshold"));
 				String unit = result.getString("unit");
 
-				list.add(new Event(name, result.getString("sensor"), result
+				list.add(new Event(new Device(name), result.getString("sensor"), result
 						.getString("event_type"), value, threshold, unit,
 						new Date(result.getTimestamp("datetime").getTime())));
 			}
@@ -552,9 +569,9 @@ public class DbHandler extends DbReconnectHandler {
 				.prepareStatement("insert into tbl_devices (name, ip, dscr, mac_addr, host_name) values (?, ?, ?, ?, ?)");
 		try {
 			addDevice.setString(1, device.getName());
-			addDevice.setString(2, device.getIp());
+			addDevice.setString(2, device.getIp().getHostAddress());
 			addDevice.setString(3, device.getDescription());
-			addDevice.setString(4, device.getMacAddress());
+			addDevice.setString(4, device.getMacAddress().toString());
 			addDevice.setString(5, device.getHostName());
 			addDevice.executeUpdate();
 		} finally {
@@ -689,9 +706,10 @@ public class DbHandler extends DbReconnectHandler {
 		try {
 			while (result.next()) {
 				list.add(new Device(result.getInt("ID"), result
-						.getString("NAME"), result.getString("IP"), result
-						.getString("DSCR"), result.getString("MAC_ADDR"),
-						result.getString("HOST_NAME")));
+						.getString("NAME"), InetAddress.getByName(result
+						.getString("IP")), result.getString("DSCR"),
+						new MacAddress(result.getString("MAC_ADDR")), result
+								.getString("HOST_NAME")));
 			}
 		} finally {
 			result.close();
@@ -833,6 +851,9 @@ public class DbHandler extends DbReconnectHandler {
 	public List<Measurement> getMeasurements(List<String> ptuIdList, String name)
 			throws SQLException {
 
+		// FIXME could be part of the SQL
+		SensorMap sensorMap = getSensorMap();
+
 		String sql = "select NAME, view_last_measurements_date.SENSOR, VALUE, SAMPLINGRATE, UNIT, METHOD, UP_THRES, DOWN_THRES, view_last_measurements_date.DATETIME "
 				+ "from view_last_measurements_date, tbl_measurements, tbl_devices "
 				+ "where view_last_measurements_date.datetime = tbl_measurements.datetime "
@@ -860,11 +881,17 @@ public class DbHandler extends DbReconnectHandler {
 		List<Measurement> list = new ArrayList<Measurement>();
 		try {
 			while (result.next()) {
+				String ptuId = result.getString("NAME");
 				String sensor = result.getString("SENSOR");
+
+				if (!sensorMap.isEnabled(ptuId, sensor)) {
+					continue;
+				}
+
 				String unit = result.getString("UNIT");
-				Number value = toDouble(result.getString("VALUE"));
-				Number low = toDouble(result.getString("DOWN_THRES"));
-				Number high = toDouble(result.getString("UP_THRES"));
+				Double value = toDouble(result.getString("VALUE"));
+				Double low = toDouble(result.getString("DOWN_THRES"));
+				Double high = toDouble(result.getString("UP_THRES"));
 
 				// if equal of low higher than high, no limits to be shown
 				if (low != null && high != null
@@ -879,10 +906,9 @@ public class DbHandler extends DbReconnectHandler {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(unit);
 
-				Measurement m = new Measurement(result.getString("NAME"),
-						sensor, value, low, high, unit,
-						toInt(result.getString("SAMPLINGRATE")), new Date(
-								result.getTimestamp("DATETIME").getTime()));
+				Measurement m = new Measurement(new Device(ptuId), sensor, value, low,
+						high, unit, toInt(result.getString("SAMPLINGRATE")),
+						new Date(result.getTimestamp("DATETIME").getTime()));
 				list.add(m);
 			}
 		} finally {
@@ -891,5 +917,38 @@ public class DbHandler extends DbReconnectHandler {
 			connection.close();
 		}
 		return list;
+	}
+
+	public SensorMap getSensorMap() {
+		SensorMap sensorMap = new SensorMap();
+
+		String sql = "select NAME, SENSOR, ENABLED from tbl_sensors join tbl_devices on tbl_sensors.DEVICE_ID = tbl_devices.id";
+
+		Connection connection;
+		try {
+			connection = getConnection();
+			PreparedStatement statement = connection.prepareStatement(sql);
+
+			ResultSet result = statement.executeQuery();
+			try {
+				while (result.next()) {
+					String sensor = result.getString("SENSOR");
+					String ptuId = result.getString("NAME");
+					String value = result.getString("ENABLED");
+
+					sensorMap.setEnabled(ptuId, sensor, value == null ? true
+							: value.equalsIgnoreCase("y"));
+				}
+			} finally {
+				result.close();
+				statement.close();
+				connection.close();
+			}
+		} catch (SQLException e) {
+			// ignore, just return unfilled map
+			System.err.println("WARNING Failed to retrieve sensor map");
+		}
+
+		return sensorMap;
 	}
 }

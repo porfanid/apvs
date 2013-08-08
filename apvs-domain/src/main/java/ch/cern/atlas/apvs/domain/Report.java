@@ -3,11 +3,15 @@ package ch.cern.atlas.apvs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Report implements Message, Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class Report implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -2218198847285152101L;
 
-	private String ptuId;
+	private volatile Device device;
+	private String type = "Report";
 	private Number batteryLevel;
 	private boolean cameraHandheld;
 	private boolean cameraHelmet;
@@ -16,9 +20,9 @@ public class Report implements Message, Serializable {
 
 	public Report() {
 	}
-
-	public Report(String ptuId, double batteryLevel, boolean cameraHandheld, boolean cameraHelmet, boolean audio, Date date) {
-		this.ptuId = ptuId;
+	
+	public Report(Device device, double batteryLevel, boolean cameraHandheld, boolean cameraHelmet, boolean audio, Date date) {
+		this.device = device;
 		this.batteryLevel = batteryLevel;
 		this.cameraHandheld = cameraHandheld;
 		this.cameraHelmet = cameraHelmet;
@@ -27,8 +31,8 @@ public class Report implements Message, Serializable {
 	}
 
     @Override
-	public String getPtuId() {
-		return ptuId;
+	public Device getDevice() {
+		return device;
 	}
 
 	public Number getBatteryLevel() {
@@ -53,6 +57,6 @@ public class Report implements Message, Serializable {
 
 	@Override
 	public String getType() {
-		return "Report";
+		return type;
 	}
 }

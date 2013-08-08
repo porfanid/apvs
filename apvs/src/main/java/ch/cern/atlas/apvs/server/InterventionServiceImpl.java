@@ -4,22 +4,32 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import ch.cern.atlas.apvs.client.domain.Device;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.User;
 import ch.cern.atlas.apvs.client.service.InterventionService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.service.SortOrder;
-
-import com.google.gwt.view.client.Range;
+import ch.cern.atlas.apvs.domain.Device;
 
 /**
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class InterventionServiceImpl extends DbServiceImpl implements
+public class InterventionServiceImpl extends ResponsePollService implements
 		InterventionService {
 
+	private DbHandler dbHandler;
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		
+		dbHandler = DbHandler.getInstance();
+	}
+	
 	@Override
 	public int getRowCount() throws ServiceException {
 		try {
@@ -30,10 +40,10 @@ public class InterventionServiceImpl extends DbServiceImpl implements
 	}
 
 	@Override
-	public List<Intervention> getTableData(Range range, SortOrder[] order)
+	public List<Intervention> getTableData(int start, int length, SortOrder[] order)
 			throws ServiceException {
 		try {
-			return dbHandler.getInterventions(range, order);
+			return dbHandler.getInterventions(start, length, order);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}

@@ -235,7 +235,7 @@ public class PtuView extends GlassPanel implements Module {
 
 	private Measurement addOrReplaceMeasurement(Measurement measurement) {
 		
-		String ptuId = measurement.getPtuId();
+		String ptuId = measurement.getDevice().getName();
 		String name = measurement.getName();
 		if ((ptuIds == null) || !ptuIds.contains(ptuId))
 			return null;

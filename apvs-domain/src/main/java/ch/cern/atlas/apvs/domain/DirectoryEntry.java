@@ -2,7 +2,10 @@ package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
 
-public class DirectoryEntry implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class DirectoryEntry implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -4603107928421487329L;
 	private Directory parent;

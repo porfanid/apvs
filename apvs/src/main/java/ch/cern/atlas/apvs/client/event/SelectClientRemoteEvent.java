@@ -5,6 +5,7 @@ import java.io.Serializable;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -12,7 +13,8 @@ public class SelectClientRemoteEvent extends RemoteEvent<SelectClientRemoteEvent
 
 	private static final long serialVersionUID = -7796935868246937748L;
 
-	public interface Handler extends Serializable {
+	//NOTE: implements IsSerializable in case serialization file cannot be found
+	public interface Handler extends Serializable, IsSerializable {
 		/**
 		 * Called when an event is fired.
 		 * 

@@ -2,7 +2,7 @@ package ch.cern.atlas.apvs.ptu.server;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,8 +13,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PtuServerHandler extends
-		ChannelInboundMessageHandlerAdapter<String> {
+public class PtuServerHandler extends ChannelInboundHandlerAdapter {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -67,11 +66,13 @@ public class PtuServerHandler extends
 
 		super.channelInactive(ctx);
 	}
-
+  
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, String msg)
+	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
-		log.info(msg);
+		log.info(msg.toString());
+
+		// FIXME #634
 		ctx.channel().write(msg);
 	}
 

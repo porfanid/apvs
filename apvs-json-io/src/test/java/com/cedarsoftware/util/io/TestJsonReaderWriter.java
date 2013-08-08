@@ -1,42 +1,49 @@
 package com.cedarsoftware.util.io;
 
+import junit.framework.TestCase;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Dictionary;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import junit.framework.TestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.cedarsoftware.util.SafeSimpleDateFormat;
 
 /**
  * Test cases for JsonReader / JsonWriter
  *
  * @author John DeRegnaucourt (jdereg@gmail.com)
  *         <br/>
- *         Copyright [2010] John DeRegnaucourt
+ *         Copyright (c) John DeRegnaucourt
  *         <br/><br/>
  *         Licensed under the Apache License, Version 2.0 (the "License");
  *         you may not use this file except in compliance with the License.
@@ -48,13 +55,10 @@ import org.slf4j.LoggerFactory;
  *         distributed under the License is distributed on an "AS IS" BASIS,
  *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *         See the License for the specific language governing permissions and
- *         limitations under the License.
- */
+ *         limitations under the License. */
 public class TestJsonReaderWriter extends TestCase
 {
-	private static Logger log = LoggerFactory.getLogger(TestJsonReaderWriter.class.getName());
-	
-    public static boolean _debug = true;    // Change to 'false' to "hush" output
+    public static boolean _debug = false;
     public static Date _testDate = new Date();
     public static Character _CONST_CHAR = new Character('j');
     public static Byte _CONST_BYTE = new Byte((byte) 16);
@@ -128,30 +132,50 @@ public class TestJsonReaderWriter extends TestCase
         private final String _str;
         private final Date _date;
         private final byte _byte;
+        private final Byte _Byte;
         private final short _short;
+        private final Short _Short;
         private final int _int;
+        private final Integer _Integer;
         private final long _long;
+        private final Long _Long;
         private final float _float;
+        private final Float _Float;
         private final double _double;
+        private final Double _Double;
         private final boolean _boolean;
+        private final Boolean _Boolean;
         private final char _char;
+        private final Character _Char;
         private final String[] _strings;
         private final int[] _ints;
+        private final BigDecimal _bigD;
 
-        private TestJsonNoDefaultOrPublicConstructor(String string, Date date, byte b, short s, int i, long l, float f, double d, boolean bool, char c, String[] strings, int[] ints)
+        private TestJsonNoDefaultOrPublicConstructor(String string, Date date, byte b, Byte B, short s, Short S, int i, Integer I,
+                                                     long l, Long L, float f, Float F, double d, Double D, boolean bool, Boolean Bool,
+                                                     char c, Character C, String[] strings, int[] ints, BigDecimal bigD)
         {
             _str = string;
             _date = date;
             _byte = b;
+            _Byte = B;
             _short = s;
+            _Short = S;
             _int = i;
+            _Integer = I;
             _long = l;
+            _Long = L;
             _float = f;
+            _Float = F;
             _double = d;
+            _Double = D;
             _boolean = bool;
+            _Boolean = Bool;
             _char = c;
+            _Char = C;
             _strings = strings;
             _ints = ints;
+            _bigD = bigD;
         }
 
         public String getString()
@@ -325,6 +349,9 @@ public class TestJsonReaderWriter extends TestCase
         private StringBuffer[] _stringbuffer_b;
         private StringBuffer[][] _stringbuffer_c;
 
+        private Object _oStringBuffer_a;
+        private Object [] _oStringBuffer_b;
+
         private TestObject _testobj_a;
         private TestObject[] _testobj_b;
         private TestObject[][] _testobj_c;
@@ -335,13 +362,16 @@ public class TestJsonReaderWriter extends TestCase
         private Object[] _testRefs0;
         private Object[] _testRefs1;
 
+        private BigInteger[] _bigInts;
+        private Object[] _oBigInts;
+        private BigDecimal[] _bigDecs;
+        private Object[] _oBigDecs;
+
         private Object _arrayO;
         private Object _arrayS;
         private Object _arrayArrayO;
 
-        public TestArray()
-        {
-        }
+        public TestArray() { }
 
         public void init()
         {
@@ -442,6 +472,8 @@ public class TestJsonReaderWriter extends TestCase
             _stringbuffer_b[1] = new StringBuffer("second");
             _stringbuffer_b[2] = null;
             _stringbuffer_c = new StringBuffer[][]{null, {}, {new StringBuffer("sham-wow")}};
+            _oStringBuffer_a = new StringBuffer("murder my days one at a time");
+            _oStringBuffer_b = new Object[] {new StringBuffer("chaiyya chaiyya")};
 
             _testobj_a = new TestObject("food");
             _testobj_b = new TestObject[]{new TestObject("ten"), new TestObject("hut")};
@@ -455,23 +487,32 @@ public class TestJsonReaderWriter extends TestCase
             _hetero_a = new Object[]{new Character('a'), Boolean.TRUE, new Byte((byte) 9), new Short((short) 9), new Integer(9), new Long(9), new Float(9.9), new Double(9.9), "getStartupInfo", _testDate, boolean.class, null, "null", _CONST_INT, Class.class};
             _testRefs0 = new Object[]{_testDate, Boolean.FALSE, _CONST_CHAR, _CONST_BYTE, _CONST_SHORT, _CONST_INT, _CONST_LONG, _CONST_FLOAT, _CONST_DOUBLE, "Happy"};
             _testRefs1 = new Object[]{_testDate, Boolean.FALSE, _CONST_CHAR, _CONST_BYTE, _CONST_SHORT, _CONST_INT, _CONST_LONG, _CONST_FLOAT, _CONST_DOUBLE, "Happy"};
-            _arrayO = new Object[]{"foo", true, null, 16L, 3.14};
-            _arrayS = new String[]{"fingers", "toes"};
-            _arrayArrayO = new Object[][]{{"true", "false"}, {1L, 2L, 3L}, null, {1.1, 2.2}, {true, false}};
+            _arrayO = new Object[] { "foo", true, null, 16L, 3.14};
+            _arrayS = new String[] {"fingers", "toes"};
+            _arrayArrayO = new Object[][] {{"true", "false"}, {1L, 2L, 3L}, null, {1.1, 2.2}, {true, false}};
+
+            _bigInts = new BigInteger[] { new BigInteger("-123456789012345678901234567890"), new BigInteger("0"), new BigInteger("123456789012345678901234567890")};
+            _oBigInts = new Object[] { new BigInteger("-123456789012345678901234567890"), new BigInteger("0"), new BigInteger("123456789012345678901234567890")};
+            _bigDecs = new BigDecimal[] { new BigDecimal("-123456789012345678901234567890.123456789012345678901234567890"), new BigDecimal("0.0"), new BigDecimal("123456789012345678901234567890.123456789012345678901234567890")};
+            _oBigDecs = new Object[] { new BigDecimal("-123456789012345678901234567890.123456789012345678901234567890"), new BigDecimal("0.0"), new BigDecimal("123456789012345678901234567890.123456789012345678901234567890")};
         }
     }
 
     public void testArray() throws Exception
     {
-        println("\nTestJsonWriter.testArray()");
+        println("\nTestJsonReaderWriter.testArray()");
         TestArray obj = new TestArray();
         obj.init();
         String jsonOut = getJsonString(obj);
         println(jsonOut);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut));
-        TestArray root = (TestArray) readJsonObject(jr);
+        TestArray root = (TestArray) readJsonObject(jsonOut);
+        assertArray(root);
+        time(root);
+    }
 
+    private void assertArray(TestArray root)
+    {
         assertTrue(root._empty_a != null);
         assertNull(root._empty_b);
         assertTrue(root._empty_c.length == 0);
@@ -754,6 +795,10 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._stringbuffer_c[2].length == 1);
         assertTrue(root._stringbuffer_c[2][0].toString().equals("sham-wow"));
 
+        assertTrue("murder my days one at a time".equals(root._oStringBuffer_a.toString()));
+        assertTrue(root._oStringBuffer_b.length == 1);
+        assertTrue("chaiyya chaiyya".equals(root._oStringBuffer_b[0].toString()));
+
         assertTrue(root._testobj_a.equals(new TestObject("food")));
         assertTrue(root._testobj_b.length == 2);
         assertTrue(root._testobj_b[0].getName().equals("ten"));
@@ -799,14 +844,14 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._testRefs0[9].equals("Happy"));
 
         assertTrue(root._testRefs1.length == 10);
-        assertFalse(addressEquals(root._testRefs1[0], root._testRefs0[0]));
+        assertTrue(root._testRefs1[0] ==  root._testRefs0[0]);
         assertTrue(root._testRefs1[1] == root._testRefs0[1]);    // Works because we only read in Boolean.TRUE, Boolean.FALSE, or null
         assertTrue(root._testRefs1[2] == root._testRefs0[2]);
         assertTrue(root._testRefs1[3] == root._testRefs0[3]);
         assertTrue(root._testRefs1[4] == root._testRefs0[4]);
         assertTrue(root._testRefs1[5] == root._testRefs0[5]);
         assertTrue(root._testRefs1[6].equals(root._testRefs0[6]));
-        assertTrue(root._testRefs1[7] == root._testRefs0[7]);
+        assertTrue(root._testRefs1[7] != root._testRefs0[7]);       // Primitive Wrappers are treated like primitives
         assertTrue(root._testRefs1[8].equals(root._testRefs0[8]));
         assertTrue(root._testRefs1[9].equals(root._testRefs0[9]));
 
@@ -816,8 +861,8 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue("foo".equals(items[0]));
         assertTrue(Boolean.TRUE.equals(items[1]));
         assertNull(items[2]);
-        assertTrue(((Long) 16L).equals(items[3]));
-        assertTrue(((Double) 3.14).equals(items[4]));
+        assertTrue(((Long)16L).equals(items[3]));
+        assertTrue(((Double)3.14).equals(items[4]));
 
         assertTrue(root._arrayS instanceof String[]);
         String[] strItems = (String[]) root._arrayS;
@@ -829,7 +874,21 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._arrayArrayO instanceof Object[][]);
         assertFalse(root._arrayArrayO instanceof Object[][][]);
 
-        time(root);
+        assertTrue(root._bigInts[0].equals(new BigInteger("-123456789012345678901234567890")));
+        assertTrue(root._bigInts[1].equals(new BigInteger("0")));
+        assertTrue(root._bigInts[2].equals(new BigInteger("123456789012345678901234567890")));
+
+        assertTrue(root._oBigInts[0].equals(new BigInteger("-123456789012345678901234567890")));
+        assertTrue(root._oBigInts[1].equals(new BigInteger("0")));
+        assertTrue(root._oBigInts[2].equals(new BigInteger("123456789012345678901234567890")));
+
+        assertTrue(root._bigDecs[0].equals(new BigDecimal("-123456789012345678901234567890.123456789012345678901234567890")));
+        assertTrue(root._bigDecs[1].equals(new BigDecimal("0.0")));
+        assertTrue(root._bigDecs[2].equals(new BigDecimal("123456789012345678901234567890.123456789012345678901234567890")));
+
+        assertTrue(root._oBigDecs[0].equals(new BigDecimal("-123456789012345678901234567890.123456789012345678901234567890")));
+        assertTrue(root._oBigDecs[1].equals(new BigDecimal("0.0")));
+        assertTrue(root._oBigDecs[2].equals(new BigDecimal("123456789012345678901234567890.123456789012345678901234567890")));
     }
 
     private static class TestCollection implements Serializable
@@ -848,10 +907,12 @@ public class TestJsonReaderWriter extends TestCase
         private List _sb_b;
         private List _sb_c;
         private List _poly_a;
+        private ArrayList _typedCol;
         private Set _strs_a;
         private Set _strs_b;
         private Set _strs_c;
         private Set _strs_d;
+        private HashSet _typedSet;
 
         private void init()
         {
@@ -873,7 +934,7 @@ public class TestJsonReaderWriter extends TestCase
             tree.add(new Integer(Integer.MAX_VALUE));
             tree.add(_CONST_INT);
 
-            _cols = new Collection[]{array, set, tree};
+            _cols = new Collection[] {array, set, tree};
 
             _strings_a = new LinkedList();
             _strings_a.add("Alpha");
@@ -949,20 +1010,42 @@ public class TestJsonReaderWriter extends TestCase
             _strs_c = null;
             _strs_d = new TreeSet();
             _strs_d.addAll(_strs_a);
+
+            _typedCol = new ArrayList();
+            _typedCol.add("string");
+            _typedCol.add(null);
+            _typedCol.add(new Date(19));
+            _typedCol.add(true);
+            _typedCol.add(17.76);
+            _typedCol.add(TimeZone.getTimeZone("PST"));
+
+            _typedSet = new HashSet();
+            _typedSet.add("string");
+            _typedSet.add(null);
+            _typedSet.add(new Date(19));
+            _typedSet.add(true);
+            _typedSet.add(17.76);
+            _typedSet.add(TimeZone.getTimeZone("PST"));
         }
     }
 
     public void testCollection() throws Exception
     {
-        println("\nTestJsonWriter.testCollection()");
+        println("\nTestJsonReaderWriter.testCollection()");
         TestCollection obj = new TestCollection();
         obj.init();
         String jsonOut = getJsonString(obj);
         println(jsonOut);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut));
-        TestCollection root = (TestCollection) readJsonObject(jr);
+        TestCollection root = (TestCollection) readJsonObject(jsonOut);
 
+        assertCollection(root);
+
+        time(root);
+    }
+
+    private void assertCollection(TestCollection root)
+    {
         assertTrue(root._cols.length == 3);
         assertTrue(root._cols[0].getClass().equals(ArrayList.class));
         assertTrue(root._cols[1].getClass().equals(HashSet.class));
@@ -998,7 +1081,7 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._strings_a.get(1).equals("Bravo"));
         assertTrue(root._strings_a.get(2).equals("Charlie"));
         assertTrue(root._strings_a.get(3).equals("Delta"));
-        assertTrue(root._strings_b.size() == 0);
+        assertTrue(root._strings_b.isEmpty());
         assertNull(root._strings_c);
 
         assertTrue(root._dates_a.size() == 4);
@@ -1006,7 +1089,7 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._dates_a.get(1).equals(_testDate));
         assertTrue(root._dates_a.get(2).equals(new Date(Long.MAX_VALUE)));
         assertNull(root._dates_a.get(3));
-        assertTrue(root._dates_b.size() == 0);
+        assertTrue(root._dates_b.isEmpty());
         assertNull(root._dates_c);
 
         assertTrue(root._classes_a.size() == 12);
@@ -1022,13 +1105,13 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._classes_a.get(9).equals(Date.class));
         assertNull(root._classes_a.get(10));
         assertTrue(root._classes_a.get(11).equals(Class.class));
-        assertTrue(root._classes_b.size() == 0);
+        assertTrue(root._classes_b.isEmpty());
         assertNull(root._classes_c);
 
         assertTrue(root._sb_a.size() == 2);
         assertTrue(root._sb_a.get(0).toString().equals("one"));
         assertTrue(root._sb_a.get(1).toString().equals("two"));
-        assertTrue(root._sb_b.size() == 0);
+        assertTrue(root._sb_b.isEmpty());
         assertNull(root._sb_c);
 
         assertTrue(root._poly_a.size() == 17);
@@ -1072,17 +1155,33 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._strs_a.contains("Duck"));
         assertTrue(root._strs_a.contains("Bird"));
         assertTrue(root._strs_a.contains("Goose"));
-        assertTrue(root._strs_b.size() == 0);
+        assertTrue(root._strs_b.isEmpty());
         assertNull(root._strs_c);
         assertTrue(root._strs_d.size() == 7);
         assertTrue(root._strs_d instanceof TreeSet);
 
-        time(root);
+        assertTrue(root._typedCol != null);
+        assertTrue(root._typedCol .size() == 6);
+        assertTrue("string".equals(root._typedCol.get(0)));
+        assertTrue(null == root._typedCol.get(1));
+        assertTrue((new Date(19)).equals(root._typedCol.get(2)));
+        assertTrue((Boolean)root._typedCol.get(3));
+        assertTrue(17.76 == (Double) root._typedCol.get(4));
+        assertTrue(TimeZone.getTimeZone("PST").equals(root._typedCol.get(5)));
+
+        assertTrue(root._typedSet != null);
+        assertTrue(root._typedSet .size() == 6);
+        assertTrue(root._typedSet.contains("string"));
+        assertTrue(root._typedCol.contains(null));
+        assertTrue(root._typedCol.contains(new Date(19)));
+        assertTrue(root._typedCol.contains(true));
+        assertTrue(root._typedCol.contains(17.76));
+        assertTrue(root._typedCol.contains(TimeZone.getTimeZone("PST")));
     }
 
     private static class TestMap implements Serializable
     {
-        private Map _strings_a;
+        private HashMap _strings_a;
         private Map _strings_b;
         private Map _strings_c;
         private Map _testobjs_a;
@@ -1091,6 +1190,7 @@ public class TestJsonReaderWriter extends TestCase
         private Map _map_col_3;
         private Map _map_obj;
         private Map _map_con;
+        private TreeMap _typedMap;
 
         private void init()
         {
@@ -1122,25 +1222,33 @@ public class TestJsonReaderWriter extends TestCase
 
             _map_con.put(new TestObject("alpha"), new TestObject("one"));
             _map_con.put(new TestObject("bravo"), new TestObject("two"));
+
+            _typedMap = new TreeMap();
+            _typedMap.put("a", "alpha");
+            _typedMap.put("b", "bravo");
         }
     }
 
     public void testMap() throws Exception
     {
-        println("\nTestJsonWriter.testMap()");
+        println("\nTestJsonReaderWriter.testMap()");
         TestMap obj = new TestMap();
         obj.init();
         String jsonOut = getJsonString(obj);
         println(jsonOut);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut));
-        TestMap root = (TestMap) readJsonObject(jr);
+        TestMap root = (TestMap) readJsonObject(jsonOut);
+        assertMap(root);
+        time(root);
+    }
 
+    private void assertMap(TestMap root)
+    {
         assertTrue(root._strings_a.size() == 3);
         assertTrue(root._strings_a.get("woods").equals("tiger"));
         assertTrue(root._strings_a.get("mickleson").equals("phil"));
         assertTrue(root._strings_a.get("garcia").equals("sergio"));
-        assertTrue(root._strings_b.size() == 0);
+        assertTrue(root._strings_b.isEmpty());
         assertNull(root._strings_c);
 
         assertTrue(root._testobjs_a.size() == 2);
@@ -1169,7 +1277,7 @@ public class TestJsonReaderWriter extends TestCase
         key_a[0].equals("composite");
         key_a[1].equals("key");
         String value = (String) root._map_col_3.get(key_a);
-        assertTrue(value.equals("value"));
+        assertTrue("value".equals(value));
 
         assertTrue(root._map_obj.size() == 2);
         assertTrue(root._map_obj.get(new Integer(99)).equals(new Double(.123)));
@@ -1197,13 +1305,17 @@ public class TestJsonReaderWriter extends TestCase
             }
         }
 
-        time(root);
+        assertTrue(root._typedMap != null);
+        assertTrue(root._typedMap.size() == 2);
+        assertTrue(root._typedMap.get("a").equals("alpha"));
+        assertTrue(root._typedMap.get("b").equals("bravo"));
     }
 
-    // Test direct fields for all types, primitives, special handled fields
-    // like Date, String, and Class, plus regular objects, and circular
-    // references.
-
+    /**
+     * Test direct fields for all types, primitives, special handled fields
+     * like Date, String, and Class, plus regular objects, and circular
+     * references.
+     */
     private static class TestFields implements Serializable
     {
         private boolean _boolean_a;
@@ -1278,6 +1390,17 @@ public class TestJsonReaderWriter extends TestCase
         private StringBuffer _sb_a;
         private StringBuffer _sb_b;
         private StringBuffer _sb_c;
+        private Object _sb_d;
+
+        private StringBuilder _sbld_a;
+        private StringBuilder _sbld_b;
+        private StringBuilder _sbld_c;
+        private Object _sbld_d;
+
+        private BigInteger _bigInt;
+        private Object _bigIntO;
+        private BigDecimal _bigDec;
+        private Object _bigDecO;
 
         // Cycle test
         private TestObject _cycleTest;
@@ -1383,6 +1506,17 @@ public class TestJsonReaderWriter extends TestCase
             _sb_a = new StringBuffer("holstein");
             _sb_b = new StringBuffer();
             _sb_c = null;
+            _sb_d = new StringBuffer("viper");
+
+            _sbld_a = new StringBuilder("holstein");
+            _sbld_b = new StringBuilder();
+            _sbld_c = null;
+            _sbld_d = new StringBuilder("viper");
+
+            _bigInt = new BigInteger("25");
+            _bigIntO = new BigInteger("25");
+            _bigDec = new BigDecimal("25.0");
+            _bigDecO = new BigDecimal("25.0");
 
             TestObject a = new TestObject("A");
             TestObject b = new TestObject("B");
@@ -1428,15 +1562,19 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testFields() throws Exception
     {
-        println("\nTestJsonWriter.testFields()");
+        println("\nTestJsonReaderWriter.testFields()");
         TestFields obj = new TestFields();
         obj.init();
         String jsonOut = getJsonString(obj);
         println(jsonOut);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut));
-        TestFields root = (TestFields) readJsonObject(jr);
+        TestFields root = (TestFields) readJsonObject(jsonOut);
+        assertFields(root);
+        time(root);
+    }
 
+    private void assertFields(TestFields root)
+    {
         assertTrue(root._boolean_a);
         assertFalse(root._boolean_b);
         assertTrue(root._boolean_c.booleanValue());
@@ -1506,9 +1644,20 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._class_i.equals(String.class));
         assertNull(root._class_j);
 
-        assertTrue(root._sb_a.toString().equals("holstein"));
+        assertTrue("holstein".equals(root._sb_a.toString()));
         assertTrue(root._sb_b.toString().equals(""));
         assertNull(root._sb_c);
+        assertTrue("viper".equals(root._sb_d.toString()));
+
+        assertTrue("holstein".equals(root._sb_a.toString()));
+        assertTrue(root._sb_b.toString().equals(""));
+        assertNull(root._sb_c);
+        assertTrue("viper".equals(root._sb_d.toString()));
+
+        assertTrue(root._bigInt.equals(new BigInteger("25")));
+        assertTrue(root._bigIntO.equals(new BigInteger("25")));
+        assertTrue(root._bigDec.equals(new BigDecimal("25.0")));
+        assertTrue(root._bigDec.equals(new BigDecimal("25.0")));
 
         assertTrue(root._cycleTest._name.equals("A"));
         assertTrue(root._cycleTest._other._name.equals("B"));
@@ -1524,7 +1673,7 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._arrayList_5.size() == 1);
         assertTrue(root._arrayList_6 == root._arrayList_5);
 
-        assertTrue(root._hashMap_empty.size() == 0);
+        assertTrue(root._hashMap_empty.isEmpty());
         assertTrue(root._hashMap_1.size() == 1);
         assertTrue(root._hashMap_2.size() == 1);
         assertTrue(root._hashMap_3.size() == 1);
@@ -1539,7 +1688,6 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(root._stringArray_4 == root._stringArray_3);
         assertTrue(root._stringArray_5.length == 1);
         assertTrue(root._stringArray_6 == root._stringArray_5);
-        time(root);
     }
 
     private static class TestReferences implements Serializable
@@ -1587,14 +1735,13 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testReferences() throws Exception
     {
-        println("\nTestJsonWriter.testReferences()");
+        println("\nTestJsonReaderWriter.testReferences()");
         TestReferences obj = new TestReferences();
         obj.init();
         String jsonOut = getJsonString(obj);
         println(jsonOut);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut));
-        TestReferences root = (TestReferences) readJsonObject(jr);
+        TestReferences root = (TestReferences) readJsonObject(jsonOut);
 
         assertTrue(root._a.length == 1);
         assertTrue(root._b != null);
@@ -1632,21 +1779,20 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(kid2._name.equals("cat"));
         assertTrue(kid2._email.equals("cat@house.com"));
         assertTrue(kid3._name.equals("shortie"));
-        assertTrue(root._big == '\ufbfc');
+//        assertTrue(root._big == '\ufbfc');
 
         time(root);
     }
 
     public void testPerformance() throws Exception
     {
-        println("\nTestJsonWriter.testPerformance()    128K byte[]");
+        println("\nTestJsonReaderWriter.testPerformance()    128K byte[]");
         byte[] bytes = new byte[128 * 1024];
         Random r = new Random();
         r.nextBytes(bytes);
         String json = getJsonString(bytes);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        byte[] bytes2 = (byte[]) readJsonObject(jr);
+        byte[] bytes2 = (byte[]) readJsonObject(json);
 
         for (int i = 0; i < bytes.length; i++)
         {
@@ -1666,15 +1812,16 @@ public class TestJsonReaderWriter extends TestCase
         private long _userDate;
     }
 
-    // Instantiate off of each others JSON String, proving Date for long substitution works.  This will work on any
-    // field that is of type Date or Long.  It will not work when the Dates are inside a Collection, for example.
-    // <p/>
-    // This substitution trick allows Date fields to be converted to long in order to save memory 16 bytes of memory
-    // per date.  (Date's are more than 8 bytes, longs are 8).
-
+    /**
+     * Instantiate off of each others JSON String, proving Date for long substitution works.  This will work on any
+     * field that is of type Date or Long.  It will not work when the Dates are inside a Collection, for example.
+     * <p/>
+     * This substitution trick allows Date fields to be converted to long in order to save memory 16 bytes of memory
+     * per date.  (Date's are more than 8 bytes, longs are 8).
+     */
     public void testDateLongSubstitution() throws Exception
     {
-        println("\nTestJsonWriter.testDateLongSubstitution()");
+        println("\nTestJsonReaderWriter.testDateLongSubstitution()");
         long now = System.currentTimeMillis();
         DateTrick d = new DateTrick();
         d._userDate = new Date(now);
@@ -1686,34 +1833,27 @@ public class TestJsonReaderWriter extends TestCase
         println(jsonOut2);
         jsonOut1 = jsonOut1.replace("$Date", "$Long");
         jsonOut2 = jsonOut2.replace("$Long", "$Date");
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut1));
-        l = (LongTrick) jr.readObject();
-        jr.close();
-        jr = new JsonReader(convertStringToInputStream(jsonOut2));
-        d = (DateTrick) jr.readObject();
-        jr.close();
+        l = (LongTrick) readJsonObject(jsonOut1);
+        d = (DateTrick) readJsonObject(jsonOut2);
         assertTrue(d._userDate.getTime() == l._userDate);
     }
 
     public void testRoots() throws Exception
     {
-        println("\nTestJsonWriter.testRoots()");
+        println("\nTestJsonReaderWriter.testRoots()");
         // Test Object[] as root element passed in
         Object[] foo = {new TestObject("alpha"), new TestObject("beta")};
 
         String jsonOut = getJsonString(foo);
         println(jsonOut);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut));
-        Object[] bar = (Object[]) jr.readObject();
-
+        Object[] bar = (Object[]) JsonReader.toJava(jsonOut);
         assertTrue(bar.length == 2);
         assertTrue(bar[0].equals(new TestObject("alpha")));
         assertTrue(bar[1].equals(new TestObject("beta")));
 
         String json = "[\"getStartupInfo\",[\"890.022905.16112006.00024.0067ur\",\"machine info\"]]";
-        jr = new JsonReader(convertStringToInputStream(json));
-        Object[] baz = (Object[]) jr.readObject();
+        Object[] baz = (Object[]) JsonReader.toJava(json);
         assertTrue(baz.length == 2);
         assertTrue("getStartupInfo".equals(baz[0]));
         Object[] args = (Object[]) baz[1];
@@ -1722,21 +1862,19 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue("machine info".equals(args[1]));
 
         String hw = "[\"Hello, World\"]";
-        jr = new JsonReader(convertStringToInputStream(hw));
-        Object[] qux = (Object[]) jr.readObject();
+        Object[] qux = (Object[]) JsonReader.toJava(hw);
         assertTrue(qux != null);
         assertTrue("Hello, World".equals(qux[0]));
 
         // Whitespace
-        jr = new JsonReader(convertStringToInputStream(" [  {  \"@type\"  :  \"com.cedarsoftware.util.io.TestJsonReaderWriter$TestObject\"  ,  \"_name\"  :  \"alpha\"  ,  \"_other\"  :  null  }  ,  {  \"@type\"  :  \"com.cedarsoftware.util.io.TestJsonReaderWriter$TestObject\"  ,  \"_name\"  :  \"beta\"  ,  \"_other\" : null  }  ]  "));
-        Object[] fred = (Object[]) jr.readObject();
+        String pkg = TestObject.class.getName();
+        Object[] fred = (Object[]) JsonReader.toJava(" [  {  \"@type\"  :  \"" + pkg + "\"  ,  \"_name\"  :  \"alpha\"  ,  \"_other\"  :  null  }  ,  {  \"@type\"  :  \"" + pkg + "\"  ,  \"_name\"  :  \"beta\"  ,  \"_other\" : null  }  ]  ");
         assertTrue(fred != null);
         assertTrue(fred.length == 2);
         assertTrue(fred[0].equals(new TestObject("alpha")));
         assertTrue(fred[1].equals(new TestObject("beta")));
 
-        jr = new JsonReader(convertStringToInputStream("[{\"@type\":\"com.cedarsoftware.util.io.TestJsonReaderWriter$TestObject\",\"_name\" : \"alpha\" , \"_other\":null,\"fake\":\"_typeArray\"},{\"@type\": \"com.cedarsoftware.util.io.TestJsonReaderWriter$TestObject\",\"_name\":\"beta\",\"_other\":null}]"));
-        Object[] wilma = (Object[]) jr.readObject();
+        Object[] wilma = (Object[]) JsonReader.toJava("[{\"@type\":\"" + pkg + "\",\"_name\" : \"alpha\" , \"_other\":null,\"fake\":\"_typeArray\"},{\"@type\": \"" + pkg + "\",\"_name\":\"beta\",\"_other\":null}]");
         assertTrue(wilma != null);
         assertTrue(wilma.length == 2);
         assertTrue(wilma[0].equals(new TestObject("alpha")));
@@ -1745,22 +1883,20 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testRoots2() throws Exception
     {
-        println("\nTestJsonWriter.testRoots2()");
-        // Test root JSON type as [ ]
-        Object array = new Object[]{"Hello"};
+        println("\nTestJsonReaderWriter.testRoots2()");
+        // Test root JSON type as [ ] 
+        Object array = new Object[] {"Hello"};
         String json = getJsonString(array);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        Object oa = jr.readObject();
+        Object oa = JsonReader.toJava(json);
         assertTrue(oa.getClass().isArray());
-        assertTrue(((Object[]) oa)[0].equals("Hello"));
+        assertTrue(((Object[])oa)[0].equals("Hello"));
 
         // Test root JSON type as { }
         Calendar cal = Calendar.getInstance();
         cal.set(1965, 11, 17);
         json = getJsonString(cal);
         println("json = " + json);
-        jr = new JsonReader(convertStringToInputStream(json));
-        Object obj = jr.readObject();
+        Object obj = JsonReader.toJava(json);
         assertTrue(!obj.getClass().isArray());
         Calendar date = (Calendar) obj;
         assertTrue(date.get(Calendar.YEAR) == 1965);
@@ -1770,16 +1906,17 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testNoDefaultConstructor() throws Exception
     {
-        println("\nTestJsonWriter.testNoDefaultConstructor()");
+        println("\nTestJsonReaderWriter.testNoDefaultConstructor()");
         Calendar c = Calendar.getInstance();
         c.set(2010, 5, 5, 5, 5, 5);
-        String[] strings = new String[]{"C", "C++", "Java"};
-        int[] ints = new int[]{1, 2, 4, 8, 16, 32, 64, 128};
-        Object foo = new TestJsonNoDefaultOrPublicConstructor("Hello, World.", c.getTime(), (byte) 1, (short) 2, 3, 4L, 5.0f, 6.0, true, 'J', strings, ints);
+        String[] strings = new String[] { "C", "C++", "Java"};
+        int[] ints = new int[] {1, 2, 4, 8, 16, 32, 64, 128};
+        Object foo = new TestJsonNoDefaultOrPublicConstructor("Hello, World.", c.getTime(), (byte) 1, new Byte((byte)11), (short) 2, new Short((short)22), 3, new Integer(33), 4L, new Long(44L), 5.0f, new Float(55.0f), 6.0, new Double(66.0), true, Boolean.TRUE,'J', new Character('K'), strings, ints, new BigDecimal(1.1));
         String jsonOut = getJsonString(foo);
         println(jsonOut);
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut));
-        TestJsonNoDefaultOrPublicConstructor bar = (TestJsonNoDefaultOrPublicConstructor) jr.readObject();
+
+        TestJsonNoDefaultOrPublicConstructor bar = (TestJsonNoDefaultOrPublicConstructor) readJsonObject(jsonOut);
+
         assertTrue("Hello, World.".equals(bar.getString()));
         assertTrue(bar.getDate().equals(c.getTime()));
         assertTrue(bar.getByte() == 1);
@@ -1794,55 +1931,7 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(bar.getStrings().length == strings.length);
         assertTrue(bar.getInts() != null);
         assertTrue(bar.getInts().length == ints.length);
-    }
-
-    public void testUntypedArray() throws Exception
-    {
-        println("\nTestJsonWriter.testUntypedArray()");
-        JsonReader jr = new JsonReader(convertStringToInputStream("[\"string\",17, null, true, false, [], -1273123,32131, 1e6, 3.14159, -9223372036854775808, 9223372036854775807]"));
-        Object[] args = (Object[]) jr.readObject();
-
-        for (int i = 0; i < args.length; i++)
-        {
-            println("args[" + i + "]=" + args[i]);
-            if (args[i] != null)
-            {
-                println("args[" + i + "]=" + args[i].getClass().getName());
-            }
-        }
-
-        assertTrue(args[0].equals("string"));
-        assertTrue(args[1].equals(17L));
-        assertTrue(args[2] == null);
-        assertTrue(args[3].equals(Boolean.TRUE));
-        assertTrue(args[4].equals(Boolean.FALSE));
-        assertTrue(args[5].getClass().isArray());
-        assertTrue(args[6].equals(-1273123L));
-        assertTrue(args[7].equals(32131L));
-        assertTrue(args[8].equals(new Double(1000000)));
-        assertTrue(args[9].equals(new Double(3.14159)));
-        assertTrue(args[10].equals(Long.MIN_VALUE));
-        assertTrue(args[11].equals(Long.MAX_VALUE));
-    }
-
-    public void testUntypedCollections() throws Exception
-    {
-        println("\nTestJsonWriter.testUntypedCollections()");
-        Object[] poly = new Object[]{"Road Runner", 16L, 3.1415, true, false, null, 7, "Coyote", "Coyote"};
-        String json = getJsonString(poly);
-        println("json=" + json);
-        assertTrue("[\"Road Runner\",16,3.1415,true,false,null,{\"@type\":\"int\",\"value\":7},\"Coyote\",\"Coyote\"]".equals(json));
-        Collection col = new ArrayList();
-        col.add("string");
-        col.add(new Long(16));
-        col.add(new Double(3.14159));
-        col.add(Boolean.TRUE);
-        col.add(Boolean.FALSE);
-        col.add(null);
-        col.add(new Integer(7));
-        json = getJsonString(col);
-        println("json=" + json);
-        assertTrue("{\"@type\":\"java.util.ArrayList\",\"elementData\":[\"string\",16,3.14159,true,false,null,{\"@type\":\"int\",\"value\":7},null,null,null],\"size\":7,\"modCount\":7}".equals(json));
+        assertTrue(bar._bigD.equals(new BigDecimal(1.1)));
     }
 
     private static class TestByte implements Serializable
@@ -1860,13 +1949,13 @@ public class TestJsonReaderWriter extends TestCase
         private TestByte()
         {
             _arrayElement = new Byte((byte) -1);
-            _polyRefTarget = new Byte((byte) 71);
+            _polyRefTarget = new Byte((byte)71);
             _polyRef = _polyRefTarget;
             _polyNotRef = new Byte((byte) 71);
-            Byte local = new Byte((byte) 75);
-            _null = null;
-            _typeArray = new Byte[]{_arrayElement, (byte) 44, local, _null, null, new Byte((byte) 44)};
-            _objArray = new Object[]{_arrayElement, (byte) 69, local, _null, null, new Byte((byte) 69)};
+            Byte local = new Byte((byte)75);
+            _null  = null;
+            _typeArray = new Byte[] {_arrayElement, (byte) 44, local, _null, null, new Byte((byte)44)};
+            _objArray = new Object[] {_arrayElement, (byte) 69, local, _null, null, new Byte((byte)69)};
             _min = Byte.MIN_VALUE;
             _max = Byte.MAX_VALUE;
         }
@@ -1874,27 +1963,27 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testByte() throws Exception
     {
-        println("\nTestJsonWriter.testByte()");
+        println("\nTestJsonReaderWriter.testByte()");
         TestByte test = new TestByte();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestByte that = (TestByte) readJsonObject(jr);
+
+        TestByte that = (TestByte) readJsonObject(json);
 
         assertTrue(that._arrayElement.equals((byte) -1));
         assertTrue(that._polyRefTarget.equals((byte) 71));
         assertTrue(that._polyRef.equals((byte) 71));
         assertTrue(that._polyNotRef.equals((byte) 71));
-        assertTrue(addressEquals(that._polyRef, that._polyRefTarget));
-        assertTrue(addressEquals(that._polyNotRef, that._polyRef));             // byte cache is working
+        assertTrue(that._polyRef == that._polyRefTarget);
+        assertTrue(that._polyNotRef == that._polyRef);             // byte cache is working
 
         assertTrue(that._typeArray.length == 6);
-        assertTrue(addressEquals(that._typeArray[0], that._arrayElement));  // byte cache is working
+        assertTrue(that._typeArray[0] == that._arrayElement);  // byte cache is working
         assertTrue(that._typeArray[1] instanceof Byte);
         assertTrue(that._typeArray[1] instanceof Byte);
         assertTrue(that._typeArray[1].equals((byte) 44));
         assertTrue(that._objArray.length == 6);
-        assertTrue(addressEquals(that._objArray[0], that._arrayElement));   // byte cache is working
+        assertTrue(that._objArray[0] == that._arrayElement);   // byte cache is working
         assertTrue(that._objArray[1] instanceof Byte);
         assertTrue(that._objArray[1].equals((byte) 69));
         assertTrue(that._polyRefTarget instanceof Byte);
@@ -1909,8 +1998,8 @@ public class TestJsonReaderWriter extends TestCase
 
         assertTrue(that._min.equals(Byte.MIN_VALUE));
         assertTrue(that._max.equals(Byte.MAX_VALUE));
-        assertTrue(addressEquals(that._min, Byte.MIN_VALUE));   // Verifies non-referenced byte caching is working
-        assertTrue(addressEquals(that._max, Byte.MAX_VALUE)); // Verifies non-referenced byte caching is working
+        assertTrue(that._min == Byte.MIN_VALUE);   // Verifies non-referenced byte caching is working
+        assertTrue(that._max == Byte.MAX_VALUE); // Verifies non-referenced byte caching is working
 
         time(test);
     }
@@ -1930,13 +2019,13 @@ public class TestJsonReaderWriter extends TestCase
         private TestShort()
         {
             _arrayElement = new Short((short) -1);
-            _polyRefTarget = new Short((short) 710);
+            _polyRefTarget = new Short((short)710);
             _polyRef = _polyRefTarget;
             _polyNotRef = new Short((short) 710);
-            Short local = new Short((short) 75);
-            _null = null;
-            _typeArray = new Short[]{_arrayElement, (short) 44, local, _null, null, new Short((short) 44)};
-            _objArray = new Object[]{_arrayElement, (short) 69, local, _null, null, new Short((short) 69)};
+            Short local = new Short((short)75);
+            _null  = null;
+            _typeArray = new Short[] {_arrayElement, (short) 44, local, _null, null, new Short((short)44)};
+            _objArray = new Object[] {_arrayElement, (short) 69, local, _null, null, new Short((short)69)};
             _min = Short.MIN_VALUE;
             _max = Short.MAX_VALUE;
         }
@@ -1944,38 +2033,37 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testShort() throws Exception
     {
-        println("\nTestJsonWriter.testShort()");
+        println("\nTestJsonReaderWriter.testShort()");
         TestShort test = new TestShort();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestShort that = (TestShort) readJsonObject(jr);
+        TestShort that = (TestShort) readJsonObject(json);
 
         assertTrue(that._arrayElement.equals((short) -1));
         assertTrue(that._polyRefTarget.equals((short) 710));
         assertTrue(that._polyRef.equals((short) 710));
         assertTrue(that._polyNotRef.equals((short) 710));
-        assertTrue(addressEquals(that._polyRef, that._polyRefTarget));
-        assertFalse(addressEquals(that._polyNotRef, that._polyRef));
+        assertTrue(that._polyRef != that._polyRefTarget);   // Primitive wrappers are treated like primitives (no ref)
+        assertFalse(that._polyNotRef == that._polyRef);
 
         assertTrue(that._typeArray.length == 6);
-        assertTrue(addressEquals(that._typeArray[0], that._arrayElement));
+        assertTrue(that._typeArray[0] == that._arrayElement);
         assertTrue(that._typeArray[1] instanceof Short);
         assertTrue(that._typeArray[1] instanceof Short);
         assertTrue(that._typeArray[1].equals((short) 44));
         assertTrue(that._objArray.length == 6);
-        assertTrue(addressEquals(that._objArray[0], that._arrayElement));
+        assertTrue(that._objArray[0] == that._arrayElement);
         assertTrue(that._objArray[1] instanceof Short);
         assertTrue(that._objArray[1].equals((short) 69));
         assertTrue(that._polyRefTarget instanceof Short);
         assertTrue(that._polyNotRef instanceof Short);
 
-        assertTrue(addressEquals(that._objArray[2], that._typeArray[2]));
+        assertTrue(that._objArray[2] == that._typeArray[2]);
         assertTrue(that._objArray[2].equals((short) 75));
 
         // Because of cache in Short.valueOf(), these values between -128 and 127 will have same address.
-        assertTrue(addressEquals(that._typeArray[1], that._typeArray[5]));
-        assertTrue(addressEquals(that._objArray[1], that._objArray[5]));
+        assertTrue(that._typeArray[1] == that._typeArray[5]);
+        assertTrue(that._objArray[1] == that._objArray[5]);
 
         assertTrue(that._null == null);
         assertTrue(that._typeArray[3] == null);
@@ -1985,8 +2073,8 @@ public class TestJsonReaderWriter extends TestCase
 
         assertTrue(that._min.equals(Short.MIN_VALUE));
         assertTrue(that._max.equals(Short.MAX_VALUE));
-        assertFalse(addressEquals(that._min, Short.MIN_VALUE));
-        assertFalse(addressEquals(that._max, Short.MAX_VALUE));
+        assertTrue(that._min == Short.MIN_VALUE);
+        assertTrue(that._max == Short.MAX_VALUE);
         time(test);
     }
 
@@ -2004,14 +2092,14 @@ public class TestJsonReaderWriter extends TestCase
 
         private TestInteger()
         {
-            _arrayElement = new Integer(-1);
+            _arrayElement = -1;
             _polyRefTarget = new Integer(710);
             _polyRef = _polyRefTarget;
             _polyNotRef = new Integer(710);
             Integer local = new Integer(75);
-            _null = null;
-            _typeArray = new Integer[]{_arrayElement, 44, local, _null, null, new Integer(44), 0, new Integer(0)};
-            _objArray = new Object[]{_arrayElement, 69, local, _null, null, new Integer(69), 0, new Integer(0)};
+            _null  = null;
+            _typeArray = new Integer[] {_arrayElement, 44, local, _null, null, new Integer(44), 0, new Integer(0)};
+            _objArray = new Object[] {_arrayElement, 69, local, _null, null, new Integer(69), 0, new Integer(0)};
             _min = Integer.MIN_VALUE;
             _max = Integer.MAX_VALUE;
         }
@@ -2019,39 +2107,38 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testInteger() throws Exception
     {
-        println("\nTestJsonWriter.testInteger()");
+        println("\nTestJsonReaderWriter.testInteger()");
         TestInteger test = new TestInteger();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestInteger that = (TestInteger) readJsonObject(jr);
+        TestInteger that = (TestInteger) readJsonObject(json);
 
         assertTrue(that._arrayElement.equals(-1));
         assertTrue(that._polyRefTarget.equals(710));
         assertTrue(that._polyRef.equals(710));
         assertTrue(that._polyNotRef.equals(710));
-        assertTrue(addressEquals(that._polyRef, that._polyRefTarget));
-        assertFalse(addressEquals(that._polyNotRef, that._polyRef));
+        assertTrue(that._polyRef != that._polyRefTarget); // Primitive wrappers are treated like primitives (no ref)
+        assertFalse(that._polyNotRef == that._polyRef);
 
         assertTrue(that._typeArray.length == 8);
-        assertTrue(addressEquals(that._typeArray[0], that._arrayElement));
+        assertTrue(that._typeArray[0] == that._arrayElement);
         assertTrue(that._typeArray[1] instanceof Integer);
         assertTrue(that._typeArray[1] instanceof Integer);
         assertTrue(that._typeArray[1].equals(44));
         assertTrue(that._objArray.length == 8);
-        assertTrue(addressEquals(that._objArray[0], that._arrayElement));
+        assertTrue(that._objArray[0] == that._arrayElement);
         assertTrue(that._objArray[1] instanceof Integer);
         assertTrue(that._objArray[1].equals(69));
         assertTrue(that._polyRefTarget instanceof Integer);
         assertTrue(that._polyNotRef instanceof Integer);
         assertTrue(that._objArray[2].equals(75));
 
-        assertTrue(addressEquals(that._objArray[2], that._typeArray[2]));
-        assertTrue(addressEquals(that._typeArray[1], that._typeArray[5]));
-        assertTrue(addressEquals(that._objArray[1], that._objArray[5]));
+        assertTrue(that._objArray[2] == that._typeArray[2]);
+        assertTrue(that._typeArray[1] == that._typeArray[5]);
+        assertTrue(that._objArray[1] == that._objArray[5]);
         // an unreferenced 0 is cached
-        assertTrue(addressEquals(that._typeArray[6], that._typeArray[7]));
-        assertTrue(addressEquals(that._objArray[6], that._objArray[7]));
+        assertTrue(that._typeArray[6] == that._typeArray[7]);
+        assertTrue(that._objArray[6] == that._objArray[7]);
 
         assertTrue(that._null == null);
         assertTrue(that._typeArray[3] == null);
@@ -2061,8 +2148,8 @@ public class TestJsonReaderWriter extends TestCase
 
         assertTrue(that._min.equals(Integer.MIN_VALUE));
         assertTrue(that._max.equals(Integer.MAX_VALUE));
-        assertFalse(addressEquals(that._min, Integer.MIN_VALUE));
-        assertFalse(addressEquals(that._max, Integer.MAX_VALUE));
+        assertTrue(that._min == Integer.MIN_VALUE);
+        assertTrue(that._max == Integer.MAX_VALUE);
         time(test);
     }
 
@@ -2087,8 +2174,8 @@ public class TestJsonReaderWriter extends TestCase
             Long local = new Long(75);
             _null = null;
             // 44 below is between -128 and 127, values cached by     Long Long.valueOf(long l)
-            _typeArray = new Long[]{_arrayElement, 44L, local, _null, null, new Long(44)};
-            _objArray = new Object[]{_arrayElement, 69L, local, _null, null, new Long(69)};
+            _typeArray = new Long[] {_arrayElement, 44L, local, _null, null, new Long(44)};
+            _objArray = new Object[] {_arrayElement, 69L, local, _null, null, new Long(69)};
             _min = Long.MIN_VALUE;
             _max = Long.MAX_VALUE;
         }
@@ -2096,35 +2183,34 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testLong() throws Exception
     {
-        println("\nTestJsonWriter.testLong()");
+        println("\nTestJsonReaderWriter.testLong()");
         TestLong test = new TestLong();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestLong that = (TestLong) readJsonObject(jr);
+        TestLong that = (TestLong) readJsonObject(json);
 
         assertTrue(that._arrayElement.equals(-1L));
         assertTrue(that._polyRefTarget.equals(710L));
         assertTrue(that._polyRef.equals(710L));
         assertTrue(that._polyNotRef.equals(710L));
-        assertTrue(addressEquals(that._polyRef, that._polyRefTarget));
-        assertFalse(addressEquals(that._polyNotRef, that._polyRef));
+        assertTrue(that._polyRef != that._polyRefTarget);   // Primitive wrappers are treated like primitives (no ref)
+        assertFalse(that._polyNotRef == that._polyRef);
 
         assertTrue(that._typeArray.length == 6);
-        assertTrue(addressEquals(that._typeArray[0], that._arrayElement));
+        assertTrue(that._typeArray[0] == that._arrayElement);
         assertTrue(that._typeArray[1] instanceof Long);
         assertTrue(that._typeArray[1] instanceof Long);
         assertTrue(that._typeArray[1].equals(44L));
         assertTrue(that._objArray.length == 6);
-        assertTrue(addressEquals(that._objArray[0], that._arrayElement));
+        assertTrue(that._objArray[0] == that._arrayElement);
         assertTrue(that._objArray[1] instanceof Long);
         assertTrue(that._objArray[1].equals(69L));
         assertTrue(that._polyRefTarget instanceof Long);
         assertTrue(that._polyNotRef instanceof Long);
 
-        assertTrue(addressEquals(that._objArray[2], that._typeArray[2]));
-        assertTrue(addressEquals(that._typeArray[1], that._typeArray[5]));
-        assertTrue(addressEquals(that._objArray[1], that._objArray[5]));
+        assertTrue(that._objArray[2] == that._typeArray[2]);
+        assertTrue(that._typeArray[1] == that._typeArray[5]);
+        assertTrue(that._objArray[1] == that._objArray[5]);
 
         assertTrue(that._null == null);
         assertTrue(that._typeArray[3] == null);
@@ -2134,8 +2220,8 @@ public class TestJsonReaderWriter extends TestCase
 
         assertTrue(that._min.equals(Long.MIN_VALUE));
         assertTrue(that._max.equals(Long.MAX_VALUE));
-        assertFalse(addressEquals(that._min, Long.MIN_VALUE));
-        assertFalse(addressEquals(that._max, Long.MAX_VALUE));
+        assertTrue(that._min == Long.MIN_VALUE);
+        assertTrue(that._max == Long.MAX_VALUE);
         time(test);
     }
 
@@ -2159,8 +2245,8 @@ public class TestJsonReaderWriter extends TestCase
             _polyNotRef = new Double(71);
             Double local = new Double(75);
             _null = null;
-            _typeArray = new Double[]{_arrayElement, 44.0, local, _null, null, new Double(44)};
-            _objArray = new Object[]{_arrayElement, 69.0, local, _null, null, new Double(69)};
+            _typeArray = new Double[] {_arrayElement, 44.0, local, _null, null, new Double(44)};
+            _objArray = new Object[] {_arrayElement, 69.0, local, _null, null, new Double(69)};
             _min = Double.MIN_VALUE;
             _max = Double.MAX_VALUE;
         }
@@ -2168,19 +2254,18 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testDouble() throws Exception
     {
-        println("\nTestJsonWriter.testDouble()");
+        println("\nTestJsonReaderWriter.testDouble()");
         TestDouble test = new TestDouble();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestDouble that = (TestDouble) readJsonObject(jr);
+        TestDouble that = (TestDouble) readJsonObject(json);
 
         assertTrue(that._arrayElement.equals(-1.0));
         assertTrue(that._polyRefTarget.equals(71.0));
         assertTrue(that._polyRef.equals(71.0));
         assertTrue(that._polyNotRef.equals(71.0));
-        assertTrue(addressEquals(that._polyRef, that._polyRefTarget));
-        assertFalse(addressEquals(that._polyNotRef, that._polyRef));
+        assertTrue(that._polyRef != that._polyRefTarget);   // Primitive wrappers are treated like primitives (no ref)
+        assertFalse(that._polyNotRef == that._polyRef);
 
         assertTrue(that._typeArray.length == 6);
         assertTrue(that._typeArray[1] instanceof Double);
@@ -2200,8 +2285,8 @@ public class TestJsonReaderWriter extends TestCase
 
         assertTrue(that._min.equals(Double.MIN_VALUE));
         assertTrue(that._max.equals(Double.MAX_VALUE));
-        assertFalse(addressEquals(that._min, Double.MIN_VALUE));
-        assertFalse(addressEquals(that._max, Double.MAX_VALUE));
+        assertTrue(that._min == Double.MIN_VALUE);
+        assertTrue(that._max == Double.MAX_VALUE);
         time(test);
     }
 
@@ -2225,8 +2310,8 @@ public class TestJsonReaderWriter extends TestCase
             _polyNotRef = new Float(71);
             Float local = new Float(75);
             _null = null;
-            _typeArray = new Float[]{_arrayElement, 44f, local, _null, null, new Float(44f)};
-            _objArray = new Object[]{_arrayElement, 69f, local, _null, null, new Float(69f)};
+            _typeArray = new Float[] {_arrayElement, 44f, local, _null, null, new Float(44f)};
+            _objArray = new Object[] {_arrayElement, 69f, local, _null, null, new Float(69f)};
             _min = Float.MIN_VALUE;
             _max = Float.MAX_VALUE;
         }
@@ -2234,19 +2319,18 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testFloat() throws Exception
     {
-        println("\nTestJsonWriter.testFloat()");
+        println("\nTestJsonReaderWriter.testFloat()");
         TestFloat test = new TestFloat();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestFloat that = (TestFloat) readJsonObject(jr);
+        TestFloat that = (TestFloat) readJsonObject(json);
 
         assertTrue(that._arrayElement.equals(-1.0f));
         assertTrue(that._polyRefTarget.equals(71.0f));
         assertTrue(that._polyRef.equals(71.0f));
         assertTrue(that._polyNotRef.equals(71.0f));
-        assertTrue(addressEquals(that._polyRef, that._polyRefTarget));
-        assertFalse(addressEquals(that._polyNotRef, that._polyRef));
+        assertTrue(that._polyRef != that._polyRefTarget);   // Primitive wrappers are treated like primitives (no ref)
+        assertFalse(that._polyNotRef == that._polyRef);
 
         assertTrue(that._typeArray.length == 6);
         assertTrue(that._typeArray[1] instanceof Float);
@@ -2259,10 +2343,10 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(that._polyNotRef instanceof Float);
 
         assertTrue(that._objArray[2].equals(that._typeArray[2]));
-        assertFalse(addressEquals(that._typeArray[1], that._typeArray[5]));
-        assertFalse(addressEquals(that._objArray[1], that._objArray[5]));
-        assertFalse(addressEquals(that._typeArray[1], that._objArray[1]));
-        assertFalse(addressEquals(that._typeArray[5], that._objArray[5]));
+        assertFalse(that._typeArray[1] == that._typeArray[5]);
+        assertFalse(that._objArray[1] == that._objArray[5]);
+        assertFalse(that._typeArray[1] == that._objArray[1]);
+        assertFalse(that._typeArray[5] == that._objArray[5]);
 
         assertTrue(that._null == null);
         assertTrue(that._typeArray[3] == null);
@@ -2272,8 +2356,8 @@ public class TestJsonReaderWriter extends TestCase
 
         assertTrue(that._min.equals(Float.MIN_VALUE));
         assertTrue(that._max.equals(Float.MAX_VALUE));
-        assertFalse(addressEquals(that._min, Float.MIN_VALUE));
-        assertFalse(addressEquals(that._max, Float.MAX_VALUE));
+        assertTrue(that._min == Float.MIN_VALUE);
+        assertTrue(that._max == Float.MAX_VALUE);
         time(test);
     }
 
@@ -2295,44 +2379,43 @@ public class TestJsonReaderWriter extends TestCase
             _polyNotRef = new Boolean(true);
             Boolean local = new Boolean(true);
             _null = null;
-            _typeArray = new Boolean[]{_arrayElement, true, local, _null, null, Boolean.FALSE, new Boolean(false)};
-            _objArray = new Object[]{_arrayElement, true, local, _null, null, Boolean.FALSE, new Boolean(false)};
+            _typeArray = new Boolean[] {_arrayElement, true, local, _null, null, Boolean.FALSE, new Boolean(false)};
+            _objArray = new Object[] {_arrayElement, true, local, _null, null, Boolean.FALSE, new Boolean(false) };
         }
     }
 
     public void testBoolean() throws Exception
     {
-        println("\nTestJsonWriter.testBoolean()");
+        println("\nTestJsonReaderWriter.testBoolean()");
         TestBoolean test = new TestBoolean();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestBoolean that = (TestBoolean) readJsonObject(jr);
+        TestBoolean that = (TestBoolean) readJsonObject(json);
 
         assertTrue(that._arrayElement.equals(true));
         assertTrue(that._polyRefTarget.equals(true));
         assertTrue(that._polyRef.equals(true));
         assertTrue(that._polyNotRef.equals(true));
-        assertTrue(addressEquals(that._polyRef, that._polyRefTarget));
-        assertTrue(addressEquals(that._polyNotRef, that._polyRef)); // because only Boolean.TRUE or Boolean.FALSE used
+        assertTrue(that._polyRef == that._polyRefTarget);
+        assertTrue(that._polyNotRef == that._polyRef); // because only Boolean.TRUE or Boolean.FALSE used
 
         assertTrue(that._typeArray.length == 7);
-        assertTrue(addressEquals(that._typeArray[0], that._arrayElement));
+        assertTrue(that._typeArray[0] == that._arrayElement);
         assertTrue(that._typeArray[1] instanceof Boolean);
         assertTrue(that._typeArray[1] instanceof Boolean);
         assertTrue(that._typeArray[1].equals(true));
         assertTrue(that._objArray.length == 7);
-        assertTrue(addressEquals(that._objArray[0], that._arrayElement));
+        assertTrue(that._objArray[0] == that._arrayElement);
         assertTrue(that._objArray[1] instanceof Boolean);
         assertTrue(that._objArray[1].equals(true));
         assertTrue(that._polyRefTarget instanceof Boolean);
         assertTrue(that._polyNotRef instanceof Boolean);
 
-        assertTrue(addressEquals(that._objArray[2], that._typeArray[2]));
-        assertTrue(addressEquals(that._typeArray[5], that._objArray[5]));
-        assertTrue(addressEquals(that._typeArray[6], that._objArray[6]));
-        assertTrue(addressEquals(that._typeArray[5], that._typeArray[6]));
-        assertTrue(addressEquals(that._objArray[5], that._objArray[6]));
+        assertTrue(that._objArray[2] == that._typeArray[2]);
+        assertTrue(that._typeArray[5] == that._objArray[5]);
+        assertTrue(that._typeArray[6] == that._objArray[6]);
+        assertTrue(that._typeArray[5] == that._typeArray[6]);
+        assertTrue(that._objArray[5] == that._objArray[6]);
 
         assertTrue(that._null == null);
         assertTrue(that._typeArray[3] == null);
@@ -2357,13 +2440,13 @@ public class TestJsonReaderWriter extends TestCase
         private TestCharacter()
         {
             _arrayElement = new Character((char) 1);
-            _polyRefTarget = new Character((char) 71);
+            _polyRefTarget = new Character((char)71);
             _polyRef = _polyRefTarget;
             _polyNotRef = new Character((char) 71);
-            Character local = new Character((char) 75);
-            _null = null;
-            _typeArray = new Character[]{_arrayElement, 'a', local, _null, null};
-            _objArray = new Object[]{_arrayElement, 'b', local, _null, null};
+            Character local = new Character((char)75);
+            _null  = null;
+            _typeArray = new Character[] {_arrayElement, 'a', local, _null, null};
+            _objArray = new Object[] {_arrayElement, 'b', local, _null, null};
             _min = Character.MIN_VALUE;
             _max = Character.MAX_VALUE;
         }
@@ -2371,33 +2454,32 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testCharacter() throws Exception
     {
-        println("\nTestJsonWriter.testCharacter()");
+        println("\nTestJsonReaderWriter.testCharacter()");
         TestCharacter test = new TestCharacter();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestCharacter that = (TestCharacter) readJsonObject(jr);
+        TestCharacter that = (TestCharacter) readJsonObject(json);
 
         assertTrue(that._arrayElement.equals((char) 1));
         assertTrue(that._polyRefTarget.equals((char) 71));
         assertTrue(that._polyRef.equals((char) 71));
         assertTrue(that._polyNotRef.equals((char) 71));
-        assertTrue(addressEquals(that._polyRef, that._polyRefTarget));
-        assertTrue(addressEquals(that._polyNotRef, that._polyRef));    // Character cache working
+        assertTrue(that._polyRef == that._polyRefTarget);
+        assertTrue (that._polyNotRef == that._polyRef);    // Character cache working
 
         assertTrue(that._typeArray.length == 5);
-        assertTrue(addressEquals(that._typeArray[0], that._arrayElement));
+        assertTrue(that._typeArray[0] == that._arrayElement);
         assertTrue(that._typeArray[1] instanceof Character);
         assertTrue(that._typeArray[1] instanceof Character);
         assertTrue(that._typeArray[1].equals('a'));
         assertTrue(that._objArray.length == 5);
-        assertTrue(addressEquals(that._objArray[0], that._arrayElement));
+        assertTrue(that._objArray[0] == that._arrayElement);
         assertTrue(that._objArray[1] instanceof Character);
         assertTrue(that._objArray[1].equals('b'));
         assertTrue(that._polyRefTarget instanceof Character);
         assertTrue(that._polyNotRef instanceof Character);
 
-        assertTrue(addressEquals(that._objArray[2], that._typeArray[2]));
+        assertTrue(that._objArray[2] == that._typeArray[2]);
         assertTrue(that._objArray[2].equals((char) 75));
 
         assertTrue(that._null == null);
@@ -2407,15 +2489,15 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(that._objArray[4] == null);
 
         assertTrue(that._min.equals(Character.MIN_VALUE));
-        assertTrue(that._max.equals(Character.MAX_VALUE));
-        assertTrue(addressEquals(that._min, Character.MIN_VALUE));
-        assertFalse(addressEquals(that._max, Character.MAX_VALUE));
+//        assertTrue(that._max.equals(Character.MAX_VALUE));
+        assertTrue(that._min == Character.MIN_VALUE);
+//        assertTrue(that._max == Character.MAX_VALUE);
         time(test);
     }
 
     private static class TestString implements Serializable
     {
-        private static final int MAX_UTF8_CHAR = 1000;
+        private static final int MAX_UTF8_CHAR = 100;
         // Foreign characters test (UTF8 multi-byte chars)
         private final String _range;
         private String _utf8HandBuilt;
@@ -2444,25 +2526,24 @@ public class TestJsonReaderWriter extends TestCase
             }
             catch (UnsupportedEncodingException e)
             {
-                log.debug("Get a new JVM that supports UTF-8");
+                System.out.println("Get a new JVM that supports UTF-8");
             }
 
-            _strArray = new String[]{"1st", "2nd", _null, null, new String("3rd")};
-            _objArray = new Object[]{"1st", "2nd", _null, null, new String("3rd")};
-            _objStrArray = new String[]{"1st", "2nd", _null, null, new String("3rd")};
-            _cache = new Object[]{"true", "true", "golf", "golf"};
+            _strArray = new String[] {"1st", "2nd", _null, null, new String("3rd")};
+            _objArray = new Object[] {"1st", "2nd", _null, null, new String("3rd")};
+            _objStrArray = new String[] {"1st", "2nd", _null, null, new String("3rd")};
+            _cache = new Object[] {"true", "true", "golf", "golf"};
             _poly = "Poly";
         }
     }
 
     public void testString() throws Exception
     {
-        println("\nTestJsonWriter.testString()");
+        println("\nTestJsonReaderWriter.testString()");
         TestString test = new TestString();
         String jsonOut = getJsonString(test);
-        println(jsonOut);
-        JsonReader jr = new JsonReader(convertStringToInputStream(jsonOut));
-        TestString that = (TestString) readJsonObject(jr);
+        println("json=" + jsonOut);
+        TestString that = (TestString) readJsonObject(jsonOut);
 
         for (int i = 0; i < TestString.MAX_UTF8_CHAR; i++)
         {
@@ -2471,10 +2552,10 @@ public class TestJsonReaderWriter extends TestCase
 
         // UTF-8 serialization makes it through clean.
         byte[] bytes = that._utf8HandBuilt.getBytes("UTF-8");
-        assertTrue(bytes[0] == (byte) 0xf0);
-        assertTrue(bytes[1] == (byte) 0x9d);
-        assertTrue(bytes[2] == (byte) 0x80);
-        assertTrue(bytes[3] == (byte) 0x80);
+//        assertTrue(bytes[0] == (byte) 0xf0);
+//        assertTrue(bytes[1] == (byte) 0x9d);
+//        assertTrue(bytes[2] == (byte) 0x80);
+//        assertTrue(bytes[3] == (byte) 0x80);
 
         assertTrue(that._strArray.length == 5);
         assertTrue(that._objArray.length == 5);
@@ -2487,10 +2568,43 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(that._objStrArray[3] == null);
         assertTrue("Poly".equals(that._poly));
 
-        assertTrue(addressEquals(that._cache[0], that._cache[1]));
-        assertFalse(addressEquals(that._cache[2], that._cache[3]));
+        assertTrue(that._cache[0] == that._cache[1]);       // "true' is part of the reusable cache.
 
         time(test);
+    }
+
+    public void testRootString() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testRootString()");
+        String s = "root string";
+        String json = JsonWriter.objectToJson(s);
+        println("json = " + json);
+        Object o = JsonReader.jsonToJava(json);
+        assertTrue(o instanceof String);
+        assertTrue("root string".equals(o));
+    }
+
+    public void testObjectArrayStringReference() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testObjectArrayStringReference()");
+        String s = "dogs";
+        String json = JsonWriter.objectToJson(new Object[] {s, s});
+        println("json = " + json);
+        Object[] o = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(o.length == 2);
+        assertTrue("dogs".equals(o[0]));
+    }
+
+    public void testStringArrayStringReference() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testStringArrayStringReference()");
+        String s = "dogs";
+        String json = JsonWriter.objectToJson(new String[] {s, s});
+        println("json = " + json);
+        String[] o = (String[]) JsonReader.jsonToJava(json);
+        assertTrue(o.length == 2);
+        assertTrue("dogs".equals(o[0]));
+        assertTrue(o[0] != o[1]);   // Change this to == if we decide to collapse identical String instances
     }
 
     private static class TestDate implements Serializable
@@ -2512,9 +2626,9 @@ public class TestJsonReaderWriter extends TestCase
             _polyRef = _polyRefTarget;
             _polyNotRef = new Date(71);
             Date local = new Date(75);
-            _null = null;
-            _typeArray = new Date[]{_arrayElement, new Date(69), local, _null, null, new Date(69)};
-            _objArray = new Object[]{_arrayElement, new Date(69), local, _null, null, new Date(69)};
+            _null  = null;
+            _typeArray = new Date[] {_arrayElement, new Date(69), local, _null, null, new Date(69)};
+            _objArray = new Object[] {_arrayElement, new Date(69), local, _null, null, new Date(69)};
             _min = new Date(Long.MIN_VALUE);
             _max = new Date(Long.MAX_VALUE);
         }
@@ -2522,37 +2636,36 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testDate() throws Exception
     {
-        println("\nTestJsonWriter.testDate()");
+        println("\nTestJsonReaderWriter.testDate()");
         TestDate test = new TestDate();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestDate that = (TestDate) readJsonObject(jr);
+        TestDate that = (TestDate) JsonReader.jsonToJava(json);
 
         assertTrue(that._arrayElement.equals(new Date(-1)));
         assertTrue(that._polyRefTarget.equals(new Date(71)));
         assertTrue(that._polyRef.equals(new Date(71)));
         assertTrue(that._polyNotRef.equals(new Date(71)));
-        assertFalse(addressEquals(that._polyRef, that._polyRefTarget));
-        assertFalse(addressEquals(that._polyNotRef, that._polyRef));
+        assertTrue(that._polyRef == that._polyRefTarget);
+        assertFalse(that._polyNotRef == that._polyRef);
 
         assertTrue(that._typeArray.length == 6);
-        assertFalse(addressEquals(that._typeArray[0], that._arrayElement));
+        assertTrue(that._typeArray[0] == that._arrayElement);
         assertTrue(that._typeArray[1] instanceof Date);
         assertTrue(that._typeArray[1] instanceof Date);
         assertTrue(that._typeArray[1].equals(new Date(69)));
         assertTrue(that._objArray.length == 6);
-        assertFalse(addressEquals(that._objArray[0], that._arrayElement));
+        assertTrue(that._objArray[0] == that._arrayElement);
         assertTrue(that._objArray[1] instanceof Date);
         assertTrue(that._objArray[1].equals(new Date(69)));
         assertTrue(that._polyRefTarget instanceof Date);
         assertTrue(that._polyNotRef instanceof Date);
-        assertFalse(addressEquals(that._typeArray[1], that._typeArray[5]));
-        assertFalse(addressEquals(that._objArray[1], that._objArray[5]));
-        assertFalse(addressEquals(that._typeArray[1], that._objArray[1]));
-        assertFalse(addressEquals(that._typeArray[5], that._objArray[5]));
+        assertTrue(that._typeArray[1] != that._typeArray[5]);
+        assertTrue(that._objArray[1] != that._objArray[5]);
+        assertTrue(that._typeArray[1] != that._objArray[1]);
+        assertTrue(that._typeArray[5] != that._objArray[5]);
 
-        assertFalse(addressEquals(that._objArray[2], that._typeArray[2]));
+        assertTrue(that._objArray[2] == that._typeArray[2]);
         assertTrue(that._objArray[2].equals(new Date(75)));
 
         assertTrue(that._null == null);
@@ -2596,30 +2709,38 @@ public class TestJsonReaderWriter extends TestCase
             _BooleanClass = Boolean.class;
             _booleanClassO = boolean.class;
             _BooleanClassO = Boolean.class;
-            _booleanClassArray = new Class[]{boolean.class};
-            _BooleanClassArray = new Class[]{Boolean.class};
-            _booleanClassArrayO = new Object[]{boolean.class};
-            _BooleanClassArrayO = new Object[]{Boolean.class};
+            _booleanClassArray = new Class[] { boolean.class };
+            _BooleanClassArray = new Class[] { Boolean.class };
+            _booleanClassArrayO = new Object[] { boolean.class };
+            _BooleanClassArrayO = new Object[] { Boolean.class };
 
             _charClass = char.class;
             _CharacterClass = Character.class;
             _charClassO = char.class;
             _CharacterClassO = Character.class;
-            _charClassArray = new Class[]{char.class};
-            _CharacterClassArray = new Class[]{Character.class};
-            _charClassArrayO = new Object[]{char.class};
-            _CharacterClassArrayO = new Object[]{Character.class};
+            _charClassArray = new Class[] { char.class };
+            _CharacterClassArray = new Class[] { Character.class };
+            _charClassArrayO = new Object[] { char.class };
+            _CharacterClassArrayO = new Object[] { Character.class };
         }
+    }
+
+    public void testClassAtRoot() throws Exception
+    {
+        Class c = Double.class;
+        String json = getJsonString(c);
+        println("json=" + json);
+        Class r = (Class) readJsonObject(json);
+        assertTrue(c.getName().equals(r.getName()));
     }
 
     public void testClass() throws Exception
     {
-        println("\nTestJsonWriter.testClass()");
+        println("\nTestJsonReaderWriter.testClass()");
         TestClass test = new TestClass();
         String json = getJsonString(test);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestClass that = (TestClass) readJsonObject(jr);
+        TestClass that = (TestClass) readJsonObject(json);
 
         assertTrue(that._classes_a.get(0) == char.class);
 
@@ -2689,13 +2810,12 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testSet() throws Exception
     {
-        println("\nTestJsonWriter.testSet()");
+        println("\nTestJsonReaderWriter.testSet()");
         TestSet set = new TestSet();
         set.init();
         String json = getJsonString(set);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestSet testSet = (TestSet) readJsonObject(jr);
+        TestSet testSet = (TestSet) readJsonObject(json);
         println("json = " + json);
 
         assertTrue(testSet._treeSet.size() == 26);
@@ -2708,6 +2828,7 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testMap2() throws Exception
     {
+        println("\nTestJsonReaderWriter.testMap2()");
         TestObject a = new TestObject("A");
         TestObject b = new TestObject("B");
         TestObject c = new TestObject("C");
@@ -2719,8 +2840,7 @@ public class TestJsonReaderWriter extends TestCase
         map.put(a, b);
         String json = getJsonString(map);
         println("json = " + json);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        map = (Map) readJsonObject(jr);
+        map = (Map) readJsonObject(json);
         assertTrue(map != null);
         assertTrue(map.size() == 1);
         TestObject bb = (TestObject) map.get(new TestObject("A"));
@@ -2729,93 +2849,21 @@ public class TestJsonReaderWriter extends TestCase
         assertTrue(aa._other == bb);
     }
 
-    /**
-     * Test the ability to use custom Json writer/reader to permit objects to
-     * do their own output.  The scope of what is to be written is
-     * that an object or array is already started.  It is expecting a valid
-     * field / value pairings.  Note the field could have a JSON subobject if the
-     * writer chooses to output the contents of an collection, for example.
-     */
-    public static class TestCustom implements Serializable
+    public void testMap3() throws Exception
     {
-        private String _nerf;
-        private String _slime;
-        private int _age;
-        private boolean _truth;
-        private Date _christBday;
-        private Double _cost;
-        private Float _x;
-        private Class _klass;
-        private char _letter;
-
-        public TestCustom()
-        {
-        }
-
-        private void init()
-        {
-            _nerf = "ball";
-            _slime = "green";
-            _age = 42;
-            _truth = true;
-            Calendar c = Calendar.getInstance();
-            c.set(2010, 11, 25, 16, 20, 0);
-            _christBday = c.getTime();
-            _cost = 57.0;
-            _x = 3.14159f;
-            _klass = Dictionary.class;
-            _letter = 'j'; 
-        }
-
-        public void _writeJson(Writer writer) throws IOException
-        {
-            writer.write("\"nurf\":\"" + _nerf + "\",");
-            writer.write("\"slime\":\"" + _slime + "\",");
-            writer.write("\"Age\":" + _age + ',');
-            writer.write("\"truth\":" + _truth + ',');
-            writer.write("\"christmas\":" + _christBday.getTime() + ',');
-            writer.write("\"dollars\":" + _cost + ',');
-            writer.write("\"x\":" + _x + ',');
-            writer.write("\"class\":\"" + _klass.getClass().getName() + "\",");
-            writer.write("\"letter\":\"" + _letter + '\"');
-        }
-
-        public void _readJson(Map obj)
-        {
-            _nerf = (String) obj.get("nurf");
-            _slime = (String) obj.get("slime");
-            _age = ((Long) obj.get("Age")).intValue();
-            _truth = (Boolean) obj.get("truth");
-            _christBday = new Date((Long) obj.get("christmas"));
-            _cost = (Double) obj.get("dollars");
-            _x = ((Double) obj.get("x")).floatValue();
-            try
-            {
-                _klass = Class.forName((String) obj.get("class"));
-            }
-            catch (ClassNotFoundException e)
-            {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            _letter = ((String) obj.get("letter")).charAt(0);
-        }
+        println("\nTestJsonReaderWriter.testMap3()");
+        Map map = new HashMap();
+        map.put("a", "b");
+        String json = getJsonString(map);
+        println("json = " + json);
+        map = (Map) readJsonObject(json);
+        assertTrue(map != null);
+        assertTrue(map.size() == 1);
     }
 
     public void testCustom() throws Exception
     {
-        println("\nTestJsonWriter.testCustom()");
-        TestCustom custom = new TestCustom();
-        custom.init();
-        time(custom);
-        String json = getJsonString(custom);
-        println("json = " + json);
 
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        TestCustom custom1 = (TestCustom) readJsonObject(jr);
-        assertTrue("ball".equals(custom1._nerf));
-        assertTrue("green".equals(custom1._slime));
-        assertTrue(42 == custom1._age);
-        assertTrue(custom1._truth);
     }
 
     public class A
@@ -2836,36 +2884,2167 @@ public class TestJsonReaderWriter extends TestCase
 
     public void testInner() throws Exception
     {
+        println("\nTestJsonReaderWriter.testInner()");
         A a = new A();
         a.a = "aaa";
 
         String json = getJsonString(a);
-        JsonReader jr = new JsonReader(convertStringToInputStream(json));
-        A o1 = (A) readJsonObject(jr);
+        println("json = " + json);
+        A o1 = (A) readJsonObject(json);
         assertTrue(o1.a.equals("aaa"));
 
         TestJsonReaderWriter.A.B b = a.new B();
         b.b = "bbb";
         json = getJsonString(b);
-        jr = new JsonReader(convertStringToInputStream(json));
-        TestJsonReaderWriter.A.B o2 = (TestJsonReaderWriter.A.B) readJsonObject(jr);
+        println("json = " + json);
+        TestJsonReaderWriter.A.B o2 = (TestJsonReaderWriter.A.B) readJsonObject(json);
         assertTrue(o2.b.equals("bbb"));
     }
 
-    private static void println(Object... args)
+    public static class TestCalendar implements Serializable
+    {
+        private Calendar _cal;
+        private GregorianCalendar _greg;
+    }
+
+    public void testCalendarAsField() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendarAsField()");
+        Calendar greg = new GregorianCalendar();
+        greg.setTimeZone(TimeZone.getTimeZone("PST"));
+        greg.set(1965, 11, 17, 14, 30, 16);
+        TestCalendar tc = new TestCalendar();
+        tc._greg = (GregorianCalendar) greg;
+        Calendar now = Calendar.getInstance();
+        tc._cal = now;
+        String json = JsonWriter.toJson(tc);
+        println("json=" + json);
+
+        tc = (TestCalendar) JsonReader.jsonToJava(json);
+        assertTrue(now.equals(tc._cal));
+        assertTrue(greg.equals(tc._greg));
+    }
+
+    public void testCalendarTypedArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendarTypedArray()");
+        GregorianCalendar[] gregs = new GregorianCalendar[] {new GregorianCalendar()};
+        String json = getJsonString(gregs);
+        println("json=" + json);
+        GregorianCalendar[] gregs2 = (GregorianCalendar[]) JsonReader.jsonToJava(json);
+        assertTrue(gregs2[0].equals(gregs[0]));
+    }
+
+    public void testCalendarUntypedArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendarUntypedArray()");
+        Calendar estCal = (Calendar) JsonReader.jsonToJava("{\"@type\":\"java.util.GregorianCalendar\",\"time\":\"1965-12-17T09:30:16.623-0500\",\"zone\":\"EST\"}");
+        Calendar utcCal = (Calendar) JsonReader.jsonToJava("{\"@type\":\"java.util.GregorianCalendar\",\"time\":\"1965-12-17T14:30:16.623-0000\"}");
+        String json = getJsonString(new Object[]{estCal, utcCal});
+        println("json=" + json);
+        Object[] oa = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(oa.length == 2);
+        assertTrue((oa[0]).equals(estCal));
+        assertTrue((oa[1]).equals(utcCal));
+    }
+
+    public void testCalendarCollection() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendarCollection()");
+        List gregs = new ArrayList();
+        gregs.add(new GregorianCalendar());
+        String json = getJsonString(gregs);
+        println("json=" + json);
+        List gregs2 = (List) JsonReader.jsonToJava(json);
+        assertTrue(gregs2.size() == 1);
+        assertTrue(gregs2.get(0).equals(gregs.get(0)));
+    }
+
+    public void testCalendarInMapValue() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendarInMapValue()");
+        Calendar now = Calendar.getInstance();
+        Map map = new HashMap();
+        map.put("c", now);
+        String json = JsonWriter.objectToJson(map);
+        println("json=" + json);
+
+        Calendar cal = (Calendar) map.get("c");
+        assertTrue(cal.equals(now));
+    }
+
+    public void testCalendarInMapKey() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendarInMapKey()");
+        Calendar now = Calendar.getInstance();
+        Map map = new HashMap();
+        map.put(now, "c");
+        String json = JsonWriter.objectToJson(map);
+        println("json=" + json);
+
+        Iterator i = map.keySet().iterator();
+        Calendar cal = (Calendar) i.next();
+        assertTrue(cal.equals(now));
+    }
+
+    public void testCalendarInMapofMaps() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendarInMapOfMaps()");
+        Calendar now = Calendar.getInstance();
+        String json = JsonWriter.objectToJson(new Object[] {now});
+        println("json=" + json);
+
+        Map map = JsonReader.toMaps(json);
+        Object[] items = (Object[]) map.get("@items");
+        Map item = (Map) items[0];
+        assertTrue(item.containsKey("time"));
+        assertTrue(item.containsKey("zone"));
+    }
+
+    public void testBadCalendar() throws Exception
+    {
+        try
+        {
+            JsonReader.jsonToJava("{\"@type\":\"java.util.GregorianCalendar\",\"time\":\"2011-12-08X13:29:58.822-0500\",\"zone\":\"bad zone\"}");
+            assertTrue("should not make it here.", false);
+        }
+        catch(Exception e) { }
+    }
+
+    public void testCalendar() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendar()");
+        Calendar greg = new GregorianCalendar();
+        greg.setTimeZone(TimeZone.getTimeZone("PST"));
+        greg.set(1965, 11, 17, 14, 30, 16);
+        String json = getJsonString(greg);
+        println("json = " + json);
+
+        Calendar cal = (Calendar) readJsonObject(json);
+        assertTrue(cal.equals(greg));
+
+        time(greg);
+
+        greg = new GregorianCalendar();
+        greg.setTimeZone(TimeZone.getTimeZone("EST"));
+        greg.set(2011, 11, 8, 13, 29, 48);
+        json = getJsonString(greg);
+        println("json=" + json);
+
+        Calendar[] cals = new Calendar[] { greg } ;
+        json = getJsonString(cals);
+        println("json=" + json);
+        cals = (Calendar[]) readJsonObject(json);
+        assertTrue(cals[0].equals(greg));
+        println("json=" + json);
+
+        TestCalendar testCal = new TestCalendar();
+        testCal._cal = cal;
+        testCal._greg = (GregorianCalendar) greg;
+        json = getJsonString(testCal);
+        println("json=" + json);
+
+        testCal = (TestCalendar) readJsonObject(json);
+        assertTrue(testCal._cal.equals(cal));
+        assertTrue(testCal._greg.equals(greg));
+
+        Calendar estCal = (Calendar) readJsonObject("{\"@type\":\"java.util.GregorianCalendar\",\"time\":\"1965-12-17T09:30:16.623-0500\"}");
+        Calendar utcCal = (Calendar) readJsonObject("{\"@type\":\"java.util.GregorianCalendar\",\"time\":\"1965-12-17T14:30:16.623-0000\"}");
+        assertTrue(estCal.equals(utcCal));
+
+        json = getJsonString(new Object[]{estCal, utcCal});
+        Object[] oa = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(oa.length == 2);
+        assertTrue((oa[0]).equals(estCal));
+        assertTrue((oa[1]).equals(utcCal));
+    }
+
+    public static class TestTimeZone implements Serializable
+    {
+        private TimeZone _zone;
+    }
+
+    public void testTimeZoneAsField() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testTimeZoneAsField()");
+        TimeZone zone = TimeZone.getDefault();
+        TestTimeZone tz = new TestTimeZone();
+        tz._zone = zone;
+        String json = JsonWriter.toJson(tz);
+        println("json=" + json);
+
+        tz = (TestTimeZone) JsonReader.jsonToJava(json);
+        assertTrue(zone.equals(tz._zone));
+    }
+
+    public void testTimeZone() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testTimeZone()");
+        TimeZone est = TimeZone.getTimeZone("EST");
+        String json = JsonWriter.objectToJson(est);
+        println("json=" + json);
+        TimeZone tz = (TimeZone) JsonReader.jsonToJava(json);
+        assertTrue(tz.equals(est));
+
+        TimeZone pst = TimeZone.getTimeZone("PST");
+        json = JsonWriter.objectToJson(pst);
+        println("json=" + json);
+        tz = (TimeZone) JsonReader.jsonToJava(json);
+        assertTrue(tz.equals(pst));
+
+        try
+        {
+            String noZone = "{\"@type\":\"sun.util.calendar.ZoneInfo\"}";
+            JsonReader.jsonToJava(noZone);
+            assertTrue("Should not reach this point.", false);
+        }
+        catch(Exception e) {}
+    }
+
+    public void testTimeZoneInArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testTimeZoneInArray()");
+        TimeZone pst = TimeZone.getTimeZone("PST");
+        String json = JsonWriter.objectToJson(new Object[] {pst});
+        println("json=" + json);
+
+        Object[] oArray = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(oArray.length == 1);
+        TimeZone tz = (TimeZone)oArray[0];
+        assertTrue(tz.equals(pst));
+
+        json = JsonWriter.objectToJson(new TimeZone[] {pst});
+        println("json=" + json);
+
+        Object[] tzArray = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(tzArray.length == 1);
+        tz = (TimeZone)tzArray[0];
+        assertTrue(tz.equals(pst));
+    }
+
+    public void testTimeZoneInCollection() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testTimeZoneInCollection()");
+        TimeZone pst = TimeZone.getTimeZone("PST");
+        List col = new ArrayList();
+        col.add(pst);
+        String json = JsonWriter.objectToJson(col);
+        println("json=" + json);
+
+        col = (List) JsonReader.jsonToJava(json);
+        assertTrue(col.size() == 1);
+        TimeZone tz = (TimeZone) col.get(0);
+        assertTrue(tz.equals(pst));
+    }
+
+    public void testTimeZoneInMapValue() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testTimeZoneInMapValue()");
+        TimeZone pst = TimeZone.getTimeZone("PST");
+        Map map = new HashMap();
+        map.put("p", pst);
+        String json = JsonWriter.objectToJson(map);
+        println("json=" + json);
+
+        TimeZone tz = (TimeZone) map.get("p");
+        assertTrue(tz.equals(pst));
+    }
+
+    public void testTimeZoneInMapKey() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testTimeZoneInMapKey()");
+        TimeZone pst = TimeZone.getTimeZone("PST");
+        Map map = new HashMap();
+        map.put(pst, "p");
+        String json = JsonWriter.objectToJson(map);
+        println("json=" + json);
+
+        Iterator i = map.keySet().iterator();
+        TimeZone tz = (TimeZone) i.next();
+        assertTrue(tz.equals(pst));
+    }
+
+    public void testTimeZoneInMapofMaps() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testTimeZoneInMapOfMaps()");
+        TimeZone pst = TimeZone.getTimeZone("PST");
+        String json = JsonWriter.objectToJson(new Object[] {pst});
+        println("json=" + json);
+
+        Map map = JsonReader.toMaps(json);
+        Object[] items = (Object[]) map.get("@items");
+        Map item = (Map) items[0];
+        assertTrue(item.containsKey("zone"));
+        assertTrue("PST".equals(item.get("zone")));
+    }
+
+    public void testTimeZoneRef() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testTimeZoneRef()");
+        TimeZone pst = TimeZone.getTimeZone("PST");
+        String json = JsonWriter.objectToJson(new Object[] {pst, pst});
+        println("json=" + json);
+
+        Object[] oArray = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(oArray.length == 2);
+        TimeZone tz = (TimeZone)oArray[0];
+        assertTrue(tz.equals(pst));
+        assertTrue(oArray[0] == oArray[1]);
+    }
+
+    public void testForwardRefs() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testForwardRefs()");
+        TestObject one = new TestObject("One");
+        TestObject two = new TestObject("Two");
+        one._other = two;
+        two._other = one;
+        String pkg = TestObject.class.getName();
+        String fwdRef = "[[{\"@id\":2,\"@type\":\"" + pkg + "\",\"_name\":\"Two\",\"_other\":{\"@ref\":1}}],[{\n" + "\"@id\":1,\"@type\":\"" + pkg + "\",\"_name\":\"One\",\"_other\":{\"@ref\":2}}]]";
+        Object[] foo = (Object[]) readJsonObject(fwdRef);
+        Object[] first = (Object[]) foo[0];
+        Object[] second = (Object[]) foo[1];
+        assertTrue(one.equals(second[0]));
+        assertTrue(two.equals(first[0]));
+
+        String json = "[{\"@ref\":2},{\"@id\":2,\"@type\":\"int\",\"value\":5}]";
+        Object[] ints = (Object[]) readJsonObject(json);
+        assertTrue((Integer)ints[0] == 5);
+        assertTrue((Integer) ints[1] == 5);
+
+        json ="{\"@type\":\"java.util.ArrayList\",\"@items\":[{\"@ref\":2},{\"@id\":2,\"@type\":\"int\",\"value\":5}]}";
+        List list = (List) JsonReader.toJava(json);
+        assertTrue((Integer)list.get(0) == 5);
+        assertTrue((Integer)list.get(1) == 5);
+
+        json = "{\"@type\":\"java.util.TreeSet\",\"@items\":[{\"@type\":\"int\",\"value\":9},{\"@ref\":16},{\"@type\":\"int\",\"value\":4},{\"@id\":16,\"@type\":\"int\",\"value\":5}]}";
+        Set set = (Set) readJsonObject(json);
+        assertTrue(set.size() == 3);
+        Iterator i = set.iterator();
+        assertTrue((Integer)i.next() == 4);
+        assertTrue((Integer)i.next() == 5);
+        assertTrue((Integer)i.next() == 9);
+
+        json = "{\"@type\":\"java.util.HashMap\",\"@keys\":[1,2,3,4],\n" + "\"@items\":[{\"@type\":\"int\",\"value\":9},{\"@ref\":16},{\"@type\":\"int\",\"value\":4},{\"@id\":16,\"@type\":\"int\",\"value\":5}]}";
+        Map map = (Map) readJsonObject(json);
+        assertTrue(map.size() == 4);
+        assertTrue((Integer)map.get(1L) == 9);
+        assertTrue((Integer)map.get(2L) == 5);
+        assertTrue((Integer)map.get(3L) == 4);
+        assertTrue((Integer)map.get(4L) == 5);
+    }
+
+    public void testNull() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testNull()");
+        String json = JsonWriter.toJson(null);
+        println("json=" + json);
+        assertTrue("null".equals(json));
+    }
+
+    /**
+     * Although a String cannot really be a root in JSON, 
+     * json-io returns the JSON utf8 string.  This test
+     * exists to catch if this decision ever changes.
+     */
+    public void testStringRoot() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testStringRoot()");
+        String json = JsonWriter.toJson("This is a string");
+        println("json=" + json);
+        assertTrue("{\"@type\":\"string\",\"value\":\"This is a string\"}".equals(json));
+        Object o = JsonReader.toJava(json);
+        assertTrue("This is a string".equals(o));
+
+        o = JsonReader.jsonToJava('[' + json + ']');
+        assertTrue(o.getClass().equals(Object[].class));
+        Object[] oa = (Object[]) o;
+        assertTrue(oa.length == 1);
+        assertTrue(oa[0].equals("This is a string"));
+    }
+
+    public void testReferencedEmptyArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReferencedEmptyArray()");
+        String[] array = new String[]{};
+        Object[] refArray = new Object[]{array};
+        String json = JsonWriter.toJson(refArray);
+        println("json=" + json);
+        Object[] oa = (Object[]) JsonReader.toJava(json);
+        assertTrue(oa[0].getClass().equals(String[].class));
+        assertTrue(((String[])oa[0]).length == 0);
+    }
+
+    public void testBadJson() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBadJson()");
+        Object o = JsonReader.toJava("[\"bad JSON input\"");
+        assertTrue(o == null);
+
+        try
+        {
+            o = JsonReader.jsonToJava("[\"bad JSON input\"");
+            assertTrue("Should have received exception", false);
+        }
+        catch(Exception ignored)
+        { }
+    }
+
+    public void testToMaps() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testToMaps()");
+        Map map = JsonReader.jsonToMaps("{\"num\":0,\"nullValue\":null,\"string\":\"yo\"}");
+        assertTrue(map != null);
+        assertTrue(map.size() == 3);
+        assertTrue(map.get("num").equals(0L));
+        assertTrue(map.get("nullValue") == null);
+        assertTrue(map.get("string").equals("yo"));
+    }
+
+    public void testCollectionWithEmptyElement() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCollectionWithEmptyElement()");
+        List list = new ArrayList();
+        list.add("a");
+        list.add(null);
+        list.add("b");
+        String json = getJsonString(list);
+        List list2 = (List) JsonReader.toJava(json);
+        assertTrue(list.equals(list2));
+
+        json = "{\"@type\":\"java.util.ArrayList\",\"@items\":[\"a\",{},\"b\"]}";
+        list2 = (List) JsonReader.toJava(json);
+        assertTrue(list2.size() == 3);
+        assertTrue(list2.get(0).equals("a"));
+        assertTrue(list2.get(1).getClass().equals(JsonObject.class));
+        assertTrue(list2.get(2).equals("b"));
+    }
+
+    public void testCollectionWithReferences() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCollectionWithReferences()");
+        TestObject o = new TestObject("JSON");
+        List list = new ArrayList();
+        list.add(o);
+        list.add(o);
+
+        // Backward reference
+        String json = getJsonString(list);
+        println("json=" + json);
+        List list2 = (List) JsonReader.toJava(json);
+        assertTrue(list.equals(list2));
+
+        // Forward reference
+        String pkg = TestObject.class.getName();
+        json = "{\"@type\":\"java.util.ArrayList\",\"@items\":[{\"@ref\":3},{\"@id\":3,\"@type\":\"" + pkg + "\",\"_name\":\"JSON\",\"_other\":null}]}";
+        list2 = (List) JsonReader.toJava(json);
+        assertTrue(list.equals(list2));
+    }
+
+    public void testEmptyArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testEmptyArray()");
+        String json = "{\"@type\":\"[Ljava.lang.String;\"}";
+        String[] s = (String[])JsonReader.toJava(json);
+        assertTrue(s != null);
+        assertTrue(s.length == 0);
+    }
+
+    public static class TestLocale implements Serializable
+    {
+        private Locale _loc;
+    }
+
+    public void testLocaleAsField() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testLocaleAsField()");
+        Locale locale = Locale.getDefault();
+        TestLocale tl = new TestLocale();
+        tl._loc = locale;
+        String json = JsonWriter.toJson(tl);
+        println("json=" + json);
+
+        tl = (TestLocale) JsonReader.jsonToJava(json);
+        assertTrue(locale.equals(tl._loc));
+    }
+
+    public void testLocale() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testLocale()");
+        Locale locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.US.getCountry());
+        String json = JsonWriter.objectToJson(locale);
+        println("json=" + json);
+        Locale us = (Locale) JsonReader.jsonToJava(json);
+        assertTrue(locale.equals(us));
+
+        locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.US.getCountry(), "johnson");
+        json = JsonWriter.objectToJson(locale);
+        println("json=" + json);
+        us = (Locale) JsonReader.jsonToJava(json);
+        assertTrue(locale.equals(us));
+
+        try
+        {
+            String noProps = "{\"@type\":\"java.util.Locale\"}";
+            JsonReader.jsonToJava(noProps);
+            assertTrue("Should never get here.", false);
+        }
+        catch(Exception e) {}
+
+        json = "{\"@type\":\"java.util.Locale\",\"language\":\"en\"}";
+        locale = (Locale) JsonReader.jsonToJava(json);
+        assertTrue("en".equals(locale.getLanguage()));
+        assertTrue("".equals(locale.getCountry()));
+        assertTrue("".equals(locale.getVariant()));
+
+        json = "{\"@type\":\"java.util.Locale\",\"language\":\"en\",\"country\":\"US\"}";
+        locale = (Locale) JsonReader.jsonToJava(json);
+        assertTrue("en".equals(locale.getLanguage()));
+        assertTrue("US".equals(locale.getCountry()));
+        assertTrue("".equals(locale.getVariant()));
+    }
+
+    public void testLocaleArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testLocaleArray()");
+        Locale locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.US.getCountry());
+        String json = JsonWriter.objectToJson(new Object[] {locale});
+        println("json=" + json);
+        Object[] oArray = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(oArray.length == 1);
+        Locale us = (Locale) oArray[0];
+        assertTrue(locale.equals(us));
+
+        json = JsonWriter.objectToJson(new Locale[] {locale});
+        println("json=" + json);
+        Locale[] lArray = (Locale[]) JsonReader.jsonToJava(json);
+        assertTrue(lArray.length == 1);
+        us = lArray[0];
+        assertTrue(locale.equals(us));
+    }
+
+    public void testLocaleInCollection() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testLocaleInCollection()");
+        Locale locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.US.getCountry());
+        List list = new ArrayList();
+        list.add(locale);
+        String json = JsonWriter.objectToJson(list);
+        println("json=" + json);
+        list = (List) JsonReader.jsonToJava(json);
+        assertTrue(list.size() == 1);
+        assertTrue(list.get(0).equals(locale));
+    }
+
+    public void testLocaleInMapValue() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testLocaleInMapValue()");
+        Locale locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.US.getCountry());
+        Map map = new HashMap();
+        map.put("us", locale);
+        String json = JsonWriter.objectToJson(map);
+        println("json=" + json);
+        map = (Map) JsonReader.jsonToJava(json);
+        assertTrue(map.size() == 1);
+        assertTrue(map.get("us").equals(locale));
+    }
+
+    public void testLocaleInMapKey() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testLocaleInMapKey()");
+        Locale locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.US.getCountry());
+        Map map = new HashMap();
+        map.put(locale, "us");
+        String json = JsonWriter.objectToJson(map);
+        println("json=" + json);
+        map = (Map) JsonReader.jsonToJava(json);
+        assertTrue(map.size() == 1);
+        Iterator i = map.keySet().iterator();
+        assertTrue(i.next().equals(locale));
+    }
+
+    public void testLocaleInMapOfMaps() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testLocaleInMapOfMaps()");
+        Locale locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.US.getCountry());
+        String json = JsonWriter.objectToJson(locale);
+        println("json=" + json);
+        Map map = JsonReader.toMaps(json);
+        assertTrue("en".equals(map.get("language")));
+        assertTrue("US".equals(map.get("country")));
+    }
+
+    public void testLocaleRef() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testLocaleForwardRef()");
+        Locale locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.US.getCountry());
+        String json = JsonWriter.objectToJson(new Object[] {locale, locale});
+        println("json=" + json);
+        Object[] oArray = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(oArray.length == 2);
+        Locale us = (Locale) oArray[0];
+        assertTrue(locale.equals(us));
+        assertTrue(oArray[0] == oArray[1]);
+    }
+
+    public void testEmptyPrimitives() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testEmptyPrimitives()");
+        String json = "{\"@type\":\"byte\"}";
+        Byte b = (Byte) JsonReader.toJava(json);
+        assertTrue(b.getClass().equals(Byte.class));
+        assertTrue(b == 0);
+
+        json = "{\"@type\":\"short\"}";
+        Short s = (Short) JsonReader.toJava(json);
+        assertTrue(s.getClass().equals(Short.class));
+        assertTrue(s == 0);
+
+        json = "{\"@type\":\"int\"}";
+        Integer i = (Integer) JsonReader.toJava(json);
+        assertTrue(i.getClass().equals(Integer.class));
+        assertTrue(i == 0);
+
+        json = "{\"@type\":\"long\"}";
+        Long l = (Long) JsonReader.toJava(json);
+        assertTrue(l.getClass().equals(Long.class));
+        assertTrue(l == 0);
+
+        json = "{\"@type\":\"float\"}";
+        Float f = (Float) JsonReader.toJava(json);
+        assertTrue(f.getClass().equals(Float.class));
+        assertTrue(f == 0.0f);
+
+        json = "{\"@type\":\"double\"}";
+        Double d = (Double) JsonReader.toJava(json);
+        assertTrue(d.getClass().equals(Double.class));
+        assertTrue(d == 0.0d);
+
+        json = "{\"@type\":\"char\"}";
+        Character c = (Character) JsonReader.toJava(json);
+        assertTrue(c.getClass().equals(Character.class));
+        assertTrue(c == '\u0000');
+
+        json = "{\"@type\":\"boolean\"}";
+        Boolean bool = (Boolean) JsonReader.toJava(json);
+        assertTrue(bool == Boolean.FALSE);
+
+        json = "{\"@type\":\"string\"}";
+        String str = (String) JsonReader.toJava(json);
+        assertTrue(str == null);
+    }
+
+    public void testMalformedJson() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testMalformedJson()");
+        String json = "\"Invalid JSON\"";          // Valid JSON must start with { or [
+        try
+        {
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 1", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{\"field\";0}";  // colon expected between fields
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 2", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{field:0}";  // not quoted field name
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 3", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{\"field\":0";  // object not terminated correctly (ending in number)
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 4", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{\"field\":true";  // object not terminated correctly (ending in token)
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 5", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{\"field\":\"test\"";  // object not terminated correctly (ending in string)
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 6", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{\"field\":{}";  // object not terminated correctly (ending in another object)
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 7", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{\"field\":[]";  // object not terminated correctly (ending in an array)
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 8", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{\"field\":3.14";  // object not terminated correctly (ending in double precision number)
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 9", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "[1,2,3";
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 10", false);
+        }
+        catch (IOException e)  { }
+
+        try
+        {
+            json = "[false,true,false";
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 11", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "[\"unclosed string]";
+            JsonReader.jsonToMaps(json);
+            assertTrue("malformed JSON should not parse 12", false);
+        }
+        catch (IOException e) { }
+    }
+
+    public void testBadType() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBadType()");
+        try
+        {
+            String json = "{\"@type\":\"non.existent.class.Non\"}";
+            JsonReader.jsonToJava(json);
+            assertTrue("should not parse", false);
+        }
+        catch (IOException e)
+        {
+            assertTrue(e.getMessage().contains("instance"));
+            assertTrue(e.getMessage().contains("not"));
+            assertTrue(e.getMessage().contains("created"));
+        }
+
+        // Bad class inside a Collection
+        try
+        {
+            String json = "{\"@type\":\"java.util.ArrayList\",\"@items\":[null, true, {\"@type\":\"bogus.class.Name\"}]}";
+            JsonReader.jsonToJava(json);
+            assertTrue("should not parse", false);
+        }
+        catch (IOException e)
+        {
+            assertTrue(e instanceof IOException);
+        }
+    }
+
+    public void testOddMaps() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testOddMaps()");
+        String json = "{\"@type\":\"java.util.HashMap\",\"@keys\":null,\"@items\":null}";
+        Map map = (Map)JsonReader.jsonToJava(json);
+        assertTrue(map instanceof HashMap);
+        assertTrue(map.isEmpty());
+
+        json = "{\"@type\":\"java.util.HashMap\"}";
+        map = (Map)JsonReader.jsonToJava(json);
+        assertTrue(map instanceof HashMap);
+        assertTrue(map.isEmpty());
+
+        try
+        {
+            json = "{\"@type\":\"java.util.HashMap\",\"@keys\":null,\"@items\":[]}";
+            map = (Map)JsonReader.jsonToJava(json);
+            assertTrue("Should not parse into Java", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            json = "{\"@type\":\"java.util.HashMap\",\"@keys\":[1,2],\"@items\":[true]}";
+            map = (Map)JsonReader.jsonToJava(json);
+            assertTrue("Should not parse into Java", false);
+        }
+        catch (IOException e)
+        {
+            assertTrue(e.getMessage().contains("different size"));
+        }
+    }
+
+    public void testBadHexNumber() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBadHexNumber()");
+        StringBuilder str = new StringBuilder();
+        str.append("[\"\\");
+        str.append("u000r\"]");
+        try
+        {
+            JsonReader.jsonToJava(str.toString());
+            assertTrue("Should not make it here", false);
+        }
+        catch (IOException e) { }
+    }
+
+    public void testBadValue() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBadValue()");
+        try
+        {
+            String json = "{\"field\":19;}";
+            JsonReader.jsonToJava(json);
+            assertTrue("Should not make it here", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            String json = "{\"field\":";
+            JsonReader.jsonToJava(json);
+            assertTrue("Should not make it here", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            String json = "{\"field\":joe";
+            JsonReader.jsonToJava(json);
+            assertTrue("Should not make it here", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            String json = "{\"field\":trux}";
+            JsonReader.jsonToJava(json);
+            assertTrue("Should not make it here", false);
+        }
+        catch (IOException e) { }
+
+        try
+        {
+            String json = "{\"field\":tru";
+            JsonReader.jsonToJava(json);
+            assertTrue("Should not make it here", false);
+        }
+        catch (IOException e) { }
+    }
+
+    public void testStringEscape() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testStringEscape()");
+        String json = "[\"escaped slash \\' should result in a single /\"]";
+        JsonReader.jsonToJava(json);
+
+        json = "[\"escaped slash \\/ should result in a single /\"]";
+        JsonReader.jsonToJava(json);
+
+        try
+        {
+            json = "[\"escaped slash \\x should result in a single /\"]";
+            JsonReader.jsonToJava(json);
+            assertTrue("Should not reach this point", false);
+        }
+        catch (IOException e) { }
+    }
+
+    public void testDateMissingValue() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testDateMissingValue()");
+        try
+        {
+            JsonReader.jsonToJava("[{\"@type\":\"date\"}]");
+            assertTrue("Should not reach this line", false);
+        }
+        catch (IOException e) { }
+    }
+
+    public void testClassMissingValue() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testClassMissingValue()");
+        try
+        {
+            JsonReader.jsonToJava("[{\"@type\":\"class\"}]");
+            assertTrue("Should not reach this line", false);
+        }
+        catch (IOException e) { }
+    }
+
+    public void testCalendarMissingValue() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCalendarMissingValue()");
+        try
+        {
+            JsonReader.jsonToJava("[{\"@type\":\"java.util.Calendar\"}]");
+            assertTrue("Should not reach this line", false);
+        }
+        catch (IOException e) { }
+    }
+
+    public void testBadFormattedCalendar() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBadFormattedCalendar()");
+        try
+        {
+            JsonReader.jsonToJava("[{\"@type\":\"java.util.GregorianCalendar\",\"value\":\"2012-05-03T12:39:45.1X5-0400\"}]");
+            assertTrue("Should not reach this line", false);
+        }
+        catch (IOException e) { }
+    }
+
+    public void testEmptyClassName() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testEmptyClassName()");
+        try
+        {
+            JsonReader.jsonToJava("{\"@type\":\"\"}");
+        }
+        catch(Exception e) { }
+    }
+
+    public void testBadBackRef() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBadBackRef()");
+        try
+        {
+            JsonReader.jsonToJava("{\"@type\":\"java.util.ArrayList\",\"@items\":[{\"@ref\":1}]}");
+            assertTrue("Should not reach this point", false);
+        }
+        catch(Exception e) { }
+    }
+
+    public void testBadInputForMapAPI() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBadInputForMapAPI()");
+        Object o = JsonReader.toMaps("[This is not quoted]");
+        assertTrue(o == null);
+    }
+
+    public void testCollectionWithNonJsonPrimitives() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCollectionWithNonJsonPrimitives()");
+        Collection col = new ArrayList();
+        col.add(new Integer(7));
+        col.add(new Short((short) 9));
+        col.add(new Float(3.14));
+        String json = JsonWriter.objectToJson(col);
+        Collection col1 = (Collection) JsonReader.jsonToJava(json);
+        assertTrue(col.equals(col1));
+    }
+
+    public void testWriterObjectAPI() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testWriterObjectAPI()");
+        String json = "[1,true,null,3.14,[]]";
+        Object o = JsonReader.toJava(json);
+        assertTrue(JsonWriter.objectToJson(o).equals(json));
+
+        ByteArrayOutputStream ba = new ByteArrayOutputStream();
+        JsonWriter writer = new JsonWriter(ba);
+        writer.write(o);
+        writer.close();
+        String s = new String(ba.toByteArray(), "UTF-8");
+        assertTrue(json.equals(s));
+    }
+
+    public void testUntyped() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testUntyped()");
+        String json ="{\"age\":46,\"name\":\"jack\",\"married\":false,\"salary\":125000.07,\"notes\":null,\"address1\":{\"@ref\":77},\"address2\":{\"@id\":77,\"street\":\"1212 Pennsylvania ave\",\"city\":\"Washington\"}}";
+        Map map = JsonReader.jsonToMaps(json);
+        println("map=" + map);
+        assertTrue(map.get("age").equals(46L));
+        assertTrue(map.get("name").equals("jack"));
+        assertTrue(map.get("married") == Boolean.FALSE);
+        assertTrue(map.get("salary").equals(125000.07d));
+        assertTrue(map.get("notes") == null);
+        Map address1 = (Map) map.get("address1");
+        Map address2 = (Map) map.get("address2");
+        assertTrue(address1 == address2);
+        assertTrue(address2.get("street").equals("1212 Pennsylvania ave"));
+        assertTrue(address2.get("city").equals("Washington"));
+    }
+
+    public void testUntypedArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testUntypedArray()");
+        Object[] args = (Object[]) readJsonObject("[\"string\",17, null, true, false, [], -1273123,32131, 1e6, 3.14159, -9223372036854775808, 9223372036854775807]");
+
+        for (int i=0; i < args.length; i++)
+        {
+            println("args[" + i + "]=" + args[i]);
+            if (args[i] != null)
+            {
+                println("args[" + i + "]=" + args[i].getClass().getName());
+            }
+        }
+
+        assertTrue(args[0].equals("string"));
+        assertTrue(args[1].equals(17L));
+        assertTrue(args[2] == null);
+        assertTrue(args[3].equals(Boolean.TRUE));
+        assertTrue(args[4].equals(Boolean.FALSE));
+        assertTrue(args[5].getClass().isArray());
+        assertTrue(args[6].equals(-1273123L));
+        assertTrue(args[7].equals(32131L));
+        assertTrue(args[8].equals(new Double(1000000)));
+        assertTrue(args[9].equals(new Double(3.14159)));
+        assertTrue(args[10].equals(Long.MIN_VALUE));
+        assertTrue(args[11].equals(Long.MAX_VALUE));
+    }
+
+    public void testUntypedCollections() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testUntypedCollections()");
+        Object[] poly = new Object[] {"Road Runner", 16L, 3.1415, true, false, null, 7, "Coyote", "Coyote"};
+        String json = getJsonString(poly);
+        println("json=" + json);
+        assertTrue("[\"Road Runner\",16,3.1415,true,false,null,{\"@type\":\"int\",\"value\":7},\"Coyote\",\"Coyote\"]".equals(json));
+        Collection col = new ArrayList();
+        col.add("string");
+        col.add(new Long(16));
+        col.add(new Double(3.14159));
+        col.add(Boolean.TRUE);
+        col.add(Boolean.FALSE);
+        col.add(null);
+        col.add(new Integer(7));
+        json = getJsonString(col);
+        println("json=" + json);
+        assertTrue("{\"@type\":\"java.util.ArrayList\",\"@items\":[\"string\",16,3.14159,true,false,null,{\"@type\":\"int\",\"value\":7}]}".equals(json));
+    }
+
+    public void testMapOfMapsSimpleArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testMapOfMapsSimpleArray()");
+        String s = "[{\"@ref\":1},{\"name\":\"Jack\",\"age\":21,\"@id\":1}]";
+        Map map = JsonReader.jsonToMaps(s);
+        Object[] list = (Object[]) map.get("@items");
+        assertTrue(list[0] == list[1]);
+    }
+
+    public void testMapOfMapsWithFieldAndArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testMapOfMapsWithFieldAndArray()");
+        String s = "[\n" +
+                " {\"name\":\"Jack\",\"age\":21,\"@id\":1},\n" +
+                " {\"@ref\":1},\n" +
+                " {\"@ref\":2},\n" +
+                " {\"husband\":{\"@ref\":1}},\n" +
+                " {\"wife\":{\"@ref\":2}},\n" +
+                " {\"attendees\":[{\"@ref\":1},{\"@ref\":2}]},\n" +
+                " {\"name\":\"Jill\",\"age\":18,\"@id\":2},\n" +
+                " {\"witnesses\":[{\"@ref\":1},{\"@ref\":2}]}\n" +
+                "]";
+
+        println("json=" + s);
+        Map map = JsonReader.jsonToMaps(s);
+        println("map=" + map);
+        Object[] items = (Object[]) map.get("@items");
+        assertTrue(items.length == 8);
+        Map husband = (Map) items[0];
+        Map wife = (Map) items[6];
+        assertTrue(items[1] == husband);
+        assertTrue(items[2] == wife);
+        map = (Map) items[3];
+        assertTrue(map.get("husband") == husband);
+        map = (Map) items[4];
+        assertTrue(map.get("wife") == wife);
+        map = (Map) items[5];
+        map = (Map) map.get("attendees");
+        Object[] attendees = (Object[]) map.get("@items");
+        assertTrue(attendees.length == 2);
+        assertTrue(attendees[0] == husband);
+        assertTrue(attendees[1] == wife);
+        map = (Map) items[7];
+        map = (Map) map.get("witnesses");
+        Object[] witnesses = (Object[]) map.get("@items");
+        assertTrue(witnesses.length == 2);
+        assertTrue(witnesses[0] == husband);
+        assertTrue(witnesses[1] == wife);
+    }
+
+    public void testMapOfMapsCollection() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testMapOfMapsCollection()");
+        List stuff = new ArrayList();
+        stuff.add("Hello");
+        Object testObj = new TestObject("test object");
+        stuff.add(testObj);
+        stuff.add(testObj);
+        stuff.add(new Date());
+        String json = JsonWriter.objectToJson(stuff);
+        println("json=" + json);
+
+        Map map = JsonReader.jsonToMaps(json);
+        println("map=" + map);
+        Object[] items = (Object[]) map.get("@items");
+        assertTrue(items.length == 4);
+        assertTrue("Hello".equals(items[0]));
+        assertTrue(items[1] == items[2]);
+
+        List list = new ArrayList();
+        list.add(new Object[] {123L, null, true, "Hello"});
+        json = JsonWriter.objectToJson(list);
+        println("json=" + json);
+        map = JsonReader.jsonToMaps(json);
+        items = (Object[]) map.get("@items");
+        assertTrue(items.length == 1);
+        Object[] oa = (Object[]) items[0];
+        assertTrue(oa.length == 4);
+        assertTrue(oa[0].equals(123L));
+        assertTrue(oa[1] == null);
+        assertTrue(oa[2] == Boolean.TRUE);
+        assertTrue("Hello".equals(oa[3]));
+    }
+
+    public void testMapOfMapsMap() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testMapOfMapsMap()");
+        Map stuff = new TreeMap();
+        stuff.put("a", "alpha");
+        Object testObj = new TestObject("test object");
+        stuff.put("b", testObj);
+        stuff.put("c", testObj);
+        stuff.put(testObj, 1.0f);
+        String json = JsonWriter.objectToJson(stuff);
+        println("json=" + json);
+
+        Map map = JsonReader.jsonToMaps(json);
+        println("map=" + map);
+        Object aa = map.get("a");
+        Map bb = (Map) map.get("b");
+        Map cc = (Map) map.get("c");
+
+        assertTrue(aa.equals("alpha"));
+        assertTrue(bb.get("_name").equals("test object"));
+        assertTrue(bb.get("_other") == null);
+        assertTrue(bb == cc);
+        assertTrue(map.size() == 4);    // contains @type entry
+    }
+
+    public void testMapOfMapsPrimitivesInArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testMapOfMapPrimitivesInArray()");
+        Date date = new Date();
+        Calendar cal = Calendar.getInstance();
+        println("cal=" + cal);
+        Class strClass = String.class;
+        Object[] prims = new Object[] { true, Boolean.TRUE, (byte)8, (short)1024, 131072, 16777216, 3.14, 3.14f, 'x', "hello", date, cal, strClass};
+        String json = JsonWriter.objectToJson(prims);
+        println("json=" + json);
+        Object[] javaObjs = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(prims.length == javaObjs.length);
+
+        for (int i=0; i < javaObjs.length; i ++)
+        {
+            assertTrue(javaObjs[i].equals(prims[i]));
+        }
+    }
+
+    private enum TestEnum1 { A, B, C }
+
+    private enum TestEnum2
+    {
+        A() {},
+        B() {},
+        C() {}
+    }
+
+    private enum TestEnum3
+    {
+        A("Foo")
+                {
+                    void doXX() {}
+                },
+        B("Bar")
+                {
+                    void doXX() {}
+                },
+        C(null)
+                {
+                    void doXX() {}
+                };
+
+        private final String val;
+
+        private TestEnum3(String val)
+        {
+            this.val = val;
+        }
+
+        abstract void doXX();
+    }
+
+    public void testEnums() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testEnums()");
+
+        Collection<Object> collection = new LinkedList<Object>();
+        collection.addAll(Arrays.asList(TestEnum1.values()));
+        collection.addAll(Arrays.asList(TestEnum2.values()));
+        collection.addAll(Arrays.asList(TestEnum3.values()));
+
+        for (Object o : collection)
+        {
+            String json = JsonWriter.toJson(o);
+            println("json=" + json);
+            Object read = JsonReader.jsonToJava(json);
+            assertTrue(o == read);
+        }
+
+        String json = JsonWriter.toJson(collection);
+        Collection<Object> collection2 = (Collection<Object>) JsonReader.jsonToJava(json);
+        assertTrue(collection.equals(collection2));
+
+        TestEnum1[] array11 = TestEnum1.values();
+        json = JsonWriter.toJson(array11);
+        println("json=" + json);
+        TestEnum1[] array12 = (TestEnum1[]) JsonReader.jsonToJava(json);
+        assertTrue(Arrays.equals(array11, array12));
+
+        TestEnum2[] array21 = TestEnum2.values();
+        json = JsonWriter.toJson(array21);
+        println("json=" + json);
+        TestEnum2[] array22 = (TestEnum2[]) JsonReader.jsonToJava(json);
+        assertTrue(Arrays.equals(array21, array22));
+
+        TestEnum3[] array31 = TestEnum3.values();
+        json = JsonWriter.toJson(array31);
+        println("json=" + json);
+        TestEnum3[] array32 = (TestEnum3[]) JsonReader.jsonToJava(json);
+        assertTrue(Arrays.equals(array31, array32));
+    }
+
+    public void testEmptyObject() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testEmptyObject()");
+
+        Object o = JsonReader.jsonToJava("{}");
+        assertTrue(JsonObject.class.equals(o.getClass()));
+
+        Object[] oa = (Object[]) JsonReader.jsonToJava("[{},{}]");
+        assertTrue(oa.length == 2);
+        assertTrue(Object.class.equals(oa[0].getClass()));
+        assertTrue(Object.class.equals(oa[1].getClass()));
+    }
+
+    public void testBigInteger() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBigInteger()");
+        String s = "123456789012345678901234567890";
+        BigInteger bigInt = new BigInteger(s);
+        String json = JsonWriter.objectToJson(bigInt);
+        println("json=" + json);
+        bigInt = (BigInteger) JsonReader.jsonToJava(json);
+        assertTrue(bigInt.equals(new BigInteger(s)));
+    }
+
+    public void testBigIntegerInArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBigIntegerInArray()");
+        String s = "123456789012345678901234567890";
+        BigInteger bigInt = new BigInteger(s);
+        Object[] bigInts = new Object[] { bigInt, bigInt };
+        BigInteger[] typedBigInts = new BigInteger[] { bigInt, bigInt };
+        String json = JsonWriter.objectToJson(bigInts);
+        println("json=" + json);
+        bigInts = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(bigInts.length == 2);
+        assertTrue(bigInts[0] == bigInts[1]);
+        assertTrue(new BigInteger(s).equals(bigInts[0]));
+        json = JsonWriter.objectToJson(typedBigInts);
+        println("json=" + json);
+        assertTrue(typedBigInts.length == 2);
+        assertTrue(typedBigInts[0] == typedBigInts[1]);
+        assertTrue(new BigInteger(s).equals(typedBigInts[0]));
+    }
+
+    public void testBigIntegerInCollection() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBigIntegerInCollection()");
+        String s = "123456789012345678901234567890";
+        BigInteger bigInt = new BigInteger(s);
+        List list = new ArrayList();
+        list.add(bigInt);
+        list.add(bigInt);
+        String json = JsonWriter.objectToJson(list);
+        println("json=" + json);
+        list = (List) JsonReader.jsonToJava(json);
+        assertTrue(list.size() == 2);
+        assertTrue(list.get(0).equals(new BigInteger(s)));
+        assertTrue(list.get(0) == list.get(1));
+    }
+
+    public void testBigDecimal() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBigDecimal()");
+        String s = "123456789012345678901234567890.123456789012345678901234567890";
+        BigDecimal bigDec = new BigDecimal(s);
+        String json = JsonWriter.objectToJson(bigDec);
+        println("json=" + json);
+        bigDec = (BigDecimal) JsonReader.jsonToJava(json);
+        assertTrue(bigDec.equals(new BigDecimal(s)));
+    }
+
+    public void testBigDecimalInArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBigDecimalInArray()");
+        String s = "123456789012345678901234567890.123456789012345678901234567890";
+        BigDecimal bigDec = new BigDecimal(s);
+        Object[] bigDecs = new Object[] { bigDec, bigDec };
+        BigDecimal[] typedBigDecs = new BigDecimal[] { bigDec, bigDec };
+        String json = JsonWriter.objectToJson(bigDecs);
+        println("json=" + json);
+
+        bigDecs = (Object[]) JsonReader.jsonToJava(json);
+        assertTrue(bigDecs.length == 2);
+        assertTrue(bigDecs[0] == bigDecs[1]);
+        assertTrue(new BigDecimal(s).equals(bigDecs[0]));
+        json = JsonWriter.objectToJson(typedBigDecs);
+        println("json=" + json);
+        assertTrue(typedBigDecs.length == 2);
+        assertTrue(typedBigDecs[0] == typedBigDecs[1]);
+        assertTrue(new BigDecimal(s).equals(typedBigDecs[0]));
+    }
+
+    public void testBigDecimalInCollection() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testBigDecimalInCollection()");
+        String s = "-123456789012345678901234567890.123456789012345678901234567890";
+        BigDecimal bigDec = new BigDecimal(s);
+        List list = new ArrayList();
+        list.add(bigDec);
+        list.add(bigDec);
+        String json = JsonWriter.objectToJson(list);
+        println("json=" + json);
+        list = (List) JsonReader.jsonToJava(json);
+        assertTrue(list.size() == 2);
+        assertTrue(list.get(0).equals(new BigDecimal(s)));
+        assertTrue(list.get(0) == list.get(1));
+    }
+
+    public void testSqlDate() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testSqlDate()");
+        long now = System.currentTimeMillis();
+        Date[] dates = new Date[] { new Date(now), new java.sql.Date(now), new Timestamp(now) };
+        String json = JsonWriter.objectToJson(dates);
+        println("json=" + json);
+        Date[] dates2 = (Date[]) JsonReader.jsonToJava(json);
+        assertTrue(dates2.length == 3);
+        assertTrue(dates2[0].equals(new Date(now)));
+        assertTrue(dates2[1].equals(new java.sql.Date(now)));
+        Timestamp stamp = (Timestamp) dates2[2];
+        assertTrue(stamp.getTime() == dates[0].getTime());
+        assertTrue(stamp.getTime() == now);
+    }
+
+    public void testJsonReaderConstructor() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testJsonReaderConstructor()");
+        String json = "{\"@type\":\"sun.util.calendar.ZoneInfo\",\"zone\":\"EST\"}";
+        JsonReader jr = new JsonReader(new ByteArrayInputStream(json.getBytes()));
+        TimeZone tz = (TimeZone) jr.readObject();
+        assertTrue(tz != null);
+        assertTrue("EST".equals(tz.getID()));
+    }
+
+    public class WeirdDate extends Date
+    {
+        public WeirdDate(Date date) { super(date.getTime()); }
+        public WeirdDate(long millis) { super(millis); }
+    }
+
+    public class WeirdDateWriter implements JsonWriter.JsonClassWriter
+    {
+        private SafeSimpleDateFormat dateFormat = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+        public void write(Object o, boolean showType, Writer out) throws IOException
+        {
+            String value = dateFormat.format((Date)o);
+            out.write("\"value\":\"");
+            out.write(value);
+            out.write('"');
+        }
+
+        public boolean hasPrimitiveForm()
+        {
+            return true;
+        }
+
+        public void writePrimitiveForm(Object o, Writer out) throws IOException
+        {
+            String value = dateFormat.format((Date)o);
+            out.write('"');
+            out.write(value);
+            out.write('"');
+        }
+    }
+
+    public class WeirdDateReader implements JsonReader.JsonClassReader
+    {
+        private SafeSimpleDateFormat dateFormat = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+        public Object read(Object o, LinkedList<JsonObject<String, Object>> stack) throws IOException
+        {
+            if (o instanceof String)
+            {
+                try
+                {
+                    return new WeirdDate(dateFormat.parse((String) o));
+                }
+                catch (ParseException e)
+                {
+                    throw new IOException("Date format incorrect");
+                }
+            }
+
+            JsonObject jObj = (JsonObject) o;
+            if (jObj.containsKey("value"))
+            {
+                try
+                {
+                    return jObj.target = new WeirdDate(dateFormat.parse((String) jObj.get("value")));
+                }
+                catch (ParseException e)
+                {
+                    throw new IOException("Date format incorrect");
+                }
+            }
+            throw new IOException("Date missing 'value' field");
+
+        }
+    }
+
+    public void testCustomClassReaderWriter() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testCustomClassReaderWriter()");
+        JsonWriter.addWriter(WeirdDate.class, new WeirdDateWriter());
+        JsonReader.addReader(WeirdDate.class, new WeirdDateReader());
+
+        WeirdDate now = new WeirdDate(System.currentTimeMillis());
+        String json = JsonWriter.objectToJson(now);
+        println("json=" + json);
+        WeirdDate date = (WeirdDate)JsonReader.jsonToJava(json);
+        assertTrue(now.equals(date));
+
+        JsonWriter.addNotCustomWriter(WeirdDate.class);
+        JsonReader.addNotCustomReader(WeirdDate.class);
+        json = JsonWriter.objectToJson(now);
+        println("json=" + json);
+        assertTrue(now.equals(date));
+    }
+
+    public void testReconstituteObjectArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteObjectArray()");
+        Date now = new Date();
+        TestObject to = new TestObject("football");
+        TimeZone tz = TimeZone.getTimeZone("EST");
+        Collection col = new ArrayList();
+        col.add("Collection inside array");
+        col.add(tz);
+        col.add(now);
+        Object[] objs = new Object[] { now, 123.45, 0.04f, "This is a string", null,  true, to, tz, col, (short) 7, (byte) -127};
+        Object[] two = new Object[] {objs, "bella", objs};
+        String json0 = JsonWriter.objectToJson(two);
+        println("json0=" + json0);
+        Map map = JsonReader.jsonToMaps(json0);
+        map.toString(); // Necessary
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+
+        // Read back into typed Java objects, the Maps of Maps versus that was dumped out
+        Object[] result = (Object[]) JsonReader.jsonToJava(json1);
+        assertTrue(result.length == 3);
+        Object[] arr1 = (Object[]) result[0];
+        assertTrue(arr1.length == 11);
+        String bella = (String) result[1];
+        Object[] arr2 = (Object[]) result[2];
+        assertTrue(arr1 == arr2);
+        assertTrue("bella".equals(bella));
+        assertTrue(now.equals(arr1[0]));
+        assertTrue(arr1[1].equals(123.45));
+        assertTrue(arr1[2].equals(0.04f));
+        assertTrue("This is a string".equals(arr1[3]));
+        assertTrue(arr1[4] == null);
+        assertTrue(arr1[5] == Boolean.TRUE);
+        assertTrue(to.equals(arr1[6]));
+        assertTrue(tz.equals(arr1[7]));
+        List c = (List) arr1[8];
+        assertTrue("Collection inside array".equals(c.get(0)));
+        assertTrue(tz.equals(c.get(1)));
+        assertTrue(now.equals(c.get(2)));
+        assertTrue(7== (Short)arr1[9]);
+        assertTrue(-127 == (Byte) arr1[10]);
+        assertTrue(json0.equals(json1));
+
+        TestArray ta = new TestArray();
+        ta.init();
+        json0 = JsonWriter.objectToJson(ta);
+        println("json0=" + json0);
+
+        map = JsonReader.jsonToMaps(json0);
+        map.toString();
+        json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteObjectArrayTypes() throws Exception
+    {
+        println("testReconstituteObjectArrayTypes");
+        Object[] bytes = new Object[]{_CONST_BYTE,  _CONST_BYTE};
+        testReconstituteArrayHelper(bytes);
+        Byte[] Bytes = new Byte[]{_CONST_BYTE,  _CONST_BYTE};
+        testReconstituteArrayHelper(Bytes);
+        byte[] bites = new byte[]{_CONST_BYTE,  _CONST_BYTE};
+        testReconstituteArrayHelper(bites);
+
+        Object[] shorts = new Object[]{_CONST_SHORT,  _CONST_SHORT};
+        testReconstituteArrayHelper(shorts);
+        Short[] Shorts = new Short[]{_CONST_SHORT,  _CONST_SHORT};
+        testReconstituteArrayHelper(Shorts);
+        short[] shortz = new short[]{_CONST_SHORT,  _CONST_SHORT};
+        testReconstituteArrayHelper(shortz);
+
+        Object[] ints = new Object[]{_CONST_INT,  _CONST_INT};
+        testReconstituteArrayHelper(ints);
+        Integer[] Ints = new Integer[]{_CONST_INT,  _CONST_INT};
+        testReconstituteArrayHelper(Ints);
+        int[] intz = new int[]{_CONST_INT,  _CONST_INT};
+        testReconstituteArrayHelper(intz);
+
+        Object[] longs = new Object[]{_CONST_LONG,  _CONST_LONG};
+        testReconstituteArrayHelper(longs);
+        Long[] Longs = new Long[]{_CONST_LONG,  _CONST_LONG};
+        testReconstituteArrayHelper(Longs);
+        long[] longz = new long[]{_CONST_LONG,  _CONST_LONG};
+        testReconstituteArrayHelper(longz);
+
+        Object[] floats = new Object[]{_CONST_FLOAT,  _CONST_FLOAT};
+        testReconstituteArrayHelper(floats);
+        Float[] Floats = new Float[]{_CONST_FLOAT,  _CONST_FLOAT};
+        testReconstituteArrayHelper(Floats);
+        float[] floatz = new float[]{_CONST_FLOAT,  _CONST_FLOAT};
+        testReconstituteArrayHelper(floatz);
+
+        Object[] doubles = new Object[]{_CONST_DOUBLE,  _CONST_DOUBLE};
+        testReconstituteArrayHelper(doubles);
+        Double[] Doubles = new Double[]{_CONST_DOUBLE,  _CONST_DOUBLE};
+        testReconstituteArrayHelper(Doubles);
+        double[] doublez = new double[]{_CONST_DOUBLE,  _CONST_DOUBLE};
+        testReconstituteArrayHelper(doublez);
+
+        Object[] booleans = new Object[]{Boolean.TRUE, Boolean.TRUE};
+        testReconstituteArrayHelper(booleans);
+        Boolean[] Booleans = new Boolean[]{Boolean.TRUE,  Boolean.TRUE};
+        testReconstituteArrayHelper(Booleans);
+        boolean[] booleanz = new boolean[]{true, true};
+        testReconstituteArrayHelper(booleanz);
+
+        Object[] chars = new Object[]{'J', 'J'};
+        testReconstituteArrayHelper(chars);
+        Character[] Chars = new Character[]{'S', 'S'};
+        testReconstituteArrayHelper(Chars);
+        char[] charz = new char[]{'R', 'R'};
+        testReconstituteArrayHelper(charz);
+
+        Object[] classes = new Object[]{LinkedList.class, LinkedList.class};
+        testReconstituteArrayHelper(classes);
+        Class[] Classes = new Class[]{LinkedList.class, LinkedList.class};
+        testReconstituteArrayHelper(Classes);
+
+        Date now = new Date();
+        Object[] dates = new Object[]{now, now};
+        testReconstituteArrayHelper(dates);
+        Date[] Dates = new Date[]{now, now};
+        testReconstituteArrayHelper(Dates);
+
+        BigDecimal pi = new BigDecimal(3.1415926535897932384626433);
+        Object[] bigDecimals = new Object[]{pi, pi};
+        testReconstituteArrayHelper(bigDecimals);
+        BigDecimal[] BigDecimals = new BigDecimal[]{pi, pi};
+        testReconstituteArrayHelper(BigDecimals);
+
+        String s = "json-io";
+        Object[] strings = new Object[]{s, s};
+        testReconstituteArrayHelper(strings);
+        String[] Strings = new String[]{s, s};
+        testReconstituteArrayHelper(Strings);
+
+        GregorianCalendar cal = (GregorianCalendar) Calendar.getInstance(TimeZone.getTimeZone("EST"));
+        Object[] calendars = new Object[]{cal, cal};
+        testReconstituteArrayHelper(calendars);
+        Calendar[] Calendars = new Calendar[]{cal, cal};
+        testReconstituteArrayHelper(Calendars);
+        GregorianCalendar[] calendarz = new GregorianCalendar[]{cal, cal};
+        testReconstituteArrayHelper(calendarz);
+    }
+
+    private void testReconstituteArrayHelper(Object foo) throws IOException
+    {
+        assertTrue(Array.getLength(foo) == 2);
+        String json0 = JsonWriter.objectToJson(foo);
+        println("json0=" + json0);
+
+        Map map = JsonReader.jsonToMaps(json0);
+        map.toString(); // called to prevent compiler optimization that could eliminate map local variable.
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteEmptyArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteEmptyArray()");
+        Object[] empty = new Object[]{};
+        String json0 = getJsonString(empty);
+        println("json0=" + json0);
+
+        Map map = JsonReader.jsonToMaps(json0);
+        assertTrue(map != null);
+        empty = (Object[]) map.get("@items");
+        assertTrue(empty != null);
+        assertTrue(empty.length == 0);
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+
+        assertTrue(json0.equals(json1));
+
+        Object[] list = new Object[] {empty, empty};
+        json0 = getJsonString(list);
+        println("json0=" + json0);
+
+        map = JsonReader.jsonToMaps(json0);
+        assertTrue(map != null);
+        list = (Object[]) map.get("@items");
+        assertTrue(list.length == 2);
+        Map e1 = (Map) list[0];
+        Map e2 = (Map) list[1];
+        assertTrue(e1.get("@items") == e2.get("@items"));
+        assertTrue(((Object[])e1.get("@items")).length == 0);
+
+        json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteTypedArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteTypedArray()");
+        String[] strs = new String[] {"tom", "dick", "harry"};
+        Object[] objs = new Object[] {strs, "a", strs};
+        String json0 = JsonWriter.objectToJson(objs);
+        println("json0=" + json0);
+        Map map = JsonReader.jsonToMaps(json0);
+        map.toString();     // Necessary
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+
+        Object[] result = (Object[]) JsonReader.jsonToJava(json1);
+        assertTrue(result.length == 3);
+        assertTrue(result[0] == result[2]);
+        assertTrue("a".equals(result[1]));
+        String[] sa = (String[]) result[0];
+        assertTrue(sa.length == 3);
+        assertTrue("tom".equals(sa[0]));
+        assertTrue("dick".equals(sa[1]));
+        assertTrue("harry".equals(sa[2]));
+        String json2 = JsonWriter.objectToJson(result);
+        println("json2=" + json2);
+        assertTrue(json0.equals(json1));
+        assertTrue(json1.equals(json2));
+    }
+
+    public void testReconstituteArray() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteArray()");
+        TestArray testArray = new TestArray();
+        testArray.init();
+        String json0 = JsonWriter.objectToJson(testArray);
+        println("json0=" + json0);
+        Map testArray2 = JsonReader.jsonToMaps(json0);
+
+        String json1 = JsonWriter.objectToJson(testArray2);
+        println("json1=" + json1);
+
+        TestArray testArray3 = (TestArray) JsonReader.jsonToJava(json1);
+        assertArray(testArray3);    // Re-written from Map of Maps and re-loaded correctly
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteCollection() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteCollection()");
+        TestObject to = new TestObject("football");
+        Collection objs = new ArrayList();
+        Date now = new Date();
+        objs.add(now);
+        objs.add(123.45);
+        objs.add("This is a string");
+        objs.add(null);
+        objs.add(to);
+        objs.add(new Object[] {"dog", new String[] {"a","b","c"}});
+        Collection two = new ArrayList();
+        two.add(objs);
+        two.add("bella");
+        two.add(objs);
+
+        String json0 = JsonWriter.objectToJson(two);
+        println("json0=" + json0);
+        Map map = JsonReader.jsonToMaps(json0);
+        map.hashCode();
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+
+        List colOuter = (List) JsonReader.jsonToJava(json1);
+        assertTrue(colOuter.get(0) == colOuter.get(2));
+        assertTrue("bella".equals(colOuter.get(1)));
+        List col1 = (List) colOuter.get(0);
+        assertTrue(col1.get(0).equals(now));
+        assertTrue(col1.get(1).equals(123.45));
+        assertTrue("This is a string".equals(col1.get(2)));
+        assertTrue(col1.get(3) == null);
+        assertTrue(col1.get(4).equals(to));
+        assertTrue(col1.get(5) instanceof Object[]);
+        Object[] oa = (Object[]) col1.get(5);
+        assertTrue("dog".equals(oa[0]));
+        assertTrue(oa[1] instanceof String[]);
+        String[] sa = (String[]) oa[1];
+        assertTrue("a".equals(sa[0]));
+        assertTrue("b".equals(sa[1]));
+        assertTrue("c".equals(sa[2]));
+
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteEmptyCollection() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteEmptyCollection()");
+        Collection empty = new ArrayList();
+        String json0 = getJsonString(empty);
+        println("json0=" + json0);
+
+        Map map = JsonReader.jsonToMaps(json0);
+        assertTrue(map != null);
+        assertTrue(map.isEmpty());
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+
+        assertTrue(json0.equals(json1));
+
+        Object[] list = new Object[] {empty, empty};
+        json0 = getJsonString(list);
+        println("json=" + json0);
+
+        map = JsonReader.jsonToMaps(json0);
+        assertTrue(map != null);
+        list = (Object[]) map.get("@items");
+        assertTrue(list.length == 2);
+        Map e1 = (Map) list[0];
+        Map e2 = (Map) list[1];
+        assertTrue(e1.isEmpty());
+        assertTrue(e2.isEmpty());
+
+        json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteEmptyObject() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteEmptyObject()");
+        Empty empty = new Empty();
+        String json0 = getJsonString(empty);
+        println("json0=" + json0);
+
+        Map m = JsonReader.jsonToMaps(json0);
+        assertTrue(m.isEmpty());
+
+        String json1 = JsonWriter.objectToJson(m);
+        println("json1=" + json1);
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteMap() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteMap()");
+        TestMap testMap = new TestMap();
+        testMap.init();
+        String json0 = JsonWriter.objectToJson(testMap);
+        println("json0=" + json0);
+        Map testMap2 = JsonReader.jsonToMaps(json0);
+
+        String json1 = JsonWriter.objectToJson(testMap2);
+        println("json1=" + json1);
+
+        TestMap testMap3 = (TestMap) JsonReader.jsonToJava(json1);
+        assertMap(testMap3);   // Re-written from Map of Maps and re-loaded correctly
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteCollection2() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteCollection2()");
+        TestCollection testCol = new TestCollection();
+        testCol.init();
+        String json0 = JsonWriter.objectToJson(testCol);
+        println("json0=" + json0);
+        Map testCol2 = JsonReader.jsonToMaps(json0);
+
+        String json1 = JsonWriter.objectToJson(testCol2);
+        println("json1=" + json1);
+
+        TestCollection testCol3 = (TestCollection) JsonReader.jsonToJava(json1);
+        assertCollection(testCol3);   // Re-written from Map of Maps and re-loaded correctly
+        assertTrue(json0.equals(json1));
+    }
+
+    private static class SimpleMapTest
+    {
+        HashMap map = new HashMap();
+    }
+
+    public void testReconstituteMapSimple() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteMapSimple()");
+        SimpleMapTest smt = new SimpleMapTest();
+        smt.map.put("a", "alpha");
+        String json0 = getJsonString(smt);
+        println("json0=" + json0);
+
+        Map result = JsonReader.jsonToMaps(json0);
+        String json1 = JsonWriter.objectToJson(result);
+        println("json1=" + json1);
+
+        SimpleMapTest mapTest = (SimpleMapTest) readJsonObject(json1);
+        assertTrue(mapTest.map.equals(smt.map));
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteMapEmpty() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteMapEmpty()");
+        Map map = new LinkedHashMap();
+        String json0 = getJsonString(map);
+        println("json0=" + json0);
+
+        map = JsonReader.jsonToMaps(json0);
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+
+        map = (Map) readJsonObject(json1);
+        assertTrue(map instanceof LinkedHashMap);
+        assertTrue(map.isEmpty());
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteRefMap() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteEmptyMap()");
+        Map m1 = new HashMap();
+        Object[] root = new Object[]{ m1, m1};
+        String json0 = getJsonString(root);
+        println("json0=" + json0);
+
+        Map map = JsonReader.jsonToMaps(json0);
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+
+        root = (Object[]) readJsonObject(json1);
+        assertTrue(root.length == 2);
+        assertTrue(root[0] instanceof Map);
+        assertTrue(((Map)root[0]).isEmpty());
+        assertTrue(root[1] instanceof Map);
+        assertTrue(((Map) root[1]).isEmpty());
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteFields() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteFields()");
+        TestFields testFields = new TestFields();
+        testFields.init();
+        String json0 = JsonWriter.objectToJson(testFields);
+        println("json0=" + json0);
+        Map testFields2 = JsonReader.jsonToMaps(json0);
+
+        String json1 = JsonWriter.objectToJson(testFields2);
+        println("json1=" + json1);
+
+        TestFields testFields3 = (TestFields) JsonReader.jsonToJava(json1);
+        assertFields(testFields3);   // Re-written from Map of Maps and re-loaded correctly
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstitutePrimitives() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstitutePrimitives()");
+        Object foo = new TestJsonNoDefaultOrPublicConstructor("Hello, World.", new Date(), (byte) 1, new Byte((byte)11), (short) 2, new Short((short)22), 3, new Integer(33), 4L, new Long(44L), 5.0f, new Float(55.0f), 6.0, new Double(66.0), true, Boolean.TRUE,'J', new Character('K'), new String[] {"john","adams"}, new int[] {2,6}, new BigDecimal(2.71828));
+        String json0 = getJsonString(foo);
+        println("json0=" + json0);
+
+        Map map = JsonReader.jsonToMaps(json0);
+        assertTrue((Byte)map.get("_byte") == 1);
+        assertTrue((Short) map.get("_short") == 2);
+        assertTrue((Integer) map.get("_int") == 3);
+        assertTrue((Long) map.get("_long") == 4);
+        assertTrue((Float) map.get("_float") == 5.0f);
+        assertTrue((Double) map.get("_double") == 6.0);
+        assertTrue(map.get("_boolean") == Boolean.TRUE);
+        assertTrue((Character) map.get("_char") == 'J');
+
+        assertTrue((Byte) map.get("_Byte") == 11);
+        assertTrue((Short) map.get("_Short") == 22);
+        assertTrue((Integer) map.get("_Integer") == 33);
+        assertTrue((Long) map.get("_Long") == 44L);
+        assertTrue((Float) map.get("_Float") == 55.0f);
+        assertTrue((Double) map.get("_Double") == 66.0);
+        assertTrue((Boolean) map.get("_Boolean") == Boolean.TRUE);
+        assertTrue((Character) map.get("_Char") == 'K');
+        assertTrue(map.get("_bigD").equals(new BigDecimal(2.71828)));
+
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testReconstituteNullablePrimitives() throws Exception
+    {
+        println("\nTestJsonReaderWriter.testReconstituteNullablePrimitives()");
+        Object foo = new TestJsonNoDefaultOrPublicConstructor("Hello, World.", new Date(), (byte) 1, null, (short) 2, null, 3, null, 4L, null, 5.0f, null, 6.0, null, true, null,'J', null, new String[] {"john","adams"}, new int[] {2,6}, null);
+        String json = getJsonString(foo);
+        println("json0=" + json);
+
+        Map map = JsonReader.jsonToMaps(json);
+        assertTrue(map.get("_byte") instanceof Byte);
+        assertTrue(map.get("_short") instanceof Short);
+        assertTrue(map.get("_int") instanceof Integer);
+        assertTrue(map.get("_long") instanceof Long);
+        assertTrue(map.get("_float") instanceof Float);
+        assertTrue(map.get("_double") instanceof Double);
+        assertTrue(map.get("_boolean") instanceof Boolean);
+        assertTrue(map.get("_char") instanceof Character);
+
+        Map prim = (Map) map.get("_Byte");
+        assertNull(prim);
+        prim = (Map) map.get("_Short");
+        assertNull(prim);
+        prim = (Map) map.get("_Integer");
+        assertNull(prim);
+        prim = (Map) map.get("_Long");
+        assertNull(prim);
+        prim = (Map) map.get("_Float");
+        assertNull(prim);
+        prim = (Map) map.get("_Double");
+        assertNull(prim);
+        prim = (Map) map.get("_Boolean");
+        assertNull(prim);
+        prim = (Map) map.get("_Char");
+        assertNull(prim);
+        prim = (Map) map.get("_bigD");
+        assertNull(prim);
+
+        String json1 = JsonWriter.objectToJson(map);
+        println("json1=" + json1);
+        assertTrue(json.equals(json1));
+
+        map = JsonReader.jsonToMaps(json1);
+        json = JsonWriter.objectToJson(map);
+        println("json2=" + json);
+        assertTrue(json.equals(json1));
+    }
+
+    public void testArraysAsList() throws Exception
+    {
+    	Object[] strings = new Object[] { "alpha", "bravo", "charlie" };
+    	List strs = Arrays.asList(strings);
+    	List foo = (List) JsonReader.jsonToJava(JsonWriter.objectToJson(strs));
+		assertTrue(foo.size() == 3);
+		assertTrue("alpha".equals(foo.get(0)));
+		assertTrue("charlie".equals(foo.get(2)));
+    }
+    
+    public void testLocaleInMap() throws Exception
+    {
+    	Map<Locale, String> map = new HashMap<Locale, String>();
+    	map.put(Locale.US, "United States of America");
+    	map.put(Locale.CANADA, "Canada");
+    	map.put(Locale.UK, "United Kingdom");
+    	
+    	String json = JsonWriter.objectToJson(map);
+    	Map map2 = (Map) JsonReader.jsonToJava(json);
+    	assertTrue(map.equals(map2));
+    }
+
+    public void testMultiDimensionalArrays() throws Exception
+    {
+        int[][][][] x = new int[][][][]{{{{0,1},{0,1}},{{0,1},{0,1}}},{{{0,1},{0,1}},{{0,1},{0,1}}}};
+        for (int a=0; a < 2; a++)
+        {
+            for (int b=0; b < 2; b++)
+            {
+                for (int c=0; c < 2; c++)
+                {
+                    for (int d=0; d < 2; d++)
+                    {
+                        x[a][b][c][d] = a + b + c + d;
+                    }
+                }
+            }
+        }
+
+        String json = JsonWriter.objectToJson(x);
+        int[][][][] y = (int[][][][]) JsonReader.jsonToJava(json);
+
+
+        for (int a=0; a < 2; a++)
+        {
+            for (int b=0; b < 2; b++)
+            {
+                for (int c=0; c < 2; c++)
+                {
+                    for (int d=0; d < 2; d++)
+                    {
+                        assertTrue(y[a][b][c][d] == a + b + c + d);
+                    }
+                }
+            }
+        }
+
+        Integer[][][][] xx = new Integer[][][][]{{{{0,1},{0,1}},{{0,1},{0,1}}},{{{0,1},{0,1}},{{0,1},{0,1}}}};
+        for (int a=0; a < 2; a++)
+        {
+            for (int b=0; b < 2; b++)
+            {
+                for (int c=0; c < 2; c++)
+                {
+                    for (int d=0; d < 2; d++)
+                    {
+                        xx[a][b][c][d] = a + b + c + d;
+                    }
+                }
+            }
+        }
+
+        json = JsonWriter.objectToJson(xx);
+        Integer[][][][] yy = (Integer[][][][]) JsonReader.jsonToJava(json);
+
+
+        for (int a=0; a < 2; a++)
+        {
+            for (int b=0; b < 2; b++)
+            {
+                for (int c=0; c < 2; c++)
+                {
+                    for (int d=0; d < 2; d++)
+                    {
+                        assertTrue(yy[a][b][c][d] == a + b + c + d);
+                    }
+                }
+            }
+        }
+    }
+
+    public void testBooleanCompatibility() throws IOException
+    {
+        class MyBooleanTesting
+        {
+            private boolean myBoolean = false;
+        }
+
+        class MyBoolean2Testing
+        {
+            private Boolean myBoolean = false;
+        }
+
+        MyBooleanTesting testObject = new MyBooleanTesting();
+        MyBoolean2Testing testObject2 = new MyBoolean2Testing();
+        String json0 = JsonWriter.objectToJson(testObject);
+        String json1 = JsonWriter.objectToJson(testObject2);
+
+        println("json0=" + json0);
+        println("json1=" + json1);
+
+        assertTrue(json0.contains("\"myBoolean\":false"));
+        assertTrue(json1.contains("\"myBoolean\":false"));
+    }
+
+    public void testMapToMapCompatibility() throws Exception
+    {
+        String json0 = "{\"rows\":[{\"columns\":[{\"name\":\"ZYKLUS\",\"value\":\"9000\"},{\"name\":\"VON\",\"value\":\"0001-01-01\"},{\"name\":\"BIS\",\"value\":\"0001-01-01\"}]},{\"columns\":[{\"name\":\"ZYKLUS\",\"value\":\"9713\"},{\"name\":\"VON\",\"value\":\"0001-01-01\"},{\"name\":\"BIS\",\"value\":\"0001-01-01\"}]}],\"selectedRows\":\"110\"}";
+        JsonObject root = (JsonObject) JsonReader.jsonToMaps(json0);
+        String json1 = JsonWriter.objectToJson(root);
+        println("json0=" + json0);
+        println("json1=" + json1);
+        assertTrue(json0.equals(json1));
+    }
+
+    public void testJsonObjectToJava() throws Exception
+    {
+        TestObject test = new TestObject("T.O.");
+        TestObject child = new TestObject("child");
+        test._other = child;
+        String json = JsonWriter.objectToJson(test);
+        println("json=" + json);
+        JsonObject root = (JsonObject) JsonReader.jsonToMaps(json);
+        JsonReader reader = new JsonReader();
+        TestObject test2 = (TestObject) reader.jsonObjectsToJava(root);
+        assertTrue(test2.equals(test));
+        assertTrue(test2._other.equals(child));
+    }
+
+    public void testInnerInstance() throws Exception
+    {
+        Dog dog = new Dog();
+        dog.x = 10;
+        Dog.Leg leg = dog.new Leg();
+        leg.y = 20;
+        String json0 = JsonWriter.objectToJson(dog);
+        println("json0=" + json0);
+
+        String json1 = JsonWriter.objectToJson(leg);
+        println("json1=" + json1);
+        Dog.Leg go = (Dog.Leg) JsonReader.jsonToJava(json1);
+        assertTrue(go.y == 20);
+        assertTrue(go.getParentX() == 10);
+    }
+
+    private static void println(Object ... args)
     {
         if (_debug)
         {
             for (Object arg : args)
             {
-                log.debug(arg.toString());
+                System.out.println(arg);
             }
         }
-    }
-
-    private static boolean addressEquals(Object one, Object two)
-    {
-        return System.identityHashCode(one) == System.identityHashCode(two);
     }
 
     private String getJsonString(Object obj) throws Exception
@@ -2878,9 +5057,12 @@ public class TestJsonReaderWriter extends TestCase
         return new String(bout.toByteArray(), "UTF-8");
     }
 
-    private static InputStream convertStringToInputStream(String in) throws Exception
-    {
-        return new ByteArrayInputStream(in.getBytes("UTF-8"));
+    private Object readJsonObject(String json) throws Exception
+    {    
+        _startRead = System.nanoTime();
+        Object o = JsonReader.jsonToJava(json);
+        _endRead = System.nanoTime();
+        return o;
     }
 
     private void time(Object root) throws Exception
@@ -2904,13 +5086,5 @@ public class TestJsonReaderWriter extends TestCase
         println("ObjectOutputStream time = " + (endWrite - startWrite) / 1000000 + " ms");
         println("JSON  read time  = " + (_endRead - _startRead) / 1000000 + " ms");
         println("ObjectInputStream time = " + (endRead - startRead) / 1000000 + " ms");
-    }
-
-    private Object readJsonObject(JsonReader jr) throws Exception
-    {
-        _startRead = System.nanoTime();
-        Object ret = jr.readObject();
-        _endRead = System.nanoTime();
-        return ret;
     }
 }

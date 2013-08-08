@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.Device;
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.User;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
@@ -36,6 +35,9 @@ import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.github.gwtbootstrap.client.ui.Button;
@@ -186,7 +188,8 @@ public class InterventionView extends GlassPanel implements Module {
 					order[0] = new SortOrder("tbl_inspections.starttime", false);
 				}
 
-				interventionService.getTableData(range, order,
+				interventionService.getTableData(range.getStart(),
+						range.getLength(), order,
 						new AsyncCallback<List<Intervention>>() {
 
 							@Override
@@ -528,7 +531,6 @@ public class InterventionView extends GlassPanel implements Module {
 									}
 								});
 					}
-					// }
 				});
 
 				ValidationForm form = new ValidationForm(ok, cancel);
@@ -624,9 +626,11 @@ public class InterventionView extends GlassPanel implements Module {
 					public void onClick(ClickEvent event) {
 						m.hide();
 
-						Device device = new Device(0, ptuId.getValue(), ip
-								.getValue(), description.getValue(), macAddress
-								.getValue(), hostName.getValue());
+						Device device = new Device(0, ptuId.getValue(),
+								InetAddress.getByName(ip.getValue()),
+								description.getValue(), new MacAddress(
+										macAddress.getValue()), hostName
+										.getValue());
 
 						interventionService.addDevice(device,
 								new AsyncCallback<Void>() {

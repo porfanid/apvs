@@ -1,10 +1,12 @@
 package ch.cern.atlas.apvs.client.settings;
 
 import java.io.Serializable;
-
 import ch.cern.atlas.apvs.client.domain.Intervention;
 
-public class VoipAccount implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class VoipAccount implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 1L;
 	private String account;	

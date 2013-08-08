@@ -2,7 +2,10 @@ package ch.cern.atlas.apvs.eventbus.shared;
 
 import java.io.Serializable;
 
-public abstract class RemoteEvent<H> implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+// NOTE: implements IsSerializable in case serialization file cannot be found
+public abstract class RemoteEvent<H> implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -7670083062245182625L;
 	

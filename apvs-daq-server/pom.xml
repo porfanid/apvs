@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>ch.cern.atlas</groupId>
 		<artifactId>apvs-project</artifactId>
-		<version>0.9.4-SNAPSHOT</version>
+		<version>0.9.5-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>apvs-daq-server</artifactId>
 	<packaging>jar</packaging>
-	<name>APVS DAQ Server</name>
+	<name>APVS daq server</name>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
@@ -75,6 +75,18 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-ptu</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

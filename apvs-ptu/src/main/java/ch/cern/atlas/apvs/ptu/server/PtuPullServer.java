@@ -1,17 +1,10 @@
 package ch.cern.atlas.apvs.ptu.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.BufType;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.CharsetUtil;
 
 import java.net.InetSocketAddress;
 
@@ -36,10 +29,14 @@ public class PtuPullServer {
 		// Configure the server.
 		ServerBootstrap bootstrap = new ServerBootstrap();
 		try {
+			
+			EventLoopGroup group = new NioEventLoopGroup();
+			
+			bootstrap.group(group);
 			bootstrap.channel(NioServerSocketChannel.class);
 
 			// Set up the pipeline factory.
-			bootstrap.childHandler(new PtuChannelInitializer(new PtuServerHandler(refresh, ids)));
+			bootstrap.childHandler(new PtuChannelInitializer(new PtuServerHandler(refresh, ids), true));
 
 			// Bind and start to accept incoming connections.
 			ChannelFuture f = bootstrap.bind(new InetSocketAddress(port))
@@ -50,8 +47,7 @@ public class PtuPullServer {
 		} catch (InterruptedException e) {
 			log.warn("Problem: "+e);
 		} finally {
-			// Shut down all event loops to terminate all threads.
-			bootstrap.shutdown();
+			// Netty 4, no more need to release anything or shutdown ?
 		}
 	}
 

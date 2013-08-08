@@ -3,37 +3,63 @@ package ch.cern.atlas.apvs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+
 import ch.cern.atlas.apvs.util.StringUtils;
 
-public class Measurement implements Message, Serializable,
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+@Entity
+@Table( name = "TBL_MEASUREMENTS" )
+public class Measurement implements Message, Serializable, IsSerializable, 
 		Comparable<Measurement> {
 
 	private static final long serialVersionUID = -906069262585850986L;
 
-	private String ptuId;
-	private String name;
-	private String displayName;
-	private Number value;
-	private Number lowLimit;
-	private Number highLimit;
-	private String unit;
+	private volatile Device device;
+    private Long id;
 	private Date date;
+	private Double value;
+	private String unit;
+	private String method;
 	private Integer samplingRate;
+	private String name;
+	private Double highLimit;
+	private Double lowLimit;
+	
+// FIXME to be added to the DB
+	private boolean connected = true;
+
+	private volatile transient String displayName;
+	private transient String type = "Measurement";
+
 
 	public Measurement() {
 	}
-
-	public Measurement(String ptuId, String name, Number value,
-			Number lowLimit, Number highLimit, String unit,
+	
+	public Measurement(Device device, String name, Double value,
+			Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
-		this.ptuId = ptuId;
-		this.name = name;
-		this.value = value;
-		this.lowLimit = lowLimit;
-		this.highLimit = highLimit;
-		this.unit = unit;
-		this.samplingRate = samplingRate;
-		this.date = date;
+		setDevice(device);
+		setName(name);
+		setValue(value);
+		setLowLimit(lowLimit);
+		setHighLimit(highLimit);
+		setUnit(unit);
+		setSamplingRate(samplingRate);
+		setDate(date);
 
 		this.displayName = null;
 
@@ -42,56 +68,141 @@ public class Measurement implements Message, Serializable,
 				&& (unit != null) && unit.equals("C")) {
 			this.unit = "&deg;C";
 		}
-	}
-
-	public Measurement(String ptuId, String name, String displayName,
-			Number value, Number lowLimit, Number highLimit, String unit,
+	}	
+	
+	public Measurement(Device device, String name, String displayName, Double value,
+			Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
-		this(ptuId, displayName, value, lowLimit, highLimit, unit,
-				samplingRate, date);
+		this(device, name, value, lowLimit, highLimit, unit, samplingRate, date);
 		this.displayName = displayName;
 	}
-
-	@Override
-	public String getPtuId() {
-		return ptuId;
+	
+	@Id
+	@GeneratedValue(generator="increment")
+	@GenericGenerator(name="increment", strategy = "increment")
+	@Column(name = "ID", length=15)
+	public Long getId() {
+		return id;
 	}
-
+	
+	@SuppressWarnings("unused")
+	private void setId(Long id) {
+		this.id = id;
+	}
+		
+	@Column(name = "SENSOR", length=50)
 	public String getName() {
 		return name;
 	}
+	
+	private void setName(String name) {
+		this.name = name;
+	}
 
+	@Transient
 	public String getDisplayName() {
 		return displayName != null ? displayName : getDisplayName(name);
 	}
 
-	public Number getValue() {
+	@Column(name = "VALUE", length=1024)
+	@Type(type="double_string")
+	public Double getValue() {
 		return value;
 	}
-
-	public Number getLowLimit() {
-		return lowLimit;
+	
+	private void setValue(Double value) {
+		this.value = value;
 	}
 
-	public Number getHighLimit() {
+	@Column(name = "DOWN_THRES", length=20)
+	@Type(type="double_string")
+	public Double getLowLimit() {
+		return lowLimit;
+	}
+	
+	private void setLowLimit(Double lowLimit) {
+		this.lowLimit = lowLimit;
+	}
+
+	@Column(name = "UP_THRES", length=20)
+	@Type(type="double_string")
+	public Double getHighLimit() {
 		return highLimit;
 	}
 
+	private void setHighLimit(Double highLimit) {
+		this.highLimit = highLimit;
+	}
+
+	@Column(name = "UNIT", length=20)
 	public String getUnit() {
 		return unit;
 	}
+	
+	private void setUnit(String unit) {
+		this.unit = unit;
+	}
+	
+	@Column(name = "METHOD", length=20)
+	public String getMethod() {
+		return method;
+	}
+	
+	@SuppressWarnings("unused")
+	private void setMethod(String method) {
+		this.method = method;
+	}
 
+	@Column(name = "SAMPLING_RATE", length=20)
+	@Type(type="integer_string")
 	public Integer getSamplingRate() {
 		return samplingRate;
 	}
+	
+	private void setSamplingRate(Integer samplingRate) {
+		this.samplingRate = samplingRate;
+	}
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "DATETIME")
 	public Date getDate() {
 		return date;
 	}
 
+	// to update the measurement in case of no changes
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
 	@Override
+	@Transient
 	public String getType() {
-		return "Measurement";
+		return type;
+	}
+	
+	
+	@Type(type="yes_no")
+	@Column(name = "CONNECTED", length=1)
+	public boolean isConnected() {
+		return connected;
+	}
+	
+	private void setConnected(boolean connected) {
+		this.connected = connected;
+	}
+
+	public void disconnect() {
+		setConnected(false);
+	}
+	
+	@Override
+	@ManyToOne
+	public Device getDevice() {
+		return device;
+	}
+	
+	private void setDevice(Device device) {
+		this.device = device;
 	}
 
 	@Override
@@ -102,7 +213,7 @@ public class Measurement implements Message, Serializable,
 
 	@Override
 	public int hashCode() {
-		return (getPtuId() != null ? getPtuId().hashCode() : 0)
+		return (getDevice() != null ? getDevice().hashCode() : 0)
 				+ (getName() != null ? getName().hashCode() : 0)
 				+ (getValue() != null ? getValue().hashCode() : 0)
 				+ (getLowLimit() != null ? getLowLimit().hashCode() : 0)
@@ -117,8 +228,8 @@ public class Measurement implements Message, Serializable,
 	public boolean equals(Object obj) {
 		if ((obj != null) && (obj instanceof Measurement)) {
 			Measurement m = (Measurement) obj;
-			return (getPtuId() == null ? m.getPtuId() == null : getPtuId()
-					.equals(m.getPtuId()))
+			return (getDevice() == null ? m.getDevice() == null : getDevice()
+					.equals(m.getDevice()))
 					&& (getName() == null ? m.getName() == null : getName()
 							.equals(m.getName()))
 					&& (getValue() == null ? m.getValue() == null : getValue()
@@ -141,9 +252,9 @@ public class Measurement implements Message, Serializable,
 	
 	@Override
 	public String toString() {
-		return "Measurement(" + getPtuId() + "): name=" + getName() + " value="
-				+ getValue() + " unit=" + getUnit() + " sampling rate="
-				+ getSamplingRate() + " date: " + getDate();
+		return "Measurement(" + getDevice().getName() + "): name:" + getName() + ", value:"
+				+ getValue() + ", unit:" + getUnit() + ", sampling rate:"
+				+ getSamplingRate() + ", date:" + getDate();
 	}
 
 	public static String getDisplayName(String name) {
@@ -156,6 +267,5 @@ public class Measurement implements Message, Serializable,
 		}
 		return StringUtils.join(
 				StringUtils.splitByCharacterTypeCamelCase(name), ' ');
-	}
-
+	}	
 }

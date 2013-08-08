@@ -23,12 +23,10 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 
 	private String dbUrl;
 
-	protected static RemoteEventBus eventBus;
-	protected static DbHandler dbHandler;
+	private RemoteEventBus eventBus;
+	private DbHandler dbHandler;
 
 	public DbServiceImpl() {
-		if (eventBus != null)
-			return;
 		log.info("Creating DbService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
@@ -37,11 +35,8 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 
-		if (dbHandler != null)
-			return;
-
 		log.info("Starting DbService...");
-		dbHandler = new DbHandler(eventBus);
+		dbHandler = DbHandler.getInstance();
 		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {

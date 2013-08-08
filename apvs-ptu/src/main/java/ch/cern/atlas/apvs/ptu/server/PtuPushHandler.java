@@ -67,10 +67,15 @@ public class PtuPushHandler extends PtuReconnectHandler {
 			simulators.remove(ctx.channel());
 		}
 	}
-	
+
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, String msg)
+	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
 		// ignored
 	}
+
+	@Override
+	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+		// ignored
+	};
 }

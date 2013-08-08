@@ -9,7 +9,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
 import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
 
 public class AudioSupervisorSettingsStorage {
 
@@ -29,7 +28,6 @@ public class AudioSupervisorSettingsStorage {
 			public void onAudioSupervisorSettingsChanged(AudioSupervisorSettingsChangedRemoteEvent event) {
 				supervisorAccount = event.getSupervisorSettings();
 				store();	
-				
 			}
 		}); 
 		
@@ -60,21 +58,23 @@ public class AudioSupervisorSettingsStorage {
 			return;
 		}
 
-		String json = store.getItem(APVS_AUDIO_SUPERVISOR_SETTINGS);
+		String json = store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS);
 		
+		supervisorAccount = new VoipAccount(true);
 		
-		//************** Supervisor Settings **************
-		if (json != null) {
-			supervisorAccount = (VoipAccount) JsonReader.toJava(json);
-		}
-
-		if (supervisorAccount == null) {
-			log.warn("Could not read Supervisor Audio Settings, using defaults");
-			supervisorAccount = new VoipAccount(true);
-		}else{
-			log.info("Audio Supervisor Settings Read");
-		}
+		supervisorAccount.setUsername(store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS + ".username"));
+		supervisorAccount.setAccount(store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS + ".account"));
+		supervisorAccount.setChannel(store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS + ".channel"));
+		supervisorAccount.setDestUser(store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS + ".destUser"));
+		supervisorAccount.setDestPTU(store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS + ".destPTU"));
+		supervisorAccount.setStatus(store.getBoolean(APVS_AUDIO_SUPERVISOR_SETTINGS + ".status"));
+		supervisorAccount.setOnCall(store.getBoolean(APVS_AUDIO_SUPERVISOR_SETTINGS + ".onCall"));
+		supervisorAccount.setActivity(store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS + ".activity"));
+		supervisorAccount.setRoom(store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS + ".room"));
+		supervisorAccount.setMute(store.getBoolean(APVS_AUDIO_SUPERVISOR_SETTINGS + ".mute"));
+		supervisorAccount.setOnConference(store.getBoolean(APVS_AUDIO_SUPERVISOR_SETTINGS + ".onConference"));
 		
+		log.info("Audio Supervisor Settings Read");
 	}
 
 	private void store() {
@@ -83,11 +83,16 @@ public class AudioSupervisorSettingsStorage {
 			return;
 		}
 
-		String json = JsonWriter.toJson(supervisorAccount);
-//		log.info("Storing json " + json);
-
-		if (json != null) {
-			store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS, json);
-		}
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".username", supervisorAccount.getUsername());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".account", supervisorAccount.getAccount());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".channel", supervisorAccount.getChannel());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".destUser", supervisorAccount.getDestUser());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".destPTU", supervisorAccount.getDestPTU());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".status", supervisorAccount.getStatus());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".onCall", supervisorAccount.getOnCall());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".activity", supervisorAccount.getActivity());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".room", supervisorAccount.getRoom());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".mute", supervisorAccount.getMute());
+		store.setItem(APVS_AUDIO_SUPERVISOR_SETTINGS + ".onConference", supervisorAccount.getOnConference());
 	}
 }

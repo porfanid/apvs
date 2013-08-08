@@ -9,19 +9,23 @@ import java.util.Map;
 
 import ch.cern.atlas.apvs.client.ui.CameraView;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * 
  * @author duns
  * 
  */
-public class PtuSettings implements Serializable {
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class PtuSettings implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5390424254145424045L;
 	private static final String videoServer = "pcatlaswpss02";
 
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
-	public static class Entry implements Serializable {
+	//NOTE: implements IsSerializable in case serialization file cannot be found
+	public static class Entry implements Serializable, IsSerializable {
 		private static final long serialVersionUID = 1L;
 
 		Boolean enabled;
@@ -86,17 +90,17 @@ public class PtuSettings implements Serializable {
 		entries.get(object).dosimeterSerialNo = value;
 	}
 
-	public String getCameraUrl(String ptuId, String type) {
+	public String getCameraUrl(String ptuId, String type, Proxy proxy) {
 		Entry entry = entries.get(ptuId);
-		return entry != null ? type.equals(CameraView.HELMET) ? entry.helmetUrl
-				: entry.handUrl : "";
+		return entry != null ? type.equals(CameraView.HELMET) ? proxy.getReverseUrl(entry.helmetUrl)
+				: proxy.getReverseUrl(entry.handUrl) : "";
 	}
 
-	public void setCameraUrl(String ptuId, String type, String value) {
+	public void setCameraUrl(String ptuId, String type, String value, Proxy proxy) {
 		if (type.equals(CameraView.HELMET)) {
-			entries.get(ptuId).helmetUrl = value;
+			entries.get(ptuId).helmetUrl = proxy.getUrl(value);
 		} else {
-			entries.get(ptuId).handUrl = value;
+			entries.get(ptuId).handUrl = proxy.getUrl(value);
 		}
 	}
 

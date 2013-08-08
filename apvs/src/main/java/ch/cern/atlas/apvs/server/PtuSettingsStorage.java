@@ -8,12 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.ui.CameraView;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
 
 public class PtuSettingsStorage {
 
@@ -21,9 +20,10 @@ public class PtuSettingsStorage {
 	
 	private static final String APVS_PTU_SETTINGS = "APVS.ptu.settings";
 	private static PtuSettingsStorage instance;
-	private PtuSettings settings;
 	
 	private final static boolean DEBUG = false;
+	
+	private PtuSettings settings;
 
 	public PtuSettingsStorage(final RemoteEventBus eventBus) {
 
@@ -92,14 +92,18 @@ public class PtuSettingsStorage {
 			return;
 		}
 
-		String json = store.getItem(APVS_PTU_SETTINGS);
-		if (json != null) {
-			settings = (PtuSettings) JsonReader.toJava(json);
-		}
-
-		if (settings == null) {
-			log.warn("Could not read Ptu Settings, using defaults");
-			settings = new PtuSettings();
+		Proxy proxy = new Proxy(false, "");
+		
+		settings = new PtuSettings();
+		for (Iterator<String> i = store.getKeys(APVS_PTU_SETTINGS).iterator(); i.hasNext(); ) {
+			String ptuId = i.next();
+			
+			settings.add(ptuId);
+			
+			settings.setEnabled(ptuId, store.getBoolean(APVS_PTU_SETTINGS+"."+ptuId+".enabled"));
+			settings.setDosimeterSerialNumber(ptuId, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".dosimeterSerialNo"));
+			settings.setCameraUrl(ptuId, CameraView.HELMET, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".helmetUrl"), proxy);
+			settings.setCameraUrl(ptuId, CameraView.HELMET, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".handUrl"), proxy);
 		}
 	}
 
@@ -108,12 +112,15 @@ public class PtuSettingsStorage {
 		if (store == null) {
 			return;
 		}
+		
+		Proxy proxy = new Proxy(false, "");
 
-		String json = JsonWriter.toJson(settings);
-//		log.info("Storing json " + json);
-
-		if (json != null) {
-			store.setItem(APVS_PTU_SETTINGS, json);
+		for (Iterator<String> i = settings.getPtuIds().iterator(); i.hasNext();) {
+			String ptuId = i.next();
+			store.setItem(APVS_PTU_SETTINGS + "." + ptuId+".enabled", settings.isEnabled(ptuId));
+			store.setItem(APVS_PTU_SETTINGS + "." + ptuId+".dosimeterSerialNo", settings.getDosimeterSerialNumber(ptuId));
+			store.setItem(APVS_PTU_SETTINGS + "." + ptuId+".helmetUrl", settings.getCameraUrl(ptuId, CameraView.HELMET, proxy));
+			store.setItem(APVS_PTU_SETTINGS + "." + ptuId+".handUrl", settings.getCameraUrl(ptuId, CameraView.HAND, proxy));
 		}
 	}
 }

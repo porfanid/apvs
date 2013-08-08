@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class InterventionMap implements Serializable {
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class InterventionMap implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 8868971785801918119L;
 

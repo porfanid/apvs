@@ -2,7 +2,10 @@ package ch.cern.atlas.apvs.client.service;
 
 import java.io.Serializable;
 
-public class SortOrder implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class SortOrder implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -894694876858263458L;
 

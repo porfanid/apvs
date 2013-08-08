@@ -3,19 +3,29 @@ package ch.cern.atlas.apvs.server;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
 import ch.cern.atlas.apvs.client.service.EventService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.domain.Event;
 
-import com.google.gwt.view.client.Range;
-
 /**
  * @author Mark Donszelmann
  */
 @SuppressWarnings("serial")
-public class EventServiceImpl extends DbServiceImpl implements EventService {
+public class EventServiceImpl extends ResponsePollService implements EventService {
 
+	private DbHandler dbHandler;
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		
+		dbHandler = DbHandler.getInstance();
+	}
+	
 	@Override
 	public int getRowCount() throws ServiceException {
 		try {
@@ -35,20 +45,20 @@ public class EventServiceImpl extends DbServiceImpl implements EventService {
 	}
 	
 	@Override
-	public List<Event> getTableData(Range range, SortOrder[] order)
+	public List<Event> getTableData(int start, int length, SortOrder[] order)
 			throws ServiceException {
 		try {
-			return dbHandler.getEvents(range, order, null, null);
+			return dbHandler.getEvents(start, length, order, null, null);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
 	
 	@Override
-	public List<Event> getTableData(Range range, SortOrder[] order, String ptuId, String measurementName)
+	public List<Event> getTableData(int start, int length, SortOrder[] order, String ptuId, String measurementName)
 			throws ServiceException {
 		try {
-			return dbHandler.getEvents(range, order, ptuId, measurementName);
+			return dbHandler.getEvents(start, length, order, ptuId, measurementName);
 		} catch (SQLException e) {
 			throw new ServiceException(e.getMessage());
 		}

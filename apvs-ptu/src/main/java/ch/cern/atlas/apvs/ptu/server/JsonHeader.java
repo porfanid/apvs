@@ -23,7 +23,7 @@ public class JsonHeader {
 	public JsonHeader(Message message) throws APVSException {
 		currentFrameID++;
 		frameID = String.valueOf(currentFrameID);
-		sender = message.getPtuId();
+		sender = message.getDevice().getName();
 		messages = new JsonMessage[1];
 		if (message instanceof Measurement) {
 			messages[0] = new JsonMeasurement(message);

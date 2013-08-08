@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.google.gwt.user.client.Window;
-
 import ch.cern.atlas.apvs.client.domain.Intervention;
 import ch.cern.atlas.apvs.client.domain.InterventionMap;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class AudioSettings implements Serializable {
+//NOTE: implements IsSerializable in case serialization file cannot be found
+public class AudioSettings implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 1L;
 	private Map<String, VoipAccount> entries = new HashMap<String, VoipAccount>();
@@ -101,6 +101,10 @@ public class AudioSettings implements Serializable {
 		entries.get(ptuId).setDestUser(userDest);
 	}
 	
+	public void setDestPTU(String ptuId, String PTUDest) {
+		entries.get(ptuId).setDestPTU(PTUDest);
+	}
+	
 	public void setDestPTUser(String ptuId, String userDest, String PTUDest) {
 		entries.get(ptuId).setDestUser(userDest);
 		entries.get(ptuId).setDestPTU(PTUDest);
@@ -118,7 +122,7 @@ public class AudioSettings implements Serializable {
 	}
 	
 	// Define all PTU as status unknown
-	public void setUnkwonStatus(){
+	public void setUnknownStatus(){
 		for(String ptuId : entries.keySet())
 			setStatus(ptuId, false);
 	}
