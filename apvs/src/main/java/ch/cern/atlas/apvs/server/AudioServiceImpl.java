@@ -92,10 +92,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	private String asteriskAddress;
 
 	private static RemoteEventBus eventBus;
-	// FIXME - Remove to use Intervention number
-	int i;
 
-	// final ClientFactory clientFactory;
 
 	public class AsteriskConnect extends Thread {
 		public void run() {
@@ -184,7 +181,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		i = 0;
 		System.out.println("Starting Audio Service...");
 
 		voipAccounts = new AudioSettings();
@@ -572,16 +568,20 @@ public class AudioServiceImpl extends ResponsePollService implements
 				((RemoteEventBus) eventBus)
 						.fireEvent(new AudioUsersSettingsChangedRemoteEvent(
 								voipAccounts));
-				record = new MonitorAction(channel, voipAccounts.getIntervention(ptuId).getId()+ "-" + dateFormat.format(date),"wav", true);
+				record = new MonitorAction(channel, voipAccounts
+						.getIntervention(ptuId).getId()
+						+ "-"
+						+ dateFormat.format(date), "wav", true);
 			}
 		} else if (number.matches("SIP/2[0-9]{3}")) {
 			if (number.equals(supervisorAccount.getAccount())) {
-				System.out.println("create channel for supervisor");
+				System.out.println("Channel for supervisor created");
 				supervisorAccount.setChannel(channel);
 				((RemoteEventBus) eventBus)
 						.fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(
 								supervisorAccount));
-				record = new MonitorAction(channel,"Supervisor -" + dateFormat.format(date), "wav",true);
+				record = new MonitorAction(channel, "Supervisor -"
+						+ dateFormat.format(date), "wav", true);
 			}
 		} else {
 			System.err.println("#NewChannelEvent - NO PTU FOUND WITH NUMBER "
@@ -589,10 +589,6 @@ public class AudioServiceImpl extends ResponsePollService implements
 			return;
 		}
 
-		// TODO - Store audio files by intervention number
-		// MonitorAction record = new MonitorAction(channel,
-		// /*voipAccounts.getUsername(ptuId)*/ptuId+"-"+date,"wav", true);
-		// i++;
 		try {
 			managerConnection.sendAction(record);
 		} catch (IllegalArgumentException e) {
