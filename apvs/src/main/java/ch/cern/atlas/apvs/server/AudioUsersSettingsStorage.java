@@ -46,7 +46,9 @@ public class AudioUsersSettingsStorage {
 				for (Iterator<String> i = interventions.getPtuIds().iterator(); i.hasNext(); ) {
 					String ptuId = i.next();
 					if(audioSettings.contains(ptuId)) {
-						boolean set = audioSettings.setUsername(ptuId, interventions.get(ptuId).getName());
+						boolean set = audioSettings.setIntervention(ptuId, interventions.get(ptuId));
+						System.out.println("Resultado de set: "+ set);
+						//boolean set = audioSettings.setUsername(ptuId, interventions.get(ptuId).getName());
 						changed |= set;
 					} else {
 						boolean added = audioSettings.add(ptuId);

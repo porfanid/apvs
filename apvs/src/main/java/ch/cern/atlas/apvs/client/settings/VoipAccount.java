@@ -16,74 +16,69 @@ public class VoipAccount implements Serializable {
 	private Boolean mute;
 	private Boolean onConference;	
 	private Boolean onCall;
-	private Intervention intervention;
-//	private String username; //Intevention
-//	private String activity; //Intervention
-//	private String impact; //Intervention
+	private String username; //Intevention
+	private String activity; //Intervention
+	private Intervention intervention; //Intervention
 	
 	public VoipAccount() {
 		this(false);
 	}
 	
 	public VoipAccount(String account, Boolean status){
-//		this.username = "";
-		this.intervention = new Intervention();
+		this.username = "";
 		this.account = account;
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
 		this.status = status;
 		this.onCall = false;
-//		this.activity = "";
+		this.activity = "";
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
+		this.intervention = new Intervention();
 	}
 	
 	public VoipAccount(String account) {
-//		this.username = "";
-		this.intervention = new Intervention();
+		this.username = "";
 		this.account = account;
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
 		this.status = false;
 		this.onCall = false;
-//		this.activity = "";
+		this.activity = "";
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
+		this.intervention = new Intervention();
 	}
 	
 	public VoipAccount(boolean setDefaults) {
 		if(!setDefaults)
 			return;
-//		this.username = "";
-		this.intervention = new Intervention();
+		this.username = "";
 		this.account = "SIP/2001";
 		this.channel = "";
 		this.destUser = "";
 		this.destPTU = "";
 		this.status = false;
 		this.onCall = false;
-//		this.activity = "";
+		this.activity = "";
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
+		this.intervention = new Intervention();
 	}
 
 	// Username	
 	public String getUsername(){
-		return this.intervention.getName();
-	}
-		
-	public void setUsername(String username){
-		this.intervention.setName(username);
+		return this.username;
 	}
 
-//	public void setUsername(String username){
-//		this.username = username;
-//	}
+	public void setUsername(String username){
+		this.username = username;
+	}
 	
 	// Number	
 	public String getAccount(){
@@ -166,14 +161,23 @@ public class VoipAccount implements Serializable {
 		this.room = room;
 	}
 	
+	//Impact Number
+	public Intervention getIntervention(){
+		return intervention;
+	}
+	
+	public void setIntervention(Intervention intervention){
+		this.intervention = intervention;
+	}
+	
 	//Activity
-//	public String getActivity(){
-//		return this.activity;
-//	}
-//	
-//	public void setActivity(String activity){
-//		this.activity = activity;
-//	}
+	public String getActivity(){
+		return this.activity;
+	}
+	
+	public void setActivity(String activity){
+		this.activity = activity;
+	}
 	
 	//Mute
 	public Boolean getMute(){
