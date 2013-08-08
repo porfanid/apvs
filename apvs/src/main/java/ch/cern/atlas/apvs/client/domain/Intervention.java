@@ -55,17 +55,6 @@ public class Intervention implements Serializable {
 		return userId;
 	}
 	
-	
-	public void setName(String fullname) {		
-		if(fullname.contains(" ")){
-			this.fname = fullname.substring(0, fullname.indexOf(" "));
-			this.lname = fullname.substring(fullname.indexOf(" ")+1);
-		}else
-			this.fname = fullname;
-		
-	}
-	
-	
 	public String getName() {		
 		if (((fname == null) || fname.equals("")) && ((lname == null) || lname.equals(""))) {
 			return "";
@@ -138,4 +127,109 @@ public class Intervention implements Serializable {
 		}
 		return super.equals(obj);
 	}
+
+
+	public boolean equalIntervention(Intervention obj){
+				
+			//Description test
+			if((obj.getDescription()==null && this.getDescription()==null))
+				;
+			else if (obj.getDescription().equals(this.getDescription()))
+					;
+				else{
+					return false;
+				}
+			
+			//DeviceId test
+			if((obj.getDeviceId()==null && this.getDeviceId()==null))
+				;
+			else if (obj.getDeviceId().equals(this.getDeviceId()))
+					;
+				else{
+					return false;
+				}
+				
+			//End Time test
+			if((obj.getEndTime()==null && this.getEndTime()==null))	
+					;
+			else if (obj.getEndTime().equals(this.getEndTime()))
+						;
+				else{
+					return false;
+				}
+			
+			
+			
+			//Start Time test
+			if((obj.getStartTime()==null && this.getStartTime()==null))
+					;
+			else if (obj.getStartTime().equals(this.getStartTime()))
+					;
+				else{
+					return false;
+				}
+			
+			
+			//ID test
+			if((obj.getId() == this.getId()))
+				;
+			else{
+				return false;
+				}
+			
+			
+			
+			//Impact Number test
+			if((obj.getImpactNumber()==null && this.getImpactNumber()==null))
+					;
+			else if (obj.getImpactNumber().equals(this.getImpactNumber()))
+						;
+				else{
+					return false;
+				}
+				
+			
+			//Name test
+			if((obj.getName()==null && this.getName()==null))
+					;
+			else if (obj.getName().equals(this.getName()))
+						;
+				else{
+					return false;
+				}
+				
+			
+			//PTU test
+			if((obj.getPtuId()==null && this.getPtuId()==null))
+					;
+			else if (obj.getPtuId().equals(this.getPtuId()))
+						;
+				else{
+					return false;
+				}
+				
+			
+			//REC Status test
+			if((obj.getRecStatus()==null && this.getRecStatus()==null))
+				;
+			else if (obj.getRecStatus().equals(this.getRecStatus()))
+					;
+				else{
+					return false;
+				}
+				
+			//User ID test
+			if((obj.getUserId()==null && this.getUserId()==null))
+					;
+			else if (obj.getUserId().equals(this.getUserId()))
+						;
+				else{
+					return false;
+				}
+		
+		return true;
+	}
+	
+	
+	
 }
