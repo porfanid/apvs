@@ -113,5 +113,4 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			throw new ServiceException(e.getMessage());
 		}
 	}
-
 }

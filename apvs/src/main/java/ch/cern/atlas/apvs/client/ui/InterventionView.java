@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
+import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.validation.EmptyValidator;
 import ch.cern.atlas.apvs.client.validation.IntegerValidator;
 import ch.cern.atlas.apvs.client.validation.ListBoxField;

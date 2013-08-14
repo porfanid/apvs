@@ -28,6 +28,5 @@ public interface InterventionService extends TableService<Intervention>,
 
 	List<User> getUsers(boolean notBusy) throws ServiceException;
 
-	List<Device> getDevices(boolean notBusy) throws ServiceException;
-
+	List<Device> getDevices(boolean notBusy) throws ServiceException;	
 }

@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.InterventionMap;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 //NOTE: implements IsSerializable in case serialization file cannot be found
@@ -21,10 +25,21 @@ public class AudioSettings implements Serializable, IsSerializable {
 	 * Methods
 	 *********************************************/
 	
+	// Convert a Intervention Map into AudioSettings
+	public void interventionMapToAudioSettings(InterventionMap interventions){
+		List<Device> ptus = interventions.getPtus();
+		
+		for(int i=0; i< ptus.size(); i++){
+			if(entries.containsKey(ptus.get(i).getName()));
+				entries.get(ptus.get(i).getName()).setIntervention(interventions.get(ptus.get(i)));
+		}
+		
+	}
+	
 	// Username Methods
-	public String getUsername(String name) {
-		VoipAccount entry = entries.get(name);
-		return (entry != null ? entry.getUsername() : "");
+	public String getUsername(String ptuId) {
+		VoipAccount entry = entries.get(ptuId);
+		return (entry != null ? entry.getIntervention().getName() : "");
 	}
 
 	public boolean setUsername(String name, String username) {
@@ -35,6 +50,21 @@ public class AudioSettings implements Serializable, IsSerializable {
 		return true;
 	}
 
+	
+	// Intervention Methods
+	public Intervention getIntervention(String ptuId) {
+		VoipAccount entry = entries.get(ptuId);
+		return (entry != null ? entry.getIntervention() : new Intervention());
+	}
+
+	public boolean setIntervention(String ptuId, Intervention intervention) {
+		if (entries.get(ptuId).getIntervention().equals(intervention)) {
+			return false;
+		}
+		entries.get(ptuId).setIntervention(intervention);
+		return true;
+	}
+	
 	
 	// Number Methods
 	public String getNumber(String name) {

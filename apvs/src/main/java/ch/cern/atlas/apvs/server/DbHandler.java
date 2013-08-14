@@ -374,7 +374,7 @@ public class DbHandler extends DbCallback {
 			}
 		}
 	}
-
+	
 	public int getEventCount(String ptuId, String measurementName)
 			throws HibernateException {
 		String sql = "select count(*) from Event";
