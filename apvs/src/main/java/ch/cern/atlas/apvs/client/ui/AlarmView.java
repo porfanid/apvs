@@ -5,15 +5,16 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
-import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ButtonCell;
@@ -36,7 +37,7 @@ public class AlarmView extends GlassPanel implements Module {
 
 	private EventBus cmdBus;
 
-	private String ptuId;
+	private Device device;
 	private Ternary daqOk = Ternary.Unknown;
 
 	private boolean showHeader = true;
@@ -89,13 +90,13 @@ public class AlarmView extends GlassPanel implements Module {
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(names.get(0))) {
-					return alarms != null && alarms.isPanic(ptuId) ? "ALARM"
+					return alarms != null && alarms.isPanic(device) ? "ALARM"
 							: "Cleared";
 				} else if (name.equals(names.get(1))) {
-					return alarms != null && alarms.isDose(ptuId) ? "ALARM"
+					return alarms != null && alarms.isDose(device) ? "ALARM"
 							: "Cleared";
 				} else if (name.equals(names.get(2))) {
-					return alarms != null && alarms.isFall(ptuId) ? "ALARM"
+					return alarms != null && alarms.isFall(device) ? "ALARM"
 							: "Cleared";
 				}
 				System.out.println("AlarmView name unknown '" + name + "'");
@@ -106,13 +107,13 @@ public class AlarmView extends GlassPanel implements Module {
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String status;
 				if (name.equals(names.get(0))) {
-					status = alarms != null && alarms.isPanic(ptuId) ? ALARM
+					status = alarms != null && alarms.isPanic(device) ? ALARM
 							: CLEARED;
 				} else if (name.equals(names.get(1))) {
-					status = alarms != null && alarms.isDose(ptuId) ? ALARM
+					status = alarms != null && alarms.isDose(device) ? ALARM
 							: CLEARED;
 				} else if (name.equals(names.get(2))) {
-					status = alarms != null && alarms.isFall(ptuId) ? ALARM
+					status = alarms != null && alarms.isFall(device) ? ALARM
 							: CLEARED;
 				} else {
 					status = UNKNOWN;
@@ -136,7 +137,7 @@ public class AlarmView extends GlassPanel implements Module {
 				}
 				
 				if (name.equals(names.get(0))) {
-					clientFactory.getPtuService().clearPanicAlarm(ptuId,
+					clientFactory.getPtuService().clearPanicAlarm(device,
 							new AsyncCallback<Void>() {
 
 								@Override
@@ -149,7 +150,7 @@ public class AlarmView extends GlassPanel implements Module {
 								}
 							});
 				} else if (name.equals(names.get(1))) {
-					clientFactory.getPtuService().clearDoseAlarm(ptuId,
+					clientFactory.getPtuService().clearDoseAlarm(device,
 							new AsyncCallback<Void>() {
 
 								@Override
@@ -162,7 +163,7 @@ public class AlarmView extends GlassPanel implements Module {
 								}
 							});
 				} else if (name.equals(names.get(2))) {
-					clientFactory.getPtuService().clearFallAlarm(ptuId,
+					clientFactory.getPtuService().clearFallAlarm(device,
 							new AsyncCallback<Void>() {
 
 								@Override
@@ -217,7 +218,7 @@ public class AlarmView extends GlassPanel implements Module {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
-				ptuId = event.getPtuId();
+				device = event.getPtu();
 				scheduler.update();
 			}
 		});

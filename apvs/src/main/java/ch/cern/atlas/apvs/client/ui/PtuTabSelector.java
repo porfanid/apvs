@@ -9,14 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.settings.LocalStorage;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.InterventionMap;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
@@ -31,15 +32,13 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuTabSelector extends HorizontalPanel implements Module {
 
-	private final static boolean TEST = false;
-
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private RemoteEventBus remoteEventBus;
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
 
-	private List<String> ptuIds;
-	private String selectedPtuId;
+	private List<Device> ptus;
+	private Device selectedPtu;
 	private String selectedTab;
 	private PtuSettings settings;
 	private InterventionMap interventions;
@@ -65,7 +64,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		extraTabs = args.getArgs(1);
 
 		selectedTab = LocalStorage.getInstance().get(LocalStorage.SELECTED_TAB);
-		selectedPtuId = LocalStorage.getInstance().get(LocalStorage.SELECTED_PTU_ID);
+		selectedPtu = null;
 
 		// listen to all event busses
 		for (final EventBus eventBus : eventBusses) {
@@ -75,7 +74,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 				public void onRequestEvent(RequestEvent event) {
 					String eventType = event.getRequestedClassName();
 					if (eventType.equals(SelectPtuEvent.class.getName())) {
-						eventBus.fireEvent(new SelectPtuEvent(selectedPtuId));
+						eventBus.fireEvent(new SelectPtuEvent(selectedPtu));
 					} else if (eventType.equals(SelectTabEvent.class.getName())) {
 						eventBus.fireEvent(new SelectTabEvent(selectedTab));
 					}
@@ -104,74 +103,63 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 						interventions = event.getInterventionMap();
 
-						if (!TEST) {
-							ptuIds = interventions.getPtuIds();
-						}
+						ptus = interventions.getPtus();
 
 						scheduler.update();
 
 						if (selectedTab != null) {
 							fireEvent(new SelectTabEvent(
-									selectedPtuId == null ? selectedTab : "Ptu"));
-							fireEvent(new SelectPtuEvent(selectedPtuId));
+									selectedPtu == null ? selectedTab : "Ptu"));
+							fireEvent(new SelectPtuEvent(selectedPtu));
 						}
 					}
 				});
 
-		if (TEST) {
-			ptuIds = new ArrayList<String>();
-			ptuIds.add("PTUdemo");
-			ptuIds.add("PTU1234");
-			ptuIds.add("PTU5678");
-			ptuIds.add("PTU007");
-			scheduler.update();
-		}
-
 		return true;
 	}
 
-	private String getName(String id) {
-		return (interventions != null) && (interventions.get(id) != null)
-				&& !interventions.get(id).getName().equals("") ? interventions
-				.get(id).getName() + " (" + id.toString() + ")" : id.toString();
+	private String getName(Device device) {
+		return (interventions != null) && (interventions.get(device) != null)
+				&& !interventions.get(device).getName().equals("") ? interventions
+				.get(device).getName() + " (" + device.getName() + ")"
+				: device.getName();
 	}
 
 	@Override
 	public boolean update() {
 		clear();
-		if (ptuIds != null) {
+		if (ptus != null) {
 
-			Collections.sort(ptuIds);
+			Collections.sort(ptus);
 
-			for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
-				final String id = i.next();
+			for (Iterator<Device> i = ptus.iterator(); i.hasNext();) {
+				final Device ptu = i.next();
 
-				if (!TEST) {
-					if ((settings != null) && !settings.isEnabled(id)) {
-						continue;
-					}
+				if ((settings != null) && !settings.isEnabled(ptu.getName())) {
+					continue;
 				}
 
-				final ToggleButton b = new ToggleButton(getName(id));
-				b.setDown(id.equals(selectedTab));
+				final ToggleButton b = new ToggleButton(getName(ptu));
+				b.setDown(ptu.getName().equals(selectedTab));
 
 				b.addClickHandler(new ClickHandler() {
 
 					@Override
 					public void onClick(ClickEvent event) {
 
-						selectedTab = id;
-						selectedPtuId = id;
+						selectedTab = ptu.getName();
+						selectedPtu = ptu;
 
 						radio(b);
 
 						fireEvent(new SelectTabEvent("Ptu"));
 						LocalStorage.getInstance().put(
 								LocalStorage.SELECTED_TAB, selectedTab);
-						
-						fireEvent(new SelectPtuEvent(selectedPtuId));
+
+						fireEvent(new SelectPtuEvent(selectedPtu));
 						LocalStorage.getInstance().put(
-								LocalStorage.SELECTED_PTU_ID, selectedPtuId);						
+								LocalStorage.SELECTED_PTU_ID,
+								selectedPtu != null ? selectedPtu.getName() : null);
 					}
 				});
 				add(b);
@@ -188,17 +176,18 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 				@Override
 				public void onClick(ClickEvent event) {
 					selectedTab = name;
-					selectedPtuId = null;
+					selectedPtu = null;
 
 					radio(b);
 
 					fireEvent(new SelectTabEvent(selectedTab));
 					LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB,
 							selectedTab);
-					
-					fireEvent(new SelectPtuEvent(selectedPtuId));
-					LocalStorage.getInstance().put(LocalStorage.SELECTED_PTU_ID,
-							selectedPtuId);
+
+					fireEvent(new SelectPtuEvent(selectedPtu));
+					LocalStorage.getInstance()
+							.put(LocalStorage.SELECTED_PTU_ID,
+									selectedPtu != null ? selectedPtu.getName() : null);
 				}
 			});
 			add(b);
@@ -220,10 +209,6 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 	private void fireEvent(Event<?> event) {
 		for (Iterator<EventBus> i = eventBusses.iterator(); i.hasNext();) {
 			EventBus eventBus = i.next();
-			if (TEST) {
-				System.err.println("Firing " + event + " to "
-						+ eventBus.toString());
-			}
 			eventBus.fireEvent(event);
 		}
 	}

@@ -17,11 +17,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.db.Database;
+import ch.cern.atlas.apvs.db.Scale;
+import ch.cern.atlas.apvs.db.SensorMap;
 import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Error;
@@ -31,12 +31,14 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Report;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonWriter;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
-import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -53,14 +55,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private PtuSettings settings;
 	
-	private DbHandler dbHandler;
+	private Database database;
 	private SensorMap sensorMap;
 
 	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
 		
-		dbHandler = DbHandler.getInstance();
+		database = Database.getInstance(eventBus);
 		
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
@@ -99,7 +101,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 				ConnectionType.dosimeter, dosimeterOk);
 		super.channelActive(ctx);
 		
-		sensorMap = dbHandler.getSensorMap();
+		sensorMap = database.getSensorMap();
 	}
 
 	@Override
@@ -204,10 +206,10 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			return;
 		}
 
-		String ptuId = message.getDevice().getName();
-		String sensor = message.getName();
+		Device ptu = message.getDevice();
+		String sensor = message.getSensor();
 		
-		if (!sensorMap.isEnabled(ptuId, sensor)) {
+		if (!sensorMap.isEnabled(ptu, sensor)) {
 //			log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " + sensor);
 			return;			
 		}
@@ -231,13 +233,13 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private void handleMessage(Event message) {
 		Device device = message.getDevice();
-		String sensor = message.getName();
+		String sensor = message.getSensor();
 
 		// log.info("EVENT " + message);
 
 		eventBus.fireEvent(new EventChangedEvent(new Event(device, sensor,
 				message.getEventType(), message.getValue(), message
-						.getTheshold(), message.getUnit(), message.getDate())));
+						.getThreshold(), message.getUnit(), message.getDate())));
 
 		if (message.getEventType().equals("DosConnectionStatus_OFF")) {
 			dosimeterOk = Ternary.False;

@@ -1,15 +1,15 @@
 package ch.cern.atlas.apvs.client.event;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.manager.HistoryManager;
+import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class HistoryMapChangedEvent extends Event<HistoryMapChangedEvent.Handler> {
+public class HistoryChangedEvent extends Event<HistoryChangedEvent.Handler> {
 
 	public interface Handler {
 		/**
@@ -18,13 +18,13 @@ public class HistoryMapChangedEvent extends Event<HistoryMapChangedEvent.Handler
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
 		 */
-		void onHistoryMapChanged(HistoryMapChangedEvent event);
+		void onHistoryChanged(HistoryChangedEvent event);
 	}
 
-	private static final Type<HistoryMapChangedEvent.Handler> TYPE = new Type<HistoryMapChangedEvent.Handler>();
+	private static final Type<HistoryChangedEvent.Handler> TYPE = new Type<HistoryChangedEvent.Handler>();
 
-	public static void fire(EventBus eventBus, HistoryMap historyMap) {
-		eventBus.fireEvent(new HistoryMapChangedEvent(historyMap));
+	public static void fire(EventBus eventBus, History history) {
+		eventBus.fireEvent(new HistoryChangedEvent(history));
 	}	
 	
 	/**
@@ -37,47 +37,47 @@ public class HistoryMapChangedEvent extends Event<HistoryMapChangedEvent.Handler
 	 * @return an {@link HandlerRegistration} instance
 	 */
 	public static HandlerRegistration register(ClientFactory clientFactory,
-			HistoryMapChangedEvent.Handler handler) {
+			HistoryChangedEvent.Handler handler) {
 		HistoryManager.getInstance(clientFactory);
 		
 		return clientFactory.getRemoteEventBus().addHandler(TYPE, handler);
 	}
 
 	public static HandlerRegistration subscribe(ClientFactory clientFactory,
-			HistoryMapChangedEvent.Handler handler) {
+			HistoryChangedEvent.Handler handler) {
 		HandlerRegistration registration = register(clientFactory, handler);
 		
-		clientFactory.getRemoteEventBus().fireEvent(new RequestEvent(HistoryMapChangedEvent.class));
+		clientFactory.getRemoteEventBus().fireEvent(new RequestEvent(HistoryChangedEvent.class));
 		
 		return registration;
 	}
 
-	private HistoryMap historyMap;
+	private History history;
 
-	public HistoryMapChangedEvent() {
+	public HistoryChangedEvent() {
 	}
 	
-	public HistoryMapChangedEvent(HistoryMap historyMap) {
-		this.historyMap = historyMap;
+	public HistoryChangedEvent(History history) {
+		this.history = history;
 	}
 
 	@Override
-	public Type<HistoryMapChangedEvent.Handler> getAssociatedType() {
+	public Type<HistoryChangedEvent.Handler> getAssociatedType() {
 		return TYPE;
 	}
 
-	public HistoryMap getHistoryMap() {
-		return historyMap;
+	public History getHistory() {
+		return history;
 	}
 	
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onHistoryMapChanged(this);
+		handler.onHistoryChanged(this);
 	}
 	
 	@Override
 	public String toString() {
-		return "HistoryMapChangedEvent "+historyMap;
+		return "HistoryChangedEvent "+history;
 	}
 
 }

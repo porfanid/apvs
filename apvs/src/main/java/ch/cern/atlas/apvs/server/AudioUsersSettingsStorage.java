@@ -5,16 +5,13 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
-import ch.cern.atlas.apvs.client.settings.PtuSettings;
-import ch.cern.atlas.apvs.client.settings.VoipAccount;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.InterventionMap;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-
-import com.cedarsoftware.util.io.JsonReader;
 
 public class AudioUsersSettingsStorage {
 
@@ -48,15 +45,15 @@ public class AudioUsersSettingsStorage {
 						InterventionMap interventions = event
 								.getInterventionMap();
 						boolean changed = false;
-						for (Iterator<String> i = interventions.getPtuIds()
+						for (Iterator<Device> i = interventions.getPtus()
 								.iterator(); i.hasNext();) {
-							String ptuId = i.next();
-							if (audioSettings.contains(ptuId)) {
-								boolean set = audioSettings.setUsername(ptuId,
-										interventions.get(ptuId).getName());
+							Device ptu = i.next();
+							if (audioSettings.contains(ptu.getName())) {
+								boolean set = audioSettings.setUsername(ptu.getName(),
+										interventions.get(ptu).getName());
 								changed |= set;
 							} else {
-								boolean added = audioSettings.add(ptuId);
+								boolean added = audioSettings.add(ptu.getName());
 								changed |= added;
 							}
 						}

@@ -7,12 +7,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
@@ -35,7 +38,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	private String unit;
 	private String method;
 	private Integer samplingRate;
-	private String name;
+	private String sensor;
 	private Double highLimit;
 	private Double lowLimit;
 	
@@ -45,15 +48,14 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	private volatile transient String displayName;
 	private transient String type = "Measurement";
 
-
 	public Measurement() {
 	}
 	
-	public Measurement(Device device, String name, Double value,
+	public Measurement(Device device, String sensor, Double value,
 			Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
 		setDevice(device);
-		setName(name);
+		setSensor(sensor);
 		setValue(value);
 		setLowLimit(lowLimit);
 		setHighLimit(highLimit);
@@ -64,16 +66,16 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		this.displayName = null;
 
 		// Fix Unit for Body Temperature and Temperature
-		if ((name != null) && (name.equals("Temperature") || name.equals("BodyTemperature"))
+		if ((sensor != null) && (sensor.equals("Temperature") || sensor.equals("BodyTemperature"))
 				&& (unit != null) && unit.equals("C")) {
 			this.unit = "&deg;C";
 		}
 	}	
 	
-	public Measurement(Device device, String name, String displayName, Double value,
+	public Measurement(Device device, String sensor, String displayName, Double value,
 			Double lowLimit, Double highLimit, String unit,
 			Integer samplingRate, Date date) {
-		this(device, name, value, lowLimit, highLimit, unit, samplingRate, date);
+		this(device, sensor, value, lowLimit, highLimit, unit, samplingRate, date);
 		this.displayName = displayName;
 	}
 	
@@ -91,17 +93,17 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	}
 		
 	@Column(name = "SENSOR", length=50)
-	public String getName() {
-		return name;
+	public String getSensor() {
+		return sensor;
 	}
 	
-	private void setName(String name) {
-		this.name = name;
+	private void setSensor(String sensor) {
+		this.sensor = sensor;
 	}
 
 	@Transient
 	public String getDisplayName() {
-		return displayName != null ? displayName : getDisplayName(name);
+		return displayName != null ? displayName : getDisplayName(sensor);
 	}
 
 	@Column(name = "VALUE", length=1024)
@@ -153,7 +155,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		this.method = method;
 	}
 
-	@Column(name = "SAMPLING_RATE", length=20)
+	@Column(name = "SAMPLINGRATE", length=20)
 	@Type(type="integer_string")
 	public Integer getSamplingRate() {
 		return samplingRate;
@@ -164,7 +166,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	}
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "DATETIME")
+	@Column(name = "DATETIME", nullable=false)
 	public Date getDate() {
 		return date;
 	}
@@ -187,7 +189,8 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		return connected;
 	}
 	
-	private void setConnected(boolean connected) {
+	private void setConnected(Boolean connected) {
+		if (connected == null) connected = Boolean.TRUE;
 		this.connected = connected;
 	}
 
@@ -197,6 +200,8 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	
 	@Override
 	@ManyToOne
+	@JoinColumn(name="DEVICE_ID", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE})
 	public Device getDevice() {
 		return device;
 	}
@@ -208,13 +213,13 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	@Override
 	public int compareTo(Measurement o) {
 		// FIXME include ptuId
-		return (o != null) ? getName().compareTo(o.getName()) : 1;
+		return (o != null) ? getSensor().compareTo(o.getSensor()) : 1;
 	}
 
 	@Override
 	public int hashCode() {
 		return (getDevice() != null ? getDevice().hashCode() : 0)
-				+ (getName() != null ? getName().hashCode() : 0)
+				+ (getSensor() != null ? getSensor().hashCode() : 0)
 				+ (getValue() != null ? getValue().hashCode() : 0)
 				+ (getLowLimit() != null ? getLowLimit().hashCode() : 0)
 				+ (getHighLimit() != null ? getHighLimit().hashCode() : 0)
@@ -230,8 +235,8 @@ public class Measurement implements Message, Serializable, IsSerializable,
 			Measurement m = (Measurement) obj;
 			return (getDevice() == null ? m.getDevice() == null : getDevice()
 					.equals(m.getDevice()))
-					&& (getName() == null ? m.getName() == null : getName()
-							.equals(m.getName()))
+					&& (getSensor() == null ? m.getSensor() == null : getSensor()
+							.equals(m.getSensor()))
 					&& (getValue() == null ? m.getValue() == null : getValue()
 							.equals(m.getValue()))
 					&& (getLowLimit() == null ? m.getLowLimit() == null
@@ -252,7 +257,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	
 	@Override
 	public String toString() {
-		return "Measurement(" + getDevice().getName() + "): name:" + getName() + ", value:"
+		return "Measurement(" + getDevice().getName() + "): sensor:" + getSensor() + ", value:"
 				+ getValue() + ", unit:" + getUnit() + ", sampling rate:"
 				+ getSamplingRate() + ", date:" + getDate();
 	}

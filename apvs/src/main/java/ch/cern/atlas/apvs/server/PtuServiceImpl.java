@@ -6,22 +6,24 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.manager.AlarmManager;
 import ch.cern.atlas.apvs.client.service.PtuService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.db.Database;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -42,7 +44,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	private RemoteEventBus eventBus;
 	private PtuClientHandler ptuClientHandler;
 
-	private DbHandler dbHandler;
+	private Database database;
 
 	public PtuServiceImpl() {
 		log.info("Creating PtuService...");
@@ -57,7 +59,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 		log.info("Starting PtuService...");
 		
-		dbHandler = DbHandler.getInstance();
+		database = Database.getInstance(eventBus);
 		
 		EventLoopGroup group = new NioEventLoopGroup();
 
@@ -105,31 +107,31 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	}
 	
 	@Override
-	public List<Measurement> getMeasurements(List<String> ptuIdList, String name)
+	public List<Measurement> getMeasurements(List<Device> ptuList, String name)
 			throws ServiceException {
 		try {
-			return dbHandler.getMeasurements(ptuIdList, name);
-		} catch (SQLException e) {
+			return database.getMeasurements(ptuList, name);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
 
 	@Override
-	public List<Measurement> getMeasurements(String ptuId, String name)
+	public List<Measurement> getMeasurements(Device ptu, String name)
 			throws ServiceException {
 		try {
-			return dbHandler.getMeasurements(ptuId, name);
-		} catch (SQLException e) {
+			return database.getMeasurements(ptu, name);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
 
 	@Override
-	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
+	public History getHistory(List<Device> devices, Date from, Integer maxEntries)
 			throws ServiceException {
 		try {
-			return dbHandler.getHistoryMap(ptuIdList, from);
-		} catch (SQLException e) {
+			return database.getHistory(devices, from, maxEntries);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
@@ -142,18 +144,18 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	}
 	
 	@Override
-	public void clearPanicAlarm(String ptuId) throws ServiceException {
-		System.err.println("Clearing panic for "+ptuId);
-		AlarmManager.getInstance(eventBus).clearPanicAlarm(ptuId);
+	public void clearPanicAlarm(Device ptu) throws ServiceException {
+		System.err.println("Clearing panic for "+ptu);
+		AlarmManager.getInstance(eventBus).clearPanicAlarm(ptu);
 	}
 	
 	@Override
-	public void clearDoseAlarm(String ptuId) throws ServiceException {
-		AlarmManager.getInstance(eventBus).clearDoseAlarm(ptuId);
+	public void clearDoseAlarm(Device ptu) throws ServiceException {
+		AlarmManager.getInstance(eventBus).clearDoseAlarm(ptu);
 	}
 	
 	@Override
-	public void clearFallAlarm(String ptuId) throws ServiceException {
-		AlarmManager.getInstance(eventBus).clearFallAlarm(ptuId);
+	public void clearFallAlarm(Device ptu) throws ServiceException {
+		AlarmManager.getInstance(eventBus).clearFallAlarm(ptu);
 	}
 }

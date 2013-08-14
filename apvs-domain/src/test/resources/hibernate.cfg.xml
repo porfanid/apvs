@@ -12,8 +12,11 @@
 		<property name="connection.username">sa</property>
 		<property name="connection.password"></property>
 
-		<!-- JDBC connection pool (use the built-in) -->
-		<property name="connection.pool_size">1</property>
+		<!-- JDBC connection pool (c3p0) -->
+		<property name="hibernate.c3p0.min_size">5</property>
+		<property name="hibernate.c3p0.max_size">20</property>
+		<property name="hibernate.c3p0.timeout">1800</property>
+		<property name="hibernate.c3p0.max_statements">50</property>
 
 		<!-- SQL dialect -->
 		<property name="dialect">org.hibernate.dialect.H2Dialect</property>
@@ -29,8 +32,12 @@
 
 		<!-- Names the annotated entity class -->
 		<mapping class="ch.cern.atlas.apvs.domain.Device" />
+		<mapping class="ch.cern.atlas.apvs.domain.Event" />
+		<mapping class="ch.cern.atlas.apvs.domain.Intervention" />
 		<mapping class="ch.cern.atlas.apvs.domain.Measurement" />
-
+		<mapping class="ch.cern.atlas.apvs.domain.Sensor" />
+		<mapping class="ch.cern.atlas.apvs.domain.User" />
+				
 	</session-factory>
 
 </hibernate-configuration>

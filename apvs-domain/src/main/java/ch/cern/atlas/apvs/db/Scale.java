@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.ptu.server;
+package ch.cern.atlas.apvs.db;
 
 public class Scale {
 

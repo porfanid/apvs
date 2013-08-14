@@ -8,18 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.DurationCell;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.InterventionMap;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.Cell.Context;
@@ -44,7 +45,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 
 	private EventBus cmdBus;
 
-	private String ptuId;
+	private Device ptu;
 	private Ternary serverOk = Ternary.Unknown;
 	private Ternary audioOk = Ternary.Unknown;
 	private Ternary videoOk = Ternary.Unknown;
@@ -212,7 +213,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
-					ptuId = event.getPtuId();
+					ptu = event.getPtu();
 					scheduler.update();
 				}
 			});
@@ -222,7 +223,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 	}
 
 	private Date getStartTime() {
-		if (ptuId == null) {
+		if (ptu == null) {
 			return null;
 		}
 
@@ -230,7 +231,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 			return null;
 		}
 
-		Intervention intervention = interventions.get(ptuId);
+		Intervention intervention = interventions.get(ptu);
 		if (intervention == null) {
 			return null;
 		}

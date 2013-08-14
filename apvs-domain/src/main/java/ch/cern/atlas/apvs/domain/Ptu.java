@@ -19,7 +19,6 @@ public class Ptu implements Serializable, IsSerializable {
 	protected Map<String, Measurement> measurements = new HashMap<String, Measurement>();
 		
 	public Ptu() {
-		device = new Device(null);
 	}
 	
 	public Ptu(Device device) {
@@ -57,14 +56,14 @@ public class Ptu implements Serializable, IsSerializable {
 	}
 			
 	public Measurement addMeasurement(Measurement measurement) throws APVSException {
-		String name = measurement.getName();
-		Measurement r = measurements.get(name);
+		String sensor = measurement.getSensor();
+		Measurement r = measurements.get(sensor);
 		
 		// check if we try to store an older measurement
 		if ((r != null) && (r.getDate().getTime() > measurement.getDate().getTime())) {
-			throw new APVSException("addMeasurement out of order for "+device.getName()+" "+measurement.getName());
+			throw new APVSException("addMeasurement out of order for "+device.getName()+" "+measurement.getSensor());
 		} else {
-			measurements.put(name, measurement);
+			measurements.put(sensor, measurement);
 		}
 		
 		return r;

@@ -1,6 +1,6 @@
-package ch.cern.atlas.apvs.client.event;
+package ch.cern.atlas.apvs.event;
 
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;

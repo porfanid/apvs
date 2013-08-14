@@ -1,18 +1,19 @@
 package ch.cern.atlas.apvs.server;
 
-import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.domain.User;
+import org.hibernate.HibernateException;
+
 import ch.cern.atlas.apvs.client.service.InterventionService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
-import ch.cern.atlas.apvs.client.service.SortOrder;
+import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.SortOrder;
+import ch.cern.atlas.apvs.domain.User;
 
 /**
  * @author Mark Donszelmann
@@ -21,20 +22,20 @@ import ch.cern.atlas.apvs.domain.Device;
 public class InterventionServiceImpl extends ResponsePollService implements
 		InterventionService {
 
-	private DbHandler dbHandler;
+	private Database database;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		
-		dbHandler = DbHandler.getInstance();
+		database = Database.getInstance(APVSServerFactory.getInstance().getEventBus());
 	}
 	
 	@Override
-	public int getRowCount() throws ServiceException {
+	public long getRowCount() throws ServiceException {
 		try {
-			return dbHandler.getInterventionCount();
-		} catch (SQLException e) {
+			return database.getCount(Intervention.class);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
@@ -43,8 +44,8 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	public List<Intervention> getTableData(int start, int length, SortOrder[] order)
 			throws ServiceException {
 		try {
-			return dbHandler.getInterventions(start, length, order);
-		} catch (SQLException e) {
+			return database.getList(Intervention.class, start, length, order);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
@@ -52,8 +53,8 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public void addUser(User user) throws ServiceException {
 		try {
-			dbHandler.addUser(user);
-		} catch (SQLException e) {
+			database.saveOrUpdate(user);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
@@ -62,8 +63,8 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	public void addDevice(Device device)
 			throws ServiceException {
 		try {
-			dbHandler.addDevice(device);
-		} catch (SQLException e) {
+			database.saveOrUpdate(device);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
@@ -71,8 +72,8 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public List<Device> getDevices(boolean notBusy) throws ServiceException {
 		try {
-			return dbHandler.getDevices(notBusy);
-		} catch (SQLException e) {
+			return database.getDevices(notBusy);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
@@ -80,17 +81,17 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public void addIntervention(Intervention intervention) throws ServiceException {
 		try {
-			dbHandler.addIntervention(intervention);
-		} catch (SQLException e) {
+			database.saveOrUpdate(intervention);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
 
 	@Override
-	public void endIntervention(int id, Date date) throws ServiceException {
+	public void updateIntervention(Intervention intervention) throws ServiceException {
 		try {
-			dbHandler.endIntervention(id, date);
-		} catch (SQLException e) {
+			database.saveOrUpdate(intervention);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
@@ -98,37 +99,17 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public List<User> getUsers(boolean notBusy) throws ServiceException {
 		try {
-			return dbHandler.getUsers(notBusy);
-		} catch (SQLException e) {
+			return database.getUsers(notBusy);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
-	
+		
 	@Override
-	public void updateInterventionImpactNumber(int id, String impactNumber)
-			throws ServiceException {
+	public Intervention getIntervention(Device device) throws ServiceException {
 		try {
-			dbHandler.updateInterventionImpactNumber(id, impactNumber);
-		} catch (SQLException e) {
-			throw new ServiceException(e.getMessage());
-		}
-	}
-	
-	@Override
-	public void updateInterventionDescription(int id, String description)
-			throws ServiceException {
-		try {
-			dbHandler.updateInterventionDescription(id, description);
-		} catch (SQLException e) {
-			throw new ServiceException(e.getMessage());
-		}
-	}
-	
-	@Override
-	public Intervention getIntervention(String ptuId) throws ServiceException {
-		try {
-			return dbHandler.getIntervention(ptuId);
-		} catch (SQLException e) {
+			return database.getIntervention(device);
+		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}

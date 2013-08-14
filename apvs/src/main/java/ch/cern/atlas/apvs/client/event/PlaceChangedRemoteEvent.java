@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.event;
 
 import ch.cern.atlas.apvs.client.places.SharedPlace;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -47,14 +48,14 @@ public class PlaceChangedRemoteEvent extends RemoteEvent<PlaceChangedRemoteEvent
 		return registration;
 	}
 
-	private String ptuId;
+	private Device ptu;
 	private SharedPlace place;
 
 	public PlaceChangedRemoteEvent() {
 	}
 	
-	public PlaceChangedRemoteEvent(String ptuId, SharedPlace place) {
-		this.ptuId = ptuId;
+	public PlaceChangedRemoteEvent(Device ptu, SharedPlace place) {
+		this.ptu = ptu;
 		this.place = place;
 	}
 
@@ -63,8 +64,8 @@ public class PlaceChangedRemoteEvent extends RemoteEvent<PlaceChangedRemoteEvent
 		return TYPE;
 	}
 
-	public String getPtuId() {
-		return ptuId;
+	public Device getPtu() {
+		return ptu;
 	}
 	
 	public SharedPlace getPlace() {

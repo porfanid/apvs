@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -54,7 +55,7 @@ public class CameraView extends ImageView implements Module,
 
 	private String type;
 
-	private String ptuId;
+	private Device device;
 
 	private PtuSettings settings;
 
@@ -135,7 +136,7 @@ public class CameraView extends ImageView implements Module,
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {
-				ptuId = event.getPtuId();
+				device = event.getPtu();
 
 				scheduler.update();
 			}
@@ -152,16 +153,16 @@ public class CameraView extends ImageView implements Module,
 		switchDestination = !switchDestination;
 	}
 
-	private String getCameraUrl(String type, String ptuId, Proxy proxy) {
-		if ((settings == null) || (ptuId == null)) {
+	private String getCameraUrl(String type, Device device, Proxy proxy) {
+		if ((settings == null) || (device == null)) {
 			return null;
 		}
 
-		return factory.getProxy().getReverseUrl(settings.getCameraUrl(ptuId, type, proxy)); 
+		return factory.getProxy().getReverseUrl(settings.getCameraUrl(device.getName(), type, proxy)); 
 	}
 
 	public boolean update() {
-		final String cameraUrl = getCameraUrl(type, ptuId, factory.getProxy());
+		final String cameraUrl = getCameraUrl(type, device, factory.getProxy());
 //		setUrl(null);
 //		Window.alert("CameraURL: '"+ptuId+"' 'null'");
 		

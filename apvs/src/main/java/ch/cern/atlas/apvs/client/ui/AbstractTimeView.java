@@ -30,6 +30,7 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 import org.moxieapps.gwt.highcharts.client.plotOptions.SeriesPlotOptions;
 
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -45,10 +46,10 @@ public class AbstractTimeView extends GlassPanel {
 													// pnts/min, 720/hour
 	private static final String[] color = { "#AA4643", "#89A54E", "#80699B",
 			"#3D96AE", "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92", "#4572A7" };
-	private Map<String, Integer> pointsById;
-	private Map<String, Series> seriesById;
-	private Map<String, String> colorsById;
-	private Map<String, Series> limitSeriesById;
+	private Map<Device, Integer> pointsById;
+	private Map<Device, Series> seriesById;
+	private Map<Device, String> colorsById;
+	private Map<Device, Series> limitSeriesById;
 
 	protected Chart chart;
 	protected Integer height = null;
@@ -57,10 +58,10 @@ public class AbstractTimeView extends GlassPanel {
 
 	public AbstractTimeView() {
 		super();
-		pointsById = new HashMap<String, Integer>();
-		seriesById = new HashMap<String, Series>();
-		colorsById = new HashMap<String, String>();
-		limitSeriesById = new HashMap<String, Series>();
+		pointsById = new HashMap<Device, Integer>();
+		seriesById = new HashMap<Device, Series>();
+		colorsById = new HashMap<Device, String>();
+		limitSeriesById = new HashMap<Device, Series>();
 
 		// Fix for #289
 //		if (false) {
@@ -91,7 +92,7 @@ public class AbstractTimeView extends GlassPanel {
 //		}
 	}
 
-	public Map<String, String> getColors() {
+	public Map<Device, String> getColors() {
 		return colorsById;
 	}
 
@@ -173,14 +174,14 @@ public class AbstractTimeView extends GlassPanel {
 		yAxis.setAxisTitle(new AxisTitle().setText(""));
 	}
 
-	protected void addSeries(String ptuId, String name, boolean showLimits) {
+	protected void addSeries(Device device, String name, boolean showLimits) {
 
 		Series series = chart.createSeries().setName(name);
 		series.setType(Type.LINE);
 		series.setPlotOptions(new SeriesPlotOptions().setAnimation(false));
-		pointsById.put(ptuId, 0);
-		seriesById.put(ptuId, series);
-		colorsById.put(ptuId, color[chart.getSeries().length]);
+		pointsById.put(device, 0);
+		seriesById.put(device, series);
+		colorsById.put(device, color[chart.getSeries().length]);
 
 		if (showLimits) {
 			Series limitSeries = chart.createSeries();
@@ -189,43 +190,43 @@ public class AbstractTimeView extends GlassPanel {
 					.setAnimation(false)
 					.setColor(new Color(161, 231, 231, 0.2)) // #3482d4
 					.setEnableMouseTracking(false));
-			limitSeriesById.put(ptuId, limitSeries);
+			limitSeriesById.put(device, limitSeries);
 
 			chart.addSeries(limitSeries, false, false);
 		}
 		chart.addSeries(series, true, false);
 	}
 
-	protected void setData(String ptuId, Number[][] data, Number[][] limits) {
-		Series series = seriesById.get(ptuId);
+	protected void setData(Device device, Number[][] data, Number[][] limits) {
+		Series series = seriesById.get(device);
 		series.setPoints(data != null ? data : new Number[0][2], false);
-		pointsById.put(ptuId, data != null ? data.length : 0);
+		pointsById.put(device, data != null ? data.length : 0);
 
-		Series limitSeries = limitSeriesById.get(ptuId);
+		Series limitSeries = limitSeriesById.get(device);
 		if (limitSeries != null) {
 			limitSeries.setPoints(limits != null ? limits : new Number[0][3],
 					false);
 		}
 	}
 	
-	protected void addPoint(String ptuId, long time, Number value,
+	protected void addPoint(Device device, long time, Number value,
 			Number lowLimit, Number highLimit) {
-		Series series = seriesById.get(ptuId);
+		Series series = seriesById.get(device);
 		if (series == null) {
 			return;
 		}
-		Integer numberOfPoints = pointsById.get(ptuId);
+		Integer numberOfPoints = pointsById.get(device);
 		if (numberOfPoints == null) {
 			numberOfPoints = 0;
 		}
 		boolean shift = numberOfPoints >= POINT_LIMIT;
 		if (!shift) {
-			pointsById.put(ptuId, numberOfPoints + 1);
+			pointsById.put(device, numberOfPoints + 1);
 		}
 		chart.setLinePlotOptions(new LinePlotOptions().setMarker(new Marker()
 				.setEnabled(!shift)));
 
-		Series limitSeries = limitSeriesById.get(ptuId);
+		Series limitSeries = limitSeriesById.get(device);
 		if (limitSeries != null) {
 			limitSeries.addPoint(new Point(time, lowLimit, highLimit), false,
 					shift, false);
@@ -274,8 +275,8 @@ public class AbstractTimeView extends GlassPanel {
 		return prefix + dateTime + postfix;
 	}
 
-	protected void setUnit(String ptuId, String unit) {
-		Series series = seriesById.get(ptuId);
+	protected void setUnit(Device device, String unit) {
+		Series series = seriesById.get(device);
 		if (series == null) {
 			return;
 		}

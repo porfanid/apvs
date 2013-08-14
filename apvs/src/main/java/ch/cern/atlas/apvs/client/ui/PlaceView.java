@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.client.event.PlaceChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
 import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
@@ -26,7 +27,7 @@ public class PlaceView extends SimplePanel implements Module,
 
 	private RemoteEventBus remoteEventBus;
 	private String defaultImage = "Default-640x480.jpg";
-	private String ptuId;
+	private Device ptu;
 	private boolean switchDestination = false;
 
 	public PlaceView() {
@@ -57,7 +58,7 @@ public class PlaceView extends SimplePanel implements Module,
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
-					ptuId = event.getPtuId();
+					ptu = event.getPtu();
 
 					remoteEventBus.fireEvent(new RequestRemoteEvent(
 							PlaceChangedRemoteEvent.class));
@@ -70,10 +71,10 @@ public class PlaceView extends SimplePanel implements Module,
 
 					@Override
 					public void onPlaceChanged(PlaceChangedRemoteEvent event) {
-						if (ptuId == null)
+						if (ptu == null)
 							return;
 
-						if (!ptuId.equals(event.getPtuId()))
+						if (!ptu.equals(event.getPtu()))
 							return;
 
 						log.info("PLACE CHANGED " + event);

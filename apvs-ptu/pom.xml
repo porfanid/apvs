@@ -83,6 +83,10 @@
                                 <groupId>com.oracle</groupId>
                                 <artifactId>ojdbc</artifactId>
                         </dependency>
+                       <dependency>
+                                <groupId>mysql</groupId>
+                                <artifactId>mysql-connector-java</artifactId>
+                        </dependency>
               <dependency>
                         <groupId>net.sf</groupId>
                         <artifactId>log4jdbc4</artifactId>

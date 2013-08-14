@@ -24,8 +24,8 @@ public class PtuJsonTest {
 			+ "{\"Type\":\"Measurement\",\"Sensor\":\"Humidity\",\"Time\":\"11/09/2012 10:07:10\",\"Method\":\"OneShoot\",\"Value\":\"35.45927608218701\",\"SamplingRate\":\"15000\",\"Unit\":\"ppm\",\"DownThreshold\":\"33.0\",\"UpThreshold\":\"35.7\"}"
 			+ "]}";
 
-	String msg0 = "Measurement(PTU_88): name:Humidity, value:33.19684099267707, unit:ppm, sampling rate:10000, date:Tue Sep 11 10:02:25 CEST 2012";
-	String msg1 = "Measurement(PTU_88): name:Humidity, value:35.45927608218701, unit:ppm, sampling rate:15000, date:Tue Sep 11 10:07:10 CEST 2012";
+	String msg0 = "Measurement(PTU_88): sensor:Humidity, value:33.19684099267707, unit:ppm, sampling rate:10000, date:Tue Sep 11 10:02:25 CEST 2012";
+	String msg1 = "Measurement(PTU_88): sensor:Humidity, value:35.45927608218701, unit:ppm, sampling rate:15000, date:Tue Sep 11 10:07:10 CEST 2012";
 
 	String parsedJson = "{"
 			+ "\"Sender\":\"PTU_88\",\"Receiver\":\"Broadcast\",\"FrameID\":\"0\",\"Acknowledge\":\"False\",\"Messages\":["

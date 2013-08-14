@@ -18,7 +18,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 //NOTE: implements IsSerializable in case serialization file cannot be found
 @Entity
 @Table( name = "TBL_DEVICES" )
-public class Device implements Serializable, IsSerializable {
+public class Device implements Comparable<Device>, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 849926551483611340L;
 
@@ -37,17 +37,11 @@ public class Device implements Serializable, IsSerializable {
 		// Serialization
 	}
 	
-	// FIXME can be removed if we use devices everywhere
+	// for test devices
 	public Device(String name) {
-		this(name, null, null, null, null);
+		this(name, InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
 	}
-	
-	// FIXME can be removed when using hibernate
-	public Device(int id, String name, InetAddress ip, String description, MacAddress macAddress, String hostName) {
-		this(name, ip, description, macAddress, hostName);
-		setId(id);
-	}
-	
+				
 	public Device(String name, InetAddress ip, String description, MacAddress macAddress, String hostName) {
 		setName(name);
 		setIp(ip);
@@ -64,11 +58,12 @@ public class Device implements Serializable, IsSerializable {
 		return id;
 	}
 	
+	@SuppressWarnings("unused")
 	private void setId(int id) {
 		this.id = id;
 	}
 
-	@Column(name = "NAME", length=20)
+	@Column(name = "NAME", length=20, nullable=false)
 	public String getName() {
 		return name;
 	}
@@ -113,6 +108,13 @@ public class Device implements Serializable, IsSerializable {
 	
 	private void setHostName(String hostName) {
 		this.hostName = hostName;
+	}
+	
+	@Override
+	public String toString() {
+		return "Device [id=" + id + ", name=" + name + ", ip=" + ip
+				+ ", description=" + description + ", macAddress=" + macAddress
+				+ ", hostName=" + hostName + "]";
 	}
 
 	@Override
@@ -178,5 +180,10 @@ public class Device implements Serializable, IsSerializable {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(Device device) {
+		return device != null ? getName().compareTo(device.getName()) : -1;
 	}
 }

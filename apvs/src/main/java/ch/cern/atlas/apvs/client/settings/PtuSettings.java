@@ -37,10 +37,10 @@ public class PtuSettings implements Serializable, IsSerializable {
 			// Serializable
 		}
 
-		public Entry(String ptuId) {
+		public Entry(String name) {
 			enabled = true;
 			dosimeterSerialNo = "";
-			String id = Integer.toHexString(Integer.parseInt(ptuId.substring(ptuId.length()-1, ptuId.length())));
+			String id = Integer.toHexString(Integer.parseInt(name.substring(name.length()-1, name.length())));
 			helmetUrl = "http://"+videoServer+":8"+id+"90/worker"+id+".mjpg";
 			handUrl = "http://"+videoServer+":8"+id+"91/worker"+id+".mjpg";
 		}
@@ -62,45 +62,45 @@ public class PtuSettings implements Serializable, IsSerializable {
 
 		// takes the last proper value
 		for (Iterator<String> i = entries.keySet().iterator(); i.hasNext();) {
-			String ptuId = i.next();
-			String serialNo = entries.get(ptuId).dosimeterSerialNo;
-			if ((ptuId != null) && (serialNo != null)) {
-				dosimeterToPtu.put(serialNo, ptuId);
+			String name = i.next();
+			String serialNo = entries.get(name).dosimeterSerialNo;
+			if ((name != null) && (serialNo != null)) {
+				dosimeterToPtu.put(serialNo, name);
 			}
 		}
 
 		return dosimeterToPtu;
 	}
 
-	public Boolean isEnabled(String ptuId) {
-		Entry entry = entries.get(ptuId);
+	public Boolean isEnabled(String name) {
+		Entry entry = entries.get(name);
 		return entry != null ? entry.enabled : false;
 	}
 
-	public void setEnabled(String object, Boolean value) {
-		entries.get(object).enabled = value;
+	public void setEnabled(String name, Boolean value) {
+		entries.get(name).enabled = value;
 	}
 
-	public String getDosimeterSerialNumber(String ptuId) {
-		Entry entry = entries.get(ptuId);
+	public String getDosimeterSerialNumber(String name) {
+		Entry entry = entries.get(name);
 		return entry != null ? entry.dosimeterSerialNo : "";
 	}
 
-	public void setDosimeterSerialNumber(String object, String value) {
-		entries.get(object).dosimeterSerialNo = value;
+	public void setDosimeterSerialNumber(String name, String value) {
+		entries.get(name).dosimeterSerialNo = value;
 	}
 
-	public String getCameraUrl(String ptuId, String type, Proxy proxy) {
-		Entry entry = entries.get(ptuId);
+	public String getCameraUrl(String name, String type, Proxy proxy) {
+		Entry entry = entries.get(name);
 		return entry != null ? type.equals(CameraView.HELMET) ? proxy.getReverseUrl(entry.helmetUrl)
 				: proxy.getReverseUrl(entry.handUrl) : "";
 	}
 
-	public void setCameraUrl(String ptuId, String type, String value, Proxy proxy) {
+	public void setCameraUrl(String name, String type, String value, Proxy proxy) {
 		if (type.equals(CameraView.HELMET)) {
-			entries.get(ptuId).helmetUrl = proxy.getUrl(value);
+			entries.get(name).helmetUrl = proxy.getUrl(value);
 		} else {
-			entries.get(ptuId).handUrl = proxy.getUrl(value);
+			entries.get(name).handUrl = proxy.getUrl(value);
 		}
 	}
 
@@ -110,9 +110,9 @@ public class PtuSettings implements Serializable, IsSerializable {
 		return list;
 	}
 
-	public boolean add(String ptuId) {
-		if (!entries.containsKey(ptuId)) {
-			entries.put(ptuId, new Entry(ptuId));
+	public boolean add(String name) {
+		if (!entries.containsKey(name)) {
+			entries.put(name, new Entry(name));
 			return true;
 		}
 		return false;

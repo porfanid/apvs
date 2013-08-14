@@ -1,44 +1,43 @@
 package ch.cern.atlas.apvs.server;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.sql.DataSource;
-
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
-import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.domain.User;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.service.SortOrder;
+import ch.cern.atlas.apvs.db.Scale;
+import ch.cern.atlas.apvs.db.SensorMap;
+import ch.cern.atlas.apvs.domain.Data;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
-import ch.cern.atlas.apvs.domain.InetAddress;
-import ch.cern.atlas.apvs.domain.MacAddress;
+import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Sensor;
+import ch.cern.atlas.apvs.domain.SortOrder;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.domain.User;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
-import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.util.StringUtils;
 
-public class DbHandler extends DbReconnectHandler {
+public class DbHandler extends DbCallback {
 
 	private static DbHandler handler;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -92,12 +91,12 @@ public class DbHandler extends DbReconnectHandler {
 							log.warn("DB no longer reachable");
 						}
 						try {
-							updateInterventions();
+							rereadInterventions();
 							if (!checkUpdate()) {
 								log.warn("DB no longer updated");
 							}
 
-						} catch (SQLException e) {
+						} catch (HibernateException e) {
 							log.warn(
 									"Could not regularly-update intervention list: ",
 									e);
@@ -113,7 +112,6 @@ public class DbHandler extends DbReconnectHandler {
 				}
 			}
 		}, 0, 30, TimeUnit.SECONDS);
-
 	}
 
 	public static DbHandler getInstance() {
@@ -140,130 +138,130 @@ public class DbHandler extends DbReconnectHandler {
 		}, 45, TimeUnit.SECONDS);
 	}
 
-	public HistoryMap getHistoryMap(List<String> ptuIdList, Date from)
-			throws SQLException {
+	public History getHistoryMap(List<Device> ptuList, Date from)
+			throws HibernateException {
 
 		// FIXME could be part of the SQL
 		SensorMap sensorMap = getSensorMap();
 
-		// NOTE: we could optimize the query by running a count and see if the #
-		// is not too large, then just move forward the from time.
-		String sql = "select tbl_measurements.ID, NAME, SENSOR, DATETIME, UNIT, VALUE, SAMPLINGRATE, METHOD, UP_THRES, DOWN_THRES from tbl_measurements, tbl_devices "
-				+ "where tbl_measurements.device_id = tbl_devices.id"
-				+ " and NAME = ?"
-				+ (from != null ? " and datetime > ?" : "")
-				+ " order by DATETIME asc";
+		String sql = "from Measurement"
+				+ " where Measurement.device.name = :name"
+				+ (from != null ? " and Measurement.date > :date" : "")
+				+ " order by Measurement.date asc";
 
-		Connection connection = getConnection();
-		PreparedStatement historyQuery = connection.prepareStatement(sql);
-
-		HistoryMap map = new HistoryMap();
-
+		Session session = null;
+		Transaction tx = null;
 		try {
-			for (String ptuId : ptuIdList) {
+			session = getSession();
+			tx = session.beginTransaction();
+			History map = new History();
+			Query query = session.createQuery(sql);
+
+			for (Device ptu : ptuList) {
 				// at most from fromTime or startTime
-				long startTime = interventions.get(ptuId).getStartTime()
+				long startTime = interventions.get(ptu).getStartTime()
 						.getTime();
 				long fromTime = from.getTime();
 
-				historyQuery.setString(1, ptuId);
+				query.setString("name", ptu.getName());
 
 				if (from != null) {
-					historyQuery.setTimestamp(2,
+					query.setTimestamp("date",
 							new Timestamp(Math.max(startTime, fromTime)));
 				}
 
 				long now = new Date().getTime();
 				int total = 0;
-				ResultSet result = historyQuery.executeQuery();
-				try {
-					while (result.next()) {
-						long time = result.getTimestamp("datetime").getTime();
-						if (time > now + 60000) {
-							break;
-						}
 
-						Integer id = result.getInt("id");
-						String sensor = result.getString("sensor");
-						Double value = toDouble(result.getString("value"));
-						String unit = result.getString("unit");
-
-						// Fix for #488, invalid db entry
-						if ((sensor == null) || (value == null)
-								|| (unit == null)) {
-							log.warn("MeasurementTable ID "
-									+ id
-									+ " contains <null> sensor, value or unit ("
-									+ sensor + ", " + value + ", " + unit
-									+ ") for ptu: " + ptuId);
-							continue;
-						}
-
-						Double low = toDouble(result.getString("down_thres"));
-						Double high = toDouble(result.getString("up_thres"));
-
-						Integer samplingRate = toInt(result
-								.getString("samplingrate"));
-
-						// Scale down to microSievert
-						value = Scale.getValue(value, unit);
-						low = Scale.getLowLimit(low, unit);
-						high = Scale.getHighLimit(high, unit);
-						unit = Scale.getUnit(unit);
-
-						if (!sensorMap.isEnabled(ptuId, sensor)) {
-							continue;
-						}
-
-						History history = map.get(ptuId, sensor);
-						if (history == null) {
-
-							if ((sensor.equals("Temperature") || sensor
-									.equals("BodyTemperature"))
-									&& unit.equals("C")) {
-								unit = "&deg;C";
-							}
-
-							history = new History(ptuId, sensor, unit);
-							map.put(history);
-						}
-
-						if (history.addEntry(time, value, low, high,
-								samplingRate)) {
-							total++;
-						}
+				for (@SuppressWarnings("unchecked")
+				Iterator<Measurement> i = query.iterate(); i.hasNext();) {
+					Measurement m = i.next();
+					long time = m.getDate().getTime();
+					if (time > now + 60000) {
+						break;
 					}
-				} finally {
-					result.close();
-				}
 
+					Long id = m.getId();
+					String sensor = m.getSensor();
+					Double value = m.getValue();
+					String unit = m.getUnit();
+
+					// Fix for #488, invalid db entry
+					if ((sensor == null) || (value == null) || (unit == null)) {
+						log.warn("MeasurementTable ID " + id
+								+ " contains <null> sensor, value or unit ("
+								+ sensor + ", " + value + ", " + unit
+								+ ") for ptu: " + ptu.getName());
+						continue;
+					}
+
+					Double low = m.getLowLimit();
+					Double high = m.getHighLimit();
+
+					Integer samplingRate = m.getSamplingRate();
+
+					// Scale down to microSievert
+					value = Scale.getValue(value, unit);
+					low = Scale.getLowLimit(low, unit);
+					high = Scale.getHighLimit(high, unit);
+					unit = Scale.getUnit(unit);
+
+					if (!sensorMap.isEnabled(ptu, sensor)) {
+						continue;
+					}
+
+					Data history = map.get(ptu, sensor);
+					if (history == null) {
+
+						if ((sensor.equals("Temperature") || sensor
+								.equals("BodyTemperature")) && unit.equals("C")) {
+							unit = "&deg;C";
+						}
+
+						history = new Data(ptu, sensor, unit, 2000);
+						map.put(history);
+					}
+
+					if (history.addEntry(time, value, low, high, samplingRate)) {
+						total++;
+					}
+				}
 				if (DEBUG) {
-					System.err.println("Total entries in history for " + ptuId
-							+ " " + total);
+					System.err.println("Total entries in history for "
+							+ ptu.getName() + " " + total);
 				}
-			}
-		} finally {
-			historyQuery.close();
-			connection.close();
-		}
 
-		return map;
+			}
+
+			tx.commit();
+
+			return map;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
 	}
 
 	@Override
-	public void dbConnected(DataSource datasource) throws SQLException {
-		super.dbConnected(datasource);
+	public void dbConnected(Session session) {
+		super.dbConnected(session);
 
 		log.info("DB connected");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.databaseConnect, true);
 
-		updateInterventions();
+		rereadInterventions();
 	}
 
 	@Override
-	public void dbDisconnected() throws SQLException {
+	public void dbDisconnected() {
 		super.dbDisconnected();
 
 		log.warn("DB disconnected");
@@ -277,27 +275,35 @@ public class DbHandler extends DbReconnectHandler {
 		InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 	}
 
-	private boolean checkUpdate() throws SQLException {
-		String sql = "select DATETIME from tbl_measurements order by DATETIME DESC";
+	private boolean checkUpdate() throws HibernateException {
 
-		Connection connection = getConnection();
-		PreparedStatement updateQuery = connection.prepareStatement(sql);
-
-		long now = new Date().getTime();
-		ResultSet result = updateQuery.executeQuery();
-
+		Session session = null;
+		Transaction tx = null;
 		try {
-			if (result.next()) {
-				long time = result.getTimestamp("datetime").getTime();
+			session = getSession();
+			tx = session.beginTransaction();
+
+			String sql = "select DATETIME from Measurement order by DATETIME DESC";
+
+			long now = new Date().getTime();
+			Date lastUpdate = (Date) session.createQuery(sql).uniqueResult();
+			if (lastUpdate != null) {
+				long time = lastUpdate.getTime();
 				updated = (time > now - (3 * 60000)) ? Ternary.True
 						: Ternary.False;
 			} else {
 				updated = Ternary.False;
 			}
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			result.close();
-			updateQuery.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
@@ -306,7 +312,7 @@ public class DbHandler extends DbReconnectHandler {
 		return !updated.isFalse();
 	}
 
-	private String getSql(String sql, int start, int length, SortOrder[] order) {
+	private String getSql(String sql, SortOrder[] order) {
 		StringBuffer s = new StringBuffer(sql);
 		for (int i = 0; i < order.length; i++) {
 			if (i == 0) {
@@ -322,114 +328,105 @@ public class DbHandler extends DbReconnectHandler {
 		return s.toString();
 	}
 
-	private int getCount(PreparedStatement statement) throws SQLException {
-		ResultSet result = statement.executeQuery();
-
+	public int getInterventionCount() throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			return result.next() ? result.getInt(1) : 0;
+			session = getSession();
+			tx = session.beginTransaction();
+			Integer count = (Integer) session.createQuery(
+					"select count(*) from Intervention").uniqueResult();
+			tx.commit();
+			return count;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			result.close();
-			statement.close();
+			if (session != null) {
+				session.close();
+			}
 		}
 	}
 
-	public int getInterventionCount() throws SQLException {
-		Connection connection = getConnection();
-
-		try {
-			return getCount(connection
-					.prepareStatement("select count(*) from tbl_inspections"));
-		} finally {
-			connection.close();
-		}
-	}
-
+	@SuppressWarnings("unchecked")
 	public List<Intervention> getInterventions(int start, int length,
-			SortOrder[] order) throws SQLException {
-		String sql = "select tbl_inspections.ID as ID, tbl_users.FNAME, tbl_users.LNAME, tbl_devices.NAME, "
-				+ "tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, tbl_inspections.DSCR, "
-				+ "tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS, tbl_users.id as USER_ID, tbl_devices.id as DEVICE_ID "
-				+ "from tbl_inspections "
-				+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
-				+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id";
-
-		Connection connection = getConnection();
-		String fullSql = getSql(sql, start, length, order);
-		// System.err.println(fullSql);
-		PreparedStatement statement = connection.prepareStatement(fullSql);
-		ResultSet result = statement.executeQuery();
-
-		List<Intervention> list = new ArrayList<Intervention>(length);
+			SortOrder[] order) throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			// FIXME, #173 using some SQL this may be faster
-			// skip to start, result.absolute not implemented by Oracle
-			for (int i = 0; i < start && result.next(); i++) {
+			session = getSession();
+			tx = session.beginTransaction();
+			List<Intervention> interventions = session
+					.createQuery(getSql("from Intervention", order))
+					.setFirstResult(start).setMaxResults(length).list();
+			tx.commit();
+			return interventions;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
 			}
-
-			for (int i = 0; i < length && result.next(); i++) {
-				list.add(new Intervention(result.getInt("id"), result
-						.getInt("user_id"), result.getString("fname"), result
-						.getString("lname"), result.getInt("device_id"), result
-						.getString("name"), new Date(result.getTimestamp(
-						"starttime").getTime()),
-						result.getTimestamp("endtime") != null ? new Date(
-								result.getTimestamp("endtime").getTime())
-								: null, result.getString("impact_num"), result
-								.getDouble("rec_status"), result
-								.getString("dscr")));
-			}
+			throw e;
 		} finally {
-			result.close();
-			statement.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
-
-		return list;
 	}
 
 	public int getEventCount(String ptuId, String measurementName)
-			throws SQLException {
-		String sql = "select count(*) from tbl_events join tbl_devices on tbl_events.device_id = tbl_devices.id";
+			throws HibernateException {
+		String sql = "select count(*) from Event";
 		if ((ptuId != null) || (measurementName != null)) {
 			sql += " where";
 			if (ptuId != null) {
-				sql += " tbl_devices.name = ?";
+				sql += " Event.device.name = ?";
 			}
 			if (measurementName != null) {
 				if (ptuId != null) {
 					sql += " and";
 				}
-				sql += " tbl_events.sensor = ?";
+				sql += " Event.name = ?";
 			}
 		}
 
-		Connection connection = getConnection();
-
+		Session session = null;
+		Transaction tx = null;
 		try {
-			PreparedStatement statement = connection.prepareStatement(sql);
-			int param = 1;
+			session = getSession();
+			tx = session.beginTransaction();
+			Query query = session.createQuery(sql);
+			int param = 0;
 			if (ptuId != null) {
-				statement.setString(param, ptuId);
+				query.setString(param, ptuId);
 				param++;
 			}
 			if (measurementName != null) {
-				statement.setString(param, measurementName);
+				query.setString(param, measurementName);
 				param++;
 			}
 
-			return getCount(statement);
+			Integer count = (Integer) query.uniqueResult();
+			tx.commit();
+			return count;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Event> getEvents(int start, int length, SortOrder[] order,
-			String ptuId, String measurementName) throws SQLException {
+			String ptuId, String measurementName) throws HibernateException {
 
-		String sql = "select tbl_devices.name, tbl_events.sensor, tbl_events.event_type, "
-				+ "tbl_events.value, tbl_events.threshold, tbl_events.datetime, tbl_events.unit "
-				+ "from tbl_events "
-				+ "join tbl_devices on tbl_events.device_id = tbl_devices.id";
+		String sql = "from Event";
 		if ((ptuId != null) || (measurementName != null)) {
 			sql += " where";
 			if (ptuId != null) {
@@ -443,342 +440,282 @@ public class DbHandler extends DbReconnectHandler {
 			}
 		}
 
-		Connection connection = getConnection();
-
-		String s = getSql(sql, start, length, order);
+		String s = getSql(sql, order);
 		// log.info("SQL: "+s);
-		PreparedStatement statement = connection.prepareStatement(s);
-		int param = 1;
-		if (ptuId != null) {
-			statement.setString(param, ptuId);
-			param++;
-		}
-		if (measurementName != null) {
-			statement.setString(param, measurementName);
-			param++;
-		}
-
-		ResultSet result = statement.executeQuery();
-
-		List<Event> list = new ArrayList<Event>(length);
+		Session session = null;
+		Transaction tx = null;
 		try {
-			// FIXME, #173 using some SQL this may be faster
-			// skip to start, result.absolute not implemented by Oracle
-			for (int i = 0; i < start && result.next(); i++) {
+			session = getSession();
+			tx = session.beginTransaction();
+			Query query = session.createQuery(s);
+			int param = 0;
+			if (ptuId != null) {
+				query.setString(param, ptuId);
+				param++;
 			}
-
-			for (int i = 0; i < length && result.next(); i++) {
-				String name = result.getString("name");
-				Double value = toDouble(result.getString("value"));
-				Double threshold = toDouble(result.getString("threshold"));
-				String unit = result.getString("unit");
-
-				list.add(new Event(new Device(name), result.getString("sensor"), result
-						.getString("event_type"), value, threshold, unit,
-						new Date(result.getTimestamp("datetime").getTime())));
+			if (measurementName != null) {
+				query.setString(param, measurementName);
+				param++;
 			}
+			query.setFirstResult(start);
+			query.setMaxResults(length);
+			List<Event> events = query.list();
+			tx.commit();
+			return events;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			result.close();
-			statement.close();
-			connection.close();
-		}
-
-		return list;
-	}
-
-	private Double toDouble(String string) {
-		try {
-			return string != null ? Double.parseDouble(string) : null;
-		} catch (NumberFormatException e) {
-			log.warn("NumberFormat Exception (toDouble) in DbHandler: '"
-					+ string + "'");
-			return null;
+			if (session != null) {
+				session.close();
+			}
 		}
 	}
 
-	private Integer toInt(String string) {
+	public synchronized void addUser(User user) throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			return string != null ? Integer.parseInt(string) : null;
-		} catch (NumberFormatException e) {
-			log.warn("NumberFormat Exception (toInt) in DbHandler: '" + string
-					+ "'");
-			return null;
-		}
-	}
-
-	public synchronized void addUser(User user) throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement addUser = connection
-				.prepareStatement("insert into tbl_users (fname, lname, cern_id) values (?, ?, ?)");
-		try {
-			addUser.setString(1, user.getFirstName());
-			addUser.setString(2, user.getLastName());
-			addUser.setString(3, user.getCernId());
-			addUser.executeUpdate();
+			session = getSession();
+			tx = session.beginTransaction();
+			session.save(user);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			addUser.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
 	}
 
-	public synchronized void addDevice(Device device) throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement addDevice = connection
-				.prepareStatement("insert into tbl_devices (name, ip, dscr, mac_addr, host_name) values (?, ?, ?, ?, ?)");
+	public synchronized void addDevice(Device device) throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			addDevice.setString(1, device.getName());
-			addDevice.setString(2, device.getIp().getHostAddress());
-			addDevice.setString(3, device.getDescription());
-			addDevice.setString(4, device.getMacAddress().toString());
-			addDevice.setString(5, device.getHostName());
-			addDevice.executeUpdate();
+			session = getSession();
+			tx = session.beginTransaction();
+			session.save(device);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			addDevice.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
 	}
 
 	public synchronized void addIntervention(Intervention intervention)
-			throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement addIntervention = connection
-				.prepareStatement("insert into tbl_inspections (user_id, device_id, starttime, dscr, impact_num) values (?, ?, ?, ?, ?)");
-
+			throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			addIntervention.setInt(1, intervention.getUserId());
-			addIntervention.setInt(2, intervention.getDeviceId());
-			addIntervention.setTimestamp(3, new Timestamp(intervention
-					.getStartTime().getTime()));
-			addIntervention.setString(4, intervention.getDescription());
-			addIntervention.setString(5, intervention.getImpactNumber());
-			addIntervention.executeUpdate();
-
-			updateInterventions();
+			session = getSession();
+			tx = session.beginTransaction();
+			// CHECK... timestamp used to be set to current time on server
+			session.save(intervention);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			addIntervention.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
+
+		rereadInterventions();
 	}
 
-	public synchronized void endIntervention(int id, Date date)
-			throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement endIntervention = connection
-				.prepareStatement("update tbl_inspections set endtime = ? where id = ?");
-
+	public synchronized void updateIntervention(Intervention intervention)
+			throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			endIntervention.setTimestamp(1, new Timestamp(date.getTime()));
-			endIntervention.setInt(2, id);
-			endIntervention.executeUpdate();
-
-			updateInterventions();
+			session = getSession();
+			tx = session.beginTransaction();
+			// CHECK... endtime used to be set to current time on server
+			session.update(intervention);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			endIntervention.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
+
+		rereadInterventions();
 	}
 
-	public List<User> getUsers(boolean notBusy) throws SQLException {
+	public List<User> getUsers(boolean notBusy) throws HibernateException {
 		return notBusy ? getNotBusyUsers() : getAllUsers();
 	}
 
-	private synchronized List<User> getNotBusyUsers() throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement notBusyUserQuery = connection
-				.prepareStatement("select ID, FNAME, LNAME, CERN_ID from tbl_users "
-						+ "where id not in ("
-						+ "select user_id from tbl_inspections "
-						+ "where endtime is null) " + "order by LNAME, FNAME");
+	@SuppressWarnings("unchecked")
+	private synchronized List<User> getNotBusyUsers() throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			return getUserList(notBusyUserQuery.executeQuery());
-		} finally {
-			notBusyUserQuery.close();
-			connection.close();
-		}
-	}
-
-	private synchronized List<User> getAllUsers() throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement userQuery = connection
-				.prepareStatement("select ID, FNAME, LNAME, CERN_ID from tbl_users order by LNAME, FNAME");
-
-		try {
-			return getUserList(userQuery.executeQuery());
-		} finally {
-			userQuery.close();
-			connection.close();
-		}
-	}
-
-	private synchronized List<User> getUserList(ResultSet result)
-			throws SQLException {
-		List<User> list = new ArrayList<User>();
-		try {
-			while (result.next()) {
-				list.add(new User(result.getInt("ID"), result
-						.getString("FNAME"), result.getString("LNAME"), result
-						.getString("CERN_ID")));
+			session = getSession();
+			tx = session.beginTransaction();
+			List<User> users = session
+					.createQuery(
+							"from User u where u.id not in (select user.id from Intervention i where i.endTime is null) order by u.lastName, u.firstName")
+					.list();
+			tx.commit();
+			return users;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
 			}
+			throw e;
 		} finally {
-			result.close();
+			if (session != null) {
+				session.close();
+			}
 		}
-		return list;
 	}
 
-	public List<Device> getDevices(boolean notBusy) throws SQLException {
+	@SuppressWarnings("unchecked")
+	private synchronized List<User> getAllUsers() throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = getSession();
+			tx = session.beginTransaction();
+			List<User> users = session.createQuery(
+					"from User u order by u.lastName, u.firstName").list();
+			tx.commit();
+			return users;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	public List<Device> getDevices(boolean notBusy) throws HibernateException {
 		return notBusy ? getNotBusyDevices() : getDevices();
 	}
 
-	private synchronized List<Device> getNotBusyDevices() throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement notBusyDeviceQuery = connection
-				.prepareStatement("select ID, NAME, IP, DSCR, MAC_ADDR, HOST_NAME from tbl_devices "
-						+ "where id not in ("
-						+ "select device_id from tbl_inspections "
-						+ "where endtime is null) " + "order by NAME");
-
+	@SuppressWarnings("unchecked")
+	private synchronized List<Device> getNotBusyDevices()
+			throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			return getDeviceList(notBusyDeviceQuery.executeQuery());
-		} finally {
-			notBusyDeviceQuery.close();
-			connection.close();
-		}
-	}
-
-	private List<Device> getDevices() throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement deviceQuery = connection
-				.prepareStatement("select ID, NAME, IP, DSCR, MAC_ADDR, HOST_NAME from tbl_devices order by NAME");
-
-		try {
-			return getDeviceList(deviceQuery.executeQuery());
-		} finally {
-			deviceQuery.close();
-			connection.close();
-		}
-	}
-
-	private synchronized List<Device> getDeviceList(ResultSet result)
-			throws SQLException {
-		List<Device> list = new ArrayList<Device>();
-		try {
-			while (result.next()) {
-				list.add(new Device(result.getInt("ID"), result
-						.getString("NAME"), InetAddress.getByName(result
-						.getString("IP")), result.getString("DSCR"),
-						new MacAddress(result.getString("MAC_ADDR")), result
-								.getString("HOST_NAME")));
+			session = getSession();
+			tx = session.beginTransaction();
+			List<Device> devices = session
+					.createQuery(
+							"from Device d where d.id not in (select device.id from Intervention i where i.endTime is null) order by d.name")
+					.list();
+			tx.commit();
+			return devices;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
 			}
+			throw e;
 		} finally {
-			result.close();
-		}
-		return list;
-	}
-
-	public void updateInterventionImpactNumber(int id, String impactNumber)
-			throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement updateInterventionImpactNumber = connection
-				.prepareStatement("update tbl_inspections set impact_num = ? where id=?");
-
-		try {
-			System.err.println("Updating impact");
-			updateInterventionImpactNumber.setString(1, impactNumber);
-			updateInterventionImpactNumber.setInt(2, id);
-			updateInterventionImpactNumber.executeUpdate();
-
-			updateInterventions();
-		} finally {
-			updateInterventionImpactNumber.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
 	}
 
-	public synchronized void updateInterventionDescription(int id,
-			String description) throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement updateInterventionDescription = connection
-				.prepareStatement("update tbl_inspections set dscr = ? where id=?");
-
+	@SuppressWarnings("unchecked")
+	private List<Device> getDevices() throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			updateInterventionDescription.setString(1, description);
-			updateInterventionDescription.setInt(2, id);
-			updateInterventionDescription.executeUpdate();
-
-			updateInterventions();
+			session = getSession();
+			tx = session.beginTransaction();
+			List<Device> devices = session.createQuery(
+					"from Device d order by d.name").list();
+			tx.commit();
+			return devices;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			updateInterventionDescription.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
 	}
 
 	public synchronized Intervention getIntervention(String ptuId)
-			throws SQLException {
-		Connection connection = getConnection();
-		PreparedStatement getIntervention = connection
-				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, "
-						+ "tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, "
-						+ "tbl_inspections.DSCR, tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS from tbl_inspections "
-						+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
-						+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
-						+ "where tbl_inspections.endtime is null "
-						+ "and tbl_devices.name = ? "
-						+ "order by starttime desc");
-
-		getIntervention.setString(1, ptuId);
-		ResultSet result = getIntervention.executeQuery();
+			throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			if (result.next()) {
-				return new Intervention(result.getInt("id"),
-						result.getInt("user_id"), result.getString("fname"),
-						result.getString("lname"), result.getInt("device_id"),
-						result.getString("name"),
-						result.getTimestamp("starttime"),
-						result.getTimestamp("endtime"),
-						result.getString("impact_num"),
-						result.getDouble("rec_status"),
-						result.getString("dscr"));
+			session = getSession();
+			tx = session.beginTransaction();
+			Intervention intervention = (Intervention) session
+					.createQuery(
+							"from Intervention where ENDTIME is null and Device.NAME = :device order by Intervention.startTime DESC")
+					.setString("device", ptuId).uniqueResult();
+			tx.commit();
+			return intervention;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
 			}
+			throw e;
 		} finally {
-			result.close();
-			getIntervention.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
-		return null;
 	}
 
-	private synchronized void updateInterventions() throws SQLException {
-
-		Connection connection = getConnection();
-		PreparedStatement updateInterventions = connection
-				.prepareStatement("select tbl_inspections.ID, tbl_inspections.USER_ID, tbl_users.FNAME, tbl_users.LNAME, "
-						+ "tbl_inspections.DEVICE_ID, tbl_devices.NAME, tbl_inspections.STARTTIME, tbl_inspections.ENDTIME, "
-						+ "tbl_inspections.DSCR, tbl_inspections.IMPACT_NUM, tbl_inspections.REC_STATUS from tbl_inspections "
-						+ "join tbl_devices on tbl_inspections.device_id = tbl_devices.id "
-						+ "join tbl_users on tbl_inspections.user_id = tbl_users.id "
-						+ "where tbl_inspections.endtime is null");
-
-		ResultSet result = updateInterventions.executeQuery();
+	@SuppressWarnings("unchecked")
+	private synchronized void rereadInterventions() {
 		InterventionMap newMap = new InterventionMap();
+		Session session = null;
+		Transaction tx = null;
 		try {
-			while (result.next()) {
-				String name = result.getString("name");
-				newMap.put(
-						name,
-						new Intervention(result.getInt("id"), result
-								.getInt("user_id"), result.getString("fname"),
-								result.getString("lname"), result
-										.getInt("device_id"), name, result
-										.getTimestamp("starttime"), result
-										.getTimestamp("endtime"), result
-										.getString("impact_num"), result
-										.getDouble("rec_status"), result
-										.getString("dscr")));
+			session = getSession();
+			tx = session.beginTransaction();
+			for (Intervention intervention : (List<Intervention>) session
+					.createQuery(
+							"from Intervention intervention where intervention.endTime is null")
+					.list()) {
+				newMap.put(intervention.getDevice(), intervention);
 			}
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			result.close();
-			updateInterventions.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
 
 		if (!interventions.equals(newMap)) {
@@ -788,7 +725,7 @@ public class DbHandler extends DbReconnectHandler {
 	}
 
 	public List<Measurement> getMeasurements(String ptuId, String name)
-			throws SQLException {
+			throws HibernateException {
 		List<String> ptuIdList = null;
 		if (ptuId != null) {
 			ptuIdList = new ArrayList<String>();
@@ -804,52 +741,51 @@ public class DbHandler extends DbReconnectHandler {
 	 * @param name
 	 *            can be null
 	 * @return
-	 * @throws SQLException
+	 * @throws HibernateException
 	 */
 	public List<Measurement> getMeasurements(List<String> ptuIdList, String name)
-			throws SQLException {
+			throws HibernateException {
 
 		// FIXME could be part of the SQL
 		SensorMap sensorMap = getSensorMap();
 
-		String sql = "select NAME, view_last_measurements_date.SENSOR, VALUE, SAMPLINGRATE, UNIT, METHOD, UP_THRES, DOWN_THRES, view_last_measurements_date.DATETIME "
-				+ "from view_last_measurements_date, tbl_measurements, tbl_devices "
-				+ "where view_last_measurements_date.datetime = tbl_measurements.datetime "
-				+ "and view_last_measurements_date.sensor = tbl_measurements.sensor "
-				+ "and view_last_measurements_date.device_id = tbl_measurements.device_id "
-				+ "and view_last_measurements_date.device_id = tbl_devices.id";
+		String sql = "from Measurement, view_last_measurements_date "
+				+ "where view_last_measurements_date.datetime = Measurement.date "
+				+ "and view_last_measurements_date.sensor = Measurement.sensor "
+				+ "and view_last_measurements_date.device_id = Measuerement.device.id";
+
 		if (ptuIdList != null) {
 			sql += " and NAME in ("
 					+ StringUtils.join(ptuIdList.toArray(), ',', '\'') + ")";
 		}
 		if (name != null) {
-			sql += " and view_last_measurements_date.SENSOR = ?";
+			sql += " and view_last_measurements_date.SENSOR = :sensor";
 		}
 
-		Connection connection = getConnection();
-		PreparedStatement statement = connection.prepareStatement(sql);
-		int param = 1;
-		if (name != null) {
-			statement.setString(param, name);
-			param++;
-		}
-
-		ResultSet result = statement.executeQuery();
-
-		List<Measurement> list = new ArrayList<Measurement>();
+		Session session = null;
+		Transaction tx = null;
 		try {
-			while (result.next()) {
-				String ptuId = result.getString("NAME");
-				String sensor = result.getString("SENSOR");
+			session = getSession();
+			tx = session.beginTransaction();
+			Query query = session.createQuery(sql);
+			if (name != null) {
+				query.setString("sensor", name);
+			}
 
-				if (!sensorMap.isEnabled(ptuId, sensor)) {
+			List<Measurement> list = new ArrayList<Measurement>();
+
+			for (@SuppressWarnings("unchecked")
+			Iterator<Measurement> i = query.iterate(); i.hasNext();) {
+				Measurement m = i.next();
+
+				if (!sensorMap.isEnabled(m.getDevice(), m.getSensor())) {
 					continue;
 				}
 
-				String unit = result.getString("UNIT");
-				Double value = toDouble(result.getString("VALUE"));
-				Double low = toDouble(result.getString("DOWN_THRES"));
-				Double high = toDouble(result.getString("UP_THRES"));
+				String unit = m.getUnit();
+				Double value = m.getValue();
+				Double low = m.getLowLimit();
+				Double high = m.getHighLimit();
 
 				// if equal of low higher than high, no limits to be shown
 				if (low != null && high != null
@@ -864,49 +800,52 @@ public class DbHandler extends DbReconnectHandler {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(unit);
 
-				Measurement m = new Measurement(new Device(ptuId), sensor, value, low,
-						high, unit, toInt(result.getString("SAMPLINGRATE")),
-						new Date(result.getTimestamp("DATETIME").getTime()));
-				list.add(m);
+				list.add(new Measurement(m.getDevice(), m.getSensor(), value,
+						low, high, unit, m.getSamplingRate(), m.getDate()));
 			}
+			tx.commit();
+			return list;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
 		} finally {
-			result.close();
-			statement.close();
-			connection.close();
+			if (session != null) {
+				session.close();
+			}
 		}
-		return list;
 	}
 
-	public SensorMap getSensorMap() {
-		SensorMap sensorMap = new SensorMap();
-
-		String sql = "select NAME, SENSOR, ENABLED from tbl_sensors join tbl_devices on tbl_sensors.DEVICE_ID = tbl_devices.id";
-
-		Connection connection;
+	public SensorMap getSensorMap() throws HibernateException {
+		Session session = null;
+		Transaction tx = null;
 		try {
-			connection = getConnection();
-			PreparedStatement statement = connection.prepareStatement(sql);
+			SensorMap sensorMap = new SensorMap();
 
-			ResultSet result = statement.executeQuery();
-			try {
-				while (result.next()) {
-					String sensor = result.getString("SENSOR");
-					String ptuId = result.getString("NAME");
-					String value = result.getString("ENABLED");
-
-					sensorMap.setEnabled(ptuId, sensor, value == null ? true
-							: value.equalsIgnoreCase("y"));
-				}
-			} finally {
-				result.close();
-				statement.close();
-				connection.close();
+			session = getSession();
+			tx = session.beginTransaction();
+			@SuppressWarnings("unchecked")
+			List<Sensor> list = session.createQuery("from Sensor").list();
+			for (Iterator<Sensor> i = list.iterator(); i.hasNext();) {
+				Sensor sensor = i.next();
+				Boolean enabled = sensor.isEnabled() == null
+						|| sensor.isEnabled();
+				sensorMap.setEnabled(sensor.getDevice(), sensor.getName(),
+						enabled);
 			}
-		} catch (SQLException e) {
-			// ignore, just return unfilled map
-			System.err.println("WARNING Failed to retrieve sensor map");
-		}
+			tx.commit();
 
-		return sensorMap;
+			return sensorMap;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
 	}
 }

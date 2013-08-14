@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client.domain;
+package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,24 +15,34 @@ public class InterventionMap implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 8868971785801918119L;
 
-	private Map<String, Intervention> interventions = new HashMap<String, Intervention>();
+	private Map<Device, Intervention> interventions = new HashMap<Device, Intervention>();
 	
 	public InterventionMap() {
 		// serializable
 	}
 	
-	public Intervention get(String ptuId) {
-		return interventions.get(ptuId);
+	// For Audio...
+	public Intervention get(String name) {
+		for (Device device : interventions.keySet()) {
+			if (device.getName().equals(name)) {
+				return get(device);
+			}
+		}
+		return null;
 	}
 	
-	public Intervention put(String ptuId, Intervention intervention) {
-		return interventions.put(ptuId, intervention);
+	public Intervention get(Device device) {
+		return interventions.get(device);
+	}
+	
+	public Intervention put(Device device, Intervention intervention) {
+		return interventions.put(device, intervention);
 	}
 
-	public List<String> getPtuIds() {
-		List<String> ptuIds = new ArrayList<String>(interventions.keySet());
-		Collections.sort(ptuIds);
-		return ptuIds;
+	public List<Device> getPtus() {
+		List<Device> ptus = new ArrayList<Device>(interventions.keySet());
+		Collections.sort(ptus);
+		return ptus;
 	}
 
 	public void clear() {

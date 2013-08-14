@@ -7,8 +7,6 @@ import java.util.List;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.AudioServiceAsync;
@@ -18,6 +16,8 @@ import ch.cern.atlas.apvs.client.settings.VoipAccount;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ButtonCell;
@@ -38,7 +38,7 @@ public class AudioView extends GlassPanel implements Module {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
-	private String ptuId = new String("PTUWeb");
+	private String ptu = new String("PTUWeb");
 	private VoipAccount supervisorAccount = new VoipAccount();
 
 	private EventBus cmdBus;
@@ -66,17 +66,17 @@ public class AudioView extends GlassPanel implements Module {
 			@Override
 			public Object getValue(String fieldName) {
 				if (fieldName.equals("Status"))
-						return ((voipAccounts.getStatus(ptuId)?"Online":"Offline"));
+						return ((voipAccounts.getStatus(ptu)?"Online":"Offline"));
 				else if (fieldName.equals("Private Call"))
-					return ((voipAccounts.getOnCall(ptuId) ? "Hangup '": "Call '") + voipAccounts.getUsername(ptuId) + "'");
+					return ((voipAccounts.getOnCall(ptu) ? "Hangup '": "Call '") + voipAccounts.getUsername(ptu) + "'");
 				else if (fieldName.equals("Group Call"))
-					return ((!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId)) ? ("Make "): (supervisorAccount.getOnConference() ? "Leave ": "Join "))+ "Impact conference");
+					return ((!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptu)) ? ("Make "): (supervisorAccount.getOnConference() ? "Leave ": "Join "))+ "Impact conference");
 				else if(fieldName.equals("Conference"))
-					return "Close '" + voipAccounts.getActivity(ptuId)+ "' conference";
+					return "Close '" + voipAccounts.getActivity(ptu)+ "' conference";
 				else if(fieldName.equals("Mute/Unmute"))
-					return (voipAccounts.getMute(ptuId) ? ("Unmute '") + voipAccounts.getUsername(ptuId) + "'" : ("Mute '") + voipAccounts.getUsername(ptuId) + "'");
+					return (voipAccounts.getMute(ptu) ? ("Unmute '") + voipAccounts.getUsername(ptu) + "'" : ("Mute '") + voipAccounts.getUsername(ptu) + "'");
 				else if(fieldName.equals("Kick/Add"))
-					return ( voipAccounts.getOnConference(ptuId)? ( (voipAccounts.getRoom(ptuId) == conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId))) ? ("Kick from '" + voipAccounts.getActivity(ptuId) + "'") : ("Hangup from '" + voipAccounts.getActivity(ptuId) + "' conference")) : ("Add to '" + voipAccounts.getActivity(ptuId) + "'"));
+					return ( voipAccounts.getOnConference(ptu)? ( (voipAccounts.getRoom(ptu) == conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptu))) ? ("Kick from '" + voipAccounts.getActivity(ptu) + "'") : ("Hangup from '" + voipAccounts.getActivity(ptu) + "' conference")) : ("Add to '" + voipAccounts.getActivity(ptu) + "'"));
 				else
 					return null;
 			}
@@ -160,55 +160,55 @@ public class AudioView extends GlassPanel implements Module {
 				};
 
 				if (fieldName.equals("Private Call")) {
-					if (!voipAccounts.getOnCall(ptuId)) {
+					if (!voipAccounts.getOnCall(ptu)) {
 						List<String> channels = new ArrayList<String>();
 						channels.add(supervisorAccount.getChannel());
-						channels.add(voipAccounts.getChannel(ptuId));
+						channels.add(voipAccounts.getChannel(ptu));
 						
 						// Hangup Supervisor and PTU User from active calls
 						AudioServiceAsync.Util.getInstance().hangupMultiple(channels, callbackHangup);
-						AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(ptuId),supervisorAccount.getNumber(), callbackCall);
+						AudioServiceAsync.Util.getInstance().call(voipAccounts.getNumber(ptu),supervisorAccount.getNumber(), callbackCall);
 
 					} else {
 							AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
-							if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
-								AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptuId),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId)),callbackConference);
+							if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptu))) {
+								AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptu),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptu)),callbackConference);
 						}
 					}
 					
 				} else if (fieldName.equals("Group Call")){
 					if (!supervisorAccount.getOnConference()) {
-						if (!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
+						if (!conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptu))) {
 							// Hangup Impact Activity Users from active calls
-							AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)),callbackHangup);
-							AudioServiceAsync.Util.getInstance().newConference(voipAccounts.getNumbersActivity(voipAccounts.getActivity(ptuId)),callbackConference);
+							AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptu)),callbackHangup);
+							AudioServiceAsync.Util.getInstance().newConference(voipAccounts.getNumbersActivity(voipAccounts.getActivity(ptu)),callbackConference);
 						} else{
 							// Hangup Supervisor from active calls
 							AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
-							AudioServiceAsync.Util.getInstance().addToConference(supervisorAccount.getAccount(),voipAccounts.getRoom(ptuId),callbackConference);
+							AudioServiceAsync.Util.getInstance().addToConference(supervisorAccount.getAccount(),voipAccounts.getRoom(ptu),callbackConference);
 						}
 					} else {
 						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
 					}
 					
 				} else if (fieldName.equals("Conference")){
-					AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptuId)),callbackHangup);
-					if( voipAccounts.getRoom(ptuId).equals(supervisorAccount.getRoom()))
+					AudioServiceAsync.Util.getInstance().hangupMultiple(voipAccounts.getActiveChannelsActivity(voipAccounts.getActivity(ptu)),callbackHangup);
+					if( voipAccounts.getRoom(ptu).equals(supervisorAccount.getRoom()))
 						AudioServiceAsync.Util.getInstance().hangup(supervisorAccount.getChannel(),callbackHangup);
 					
 				} else if (fieldName.equals("Mute/Unmute")){
 					//System.out.println(voipAccounts.getMute(ptuId));
-					if(voipAccounts.getMute(ptuId)){
-						AudioServiceAsync.Util.getInstance().unMuteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel(ptuId), ptuId, callbackMute);
+					if(voipAccounts.getMute(ptu)){
+						AudioServiceAsync.Util.getInstance().unMuteUser(voipAccounts.getRoom(ptu),voipAccounts.getChannel(ptu), ptu, callbackMute);
 					}else{
-						AudioServiceAsync.Util.getInstance().muteUser(voipAccounts.getRoom(ptuId),voipAccounts.getChannel(ptuId), ptuId, callbackMute);
+						AudioServiceAsync.Util.getInstance().muteUser(voipAccounts.getRoom(ptu),voipAccounts.getChannel(ptu), ptu, callbackMute);
 					}
 					
 				} else if (fieldName.equals("Kick/Add")){
-					if(voipAccounts.getOnConference(ptuId))
-						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(ptuId),callbackHangup);
+					if(voipAccounts.getOnConference(ptu))
+						AudioServiceAsync.Util.getInstance().hangup(voipAccounts.getChannel(ptu),callbackHangup);
 					else
-						AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptuId),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptuId)),callbackConference);
+						AudioServiceAsync.Util.getInstance().addToConference(voipAccounts.getNumber(ptu),conferenceRooms.roomOfActivity(voipAccounts.getActivity(ptu)),callbackConference);
 					
 				} else
 					return;
@@ -223,7 +223,7 @@ public class AudioView extends GlassPanel implements Module {
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
-					ptuId = event.getPtuId();
+					ptu = event.getPtu() != null ? event.getPtu().getName() : null;
 					table.redraw();
 				}
 			});
@@ -274,7 +274,7 @@ public class AudioView extends GlassPanel implements Module {
 					}
 				}
 				
-				if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptuId))) {
+				if (conferenceRooms.conferenceOfActivityExist(voipAccounts.getActivity(ptu))) {
 					fieldName.add("Conference");
 					classField.add(ButtonCell.class);
 					fieldName.add("Mute/Unmute");

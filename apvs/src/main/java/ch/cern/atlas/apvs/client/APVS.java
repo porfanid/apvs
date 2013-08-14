@@ -3,9 +3,6 @@ package ch.cern.atlas.apvs.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.settings.LocalStorage;
@@ -36,6 +33,9 @@ import ch.cern.atlas.apvs.client.ui.TimeView;
 import ch.cern.atlas.apvs.client.widget.DialogResultEvent;
 import ch.cern.atlas.apvs.client.widget.DialogResultHandler;
 import ch.cern.atlas.apvs.client.widget.PasswordDialog;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
@@ -282,10 +282,6 @@ public class APVS implements EntryPoint {
 				}
 			}
 		}
-
-		// FIXME create tab buttons for each, select default one
-		clientFactory.getEventBus("ptu").fireEvent(
-				new SelectPtuEvent(defaultPtuId));
 		
 		// Server ALIVE status
 		RequestRemoteEvent.register(remoteEventBus, new RequestRemoteEvent.Handler() {

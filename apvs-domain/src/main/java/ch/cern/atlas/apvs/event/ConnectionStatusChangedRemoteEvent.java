@@ -1,8 +1,8 @@
-package ch.cern.atlas.apvs.client.event;
+package ch.cern.atlas.apvs.event;
 
 import java.io.Serializable;
 
-import ch.cern.atlas.apvs.client.domain.Ternary;
+import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;

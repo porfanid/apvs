@@ -4,16 +4,17 @@ import java.util.Date;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.History;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
@@ -32,13 +33,13 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 
 	protected static NumberFormat format = NumberFormat.getFormat("0.00");
 
-	protected HistoryMap historyMap;
+	protected History history;
 	protected InterventionMap interventions;
 	protected Measurement last = new Measurement();
 	protected ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	protected SingleSelectionModel<String> selectionModel;
 
-	protected String ptuId = null;
+	protected Device ptu = null;
 
 	protected boolean showHeader = true;
 	protected boolean showName = true;
@@ -114,12 +115,12 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 					}
 				});
 
-		HistoryMapChangedEvent.subscribe(clientFactory,
-				new HistoryMapChangedEvent.Handler() {
+		HistoryChangedEvent.subscribe(clientFactory,
+				new HistoryChangedEvent.Handler() {
 
 					@Override
-					public void onHistoryMapChanged(HistoryMapChangedEvent event) {
-						historyMap = event.getHistoryMap();
+					public void onHistoryChanged(HistoryChangedEvent event) {
+						history = event.getHistory();
 						changePtuId();
 						scheduler.update();
 					}
@@ -129,7 +130,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {
-				ptuId = event.getPtuId();
+				ptu = event.getPtu();
 
 				changePtuId();
 				scheduler.update();
@@ -152,8 +153,8 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 			Measurement last) {
 		if ((current != null) && (last != null) && (current.getDevice().getName() != null)
 				&& (current.getDevice().getName().equals(last.getDevice().getName()))
-				&& (current.getName() != null)
-				&& current.getName().equals(last.getName())) {
+				&& (current.getSensor() != null)
+				&& current.getSensor().equals(last.getSensor())) {
 			double c = current.getValue().doubleValue();
 			double l = last.getValue().doubleValue();
 			String a = (c == l) ? "&larr;" : (c > l) ? "&uarr;" : "&darr;";
@@ -206,12 +207,12 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 			return;
 		}
 
-		if (historyMap == null) {
+		if (history == null) {
 			return;
 		}
 
-		for (String ptuId : interventions.getPtuIds()) {
-			for (Measurement measurement : historyMap.getMeasurements(ptuId)) {
+		for (Device ptu : interventions.getPtus()) {
+			for (Measurement measurement : history.getMeasurements(ptu)) {
 				replace(measurement);
 			}
 		}
@@ -224,7 +225,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement measurement = event.getMeasurement();
-						if (measurement.getDevice().getName().equals(ptuId)) {
+						if (measurement.getDevice().getName().equals(ptu)) {
 							last = replace(measurement);
 							scheduler.update();
 						}
@@ -254,17 +255,17 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		}
 		
 		// FIXME 611, remove when above works
-		String sensor = measurement.getName();
+		String sensor = measurement.getSensor();
 		if (sensor == null) {
 			return null;
 		}
-		if (ptuId == null) {
+		if (ptu == null) {
 			return null;
 		}
 		if (sensor.equalsIgnoreCase("BodyTemperature")) {
 			return null;
 		}
-		if ((ptuId.equalsIgnoreCase("PTU-01") || (ptuId.equalsIgnoreCase("PTU-02"))) && sensor.equalsIgnoreCase("BarometricPressure")) {
+		if ((ptu.getName().equalsIgnoreCase("PTU-01") || (ptu.getName().equalsIgnoreCase("PTU-02"))) && sensor.equalsIgnoreCase("BarometricPressure")) {
 			return null;
 		}	
 		if (sensor.equalsIgnoreCase("CO2")) {
@@ -272,13 +273,13 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		}	
 
 		List<String> list = dataProvider.getList();
-		Measurement lastValue = historyMap.getMeasurement(
-				measurement.getDevice().getName(), measurement.getName());
+		Measurement lastValue = history.getMeasurement(
+				measurement.getDevice(), measurement.getSensor());
 
-		if (!list.contains(measurement.getName())) {
+		if (!list.contains(measurement.getSensor())) {
 			if ((show == null) || (show.size() == 0)
-					|| (show.contains(measurement.getName()))) {
-				list.add(measurement.getName());
+					|| (show.contains(measurement.getSensor()))) {
+				list.add(measurement.getSensor());
 				lastValue = measurement;
 			} else {
 				lastValue = null;
