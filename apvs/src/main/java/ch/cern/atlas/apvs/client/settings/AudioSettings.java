@@ -24,17 +24,6 @@ public class AudioSettings implements Serializable, IsSerializable {
 	 * Methods
 	 *********************************************/
 	
-	// Convert a Intervention Map into AudioSettings
-	public void interventionMapToAudioSettings(InterventionMap interventions){
-		List<String> ptuIds = interventions.getPtuIds();
-		
-		for(int i=0; i< ptuIds.size(); i++){
-			if(entries.containsKey(ptuIds.get(i)));
-				entries.get(ptuIds.get(i)).setIntervention(interventions.get(ptuIds.get(i)));
-		}
-		
-	}
-	
 	// Username Methods
 	public String getUsername(String ptuId) {
 		VoipAccount entry = entries.get(ptuId);
