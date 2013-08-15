@@ -12,7 +12,7 @@ public class Alarm implements Serializable, IsSerializable {
 	private Device device;
 	private boolean panic, dose, fall;
 	
-	public Alarm() {
+	protected Alarm() {
 	}
 	
 	public Alarm(Device device) {

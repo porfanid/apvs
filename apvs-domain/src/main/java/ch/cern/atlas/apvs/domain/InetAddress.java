@@ -10,7 +10,7 @@ public class InetAddress implements Serializable, IsSerializable {
 	private static final long serialVersionUID = -8179909394365726414L;
 	private byte[] address;
 
-	private InetAddress() {
+	protected InetAddress() {
 		// serializable
 	}
 	

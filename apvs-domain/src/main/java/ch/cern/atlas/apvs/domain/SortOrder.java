@@ -12,7 +12,7 @@ public class SortOrder implements Serializable, IsSerializable {
 	private String name;
 	private boolean ascending;
 	
-	public SortOrder() {
+	protected SortOrder() {
 	}
 
 	public SortOrder(String name) {

@@ -44,7 +44,7 @@ public class Data implements Serializable, IsSerializable {
 		threshold.put("Temperature", 0.5);
 	}
 
-	public Data() {
+	protected Data() {
 	}
 
 	public Data(Device device, String name, String unit, int maxEntries) {

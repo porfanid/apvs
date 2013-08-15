@@ -27,7 +27,7 @@ public class Sensor implements Serializable, IsSerializable {
 	private String name;
 	private Boolean enabled;
 
-	public Sensor() {
+	protected Sensor() {
 	}
 
 	public Sensor(Device device, String name, Boolean enabled) {

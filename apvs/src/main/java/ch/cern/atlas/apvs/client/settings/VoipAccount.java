@@ -39,7 +39,7 @@ public class VoipAccount implements Serializable, IsSerializable {
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
-		this.intervention = new Intervention();
+		this.intervention = null;
 	}
 	
 	public VoipAccount(String account) {
@@ -54,7 +54,7 @@ public class VoipAccount implements Serializable, IsSerializable {
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
-		this.intervention = new Intervention();
+		this.intervention = null;
 	}
 	
 	public VoipAccount(boolean setDefaults) {
@@ -71,7 +71,7 @@ public class VoipAccount implements Serializable, IsSerializable {
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
-		this.intervention = new Intervention();
+		this.intervention = null;
 	}
 
 	// Username	

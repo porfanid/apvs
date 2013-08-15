@@ -35,7 +35,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 
 	protected History history;
 	protected InterventionMap interventions;
-	protected Measurement last = new Measurement();
+	protected Measurement last = null;
 	protected ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	protected SingleSelectionModel<String> selectionModel;
 

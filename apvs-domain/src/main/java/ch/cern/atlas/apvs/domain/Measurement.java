@@ -48,7 +48,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	private volatile transient String displayName;
 	private transient String type = "Measurement";
 
-	public Measurement() {
+	protected Measurement() {
 	}
 	
 	public Measurement(Device device, String sensor, Double value,

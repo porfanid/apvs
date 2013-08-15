@@ -17,7 +17,7 @@ public class Packet implements Serializable, IsSerializable {
 	
 	List<Message> messages = new ArrayList<Message>();
 	
-	public Packet() {
+	protected Packet() {
 	}
 	
 	public Packet(String sender, String receiver, int frameID, boolean acknowledge) {

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.cern.atlas.apvs.domain.Device;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 //NOTE: implements IsSerializable in case serialization file cannot be found
@@ -46,8 +48,8 @@ public class Conference implements Serializable, IsSerializable {
 		return this.ptus;
 	}
 	
-	public void addPtu(String ptu){
-		this.ptus.add(ptu);
+	public void addPtu(String ptuId){
+		this.ptus.add(ptuId);
 	}
 	
 	// Username Methods

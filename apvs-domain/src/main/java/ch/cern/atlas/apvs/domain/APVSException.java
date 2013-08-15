@@ -9,7 +9,7 @@ public class APVSException extends IOException implements IsSerializable {
 
 	private static final long serialVersionUID = 3520019113105842483L;
 
-	public APVSException() {
+	protected APVSException() {
 	}
 
 	public APVSException(String msg) {

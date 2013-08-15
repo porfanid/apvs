@@ -34,7 +34,7 @@ public class User implements Serializable, IsSerializable {
 	
 	private String cernId;
 	
-	public User() {
+	protected User() {
 		// Serializable
 	}
 

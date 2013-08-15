@@ -33,7 +33,7 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 	private MacAddress macAddress;
 	private String hostName;
 	
-	public Device() {
+	protected Device() {
 		// Serialization
 	}
 	

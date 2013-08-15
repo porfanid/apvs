@@ -6,7 +6,7 @@ public class SensorOrder extends Order {
 
 	private String name;
 
-	public SensorOrder() {
+	protected SensorOrder() {
 	}
 
 	public SensorOrder(Device device, String name, String parameter, String value) {

@@ -18,7 +18,7 @@ public class Ptu implements Serializable, IsSerializable {
 	private Device device;
 	protected Map<String, Measurement> measurements = new HashMap<String, Measurement>();
 		
-	public Ptu() {
+	protected Ptu() {
 	}
 	
 	public Ptu(Device device) {

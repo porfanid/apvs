@@ -17,7 +17,7 @@ public class Error implements Message, Serializable, IsSerializable {
 	private String criticality;
 	private Date date;
 
-	public Error() {
+	protected Error() {
 	}
 
 	public Error(Device device, Integer errorNo, String description,

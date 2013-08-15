@@ -14,6 +14,9 @@ public class DeviceData implements Serializable, IsSerializable {
 	private Device device;
 	private Map<String, Data> map = new HashMap<String, Data>();
 	
+	protected DeviceData() {
+	}
+	
 	public DeviceData(Device device) {
 		this.device = device;
 	}

@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Intervention;
-import ch.cern.atlas.apvs.domain.InterventionMap;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -24,11 +22,10 @@ public class AudioSettings implements Serializable, IsSerializable {
 	/*********************************************
 	 * Methods
 	 *********************************************/
-
 	// Username Methods
 	public String getUsername(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
-		return (entry != null ? entry.getIntervention().getName() : "");
+		Intervention intervention = getIntervention(ptuId);
+		return (intervention != null ? intervention.getName() : "");
 	}
 
 	public boolean setUsername(String name, String username) {
@@ -43,11 +40,11 @@ public class AudioSettings implements Serializable, IsSerializable {
 	// Intervention Methods
 	public Intervention getIntervention(String ptuId) {
 		VoipAccount entry = entries.get(ptuId);
-		return (entry != null ? entry.getIntervention() : new Intervention());
+		return (entry != null ? entry.getIntervention() : null);
 	}
 
 	public boolean setIntervention(String ptuId, Intervention intervention) {
-		if (entries.get(ptuId).getIntervention().equals(intervention)) {
+		if (intervention.equals(getIntervention(ptuId))) {
 			return false;
 		}
 		entries.get(ptuId).setIntervention(intervention);

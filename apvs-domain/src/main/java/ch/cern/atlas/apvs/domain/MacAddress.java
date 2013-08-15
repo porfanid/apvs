@@ -10,8 +10,7 @@ public class MacAddress implements Serializable, IsSerializable {
 	private static final long serialVersionUID = 2378438435776354265L;
 	private byte[] mac;
 
-	@SuppressWarnings("unused")
-	private MacAddress() {
+	protected MacAddress() {
 		// serializable
 	}
 	

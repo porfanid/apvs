@@ -41,7 +41,7 @@ public class Intervention implements Serializable, IsSerializable {
 	private Double recStatus;
 	private String description;
 
-	public Intervention() {
+	protected Intervention() {
 	}
 	
 	public Intervention(User user, Device device, Date startTime, Date endTime,
