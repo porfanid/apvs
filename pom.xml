@@ -320,6 +320,11 @@
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-daq-server</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-domain</artifactId>
 				<version>${project.version}</version>
 			</dependency>

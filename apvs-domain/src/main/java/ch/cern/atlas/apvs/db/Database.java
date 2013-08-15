@@ -358,21 +358,17 @@ public class Database {
 			}
 		}
 	}
+	
 
-	public <T> List<T> getList(Class<T> clazz, int start, int length,
+	public <T> List<T> getList(Class<T> clazz, Integer start, Integer length,
 			SortOrder[] order) {
-		System.err.println("Getting list for " + clazz + " " + start + " "
-				+ length + " " + order[0]);
 		Session session = null;
 		Transaction tx = null;
 		try {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 			@SuppressWarnings("unchecked")
-			List<T> list = session
-					.createQuery(
-							getSql("from " + clazz.getName() + " t", order))
-					.setFirstResult(start).setMaxResults(length).list();
+			List<T> list = getQuery(session, clazz, start, length, order).list();
 			tx.commit();
 			return list;
 		} catch (HibernateException e) {
@@ -385,6 +381,19 @@ public class Database {
 				session.close();
 			}
 		}
+	}
+	
+	public Query getQuery(Session session, Class<?> clazz, Integer start, Integer length,
+			SortOrder[] order) {
+		Query query = session.createQuery(getSql("from " + clazz.getName()
+				+ " t", order));
+		if (start != null) {
+			query.setFirstResult(start);
+		}
+		if (length != null) {
+			query.setMaxResults(length);
+		}		
+		return query;
 	}
 
 	public long getCount(Class<?> clazz) {
@@ -491,15 +500,17 @@ public class Database {
 
 	private String getSql(String sql, SortOrder[] order) {
 		StringBuffer s = new StringBuffer(sql);
-		for (int i = 0; i < order.length; i++) {
-			if (i == 0) {
-				s.append(" order by ");
-			}
-			s.append(order[i].getName());
-			s.append(" ");
-			s.append(order[i].isAscending() ? "ASC" : "DESC");
-			if (i + 1 < order.length) {
-				s.append(", ");
+		if (order != null) {
+			for (int i = 0; i < order.length; i++) {
+				if (i == 0) {
+					s.append(" order by ");
+				}
+				s.append(order[i].getName());
+				s.append(" ");
+				s.append(order[i].isAscending() ? "ASC" : "DESC");
+				if (i + 1 < order.length) {
+					s.append(", ");
+				}
 			}
 		}
 		return s.toString();
