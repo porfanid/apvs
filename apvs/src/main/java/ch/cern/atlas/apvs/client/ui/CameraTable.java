@@ -3,13 +3,14 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.History;
+import ch.cern.atlas.apvs.domain.InterventionMap;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.dom.client.Element;
@@ -24,8 +25,8 @@ public class CameraTable extends SimplePanel implements Module {
 	private FlexTable table = new FlexTable();
 	private PtuSettings settings;
 	private InterventionMap interventions;
-	private HistoryMap historyMap;
-	private List<String> ptuIds;
+	private History history;
+	private List<Device> ptus;
 	
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 	
@@ -50,7 +51,7 @@ public class CameraTable extends SimplePanel implements Module {
 							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
 
-						ptuIds = interventions.getPtuIds();
+						ptus = interventions.getPtus();
 
 						configChanged();
 						scheduler.update();
@@ -70,12 +71,12 @@ public class CameraTable extends SimplePanel implements Module {
 					}
 				});
 		
-		HistoryMapChangedEvent.subscribe(clientFactory,
-				new HistoryMapChangedEvent.Handler() {
+		HistoryChangedEvent.subscribe(clientFactory,
+				new HistoryChangedEvent.Handler() {
 
 					@Override
-					public void onHistoryMapChanged(HistoryMapChangedEvent event) {
-						historyMap = event.getHistoryMap();
+					public void onHistoryChanged(HistoryChangedEvent event) {
+						history = event.getHistory();
 						configChanged();
 						scheduler.update();
 					}
@@ -93,37 +94,37 @@ public class CameraTable extends SimplePanel implements Module {
 	private void configChanged() {
 		table.clear();
 		
-		if ((ptuIds == null) || (settings == null) || (historyMap == null)) {
+		if ((ptus == null) || (settings == null) || (history == null)) {
 			return;
 		}
 		
 		int row = 0;
 		int column = 0;
 		int labelColumn = 0;
-		for(String ptuId: ptuIds) {
+		for(Device ptu: ptus) {
 
-			Label label = new Label(ptuId);
+			Label label = new Label(ptu.getName());
 			label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 			table.setWidget(row, labelColumn, label);
 			// 2
 			table.getFlexCellFormatter().setColSpan(row, labelColumn, 1);
 			labelColumn++;
 
-			Widget helmet = new ImageView(factory, settings.getCameraUrl(ptuId, CameraView.HELMET, factory.getProxy()));
+			Widget helmet = new ImageView(factory, settings.getCameraUrl(ptu.getName(), CameraView.HELMET, factory.getProxy()));
 			table.setWidget(row+1, column, helmet);
 			// 25%
 			table.getCellFormatter().setWidth(row+1, column, "50%");
 			
 //			SpecificTimeView timeView = new SpecificTimeView();
-//			Chart chart = timeView.createSingleChart(factory, "DoseRate", ptuId, historyMap, interventions, false);
-//			Label chart = new Label("TEST "+(row+2)+" "+column+" "+ptuId);
+//			Chart chart = timeView.createSingleChart(factory, "DoseRate", ptu, historyMap, interventions, false);
+//			Label chart = new Label("TEST "+(row+2)+" "+column+" "+ptu.getName());
 //			table.setWidget(row+2, column, chart);
 			// 25%
 //			table.getCellFormatter().setWidth(row+2, column, "50%");
 
 			column++;
 
-//			Widget hand = new ImageView(factory, settings.getCameraUrl(ptuId, CameraView.HAND, factory.getProxy()));
+//			Widget hand = new ImageView(factory, settings.getCameraUrl(ptu, CameraView.HAND, factory.getProxy()));
 //			table.setWidget(row+1, column, hand);
 //			table.getCellFormatter().setWidth(row+1, column, "25%");
 //			column++;

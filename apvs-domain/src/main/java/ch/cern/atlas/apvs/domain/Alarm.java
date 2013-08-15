@@ -9,18 +9,18 @@ public class Alarm implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5562745209109162633L;
 
-	private String ptuId;
+	private Device device;
 	private boolean panic, dose, fall;
 	
 	public Alarm() {
 	}
 	
-	public Alarm(String ptuId) {
-		this.ptuId = ptuId;
+	public Alarm(Device device) {
+		this.device = device;
 	}
 
-	public String getPtuId() {
-		return ptuId;
+	public Device getPtu() {
+		return device;
 	}
 
 	public boolean isPanic() {
@@ -48,7 +48,7 @@ public class Alarm implements Serializable, IsSerializable {
 	}
 
 	public String toString() {
-		return ptuId+" panic: "+panic+"; dose: "+dose+"; fall: "+fall;
+		return device+" panic: "+panic+"; dose: "+dose+"; fall: "+fall;
 	}
 
 }

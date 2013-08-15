@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client.domain;
+package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,24 +17,34 @@ public class InterventionMap implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 8868971785801918119L;
 
-	private Map<String, Intervention> interventions = new HashMap<String, Intervention>();
+	private Map<Device, Intervention> interventions = new HashMap<Device, Intervention>();
 	
 	public InterventionMap() {
 		// serializable
 	}
 	
-	public Intervention get(String ptuId) {
-		return interventions.get(ptuId);
+	// For Audio...
+	public Intervention get(String name) {
+		for (Device device : interventions.keySet()) {
+			if (device.getName().equals(name)) {
+				return get(device);
+			}
+		}
+		return null;
 	}
 	
-	public Intervention put(String ptuId, Intervention intervention) {
-		return interventions.put(ptuId, intervention);
+	public Intervention get(Device device) {
+		return interventions.get(device);
+	}
+	
+	public Intervention put(Device device, Intervention intervention) {
+		return interventions.put(device, intervention);
 	}
 
-	public List<String> getPtuIds() {
-		List<String> ptuIds = new ArrayList<String>(interventions.keySet());
-		Collections.sort(ptuIds);
-		return ptuIds;
+	public List<Device> getPtus() {
+		List<Device> ptus = new ArrayList<Device>(interventions.keySet());
+		Collections.sort(ptus);
+		return ptus;
 	}
 
 	public void clear() {
@@ -58,13 +68,13 @@ public class InterventionMap implements Serializable, IsSerializable {
 	}
 	
 	public boolean equalInterventionMap(InterventionMap obj){
-		Iterator<Entry<String, Intervention>> entries_it = interventions.entrySet().iterator();
+		Iterator<Entry<Device, Intervention>> entries_it = interventions.entrySet().iterator();
 		
 		List<Intervention> interventionList = new ArrayList<Intervention>();
 		List<Intervention> objList = new ArrayList<Intervention>();
 		
 		while (entries_it.hasNext()) {
-			  Entry<String, Intervention> thisEntry = entries_it.next();
+			  Entry<Device, Intervention> thisEntry = entries_it.next();
 			  Intervention value = thisEntry.getValue();
 			  interventionList.add(value);
 		}
@@ -72,7 +82,7 @@ public class InterventionMap implements Serializable, IsSerializable {
 		entries_it = obj.interventions.entrySet().iterator();
 		
 		while (entries_it.hasNext()) {
-			  Entry<String, Intervention> thisEntry = entries_it.next();
+			  Entry<Device, Intervention> thisEntry = entries_it.next();
 			  Intervention value = thisEntry.getValue();
 			  objList.add(value);
 		}
@@ -94,12 +104,12 @@ public class InterventionMap implements Serializable, IsSerializable {
 				}
 			
 			//DeviceId test
-			if((objList.get(i).getDeviceId()==null && interventionList.get(i).getDeviceId()==null))
+			if((objList.get(i).getDevice()==null && interventionList.get(i).getDevice()==null))
 				;
-			else if (objList.get(i).getDeviceId().equals(interventionList.get(i).getDeviceId()))
+			else if (objList.get(i).getDevice().equals(interventionList.get(i).getDevice()))
 					;
 				else{
-					System.out.println("Device ID field changed");
+					System.out.println("Device field changed");
 					return false;
 				}
 				
@@ -179,13 +189,13 @@ public class InterventionMap implements Serializable, IsSerializable {
 					return false;
 				}
 				
-			//User ID test
-			if((objList.get(i).getUserId()==null && interventionList.get(i).getUserId()==null))
+			//User test
+			if((objList.get(i).getUser()==null && interventionList.get(i).getUser()==null))
 					;
-			else if (objList.get(i).getUserId().equals(interventionList.get(i).getUserId()))
+			else if (objList.get(i).getUser().equals(interventionList.get(i).getUser()))
 						;
 				else{
-					System.out.println("USER ID field changed");
+					System.out.println("USER  field changed");
 					return false;
 				}
 			

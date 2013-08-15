@@ -87,11 +87,11 @@ public class MeasurementTable extends AbstractMeasurementView {
 
 //		Window.alert("Update "+ptuId+" "+historyMap+" "+last);
 		
-		if ((historyMap != null) && (ptuId != null)) {
+		if ((history != null) && (ptu != null)) {
 
 			if (last == null) {
 				// full table redraw
-				for(Measurement measurement : historyMap.getMeasurements(ptuId)) {
+				for(Measurement measurement : history.getMeasurements(ptu)) {
 					redraw(measurement);
 				}
 			} else {
@@ -103,10 +103,10 @@ public class MeasurementTable extends AbstractMeasurementView {
 	}
 
 	private void redraw(final Measurement measurement) {
-		Integer row = rows.get(measurement.getName());
+		Integer row = rows.get(measurement.getSensor());
 		if (row == null) {
 			row = rows.size();
-			rows.put(measurement.getName(), row);
+			rows.put(measurement.getSensor(), row);
 		}
 
 		int col = 0;
@@ -118,7 +118,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					selectMeasurement(measurement.getName());
+					selectMeasurement(measurement.getSensor());
 				}
 			});
 		}
@@ -133,7 +133,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					selectMeasurement(measurement.getName());
+					selectMeasurement(measurement.getSensor());
 				}
 			});
 		}
@@ -150,7 +150,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					selectMeasurement(measurement.getName());
+					selectMeasurement(measurement.getSensor());
 				}
 			});
 		}
@@ -166,7 +166,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 
 					@Override
 					public void onClick(ClickEvent event) {
-						selectMeasurement(measurement.getName());
+						selectMeasurement(measurement.getSensor());
 					}
 				});
 			}
@@ -182,13 +182,13 @@ public class MeasurementTable extends AbstractMeasurementView {
 			col = 0;
 			if (showName) {
 				// name
-				String s = ptuId;
+				String s = ptu.getName();
 				if (s != null) {
-					s = "PTU Id: " + ptuId;
+					s = "PTU ID: " + ptu.getName();
 
 					if (interventions != null) {
-						String realName = interventions.get(ptuId) != null ? interventions
-								.get(ptuId).getName() : null;
+						String realName = interventions.get(ptu) != null ? interventions
+								.get(ptu).getName() : null;
 
 						if (realName != null) {
 							s = "<div title=\"" + s + "\">" + realName

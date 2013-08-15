@@ -62,6 +62,6 @@ public class EventChangedEvent extends RemoteEvent<EventChangedEvent.Handler> {
 	
 	@Override
 	public String toString() {
-		return "EventChangedEvent "+(event != null ? event.getDevice().getName()+" "+event.getName() : "null");
+		return "EventChangedEvent "+(event != null ? event.getDevice().getName()+" "+event.getSensor() : "null");
 	}
 }

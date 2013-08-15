@@ -30,7 +30,6 @@
 		<commons-configuration-version>1.9</commons-configuration-version>
 		<commons-io-version>2.4</commons-io-version>
 		<commons-lang-version>2.6</commons-lang-version>
-		<c3p0-version>0.9.2.1</c3p0-version>
                 <eventbinder-version>1.0.0</eventbinder-version>
 <!--
 		<gwt-bootstrap-version>2.2.1.0</gwt-bootstrap-version>
@@ -57,7 +56,8 @@
 -->
 		<mockito-version>1.9.5</mockito-version>
 		<gwtmockito-version>1.1.0</gwtmockito-version>
-		<netty-version>4.0.6.Final</netty-version>
+		<mysql-version>5.1.26</mysql-version>
+		<netty-version>4.0.7.Final</netty-version>
 		<nettosphere-version>2.0.0.RC4</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
@@ -369,11 +369,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>com.mchange</groupId>
-				<artifactId>c3p0</artifactId>
-				<version>${c3p0-version}</version>
-			</dependency>
-			<dependency>
 				<groupId>com.moxie</groupId>
 				<artifactId>highcharts</artifactId>
 				<version>${highcharts-version}</version>
@@ -598,6 +593,11 @@
 				<version>${ojdbc-version}</version>
 			</dependency>
 			<dependency>
+    				<groupId>mysql</groupId>
+    				<artifactId>mysql-connector-java</artifactId>
+    				<version>${mysql-version}</version>
+			</dependency>
+			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 				<version>${javax.servlet-api-version}</version>
@@ -660,6 +660,11 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
+				<version>${hibernate-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-c3p0</artifactId>
 				<version>${hibernate-version}</version>
 			</dependency>
 			<dependency>

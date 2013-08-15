@@ -11,10 +11,22 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.db.Database;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Event;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.MacAddress;
+import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.SortOrder;
+import ch.cern.atlas.apvs.domain.User;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageDecoder;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageEncoder;
 import ch.cern.atlas.apvs.ptu.server.MessageEvent;
@@ -30,15 +42,51 @@ public class DaqServer {
 	private int inPort;
 	private int outPort;
 
+	private Database database;
+	private Device system;
+	private final static String systemDeviceName = "apvs-daq-server";
+
 	public DaqServer(int inPort, int outPort) {
 		this.inPort = inPort;
 		this.outPort = outPort;
 	}
 
 	public void run() {
+		database = Database.getInstance(null);
+
+		Map<String, Device> devices = database.getDeviceMap();
+		Map<Device, Map<String, List<Measurement>>> lastMeasurements = database
+				.getLastMeasurements(2);
+
+		system = devices.get(systemDeviceName);
+		if (system == null) {
+			system = new Device(systemDeviceName,
+					InetAddress.getByName("localhost"), "APVS DAQ Server",
+					new MacAddress("00:00:00:00:00:00"), "apvs-daq-server");
+			devices.put(system.getName(), system);
+			database.saveOrUpdate(system);
+		}
+			
+		Event event = new Event(system, "daq", "server_start", new Date());
+		
+		database.saveOrUpdate(event);
+
+		Device ptu05 = devices.get("PTU-05");
+		Measurement measurement = new Measurement(ptu05, "Temperature", 25.4,
+				22.3, 28.9, "&deg;", 60000, new Date());
+		database.saveOrUpdate(measurement);
+		
+		User duns = database.getUsers(false).get(142);
+		Intervention intervention = new Intervention(duns, ptu05, new Date(), null, "007", 0.0, "Test Intervention");
+//		database.saveOrUpdate(ptu05);
+		database.saveOrUpdate(intervention);
+		
+		List<Intervention> interventions = database.getList(Intervention.class, 0, 4, new SortOrder[] {new SortOrder("startTime")});
+		log.info("Found " + interventions.size() + " interventions");
+		log.info("Found " + database.getCount(Intervention.class) + " total interventions");
 
 		final EventBus bus = new SimpleEventBus();
-		
+
 		// Configure the server.
 		EventLoopGroup binGroup = new NioEventLoopGroup();
 		EventLoopGroup boutGroup = new NioEventLoopGroup();
@@ -63,7 +111,7 @@ public class DaqServer {
 			bin.option(ChannelOption.SO_BACKLOG, 128);
 			bin.childOption(ChannelOption.SO_KEEPALIVE, true);
 
-			ChannelFuture fin = bin.bind(new InetSocketAddress(inPort))
+			final ChannelFuture fin = bin.bind(new InetSocketAddress(inPort))
 					.sync();
 
 			ServerBootstrap bout = new ServerBootstrap();
@@ -84,20 +132,33 @@ public class DaqServer {
 			bout.option(ChannelOption.SO_BACKLOG, 128);
 			bout.childOption(ChannelOption.SO_KEEPALIVE, true);
 
-			ChannelFuture fout = bout.bind(new InetSocketAddress(outPort))
-					.sync();
+			final ChannelFuture fout = bout
+					.bind(new InetSocketAddress(outPort)).sync();
 
 			log.info("DaqServer in: " + inPort + " out: " + outPort);
 
 			// debug the bus...
 			bus.addHandler(MessageEvent.TYPE, new MessageEvent.Handler() {
-				
+
 				@Override
 				public void onMessageReceived(MessageEvent event) {
-					log.info(""+event);
+					log.info("" + event);
 				}
 			});
-			
+
+			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					System.out.println("Shutting down");
+					fin.cancel(true);
+					fout.cancel(true);
+					
+					database.saveOrUpdate(new Event(system, "daq", "server_stop", new Date()));
+					database.close();
+				}
+			}));
+
 			fin.channel().closeFuture().sync();
 			fout.channel().closeFuture().sync();
 		} catch (InterruptedException e) {
@@ -113,11 +174,11 @@ public class DaqServer {
 
 	public static void main(String[] args) {
 		if ((args.length != 0) && (args.length != 2)) {
-			System.err
-					.println("Usage: DaqServer source-port dest-port");
+			System.err.println("Usage: DaqServer source-port dest-port");
 			System.exit(1);
 		}
-		
-		new DaqServer(args.length > 0 ? Integer.parseInt(args[0]) : 10123, args.length > 1 ? Integer.parseInt(args[1]) : 10124).run();
+
+		new DaqServer(args.length > 0 ? Integer.parseInt(args[0]) : 10123,
+				args.length > 1 ? Integer.parseInt(args[1]) : 10124).run();
 	}
 }

@@ -3,39 +3,10 @@ package ch.cern.atlas.apvs.domain;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import ch.cern.atlas.apvs.hibernate.types.DoubleStringType;
-import ch.cern.atlas.apvs.hibernate.types.InetAddressType;
-import ch.cern.atlas.apvs.hibernate.types.IntegerStringType;
-import ch.cern.atlas.apvs.hibernate.types.MacAddressType;
-
-public class DeviceTest {
-	private SessionFactory sessionFactory;
-
-	@SuppressWarnings("deprecation")
-	@Before
-	public void before() throws Exception {
-		// configures settings from hibernate.cfg.xml
-		Configuration configuration = new Configuration().configure();
-		configuration.registerTypeOverride(new DoubleStringType());
-		configuration.registerTypeOverride(new IntegerStringType());
-		configuration.registerTypeOverride(new MacAddressType());
-		configuration.registerTypeOverride(new InetAddressType());
-		sessionFactory = configuration.buildSessionFactory();
-	}
-
-	@After
-	public void after() throws Exception {
-		if (sessionFactory != null) {
-			sessionFactory.close();
-		}
-	}
+public class DeviceTest extends AbstractDomainTest {
 
 	@SuppressWarnings({ "rawtypes" })
 	@Test

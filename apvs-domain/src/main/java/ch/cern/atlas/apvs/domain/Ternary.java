@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.client.domain;
+package ch.cern.atlas.apvs.domain;
 
 import java.io.Serializable;
 

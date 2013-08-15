@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -23,18 +24,18 @@ public class AudioSettings implements Serializable, IsSerializable {
 	/*********************************************
 	 * Methods
 	 *********************************************/
-	
+
 	// Username Methods
 	public String getUsername(String ptuId) {
 		VoipAccount entry = entries.get(ptuId);
 		return (entry != null ? entry.getIntervention().getName() : "");
 	}
 
-	public boolean setUsername(String ptuId, String username) {
-		if (entries.get(ptuId).getUsername().equals(username)) {
+	public boolean setUsername(String name, String username) {
+		if (entries.get(name).getUsername().equals(username)) {
 			return false;
 		}
-		entries.get(ptuId).setUsername(username);
+		entries.get(name).setUsername(username);
 		return true;
 	}
 
@@ -46,7 +47,7 @@ public class AudioSettings implements Serializable, IsSerializable {
 	}
 
 	public boolean setIntervention(String ptuId, Intervention intervention) {
-		if (entries.get(ptuId).getIntervention().equalIntervention(intervention)) {
+		if (entries.get(ptuId).getIntervention().equals(intervention)) {
 			return false;
 		}
 		entries.get(ptuId).setIntervention(intervention);
@@ -55,121 +56,121 @@ public class AudioSettings implements Serializable, IsSerializable {
 	
 	
 	// Number Methods
-	public String getNumber(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
-		return (entry != null ? entry.getAccount() : "");
+	public String getNumber(String name) {
+		VoipAccount entry = entries.get(name);
+		return (entry != null ? entry.getAccount() != null ? entry.getAccount() : "" : "");
 	}
 
-	public void setNumber(String ptuId, String number) {
-		entries.get(ptuId).setAccount(number);
+	public void setNumber(String name, String number) {
+		entries.get(name).setAccount(number);
 	}
 
 	
 	// Channel Methods
-	public String getChannel(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
+	public String getChannel(String name) {
+		VoipAccount entry = entries.get(name);
 		return (entry != null ? entry.getChannel() : "");
 	}
 
-	public void setChannel(String ptuId, String channel) {
-		entries.get(ptuId).setChannel(channel);
+	public void setChannel(String name, String channel) {
+		entries.get(name).setChannel(channel);
 	}
 
 	
 	// Destination User Methods
-	public String getDestUser(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
+	public String getDestUser(String name) {
+		VoipAccount entry = entries.get(name);
 		return (entry != null ? entry.getDestUser() : "");
 	}
 
-	public String getDestPtu(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
-		return (entry != null ? entry.getDestPTU() : "");
+	public String getDestPtu(String name) {
+		VoipAccount entry = entries.get(name);
+		return (entry != null ? entry.getDestPTU() : null);
 	}
 	
-	public void setDestUser(String ptuId, String userDest) {
-		entries.get(ptuId).setDestUser(userDest);
+	public void setDestUser(String name, String userDest) {
+		entries.get(name).setDestUser(userDest);
 	}
 	
-	public void setDestPTU(String ptuId, String PTUDest) {
-		entries.get(ptuId).setDestPTU(PTUDest);
+	public void setDestPTU(String name, String PTUDest) {
+		entries.get(name).setDestPTU(PTUDest);
 	}
 	
-	public void setDestPTUser(String ptuId, String userDest, String PTUDest) {
-		entries.get(ptuId).setDestUser(userDest);
-		entries.get(ptuId).setDestPTU(PTUDest);
+	public void setDestPTUser(String name, String userDest, String PTUDest) {
+		entries.get(name).setDestUser(userDest);
+		entries.get(name).setDestPTU(PTUDest);
 	}
 
 	
 	// Status Methods
-	public Boolean getStatus(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
+	public Boolean getStatus(String name) {
+		VoipAccount entry = entries.get(name);
 		return (entry != null ? entry.getStatus() : false);
 	}
 
-	public void setStatus(String ptuId, Boolean status) {
-		entries.get(ptuId).setStatus(status);
+	public void setStatus(String name, Boolean status) {
+		entries.get(name).setStatus(status);
 	}
 	
 	// Define all PTU as status unknown
 	public void setUnknownStatus(){
-		for(String ptuId : entries.keySet())
-			setStatus(ptuId, false);
+		for(String name : entries.keySet())
+			setStatus(name, false);
 	}
 
 	
 	// On Call Status Methods
-	public Boolean getOnCall(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
+	public Boolean getOnCall(String name) {
+		VoipAccount entry = entries.get(name);
 		return (entry != null ? entry.getOnCall() : false);
 	}
 
-	public void setOnCall(String ptuId, Boolean onCall) {
-		entries.get(ptuId).setOnCall(onCall);
+	public void setOnCall(String name, Boolean onCall) {
+		entries.get(name).setOnCall(onCall);
 	}
 
 	
 	// On Conference Status Methods
-	public Boolean getOnConference(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
+	public Boolean getOnConference(String name) {
+		VoipAccount entry = entries.get(name);
 		return (entry != null ? entry.getOnConference() : false);
 	}
 
-	public void setOnConference(String ptuId, Boolean onConference) {
-		entries.get(ptuId).setOnConference(onConference);
+	public void setOnConference(String name, Boolean onConference) {
+		entries.get(name).setOnConference(onConference);
 	}
 
 	
 	// Room Methods
-	public String getRoom(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
+	public String getRoom(String name) {
+		VoipAccount entry = entries.get(name);
 		return (entry != null ? entry.getRoom() : "");
 	}
 
-	public void setRoom(String ptuId, String conferenceRoom) {
-		entries.get(ptuId).setRoom(conferenceRoom);
+	public void setRoom(String name, String conferenceRoom) {
+		entries.get(name).setRoom(conferenceRoom);
 	}
 	
 	
 	// Mute Methods
-	public boolean getMute(String ptuId){
-		VoipAccount entry = entries.get(ptuId);
+	public boolean getMute(String name){
+		VoipAccount entry = entries.get(name);
 		return (entry != null? entry.getMute() : true);
 	}
 	
-	public void setMute(String ptuId, boolean mute){
-		entries.get(ptuId).setMute(mute);
+	public void setMute(String name, boolean mute){
+		entries.get(name).setMute(mute);
 	}
 	
 	
 	// Activity Methods
-	public String getActivity(String ptuId) {
-		VoipAccount entry = entries.get(ptuId);
+	public String getActivity(String name) {
+		VoipAccount entry = entries.get(name);
 		return (entry != null ? entry.getActivity() : "");
 	}
 
-	public void setActivity(String ptuId, String activity) {
-		entries.get(ptuId).setActivity(activity);
+	public void setActivity(String name, String activity) {
+		entries.get(name).setActivity(activity);
 	}
 
 	
@@ -182,10 +183,10 @@ public class AudioSettings implements Serializable, IsSerializable {
 
 	
 	// Add PTU
-	public boolean add(String ptuId) {
-		System.err.println("Adding " + ptuId);
-		if (!entries.containsKey(ptuId)) {
-			entries.put(ptuId, new VoipAccount("SIP/1000", false));
+	public boolean add(String name) {
+		System.err.println("Adding " + name);
+		if (!entries.containsKey(name)) {
+			entries.put(name, new VoipAccount("SIP/1000", false));
 			return true;
 		}
 		return false;
@@ -193,8 +194,8 @@ public class AudioSettings implements Serializable, IsSerializable {
 
 	
 	// Check PTU is in the list
-	public boolean contains(String ptuId) {
-		if (entries.containsKey(ptuId)) {
+	public boolean contains(String name) {
+		if (entries.containsKey(name)) {
 			return true;
 		}
 		return false;

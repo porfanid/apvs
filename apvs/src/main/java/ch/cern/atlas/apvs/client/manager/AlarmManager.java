@@ -4,7 +4,8 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
 import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 
@@ -12,7 +13,7 @@ public class AlarmManager {
 
 	private static AlarmManager instance;
 	private AlarmMap alarms;
-	private List<String> ptuIds;
+	private List<Device> ptus;
 	private RemoteEventBus eventBus;
 
 	private AlarmManager(RemoteEventBus eventBus) {
@@ -32,10 +33,10 @@ public class AlarmManager {
 								.println("FIXME (3x?)... Received............."
 										+ event.getEventBusUUID() + " "
 										+ event.getSourceUUID());
-						List<String> newPtuIds = event.getInterventionMap()
-								.getPtuIds();
-						if (!newPtuIds.equals(ptuIds)) {
-							ptuIds = newPtuIds;
+						List<Device> newPtuIds = event.getInterventionMap()
+								.getPtus();
+						if (!newPtuIds.equals(ptus)) {
+							ptus = newPtuIds;
 							update();
 						}
 					}
@@ -46,14 +47,14 @@ public class AlarmManager {
 			@Override
 			public void onEventChanged(EventChangedEvent event) {
 				String eventType = event.getEvent().getEventType();
-				String ptuId = event.getEvent().getDevice().getName();
+				Device ptu = event.getEvent().getDevice();
 
 				if (eventType.equals("PanicEvent")) {
-					alarms.setPanic(ptuId, true);
+					alarms.setPanic(ptu, true);
 				} else if (eventType.equals("DoseRateAlert")) {
-					alarms.setDose(ptuId, true);
+					alarms.setDose(ptu, true);
 				} else if (eventType.equals("FallDetection")) {
-					alarms.setFall(ptuId, true);
+					alarms.setFall(ptu, true);
 				}
 				
 				update();
@@ -61,18 +62,18 @@ public class AlarmManager {
 		});
 	}
 	
-	public void clearPanicAlarm(String ptuId) {
-		alarms.get(ptuId).setPanic(false);
+	public void clearPanicAlarm(Device ptu) {
+		alarms.get(ptu).setPanic(false);
 		update();
 	}
 
-	public void clearDoseAlarm(String ptuId) {
-		alarms.get(ptuId).setDose(false);
+	public void clearDoseAlarm(Device ptu) {
+		alarms.get(ptu).setDose(false);
 		update();
 	}
 
-	public void clearFallAlarm(String ptuId) {
-		alarms.get(ptuId).setFall(false);
+	public void clearFallAlarm(Device ptu) {
+		alarms.get(ptu).setFall(false);
 		update();
 	}
 

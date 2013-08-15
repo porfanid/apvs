@@ -12,7 +12,6 @@ import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
-import ch.cern.atlas.apvs.client.ui.PtuSelector;
 import ch.cern.atlas.apvs.eventbus.client.AtmosphereEventBus;
 import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -34,7 +33,6 @@ public class APVSClientFactory implements ClientFactory {
 	private final EventServiceAsync eventService = EventServiceAsync.Util.getInstance();
 	private final InterventionServiceAsync interventionService = InterventionServiceAsync.Util.getInstance();
 
-	private PtuSelector ptuSelector;
 	private MeasurementView measurementView;
 	private boolean secure;
 	private User user;
@@ -89,14 +87,6 @@ public class APVSClientFactory implements ClientFactory {
 		return ptuService;
 	}
 	
-	@Override
-	public PtuSelector getPtuSelector() {
-//		if (ptuSelector == null) {
-			ptuSelector = new PtuSelector(getRemoteEventBus(), getEventBus("remote"));
-//		}
-		return ptuSelector;
-	}
-
 	@Override
 	public MeasurementView getMeasurementView() {
 //		if (measurementView == null) {

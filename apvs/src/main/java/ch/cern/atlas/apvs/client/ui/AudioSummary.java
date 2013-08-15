@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.Ternary;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ButtonCell;
@@ -172,16 +173,19 @@ public class AudioSummary extends GlassPanel implements Module {
 					}
 				});
 
+		// NOTE: FIXME the two below need to be merged...
 		InterventionMapChangedRemoteEvent.subscribe(eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
-						List<String> activePtuIds = event.getInterventionMap()
-								.getPtuIds();
+						List<Device> activePtus = event.getInterventionMap()
+								.getPtus();
 						dataProvider.getList().clear();
-						dataProvider.getList().addAll(activePtuIds);
+						for (Device device: activePtus) {
+							dataProvider.getList().add(device.getName());
+						}
 					}
 				});
 

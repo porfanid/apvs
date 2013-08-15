@@ -8,8 +8,6 @@ import ch.cern.atlas.apvs.client.settings.VoipAccount;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
-import com.cedarsoftware.util.io.JsonReader;
-
 public class AudioSupervisorSettingsStorage {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());

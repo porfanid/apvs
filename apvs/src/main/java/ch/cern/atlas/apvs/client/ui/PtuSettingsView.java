@@ -8,11 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -23,17 +20,17 @@ import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Order;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.ActionCell.Delegate;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.CompositeCell;
 import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.HasCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -42,6 +39,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
@@ -58,9 +56,9 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
-	private CellTable<String> table = new CellTable<String>();
-	private ListHandler<String> columnSortHandler;
+	private ListDataProvider<Device> dataProvider = new ListDataProvider<Device>();
+	private CellTable<Device> table = new CellTable<Device>();
+	private ListHandler<Device> columnSortHandler;
 
 	protected PtuSettings settings = new PtuSettings();
 	protected InterventionMap interventions = new InterventionMap();
@@ -73,7 +71,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	private AudioSettings voipAccounts = new AudioSettings();
 
 	private Delegate<Device> setDosimeterSerialId = null;
-	
+
 	public PtuSettingsView() {
 	}
 
@@ -103,18 +101,18 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		setVisible(clientFactory.isSupervisor());
 
 		// ENABLED
-		Column<String, Boolean> enabled = new Column<String, Boolean>(
+		Column<Device, Boolean> enabled = new Column<Device, Boolean>(
 				new CheckboxCell()) {
 			@Override
-			public Boolean getValue(String object) {
-				return settings.isEnabled(object);
+			public Boolean getValue(Device object) {
+				return settings.isEnabled(object.getName());
 			}
 		};
-		enabled.setFieldUpdater(new FieldUpdater<String, Boolean>() {
+		enabled.setFieldUpdater(new FieldUpdater<Device, Boolean>() {
 
 			@Override
-			public void update(int index, String object, Boolean value) {
-				settings.setEnabled(object, value);
+			public void update(int index, Device object, Boolean value) {
+				settings.setEnabled(object.getName(), value);
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
@@ -123,11 +121,11 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumn(enabled, "Enabled");
 
 		// PTU ID
-		Column<String, String> ptuId = new Column<String, String>(
+		Column<Device, String> ptuId = new Column<Device, String>(
 				new TextCell()) {
 			@Override
-			public String getValue(String object) {
-				return object;
+			public String getValue(Device object) {
+				return object.getName();
 			}
 		};
 		ptuId.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -135,11 +133,11 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumn(ptuId, "PTU ID");
 
 		// NAME
-		Column<String, String> name = new Column<String, String>(new TextCell()) {
+		Column<Device, String> name = new Column<Device, String>(new TextCell()) {
 			@Override
-			public String getValue(String object) {
-				return interventions.get(object) != null ? interventions.get(
-						object).getName() : "";
+			public String getValue(Device device) {
+				return interventions.get(device) != null ? interventions.get(
+						device).getName() : "";
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -149,11 +147,11 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		// Impact Activity Name
 		boolean showImpactNumber = false;
 		if (showImpactNumber) {
-			Column<String, String> impact = new Column<String, String>(
+			Column<Device, String> impact = new Column<Device, String>(
 					new TextCell()) {
 
 				@Override
-				public String getValue(String object) {
+				public String getValue(Device object) {
 					return interventions.get(object) != null ? interventions
 							.get(object).getImpactNumber() : "";
 				}
@@ -165,19 +163,18 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		// DOSIMETER
 		boolean enableDosimeter = true;
 		boolean enableDosimeterChange = false;
-		Column<String, String> dosimeter = null;
+		Column<Device, String> dosimeter = null;
 		if (enableDosimeter) {
-			boolean useCompositeCell = false;
-
 			if (enableDosimeterChange) {
 				setDosimeterSerialId = new Delegate<Device>() {
 					@Override
 					public void execute(Device device) {
 						System.out.println("Action program "
-								+ settings.getDosimeterSerialNumber(device.getName())
-								+ " into " + device);
+								+ settings.getDosimeterSerialNumber(device
+										.getName()) + " into " + device);
 						final Order order = new Order(device, "DosimeterID",
-								settings.getDosimeterSerialNumber(device.getName()));
+								settings.getDosimeterSerialNumber(device
+										.getName()));
 						clientFactory.getPtuService().handleOrder(order,
 								new AsyncCallback<Void>() {
 
@@ -196,102 +193,38 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				};
 			}
 
-			if (useCompositeCell) {
-				// FIXME #275 could be done with cells, but could not get button
-				// and
-				// inout next to eachother, something with
-				// block level and inline elements AND table cells
-				List<HasCell<String, ?>> cells = new ArrayList<HasCell<String, ?>>();
-				cells.add(new HasCell<String, Device>() {
-					Cell<Device> action = new ActionCell<Device>("Set to PTU",
-							setDosimeterSerialId);
-
-					@Override
-					public Cell<Device> getCell() {
-						return action;
-					}
-
-					@Override
-					public FieldUpdater<String, Device> getFieldUpdater() {
-						return null;
-					}
-
-					@Override
-					public Device getValue(String object) {
-						// FIXME look at this again
-						return new Device(object);
-					}
-
-				});
-				cells.add(new HasCell<String, String>() {
-					Cell<String> cell = new TextInputSizeCell(10);
-
-					@Override
-					public Cell<String> getCell() {
-						return cell;
-					}
-
-					@Override
-					public FieldUpdater<String, String> getFieldUpdater() {
-						return new FieldUpdater<String, String>() {
-							@Override
-							public void update(int index, String object,
-									String value) {
-								settings.setDosimeterSerialNumber(object, value);
-								fireSettingsChangedEvent(eventBus, settings);
-							}
-						};
-					}
-
-					@Override
-					public String getValue(String object) {
-						return settings.getDosimeterSerialNumber(object);
-					}
-				});
-				dosimeter = new Column<String, String>(
-						new CompositeCell<String>(cells)) {
-
-					@Override
-					public String getValue(String object) {
-						return object;
-					}
-				};
-			} else {
-				dosimeter = new Column<String, String>(
-				// new TextInputSizeCell(15)) {
-						new TextCell()) {
-					@Override
-					public String getValue(String object) {
-						return settings.getDosimeterSerialNumber(object);
-					}
-				};
-				if (enableDosimeterChange) {
-					dosimeter
-							.setFieldUpdater(new FieldUpdater<String, String>() {
-
-								@Override
-								public void update(int index, String object,
-										String value) {
-									settings.setDosimeterSerialNumber(object,
-											value);
-									fireSettingsChangedEvent(eventBus, settings);
-								}
-							});
+			dosimeter = new Column<Device, String>(
+			// new TextInputSizeCell(15)) {
+					new TextCell()) {
+				@Override
+				public String getValue(Device object) {
+					return settings.getDosimeterSerialNumber(object.getName());
 				}
+			};
+			if (enableDosimeterChange) {
+				dosimeter.setFieldUpdater(new FieldUpdater<Device, String>() {
+
+					@Override
+					public void update(int index, Device object, String value) {
+						settings.setDosimeterSerialNumber(object.getName(),
+								value);
+						fireSettingsChangedEvent(eventBus, settings);
+					}
+				});
 			}
+
 			dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-			dosimeter.setSortable(useCompositeCell);
+			dosimeter.setSortable(false);
 			table.addColumn(dosimeter, "Dosimeter #");
 
-			if (!useCompositeCell && enableDosimeterChange) {
-				Column<String, Device> dosimeterSet = new Column<String, Device>(
+			if (enableDosimeterChange) {
+				Column<Device, Device> dosimeterSet = new Column<Device, Device>(
 						new ActionCell<Device>("Set to PTU",
 								setDosimeterSerialId)) {
 
 					@Override
-					public Device getValue(String object) {
-						// FIXME look at this again
-						return new Device(object);
+					public Device getValue(Device object) {
+						return object;
 					}
 				};
 				dosimeterSet.setSortable(false);
@@ -302,18 +235,20 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		}
 
 		// HELMET URL
-		Column<String, String> helmetUrl = new Column<String, String>(
+		Column<Device, String> helmetUrl = new Column<Device, String>(
 				new TextInputSizeCell(50)) {
 			@Override
-			public String getValue(String object) {
-				return settings.getCameraUrl(object, CameraView.HELMET, clientFactory.getProxy());
+			public String getValue(Device object) {
+				return settings.getCameraUrl(object.getName(),
+						CameraView.HELMET, clientFactory.getProxy());
 			}
 		};
-		helmetUrl.setFieldUpdater(new FieldUpdater<String, String>() {
+		helmetUrl.setFieldUpdater(new FieldUpdater<Device, String>() {
 
 			@Override
-			public void update(int index, String object, String value) {
-				settings.setCameraUrl(object, CameraView.HELMET, value, clientFactory.getProxy());
+			public void update(int index, Device object, String value) {
+				settings.setCameraUrl(object.getName(), CameraView.HELMET,
+						value, clientFactory.getProxy());
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
@@ -322,18 +257,20 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumn(helmetUrl, "Helmet Camera URL");
 
 		// HAND URL
-		Column<String, String> handUrl = new Column<String, String>(
+		Column<Device, String> handUrl = new Column<Device, String>(
 				new TextInputSizeCell(50)) {
 			@Override
-			public String getValue(String object) {
-				return settings.getCameraUrl(object, CameraView.HAND, clientFactory.getProxy());
+			public String getValue(Device object) {
+				return settings.getCameraUrl(object.getName(), CameraView.HAND,
+						clientFactory.getProxy());
 			}
 		};
-		handUrl.setFieldUpdater(new FieldUpdater<String, String>() {
+		handUrl.setFieldUpdater(new FieldUpdater<Device, String>() {
 
 			@Override
-			public void update(int index, String object, String value) {
-				settings.setCameraUrl(object, CameraView.HAND, value, clientFactory.getProxy());
+			public void update(int index, Device object, String value) {
+				settings.setCameraUrl(object.getName(), CameraView.HAND, value,
+						clientFactory.getProxy());
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
@@ -342,27 +279,27 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumn(handUrl, "Hand Camera URL");
 
 		dataProvider.addDataDisplay(table);
-		dataProvider.setList(new ArrayList<String>());
+		dataProvider.setList(new ArrayList<Device>());
 
 		// SIP Number
-		Column<String, String> number = new Column<String, String>(
+		Column<Device, String> number = new Column<Device, String>(
 				new DynamicSelectionCell(new StringList<String>(usersList))) {
 
 			@Override
-			public String getValue(String object) {
-				return voipAccounts.getNumber(object);
+			public String getValue(Device object) {
+				return voipAccounts.getNumber(object.getName());
 			}
 
 		};
 		number.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(number, "SIP Account");
 
-		number.setFieldUpdater(new FieldUpdater<String, String>() {
+		number.setFieldUpdater(new FieldUpdater<Device, String>() {
 
 			@Override
-			public void update(int index, String object, String value) {
-				if (voipAccounts.contains(object)) {
-					voipAccounts.setNumber(object, value);
+			public void update(int index, Device object, String value) {
+				if (voipAccounts.contains(object.getName())) {
+					voipAccounts.setNumber(object.getName(), value);
 					;
 					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(
 							voipAccounts));
@@ -371,15 +308,15 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		});
 
 		// SIP Status
-		Column<String, String> status = new Column<String, String>(
+		Column<Device, String> status = new Column<Device, String>(
 				new TextCell()) {
 
 			@Override
-			public String getValue(String object) {
+			public String getValue(Device object) {
 				for (int i = 0; i < usersAccounts.size(); i++) {
 					if (usersAccounts.get(i).getAccount()
-							.equals(voipAccounts.getNumber(object)))
-						return (voipAccounts.getStatus(object)/*
+							.equals(voipAccounts.getNumber(object.getName())))
+						return (voipAccounts.getStatus(object.getName())/*
 															 * usersAccounts.get(
 															 * i).getStatus()
 															 */? "Online"
@@ -389,7 +326,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			}
 
 			@Override
-			public void render(Context context, String object,
+			public void render(Context context, Device object,
 					SafeHtmlBuilder sb) {
 				String value = getValue(object);
 
@@ -403,19 +340,20 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumn(status, "Account Status");
 
 		// SORTING
-		columnSortHandler = new ListHandler<String>(dataProvider.getList());
-		columnSortHandler.setComparator(ptuId, new Comparator<String>() {
-			public int compare(String o1, String o2) {
+		columnSortHandler = new ListHandler<Device>(dataProvider.getList());
+		columnSortHandler.setComparator(ptuId, new Comparator<Device>() {
+			public int compare(Device o1, Device o2) {
 				return o1 != null ? o1.compareTo(o2) : -1;
 			}
 		});
-		columnSortHandler.setComparator(enabled, new Comparator<String>() {
-			public int compare(String o1, String o2) {
-				return settings.isEnabled(o1).compareTo(settings.isEnabled(o2));
+		columnSortHandler.setComparator(enabled, new Comparator<Device>() {
+			public int compare(Device o1, Device o2) {
+				return settings.isEnabled(o1.getName()).compareTo(
+						settings.isEnabled(o2.getName()));
 			}
 		});
-		columnSortHandler.setComparator(name, new Comparator<String>() {
-			public int compare(String o1, String o2) {
+		columnSortHandler.setComparator(name, new Comparator<Device>() {
+			public int compare(Device o1, Device o2) {
 				Intervention i1 = interventions.get(o1);
 				Intervention i2 = interventions.get(o2);
 
@@ -436,25 +374,29 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		});
 		if (enableDosimeter) {
 			columnSortHandler.setComparator(dosimeter,
-					new Comparator<String>() {
-						public int compare(String o1, String o2) {
-							return settings
-									.getDosimeterSerialNumber(o1)
-									.compareTo(
-											settings.getDosimeterSerialNumber(o2));
+					new Comparator<Device>() {
+						public int compare(Device o1, Device o2) {
+							return settings.getDosimeterSerialNumber(
+									o1.getName()).compareTo(
+									settings.getDosimeterSerialNumber(o2
+											.getName()));
 						}
 					});
 		}
-		columnSortHandler.setComparator(helmetUrl, new Comparator<String>() {
-			public int compare(String o1, String o2) {
-				return settings.getCameraUrl(o1, CameraView.HELMET, clientFactory.getProxy()).compareTo(
-						settings.getCameraUrl(o2, CameraView.HELMET, clientFactory.getProxy()));
+		columnSortHandler.setComparator(helmetUrl, new Comparator<Device>() {
+			public int compare(Device o1, Device o2) {
+				return settings.getCameraUrl(o1.getName(), CameraView.HELMET,
+						clientFactory.getProxy()).compareTo(
+						settings.getCameraUrl(o2.getName(), CameraView.HELMET,
+								clientFactory.getProxy()));
 			}
 		});
-		columnSortHandler.setComparator(handUrl, new Comparator<String>() {
-			public int compare(String o1, String o2) {
-				return settings.getCameraUrl(o1, CameraView.HAND, clientFactory.getProxy()).compareTo(
-						settings.getCameraUrl(o2, CameraView.HAND, clientFactory.getProxy()));
+		columnSortHandler.setComparator(handUrl, new Comparator<Device>() {
+			public int compare(Device o1, Device o2) {
+				return settings.getCameraUrl(o1.getName(), CameraView.HAND,
+						clientFactory.getProxy()).compareTo(
+						settings.getCameraUrl(o2.getName(), CameraView.HAND,
+								clientFactory.getProxy()));
 			}
 		});
 		table.addColumnSortHandler(columnSortHandler);
@@ -478,10 +420,9 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
-
+						
 						dataProvider.getList().clear();
-						dataProvider.getList()
-								.addAll(interventions.getPtuIds());
+						dataProvider.getList().addAll(interventions.getPtus());
 
 						scheduler.update();
 					}

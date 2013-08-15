@@ -3,12 +3,14 @@ package ch.cern.atlas.apvs.server;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.DbService;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 /**
@@ -24,7 +26,7 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 	private String dbUrl;
 
 	private RemoteEventBus eventBus;
-	private DbHandler dbHandler;
+	private Database database;
 
 	public DbServiceImpl() {
 		log.info("Creating DbService...");
@@ -36,7 +38,7 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 		super.init(config);
 
 		log.info("Starting DbService...");
-		dbHandler = DbHandler.getInstance();
+		database = Database.getInstance(eventBus);
 		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
@@ -51,8 +53,21 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 											.toString());
 							if ((url != null) && !url.equals(dbUrl)) {
 								dbUrl = url;
+								
+								// Check DB
+								
+								// FIXME move and check others
+								try {
+									database.getDevices(false);
+									database.getDevices(true);
+									database.getUsers(false);
+									database.getUsers(true);
+									database.getSensorMap();
+								} catch (HibernateException e) {
+									e.printStackTrace();
+									System.exit(1);
+								}
 
-								dbHandler.connect(dbUrl);
 							}
 						}
 					}
@@ -61,6 +76,6 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 	
 	@Override
 	public boolean isConnected() {
-		return dbHandler.isConnected();
+		return database.isConnected();
 	}
 }

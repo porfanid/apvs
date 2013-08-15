@@ -17,11 +17,11 @@ public class JsonEvent extends JsonMessage {
 	public JsonEvent(Message message) {
 		Event event = (Event)message;
 		type = event.getType();
-		sensor = limit(event.getName(), 50);
+		sensor = limit(event.getSensor(), 50);
 		time = event.getDate();
 		value = limit(event.getValue().toString(), 1024);
 		eventType = limit(event.getEventType(), 50);
-		threshold = limit(event.getTheshold().toString(), 1024);
+		threshold = limit(event.getThreshold().toString(), 1024);
 	}
 
 }

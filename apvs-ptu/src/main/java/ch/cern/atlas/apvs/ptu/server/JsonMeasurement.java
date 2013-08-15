@@ -18,7 +18,7 @@ public class JsonMeasurement extends JsonMessage {
 	public JsonMeasurement(Message message) {
 		Measurement measurement = (Measurement)message;
 		type = measurement.getType();
-		sensor = limit(measurement.getName(), 50);
+		sensor = limit(measurement.getSensor(), 50);
 		time = measurement.getDate();
 		value = limit(measurement.getValue().toString(), 1024);
 		samplingRate = limit(measurement.getSamplingRate().toString(), 20);

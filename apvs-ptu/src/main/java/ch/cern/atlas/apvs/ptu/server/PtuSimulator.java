@@ -150,7 +150,7 @@ public class PtuSimulator extends Thread {
 	}
 
 	private Measurement nextMeasurement(Measurement m, Date d) {
-		return new Measurement(m.getDevice(), m.getName(), m.getValue()
+		return new Measurement(m.getDevice(), m.getSensor(), m.getValue()
 				.doubleValue() + random.nextGaussian(), m.getLowLimit(),
 				m.getHighLimit(), m.getUnit(), m.getSamplingRate(), d);
 	}

@@ -8,9 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.cern.atlas.apvs.domain.Alarm;
+import ch.cern.atlas.apvs.domain.Device;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 
 //NOTE: implements IsSerializable in case serialization file cannot be found
@@ -19,53 +20,53 @@ public class AlarmMap implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -7761956767282031317L;
 
-	private Map<String, Alarm> alarms  = new HashMap<String,Alarm>();
+	private Map<Device, Alarm> alarms  = new HashMap<Device, Alarm>();
 	
 	public AlarmMap() {
 		// serializable
 	}
 	
-	public Alarm get(String ptuId) {
-		Alarm alarm = alarms.get(ptuId);
+	public Alarm get(Device device) {
+		Alarm alarm = alarms.get(device);
 		if (alarm == null) {
-			put(new Alarm(ptuId));
+			put(new Alarm(device));
 		}
-		return alarms.get(ptuId);
+		return alarms.get(device);
 	}
 	
 	public Alarm put(Alarm alarm) {
-		String ptuId = alarm.getPtuId();
-		return alarms.put(ptuId, alarm);
+		Device device = alarm.getPtu();
+		return alarms.put(device, alarm);
 	}
 	
-	public boolean isPanic(String ptuId) {
-		return get(ptuId).isPanic();
+	public boolean isPanic(Device device) {
+		return get(device).isPanic();
 	}
 	
-	public boolean isDose(String ptuId) {
-		return get(ptuId).isDose();
+	public boolean isDose(Device device) {
+		return get(device).isDose();
 	}
 	
-	public boolean isFall(String ptuId) {
-		return get(ptuId).isFall();
+	public boolean isFall(Device device) {
+		return get(device).isFall();
 	}
 	
-	public void setPanic(String ptuId, boolean state) {
-		get(ptuId).setPanic(state);
+	public void setPanic(Device device, boolean state) {
+		get(device).setPanic(state);
 	}
 
-	public void setDose(String ptuId, boolean state) {
-		get(ptuId).setDose(state);
+	public void setDose(Device device, boolean state) {
+		get(device).setDose(state);
 	}
 
-	public void setFall(String ptuId, boolean state) {
-		get(ptuId).setFall(state);
+	public void setFall(Device device, boolean state) {
+		get(device).setFall(state);
 	}
 	
-	public List<String> getPtuIds() {
-		List<String> ptuIds = new ArrayList<String>(alarms.keySet());
-		Collections.sort(ptuIds);
-		return ptuIds;
+	public List<Device> getPtus() {
+		List<Device> ptus = new ArrayList<Device>(alarms.keySet());
+		Collections.sort(ptus);
+		return ptus;
 	}
 		
 	public void clear() {

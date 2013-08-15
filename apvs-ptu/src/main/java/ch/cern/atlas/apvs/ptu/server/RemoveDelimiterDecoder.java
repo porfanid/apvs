@@ -7,12 +7,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class RemoveDelimiterDecoder extends ByteToMessageDecoder {
-
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	public RemoveDelimiterDecoder() {
 	}

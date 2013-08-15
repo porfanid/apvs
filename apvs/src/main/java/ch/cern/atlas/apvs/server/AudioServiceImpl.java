@@ -47,8 +47,6 @@ import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent
 import ch.cern.atlas.apvs.client.event.AudioSupervisorStatusRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.AudioService;
@@ -56,6 +54,10 @@ import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.ConnectionUUIDsChangedEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
@@ -416,14 +418,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void muteUser(String room, String channel, String ptuId) {
+	public void muteUser(String room, String channel, String ptu) {
 		MeetMeRoom meetMeRoom = asteriskServer.getMeetMeRoom(room);
 		List<MeetMeUser> meetMeUsersList = (List<MeetMeUser>) meetMeRoom
 				.getUsers();
 		for (int i = 0; i < meetMeUsersList.size(); i++) {
 			if (meetMeUsersList.get(i).getChannel().getName().equals(channel)) {
 				meetMeUsersList.get(i).mute();
-				voipAccounts.setMute(ptuId, true);
+				voipAccounts.setMute(ptu, true);
 				((RemoteEventBus) eventBus)
 						.fireEvent(new AudioUsersSettingsChangedRemoteEvent(
 								voipAccounts));
@@ -432,14 +434,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void unMuteUser(String room, String channel, String ptuId) {
+	public void unMuteUser(String room, String channel, String ptu){
 		MeetMeRoom meetMeRoom = asteriskServer.getMeetMeRoom(room);
 		List<MeetMeUser> meetMeUsersList = (List<MeetMeUser>) meetMeRoom
 				.getUsers();
 		for (int i = 0; i < meetMeUsersList.size(); i++) {
 			if (meetMeUsersList.get(i).getChannel().getName().equals(channel)) {
 				meetMeUsersList.get(i).unmute();
-				voipAccounts.setMute(ptuId, false);
+				voipAccounts.setMute(ptu, false);
 				((RemoteEventBus) eventBus)
 						.fireEvent(new AudioUsersSettingsChangedRemoteEvent(
 								voipAccounts));
@@ -680,7 +682,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 		if (number.equals(supervisorAccount.getAccount())) {
 			supervisorAccount.setChannel("");
-			supervisorAccount.setDestPTU("");
+			supervisorAccount.setDestPTU(null);
+			// FIXME
 			supervisorAccount.setDestUser(voipAccounts.getUsername(""));
 			supervisorAccount.setOnCall(false);
 			supervisorAccount.setOnConference(false);
@@ -808,9 +811,9 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 				conferenceRooms.get(room).setUserNum(
 						conferenceRooms.get(room).getUserNum() - 1);
-				int index = conferenceRooms.get(room).getPtuIds()
+				int index = conferenceRooms.get(room).getPtus()
 						.indexOf(ptuId);
-				conferenceRooms.get(room).getPtuIds().remove(index);
+				conferenceRooms.get(room).getPtus().remove(index);
 				conferenceRooms.get(room).getUsernames().remove(index);
 
 				((RemoteEventBus) eventBus)

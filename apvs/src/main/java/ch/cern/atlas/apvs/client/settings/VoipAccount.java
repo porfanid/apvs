@@ -1,7 +1,8 @@
 package ch.cern.atlas.apvs.client.settings;
 
 import java.io.Serializable;
-import ch.cern.atlas.apvs.client.domain.Intervention;
+
+import ch.cern.atlas.apvs.domain.Intervention;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -18,7 +19,7 @@ public class VoipAccount implements Serializable, IsSerializable {
 	private Boolean mute;
 	private Boolean onConference;	
 	private Boolean onCall;
-	private String username; //Intevention
+	private String username; //Intervention
 	private String activity; //Intervention
 	private Intervention intervention; //Intervention
 	

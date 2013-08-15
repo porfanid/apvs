@@ -4,16 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.History;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
@@ -25,11 +26,10 @@ public class TimeView extends SpecificTimeView implements Module {
 	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
-	private String ptuId = null;
-	private boolean ptuIdIsFixed = false;
+	private Device device = null;
 	private PtuSettings settings;
 	private InterventionMap interventions;
-	private HistoryMap historyMap;
+	private History history;
 
 	private String measurementName = null;
 	private EventBus cmdBus;
@@ -54,12 +54,6 @@ public class TimeView extends SpecificTimeView implements Module {
 		cmdBus = clientFactory.getEventBus(args.getArg(1));
 		options = args.getArg(2);
 		measurementName = args.getArg(3);
-		ptuId = args.getArg(4);
-		if (ptuId.equals("")) {
-			ptuId = null;
-		} else {
-			ptuIdIsFixed = true;
-		}
 
 		this.title = !options.contains("NoTitle");
 		this.export = !options.contains("NoExport");
@@ -103,27 +97,25 @@ public class TimeView extends SpecificTimeView implements Module {
 					}
 				});
 
-		HistoryMapChangedEvent.subscribe(clientFactory,
-				new HistoryMapChangedEvent.Handler() {
+		HistoryChangedEvent.subscribe(clientFactory,
+				new HistoryChangedEvent.Handler() {
 
 					@Override
-					public void onHistoryMapChanged(HistoryMapChangedEvent event) {
-						historyMap = event.getHistoryMap();
+					public void onHistoryChanged(HistoryChangedEvent event) {
+						history= event.getHistory();
 						scheduler.update();
 					}
 				});
 
 		if (cmdBus != null) {
-			if (!ptuIdIsFixed) {
-				SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
 
-					@Override
-					public void onPtuSelected(final SelectPtuEvent event) {
-						ptuId = event.getPtuId();
-						scheduler.update();
-					}
-				});
-			}
+				@Override
+				public void onPtuSelected(final SelectPtuEvent event) {
+					device = event.getPtu();
+					scheduler.update();
+				}
+			});
 
 			SelectMeasurementEvent.subscribe(cmdBus,
 					new SelectMeasurementEvent.Handler() {
@@ -159,7 +151,7 @@ public class TimeView extends SpecificTimeView implements Module {
 			return false;
 		}
 
-		if (historyMap == null) {
+		if (history == null) {
 			return false;
 		}
 
@@ -167,16 +159,16 @@ public class TimeView extends SpecificTimeView implements Module {
 			return false;
 		}
 
-		if (ptuId == null) {
+		if (device == null) {
 			createChart(Measurement.getDisplayName(measurementName));
 			add(chart);
 
-			for (String ptuId : interventions.getPtuIds()) {
-				if ((settings == null) || settings.isEnabled(ptuId)) {
+			for (Device device : interventions.getPtus()) {
+				if ((settings == null) || settings.isEnabled(device.getName())) {
 
 					if (chart != null) {
-						addSeries(ptuId, getName(ptuId, interventions), false);
-						addHistory(historyMap.get(ptuId, measurementName));
+						addSeries(device, getName(device, interventions), false);
+						addHistory(history.get(device, measurementName));
 						chart.setAnimation(false);
 					}
 				}
@@ -189,10 +181,11 @@ public class TimeView extends SpecificTimeView implements Module {
 				ColorMapChangedEvent.fire(cmdBus, getColors());
 			}
 		} else {
-			if ((settings == null) || settings.isEnabled(ptuId)) {
+			if ((settings == null) || settings.isEnabled(device.getName())) {
 
-				createSingleChart(factory, measurementName, ptuId, historyMap, interventions, true);
-				
+				createSingleChart(factory, measurementName, device, history,
+						interventions, true);
+
 				cmdBus.fireEvent(new ColorMapChangedEvent(getColors()));
 			}
 		}

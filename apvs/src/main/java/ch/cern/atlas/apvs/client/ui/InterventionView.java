@@ -1,18 +1,17 @@
 package ch.cern.atlas.apvs.client.ui;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.domain.User;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
-import ch.cern.atlas.apvs.client.service.SortOrder;
 import ch.cern.atlas.apvs.client.validation.EmptyValidator;
 import ch.cern.atlas.apvs.client.validation.IntegerValidator;
 import ch.cern.atlas.apvs.client.validation.ListBoxField;
@@ -37,7 +36,10 @@ import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.domain.MacAddress;
+import ch.cern.atlas.apvs.domain.SortOrder;
+import ch.cern.atlas.apvs.domain.User;
 import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.github.gwtbootstrap.client.ui.Button;
@@ -85,6 +87,7 @@ public class InterventionView extends GlassPanel implements Module {
 	private ScrollPanel scrollPanel;
 
 	private ClickableTextColumn<Intervention> startTime;
+	private GenericColumn<Intervention> endTime;
 
 	private boolean selectable = false;
 	private boolean sortable = true;
@@ -158,11 +161,11 @@ public class InterventionView extends GlassPanel implements Module {
 			protected void onRangeChanged(HasData<Intervention> display) {
 				log.info("ON RANGE CHANGED " + display.getVisibleRange());
 
-				interventionService.getRowCount(new AsyncCallback<Integer>() {
+				interventionService.getRowCount(new AsyncCallback<Long>() {
 
 					@Override
-					public void onSuccess(Integer result) {
-						updateRowCount(result, true);
+					public void onSuccess(Long result) {
+						updateRowCount(result.intValue(), true);
 					}
 
 					@Override
@@ -185,9 +188,9 @@ public class InterventionView extends GlassPanel implements Module {
 
 				if (order.length == 0) {
 					order = new SortOrder[1];
-					order[0] = new SortOrder("tbl_inspections.starttime", false);
+					order[0] = new SortOrder("t.endTime", false);
 				}
-
+				
 				interventionService.getTableData(range.getStart(),
 						range.getLength(), order,
 						new AsyncCallback<List<Intervention>>() {
@@ -206,9 +209,6 @@ public class InterventionView extends GlassPanel implements Module {
 			}
 		};
 
-		// Table
-		dataProvider.addDataDisplay(table);
-
 		AsyncHandler columnSortHandler = new AsyncHandler(table);
 		table.addColumnSortHandler(columnSortHandler);
 
@@ -222,7 +222,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "tbl_inspections.starttime";
+				return "t.startTime";
 			}
 		};
 		startTime.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -238,7 +238,6 @@ public class InterventionView extends GlassPanel implements Module {
 		}
 		table.addColumn(startTime, new TextHeader("Start Time"),
 				pager.getHeader());
-		table.getColumnSortList().push(new ColumnSortInfo(startTime, false));
 
 		// endTime
 		EditableCell cell = new EditableCell() {
@@ -249,7 +248,7 @@ public class InterventionView extends GlassPanel implements Module {
 						: TextCell.class;
 			}
 		};
-		GenericColumn<Intervention> endTime = new GenericColumn<Intervention>(
+		endTime = new GenericColumn<Intervention>(
 				cell) {
 			@Override
 			public String getValue(Intervention object) {
@@ -259,7 +258,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "tbl_inspections.endtime";
+				return "t.endTime";
 			}
 		};
 		endTime.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -268,14 +267,16 @@ public class InterventionView extends GlassPanel implements Module {
 		endTime.setFieldUpdater(new FieldUpdater<Intervention, Object>() {
 
 			@Override
-			public void update(int index, Intervention object, Object value) {
+			public void update(int index, Intervention intervention,
+					Object value) {
 				if (!clientFactory.isSupervisor()) {
 					return;
 				}
 
 				if (Window.confirm("Are you sure")) {
-					interventionService.endIntervention(object.getId(),
-							new Date(), new AsyncCallback<Void>() {
+					intervention.setEndTime(new Date());
+					interventionService.updateIntervention(intervention,
+							new AsyncCallback<Void>() {
 
 								@Override
 								public void onSuccess(Void result) {
@@ -292,6 +293,8 @@ public class InterventionView extends GlassPanel implements Module {
 			}
 		});
 		table.addColumn(endTime, new TextHeader("End Time"), pager.getHeader());
+		table.getColumnSortList().push(new ColumnSortInfo(startTime, false));
+		table.getColumnSortList().push(new ColumnSortInfo(endTime, false));
 
 		Header<String> interventionFooter = new Header<String>(new ButtonCell()) {
 			@Override
@@ -305,6 +308,9 @@ public class InterventionView extends GlassPanel implements Module {
 				return false;
 			}
 		};
+
+		final Map<Integer, User> users = new HashMap<Integer, User>();
+		final Map<Integer, Device> devices = new HashMap<Integer, Device>();
 		interventionFooter.setUpdater(new ValueUpdater<String>() {
 
 			@Override
@@ -324,6 +330,7 @@ public class InterventionView extends GlassPanel implements Module {
 								for (Iterator<User> i = result.iterator(); i
 										.hasNext();) {
 									User user = i.next();
+									users.put(user.getId(), user);
 									userField.addItem(user.getDisplayName(),
 											user.getId());
 								}
@@ -347,6 +354,7 @@ public class InterventionView extends GlassPanel implements Module {
 								for (Iterator<Device> i = result.iterator(); i
 										.hasNext();) {
 									Device device = i.next();
+									devices.put(device.getId(), device);
 									ptu.addItem(device.getName(),
 											device.getId());
 								}
@@ -383,9 +391,10 @@ public class InterventionView extends GlassPanel implements Module {
 					public void onClick(ClickEvent event) {
 						m.hide();
 
-						Intervention intervention = new Intervention(userField
-								.getId(), ptu.getId(), new Date(), impact
-								.getValue(), 0.0, description.getValue());
+						Intervention intervention = new Intervention(users
+								.get(userField.getId()), devices.get(ptu
+								.getId()), new Date(), null, impact.getValue(),
+								0.0, description.getValue());
 
 						interventionService.addIntervention(intervention,
 								new AsyncCallback<Void>() {
@@ -449,7 +458,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "tbl_users.lname";
+				return "t.user.lastName";
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -514,8 +523,8 @@ public class InterventionView extends GlassPanel implements Module {
 					public void onClick(ClickEvent event) {
 						m.hide();
 
-						User user = new User(0, fname.getValue(), lname
-								.getValue(), cernId.getValue());
+						User user = new User(fname.getValue(),
+								lname.getValue(), cernId.getValue());
 
 						interventionService.addUser(user,
 								new AsyncCallback<Void>() {
@@ -554,7 +563,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "tbl_devices.name";
+				return "t.device.name";
 			}
 		};
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -626,7 +635,7 @@ public class InterventionView extends GlassPanel implements Module {
 					public void onClick(ClickEvent event) {
 						m.hide();
 
-						Device device = new Device(0, ptuId.getValue(),
+						Device device = new Device(ptuId.getValue(),
 								InetAddress.getByName(ip.getValue()),
 								description.getValue(), new MacAddress(
 										macAddress.getValue()), hostName
@@ -672,20 +681,22 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "tbl_inspections.impact_num";
+				return "t.impactNumber";
 			}
 		};
 		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		impact.setSortable(true);
 		impact.setFieldUpdater(new FieldUpdater<Intervention, String>() {
 			@Override
-			public void update(int index, Intervention object, String value) {
+			public void update(int index, Intervention intervention,
+					String value) {
 				if (!clientFactory.isSupervisor()) {
 					return;
 				}
 
-				interventionService.updateInterventionImpactNumber(
-						object.getId(), value, new AsyncCallback<Void>() {
+				intervention.setImpactNumber(value);
+				interventionService.updateIntervention(intervention,
+						new AsyncCallback<Void>() {
 
 							@Override
 							public void onSuccess(Void result) {
@@ -711,7 +722,7 @@ public class InterventionView extends GlassPanel implements Module {
 		//
 		// @Override
 		// public String getDataStoreName() {
-		// return "tbl_inspections.rec_status";
+		// return "t.recStatus";
 		// }
 		// };
 		// impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -730,7 +741,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "tbl_inspections.dscr";
+				return "t.description";
 			}
 		};
 		description.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -738,13 +749,15 @@ public class InterventionView extends GlassPanel implements Module {
 		description.setEnabled(clientFactory.isSupervisor());
 		description.setFieldUpdater(new FieldUpdater<Intervention, String>() {
 			@Override
-			public void update(int index, Intervention object, String value) {
+			public void update(int index, Intervention intervention,
+					String value) {
 				if (!clientFactory.isSupervisor()) {
 					return;
 				}
 
-				interventionService.updateInterventionDescription(
-						object.getId(), value, new AsyncCallback<Void>() {
+				intervention.setDescription(value);
+				interventionService.updateIntervention(intervention,
+						new AsyncCallback<Void>() {
 
 							@Override
 							public void onSuccess(Void result) {
@@ -775,6 +788,9 @@ public class InterventionView extends GlassPanel implements Module {
 						}
 					});
 		}
+
+		// Table
+		dataProvider.addDataDisplay(table);
 
 		// FIXME #189 this is the normal way, but does not work in our tabs...
 		// tabs should detach, attach...
@@ -829,7 +845,7 @@ public class InterventionView extends GlassPanel implements Module {
 			if (sortInfo == null) {
 				return true;
 			}
-			if (!sortInfo.getColumn().equals(startTime)) {
+			if (!sortInfo.getColumn().equals(endTime)) {
 				return true;
 			}
 			if (sortInfo.isAscending()) {
