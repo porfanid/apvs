@@ -17,37 +17,39 @@ public class DatabaseConverter {
 	public DatabaseConverter() {
 		database = Database.getInstance(null);
 	}
-	
+
 	public void run() {
-		
+
 		long count = database.getCount(Measurement.class);
-		System.out.println("Found: "+count+" records");
-		
+		System.out.println("Found: " + count + " records");
+
 		Session session = null;
 		Transaction tx = null;
 		try {
 			session = database.getSessionFactory().openSession();
 			tx = session.beginTransaction();
 			@SuppressWarnings("unchecked")
-			Iterator<Measurement> iterator = database.getQuery(session, Measurement.class, null, null, new SortOrder[] {new SortOrder("date", true)}).iterate();
-			
+			Iterator<Measurement> iterator = database.getQuery(session,
+					Measurement.class, null, null,
+					new SortOrder[] { new SortOrder("date", true) }).iterate();
+
 			int i = 0;
 			for (; iterator.hasNext(); i++) {
 				Measurement m = iterator.next();
-				
-				// Do something with filter here... 
-				
+
+				// Do something with filter here...
+
 				if (i % 10000 == 0) {
-					System.out.println("Handled "+i+" records");
-					
+					System.out.println("Handled " + i + " records");
+
 					// print something here every 10000 records
 					System.err.println(m);
 				}
 			}
-			System.out.println("Read all "+i+" records");
-			
+			System.out.println("Read all " + i + " records");
+
 			System.exit(0);
-//			tx.commit();
+			// tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();
