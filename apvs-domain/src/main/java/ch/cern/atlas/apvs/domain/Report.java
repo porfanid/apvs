@@ -18,7 +18,7 @@ public class Report implements Message, Serializable, IsSerializable {
 	private boolean audio;
 	private Date date;
 
-	public Report() {
+	protected Report() {
 	}
 	
 	public Report(Device device, double batteryLevel, boolean cameraHandheld, boolean cameraHelmet, boolean audio, Date date) {

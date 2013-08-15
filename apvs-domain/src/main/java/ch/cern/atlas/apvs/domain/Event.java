@@ -38,7 +38,7 @@ public class Event implements Message, Serializable, IsSerializable {
 	private String unit;
 	private Date date;
 
-	public Event() {
+	protected Event() {
 	}
 	
 	public Event(Device device, String name, String eventType, Date date) {

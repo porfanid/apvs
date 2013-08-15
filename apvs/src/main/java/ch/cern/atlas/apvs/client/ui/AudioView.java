@@ -9,13 +9,13 @@ import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.MeetMeRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
-import ch.cern.atlas.apvs.client.service.AudioService;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -39,7 +39,7 @@ public class AudioView extends GlassPanel implements Module {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
-	private String ptuId = new String();// "PTUWeb");
+	private Device ptu = null;
 	private VoipAccount supervisorAccount = new VoipAccount();
 
 
@@ -72,6 +72,7 @@ public class AudioView extends GlassPanel implements Module {
 				fieldActionCell) {
 			@Override
 			public Object getValue(String fieldName) {
+				String ptuId = ptu.getName();
 				if (fieldName.equals("Status"))
 					return ((voipAccounts.getStatus(ptuId) ? "Online"
 							: "Offline"));
@@ -184,6 +185,7 @@ public class AudioView extends GlassPanel implements Module {
 					}
 				};
 
+				String ptuId = ptu.getName();
 				if (fieldName.equals("Private Call")) {
 					if (!voipAccounts.getOnCall(ptuId)) {
 						List<String> channels = new ArrayList<String>();
@@ -294,7 +296,7 @@ public class AudioView extends GlassPanel implements Module {
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
-					ptuId = event.getPtu() != null ? event.getPtu().getName() : null;
+					ptu = event.getPtu();
 					table.redraw();
 				}
 			});
@@ -329,6 +331,7 @@ public class AudioView extends GlassPanel implements Module {
 							}
 						}
 
+						String ptuId = ptu.getName();
 						boolean a = (!(voipAccounts.getActivity(ptuId).equals(
 								"") || voipAccounts.getActivity(ptuId) == null));
 						// Window.alert(voipAccounts.getUsername(ptuId)+ ": "
@@ -378,7 +381,7 @@ public class AudioView extends GlassPanel implements Module {
 				}
 
 				if (conferenceRooms.conferenceOfActivityExist(voipAccounts
-						.getActivity(ptuId))) {
+						.getActivity(ptu.getName()))) {
 					fieldName.add("Conference");
 					classField.add(ButtonCell.class);
 					fieldName.add("Mute/Unmute");

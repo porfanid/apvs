@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.server;
+package ch.cern.atlas.apvs.obsolete;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -35,6 +35,7 @@ import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.server.APVSServerFactory;
 import ch.cern.atlas.apvs.util.StringUtils;
 
 public class DbHandler extends DbCallback {

@@ -14,7 +14,7 @@ public class Order implements Message, Serializable, IsSerializable {
 	private String value;
 	private String type = "Order";
 
-	public Order() {
+	protected Order() {
 	}
 
 	public Order(Device device, String parameter, String value) {

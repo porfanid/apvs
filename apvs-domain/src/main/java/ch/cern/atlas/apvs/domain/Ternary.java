@@ -17,7 +17,7 @@ public enum Ternary implements Serializable, IsSerializable {
 	True("True"), False("False"), Unknown("Unknown");
 
 	private String s;
-
+	
 	private Ternary(String s) {
 		this.s = s;
 	}

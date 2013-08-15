@@ -58,7 +58,7 @@ public class PtuView extends GlassPanel implements Module {
 	private CellTable<String> table = new CellTable<String>();
 
 	private List<Device> ptus;
-	private Measurement last;
+	private Measurement last = null;
 	private Map<String, ClickableTextColumn<String>> columns;
 	private SingleSelectionModel<String> selectionModel;
 	private Map<Device, String> colorMap = new HashMap<Device, String>();
@@ -75,7 +75,6 @@ public class PtuView extends GlassPanel implements Module {
 	private History history;
 
 	private void init() {
-		last = new Measurement();
 		columns = new HashMap<String, ClickableTextColumn<String>>();
 	}
 

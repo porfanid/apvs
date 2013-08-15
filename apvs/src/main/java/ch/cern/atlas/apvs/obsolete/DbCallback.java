@@ -1,4 +1,4 @@
-package ch.cern.atlas.apvs.server;
+package ch.cern.atlas.apvs.obsolete;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
