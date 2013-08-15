@@ -93,6 +93,7 @@
 		<module>apvs-atmosphere</module>
 -->
 		<module>apvs-charts</module>
+		<module>apvs-converter</module>
 		<module>apvs-daq-server</module>
 		<module>apvs-domain</module>
 		<module>apvs-eventbus</module>
@@ -316,6 +317,11 @@
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-charts</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-converter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
