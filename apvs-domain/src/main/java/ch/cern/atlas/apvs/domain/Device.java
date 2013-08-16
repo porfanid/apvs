@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Proxy;
 import org.hibernate.annotations.Type;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -18,6 +19,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 //NOTE: implements IsSerializable in case serialization file cannot be found
 @Entity
 @Table( name = "TBL_DEVICES" )
+@Proxy(lazy=false)
 public class Device implements Comparable<Device>, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 849926551483611340L;

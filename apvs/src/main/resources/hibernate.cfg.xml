@@ -9,8 +9,8 @@
 		<!-- Database connection settings -->
 		<property name="connection.driver_class">net.sf.log4jdbc.DriverSpy</property>
 		<property name="connection.url">jdbc:oracle:thin://@pcatlaswpss01:1521/XE</property>
-		<property name="connection.username">wpss_new</property>
-		<property name="connection.password">xxxx</property>
+		<property name="connection.username">wpss_public</property>
+		<property name="connection.password">public</property>
 
 		<!-- JDBC connection pool (c3p0) -->
 		<property name="hibernate.c3p0.min_size">5</property>

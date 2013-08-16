@@ -723,6 +723,7 @@ public class Database {
 	}
 
 	public DeviceData getDeviceData(Device device, Date from, Integer maxEntries) {
+		System.err.println(device.getName()+" "+from);
 		DeviceData deviceData = new DeviceData(device);
 
 		Session session = null;
@@ -748,7 +749,7 @@ public class Database {
 			long now = new Date().getTime();
 
 			for (@SuppressWarnings("unchecked")
-			Iterator<Measurement> i = query.iterate(); i.hasNext();) {
+			Iterator<Measurement> i = query.list().iterator(); i.hasNext();) {
 				Measurement m = i.next();
 				long time = m.getDate().getTime();
 				if (time > now + 60000) {
@@ -800,6 +801,9 @@ public class Database {
 					// total++;
 				}
 			}
+			System.err.println(device.getName()+" finished");
+			
+			// FIXME seems to create updates... why ?
 			tx.commit();
 
 			return deviceData;
