@@ -14,7 +14,7 @@ public class GeneralConfiguration implements Message, Serializable,
 	private String type = "GeneralConfiguration";
 	private String dosimeterId;
 
-	public GeneralConfiguration() {
+	protected GeneralConfiguration() {
 	}
 
 	public GeneralConfiguration(Device device, String dosimeterId) {

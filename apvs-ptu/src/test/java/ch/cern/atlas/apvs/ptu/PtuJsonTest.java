@@ -9,9 +9,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Packet;
 import ch.cern.atlas.apvs.ptu.server.Humidity;
+import ch.cern.atlas.apvs.ptu.server.JsonHeader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonWriter;
 import ch.cern.atlas.apvs.ptu.server.PtuServerConstants;
@@ -35,14 +38,15 @@ public class PtuJsonTest {
 
 	@Test
 	public void readerTest() throws IOException {
-
-		Packet packet = PtuJsonReader.jsonToJava(json);
+		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
+		
+		JsonHeader header = PtuJsonReader.jsonToJava(json);
 		// System.err.println(packet);
 
-		List<Message> list = packet.getMessages();
+		List<Message> list = header.getMessages(device);
 		Assert.assertEquals(2, list.size());
-		// System.err.println(list.get(0).toString());
-		// System.err.println(list.get(1).toString());
+//		 System.err.println(list.get(0).toString());
+//		 System.err.println(list.get(1).toString());
 		Assert.assertEquals(msg0, list.get(0).toString());
 		Assert.assertEquals(msg1, list.get(1).toString());
 	}
@@ -53,10 +57,10 @@ public class PtuJsonTest {
 				(json + json).getBytes("UTF-8"));
 //		System.err.println("Len "+json.length());
 		PtuJsonReader jr = new PtuJsonReader(ba, true);
-		Packet packet1 = (Packet) jr.readObject();
+		JsonHeader packet1 = (JsonHeader) jr.readObject();
 //		System.err.println(packet1);
 		Assert.assertEquals("PTU_88", packet1.getSender());
-		Packet packet2 = (Packet) jr.readObject();
+		JsonHeader packet2 = (JsonHeader) jr.readObject();
 //		System.err.println(packet2);
 		Assert.assertEquals("PTU_88", packet2.getSender());
 		ba.close();
@@ -65,7 +69,7 @@ public class PtuJsonTest {
 
 	@Test
 	public void writerTest() throws ParseException {
-		Device device = new Device("PTU_88");
+		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
 		Packet packet = new Packet(device.getName(), "Broadcast", 0, false);
 		packet.addMessage(new Humidity(device, 33.19684099267707,
 				PtuServerConstants.dateFormat.parse("04/07/2013 15:42:53")));

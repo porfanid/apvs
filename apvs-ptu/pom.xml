@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -15,21 +16,21 @@
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
-            <plugin>
-                <artifactId>gwt-maven-plugin</artifactId>
-                <groupId>org.codehaus.mojo</groupId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>resources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            		
+			<plugin>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>resources</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
@@ -59,43 +60,43 @@
 
 
 	<dependencies>
-        <dependency>
-            <groupId>ch.cern.atlas</groupId>
-            <artifactId>apvs-domain</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.cern.atlas</groupId>
-            <artifactId>apvs-eventbus</artifactId>
-        </dependency>
-                <dependency>
-                        <groupId>ch.cern.atlas</groupId>
-                        <artifactId>apvs-log4jdbc</artifactId>
-                </dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-domain</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-eventbus</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-log4jdbc</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.cedarsoftware</groupId>
 			<artifactId>apvs-json-io</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-         </dependency>
-                      <dependency>
-                                <groupId>com.oracle</groupId>
-                                <artifactId>ojdbc</artifactId>
-                        </dependency>
-                       <dependency>
-                                <groupId>mysql</groupId>
-                                <artifactId>mysql-connector-java</artifactId>
-                        </dependency>
-              <dependency>
-                        <groupId>net.sf</groupId>
-                        <artifactId>log4jdbc4</artifactId>
-                </dependency>
- 		<dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sf</groupId>
+			<artifactId>log4jdbc4</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
 		</dependency>
- 		<dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>

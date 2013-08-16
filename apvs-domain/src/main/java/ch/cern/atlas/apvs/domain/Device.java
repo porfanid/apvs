@@ -36,12 +36,7 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 	protected Device() {
 		// Serialization
 	}
-	
-	// for test devices
-	public Device(String name) {
-		this(name, InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
-	}
-				
+					
 	public Device(String name, InetAddress ip, String description, MacAddress macAddress, String hostName) {
 		setName(name);
 		setIp(ip);

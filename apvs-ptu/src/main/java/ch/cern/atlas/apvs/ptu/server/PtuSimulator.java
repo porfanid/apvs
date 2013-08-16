@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -53,7 +55,7 @@ public class PtuSimulator extends Thread {
 			long then = now - deltaStartTime;
 			Date start = new Date(then);
 
-			Device device = new Device(ptuId);
+			Device device = new Device(ptuId, InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
 			ptu = new Ptu(device);
 			log.info("Creating " + ptuId);
 

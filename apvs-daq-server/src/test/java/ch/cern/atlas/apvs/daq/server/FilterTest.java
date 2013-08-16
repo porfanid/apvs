@@ -9,6 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.ptu.server.Temperature;
 
@@ -16,7 +18,7 @@ public class FilterTest {
 
 	Filter f = new ValueFilter();
 
-	Device device = new Device("PTU099");
+	Device device = new Device("PTU099", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
 
 	long now = new Date().getTime();
 	Date t0 = new Date(now+20000);

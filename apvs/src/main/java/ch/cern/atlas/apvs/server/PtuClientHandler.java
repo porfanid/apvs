@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.ptu.server.JsonHeader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonWriter;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
@@ -54,16 +56,17 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private Ternary dosimeterOk = Ternary.Unknown;
 
 	private PtuSettings settings;
-	
+
 	private Database database;
 	private SensorMap sensorMap;
+	private Map<String, Device> deviceMap;
 
 	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
-		
+
 		database = Database.getInstance(eventBus);
-		
+
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
@@ -93,15 +96,16 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx)
-			throws Exception {
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq,
 				true);
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.dosimeter, dosimeterOk);
 		super.channelActive(ctx);
-		
+
 		sensorMap = database.getSensorMap();
+
+		deviceMap = database.getDeviceMap();
 	}
 
 	@Override
@@ -136,9 +140,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 	}
 
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = true;
 	private final static boolean DEBUGPLUS = false;
-	
+
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		// Print out the line received from the server.
@@ -162,28 +166,43 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			log.info("LineLength " + line.length());
 		}
 
-		List<Message> list;
+		;
 		try {
-			list = PtuJsonReader.jsonToJava(line).getMessages();
-			for (Iterator<Message> i = list.iterator(); i.hasNext();) {
-				Message message = i.next();
-				try {
-					if (message instanceof Measurement) {
-						handleMessage((Measurement) message);
-					} else if (message instanceof Report) {
-						handleMessage((Report) message);
-					} else if (message instanceof Event) {
-						handleMessage((Event) message);
-					} else if (message instanceof Error) {
-						handleMessage((Error) message);
-					} else if (message instanceof GeneralConfiguration) {
-						handleMessage((GeneralConfiguration) message);
-					} else {
-						log.warn("Error: unknown Message Type: "
-								+ message.getType());
+			JsonHeader header = PtuJsonReader.jsonToJava(line);
+
+			Device device = deviceMap.get(header.getSender());
+			if (device == null) {
+				log.info("Message from unknown device: " + header.getSender());
+			} else {
+
+				List<Message> list = header.getMessages(device);
+				if (DEBUG) {
+					log.info("# of mesg: " + list.size());
+				}
+				for (Iterator<Message> i = list.iterator(); i.hasNext();) {
+					Message message = i.next();
+					if (DEBUG) {
+						log.info(message.toString());
 					}
-				} catch (APVSException e) {
-					log.warn("Could not add measurement", e);
+
+					try {
+						if (message instanceof Measurement) {
+							handleMessage((Measurement) message);
+						} else if (message instanceof Report) {
+							handleMessage((Report) message);
+						} else if (message instanceof Event) {
+							handleMessage((Event) message);
+						} else if (message instanceof Error) {
+							handleMessage((Error) message);
+						} else if (message instanceof GeneralConfiguration) {
+							handleMessage((GeneralConfiguration) message);
+						} else {
+							log.warn("Error: unknown Message Type: "
+									+ message.getType());
+						}
+					} catch (APVSException e) {
+						log.warn("Could not add measurement", e);
+					}
 				}
 			}
 		} catch (IOException ioe) {
@@ -197,7 +216,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private final static long MINUTE = 60 * SECOND;
 
 	private void handleMessage(Measurement message) throws APVSException {
-
 		// Quick fix for #371
 		Date now = new Date();
 		if (message.getDate().getTime() < (now.getTime() - 5 * MINUTE)) {
@@ -207,13 +225,16 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 
 		Device ptu = message.getDevice();
+		System.err.println(ptu);
 		String sensor = message.getSensor();
-		
+		System.err.println(sensor);
+
 		if (!sensorMap.isEnabled(ptu, sensor)) {
-//			log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " + sensor);
-			return;			
+			// log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " +
+			// sensor);
+			return;
 		}
-				
+
 		String unit = message.getUnit();
 		Double value = message.getValue();
 		Double low = message.getLowLimit();
@@ -225,8 +246,12 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		high = Scale.getHighLimit(high, unit);
 		unit = Scale.getUnit(unit);
 
-		measurementChanged.add(new Measurement(message.getDevice(), sensor, value, low, high, unit, message.getSamplingRate(),
-				message.getDate()));
+		message = new Measurement(message.getDevice(), sensor, value, low,
+				high, unit, message.getSamplingRate(), message.getDate());
+
+		System.err.println("Modified message: " + message);
+
+		measurementChanged.add(message);
 
 		sendEvents();
 	}
