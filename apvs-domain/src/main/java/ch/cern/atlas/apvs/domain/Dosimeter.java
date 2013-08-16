@@ -15,7 +15,7 @@ public class Dosimeter implements Serializable, IsSerializable, Comparable<Dosim
 	private double rate;
 	private Date date;
 
-	public Dosimeter() {
+	protected Dosimeter() {
 	}
 
 	public Dosimeter(String serialNo, double dose, double rate, Date date) {

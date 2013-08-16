@@ -11,12 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
-import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -25,7 +20,13 @@ import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.History;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -56,11 +57,11 @@ public class PtuView extends GlassPanel implements Module {
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
-	private List<String> ptuIds;
-	private Measurement last;
+	private List<Device> ptus;
+	private Measurement last = null;
 	private Map<String, ClickableTextColumn<String>> columns;
 	private SingleSelectionModel<String> selectionModel;
-	private Map<String, String> colorMap = new HashMap<String, String>();
+	private Map<Device, String> colorMap = new HashMap<Device, String>();
 
 	private PtuSettings settings;
 	private InterventionMap interventions;
@@ -71,10 +72,9 @@ public class PtuView extends GlassPanel implements Module {
 	private Ternary daqOk = Ternary.Unknown;
 	private Ternary databaseConnect = Ternary.Unknown;
 
-	private HistoryMap historyMap;
+	private History history;
 
 	private void init() {
-		last = new Measurement();
 		columns = new HashMap<String, ClickableTextColumn<String>>();
 	}
 
@@ -99,7 +99,7 @@ public class PtuView extends GlassPanel implements Module {
 		ClickableHtmlColumn<String> name = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				return historyMap != null ? historyMap.getDisplayName(name) : name;
+				return Measurement.getDisplayName(name);
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -117,7 +117,7 @@ public class PtuView extends GlassPanel implements Module {
 		ClickableHtmlColumn<String> unit = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				return historyMap != null ? historyMap.getUnit(name) : "";
+				return history != null ? history.getUnit(name) : "";
 			}
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -200,19 +200,19 @@ public class PtuView extends GlassPanel implements Module {
 							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
 
-						ptuIds = interventions.getPtuIds();
+						ptus = interventions.getPtus();
 
 						configChanged();
 						scheduler.update();
 					}
 				});
 
-		HistoryMapChangedEvent.subscribe(clientFactory,
-				new HistoryMapChangedEvent.Handler() {
+		HistoryChangedEvent.subscribe(clientFactory,
+				new HistoryChangedEvent.Handler() {
 
 					@Override
-					public void onHistoryMapChanged(HistoryMapChangedEvent event) {
-						historyMap = event.getHistoryMap();
+					public void onHistoryChanged(HistoryChangedEvent event) {
+						history = event.getHistory();
 						configChanged();
 						scheduler.update();
 					}
@@ -235,14 +235,14 @@ public class PtuView extends GlassPanel implements Module {
 
 	private Measurement addOrReplaceMeasurement(Measurement measurement) {
 		
-		String ptuId = measurement.getPtuId();
-		String name = measurement.getName();
-		if ((ptuIds == null) || !ptuIds.contains(ptuId))
+		Device ptu = measurement.getDevice();
+		String sensor = measurement.getSensor();
+		if ((ptus == null) || !ptus.contains(ptu))
 			return null;
 
-		Measurement lastValue = historyMap != null ? historyMap.getMeasurement(ptuId, name) : measurement;
+		Measurement lastValue = history != null ? history.getMeasurement(ptu, sensor) : measurement;
 
-		addRow(name);
+		addRow(sensor);
 
 		return lastValue;
 	}
@@ -253,11 +253,11 @@ public class PtuView extends GlassPanel implements Module {
 		}
 	}
 
-	private void addColumn(final String ptuId) {
+	private void addColumn(final Device ptu) {
 		ClickableTextColumn<String> column = new ClickableTextColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				Measurement m = history != null ? history.getMeasurement(ptu, name) : null;
 				if (m == null) {
 					return "";
 				}
@@ -266,7 +266,7 @@ public class PtuView extends GlassPanel implements Module {
 
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
-				String color = colorMap.get(ptuId);
+				String color = colorMap.get(ptu);
 				boolean isSelected = selectionModel.isSelected(name);
 				if ((color != null) && isSelected) {
 					sb.append(SafeHtmlUtils
@@ -274,7 +274,7 @@ public class PtuView extends GlassPanel implements Module {
 									+ color + "\">"));
 				}
 
-				Measurement m = historyMap != null ? historyMap.getMeasurement(ptuId, name) : null;
+				Measurement m = history != null ? history.getMeasurement(ptu, name) : null;
 				if (m != null) {
 					((ClickableTextCell) getCell()).render(context,
 							MeasurementView.decorate(getValue(name), m, last),
@@ -290,18 +290,18 @@ public class PtuView extends GlassPanel implements Module {
 
 			@Override
 			public void update(int index, String name, String value) {
-				selectMeasurementAndPtu(name, ptuId);
+				selectMeasurementAndPtu(name, ptu);
 			}
 		});
 
 		table.addColumn(column, new TextHeader("") {
 			@Override
 			public String getValue() {
-				String name = interventions != null ? interventions.get(ptuId) != null ? interventions
-						.get(ptuId).getName() : null
+				String name = interventions != null ? interventions.get(ptu) != null ? interventions
+						.get(ptu).getName() : null
 						: null;
-				return name != null ? name + "<br/>(" + ptuId.toString() + ")"
-						: ptuId.toString();
+				return name != null ? name + "<br/>(" + ptu.getName() + ")"
+						: ptu.getName();
 			}
 
 			@Override
@@ -311,12 +311,12 @@ public class PtuView extends GlassPanel implements Module {
 			}
 		});
 
-		columns.put(ptuId, column);
+		columns.put(ptu.getName(), column);
 	}
 
 	private void configChanged() {
 
-		if (ptuIds == null) {
+		if (ptus == null) {
 			init();
 			return;
 		}
@@ -325,7 +325,7 @@ public class PtuView extends GlassPanel implements Module {
 		for (Iterator<Map.Entry<String, ClickableTextColumn<String>>> i = columns
 				.entrySet().iterator(); i.hasNext();) {
 			Map.Entry<String, ClickableTextColumn<String>> entry = i.next();
-			if (ptuIds.contains(entry.getKey()))
+			if (ptus.contains(entry.getKey()))
 				continue;
 
 			ClickableTextColumn<String> column = entry.getValue();
@@ -334,20 +334,20 @@ public class PtuView extends GlassPanel implements Module {
 		}
 
 		// add any new columns...
-		for (Iterator<String> i = ptuIds.iterator(); i.hasNext();) {
-			String ptuId = i.next();
-			ClickableTextColumn<String> column = columns.get(ptuId);
+		for (Iterator<Device> i = ptus.iterator(); i.hasNext();) {
+			Device ptu = i.next();
+			ClickableTextColumn<String> column = columns.get(ptu);
 
-			if ((settings == null) || settings.isEnabled(ptuId)) {
+			if ((settings == null) || settings.isEnabled(ptu.getName())) {
 				if (column == null) {
-					addColumn(ptuId);
+					addColumn(ptu);
 				}
 				
-				if (historyMap != null) {
-					for (Measurement measurement: historyMap.getMeasurements(ptuId)) {
+				if (history != null) {
+					for (Measurement measurement: history.getMeasurements(ptu)) {
 						// #515 null in case no value was every recorded
 						if (measurement != null) {
-							addRow(measurement.getName());
+							addRow(measurement.getSensor());
 						}
 					}
 				}
@@ -381,8 +381,8 @@ public class PtuView extends GlassPanel implements Module {
 		return false;
 	}
 
-	private void selectMeasurementAndPtu(String name, String ptuId) {
+	private void selectMeasurementAndPtu(String name, Device ptu) {
 		SelectMeasurementEvent.fire(cmdBus, name);
-		SelectPtuEvent.fire(cmdBus, ptuId);
+		SelectPtuEvent.fire(cmdBus, ptu);
 	}
 }

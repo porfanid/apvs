@@ -5,10 +5,11 @@ import java.util.Date;
 import org.moxieapps.gwt.highcharts.client.Chart;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
-import ch.cern.atlas.apvs.client.domain.Intervention;
-import ch.cern.atlas.apvs.client.domain.InterventionMap;
+import ch.cern.atlas.apvs.domain.Data;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.History;
+import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -21,38 +22,38 @@ public class SpecificTimeView extends AbstractTimeView {
 	public SpecificTimeView() {
 	}
 
-	public Chart createSingleChart(ClientFactory factory, String measurementName, String ptuId,
-			HistoryMap historyMap, InterventionMap interventions, boolean showLimits) {
-		createChart(Measurement.getDisplayName(measurementName) + " (" + ptuId
+	public Chart createSingleChart(ClientFactory factory, String measurementName, Device device,
+			History history, InterventionMap interventions, boolean showLimits) {
+		createChart(Measurement.getDisplayName(measurementName) + " (" + device.getName()
 				+ ")");
 		add(chart);
 
-		addSeries(ptuId, getName(ptuId, interventions), showLimits);
-		addHistory(historyMap.get(ptuId, measurementName));
+		addSeries(device, getName(device, interventions), showLimits);
+		addHistory(history.get(device, measurementName));
 
-		register(factory, measurementName, ptuId);
+		register(factory, measurementName, device);
 		
 		return chart;
 	}
 
-	protected String getName(String ptuId, InterventionMap interventions) {
+	protected String getName(Device device, InterventionMap interventions) {
 		if (interventions == null) {
-			return ptuId;
+			return device.getName();
 		}
-		Intervention intervention = interventions.get(ptuId);
+		Intervention intervention = interventions.get(device);
 		return ((intervention != null) && !intervention.getName().equals("") ? intervention
 				.getName() + " - "
 				: "")
-				+ "" + ptuId;
+				+ "" + device.getName();
 	}
 
-	protected void addHistory(History history) {
+	protected void addHistory(Data history) {
 		if (history == null)
 			return;
 
-		setData(history.getPtuId(), history.getData(), history.getLimits());
+		setData(history.getPtu(), history.getData(), history.getLimits());
 
-		setUnit(history.getPtuId(), history.getUnit());
+		setUnit(history.getPtu(), history.getUnit());
 	}
 
 	protected void unregister() {
@@ -64,7 +65,7 @@ public class SpecificTimeView extends AbstractTimeView {
 
 	private final static long MINUTE = 60 * 1000; // 1 minute
 
-	protected void register(ClientFactory factory, final String measurementName, final String ptuId) {
+	protected void register(ClientFactory factory, final String measurementName, final Device device) {
 		unregister();
 
 		measurementHandler = MeasurementChangedEvent.register(
@@ -75,16 +76,16 @@ public class SpecificTimeView extends AbstractTimeView {
 					public void onMeasurementChanged(
 							MeasurementChangedEvent event) {
 						Measurement m = event.getMeasurement();
-						if (m.getName().equals(measurementName)
-								&& ((ptuId == null) || m.getPtuId().equals(
-										ptuId))
+						if (m.getSensor().equals(measurementName)
+								&& ((device == null) || m.getDevice().equals(
+										device))
 								&& (m.getDate().getTime() < new Date()
 										.getTime() + MINUTE)) {
-							addPoint(m.getPtuId(), m.getDate().getTime(),
+							addPoint(m.getDevice(), m.getDate().getTime(),
 									m.getValue(), m.getLowLimit(),
 									m.getHighLimit());
 
-							setUnit(m.getPtuId(), m.getUnit());
+							setUnit(m.getDevice(), m.getUnit());
 						}
 					}
 				});

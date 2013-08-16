@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,16 +13,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.domain.Ternary;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.client.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.db.Database;
+import ch.cern.atlas.apvs.db.Scale;
+import ch.cern.atlas.apvs.db.SensorMap;
 import ch.cern.atlas.apvs.domain.APVSException;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
@@ -31,12 +32,15 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Report;
+import ch.cern.atlas.apvs.domain.Ternary;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
+import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+import ch.cern.atlas.apvs.ptu.server.JsonHeader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonReader;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonWriter;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
-import ch.cern.atlas.apvs.ptu.server.Scale;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -52,16 +56,17 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private Ternary dosimeterOk = Ternary.Unknown;
 
 	private PtuSettings settings;
-	
-	private DbHandler dbHandler;
+
+	private Database database;
 	private SensorMap sensorMap;
+	private Map<String, Device> deviceMap;
 
 	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus) {
 		super(bootstrap);
 		this.eventBus = eventBus;
-		
-		dbHandler = DbHandler.getInstance();
-		
+
+		database = Database.getInstance(eventBus);
+
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
@@ -91,15 +96,16 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx)
-			throws Exception {
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq,
 				true);
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
 				ConnectionType.dosimeter, dosimeterOk);
 		super.channelActive(ctx);
-		
-		sensorMap = dbHandler.getSensorMap();
+
+		sensorMap = database.getSensorMap();
+
+		deviceMap = database.getDeviceMap();
 	}
 
 	@Override
@@ -134,17 +140,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 	}
 
-	private final static boolean DEBUG = false;
+	private final static boolean DEBUG = true;
 	private final static boolean DEBUGPLUS = false;
-	
+
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) {
+	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		// Print out the line received from the server.
 		// FIXME #634, not sure if this is correct
-		String line = "";
-		for (Object msg: msgs) {
-			line += msg.toString();
-		}
+		String line = msg.toString();
 
 		if (DEBUGPLUS) {
 			for (int i = 0; i < line.length(); i++) {
@@ -163,28 +166,43 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			log.info("LineLength " + line.length());
 		}
 
-		List<Message> list;
+		;
 		try {
-			list = PtuJsonReader.jsonToJava(line).getMessages();
-			for (Iterator<Message> i = list.iterator(); i.hasNext();) {
-				Message message = i.next();
-				try {
-					if (message instanceof Measurement) {
-						handleMessage((Measurement) message);
-					} else if (message instanceof Report) {
-						handleMessage((Report) message);
-					} else if (message instanceof Event) {
-						handleMessage((Event) message);
-					} else if (message instanceof Error) {
-						handleMessage((Error) message);
-					} else if (message instanceof GeneralConfiguration) {
-						handleMessage((GeneralConfiguration) message);
-					} else {
-						log.warn("Error: unknown Message Type: "
-								+ message.getType());
+			JsonHeader header = PtuJsonReader.jsonToJava(line);
+
+			Device device = deviceMap.get(header.getSender());
+			if (device == null) {
+				log.info("Message from unknown device: " + header.getSender());
+			} else {
+
+				List<Message> list = header.getMessages(device);
+				if (DEBUG) {
+					log.info("# of mesg: " + list.size());
+				}
+				for (Iterator<Message> i = list.iterator(); i.hasNext();) {
+					Message message = i.next();
+					if (DEBUG) {
+						log.info(message.toString());
 					}
-				} catch (APVSException e) {
-					log.warn("Could not add measurement", e);
+
+					try {
+						if (message instanceof Measurement) {
+							handleMessage((Measurement) message);
+						} else if (message instanceof Report) {
+							handleMessage((Report) message);
+						} else if (message instanceof Event) {
+							handleMessage((Event) message);
+						} else if (message instanceof Error) {
+							handleMessage((Error) message);
+						} else if (message instanceof GeneralConfiguration) {
+							handleMessage((GeneralConfiguration) message);
+						} else {
+							log.warn("Error: unknown Message Type: "
+									+ message.getType());
+						}
+					} catch (APVSException e) {
+						log.warn("Could not add measurement", e);
+					}
 				}
 			}
 		} catch (IOException ioe) {
@@ -198,7 +216,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private final static long MINUTE = 60 * SECOND;
 
 	private void handleMessage(Measurement message) throws APVSException {
-
 		// Quick fix for #371
 		Date now = new Date();
 		if (message.getDate().getTime() < (now.getTime() - 5 * MINUTE)) {
@@ -207,14 +224,17 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			return;
 		}
 
-		String ptuId = message.getPtuId();
-		String sensor = message.getName();
-		
-		if (!sensorMap.isEnabled(ptuId, sensor)) {
-//			log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " + sensor);
-			return;			
+		Device ptu = message.getDevice();
+		System.err.println(ptu);
+		String sensor = message.getSensor();
+		System.err.println(sensor);
+
+		if (!sensorMap.isEnabled(ptu, sensor)) {
+			// log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " +
+			// sensor);
+			return;
 		}
-				
+
 		String unit = message.getUnit();
 		Double value = message.getValue();
 		Double low = message.getLowLimit();
@@ -226,21 +246,25 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		high = Scale.getHighLimit(high, unit);
 		unit = Scale.getUnit(unit);
 
-		measurementChanged.add(new Measurement(ptuId, sensor, value, low, high, unit, message.getSamplingRate(),
-				message.getDate()));
+		message = new Measurement(message.getDevice(), sensor, value, low,
+				high, unit, message.getSamplingRate(), message.getDate());
+
+		System.err.println("Modified message: " + message);
+
+		measurementChanged.add(message);
 
 		sendEvents();
 	}
 
 	private void handleMessage(Event message) {
-		String ptuId = message.getPtuId();
-		String sensor = message.getName();
+		Device device = message.getDevice();
+		String sensor = message.getSensor();
 
 		// log.info("EVENT " + message);
 
-		eventBus.fireEvent(new EventChangedEvent(new Event(ptuId, sensor,
+		eventBus.fireEvent(new EventChangedEvent(new Event(device, sensor,
 				message.getEventType(), message.getValue(), message
-						.getTheshold(), message.getUnit(), message.getDate())));
+						.getThreshold(), message.getUnit(), message.getDate())));
 
 		if (message.getEventType().equals("DosConnectionStatus_OFF")) {
 			dosimeterOk = Ternary.False;
@@ -254,7 +278,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	private void handleMessage(GeneralConfiguration message) {
-		String ptuId = message.getPtuId();
+		String ptuId = message.getDevice().getName();
 		String dosimeterId = message.getDosimeterId();
 
 		if (settings != null) {

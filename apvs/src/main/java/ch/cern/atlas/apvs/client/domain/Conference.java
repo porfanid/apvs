@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.cern.atlas.apvs.domain.Device;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 //NOTE: implements IsSerializable in case serialization file cannot be found
@@ -13,13 +15,13 @@ public class Conference implements Serializable, IsSerializable {
 	
 	private int userNum;
 	private String activity;
-	private List<String> ptuIds;
+	private List<String> ptus;
 	private List<String> usernames;
 	
 	public Conference(){
 		userNum   = 0;
 		activity  = "";
-		ptuIds    = new ArrayList<String>();
+		ptus    = new ArrayList<String>();
 		usernames = new ArrayList<String>();
 	}
 	
@@ -42,12 +44,12 @@ public class Conference implements Serializable, IsSerializable {
 	}
 	
 	// PTU Methods
-	public List<String> getPtuIds(){
-		return this.ptuIds;
+	public List<String> getPtus(){
+		return this.ptus;
 	}
 	
 	public void addPtu(String ptuId){
-		this.ptuIds.add(ptuId);
+		this.ptus.add(ptuId);
 	}
 	
 	// Username Methods
@@ -67,9 +69,9 @@ public class Conference implements Serializable, IsSerializable {
 		return false;
 	}
 
-	public boolean containsPtu(String ptuId) {
-		for(int i = 0; i < this.ptuIds.size(); i++){
-			if(this.ptuIds.get(i).equals(ptuId))
+	public boolean containsPtu(String ptu) {
+		for(int i = 0; i < this.ptus.size(); i++){
+			if(this.ptus.get(i).equals(ptu))
 				return true;
 		}
 		return false;

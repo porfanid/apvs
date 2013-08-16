@@ -1,17 +1,20 @@
 package ch.cern.atlas.apvs.client.manager;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
-import ch.cern.atlas.apvs.client.domain.HistoryMap;
-import ch.cern.atlas.apvs.client.event.HistoryMapChangedEvent;
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
+import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Data;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
@@ -23,8 +26,8 @@ public class HistoryManager {
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static HistoryManager instance;
-	private HistoryMap historyMap;
-	private List<String> ptuIds;
+	private History history;
+	private List<Device> ptus;
 	private HandlerRegistration measurementRegistration;
 	private ClientFactory clientFactory;
 	private RemoteEventBus eventBus;
@@ -45,10 +48,10 @@ public class HistoryManager {
 								.println("FIXME (3x?)... Received............."
 										+ event.getEventBusUUID() + " "
 										+ event.getSourceUUID());
-						List<String> newPtuIds = event.getInterventionMap()
-								.getPtuIds();
-						if (!newPtuIds.equals(ptuIds)) {
-							ptuIds = newPtuIds;
+						List<Device> newPtus = event.getInterventionMap()
+								.getPtus();
+						if (!newPtus.equals(ptus)) {
+							ptus = newPtus;
 							update();
 						}
 					}
@@ -63,19 +66,19 @@ public class HistoryManager {
 
 		long now = new Date().getTime();
 		// #502, reduce to one hour for now
-		Date yesterday = new Date(now - (/* 24 */ 4 * 60 * 60 * 1000));
+		Date yesterday = new Date(now - (/* 24 */4 * 60 * 60 * 1000));
 
-		historyMap = new HistoryMap();
-		clientFactory.getPtuService().getHistoryMap(ptuIds, yesterday,
-				new AsyncCallback<HistoryMap>() {
+		history = new History();
+		clientFactory.getPtuService().getHistory(ptus, yesterday, 2000,
+				new AsyncCallback<History>() {
 
 					@Override
-					public void onSuccess(HistoryMap result) {
-						historyMap = result;
+					public void onSuccess(History result) {
+						history = result;
 
 						subscribe();
 
-						HistoryMapChangedEvent.fire(eventBus, historyMap);
+						HistoryChangedEvent.fire(eventBus, history);
 					}
 
 					@Override
@@ -103,17 +106,17 @@ public class HistoryManager {
 						// Add entry to history, in the
 						// correct place
 						Measurement measurement = event.getMeasurement();
-						History history = historyMap.get(
-								measurement.getPtuId(), measurement.getName());
-						if (history == null) {
-							history = new History(measurement.getPtuId(),
-									measurement.getName(), measurement
-											.getUnit());
-							historyMap.put(history);
+						Data data = history.get(measurement.getDevice(),
+								measurement.getSensor());
+						if (data == null) {
+							data = new Data(measurement.getDevice(),
+									measurement.getSensor(), measurement
+											.getUnit(), 2000);
+							history.put(data);
 						}
 						if (measurement.getDate().getTime() < new Date()
 								.getTime() + 60000) {
-							history.addEntry(measurement.getDate().getTime(),
+							data.addEntry(measurement.getDate().getTime(),
 									measurement.getValue(),
 									measurement.getLowLimit(),
 									measurement.getHighLimit(),

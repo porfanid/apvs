@@ -6,11 +6,11 @@ public class SensorOrder extends Order {
 
 	private String name;
 
-	public SensorOrder() {
+	protected SensorOrder() {
 	}
 
-	public SensorOrder(String ptuId, String name, String parameter, String value) {
-		super(ptuId, parameter, value);
+	public SensorOrder(Device device, String name, String parameter, String value) {
+		super(device, parameter, value);
 		this.name = name;
 	}
 	

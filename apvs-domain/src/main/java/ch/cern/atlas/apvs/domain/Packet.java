@@ -17,7 +17,7 @@ public class Packet implements Serializable, IsSerializable {
 	
 	List<Message> messages = new ArrayList<Message>();
 	
-	public Packet() {
+	protected Packet() {
 	}
 	
 	public Packet(String sender, String receiver, int frameID, boolean acknowledge) {
@@ -27,6 +27,22 @@ public class Packet implements Serializable, IsSerializable {
 		this.acknowledge = acknowledge;
 	}
 	
+	public String getSender() {
+		return sender;
+	}
+
+	public String getReceiver() {
+		return receiver;
+	}
+
+	public Integer getFrameID() {
+		return frameID;
+	}
+
+	public Boolean getAcknowledge() {
+		return acknowledge;
+	}
+
 	public void addMessage(Message msg) {
 		messages.add(msg);
 	}
@@ -36,7 +52,12 @@ public class Packet implements Serializable, IsSerializable {
 	}
 		
 	public String toString() {
-		return "Packet "+sender+" "+receiver+" "+frameID+" "+acknowledge+" "+messages.size();
+		String s = "Packet sender:"+sender+", receiver:"+receiver+", frameId:"+frameID+", ack:"+acknowledge+", #messages:"+messages.size();
+		for (Message m: messages) {
+			s += "\n   "+m.toString();
+		}
+		return s;
 	}
+
 	
 }

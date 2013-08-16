@@ -11,7 +11,6 @@ import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
 import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
-import ch.cern.atlas.apvs.client.ui.PtuSelector;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.place.shared.PlaceController;
@@ -31,8 +30,6 @@ public interface ClientFactory {
 	DbServiceAsync getDbService();
 	EventServiceAsync getEventService();
 	InterventionServiceAsync getInterventionService();
-
-	PtuSelector getPtuSelector();
 
 	MeasurementView getMeasurementView();
 

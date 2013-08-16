@@ -15,33 +15,32 @@ public class Ptu implements Serializable, IsSerializable {
 	
 	private static final long serialVersionUID = 1933500417755260216L;
 	
-	private String ptuId;
+	private Device device;
 	protected Map<String, Measurement> measurements = new HashMap<String, Measurement>();
 		
-	public Ptu() {
-		ptuId = null;
+	protected Ptu() {
 	}
 	
-	public Ptu(String ptuId) {
-		this.ptuId = ptuId;
+	public Ptu(Device device) {
+		this.device = device;
 	}
 	
 	@Override
 	public int hashCode() {
-		return ptuId.hashCode() + measurements.hashCode();
+		return device.hashCode() + measurements.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if ((obj != null) && (obj instanceof Ptu)) {
 			Ptu p = (Ptu)obj;
-			return (p.ptuId == ptuId) && (p.getMeasurements().equals(measurements));
+			return (p.device.equals(device)) && (p.getMeasurements().equals(measurements));
 		}
 		return super.equals(obj);
 	}
 			
 	public String getPtuId() {
-		return ptuId;
+		return device.getName();
 	}
 	
 	public List<String> getMeasurementNames() {
@@ -57,14 +56,14 @@ public class Ptu implements Serializable, IsSerializable {
 	}
 			
 	public Measurement addMeasurement(Measurement measurement) throws APVSException {
-		String name = measurement.getName();
-		Measurement r = measurements.get(name);
+		String sensor = measurement.getSensor();
+		Measurement r = measurements.get(sensor);
 		
 		// check if we try to store an older measurement
 		if ((r != null) && (r.getDate().getTime() > measurement.getDate().getTime())) {
-			throw new APVSException("addMeasurement out of order for "+ptuId+" "+measurement.getName());
+			throw new APVSException("addMeasurement out of order for "+device.getName()+" "+measurement.getSensor());
 		} else {
-			measurements.put(name, measurement);
+			measurements.put(sensor, measurement);
 		}
 		
 		return r;
@@ -77,6 +76,10 @@ public class Ptu implements Serializable, IsSerializable {
 			if (m != null) r.add(m);
 		}
 		return r;
+	}
+
+	public Device getDevice() {
+		return device;
 	}	
 }
 

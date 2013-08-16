@@ -8,6 +8,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.ptu.server.Temperature;
 
@@ -15,7 +18,7 @@ public class FilterTest {
 
 	Filter f = new ValueFilter();
 
-	String ptuId = "PTU099";
+	Device device = new Device("PTU099", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
 
 	long now = new Date().getTime();
 	Date t0 = new Date(now+20000);
@@ -39,12 +42,12 @@ public class FilterTest {
 
 	@Before
 	public void before() {
-		m0 = new Temperature(ptuId, v0, t0);
-		m1 = new Temperature(ptuId, v1, t1);
-		m2 = new Temperature(ptuId, v2, t2);
-		m3 = new Temperature(ptuId, v3, t3);
-		m4 = new Temperature(ptuId, v4, t4);
-		m5 = new Temperature(ptuId, v5, t5);
+		m0 = new Temperature(device, v0, t0);
+		m1 = new Temperature(device, v1, t1);
+		m2 = new Temperature(device, v2, t2);
+		m3 = new Temperature(device, v3, t3);
+		m4 = new Temperature(device, v4, t4);
+		m5 = new Temperature(device, v5, t5);
 		l = new ArrayList<Measurement>();
 	}
 

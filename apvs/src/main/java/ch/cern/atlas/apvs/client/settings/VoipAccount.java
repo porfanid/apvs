@@ -2,23 +2,26 @@ package ch.cern.atlas.apvs.client.settings;
 
 import java.io.Serializable;
 
+import ch.cern.atlas.apvs.domain.Intervention;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 //NOTE: implements IsSerializable in case serialization file cannot be found
 public class VoipAccount implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 1L;
-	private String username;
-	private String account;
+	private String account;	
 	private String channel;
-	private String destUser;
-	private String destPTU;
-	private Boolean status = false;
-	private Boolean onCall;
-	private String activity;
+	private String destUser; 
+	private String destPTU; 
+	private Boolean status = false; 
 	private String room;
 	private Boolean mute;
-	private Boolean onConference;
+	private Boolean onConference;	
+	private Boolean onCall;
+	private String username; //Intervention
+	private String activity; //Intervention
+	private Intervention intervention; //Intervention
 	
 	public VoipAccount() {
 		this(false);
@@ -36,6 +39,7 @@ public class VoipAccount implements Serializable, IsSerializable {
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
+		this.intervention = null;
 	}
 	
 	public VoipAccount(String account) {
@@ -50,6 +54,7 @@ public class VoipAccount implements Serializable, IsSerializable {
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
+		this.intervention = null;
 	}
 	
 	public VoipAccount(boolean setDefaults) {
@@ -66,13 +71,14 @@ public class VoipAccount implements Serializable, IsSerializable {
 		this.room = "";
 		this.mute = false;
 		this.onConference = false;
+		this.intervention = null;
 	}
 
 	// Username	
 	public String getUsername(){
 		return this.username;
 	}
-		
+
 	public void setUsername(String username){
 		this.username = username;
 	}
@@ -156,6 +162,15 @@ public class VoipAccount implements Serializable, IsSerializable {
 	
 	public void setRoom(String room){
 		this.room = room;
+	}
+	
+	//Impact Number
+	public Intervention getIntervention(){
+		return intervention;
+	}
+	
+	public void setIntervention(Intervention intervention){
+		this.intervention = intervention;
 	}
 	
 	//Activity

@@ -28,9 +28,9 @@ public class ServerStorage {
 		try {
 			File file = new File(APVS_SERVER_SETTINGS_FILE);
 			if (!file.exists()) {
-				file.createNewFile();
-				log.warn("File " + APVS_SERVER_SETTINGS_FILE
-						+ " not found, created a NEW one.");
+				log.error("File " + APVS_SERVER_SETTINGS_FILE
+						+ " not found, you could create an empty one with 'touch "+APVS_SERVER_SETTINGS_FILE+"'");
+				System.exit(1);
 			}
 			config = new PropertiesConfiguration(file);
 			try {
@@ -67,7 +67,7 @@ public class ServerStorage {
 	}
 
 	public Boolean getBoolean(String name) {
-		return config.getBoolean(name);
+		return config.getBoolean(name, false);
 	}
 
 	public void setItem(String name, Object value) {

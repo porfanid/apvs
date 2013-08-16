@@ -62,6 +62,6 @@ public class MeasurementChangedEvent extends RemoteEvent<MeasurementChangedEvent
 	
 	@Override
 	public String toString() {
-		return "MeasurementChangedEvent "+measurement.getPtuId()+" "+measurement.getName();
+		return "MeasurementChangedEvent "+measurement.getDevice().getName()+" "+measurement.getSensor();
 	}
 }

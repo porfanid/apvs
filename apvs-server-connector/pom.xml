@@ -11,7 +11,7 @@
 
 	<artifactId>apvs-server-connector</artifactId>
 	<packaging>jar</packaging>
-	<name>APVS Server Connector</name>
+	<name>APVS server connector</name>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
@@ -63,7 +63,10 @@
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>

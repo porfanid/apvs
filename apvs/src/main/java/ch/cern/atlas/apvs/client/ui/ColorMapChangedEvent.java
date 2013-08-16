@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.Map;
 
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.web.bindery.event.shared.Event;
@@ -16,7 +17,7 @@ public class ColorMapChangedEvent extends Event<ColorMapChangedEvent.Handler> {
 
 	private static final Type<ColorMapChangedEvent.Handler> TYPE = new Type<ColorMapChangedEvent.Handler>();
 
-	public static void fire(EventBus eventBus, Map<String, String> colorMap) {
+	public static void fire(EventBus eventBus, Map<Device, String> colorMap) {
 		eventBus.fireEvent(new ColorMapChangedEvent(colorMap));
 	}
 
@@ -34,18 +35,18 @@ public class ColorMapChangedEvent extends Event<ColorMapChangedEvent.Handler> {
 		return registration;
 	}
 	
-	private Map<String, String> colorMap;
+	private Map<Device, String> colorMap;
 
 	@Override
 	public Event.Type<Handler> getAssociatedType() {
 		return TYPE;
 	}
 	
-	public Map<String, String> getColorMap() {
+	public Map<Device, String> getColorMap() {
 		return colorMap;
 	}
 
-	protected ColorMapChangedEvent(Map<String, String> colorMap) {
+	protected ColorMapChangedEvent(Map<Device, String> colorMap) {
 		this.colorMap = colorMap;
 	}
 

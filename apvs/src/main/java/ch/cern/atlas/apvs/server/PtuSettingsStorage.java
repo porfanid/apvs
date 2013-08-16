@@ -6,11 +6,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.ui.CameraView;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
@@ -48,12 +49,12 @@ public class PtuSettingsStorage {
 				if (DEBUG) {
 					log.info("PTU Setting Storage: PTU IDS changed");
 				}
-				List<String> activePtuIds = event.getInterventionMap().getPtuIds();
+				List<Device> activePtuIds = event.getInterventionMap().getPtus();
 
 				boolean changed = false;
-				for (Iterator<String> i = activePtuIds.iterator(); i
+				for (Iterator<Device> i = activePtuIds.iterator(); i
 						.hasNext();) {
-					boolean added = settings.add(i.next());
+					boolean added = settings.add(i.next().getName());
 					changed |= added;
 				}
 

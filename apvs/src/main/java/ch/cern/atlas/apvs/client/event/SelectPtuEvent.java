@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.event;
 
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.web.bindery.event.shared.Event;
@@ -20,8 +21,8 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 
 	private static final Type<SelectPtuEvent.Handler> TYPE = new Type<SelectPtuEvent.Handler>();
 
-	public static void fire(EventBus eventBus, String ptuId) {
-		eventBus.fireEvent(new SelectPtuEvent(ptuId));
+	public static void fire(EventBus eventBus, Device device) {
+		eventBus.fireEvent(new SelectPtuEvent(device));
 	}	
 	
 	/**
@@ -47,13 +48,13 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 		return registration;
 	}
 
-	private String ptuId;
+	private Device device;
 
 	public SelectPtuEvent() {
 	}
 	
-	public SelectPtuEvent(String ptuId) {
-		this.ptuId = ptuId;
+	public SelectPtuEvent(Device device) {
+		this.device = device;
 	}
 
 	@Override
@@ -61,8 +62,8 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 		return TYPE;
 	}
 
-	public String getPtuId() {
-		return ptuId;
+	public Device getPtu() {
+		return device;
 	}
 	
 	@Override
@@ -72,7 +73,7 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 	
 	@Override
 	public String toString() {
-		return "SelectPtuEvent "+ptuId;
+		return "SelectPtuEvent "+device.getName();
 	}
 
 }

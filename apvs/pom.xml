@@ -177,24 +177,6 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-runtime</artifactId>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-compat-jbossweb</artifactId>
-		</dependency>
--->
-		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-compat-tomcat</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-compat-tomcat7</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.mchange</groupId>
-			<artifactId>c3p0</artifactId>
-		</dependency>
 		<dependency>
       			<groupId>com.google.gwt.eventbinder</groupId>
       			<artifactId>eventbinder</artifactId>
@@ -236,7 +218,7 @@
 			<artifactId>asterisk-java</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.jvnet.hudson.main</groupId>
+			<groupId>org.hudsonci.libs</groupId>
 			<artifactId>hudson-gwt-slf4j</artifactId>
 		</dependency>
 		<dependency>
@@ -251,6 +233,14 @@
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
 			<classifier>sources</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-c3p0</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>

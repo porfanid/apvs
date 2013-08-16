@@ -10,7 +10,7 @@ public class Report implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -2218198847285152101L;
 
-	private volatile String ptuId;
+	private volatile Device device;
 	private String type = "Report";
 	private Number batteryLevel;
 	private boolean cameraHandheld;
@@ -18,11 +18,11 @@ public class Report implements Message, Serializable, IsSerializable {
 	private boolean audio;
 	private Date date;
 
-	public Report() {
+	protected Report() {
 	}
-
-	public Report(String ptuId, double batteryLevel, boolean cameraHandheld, boolean cameraHelmet, boolean audio, Date date) {
-		this.ptuId = ptuId;
+	
+	public Report(Device device, double batteryLevel, boolean cameraHandheld, boolean cameraHelmet, boolean audio, Date date) {
+		this.device = device;
 		this.batteryLevel = batteryLevel;
 		this.cameraHandheld = cameraHandheld;
 		this.cameraHelmet = cameraHelmet;
@@ -31,8 +31,8 @@ public class Report implements Message, Serializable, IsSerializable {
 	}
 
     @Override
-	public String getPtuId() {
-		return ptuId;
+	public Device getDevice() {
+		return device;
 	}
 
 	public Number getBatteryLevel() {

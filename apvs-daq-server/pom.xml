@@ -11,7 +11,7 @@
 
 	<artifactId>apvs-daq-server</artifactId>
 	<packaging>jar</packaging>
-	<name>APVS DAQ Server</name>
+	<name>APVS daq server</name>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
@@ -66,6 +66,10 @@
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc</artifactId>
 		</dependency>
+                       <dependency>
+                                <groupId>mysql</groupId>
+                                <artifactId>mysql-connector-java</artifactId>
+                        </dependency>
 		<dependency>
 			<groupId>net.sf</groupId>
 			<artifactId>log4jdbc4</artifactId>
@@ -78,6 +82,14 @@
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-ptu</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
 		</dependency>
 	</dependencies>
 

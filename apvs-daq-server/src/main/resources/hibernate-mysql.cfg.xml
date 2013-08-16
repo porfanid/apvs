@@ -1,0 +1,37 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+	<session-factory>
+
+		<!-- Database connection settings -->
+		<property name="connection.driver_class">net.sf.log4jdbc.DriverSpy</property>
+		<property name="connection.url">jdbc:mysql://localhost:8889/apvs</property>
+		<property name="connection.username">wpss_new</property>
+		<property name="connection.password">xxxx</property>
+
+		<!-- JDBC connection pool (c3p0) -->
+		<property name="hibernate.c3p0.min_size">5</property>
+		<property name="hibernate.c3p0.max_size">20</property>
+		<property name="hibernate.c3p0.timeout">1800</property>
+		<property name="hibernate.c3p0.max_statements">50</property>
+
+		<!-- SQL dialect -->
+		<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+		
+		<!-- Echo all executed SQL to stdout -->
+		<property name="show_sql">true</property>
+
+		<!-- Names the annotated entity class -->
+		<mapping class="ch.cern.atlas.apvs.domain.Device" />
+		<mapping class="ch.cern.atlas.apvs.domain.Event" />
+		<mapping class="ch.cern.atlas.apvs.domain.Intervention" />
+		<mapping class="ch.cern.atlas.apvs.domain.Measurement" />
+		<mapping class="ch.cern.atlas.apvs.domain.Sensor" />
+		<mapping class="ch.cern.atlas.apvs.domain.User" />
+				
+	</session-factory>
+
+</hibernate-configuration>

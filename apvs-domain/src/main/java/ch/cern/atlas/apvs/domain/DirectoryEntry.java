@@ -11,7 +11,7 @@ public class DirectoryEntry implements Serializable, IsSerializable {
 	private Directory parent;
 	private String name;
 
-	public DirectoryEntry() {
+	protected DirectoryEntry() {
 	}
 
 	public DirectoryEntry(Directory parent, String name) {

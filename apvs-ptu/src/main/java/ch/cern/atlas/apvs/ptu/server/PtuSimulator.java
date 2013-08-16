@@ -12,7 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.domain.APVSException;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
+import ch.cern.atlas.apvs.domain.InetAddress;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Ptu;
@@ -20,6 +23,8 @@ import ch.cern.atlas.apvs.domain.Report;
 
 public class PtuSimulator extends Thread {
 
+	private static final boolean DEBUG_PARTIAL_MESSAGES = false;
+	
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private final Channel channel;
@@ -50,18 +55,19 @@ public class PtuSimulator extends Thread {
 			long then = now - deltaStartTime;
 			Date start = new Date(then);
 
-			ptu = new Ptu(ptuId);
+			Device device = new Device(ptuId, InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
+			ptu = new Ptu(device);
 			log.info("Creating " + ptuId);
 
 			try {
-				ptu.addMeasurement(new Temperature(ptuId, 25.7, start));
-				ptu.addMeasurement(new Humidity(ptuId, 31.4, start));
-				ptu.addMeasurement(new CO2(ptuId, 2.5, start));
-				ptu.addMeasurement(new BodyTemperature(ptuId, 37.2, start));
-				ptu.addMeasurement(new HeartRate(ptuId, 120, start));
-				ptu.addMeasurement(new DoseAccum(ptuId, 0.042, start));
-				ptu.addMeasurement(new DoseRate(ptuId, 0.001, start));
-				ptu.addMeasurement(new O2(ptuId, 85.2, start));
+				ptu.addMeasurement(new Temperature(device, 25.7, start));
+				ptu.addMeasurement(new Humidity(device, 31.4, start));
+				ptu.addMeasurement(new CO2(device, 2.5, start));
+				ptu.addMeasurement(new BodyTemperature(device, 37.2, start));
+				ptu.addMeasurement(new HeartRate(device, 120, start));
+				ptu.addMeasurement(new DoseAccum(device, 0.042, start));
+				ptu.addMeasurement(new DoseRate(device, 0.001, start));
+				ptu.addMeasurement(new O2(device, 85.2, start));
 			} catch (APVSException e) {
 				log.warn("Could not add measurement", e);
 			}
@@ -82,7 +88,7 @@ public class PtuSimulator extends Thread {
 								new Date());
 					}
 					String json = PtuJsonWriter.objectToJson(new JsonHeader(msg));
-					System.err.println(json +" "+json.length());
+//					System.err.println(json +" "+json.length());
 					
 					if (WRITE_MARKERS) {
 						StringBuffer b = new StringBuffer();
@@ -94,7 +100,7 @@ public class PtuSimulator extends Thread {
 					}
 										
 					if (channel != null) {
-						if (json.length() > 75) {
+						if (DEBUG_PARTIAL_MESSAGES && (json.length() > 75)) {
 							write(json.substring(0, 75));
 							json = json.substring(75, json.length());
 							Thread.sleep(1000);
@@ -128,7 +134,7 @@ public class PtuSimulator extends Thread {
 			public void operationComplete(
 					Future<? super Void> future)
 					throws Exception {
-				System.err.println("Sent "+msg+" "+msg.length()+" "+future.isSuccess());
+//				System.err.println("Sent "+msg+" "+msg.length()+" "+future.isSuccess());
 			}
 		});
 	}
@@ -146,14 +152,14 @@ public class PtuSimulator extends Thread {
 	}
 
 	private Measurement nextMeasurement(Measurement m, Date d) {
-		return new Measurement(m.getPtuId(), m.getName(), m.getValue()
+		return new Measurement(m.getDevice(), m.getSensor(), m.getValue()
 				.doubleValue() + random.nextGaussian(), m.getLowLimit(),
 				m.getHighLimit(), m.getUnit(), m.getSamplingRate(), d);
 	}
 
 	@SuppressWarnings("unused")
 	private Report nextReport(Ptu ptu, Date d) {
-		return new Report(ptu.getPtuId(), random.nextGaussian(),
+		return new Report(ptu.getDevice(), random.nextGaussian(),
 				random.nextBoolean(), random.nextBoolean(),
 				random.nextBoolean(), d);
 	}
@@ -165,7 +171,7 @@ public class PtuSimulator extends Thread {
 		double d2 = random.nextDouble();
 		String unit = "";
 
-		return new Event(ptu.getPtuId(), name, "UpLevel", Math.max(d1, d2),
+		return new Event(ptu.getDevice(), name, "UpLevel", Math.max(d1, d2),
 				Math.min(d1, d2), unit, d);
 	}
 }

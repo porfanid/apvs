@@ -1,46 +1,53 @@
 package ch.cern.atlas.apvs.ptu.server;
 
-import ch.cern.atlas.apvs.domain.APVSException;
-import ch.cern.atlas.apvs.domain.Error;
-import ch.cern.atlas.apvs.domain.Event;
-import ch.cern.atlas.apvs.domain.Measurement;
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Message;
-import ch.cern.atlas.apvs.domain.Order;
-import ch.cern.atlas.apvs.domain.Report;
-import ch.cern.atlas.apvs.domain.SensorOrder;
-import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 
 public class JsonHeader {
 
 	transient static int currentFrameID = 0;
 	
 	String sender;
-	String receiver = "Broadcast";
-	String frameID;
-	String acknowledge = "False"; 
-	JsonMessage[] messages;
+	String receiver;
+	int frameID;
+	boolean acknowledge;
+	List<JsonMessage> messages;
 	
-	public JsonHeader(Message message) throws APVSException {
+	// sending only
+	public JsonHeader(Message message) {
+		this.sender = message.getDevice().getName();
+		this.receiver = "Broadcast";
 		currentFrameID++;
-		frameID = String.valueOf(currentFrameID);
-		sender = message.getPtuId();
-		messages = new JsonMessage[1];
-		if (message instanceof Measurement) {
-			messages[0] = new JsonMeasurement(message);
-		} else if (message instanceof Report) {
-			messages[0] = new JsonReport(message);			
-		} else if (message instanceof Event) {
-			messages[0] = new JsonEvent(message);			
-		} else if (message instanceof Error) {
-			messages[0] = new JsonError(message);
-		} else if (message instanceof SensorOrder) {
-			messages[0] = new JsonSensorOrder(message);
-		} else if (message instanceof Order) {
-			messages[0] = new JsonOrder(message);
-		} else if (message instanceof GeneralConfiguration) {
-			messages[0] = new JsonGeneralConfiguration(message);
-		} else {
-			throw new APVSException("ERROR: do not know how to write message of type: "+message.getClass());
+		frameID = currentFrameID;
+		this.messages = new ArrayList<JsonMessage>();
+		addMessage(new JsonMessage(message));
+	}
+
+	public JsonHeader(String sender, String receiver, int frameID,
+			boolean acknowledge) {
+		this.sender = sender;
+		this.receiver = receiver;
+		this.frameID = frameID;
+		this.acknowledge = acknowledge;
+		this.messages = new ArrayList<JsonMessage>();
+	}
+	
+	public void addMessage(JsonMessage message) {
+		messages.add(message);
+	}
+
+	public List<Message> getMessages(Device device) {
+		List<Message> result = new ArrayList<Message>(messages.size());
+		for (JsonMessage m : messages) {
+			result.add(m.toMessage(device));
 		}
+ 		return result;
+	}
+
+	public String getSender() {
+		return sender;
 	}
 }

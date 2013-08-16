@@ -12,7 +12,7 @@ public class Directory extends DirectoryEntry implements Serializable, IsSeriali
 	private static final long serialVersionUID = -5848041198612728113L;
 	protected List<DirectoryEntry> entries = new ArrayList<DirectoryEntry>();
 	
-	public Directory() {
+	protected Directory() {
 	}
 
 	public Directory(Directory parent, String name) {

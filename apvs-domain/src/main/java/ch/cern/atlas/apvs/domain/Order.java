@@ -8,24 +8,24 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Order implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = 2917315876156737998L;
-	
-	private String ptuId;
+
+	private volatile Device device;
 	private String parameter;
 	private String value;
 	private String type = "Order";
 
-	public Order() {
+	protected Order() {
 	}
-	
-	public Order(String ptuId, String parameter, String value) {
-		this.ptuId = ptuId;
+
+	public Order(Device device, String parameter, String value) {
+		this.device = device;
 		this.parameter = parameter;
 		this.value = value;
 	}
 
-    @Override
-	public String getPtuId() {
-		return ptuId;
+	@Override
+	public Device getDevice() {
+		return device;
 	}
 
 	public String getParameter() {
@@ -40,9 +40,10 @@ public class Order implements Message, Serializable, IsSerializable {
 	public String getType() {
 		return type;
 	}
-	
+
 	@Override
 	public String toString() {
-		return getType()+" "+getPtuId()+" "+getParameter()+" "+getValue();
+		return getType() + " " + getDevice().getName() + " " + getParameter() + " "
+				+ getValue();
 	}
 }

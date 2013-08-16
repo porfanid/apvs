@@ -13,7 +13,7 @@ public class Procedure extends DirectoryEntry implements Serializable, IsSeriali
 
 	private List<Step> steps = new ArrayList<Step>();
 	
-	public Procedure() {
+	protected Procedure() {
 	}
 
 	public Step getStep(int sequenceNumber) {

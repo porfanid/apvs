@@ -3,18 +3,19 @@ package ch.cern.atlas.apvs.ptu.server;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+import java.util.List;
+
 public class RemoveDelimiterDecoder extends ByteToMessageDecoder {
-	
+
 	public RemoveDelimiterDecoder() {
 	}
-	
+
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
-			MessageList<Object> out) throws Exception {
-	
+			List<Object> out) throws Exception {
+
 		ByteBuf o = Unpooled.buffer();
 		int len = in.readableBytes();
 		for (int i = 0; i < len; i++) {
@@ -23,7 +24,7 @@ public class RemoveDelimiterDecoder extends ByteToMessageDecoder {
 				o.writeByte(b);
 			}
 		}
-		
+
 		out.add(o);
 	}
 }

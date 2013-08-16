@@ -55,13 +55,13 @@ public class MeasurementView extends AbstractMeasurementView {
 		name = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				return historyMap.getDisplayName(name);
+				return Measurement.getDisplayName(name);
 			}
 
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String s = getValue(name);
-				Measurement m = historyMap.getMeasurement(ptuId, name);
+				Measurement m = history.getMeasurement(ptu, name);
 				if (m == null) {
 					return;
 				}
@@ -86,17 +86,17 @@ public class MeasurementView extends AbstractMeasurementView {
 				if (!showName)
 					return null;
 
-				return ptuId;
+				return ptu != null ? ptu.getName() : null;
 			}
 
 			public void render(Context context, SafeHtmlBuilder sb) {
 				String s = getValue();
 				if (s != null) {
-					s = "PTU Id: " + ptuId;
+					s = "PTU: " + ptu.getName();
 
 					if (interventions != null) {
-						String realName = interventions.get(ptuId) != null ? interventions
-								.get(ptuId).getName() : null;
+						String realName = interventions.get(ptu) != null ? interventions
+								.get(ptu).getName() : null;
 
 						if (realName != null) {
 							s = "<div title=\"" + s + "\">" + realName
@@ -152,18 +152,18 @@ public class MeasurementView extends AbstractMeasurementView {
 		ClickableTextColumn<String> value = new ClickableTextColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				if ((name == null) || (historyMap == null) || (ptuId == null)) {
+				if ((name == null) || (history == null) || (ptu == null)) {
 					return "";
 				}
-				Measurement m = historyMap.getMeasurement(ptuId, name);
+				Measurement m = history.getMeasurement(ptu, name);
 				return m != null ? format.format(m.getValue()) : "";
 			}
 
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String s = getValue(name);
-				Measurement m = historyMap != null ? historyMap.getMeasurement(
-						ptuId, name) : null;
+				Measurement m = history != null ? history.getMeasurement(
+						ptu, name) : null;
 				if (m == null) {
 					return;
 				}
@@ -200,16 +200,16 @@ public class MeasurementView extends AbstractMeasurementView {
 		ClickableHtmlColumn<String> unit = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				Measurement m = historyMap != null ? historyMap.getMeasurement(
-						ptuId, name) : null;
+				Measurement m = history != null ? history.getMeasurement(
+						ptu, name) : null;
 				return m != null ? m.getUnit() : "";
 			}
 
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String s = getValue(name);
-				Measurement m = historyMap != null ? historyMap.getMeasurement(
-						ptuId, name) : null;
+				Measurement m = history != null ? history.getMeasurement(
+						ptu, name) : null;
 				if (m == null) {
 					return;
 				}
@@ -234,15 +234,16 @@ public class MeasurementView extends AbstractMeasurementView {
 		ClickableHtmlColumn<String> date = new ClickableHtmlColumn<String>() {
 			@Override
 			public String getValue(String name) {
-				Measurement measurement = historyMap.getMeasurement(ptuId, name);
-				return measurement != null ? PtuClientConstants.dateFormat.format(measurement
-						.getDate()) : "";
+				Measurement measurement = history
+						.getMeasurement(ptu, name);
+				return measurement != null ? PtuClientConstants.dateFormat
+						.format(measurement.getDate()) : "";
 			}
 
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				String s = getValue(name);
-				Measurement m = historyMap.getMeasurement(ptuId, name);
+				Measurement m = history.getMeasurement(ptu, name);
 				if (m == null) {
 					return;
 				}
@@ -285,8 +286,8 @@ public class MeasurementView extends AbstractMeasurementView {
 		});
 		columnSortHandler.setComparator(value, new Comparator<String>() {
 			public int compare(String s1, String s2) {
-				Measurement o1 = historyMap.getMeasurement(ptuId, s1);
-				Measurement o2 = historyMap.getMeasurement(ptuId, s2);
+				Measurement o1 = history.getMeasurement(ptu, s1);
+				Measurement o2 = history.getMeasurement(ptu, s2);
 
 				if (o1 == o2) {
 					return 0;
@@ -305,8 +306,8 @@ public class MeasurementView extends AbstractMeasurementView {
 		});
 		columnSortHandler.setComparator(unit, new Comparator<String>() {
 			public int compare(String s1, String s2) {
-				Measurement o1 = historyMap.getMeasurement(ptuId, s1);
-				Measurement o2 = historyMap.getMeasurement(ptuId, s2);
+				Measurement o1 = history.getMeasurement(ptu, s1);
+				Measurement o2 = history.getMeasurement(ptu, s2);
 
 				if (o1 == o2) {
 					return 0;
@@ -321,8 +322,8 @@ public class MeasurementView extends AbstractMeasurementView {
 		});
 		columnSortHandler.setComparator(date, new Comparator<String>() {
 			public int compare(String s1, String s2) {
-				Measurement o1 = historyMap.getMeasurement(ptuId, s1);
-				Measurement o2 = historyMap.getMeasurement(ptuId, s2);
+				Measurement o1 = history.getMeasurement(ptu, s1);
+				Measurement o2 = history.getMeasurement(ptu, s2);
 
 				if (o1 == o2) {
 					return 0;

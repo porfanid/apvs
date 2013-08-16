@@ -11,7 +11,7 @@ public class Step implements Serializable, IsSerializable {
 	private String name;
 	private String video;
 
-	public Step() {
+	protected Step() {
 	}
 	
 	public Step(String name, String video) {
