@@ -135,12 +135,16 @@ public class Data implements Serializable, IsSerializable {
 		return t != null ? t : 0.1;
 	}
 
-	// equals when value withing threshold, limits equal, samplingrate equal.
+	// equals when value within threshold, limits equal, sampling rate equal.
 	private boolean equals(Number[] m1, Number[] m2) {
 		return (Math.abs(m1[VALUE].doubleValue() - m2[VALUE].doubleValue()) < getThreshold(name))
-				&& m1[LOW_LIMIT].equals(m2[LOW_LIMIT])
-				&& m1[HIGH_LIMIT].equals(m2[HIGH_LIMIT])
-				&& m1[SAMPLING_RATE].equals(m2[SAMPLING_RATE]);
+				&& equals(m1[LOW_LIMIT], m2[LOW_LIMIT])
+				&& equals(m1[HIGH_LIMIT], m2[HIGH_LIMIT])
+				&& equals(m1[SAMPLING_RATE], m2[SAMPLING_RATE]);
+	}
+	
+	private boolean equals(Number n1, Number n2) {
+		return ((n1 != null) && (n2 != null)) ?  n1.equals(n2) : (n1 == null) && (n2 == null);
 	}
 
 	public Measurement getMeasurement() {
