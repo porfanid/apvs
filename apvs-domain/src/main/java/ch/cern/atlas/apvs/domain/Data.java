@@ -86,7 +86,7 @@ public class Data implements Serializable, IsSerializable {
 	public String getUnit() {
 		return unit;
 	}
-	
+
 	public int getMaxEntries() {
 		return maxEntries;
 	}
@@ -94,7 +94,7 @@ public class Data implements Serializable, IsSerializable {
 	public boolean addEntry(long time, Number value, Number lowLimit,
 			Number highLimit, Integer samplingRate) {
 		// FIXME handle MaxEntries
-		
+
 		// add the new value
 		if (index >= data.length) {
 			Number[][] newData = new Number[data.length + INCREASE_CAPACITY][SIZE];
@@ -130,7 +130,7 @@ public class Data implements Serializable, IsSerializable {
 	private double getThreshold(String sensor) {
 		Double t = threshold.get(sensor);
 		if (t == null) {
-			System.err.println("Cannot find threshold for '"+sensor+"'");
+			System.err.println("Cannot find threshold for '" + sensor + "'");
 		}
 		return t != null ? t : 0.1;
 	}
@@ -142,17 +142,18 @@ public class Data implements Serializable, IsSerializable {
 				&& equals(m1[HIGH_LIMIT], m2[HIGH_LIMIT])
 				&& equals(m1[SAMPLING_RATE], m2[SAMPLING_RATE]);
 	}
-	
+
 	private boolean equals(Number n1, Number n2) {
-		return ((n1 != null) && (n2 != null)) ?  n1.equals(n2) : (n1 == null) && (n2 == null);
+		return ((n1 != null) && (n2 != null)) ? n1.equals(n2) : (n1 == null)
+				&& (n2 == null);
 	}
 
 	public Measurement getMeasurement() {
 		int last = index - 1;
 		return index == 0 ? null : new Measurement(device, name,
-				data[last][VALUE].doubleValue(), data[last][LOW_LIMIT].doubleValue(),
-				data[last][HIGH_LIMIT].doubleValue(), unit,
-				data[last][SAMPLING_RATE].intValue(), new Date(
+				(Double) data[last][VALUE], (Double) data[last][LOW_LIMIT],
+				(Double) data[last][HIGH_LIMIT], unit,
+				(Integer) data[last][SAMPLING_RATE], new Date(
 						data[last][TIME].longValue()));
 	}
 

@@ -130,8 +130,10 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	public History getHistory(List<Device> devices, Date from, Integer maxEntries)
 			throws ServiceException {
 		try {
+			System.err.println(devices.size()+" "+from+" "+maxEntries);
 			return database.getHistory(devices, from, maxEntries);
 		} catch (HibernateException e) {
+			e.printStackTrace();
 			throw new ServiceException(e.getMessage());
 		}
 	}

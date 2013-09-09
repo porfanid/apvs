@@ -714,10 +714,13 @@ public class Database {
 	public History getHistory(List<Device> devices, Date from,
 			Integer maxEntries) {
 		History history = new History();
+		
+		System.err.println("Getting history");
 
 		for (Device device : devices) {
 			history.put(getDeviceData(device, from, maxEntries));
 		}
+		System.err.println("Getting history done");
 
 		return history;
 	}
@@ -729,6 +732,8 @@ public class Database {
 		Session session = null;
 		Transaction tx = null;
 		try {
+			long now = new Date().getTime();
+			
 			String sql = "from Measurement m" + " where m.device = :device";
 			if (from != null) {
 				sql += " and m.date > :date";
@@ -737,29 +742,50 @@ public class Database {
 
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
+			
+			Query count = session.createQuery("select count(*) "+sql);
 
+			count.setEntity("device", device);
+
+			long entries;
+			do {
+	 			if (from != null) {
+					System.err.println(from);
+					count.setTimestamp("date", from);
+				}
+	
+				entries = (Long)count.uniqueResult();
+				System.err.println("Entries "+entries);
+				
+				if (entries > maxEntries) {
+					from = new Date((from.getTime()+now)/2);
+				}
+				
+			} while (entries > maxEntries);
+			
 			Query query = session.createQuery(sql);
-
+			
 			query.setEntity("device", device);
 
 			if (from != null) {
-				query.setTime("date", from);
+				query.setTimestamp("date", from);
 			}
 
-			long now = new Date().getTime();
 
 			for (@SuppressWarnings("unchecked")
 			Iterator<Measurement> i = query.list().iterator(); i.hasNext();) {
-				Measurement m = i.next();
-				long time = m.getDate().getTime();
+				Measurement measurement = i.next();
+				Date date = measurement.getDate();
+
+				long time = date.getTime();
 				if (time > now + 60000) {
 					break;
 				}
 
-				Long id = m.getId();
-				String sensor = m.getSensor();
-				Double value = m.getValue();
-				String unit = m.getUnit();
+				Long id = measurement.getId();
+				String sensor = measurement.getSensor();
+				Double value = measurement.getValue();
+				String unit = measurement.getUnit();
 
 				// Fix for #488, invalid db entry
 				if ((sensor == null) || (value == null) || (unit == null)) {
@@ -770,10 +796,10 @@ public class Database {
 					continue;
 				}
 
-				Double low = m.getLowLimit();
-				Double high = m.getHighLimit();
+				Double low = measurement.getLowLimit();
+				Double high = measurement.getHighLimit();
 
-				Integer samplingRate = m.getSamplingRate();
+				Integer samplingRate = measurement.getSamplingRate();
 
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);

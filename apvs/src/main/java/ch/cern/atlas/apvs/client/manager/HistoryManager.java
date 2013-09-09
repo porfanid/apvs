@@ -1,23 +1,22 @@
 package ch.cern.atlas.apvs.client.manager;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
-import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Data;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -35,7 +34,7 @@ public class HistoryManager {
 	private HistoryManager(ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 		this.eventBus = clientFactory.getRemoteEventBus();
-
+		
 		// subscribe
 		InterventionMapChangedRemoteEvent.subscribe(eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
