@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class Database {
 		this.eventBus = eventBus;
 
 		configuration = new Configuration();
-		configuration.configure("hibernate.cfg.xml");
+		configuration.configure(new File("hibernate.cfg.xml"));
 		configuration.registerTypeOverride(new DoubleStringType());
 		configuration.registerTypeOverride(new IntegerStringType());
 		configuration.registerTypeOverride(new MacAddressType());
