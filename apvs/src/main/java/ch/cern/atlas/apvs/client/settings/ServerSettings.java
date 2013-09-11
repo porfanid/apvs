@@ -11,10 +11,10 @@ public class ServerSettings extends AbstractServerSettings {
 	private static final long serialVersionUID = -8089892467523033522L;
 	
 	public enum Entry {
-		ptuUrl("PTU URL"),
-		procedureUrl("Procedure URL"),
-		databaseUrl("Database URL"),
-		audioUrl("Audio URL");
+		ptuUrl("PTU URL", TextCell.class, TextCell.class),
+		procedureUrl("Procedure URL", TextCell.class, TextCell.class),
+		databaseUrl("Database URL", TextCell.class, TextCell.class),
+		audioUrl("Audio URL", TextCell.class, TextCell.class);
 		private String s;
 		private Class<?> c;
 		private Class<?> n;
@@ -77,7 +77,7 @@ public class ServerSettings extends AbstractServerSettings {
 
 		put(Entry.ptuUrl.toString(), "pcatlaswpss03:10124");
 		put(Entry.procedureUrl.toString(), "");
-		put(Entry.databaseUrl.toString(), "wpss_new@//pcatlaswpss01.cern.ch:1521/XE");
+		put(Entry.databaseUrl.toString(), "--");
 		put(Entry.audioUrl.toString(), "manager@pcatlaswpss02.cern.ch");
 	}
 	

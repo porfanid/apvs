@@ -122,12 +122,7 @@ public class ServerServiceImpl extends ResponsePollService implements
 		
 		return user;
 	}
-		
-	@Override
-	public void setPassword(String name, String password) {
-		serverSettingsStorage.setPassword(name, password);
-	}
-	
+			
 	private String getEnv(String env, String defaultValue) {
 		String value = System.getenv(env);
 		return value != null ? value : defaultValue;

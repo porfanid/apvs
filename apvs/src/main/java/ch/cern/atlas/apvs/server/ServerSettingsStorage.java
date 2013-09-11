@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.ServerPwds;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
@@ -20,6 +21,8 @@ public class ServerSettingsStorage {
 	private static ServerSettingsStorage instance;
 	private ServerSettings settings;
 	private ServerPwds pwds;
+	
+	private RemoteEventBus eventBus;
 
 	private ServerSettingsStorage(final RemoteEventBus eventBus) {
 
@@ -76,6 +79,8 @@ public class ServerSettingsStorage {
 			String key = i.next();
 			settings.put(key, store.getString(APVS_SERVER_SETTINGS+"."+key));
 		}
+		
+		settings.put(ServerSettings.Entry.databaseUrl.toString(), Database.getInstance(eventBus).getConfiguration().getProperty("connection.url"));
 
 		log.info("Server Settings Read");
 
@@ -94,7 +99,9 @@ public class ServerSettingsStorage {
 
 		for (Iterator<String> i = settings.getKeys().iterator(); i.hasNext();) {
 			String key = i.next();
-			store.setItem(APVS_SERVER_SETTINGS + "." + key, settings.get(key));
+			if (!key.equals(ServerSettings.Entry.databaseUrl.toString())) {
+				store.setItem(APVS_SERVER_SETTINGS + "." + key, settings.get(key));
+			}
 		}
 
 		for (Iterator<String> i = pwds.getKeys().iterator(); i.hasNext();) {

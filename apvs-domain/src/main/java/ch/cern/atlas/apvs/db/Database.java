@@ -49,6 +49,7 @@ public class Database {
 
 	private static Database instance;
 
+	private Configuration configuration;
 	private ServiceRegistry serviceRegistry;
 	private SessionFactory sessionFactory;
 
@@ -61,13 +62,13 @@ public class Database {
 	private Database(final RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
 
-		Configuration configuration = new Configuration();
+		configuration = new Configuration();
 		configuration.configure("hibernate.cfg.xml");
 		configuration.registerTypeOverride(new DoubleStringType());
 		configuration.registerTypeOverride(new IntegerStringType());
 		configuration.registerTypeOverride(new MacAddressType());
 		configuration.registerTypeOverride(new InetAddressType());
-
+		
 		serviceRegistry = new ServiceRegistryBuilder().applySettings(
 				configuration.getProperties()).buildServiceRegistry();
 		sessionFactory = configuration.buildSessionFactory(serviceRegistry);
@@ -226,6 +227,10 @@ public class Database {
 
 	public void close() {
 		sessionFactory.close();
+	}
+	
+	public Configuration getConfiguration() {
+		return configuration;
 	}
 
 	public SessionFactory getSessionFactory() {
