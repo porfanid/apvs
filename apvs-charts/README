@@ -9,5 +9,3 @@ Origin: http://www.moxiegroup.com/moxieapps/gwt-highcharts/
 * One needs to copy the "js" directory from the Highstock-x.x.zip file over to 
   ../apvs-player/src/main/webapp/highstock
 
-* Check if one still needs version 1.8.3 of jquery, and copy it to 
-  ../apvs/src/main/webapp/jquery/jquery.min.js
