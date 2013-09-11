@@ -358,7 +358,6 @@ public class Database {
 			}
 		}
 	}
-	
 
 	public <T> List<T> getList(Class<T> clazz, Integer start, Integer length,
 			SortOrder[] order) {
@@ -368,7 +367,8 @@ public class Database {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 			@SuppressWarnings("unchecked")
-			List<T> list = getQuery(session, clazz, start, length, order).list();
+			List<T> list = getQuery(session, clazz, start, length, order)
+					.list();
 			tx.commit();
 			return list;
 		} catch (HibernateException e) {
@@ -382,9 +382,9 @@ public class Database {
 			}
 		}
 	}
-	
-	public Query getQuery(Session session, Class<?> clazz, Integer start, Integer length,
-			SortOrder[] order) {
+
+	public Query getQuery(Session session, Class<?> clazz, Integer start,
+			Integer length, SortOrder[] order) {
 		Query query = session.createQuery(getSql("from " + clazz.getName()
 				+ " t", order));
 		if (start != null) {
@@ -392,7 +392,7 @@ public class Database {
 		}
 		if (length != null) {
 			query.setMaxResults(length);
-		}		
+		}
 		return query;
 	}
 
@@ -714,63 +714,40 @@ public class Database {
 	public History getHistory(List<Device> devices, Date from,
 			Integer maxEntries) {
 		History history = new History();
-		
-		System.err.println("Getting history");
 
 		for (Device device : devices) {
 			history.put(getDeviceData(device, from, maxEntries));
 		}
-		System.err.println("Getting history done");
 
 		return history;
 	}
 
 	public DeviceData getDeviceData(Device device, Date from, Integer maxEntries) {
-		System.err.println(device.getName()+" "+from);
 		DeviceData deviceData = new DeviceData(device);
+
+		String sql = "from Measurement m" + " where m.device = :device";
+		if (from != null) {
+			sql += " and m.date > :date";
+		}
+		sql += " order by m.date asc";
+
+		Date now = new Date();
+		
+		from = getAdjustedDate(sql, device, from, now, maxEntries);
 
 		Session session = null;
 		Transaction tx = null;
-		try {
-			long now = new Date().getTime();
-			
-			String sql = "from Measurement m" + " where m.device = :device";
-			if (from != null) {
-				sql += " and m.date > :date";
-			}
-			sql += " order by m.date asc";
-
+		try {		
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
-			
-			Query count = session.createQuery("select count(*) "+sql);
 
-			count.setEntity("device", device);
-
-			long entries;
-			do {
-	 			if (from != null) {
-					System.err.println(from);
-					count.setTimestamp("date", from);
-				}
-	
-				entries = (Long)count.uniqueResult();
-				System.err.println("Entries "+entries);
-				
-				if (entries > maxEntries) {
-					from = new Date((from.getTime()+now)/2);
-				}
-				
-			} while (entries > maxEntries);
-			
 			Query query = session.createQuery(sql);
-			
+
 			query.setEntity("device", device);
 
 			if (from != null) {
 				query.setTimestamp("date", from);
 			}
-
 
 			for (@SuppressWarnings("unchecked")
 			Iterator<Measurement> i = query.list().iterator(); i.hasNext();) {
@@ -778,7 +755,7 @@ public class Database {
 				Date date = measurement.getDate();
 
 				long time = date.getTime();
-				if (time > now + 60000) {
+				if (time > now.getTime() + 60000) {
 					break;
 				}
 
@@ -827,12 +804,53 @@ public class Database {
 					// total++;
 				}
 			}
-			System.err.println(device.getName()+" finished");
-			
-			// FIXME seems to create updates... why ?
+
 			tx.commit();
 
 			return deviceData;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	// NOTE #705: we could improve by binary search... rather then just half and see if we get fewer entries.
+	private Date getAdjustedDate(String sql, Device device, Date from, Date until, int maxEntries) {
+		if (from == null) {
+			return null;
+		}
+		
+		Session session = null;
+		Transaction tx = null;
+		
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+			Query count = session.createQuery("select count(*) " + sql);
+
+			count.setEntity("device", device);
+
+			long entries;
+			do {
+				count.setTimestamp("date", from);
+
+				entries = (Long) count.uniqueResult();
+//				System.err.println("Entries " + entries+" "+from);
+
+				if (entries > maxEntries) {
+					from = new Date((from.getTime() + until.getTime()) / 2);
+				}
+
+			} while (entries > maxEntries);
+			tx.commit();
+
+			return from;
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();
