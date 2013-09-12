@@ -78,7 +78,7 @@ public class Database {
 
 		checkUpdate();
 
-		readInterventions();
+		readInterventions(true);
 
 		if (eventBus != null) {
 
@@ -186,7 +186,7 @@ public class Database {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void readInterventions() {
+	private void readInterventions(boolean triggerEvents) {
 		InterventionMap newMap = new InterventionMap();
 		Session session = null;
 		Transaction tx = null;
@@ -210,16 +210,16 @@ public class Database {
 			}
 		}
 
-		if (!interventions.equals(newMap)) {
+
+		if (triggerEvents && !interventions.equals(newMap)) {
 			interventions = newMap;
 			if (eventBus != null) {
-				// InterventionMapChangedRemoteEvent.fire(eventBus,
-				// interventions);
+				InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 			}
 		}
 	}
 
-	public static Database getInstance(RemoteEventBus eventBus) {
+	public static Database getInstance(RemoteEventBus eventBus) {		
 		if (instance == null) {
 			instance = new Database(eventBus);
 		}
@@ -311,7 +311,7 @@ public class Database {
 
 	}
 
-	public void saveOrUpdate(Object object) {
+	public void saveOrUpdate(Object object, boolean triggerEvents) {
 		if (object == null) {
 			return;
 		}
@@ -323,6 +323,8 @@ public class Database {
 			tx = session.beginTransaction();
 			session.saveOrUpdate(object);
 			tx.commit();
+			
+			readInterventions(triggerEvents);
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();

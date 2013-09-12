@@ -1,9 +1,10 @@
 package ch.cern.atlas.apvs.client;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.settings.LocalStorage;
 import ch.cern.atlas.apvs.client.settings.Proxy;
@@ -33,9 +34,12 @@ import ch.cern.atlas.apvs.client.ui.TimeView;
 import ch.cern.atlas.apvs.client.widget.DialogResultEvent;
 import ch.cern.atlas.apvs.client.widget.DialogResultHandler;
 import ch.cern.atlas.apvs.client.widget.PasswordDialog;
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
@@ -71,7 +75,7 @@ public class APVS implements EntryPoint {
 	@SuppressWarnings("unused")
 	private SettingsPersister settingsPersister;
 
-	private String defaultPtuId = "PTUdemo";
+	private Device defaultPtu;
 	
 	private ClientFactory clientFactory;
 	
@@ -178,7 +182,6 @@ public class APVS implements EntryPoint {
 						(Window.getClientHeight() - offsetHeight) / 3);
 			}
 		});
-
 	}
 	
 	private void start() {
@@ -201,6 +204,24 @@ public class APVS implements EntryPoint {
 			log.info("Running in layoutOnly mode");
 			return;
 		}
+		
+		// subscribe to keep track and set default PTU
+		InterventionMapChangedRemoteEvent.subscribe(remoteEventBus, new InterventionMapChangedRemoteEvent.Handler() {
+			
+			@Override
+			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
+				InterventionMap interventionMap = event.getInterventionMap();
+								
+				if ((defaultPtu == null) || (interventionMap.get(defaultPtu).equals(null))) {
+					List<Device> ptus = interventionMap.getPtus();
+					if (ptus.size() > 0) {
+						defaultPtu = ptus.get(0);
+					} else {
+						defaultPtu = null;
+					}
+				}
+			}
+		});
 
 		for (int i = 0; i < divs.getLength(); i++) {
 			Element element = divs.getItem(i);

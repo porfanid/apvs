@@ -25,6 +25,7 @@ public class ServerSettingsStorage {
 	private RemoteEventBus eventBus;
 
 	private ServerSettingsStorage(final RemoteEventBus eventBus) {
+		this.eventBus = eventBus;
 
 		load();
 

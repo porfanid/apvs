@@ -35,7 +35,7 @@ public class Devices extends UpdatedEntity {
 		Device device = devices.get(name);
 		if (device == null) {
 			device = newDevice;
-			getDatabase().saveOrUpdate(device);
+			getDatabase().saveOrUpdate(device, false);
 			put(device);
 		}
 		return device;

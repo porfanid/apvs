@@ -53,7 +53,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public void addUser(User user) throws ServiceException {
 		try {
-			database.saveOrUpdate(user);
+			database.saveOrUpdate(user, false);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -63,7 +63,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	public void addDevice(Device device)
 			throws ServiceException {
 		try {
-			database.saveOrUpdate(device);
+			database.saveOrUpdate(device, false);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -81,7 +81,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public void addIntervention(Intervention intervention) throws ServiceException {
 		try {
-			database.saveOrUpdate(intervention);
+			database.saveOrUpdate(intervention, true);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -90,7 +90,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public void updateIntervention(Intervention intervention) throws ServiceException {
 		try {
-			database.saveOrUpdate(intervention);
+			database.saveOrUpdate(intervention, true);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
