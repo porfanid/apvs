@@ -513,6 +513,14 @@ public class Database {
 				if (i == 0) {
 					s.append(" order by ");
 				}
+				
+				// FIX for #711
+				s.append("isnull(");
+				s.append(order[i].getName());
+				s.append(") ");
+				s.append(order[i].isAscending() ? "ASC" : "DESC");
+				s.append(", ");
+				
 				s.append(order[i].getName());
 				s.append(" ");
 				s.append(order[i].isAscending() ? "ASC" : "DESC");
