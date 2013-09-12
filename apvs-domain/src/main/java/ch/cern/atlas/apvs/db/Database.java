@@ -514,7 +514,7 @@ public class Database {
 					s.append(" order by ");
 				}
 				
-				// FIX for #711
+				// FIX for #710
 				s.append("isnull(");
 				s.append(order[i].getName());
 				s.append(") ");
