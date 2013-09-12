@@ -25,7 +25,7 @@
 
 		<gwt-version>2.5.1</gwt-version>
 		<gwt-plugin-version>2.5.1</gwt-plugin-version>
-		<atmosphere-version>2.0.0.RC4</atmosphere-version>
+		<atmosphere-version>2.0.0.RC5</atmosphere-version>
 		<atmosphere-ext-version>1.1.0.RC5</atmosphere-ext-version>
 		<asterisk-java-version>f8c8f014253745783149ecbe0fed3faa074a7368</asterisk-java-version>
 		<commons-configuration-version>1.9</commons-configuration-version>
@@ -54,7 +54,7 @@
 		<gwtmockito-version>1.1.0</gwtmockito-version>
 		<mysql-version>5.1.26</mysql-version>
 		<netty-version>4.0.9.Final</netty-version>
-		<nettosphere-version>2.0.0.RC4</nettosphere-version>
+		<nettosphere-version>2.0.0.RC5</nettosphere-version>
 		<ojdbc-version>11.2.0.3</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
 		<slf4j-version>1.7.5</slf4j-version>
