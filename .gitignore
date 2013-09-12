@@ -10,3 +10,6 @@ bin
 pom.xml.releaseBackup
 /EgroupCheckConf.properties
 /httpd-proxy.conf
+/hibernate.cfg.xml
+/hibernate-oracle.cfg.xml
+/hibernate-mysql.cfg.xml
