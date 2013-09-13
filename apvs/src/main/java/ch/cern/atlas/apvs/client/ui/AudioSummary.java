@@ -40,6 +40,8 @@ public class AudioSummary extends GlassPanel implements Module {
 			Arguments args) {
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		
+		table.setWidth("100%");
+		
 		add(table, CENTER);
 
 		// PTU ID
