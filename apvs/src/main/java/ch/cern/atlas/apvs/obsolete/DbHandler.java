@@ -205,7 +205,7 @@ public class DbHandler extends DbCallback {
 					value = Scale.getValue(value, unit);
 					low = Scale.getLowLimit(low, unit);
 					high = Scale.getHighLimit(high, unit);
-					unit = Scale.getUnit(unit);
+					unit = Scale.getUnit(sensor, unit);
 
 					if (!sensorMap.isEnabled(ptu, sensor)) {
 						continue;
@@ -799,7 +799,7 @@ public class DbHandler extends DbCallback {
 				value = Scale.getValue(value, unit);
 				low = Scale.getLowLimit(low, unit);
 				high = Scale.getHighLimit(high, unit);
-				unit = Scale.getUnit(unit);
+				unit = Scale.getUnit(m.getSensor(), unit);
 
 				list.add(new Measurement(m.getDevice(), m.getSensor(), value,
 						low, high, unit, m.getSamplingRate(), m.getDate()));

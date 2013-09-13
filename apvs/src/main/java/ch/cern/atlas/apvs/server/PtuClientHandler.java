@@ -245,7 +245,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		value = Scale.getValue(value, unit);
 		low = Scale.getLowLimit(low, unit);
 		high = Scale.getHighLimit(high, unit);
-		unit = Scale.getUnit(unit);
+		unit = Scale.getUnit(sensor, unit);
 
 		message = new Measurement(message.getDevice(), sensor, value, low,
 				high, unit, message.getSamplingRate(), message.getDate());

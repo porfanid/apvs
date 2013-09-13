@@ -635,11 +635,13 @@ public class Database {
 			for (@SuppressWarnings("unchecked")
 			Iterator<Measurement> i = query.iterate(); i.hasNext();) {
 				Measurement m = i.next();
+				Device device = m.getDevice();
+				String sensor = m.getSensor();
 
-				if (!sensorMap.isEnabled(m.getDevice(), m.getSensor())) {
+				if (!sensorMap.isEnabled(device, sensor)) {
 					continue;
 				}
-
+				
 				String unit = m.getUnit();
 				Double value = m.getValue();
 				Double low = m.getLowLimit();
@@ -656,9 +658,9 @@ public class Database {
 				value = Scale.getValue(value, unit);
 				low = Scale.getLowLimit(low, unit);
 				high = Scale.getHighLimit(high, unit);
-				unit = Scale.getUnit(unit);
+				unit = Scale.getUnit(sensor, unit);
 
-				list.add(new Measurement(m.getDevice(), m.getSensor(), value,
+				list.add(new Measurement(device, sensor, value,
 						low, high, unit, m.getSamplingRate(), m.getDate()));
 			}
 			tx.commit();
@@ -801,7 +803,7 @@ public class Database {
 				value = Scale.getValue(value, unit);
 				low = Scale.getLowLimit(low, unit);
 				high = Scale.getHighLimit(high, unit);
-				unit = Scale.getUnit(unit);
+				unit = Scale.getUnit(sensor, unit);
 
 				// if (!sensorMap.isEnabled(ptu, sensor)) {
 				// continue;
@@ -809,12 +811,6 @@ public class Database {
 
 				Data data = deviceData.get(sensor);
 				if (data == null) {
-
-					if ((sensor.equals("Temperature") || sensor
-							.equals("BodyTemperature")) && unit.equals("C")) {
-						unit = "&deg;C";
-					}
-
 					data = new Data(device, sensor, unit, maxEntries);
 					deviceData.put(data);
 				}
