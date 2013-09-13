@@ -73,3 +73,11 @@ Configure:
 	add pointer from httpd.conf to httpd-procy.conf
 
 
+## Database
+
+The control app needs access to the database (Oracle):
+
+TBL_DEVICES, TBL_USERS, TBL_INSPECTIONS (select, insert, update)
+TBL_MEASUREMENTS, TBL_EVENTS, TBL_SENSORS (select)
+
+
