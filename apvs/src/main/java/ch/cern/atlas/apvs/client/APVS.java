@@ -1,10 +1,12 @@
 package ch.cern.atlas.apvs.client;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.settings.LocalStorage;
 import ch.cern.atlas.apvs.client.settings.Proxy;
@@ -80,6 +82,7 @@ public class APVS implements EntryPoint {
 	private ClientFactory clientFactory;
 	
 	private Ternary alive = Ternary.Unknown;
+	private String aliveCause = "Not yet checked";
 
 	@Override
 	public void onModuleLoad() {
@@ -205,24 +208,6 @@ public class APVS implements EntryPoint {
 			return;
 		}
 		
-		// subscribe to keep track and set default PTU
-		InterventionMapChangedRemoteEvent.subscribe(remoteEventBus, new InterventionMapChangedRemoteEvent.Handler() {
-			
-			@Override
-			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
-				InterventionMap interventionMap = event.getInterventionMap();
-								
-				if ((defaultPtu == null) || (interventionMap.get(defaultPtu).equals(null))) {
-					List<Device> ptus = interventionMap.getPtus();
-					if (ptus.size() > 0) {
-						defaultPtu = ptus.get(0);
-					} else {
-						defaultPtu = null;
-					}
-				}
-			}
-		});
-
 		for (int i = 0; i < divs.getLength(); i++) {
 			Element element = divs.getItem(i);
 			String id = element.getId();
@@ -302,6 +287,26 @@ public class APVS implements EntryPoint {
 					}
 				}
 			}
+			
+			// subscribe to keep track and set default PTU
+			InterventionMapChangedRemoteEvent.subscribe(remoteEventBus, new InterventionMapChangedRemoteEvent.Handler() {
+				
+				@Override
+				public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
+					InterventionMap interventionMap = event.getInterventionMap();
+									
+					if ((defaultPtu == null) || (interventionMap.get(defaultPtu).equals(null))) {
+						List<Device> ptus = interventionMap.getPtus();
+						if (ptus.size() > 0) {
+							defaultPtu = ptus.get(0);
+						} else {
+							defaultPtu = null;
+						}
+						
+						SelectPtuEvent.fire(clientFactory.getEventBus("ptu"), defaultPtu);
+					}
+				}
+			});
 		}
 		
 		// Server ALIVE status
@@ -314,11 +319,10 @@ public class APVS implements EntryPoint {
 				if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
 					ConnectionStatusChangedRemoteEvent.fire(remoteEventBus,
-							ConnectionType.server, alive);
+							ConnectionType.server, alive, aliveCause);
 				}
 			}
 		});
-
 
 		Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
 			
@@ -330,7 +334,8 @@ public class APVS implements EntryPoint {
 					public void onSuccess(Void result) {
 						if (!alive.isTrue()) {
 							alive = Ternary.True;
-							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive);
+							aliveCause = "Last connect at: "+new Date();
+							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive, aliveCause);
 						}
 					}
 					
@@ -338,7 +343,7 @@ public class APVS implements EntryPoint {
 					public void onFailure(Throwable caught) {
 						if (!alive.isFalse()) {
 							alive = Ternary.False;
-							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive);							
+							ConnectionStatusChangedRemoteEvent.fire(remoteEventBus, ConnectionType.server, alive, aliveCause);							
 						}
 					}
 				});

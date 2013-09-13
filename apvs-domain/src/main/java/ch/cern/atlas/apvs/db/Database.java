@@ -56,7 +56,9 @@ public class Database {
 
 	private RemoteEventBus eventBus;
 	private Ternary connected = Ternary.Unknown;
+	private String connectedCause = "Not Connected Yet";
 	private Ternary updated = Ternary.Unknown;
+	private String updatedCause = "Not Verified Yet";
 
 	private InterventionMap interventions = new InterventionMap();
 
@@ -99,10 +101,11 @@ public class Database {
 								ConnectionStatusChangedRemoteEvent.fire(
 										eventBus,
 										ConnectionType.databaseConnect,
-										connected);
+										connected, connectedCause);
 								ConnectionStatusChangedRemoteEvent.fire(
 										eventBus,
-										ConnectionType.databaseUpdate, updated);
+										ConnectionType.databaseUpdate, updated,
+										updatedCause);
 							}
 						}
 					});
@@ -153,16 +156,20 @@ public class Database {
 				long time = lastUpdate.getTime();
 				updated = (time > now - (3 * 60000)) ? Ternary.True
 						: Ternary.False;
+				updatedCause = "Last Update: " + new Date(time);
 			} else {
 				updated = Ternary.False;
+				updatedCause = "Never Updated";
 			}
 			tx.commit();
 			connected = Ternary.True;
+			connectedCause = "";
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();
 			}
 			connected = Ternary.False;
+			connectedCause = e.getMessage();
 			throw e;
 		} finally {
 			if (session != null) {
@@ -172,12 +179,14 @@ public class Database {
 			if (eventBus != null) {
 				if (!updated.equals(wasUpdated)) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseUpdate, updated);
+							ConnectionType.databaseUpdate, updated,
+							updatedCause);
 				}
 
 				if (!connected.equals(wasConnected)) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseConnect, connected);
+							ConnectionType.databaseConnect, connected,
+							connectedCause);
 				}
 			}
 		}

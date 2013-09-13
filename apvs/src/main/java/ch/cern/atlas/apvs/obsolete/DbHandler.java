@@ -71,9 +71,9 @@ public class DbHandler extends DbCallback {
 				} else if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseConnect, isConnected());
+							ConnectionType.databaseConnect, isConnected(), "");
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseUpdate, updated);
+							ConnectionType.databaseUpdate, updated, "");
 				}
 			}
 		});
@@ -256,7 +256,7 @@ public class DbHandler extends DbCallback {
 		log.info("DB connected");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
-				ConnectionType.databaseConnect, true);
+				ConnectionType.databaseConnect, true, "");
 
 		rereadInterventions();
 	}
@@ -268,9 +268,9 @@ public class DbHandler extends DbCallback {
 		log.warn("DB disconnected");
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
-				ConnectionType.databaseConnect, false);
+				ConnectionType.databaseConnect, false, "");
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
-				ConnectionType.databaseUpdate, false);
+				ConnectionType.databaseUpdate, false, "");
 
 		interventions.clear();
 		InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
@@ -308,7 +308,7 @@ public class DbHandler extends DbCallback {
 		}
 
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
-				ConnectionType.databaseUpdate, updated);
+				ConnectionType.databaseUpdate, updated, "");
 
 		return !updated.isFalse();
 	}

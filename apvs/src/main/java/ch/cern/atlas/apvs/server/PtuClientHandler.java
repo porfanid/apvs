@@ -54,6 +54,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private List<Measurement> measurementChanged = new ArrayList<Measurement>();
 
 	private Ternary dosimeterOk = Ternary.Unknown;
+	private String dosimeterCause = "Dosimeter not yet read by PTU";
 
 	private PtuSettings settings;
 
@@ -76,10 +77,10 @@ public class PtuClientHandler extends PtuReconnectHandler {
 				if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.daq, isConnected());
+							ConnectionType.daq, isConnected(), getCause());
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
 							ConnectionType.dosimeter,
-							isConnected() ? dosimeterOk : Ternary.False);
+							isConnected() ? dosimeterOk : Ternary.False, dosimeterCause);
 				}
 			}
 		});
@@ -98,9 +99,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq,
-				true);
+				true, "");
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
-				ConnectionType.dosimeter, dosimeterOk);
+				ConnectionType.dosimeter, dosimeterOk, dosimeterCause);
 		super.channelActive(ctx);
 
 		sensorMap = database.getSensorMap();
@@ -111,9 +112,9 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		ConnectionStatusChangedRemoteEvent.fire(eventBus, ConnectionType.daq,
-				false);
+				false, getCause());
 		ConnectionStatusChangedRemoteEvent.fire(eventBus,
-				ConnectionType.dosimeter, dosimeterOk);
+				ConnectionType.dosimeter, dosimeterOk, dosimeterCause);
 		super.channelInactive(ctx);
 	}
 
@@ -268,12 +269,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 		if (message.getEventType().equals("DosConnectionStatus_OFF")) {
 			dosimeterOk = Ternary.False;
+			dosimeterCause = "Dosimeter not connected to PTU";
 			ConnectionStatusChangedRemoteEvent.fire(eventBus,
-					ConnectionType.dosimeter, dosimeterOk);
+					ConnectionType.dosimeter, dosimeterOk, dosimeterCause);
 		} else if (message.getEventType().equals("DosConnectionStatus_ON")) {
 			dosimeterOk = Ternary.True;
+			dosimeterCause = "";
 			ConnectionStatusChangedRemoteEvent.fire(eventBus,
-					ConnectionType.dosimeter, dosimeterOk);
+					ConnectionType.dosimeter, dosimeterOk, dosimeterCause);
 		}
 	}
 

@@ -17,7 +17,6 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Proxy;
 import org.hibernate.annotations.Type;
 
 import ch.cern.atlas.apvs.util.StringUtils;
