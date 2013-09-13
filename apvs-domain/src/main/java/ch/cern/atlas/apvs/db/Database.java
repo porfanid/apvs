@@ -69,7 +69,7 @@ public class Database {
 		configuration.registerTypeOverride(new IntegerStringType());
 		configuration.registerTypeOverride(new MacAddressType());
 		configuration.registerTypeOverride(new InetAddressType());
-		
+
 		serviceRegistry = new ServiceRegistryBuilder().applySettings(
 				configuration.getProperties()).buildServiceRegistry();
 		sessionFactory = configuration.buildSessionFactory(serviceRegistry);
@@ -210,7 +210,6 @@ public class Database {
 			}
 		}
 
-
 		if (triggerEvents && !interventions.equals(newMap)) {
 			interventions = newMap;
 			if (eventBus != null) {
@@ -219,7 +218,7 @@ public class Database {
 		}
 	}
 
-	public static Database getInstance(RemoteEventBus eventBus) {		
+	public static Database getInstance(RemoteEventBus eventBus) {
 		if (instance == null) {
 			instance = new Database(eventBus);
 		}
@@ -229,7 +228,7 @@ public class Database {
 	public void close() {
 		sessionFactory.close();
 	}
-	
+
 	public Configuration getConfiguration() {
 		return configuration;
 	}
@@ -323,7 +322,7 @@ public class Database {
 			tx = session.beginTransaction();
 			session.saveOrUpdate(object);
 			tx.commit();
-			
+
 			readInterventions(triggerEvents);
 		} catch (HibernateException e) {
 			if (tx != null) {
@@ -513,17 +512,12 @@ public class Database {
 				if (i == 0) {
 					s.append(" order by ");
 				}
-				
-				// FIX for #710
-				s.append("isnull(");
-				s.append(order[i].getName());
-				s.append(") ");
-				s.append(order[i].isAscending() ? "ASC" : "DESC");
-				s.append(", ");
-				
+
 				s.append(order[i].getName());
 				s.append(" ");
 				s.append(order[i].isAscending() ? "ASC" : "DESC");
+				// FIX for #710
+				s.append(" NULLS FIRST");
 				if (i + 1 < order.length) {
 					s.append(", ");
 				}
@@ -748,12 +742,12 @@ public class Database {
 		sql += " order by m.date asc";
 
 		Date now = new Date();
-		
+
 		from = getAdjustedDate(sql, device, from, now, maxEntries);
 
 		Session session = null;
 		Transaction tx = null;
-		try {		
+		try {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 
@@ -836,15 +830,17 @@ public class Database {
 		}
 	}
 
-	// NOTE #705: we could improve by binary search... rather then just half and see if we get fewer entries.
-	private Date getAdjustedDate(String sql, Device device, Date from, Date until, int maxEntries) {
+	// NOTE #705: we could improve by binary search... rather then just half and
+	// see if we get fewer entries.
+	private Date getAdjustedDate(String sql, Device device, Date from,
+			Date until, int maxEntries) {
 		if (from == null) {
 			return null;
 		}
-		
+
 		Session session = null;
 		Transaction tx = null;
-		
+
 		try {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
@@ -857,7 +853,7 @@ public class Database {
 				count.setTimestamp("date", from);
 
 				entries = (Long) count.uniqueResult();
-//				System.err.println("Entries " + entries+" "+from);
+				// System.err.println("Entries " + entries+" "+from);
 
 				if (entries > maxEntries) {
 					from = new Date((from.getTime() + until.getTime()) / 2);
