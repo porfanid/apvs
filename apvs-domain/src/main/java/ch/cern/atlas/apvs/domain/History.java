@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class History implements Serializable, IsSerializable {
@@ -37,6 +38,7 @@ public class History implements Serializable, IsSerializable {
 		}
 		
 		String name = data.getName();
+		Window.alert("******** Never Called "+name +" "+data.getUnit());
 		units.put(name, data.getUnit());
 
 		deviceData.put(data);
