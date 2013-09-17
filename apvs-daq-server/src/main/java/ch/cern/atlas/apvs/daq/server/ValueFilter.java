@@ -31,7 +31,8 @@ public class ValueFilter implements Filter {
 				lastMeasurement.disconnect();
 				res = true;}
 			else{
-				if((!(lastMeasurement.isConnected())) || (!(secondLastMeasurement.isConnected()))) {
+				if(((lastMeasurement.isConnected() != null) && !lastMeasurement.isConnected()) || 
+				  ((secondLastMeasurement.isConnected() != null) && !secondLastMeasurement.isConnected())) {
 					list.add(current);
 					res = false;  
 				}else {
