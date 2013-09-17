@@ -28,6 +28,8 @@ public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
 	private Channel channel;
 	private Timer reconnectTimer;
 	private boolean reconnectNow;
+	
+	private String cause;
 
 	public PtuReconnectHandler(Bootstrap bootstrap) {
 		this.bootstrap = bootstrap;
@@ -37,6 +39,7 @@ public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		log.info("Connected to PTU");
 		channel = ctx.channel();
+		cause = "";
 		super.channelActive(ctx);
 	}
 
@@ -81,10 +84,13 @@ public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable caught) {
 		if (caught instanceof ConnectException) {
-			log.warn("Connection Refused");
+			cause = "Connection Refused";
+			log.warn(cause);
 		} else if (caught instanceof SocketException) {
-			log.warn("Network is unreachable");
+			cause = "Network is unreachable";
+			log.warn(cause);
 		} else {
+			cause = caught.getMessage();
 			log.warn("Unexpected exception from downstream.", caught);
 		}
 		ctx.channel().close();
@@ -119,6 +125,10 @@ public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
 
 	public boolean isConnected() {
 		return channel != null && channel.isActive();
+	}
+	
+	public String getCause() {
+		return cause;
 	}
 
 	public Channel getChannel() {

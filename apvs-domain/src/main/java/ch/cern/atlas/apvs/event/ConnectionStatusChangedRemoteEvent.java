@@ -14,9 +14,10 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 public class ConnectionStatusChangedRemoteEvent extends
 		RemoteEvent<ConnectionStatusChangedRemoteEvent.Handler> {
 
-	private static final long serialVersionUID = 8865199851228810365L;
+	private static final long serialVersionUID = -2682254554211541413L;
 
-	//NOTE: implements IsSerializable in case serialization file cannot be found
+	// NOTE: implements IsSerializable in case serialization file cannot be
+	// found
 	public enum ConnectionType implements Serializable, IsSerializable {
 		server("Server Status"), audio("Audio Status"), video("Video Status"), daq(
 				"DAQ Status"), dosimeter("Dosimeter Status"), databaseConnect(
@@ -46,14 +47,15 @@ public class ConnectionStatusChangedRemoteEvent extends
 	private static final Type<ConnectionStatusChangedRemoteEvent.Handler> TYPE = new Type<ConnectionStatusChangedRemoteEvent.Handler>();
 
 	public static void fire(RemoteEventBus eventBus, ConnectionType type,
-			Ternary status) {
-		eventBus.fireEvent(new ConnectionStatusChangedRemoteEvent(type, status));
+			Ternary status, String cause) {
+		eventBus.fireEvent(new ConnectionStatusChangedRemoteEvent(type, status,
+				cause));
 	}
 
 	public static void fire(RemoteEventBus eventBus, ConnectionType type,
-			boolean ok) {
+			boolean ok, String cause) {
 		eventBus.fireEvent(new ConnectionStatusChangedRemoteEvent(type,
-				ok ? Ternary.True : Ternary.False));
+				ok ? Ternary.True : Ternary.False, cause));
 	}
 
 	/**
@@ -82,14 +84,16 @@ public class ConnectionStatusChangedRemoteEvent extends
 
 	private ConnectionType connection;
 	private Ternary status;
+	private String cause;
 
 	public ConnectionStatusChangedRemoteEvent() {
 	}
 
 	public ConnectionStatusChangedRemoteEvent(ConnectionType connection,
-			Ternary status) {
+			Ternary status, String cause) {
 		this.connection = connection;
 		this.status = status;
+		this.cause = cause;
 	}
 
 	@Override
@@ -103,6 +107,10 @@ public class ConnectionStatusChangedRemoteEvent extends
 
 	public Ternary getStatus() {
 		return status;
+	}
+
+	public String getCause() {
+		return cause;
 	}
 
 	@Override

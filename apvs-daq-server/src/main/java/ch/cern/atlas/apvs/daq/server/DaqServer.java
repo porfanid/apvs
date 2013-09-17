@@ -64,22 +64,22 @@ public class DaqServer {
 					InetAddress.getByName("localhost"), "APVS DAQ Server",
 					new MacAddress("00:00:00:00:00:00"), "apvs-daq-server");
 			devices.put(system.getName(), system);
-			database.saveOrUpdate(system);
+			database.saveOrUpdate(system, false);
 		}
 			
 		Event event = new Event(system, "daq", "server_start", new Date());
 		
-		database.saveOrUpdate(event);
+		database.saveOrUpdate(event, false);
 
 		Device ptu05 = devices.get("PTU-05");
 		Measurement measurement = new Measurement(ptu05, "Temperature", 25.4,
 				22.3, 28.9, "&deg;", 60000, new Date());
-		database.saveOrUpdate(measurement);
+		database.saveOrUpdate(measurement, false);
 		
 		User duns = database.getUsers(false).get(142);
 		Intervention intervention = new Intervention(duns, ptu05, new Date(), null, "007", 0.0, "Test Intervention");
 //		database.saveOrUpdate(ptu05);
-		database.saveOrUpdate(intervention);
+		database.saveOrUpdate(intervention, false);
 		
 		List<Intervention> interventions = database.getList(Intervention.class, 0, 4, new SortOrder[] {new SortOrder("startTime")});
 		log.info("Found " + interventions.size() + " interventions");
@@ -154,7 +154,7 @@ public class DaqServer {
 					fin.cancel(true);
 					fout.cancel(true);
 					
-					database.saveOrUpdate(new Event(system, "daq", "server_stop", new Date()));
+					database.saveOrUpdate(new Event(system, "daq", "server_stop", new Date()), false);
 					database.close();
 				}
 			}));

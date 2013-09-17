@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,20 +50,23 @@ public class Database {
 
 	private static Database instance;
 
+	private Configuration configuration;
 	private ServiceRegistry serviceRegistry;
 	private SessionFactory sessionFactory;
 
 	private RemoteEventBus eventBus;
 	private Ternary connected = Ternary.Unknown;
+	private String connectedCause = "Not Connected Yet";
 	private Ternary updated = Ternary.Unknown;
+	private String updatedCause = "Not Verified Yet";
 
 	private InterventionMap interventions = new InterventionMap();
 
 	private Database(final RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
 
-		Configuration configuration = new Configuration();
-		configuration.configure("hibernate.cfg.xml");
+		configuration = new Configuration();
+		configuration.configure(new File("hibernate.cfg.xml"));
 		configuration.registerTypeOverride(new DoubleStringType());
 		configuration.registerTypeOverride(new IntegerStringType());
 		configuration.registerTypeOverride(new MacAddressType());
@@ -76,7 +80,7 @@ public class Database {
 
 		checkUpdate();
 
-		readInterventions();
+		readInterventions(true);
 
 		if (eventBus != null) {
 
@@ -97,10 +101,11 @@ public class Database {
 								ConnectionStatusChangedRemoteEvent.fire(
 										eventBus,
 										ConnectionType.databaseConnect,
-										connected);
+										connected, connectedCause);
 								ConnectionStatusChangedRemoteEvent.fire(
 										eventBus,
-										ConnectionType.databaseUpdate, updated);
+										ConnectionType.databaseUpdate, updated,
+										updatedCause);
 							}
 						}
 					});
@@ -151,16 +156,20 @@ public class Database {
 				long time = lastUpdate.getTime();
 				updated = (time > now - (3 * 60000)) ? Ternary.True
 						: Ternary.False;
+				updatedCause = "Last Update: " + new Date(time);
 			} else {
 				updated = Ternary.False;
+				updatedCause = "Never Updated";
 			}
 			tx.commit();
 			connected = Ternary.True;
+			connectedCause = "";
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();
 			}
 			connected = Ternary.False;
+			connectedCause = e.getMessage();
 			throw e;
 		} finally {
 			if (session != null) {
@@ -170,12 +179,14 @@ public class Database {
 			if (eventBus != null) {
 				if (!updated.equals(wasUpdated)) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseUpdate, updated);
+							ConnectionType.databaseUpdate, updated,
+							updatedCause);
 				}
 
 				if (!connected.equals(wasConnected)) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseConnect, connected);
+							ConnectionType.databaseConnect, connected,
+							connectedCause);
 				}
 			}
 		}
@@ -184,7 +195,7 @@ public class Database {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void readInterventions() {
+	private void readInterventions(boolean triggerEvents) {
 		InterventionMap newMap = new InterventionMap();
 		Session session = null;
 		Transaction tx = null;
@@ -208,11 +219,10 @@ public class Database {
 			}
 		}
 
-		if (!interventions.equals(newMap)) {
+		if (triggerEvents && !interventions.equals(newMap)) {
 			interventions = newMap;
 			if (eventBus != null) {
-				// InterventionMapChangedRemoteEvent.fire(eventBus,
-				// interventions);
+				InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
 			}
 		}
 	}
@@ -226,6 +236,10 @@ public class Database {
 
 	public void close() {
 		sessionFactory.close();
+	}
+
+	public Configuration getConfiguration() {
+		return configuration;
 	}
 
 	public SessionFactory getSessionFactory() {
@@ -305,7 +319,7 @@ public class Database {
 
 	}
 
-	public void saveOrUpdate(Object object) {
+	public void saveOrUpdate(Object object, boolean triggerEvents) {
 		if (object == null) {
 			return;
 		}
@@ -317,6 +331,8 @@ public class Database {
 			tx = session.beginTransaction();
 			session.saveOrUpdate(object);
 			tx.commit();
+
+			readInterventions(triggerEvents);
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();
@@ -358,7 +374,6 @@ public class Database {
 			}
 		}
 	}
-	
 
 	public <T> List<T> getList(Class<T> clazz, Integer start, Integer length,
 			SortOrder[] order) {
@@ -368,7 +383,8 @@ public class Database {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 			@SuppressWarnings("unchecked")
-			List<T> list = getQuery(session, clazz, start, length, order).list();
+			List<T> list = getQuery(session, clazz, start, length, order)
+					.list();
 			tx.commit();
 			return list;
 		} catch (HibernateException e) {
@@ -382,9 +398,9 @@ public class Database {
 			}
 		}
 	}
-	
-	public Query getQuery(Session session, Class<?> clazz, Integer start, Integer length,
-			SortOrder[] order) {
+
+	public Query getQuery(Session session, Class<?> clazz, Integer start,
+			Integer length, SortOrder[] order) {
 		Query query = session.createQuery(getSql("from " + clazz.getName()
 				+ " t", order));
 		if (start != null) {
@@ -392,7 +408,7 @@ public class Database {
 		}
 		if (length != null) {
 			query.setMaxResults(length);
-		}		
+		}
 		return query;
 	}
 
@@ -505,9 +521,12 @@ public class Database {
 				if (i == 0) {
 					s.append(" order by ");
 				}
+
 				s.append(order[i].getName());
 				s.append(" ");
 				s.append(order[i].isAscending() ? "ASC" : "DESC");
+				// FIX for #710
+				s.append(" NULLS FIRST");
 				if (i + 1 < order.length) {
 					s.append(", ");
 				}
@@ -616,11 +635,13 @@ public class Database {
 			for (@SuppressWarnings("unchecked")
 			Iterator<Measurement> i = query.iterate(); i.hasNext();) {
 				Measurement m = i.next();
+				Device device = m.getDevice();
+				String sensor = m.getSensor();
 
-				if (!sensorMap.isEnabled(m.getDevice(), m.getSensor())) {
+				if (!sensorMap.isEnabled(device, sensor)) {
 					continue;
 				}
-
+				
 				String unit = m.getUnit();
 				Double value = m.getValue();
 				Double low = m.getLowLimit();
@@ -637,9 +658,9 @@ public class Database {
 				value = Scale.getValue(value, unit);
 				low = Scale.getLowLimit(low, unit);
 				high = Scale.getHighLimit(high, unit);
-				unit = Scale.getUnit(unit);
+				unit = Scale.getUnit(sensor, unit);
 
-				list.add(new Measurement(m.getDevice(), m.getSensor(), value,
+				list.add(new Measurement(device, sensor, value,
 						low, high, unit, m.getSamplingRate(), m.getDate()));
 			}
 			tx.commit();
@@ -725,15 +746,19 @@ public class Database {
 	public DeviceData getDeviceData(Device device, Date from, Integer maxEntries) {
 		DeviceData deviceData = new DeviceData(device);
 
+		String sql = "from Measurement m" + " where m.device = :device";
+		if (from != null) {
+			sql += " and m.date > :date";
+		}
+		sql += " order by m.date asc";
+
+		Date now = new Date();
+
+		from = getAdjustedDate(sql, device, from, now, maxEntries);
+
 		Session session = null;
 		Transaction tx = null;
 		try {
-			String sql = "from Measurement m" + " where m.device = :device";
-			if (from != null) {
-				sql += " and m.date > :date";
-			}
-			sql += " order by m.date asc";
-
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 
@@ -742,23 +767,23 @@ public class Database {
 			query.setEntity("device", device);
 
 			if (from != null) {
-				query.setTime("date", from);
+				query.setTimestamp("date", from);
 			}
 
-			long now = new Date().getTime();
-
 			for (@SuppressWarnings("unchecked")
-			Iterator<Measurement> i = query.iterate(); i.hasNext();) {
-				Measurement m = i.next();
-				long time = m.getDate().getTime();
-				if (time > now + 60000) {
+			Iterator<Measurement> i = query.list().iterator(); i.hasNext();) {
+				Measurement measurement = i.next();
+				Date date = measurement.getDate();
+
+				long time = date.getTime();
+				if (time > now.getTime() + 60000) {
 					break;
 				}
 
-				Long id = m.getId();
-				String sensor = m.getSensor();
-				Double value = m.getValue();
-				String unit = m.getUnit();
+				Long id = measurement.getId();
+				String sensor = measurement.getSensor();
+				Double value = measurement.getValue();
+				String unit = measurement.getUnit();
 
 				// Fix for #488, invalid db entry
 				if ((sensor == null) || (value == null) || (unit == null)) {
@@ -769,16 +794,16 @@ public class Database {
 					continue;
 				}
 
-				Double low = m.getLowLimit();
-				Double high = m.getHighLimit();
+				Double low = measurement.getLowLimit();
+				Double high = measurement.getHighLimit();
 
-				Integer samplingRate = m.getSamplingRate();
+				Integer samplingRate = measurement.getSamplingRate();
 
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);
 				low = Scale.getLowLimit(low, unit);
 				high = Scale.getHighLimit(high, unit);
-				unit = Scale.getUnit(unit);
+				unit = Scale.getUnit(sensor, unit);
 
 				// if (!sensorMap.isEnabled(ptu, sensor)) {
 				// continue;
@@ -786,12 +811,6 @@ public class Database {
 
 				Data data = deviceData.get(sensor);
 				if (data == null) {
-
-					if ((sensor.equals("Temperature") || sensor
-							.equals("BodyTemperature")) && unit.equals("C")) {
-						unit = "&deg;C";
-					}
-
 					data = new Data(device, sensor, unit, maxEntries);
 					deviceData.put(data);
 				}
@@ -800,9 +819,55 @@ public class Database {
 					// total++;
 				}
 			}
+
 			tx.commit();
 
 			return deviceData;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	// NOTE #705: we could improve by binary search... rather then just half and
+	// see if we get fewer entries.
+	private Date getAdjustedDate(String sql, Device device, Date from,
+			Date until, int maxEntries) {
+		if (from == null) {
+			return null;
+		}
+
+		Session session = null;
+		Transaction tx = null;
+
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+			Query count = session.createQuery("select count(*) " + sql);
+
+			count.setEntity("device", device);
+
+			long entries;
+			do {
+				count.setTimestamp("date", from);
+
+				entries = (Long) count.uniqueResult();
+				// System.err.println("Entries " + entries+" "+from);
+
+				if (entries > maxEntries) {
+					from = new Date((from.getTime() + until.getTime()) / 2);
+				}
+
+			} while (entries > maxEntries);
+			tx.commit();
+
+			return from;
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();

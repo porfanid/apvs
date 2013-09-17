@@ -32,7 +32,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
-
 public class AudioView extends GlassPanel implements Module {
 
 	private CellTable<String> table = new CellTable<String>();
@@ -41,7 +40,6 @@ public class AudioView extends GlassPanel implements Module {
 	private ConferenceRooms conferenceRooms = new ConferenceRooms();
 	private Device ptu = null;
 	private VoipAccount supervisorAccount = new VoipAccount();
-
 
 	private EventBus cmdBus;
 
@@ -61,8 +59,7 @@ public class AudioView extends GlassPanel implements Module {
 		final RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		table.setWidth("100%");
-		
-		
+
 		add(table, CENTER);
 
 		// Status/Action Field column
@@ -72,6 +69,10 @@ public class AudioView extends GlassPanel implements Module {
 				fieldActionCell) {
 			@Override
 			public Object getValue(String fieldName) {
+				if (ptu == null) {
+					return null;
+				}
+
 				String ptuId = ptu.getName();
 				if (fieldName.equals("Status"))
 					return ((voipAccounts.getStatus(ptuId) ? "Online"
@@ -110,10 +111,12 @@ public class AudioView extends GlassPanel implements Module {
 					SafeHtmlBuilder sb) {
 				String value = (String) getValue(object);
 
-				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
-						+ value.toLowerCase() + "\">"));
-				getCell().render(context, value, sb);
-				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
+				if (value != null) {
+					sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
+							+ value.toLowerCase() + "\">"));
+					getCell().render(context, value, sb);
+					sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
+				}
 			}
 
 		};
@@ -206,11 +209,10 @@ public class AudioView extends GlassPanel implements Module {
 								.conferenceOfActivityExist(voipAccounts
 										.getActivity(ptuId))) {
 							clientFactory.getAudioService().addToConference(
-											voipAccounts.getNumber(ptuId),
-											conferenceRooms
-													.roomOfActivity(voipAccounts
-															.getActivity(ptuId)),
-											callbackConference);
+									voipAccounts.getNumber(ptuId),
+									conferenceRooms.roomOfActivity(voipAccounts
+											.getActivity(ptuId)),
+									callbackConference);
 						}
 					}
 
@@ -220,7 +222,9 @@ public class AudioView extends GlassPanel implements Module {
 								.conferenceOfActivityExist(voipAccounts
 										.getActivity(ptuId))) {
 							// Hangup Impact Activity Users from active calls
-							clientFactory.getAudioService().hangupMultiple(
+							clientFactory
+									.getAudioService()
+									.hangupMultiple(
 											voipAccounts
 													.getActiveChannelsActivity(voipAccounts
 															.getActivity(ptuId)),
@@ -235,11 +239,10 @@ public class AudioView extends GlassPanel implements Module {
 							clientFactory.getAudioService().hangup(
 									supervisorAccount.getChannel(),
 									callbackHangup);
-							clientFactory.getAudioService()
-									.addToConference(
-											supervisorAccount.getAccount(),
-											voipAccounts.getRoom(ptuId),
-											callbackConference);
+							clientFactory.getAudioService().addToConference(
+									supervisorAccount.getAccount(),
+									voipAccounts.getRoom(ptuId),
+									callbackConference);
 						}
 					} else {
 						clientFactory.getAudioService().hangup(
@@ -297,6 +300,8 @@ public class AudioView extends GlassPanel implements Module {
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptu = event.getPtu();
+					updateTable();
+
 					table.redraw();
 				}
 			});
@@ -324,37 +329,7 @@ public class AudioView extends GlassPanel implements Module {
 						// Window.alert("IMPACT NUMBER:" +
 						// voipAccounts.getActivity("PTU-02") );
 
-						if (fieldName.size() > 3) {
-							while (fieldName.size() > 3) {
-								fieldName.remove(3);
-								classField.remove(3);
-							}
-						}
-
-						String ptuId = ptu.getName();
-						boolean a = (!(voipAccounts.getActivity(ptuId).equals(
-								"") || voipAccounts.getActivity(ptuId) == null));
-						// Window.alert(voipAccounts.getUsername(ptuId)+ ": "
-						// +String.valueOf(a));
-						if (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts
-								.getActivity(ptuId) == null)) {
-							if (conferenceRooms
-									.conferenceOfActivityExist(voipAccounts
-											.getActivity(ptuId))) {
-								fieldName.add("Conference");
-								classField.add(ButtonCell.class);
-								fieldName.add("Mute/Unmute");
-								classField.add(ButtonCell.class);
-								fieldName.add("Kick/Add");
-								classField.add(ButtonCell.class);
-							} else {
-								fieldName.add("Group Call");
-								classField.add(ButtonCell.class);
-							}
-						}
-						dataProvider.getList().clear();
-						dataProvider.getList().addAll(fieldName);
-
+						updateTable();
 					}
 				});
 
@@ -373,28 +348,47 @@ public class AudioView extends GlassPanel implements Module {
 			@Override
 			public void onMeetMeEvent(MeetMeRemoteEvent event) {
 				conferenceRooms = event.getConferenceRooms();
-				if (fieldName.size() > 3) {
-					while (fieldName.size() > 3) {
-						fieldName.remove(3);
-						classField.remove(3);
-					}
-				}
-
-				if (conferenceRooms.conferenceOfActivityExist(voipAccounts
-						.getActivity(ptu.getName()))) {
-					fieldName.add("Conference");
-					classField.add(ButtonCell.class);
-					fieldName.add("Mute/Unmute");
-					classField.add(ButtonCell.class);
-					fieldName.add("Kick/Add");
-					classField.add(ButtonCell.class);
-				}
-				dataProvider.getList().clear();
-				dataProvider.getList().addAll(fieldName);
+				updateTable();
 			}
 		});
 
 		return true;
+	}
+
+	private void updateTable() {
+		if (ptu == null) {
+			return;
+		}
+
+		if (fieldName.size() > 3) {
+			while (fieldName.size() > 3) {
+				fieldName.remove(3);
+				classField.remove(3);
+			}
+		}
+
+		String ptuId = ptu.getName();
+		boolean a = (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts
+				.getActivity(ptuId) == null));
+		// Window.alert(voipAccounts.getUsername(ptuId)+ ": "
+		// +String.valueOf(a));
+		if (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts
+				.getActivity(ptuId) == null)) {
+			if (conferenceRooms.conferenceOfActivityExist(voipAccounts
+					.getActivity(ptuId))) {
+				fieldName.add("Conference");
+				classField.add(ButtonCell.class);
+				fieldName.add("Mute/Unmute");
+				classField.add(ButtonCell.class);
+				fieldName.add("Kick/Add");
+				classField.add(ButtonCell.class);
+			} else {
+				fieldName.add("Group Call");
+				classField.add(ButtonCell.class);
+			}
+		}
+		dataProvider.getList().clear();
+		dataProvider.getList().addAll(fieldName);
 	}
 
 	@Override

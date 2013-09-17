@@ -143,7 +143,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				}
 				if ((audioFormerState != audioOk)) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.audio, audioOk);
+							ConnectionType.audio, audioOk, "TBD");
 				}
 			}
 		}
@@ -173,7 +173,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.audio, audioOk);
+							ConnectionType.audio, audioOk, "TBD");
 				}
 			}
 		});

@@ -28,17 +28,7 @@ public class Devices extends UpdatedEntity {
 	}
 
 	public Device get(String name) {
-		return get(name, null);
-	}
-
-	public Device get(String name, Device newDevice) {
-		Device device = devices.get(name);
-		if (device == null) {
-			device = newDevice;
-			getDatabase().saveOrUpdate(device);
-			put(device);
-		}
-		return device;
+		return devices.get(name);
 	}
 
 	public Device put(Device device) {

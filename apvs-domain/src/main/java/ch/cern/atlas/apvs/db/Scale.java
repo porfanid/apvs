@@ -23,13 +23,17 @@ public class Scale {
 		return value;
 	}
 
-	public static String getUnit(String unit) {
+	public static String getUnit(String sensor, String unit) {
 		if (unit != null) {
 			if (unit.equals("mSv")) {
 				return "&micro;Sv";
 			}
 			if (unit.equals("mSv/h")) {
 				return "&micro;Sv/h";
+			}
+			if ((sensor.equals("Temperature") || sensor
+					.equals("BodyTemperature")) && (unit.equals("C"))) {
+				return "&deg;C";
 			}
 		}
 		return unit;

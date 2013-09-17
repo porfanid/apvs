@@ -47,12 +47,20 @@ public class GeneralInfoView extends GlassPanel implements Module {
 
 	private Device ptu;
 	private Ternary serverOk = Ternary.Unknown;
+	private String serverCause = "";
 	private Ternary audioOk = Ternary.Unknown;
+	private String audioCause = "";
 	private Ternary videoOk = Ternary.Unknown;
+	private String videoCause = "";
 	private Ternary daqOk = Ternary.Unknown;
+	private String daqCause = "";
 	private Ternary dosimeterOk = Ternary.Unknown;
+	private String dosimeterCause = "";
 	private Ternary databaseConnectOk = Ternary.Unknown;
+	private String databaseConnectCause = "";
 	private Ternary databaseUpdateOk = Ternary.Unknown;
+	private String databaseUpdateCause = "";
+
 	private InterventionMap interventions;
 
 	private boolean showHeader = true;
@@ -69,8 +77,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					ConnectionType.databaseUpdate.getString(), "Start Time",
 					"Duration" });
 	private List<Class<?>> classes = Arrays
-			.asList(new Class<?>[] {
-					TextCell.class,
+			.asList(new Class<?>[] { TextCell.class,
 					TextCell.class, // TextCell.class,
 					TextCell.class, // TextCell.class,
 					TextCell.class, TextCell.class, DateCell.class,
@@ -108,6 +115,34 @@ public class GeneralInfoView extends GlassPanel implements Module {
 		cell.setDateFormat(PtuClientConstants.dateFormatNoSeconds);
 		cell.setEnabled(false);
 		Column<String, Object> column = new Column<String, Object>(cell) {
+			public String getCause(String name) {
+				if (name.equals(ConnectionType.server.getString())) {
+					return serverCause;
+				} else if (name.equals(ConnectionType.audio.getString())) {
+					return audioCause;
+				} else if (name.equals(ConnectionType.video.getString())) {
+					return videoCause;
+				} else if (name.equals(ConnectionType.daq.getString())) {
+					return daqCause;
+				} else if (name.equals(ConnectionType.dosimeter.getString())) {
+					return dosimeterCause;
+				} else if (name.equals(ConnectionType.databaseConnect
+						.getString())) {
+					return databaseConnectCause;
+				} else if (name.equals(ConnectionType.databaseUpdate
+						.getString())) {
+					return databaseUpdateCause;
+				} else if (name.equals("Start Time")) {
+					return "";
+				} else if (name.equals("Duration")) {
+					return "";
+				}
+				System.out.println("GeneralInfoView name unknown '" + name
+						+ "'");
+				return "";
+
+			}
+
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(ConnectionType.server.getString())) {
@@ -141,11 +176,13 @@ public class GeneralInfoView extends GlassPanel implements Module {
 			@Override
 			public void render(Context context, String name, SafeHtmlBuilder sb) {
 				Object s = getValue(name);
+				String c = getCause(name);
 				if (s instanceof Ternary) {
 					Ternary t = (Ternary) s;
 					s = t.isTrue() ? "Ok" : t.isFalse() ? "Fail" : "Unknown";
-					sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
-							+ s.toString().toLowerCase() + "\">"));
+					sb.append(SafeHtmlUtils.fromSafeConstant("<div title=\""
+							+ c + "\" class=\"" + s.toString().toLowerCase()
+							+ "\">"));
 				}
 				getCell().render(context, s, sb);
 				if (s instanceof Ternary) {
@@ -169,25 +206,32 @@ public class GeneralInfoView extends GlassPanel implements Module {
 						switch (event.getConnection()) {
 						case server:
 							serverOk = event.getStatus();
+							serverCause = event.getCause();
 							break;
 						case audio:
 							audioOk = event.getStatus();
+							audioCause = event.getCause();
 							break;
 						case video:
 							// FIXME #192, not sent yet
 							videoOk = event.getStatus();
+							videoCause = event.getCause();
 							break;
 						case daq:
 							daqOk = event.getStatus();
+							daqCause = event.getCause();
 							break;
 						case dosimeter:
 							dosimeterOk = event.getStatus();
+							dosimeterCause = event.getCause();
 							break;
 						case databaseConnect:
 							databaseConnectOk = event.getStatus();
+							databaseConnectCause = event.getCause();
 							break;
 						case databaseUpdate:
 							databaseUpdateOk = event.getStatus();
+							databaseUpdateCause = event.getCause();
 							break;
 						default:
 							return;

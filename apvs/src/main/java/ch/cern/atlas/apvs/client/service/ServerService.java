@@ -56,5 +56,4 @@ public interface ServerService extends RemoteService {
 	
 	public User getUser();
 		
-	public void setPassword(String name, String password);
 }

@@ -41,9 +41,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	private String sensor;
 	private Double highLimit;
 	private Double lowLimit;
-	
-// FIXME to be added to the DB
-	private boolean connected = true;
+	private Boolean connected;
 
 	private volatile transient String displayName;
 	private transient String type = "Measurement";
@@ -185,12 +183,11 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	
 	@Type(type="yes_no")
 	@Column(name = "CONNECTED", length=1)
-	public boolean isConnected() {
+	public Boolean isConnected() {
 		return connected;
 	}
 	
 	private void setConnected(Boolean connected) {
-		if (connected == null) connected = Boolean.TRUE;
 		this.connected = connected;
 	}
 
