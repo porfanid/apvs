@@ -92,6 +92,7 @@ public class InterventionView extends GlassPanel implements Module {
 	private boolean selectable = false;
 	private boolean sortable = true;
 
+	private final String ONGOING_INTERVENTION = "Ongoing";
 	private final String END_INTERVENTION = "End Intervention";
 
 	private InterventionServiceAsync interventionService;
@@ -253,7 +254,7 @@ public class InterventionView extends GlassPanel implements Module {
 			@Override
 			public String getValue(Intervention object) {
 				return object.getEndTime() != null ? PtuClientConstants.dateFormatNoSeconds
-						.format(object.getEndTime()) : END_INTERVENTION;
+						.format(object.getEndTime()) : clientFactory.isSupervisor() ? END_INTERVENTION : ONGOING_INTERVENTION;
 			}
 
 			@Override
@@ -285,7 +286,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 								@Override
 								public void onFailure(Throwable caught) {
-									log.warn("Failed " + caught);
+									Window.alert(caught.getMessage());
 								}
 
 							});
@@ -406,7 +407,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onFailure(Throwable caught) {
-										log.warn("Failed");
+										Window.alert(caught.getMessage());
 									}
 								});
 					}
@@ -536,7 +537,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onFailure(Throwable caught) {
-										log.warn("Failed " + caught);
+										Window.alert(caught.getMessage());
 									}
 								});
 					}
@@ -651,7 +652,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onFailure(Throwable caught) {
-										log.warn("Failed " + caught);
+										Window.alert(caught.getMessage());
 									}
 								});
 					}
@@ -705,7 +706,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("Failed " + caught);
+								Window.alert(caught.getMessage());
 							}
 						});
 			}
@@ -766,7 +767,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("Failed " + caught);
+								Window.alert(caught.getMessage());
 							}
 						});
 			}

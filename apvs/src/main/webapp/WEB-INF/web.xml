@@ -17,6 +17,10 @@
 			<param-name>org.atmosphere.cpr.broadcasterCacheClass</param-name>
 			<param-value>org.atmosphere.cache.HeaderBroadcasterCache</param-value>
 		</init-param>
+		<init-param>
+          <param-name>org.atmosphere.cpr.sessionSupport</param-name>
+          <param-value>true</param-value>
+      </init-param>
 		<!-- make sure disconnect is called for tomcat and jetty within 60 seconds -->
 		<!-- 
 		<init-param>

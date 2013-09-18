@@ -2,20 +2,16 @@ package ch.cern.atlas.apvs.server;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.service.ServerService;
 import ch.cern.atlas.apvs.client.settings.Proxy;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 /**
  * @author Mark Donszelmann
@@ -26,16 +22,8 @@ public class ServerServiceImpl extends ResponsePollService implements
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
-	private RemoteEventBus eventBus;
-	private ServerSettingsStorage serverSettingsStorage;
-	private User user = null;
-	private Map<String, String> headers = new HashMap<String, String>();
-	private boolean secure;
-
 	public ServerServiceImpl() {
 		log.info("Creating ServerService...");
-		eventBus = APVSServerFactory.getInstance().getEventBus();
-		serverSettingsStorage = ServerSettingsStorage.getInstance(eventBus);
 	}
 
 	@Override
@@ -49,28 +37,15 @@ public class ServerServiceImpl extends ResponsePollService implements
 	public void destroy() {
 		super.destroy();
 	}
-	
-	@Override
-	protected String readContent(HttpServletRequest request)
-			throws ServletException, IOException {
-		headers.clear();
-		for (@SuppressWarnings("unchecked")
-		Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements(); ) {
-			String key = e.nextElement();
-			headers.put(key, request.getHeader(key));
-		}
-				
-		return super.readContent(request);
-	}
-	
+		
 	@Override
 	public boolean isReady() {
 		return true;
 	}
 	
 	@Override
-	public Proxy getProxy() {
-		secure = getHeader("HTTPS", "").equalsIgnoreCase("on");
+	public Proxy getProxy() { 
+		boolean secure = getHeader("HTTPS", "").equalsIgnoreCase("on");
 		
 		String proxyFile = "httpd-proxy.conf";
 		Proxy proxy = new Proxy(secure, "https://atwss.cern.ch");
@@ -86,11 +61,15 @@ public class ServerServiceImpl extends ResponsePollService implements
 		
 	@Override
 	public User login(String supervisorPassword) {
+		HttpSession session = getThreadLocalRequest().getSession(true);
+		boolean secure = getHeader("HTTPS", "").equalsIgnoreCase("on");
+		
+		User user;
+		Boolean isSupervisor = false;
 		if (secure) {
 						
 			String fullName = getHeader("ADFS_FULLNAME", "Unknown Person");
 			String email = getHeader("REMOTE_USER", "");
-			boolean isSupervisor = false;
 			try {
 				isSupervisor = EgroupCheck.check("atlas-upgrade-web-atwss-supervisors", email);
 			} catch (Exception e) {
@@ -101,7 +80,6 @@ public class ServerServiceImpl extends ResponsePollService implements
 		} else {
 			// not secure, we use simple plain password to become supervisor
 			String pwd = getEnv("APVSpwd", null);
-			boolean isSupervisor = false;
 			if (pwd == null) {
 				log.warn("NO Supervisor Password set!!! Set enviroment variable 'APVSpwd'");
 			} else {
@@ -111,11 +89,16 @@ public class ServerServiceImpl extends ResponsePollService implements
 		}
 		log.info("User: "+user);
 		
+		session.setAttribute("USER", user);
+		session.setAttribute("SUPERVISOR", isSupervisor);
+		
 		return user;
 	}
 	
 	@Override
 	public User getUser() {
+		HttpSession session = getThreadLocalRequest().getSession(true);
+		User user = (User)session.getAttribute("USER");
 		if (user == null) {
 			user = login(null);
 		}
@@ -128,8 +111,8 @@ public class ServerServiceImpl extends ResponsePollService implements
 		return value != null ? value : defaultValue;
 	}
 	
-	private String getHeader(String env, String defaultValue) {
-		String value = headers.get(env);
-		return value != null ? value : defaultValue;
+	private String getHeader(String key, String defaultValue) {
+		String value = getThreadLocalRequest().getHeader(key);
+		return value != null ? value : "";
 	}
 }

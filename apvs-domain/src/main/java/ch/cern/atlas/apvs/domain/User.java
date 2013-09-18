@@ -29,7 +29,7 @@ public class User implements Serializable, IsSerializable {
 	private String firstName;
 	
 	@NotNull
-	@Size(min = 4)
+	@Size(min = 2)
 	private String lastName;
 	
 	private String cernId;

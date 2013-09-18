@@ -53,6 +53,9 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public void addUser(User user) throws ServiceException {
 		try {
+			if (!isSupervisor()) {
+				throw new ServiceException("Cannot add user, not a supervisor");
+			}
 			database.saveOrUpdate(user, false);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
@@ -63,6 +66,9 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	public void addDevice(Device device)
 			throws ServiceException {
 		try {
+			if (!isSupervisor()) {
+				throw new ServiceException("Cannot add device, not a supervisor");
+			}
 			database.saveOrUpdate(device, false);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
@@ -81,6 +87,9 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public void addIntervention(Intervention intervention) throws ServiceException {
 		try {
+			if (!isSupervisor()) {
+				throw new ServiceException("Cannot add intervention, not a supervisor");
+			}
 			database.saveOrUpdate(intervention, true);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
@@ -90,6 +99,9 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public void updateIntervention(Intervention intervention) throws ServiceException {
 		try {
+			if (!isSupervisor()) {
+				throw new ServiceException("Cannot update intervention, not a supervisor");
+			}
 			database.saveOrUpdate(intervention, true);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
@@ -112,5 +124,10 @@ public class InterventionServiceImpl extends ResponsePollService implements
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
+	}
+	
+	private boolean isSupervisor() {
+		Boolean isSupervisor = (Boolean)getThreadLocalRequest().getSession(true).getAttribute("SUPERVISOR");
+		return isSupervisor != null ? isSupervisor : false;
 	}
 }
