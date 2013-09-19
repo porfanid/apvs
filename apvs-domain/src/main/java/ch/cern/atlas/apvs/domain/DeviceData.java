@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -27,6 +28,10 @@ public class DeviceData implements Serializable, IsSerializable {
 
 	public Data get(String sensor) {
 		return map.get(sensor);
+	}
+	
+	public Set<String> getSensors() {
+		return map.keySet();
 	}
 
 	public void put(Data data) {

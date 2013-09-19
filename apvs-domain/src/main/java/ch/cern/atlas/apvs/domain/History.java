@@ -28,6 +28,9 @@ public class History implements Serializable, IsSerializable {
 	
 	public void put(DeviceData deviceData) {
 		map.put(deviceData.getDevice(), deviceData);
+		for (String sensor : deviceData.getSensors()) {
+			units.put(sensor, deviceData.get(sensor).getUnit());
+		}
 	}
 
 	public void put(Data data) {
@@ -38,7 +41,6 @@ public class History implements Serializable, IsSerializable {
 		}
 		
 		String name = data.getName();
-		Window.alert("******** Never Called "+name +" "+data.getUnit());
 		units.put(name, data.getUnit());
 
 		deviceData.put(data);
