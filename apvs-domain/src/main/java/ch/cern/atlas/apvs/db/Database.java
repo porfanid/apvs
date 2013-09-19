@@ -296,7 +296,7 @@ public class Database {
 			tx = session.beginTransaction();
 
 			Query query = session
-					.createQuery("select distinct name from Measurement m where m.device = :device");
+					.createQuery("select distinct sensor from Measurement m where m.device = :device");
 			query.setEntity("device", device);
 			@SuppressWarnings("unchecked")
 			List<String> sensorNames = query.list();
@@ -613,7 +613,7 @@ public class Database {
 				+ "and d.device_id = m.device.id";
 
 		if (ptuList != null) {
-			sql += " and m.name in ("
+			sql += " and m.sensor in ("
 					+ StringUtils.join(ptuList.toArray(), ',', '\'') + ")";
 		}
 		if (name != null) {
@@ -686,7 +686,7 @@ public class Database {
 			tx = session.beginTransaction();
 
 			Query query = session
-					.createQuery("from Measurement m where m.device = :device and m.name = :sensor order by m.date desc");
+					.createQuery("from Measurement m where m.device = :device and m.sensor = :sensor order by m.date desc");
 			query.setEntity("device", device);
 			query.setString("sensor", sensor);
 

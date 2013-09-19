@@ -1,2 +1,5 @@
+/hibernate.cfg.xml
+/hibernate-oracle.cfg.xml
+/hibernate-mysql.cfg.xml
 /bin
 /target
