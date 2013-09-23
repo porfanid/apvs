@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
+import org.apache.commons.configuration.reloading.ReloadingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,8 @@ public class ServerStorage {
 				// which solves the many concurrent modification exceptions. See
 				// https://issues.apache.org/jira/browse/CONFIGURATION-330
 				// config.setAutoSave(true);
+				config.setAutoSave(false);
+				config.setReloadingStrategy(new InvariantReloadingStrategy());
 			} catch (ConfigurationException e) {
 				log.warn("Configuration file is READ ONLY");
 				config = new PropertiesConfiguration();
