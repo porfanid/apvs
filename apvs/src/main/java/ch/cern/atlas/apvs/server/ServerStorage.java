@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
-import org.apache.commons.configuration.reloading.ReloadingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,13 @@ public class ServerStorage {
 						+ " not found, you could create an empty one with 'touch "+APVS_SERVER_SETTINGS_FILE+"'");
 				System.exit(1);
 			}
-			config = new PropertiesConfiguration(file);
+			config = new PropertiesConfiguration(file) {
+				@Override
+				public void reload() {
+					// FIXME-654
+					// do not reload
+				}
+			};
 			try {
 				config.setHeader(comment + "\n" + (new Date()).toString());
 				config.save();
@@ -46,7 +51,13 @@ public class ServerStorage {
 				config.setReloadingStrategy(new InvariantReloadingStrategy());
 			} catch (ConfigurationException e) {
 				log.warn("Configuration file is READ ONLY");
-				config = new PropertiesConfiguration();
+				config = new PropertiesConfiguration() {
+					@Override
+					public void reload() {
+						// FIXME-654
+						// do not reload
+					}
+				};
 				readOnly = true;
 			}
 		} catch (ConfigurationException e) {
