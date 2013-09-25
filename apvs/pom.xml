@@ -157,6 +157,17 @@
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-ptu</artifactId>
 		</dependency>
+<!-- atmo-gwt2.0
+		<dependency>
+			<groupId>org.atmosphere.extensions</groupId>
+			<artifactId>atmosphere-gwt20-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.atmosphere.extensions</groupId>
+			<artifactId>atmosphere-gwt20-server</artifactId>
+		</dependency>
+-->
+<!-- atmo-gwt1.0 -->
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-client</artifactId>

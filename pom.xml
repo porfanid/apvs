@@ -397,7 +397,16 @@
 				<version>${atmosphere-version}</version> </dependency> <dependency> <groupId>org.atmosphere</groupId> 
 				<artifactId>atmosphere-compat-jetty</artifactId> <version>${atmosphere-version}</version> 
 				</dependency> -->
-
+        <dependency>
+            <groupId>org.atmosphere.extensions</groupId>
+            <artifactId>atmosphere-gwt20-client</artifactId>
+	    <version>${atmosphere-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.atmosphere.extensions</groupId>
+            <artifactId>atmosphere-gwt20-server</artifactId>
+	    <version>${atmosphere-version}</version>
+        </dependency>
 			<dependency>
 				<groupId>org.atmosphere</groupId>
 				<artifactId>atmosphere-gwt-client</artifactId>
