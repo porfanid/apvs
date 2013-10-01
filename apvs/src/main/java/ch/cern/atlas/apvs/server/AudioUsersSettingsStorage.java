@@ -5,6 +5,8 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.domain.Device;
@@ -21,7 +23,7 @@ public class AudioUsersSettingsStorage {
 	private static AudioUsersSettingsStorage instance;
 	private AudioSettings audioSettings;
 
-	public AudioUsersSettingsStorage(final RemoteEventBus eventBus) {
+	public AudioUsersSettingsStorage(final RemoteEventBus eventBus) throws SerializationException {
 
 		load();
 
@@ -83,7 +85,7 @@ public class AudioUsersSettingsStorage {
 				audioSettings));
 	}
 
-	public static AudioUsersSettingsStorage getInstance(RemoteEventBus eventBus) {
+	public static AudioUsersSettingsStorage getInstance(RemoteEventBus eventBus) throws SerializationException {
 		if (instance == null) {
 			instance = new AudioUsersSettingsStorage(eventBus);
 		}

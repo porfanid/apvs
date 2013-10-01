@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client.event;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -15,6 +16,7 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 		 * 
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
+		 * @throws SerializationException 
 		 */
 		void onPtuSelected(SelectPtuEvent event);
 	}

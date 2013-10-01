@@ -18,6 +18,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.db.Database;
@@ -62,7 +64,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private SensorMap sensorMap;
 	private Map<String, Device> deviceMap;
 
-	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus) {
+	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus) throws SerializationException {
 		super(bootstrap);
 		this.eventBus = eventBus;
 
@@ -203,6 +205,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 						}
 					} catch (APVSException e) {
 						log.warn("Could not add measurement", e);
+					} catch (SerializationException e) {
+						log.error("Could not serialize event", e);
 					}
 				}
 			}
@@ -216,7 +220,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private final static long SECOND = 1000;
 	private final static long MINUTE = 60 * SECOND;
 
-	private void handleMessage(Measurement message) throws APVSException {
+	private void handleMessage(Measurement message) throws APVSException, SerializationException {
 		// Quick fix for #371
 		Date now = new Date();
 		if (message.getDate().getTime() < (now.getTime() - 5 * MINUTE)) {
@@ -257,7 +261,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		sendEvents();
 	}
 
-	private void handleMessage(Event message) {
+	private void handleMessage(Event message) throws SerializationException {
 		Device device = message.getDevice();
 		String sensor = message.getSensor();
 
@@ -280,7 +284,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 	}
 
-	private void handleMessage(GeneralConfiguration message) {
+	private void handleMessage(GeneralConfiguration message) throws SerializationException {
 		String ptuId = message.getDevice().getName();
 		String dosimeterId = message.getDosimeterId();
 
@@ -299,7 +303,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		log.warn(error.getType() + " NOT YET IMPLEMENTED, see #114");
 	}
 
-	private synchronized void sendEvents() {
+	private synchronized void sendEvents() throws SerializationException {
 
 		for (Iterator<Measurement> i = measurementChanged.iterator(); i
 				.hasNext();) {

@@ -14,14 +14,15 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.atmosphere.gwt.poll.AtmospherePollService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.eventbus.client.EventBusService;
+import ch.cern.atlas.apvs.eventbus.poll.AtmospherePollService;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.server.rpc.SerializationPolicy;
 
 @SuppressWarnings("serial")
@@ -65,6 +66,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 	/**
 	 * Incoming event from client Broadcast it to all other clients Forward it
 	 * to server event bus
+	 * @throws SerializationException 
 	 */
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
@@ -82,6 +84,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 
 	/**
 	 * Provide available events for the eventbus of the client
+	 * @throws SerializationException 
 	 */
 	@Override
 	public List<RemoteEvent<?>> getQueuedEvents(Long eventBusUUID) {

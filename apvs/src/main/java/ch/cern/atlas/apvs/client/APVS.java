@@ -57,6 +57,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
@@ -137,7 +138,12 @@ public class APVS implements EntryPoint {
 				// possibly secure, but do not check if supervisor
 				clientFactory.setSecure(false);
 				clientFactory.setProxy(new Proxy(false, ""));
-				start();
+				try {
+					start();
+				} catch (SerializationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -152,14 +158,24 @@ public class APVS implements EntryPoint {
 						log.info("Server ready, user is "
 								+ (user.isSupervisor() ? "SUPERVISOR" : "OBSERVER"));
 						LocalStorage.getInstance().put(LocalStorage.SUPERVISOR_PWD, user.isSupervisor() ? pwd : null);
-						start();
+						try {
+							start();
+						} catch (SerializationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 
 					@Override
 					public void onFailure(Throwable caught) {
 						// ignore problem, start as an observer
 						clientFactory.setUser(new User("Unknown", "", false));
-						start();
+						try {
+							start();
+						} catch (SerializationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				});
 	}
@@ -187,7 +203,7 @@ public class APVS implements EntryPoint {
 		});
 	}
 	
-	private void start() {
+	private void start() throws SerializationException {
 		
 		remoteEventBus = clientFactory.getRemoteEventBus();
 		placeController = clientFactory.getPlaceController();

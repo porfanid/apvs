@@ -17,6 +17,8 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ch.cern.atlas.apvs.db.Scale;
 import ch.cern.atlas.apvs.db.SensorMap;
 import ch.cern.atlas.apvs.domain.Data;

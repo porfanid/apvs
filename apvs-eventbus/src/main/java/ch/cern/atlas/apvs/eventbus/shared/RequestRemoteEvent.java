@@ -2,6 +2,7 @@ package ch.cern.atlas.apvs.eventbus.shared;
 
 import java.io.Serializable;
 
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -15,6 +16,7 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 		 * 
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
+		 * @throws SerializationException 
 		 */
 		void onRequestEvent(RequestRemoteEvent event);
 	}

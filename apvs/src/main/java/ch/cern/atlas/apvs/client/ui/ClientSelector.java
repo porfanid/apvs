@@ -9,6 +9,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBusIdsChangedEvent;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -19,7 +20,7 @@ public class ClientSelector extends SimplePanel {
 	private List<Long> clientIds;
 	private long selectedClientId = -1;
 
-	public ClientSelector(final RemoteEventBus eventBus) {
+	public ClientSelector(final RemoteEventBus eventBus) throws SerializationException {
 		add(list);
 
 		list.addChangeHandler(new ChangeHandler() {

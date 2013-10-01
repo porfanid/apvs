@@ -41,6 +41,8 @@ import org.asteriskjava.manager.event.NewChannelEvent;
 import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
 
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ch.cern.atlas.apvs.client.AudioException;
 import ch.cern.atlas.apvs.client.domain.Conference;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
@@ -151,8 +153,9 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 	/*********************************************
 	 * Constructor
+	 * @throws SerializationException 
 	 **********************************************/
-	public AudioServiceImpl() {
+	public AudioServiceImpl() throws SerializationException {
 		if (eventBus != null)
 			return;
 
