@@ -28,7 +28,7 @@
 		<atmosphere-version>2.0.1</atmosphere-version>
 		<atmosphere-ext-version>2.0.0</atmosphere-ext-version>
 		<asterisk-java-version>f8c8f014253745783149ecbe0fed3faa074a7368</asterisk-java-version>
-		<commons-configuration-version>1.9</commons-configuration-version>
+		<commons-configuration-version>2.0-1527979</commons-configuration-version>
 		<commons-io-version>2.4</commons-io-version>
 		<commons-lang-version>2.6</commons-lang-version>
 		<eventbinder-version>1.0.0</eventbinder-version>
@@ -87,6 +87,7 @@
 		<module>apvs-asterisk</module>
 		<!-- <module>apvs-atmosphere</module> -->
 		<module>apvs-charts</module>
+		<module>apvs-configuration</module>
 		<module>apvs-converter</module>
 		<module>apvs-daq-server</module>
 		<module>apvs-domain</module>
@@ -312,6 +313,11 @@
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
 				<artifactId>apvs-charts</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-configuration</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -147,6 +147,10 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-configuration</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
 		</dependency>
 		<dependency>

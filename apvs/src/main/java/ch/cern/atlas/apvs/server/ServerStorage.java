@@ -2,6 +2,8 @@ package ch.cern.atlas.apvs.server;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
@@ -10,7 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
+import org.apache.commons.configuration.sync.ReadWriteSynchronizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,41 +25,32 @@ public class ServerStorage {
 	private static ServerStorage instance;
 
 	private PropertiesConfiguration config;
+	private File configFile;
 	private boolean readOnly;
 
 	public ServerStorage() throws FileNotFoundException, IOException {
 		try {
-			File file = new File(APVS_SERVER_SETTINGS_FILE);
-			if (!file.exists()) {
+			configFile = new File(APVS_SERVER_SETTINGS_FILE);
+			if (!configFile.exists()) {
 				log.error("File " + APVS_SERVER_SETTINGS_FILE
-						+ " not found, you could create an empty one with 'touch "+APVS_SERVER_SETTINGS_FILE+"'");
+						+ " not found, copy the example 'cp APVS-example.properties "+APVS_SERVER_SETTINGS_FILE+"' and edit the entries...");
 				System.exit(1);
 			}
-			config = new PropertiesConfiguration(file) {
-				@Override
-				public void reload() {
-					// FIXME-654
-					// do not reload
-				}
-			};
+			config = new PropertiesConfiguration();
+			config.setSynchronizer(new ReadWriteSynchronizer());
+			FileReader reader = new FileReader(configFile);
+			config.read(reader);
+			reader.close();
+			
 			try {
+				FileWriter writer = new FileWriter(configFile);
 				config.setHeader(comment + "\n" + (new Date()).toString());
-				config.save();
-				// FIXME-654 Do not use until commons-configuration 2.0 is out
-				// which solves the many concurrent modification exceptions. See
-				// https://issues.apache.org/jira/browse/CONFIGURATION-330
-				// config.setAutoSave(true);
-				config.setAutoSave(false);
-				config.setReloadingStrategy(new InvariantReloadingStrategy());
+				config.write(writer);
+				writer.close();
+				log.info("Configuration file is read/write");
 			} catch (ConfigurationException e) {
 				log.warn("Configuration file is READ ONLY");
-				config = new PropertiesConfiguration() {
-					@Override
-					public void reload() {
-						// FIXME-654
-						// do not reload
-					}
-				};
+				config = new PropertiesConfiguration();
 				readOnly = true;
 			}
 		} catch (ConfigurationException e) {
@@ -89,12 +82,18 @@ public class ServerStorage {
 		config.setProperty(name, value);
 
 		// FIXME-654
-		if (readOnly)
+		if (readOnly) {
 			return;
+		}
 
 		try {
-			config.save();
+			FileWriter writer = new FileWriter(configFile);
+			config.write(writer);
+			writer.close();
 		} catch (ConfigurationException e) {
+			log.error("Cannot store settings");
+			readOnly = true;
+		} catch (IOException e) {
 			log.error("Cannot store settings");
 			readOnly = true;
 		}
