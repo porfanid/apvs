@@ -17,7 +17,7 @@ More info on maven: http://maven.apache.org/guides/getting-started/index.html
 
 ### Install ojdbc driver
 
-We have this one somewhere on DropBox
+Download ojdb6.jar from www.oracle.com and install in apvs-ojdbc/ojdbc6-<version>.jar
 
 ## Building
 
