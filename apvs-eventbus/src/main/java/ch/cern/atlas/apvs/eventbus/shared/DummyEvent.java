@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.eventbus.shared;
 
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -34,7 +35,7 @@ public class DummyEvent extends RemoteEvent<DummyEvent.Handler> {
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			DummyEvent.Handler handler) {
+			DummyEvent.Handler handler) throws SerializationException {
 		HandlerRegistration registration = register(eventBus, handler);
 		
 		eventBus.fireEvent(new RequestRemoteEvent(DummyEvent.class));

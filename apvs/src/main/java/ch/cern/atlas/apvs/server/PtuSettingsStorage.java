@@ -6,6 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
@@ -26,7 +28,7 @@ public class PtuSettingsStorage {
 	
 	private PtuSettings settings;
 
-	public PtuSettingsStorage(final RemoteEventBus eventBus) {
+	public PtuSettingsStorage(final RemoteEventBus eventBus) throws SerializationException {
 
 		load();
 
@@ -45,7 +47,8 @@ public class PtuSettingsStorage {
 		InterventionMapChangedRemoteEvent.subscribe(eventBus, new InterventionMapChangedRemoteEvent.Handler() {
 			
 			@Override
-			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
+			public void onInterventionMapChanged(
+							InterventionMapChangedRemoteEvent event) {
 				if (DEBUG) {
 					log.info("PTU Setting Storage: PTU IDS changed");
 				}
@@ -79,7 +82,8 @@ public class PtuSettingsStorage {
 		eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
 	}
 
-	public static PtuSettingsStorage getInstance(RemoteEventBus eventBus) {
+	public static PtuSettingsStorage getInstance(RemoteEventBus eventBus)
+			throws SerializationException {
 		if (instance == null) {
 			instance = new PtuSettingsStorage(eventBus);
 		}

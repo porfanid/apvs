@@ -5,6 +5,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -18,6 +19,7 @@ public class InterventionMapChangedRemoteEvent extends RemoteEvent<InterventionM
 		 * 
 		 * @param event
 		 *            an {@link MessageReceivedEvent} instance
+		 * @throws SerializationException 
 		 */
 		void onInterventionMapChanged(InterventionMapChangedRemoteEvent event);
 	}

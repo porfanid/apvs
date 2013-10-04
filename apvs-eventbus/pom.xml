@@ -39,56 +39,22 @@
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
 		</dependency>
-<!--
-                <dependency>
-                        <groupId>ch.cern.atlas</groupId>
-                        <artifactId>apvs-atmosphere</artifactId>
-                </dependency>
--->
-<!--
-                <dependency>
-                        <groupId>ch.cern.atlas</groupId>
-                        <artifactId>apvs-gwt-maven-plugin</artifactId>
-                </dependency>
--->
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 			</dependency>
 		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-gwt-client</artifactId>
+			<groupId>org.atmosphere.extensions</groupId>
+			<artifactId>atmosphere-gwt20-client</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-gwt-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-gwt-server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>atmosphere-gwt-poll</artifactId>
+			<groupId>org.atmosphere.extensions</groupId>
+			<artifactId>atmosphere-gwt20-server</artifactId>
 		</dependency>
                 <dependency>
                         <groupId>org.atmosphere</groupId>
                         <artifactId>atmosphere-runtime</artifactId>
                 </dependency>
-<!--
-                <dependency>
-                        <groupId>org.atmosphere</groupId>
-                        <artifactId>atmosphere-compat-jbossweb</artifactId>
-                </dependency>
-                <dependency>
-                        <groupId>org.atmosphere</groupId>
-                        <artifactId>atmosphere-compat-tomcat</artifactId>
-                </dependency>
-                <dependency>
-                        <groupId>org.atmosphere</groupId>
-                        <artifactId>atmosphere-compat-tomcat7</artifactId>
-                </dependency>
--->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:db="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink"
+      version="5.0">
+	<info>
+		<title>This is a book</title>
+	</info>
+	<chapter>
+		<title>This is a chapter</title>
+		<section>
+			<title>This<command>This</command> is a section</title>
+			<para><link xlink:href="http://www.cern.ch">This</link> is a 
+			paragraph.</para>
+			<para/>
+		</section>
+	</chapter>
+</book>

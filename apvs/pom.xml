@@ -147,6 +147,10 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-configuration</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
 		</dependency>
 		<dependency>
@@ -158,6 +162,7 @@
 			<artifactId>apvs-ptu</artifactId>
 		</dependency>
 <!-- atmo-gwt2.0
+-->
 		<dependency>
 			<groupId>org.atmosphere.extensions</groupId>
 			<artifactId>atmosphere-gwt20-client</artifactId>
@@ -166,8 +171,7 @@
 			<groupId>org.atmosphere.extensions</groupId>
 			<artifactId>atmosphere-gwt20-server</artifactId>
 		</dependency>
--->
-<!-- atmo-gwt1.0 -->
+<!-- atmo-gwt1.0
 		<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-gwt-client</artifactId>
@@ -188,6 +192,7 @@
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-runtime</artifactId>
 		</dependency>
+-->
 		<dependency>
       			<groupId>com.google.gwt.eventbinder</groupId>
       			<artifactId>eventbinder</artifactId>

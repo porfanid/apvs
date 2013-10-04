@@ -2,8 +2,7 @@ package ch.cern.atlas.apvs.server;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.atmosphere.gwt.poll.AtmospherePollService;
-
+import ch.cern.atlas.apvs.eventbus.poll.AtmospherePollService;
 import ch.cern.atlas.apvs.eventbus.server.ServerSerialization;
 
 import com.google.gwt.user.server.rpc.SerializationPolicy;

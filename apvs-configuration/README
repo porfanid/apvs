@@ -1,0 +1,5 @@
+compile commons-configuration in ~/cern/svn/
+copy commons-configuration-2.0-SNAPSHOT.jar to current dir with svn version number
+copy commons-configuration-2.0-SNAPSHOT-sources.jar to current dir with svn version number
+copy pom.xml to current dir as commons-configuration-2.0-SNAPSHOT-pom.xml with svn version number
+

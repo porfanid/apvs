@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RpcRequestBuilder;
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 public class PollEventBus extends RemoteEventBus {
@@ -31,6 +32,7 @@ public class PollEventBus extends RemoteEventBus {
 
 	/**
 	 * broadcast event
+	 * @throws SerializationException 
 	 * 
 	 */
 	@Override
@@ -40,7 +42,7 @@ public class PollEventBus extends RemoteEventBus {
 
 	/**
 	 * broadcast event FIXME source is ignored
-	 * 
+	 * @throws SerializationException 
 	 */
 	@Override
 	public void fireEventFromSource(RemoteEvent<?> event, int uuid) {

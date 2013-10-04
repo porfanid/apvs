@@ -8,13 +8,15 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
-import org.atmosphere.gwt.server.AtmosphereGwtHandler;
-import org.atmosphere.gwt.server.GwtAtmosphereResource;
+import org.atmosphere.cpr.AtmosphereResource;
+import org.atmosphere.handler.ReflectorServletProcessor;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Mark Donszelmann
  */
-public class AtmosphereHandler extends AtmosphereGwtHandler {
+public class AtmosphereHandler extends ReflectorServletProcessor {
+	private org.slf4j.Logger log = LoggerFactory.getLogger(getClass().getName());
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
@@ -23,34 +25,28 @@ public class AtmosphereHandler extends AtmosphereGwtHandler {
         Logger.getLogger("org.atmosphere.gwt").setLevel(Level.ALL);
         Logger.getLogger("ch.cern.atlas.apvs").setLevel(Level.ALL);
         Logger.getLogger("").getHandlers()[0].setLevel(Level.ALL);
-        logger.trace("Updated logging levels");
+        log.info("Updated logging levels");
     }
-
-    @Override
-    public int doComet(GwtAtmosphereResource resource) throws ServletException, IOException {
-        resource.getBroadcaster().setID("GWT_COMET");
-        HttpSession session = resource.getAtmosphereResource().getRequest().getSession(false);
-        if (session != null) {
-            logger.debug("Got session with id: " + session.getId());
-            logger.debug("Time attribute: " + session.getAttribute("time"));
-        } else {
-            logger.warn("No session");
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Url: " + resource.getAtmosphereResource().getRequest().getRequestURL()
-                    + "?" + resource.getAtmosphereResource().getRequest().getQueryString());
-        }        
-        String agent = resource.getRequest().getHeader("user-agent");
-        logger.info(agent);
-        return NO_TIMEOUT;
-    }
-
     
-   
     @Override
-    public void cometTerminated(GwtAtmosphereResource cometResponse, boolean serverInitiated) {
-        super.cometTerminated(cometResponse, serverInitiated);
-        logger.debug("Comet disconnected");
+    public void onRequest(AtmosphereResource resource) throws IOException {
+        resource.getBroadcaster().setID("GWT_COMET");
+        HttpSession session = resource.getRequest().getSession(false);
+        if (session != null) {
+            log.debug("Got session with id: " + session.getId());
+            log.debug("Time attribute: " + session.getAttribute("time"));
+        } else {
+        	log.warn("No session");
+        }
+        log.info("Url: " + resource.getRequest().getRequestURL()
+                    + "?" + resource.getRequest().getQueryString());       
+        String agent = resource.getRequest().getHeader("user-agent");
+        log.info(agent);
+    }
+    
+    @Override
+    public void destroy() {
+        log.info("Comet disconnected");
     }
 
 }

@@ -6,6 +6,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -25,7 +26,7 @@ public class AlarmMapChangedRemoteEvent extends RemoteEvent<AlarmMapChangedRemot
 
 	private static final Type<AlarmMapChangedRemoteEvent.Handler> TYPE = new Type<AlarmMapChangedRemoteEvent.Handler>();
 
-	public static void fire(RemoteEventBus eventBus, AlarmMap alarmMap) {
+	public static void fire(RemoteEventBus eventBus, AlarmMap alarmMap) throws SerializationException {
 		eventBus.fireEvent(new AlarmMapChangedRemoteEvent(alarmMap));
 	}	
 	
@@ -40,7 +41,12 @@ public class AlarmMapChangedRemoteEvent extends RemoteEvent<AlarmMapChangedRemot
 	 */
 	public static HandlerRegistration register(RemoteEventBus eventBus,
 			AlarmMapChangedRemoteEvent.Handler handler) {
-		AlarmManager.getInstance(eventBus);
+		try {
+			AlarmManager.getInstance(eventBus);
+		} catch (SerializationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		return eventBus.addHandler(TYPE, handler);
 	}

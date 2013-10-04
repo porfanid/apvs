@@ -2,6 +2,8 @@ package ch.cern.atlas.apvs.client.manager;
 
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
 import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.domain.Device;
@@ -16,7 +18,7 @@ public class AlarmManager {
 	private List<Device> ptus;
 	private RemoteEventBus eventBus;
 
-	private AlarmManager(RemoteEventBus eventBus) {
+	private AlarmManager(RemoteEventBus eventBus) throws SerializationException {
 		this.eventBus = eventBus;
 		
 		alarms = new AlarmMap();
@@ -77,12 +79,16 @@ public class AlarmManager {
 		update();
 	}
 
-
 	private void update() {		
-		AlarmMapChangedRemoteEvent.fire(eventBus, alarms);
+		try {
+			AlarmMapChangedRemoteEvent.fire(eventBus, alarms);
+		} catch (SerializationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public static AlarmManager getInstance(RemoteEventBus eventBus) {
+	public static AlarmManager getInstance(RemoteEventBus eventBus) throws SerializationException {
 		if (instance == null) {
 			instance = new AlarmManager(eventBus);
 		}

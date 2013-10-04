@@ -5,6 +5,8 @@ import ch.cern.atlas.apvs.client.manager.HistoryManager;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -38,7 +40,11 @@ public class HistoryChangedEvent extends Event<HistoryChangedEvent.Handler> {
 	 */
 	public static HandlerRegistration register(ClientFactory clientFactory,
 			HistoryChangedEvent.Handler handler) {
-		HistoryManager.getInstance(clientFactory);
+		try {
+			HistoryManager.getInstance(clientFactory);
+		} catch (SerializationException e) {
+			Window.alert("Cannot create HistoryManager");
+		}
 		
 		return clientFactory.getRemoteEventBus().addHandler(TYPE, handler);
 	}

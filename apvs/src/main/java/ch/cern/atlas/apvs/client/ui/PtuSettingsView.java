@@ -39,7 +39,9 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -299,7 +301,6 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			public void update(int index, Device object, String value) {
 				if (voipAccounts.contains(object.getName())) {
 					voipAccounts.setNumber(object.getName(), value);
-					;
 					eventBus.fireEvent(new AudioUsersSettingsChangedRemoteEvent(
 							voipAccounts));
 				}
@@ -492,7 +493,5 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 		((RemoteEventBus) eventBus)
 				.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
-		// ((RemoteEventBus) eventBus).fireEvent(new DosimeterPtuChangedEvent(
-		// settings.getDosimeterToPtuMap()));
 	}
 }

@@ -3,27 +3,72 @@ package ch.cern.atlas.apvs.eventbus.client;
 import java.util.Iterator;
 import java.util.List;
 
-import org.atmosphere.gwt.client.AtmosphereClient;
-import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
-import org.atmosphere.gwt.client.AtmosphereListener;
+import org.atmosphere.gwt20.client.Atmosphere;
+import org.atmosphere.gwt20.client.AtmosphereCloseHandler;
+import org.atmosphere.gwt20.client.AtmosphereMessageHandler;
+import org.atmosphere.gwt20.client.AtmosphereOpenHandler;
+import org.atmosphere.gwt20.client.AtmosphereReopenHandler;
+import org.atmosphere.gwt20.client.AtmosphereRequest;
+import org.atmosphere.gwt20.client.AtmosphereRequestConfig;
+import org.atmosphere.gwt20.client.AtmosphereResponse;
+import org.atmosphere.gwt20.client.GwtRpcClientSerializer;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.SerializationException;
 
 public class AtmosphereEventBus extends RemoteEventBus {
-	
-	private AtmosphereClient client;
+
+	private Atmosphere client;
+	private AtmosphereRequest request;
 
 	// NOTE serializer can be null, but note the exception in #284, thrown in "compiled" mode
-	public AtmosphereEventBus(AtmosphereGWTSerializer serializer) {
-		AtmosphereEventBusListener cometListener = new AtmosphereEventBusListener();
+	public AtmosphereEventBus(GwtRpcClientSerializer serializer) {
 		
-		client = new AtmosphereClient(GWT.getModuleBaseURL() + "eventBusComet",
-				serializer, cometListener);
-		client.start();
+		AtmosphereRequestConfig requestConfig = AtmosphereRequestConfig.create(serializer);
+		requestConfig.setUrl(GWT.getModuleBaseURL() + "eventBusComet");
+		requestConfig.setTransport(AtmosphereRequestConfig.Transport.STREAMING);
+		requestConfig.setFallbackTransport(AtmosphereRequestConfig.Transport.LONG_POLLING);
+		requestConfig.setOpenHandler(new AtmosphereOpenHandler() {
+            @Override
+            public void onOpen(AtmosphereResponse response) {
+            }
+        });
+		requestConfig.setReopenHandler(new AtmosphereReopenHandler() {
+            @Override
+            public void onReopen(AtmosphereResponse response) {
+            }
+        });
+		requestConfig.setCloseHandler(new AtmosphereCloseHandler() {
+            @Override
+            public void onClose(AtmosphereResponse response) {
+            }
+        });
+		requestConfig.setMessageHandler(new AtmosphereMessageHandler() {
+            @Override
+            public void onMessage(AtmosphereResponse response) {
+            	
+            	List<Object> messages = response.getMessages();
+            	
+    			System.err.println("EventBusListener Messages "+messages.size());
+    			
+    			for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
+    				Object message = i.next();
+    				if (message instanceof RemoteEvent<?>) {
+    					RemoteEvent<?> event = (RemoteEvent<?>)message;
+    					
+    					// NOTE: also my own needs to be distributed locally
+ 						AtmosphereEventBus.super.fireEvent(event);
+    				}
+    			}               
+            }
+        });
 		
+	    request = client.subscribe(requestConfig);
+
 		getServerEvent();
 	}
 
@@ -34,83 +79,30 @@ public class AtmosphereEventBus extends RemoteEventBus {
 
 	/**
 	 * broadcast event and (receive it locally to distribute, below)
+	 * @throws SerializationException 
 	 * 
 	 */
 	@Override
 	public void fireEvent(RemoteEvent<?> event) {
-		client.broadcast(event);
+		try {
+			request.push(event);
+		} catch (SerializationException e) {
+			Window.alert(""+e);
+		}
 	}
 	
 	/**
 	 * broadcast event and (receive it locally to distribute, below)
 	 * FIXME source is ignored
+	 * @throws SerializationException 
 	 * 
 	 */
 	@Override
 	public void fireEventFromSource(RemoteEvent<?> event, int uuid) {
-		client.broadcast(event);
-	}
-
-	public class AtmosphereEventBusListener implements AtmosphereListener {
-		
-		// atmosphere 1.0
-		public void onConnected(int heartbeat, int connectionID) {
-			System.err.println("EventBusListener connected (1.0) "+heartbeat+" "+connectionID);
-		}
-		
-		// atmosphere 1.1
-		public void onConnected(int heartbeat, String connectionUUID) {
-			System.err.println("EventBusListener connected (1.1+) "+heartbeat+" "+connectionUUID);
-		}
-
-		public void onBeforeDisconnected() {
-//			System.err.println("EventBusListener before disconnect "+(client != null ? client.getConnectionUUID() : null));
-		}
-
-		public void onDisconnected() {
-//			System.err.println("EventBusListener disconnected "+(client != null ? client.getConnectionUUID() : null));
-		}
-
-		public void onError(Throwable exception, boolean connected) {
-//			System.err.println("EventBusListener error "+connected+" "+exception+" "+(client != null ? client.getConnectionUUID() : null));
-			System.err.println("---------------- error "+exception.getCause());
-		}
-
-		public void onHeartbeat() {
-//			System.err.println("EventBusListener heartbeat "+(client != null ? client.getConnectionUUID() : null));
-		}
-
-		@Override
-		public void onRefresh() {
-//			System.err.println("EventBusListener refresh "+(client != null ? client.getConnectionUUID() : null));
-		}
-
-		/**
-		 * handle broadcasted events from other clients
-		 */
-		@Override
-		public void onMessage(List<?> messages) {
-			System.err.println("EventBusListener Messages "+messages.size());
-			
-			for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
-				Object message = i.next();
-				if (message instanceof RemoteEvent<?>) {
-					RemoteEvent<?> event = (RemoteEvent<?>)message;
-					
-					// NOTE: also my own needs to be distributed locally
-					AtmosphereEventBus.super.fireEvent(event);
-				}
-			}
-		}
-
-		// atmosphere 1.0
-		public void onAfterRefresh() {
-//			System.err.println("EventBusListener after refresh (1.0) "+(client != null ? client.getConnectionUUID() : null));
-		}
-
-		// atmosphere 1.1
-		public void onAfterRefresh(String connectionUUID) {
-//			System.err.println("EventBusListener after refresh (1.1+) "+connectionUUID+" "+(client != null ? client.getConnectionUUID() : null));
+		try {
+			request.push(event);
+		} catch (SerializationException e) {
+			Window.alert(""+e);
 		}
 	}
 	

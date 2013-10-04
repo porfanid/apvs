@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client.ui;
 import ch.cern.atlas.apvs.client.ClientFactory;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.rpc.SerializationException;
 
 public interface Module {
 
@@ -13,6 +14,7 @@ public interface Module {
 	 * @param clientFactory
 	 * @param args
 	 * @return
+	 * @throws SerializationException 
 	 */
 	public boolean configure(Element element, ClientFactory clientFactory, Arguments args);
 	

@@ -16,6 +16,8 @@ import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.manager.AlarmManager;
 import ch.cern.atlas.apvs.client.service.PtuService;
@@ -46,7 +48,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	private Database database;
 
-	public PtuServiceImpl() {
+	public PtuServiceImpl() throws SerializationException {
 		log.info("Creating PtuService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 
@@ -58,23 +60,29 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		super.init(config);
 
 		log.info("Starting PtuService...");
-		
+
 		database = Database.getInstance(eventBus);
-		
+
 		EventLoopGroup group = new NioEventLoopGroup();
 
-		//FIXME - Change the declaring location before ServerSettingsChangedRemoteEvent
+		// FIXME - Change the declaring location before
+		// ServerSettingsChangedRemoteEvent
 		// Configure the client.
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class);
 
-		//FIXME - Change the declaring location before ServerSettingsChangedRemoteEvent
-		ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
-		
+		// FIXME - Change the declaring location before
+		// ServerSettingsChangedRemoteEvent
+		try {
+			ptuClientHandler = new PtuClientHandler(bootstrap, eventBus);
+		} catch (SerializationException e) {
+			throw new ServletException(e);
+		}
+
 		// Configure the pipeline factory.
 		bootstrap.group(group);
 		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler, true));
-		
+
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
 
@@ -93,19 +101,16 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 										.parseInt(s[1]) : DEFAULT_PTU_PORT;
 
 								log.info("Setting PTU to " + host + ":" + port);
-								//#FIXME
+								// #FIXME
 								ptuClientHandler.connect(new InetSocketAddress(
 										host, port));
 							}
 						}
 					}
 				});
-		
-		
-		 
-		
+
 	}
-	
+
 	@Override
 	public List<Measurement> getMeasurements(List<Device> ptuList, String name)
 			throws ServiceException {
@@ -127,37 +132,49 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	}
 
 	@Override
-	public History getHistory(List<Device> devices, Date from, Integer maxEntries)
-			throws ServiceException {
+	public History getHistory(List<Device> devices, Date from,
+			Integer maxEntries) throws ServiceException {
 		try {
-			System.err.println(devices.size()+" "+from+" "+maxEntries);
+			System.err.println(devices.size() + " " + from + " " + maxEntries);
 			return database.getHistory(devices, from, maxEntries);
 		} catch (HibernateException e) {
 			e.printStackTrace();
 			throw new ServiceException(e.getMessage());
 		}
 	}
-		
+
 	@Override
 	public void handleOrder(Order order) throws ServiceException {
-		System.err.println("Handle "+order);
-		
+		System.err.println("Handle " + order);
+
 		ptuClientHandler.sendOrder(order);
 	}
-	
+
 	@Override
 	public void clearPanicAlarm(Device ptu) throws ServiceException {
-		System.err.println("Clearing panic for "+ptu);
-		AlarmManager.getInstance(eventBus).clearPanicAlarm(ptu);
+		System.err.println("Clearing panic for " + ptu);
+		try {
+			AlarmManager.getInstance(eventBus).clearPanicAlarm(ptu);
+		} catch (SerializationException e) {
+			throw new ServiceException(e);
+		}
 	}
-	
+
 	@Override
 	public void clearDoseAlarm(Device ptu) throws ServiceException {
-		AlarmManager.getInstance(eventBus).clearDoseAlarm(ptu);
+		try {
+			AlarmManager.getInstance(eventBus).clearDoseAlarm(ptu);
+		} catch (SerializationException e) {
+			throw new ServiceException(e);
+		}
 	}
-	
+
 	@Override
 	public void clearFallAlarm(Device ptu) throws ServiceException {
-		AlarmManager.getInstance(eventBus).clearFallAlarm(ptu);
+		try {
+			AlarmManager.getInstance(eventBus).clearFallAlarm(ptu);
+		} catch (SerializationException e) {
+			throw new ServiceException(e);
+		}
 	}
 }

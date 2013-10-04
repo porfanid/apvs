@@ -22,6 +22,8 @@ import org.hibernate.service.ServiceRegistryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ch.cern.atlas.apvs.domain.Data;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.DeviceData;
@@ -78,9 +80,14 @@ public class Database {
 
 		// new SchemaExport(configuration).create(true, false);
 
-		checkUpdate();
-
-		readInterventions(true);
+		try {
+			checkUpdate();
+			readInterventions(true);
+		} catch (HibernateException e1) {
+			log.warn("Problem", e1);
+		} catch (SerializationException e2) {
+			log.warn("Could not serialize event", e2);
+		}
 
 		if (eventBus != null) {
 
@@ -129,13 +136,15 @@ public class Database {
 				} catch (HibernateException e) {
 					log.warn("Could not regularly-update intervention list: ",
 							e);
+				} catch (SerializationException e) {
+					log.warn("Could not serialize event", e);
 				}
 
 			}
 		}, 0, 30, TimeUnit.SECONDS);
 	}
 
-	private boolean checkUpdate() throws HibernateException {
+	private boolean checkUpdate() throws HibernateException, SerializationException {
 
 		Ternary wasConnected = connected;
 		Ternary wasUpdated = updated;
@@ -195,7 +204,7 @@ public class Database {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void readInterventions(boolean triggerEvents) {
+	private void readInterventions(boolean triggerEvents) throws SerializationException {
 		InterventionMap newMap = new InterventionMap();
 		Session session = null;
 		Transaction tx = null;
@@ -338,6 +347,8 @@ public class Database {
 				tx.rollback();
 			}
 			throw e;
+		} catch (SerializationException e) {
+			log.warn("Could not serialize event", e);
 		} finally {
 			if (session != null) {
 				session.close();

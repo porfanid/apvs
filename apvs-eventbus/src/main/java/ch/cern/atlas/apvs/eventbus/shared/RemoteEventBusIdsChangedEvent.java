@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.eventbus.shared;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -36,7 +37,7 @@ public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIds
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) {
+	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) throws SerializationException {
 		HandlerRegistration registration = register(eventBus, handler);
 		
 		eventBus.fireEvent(new RequestRemoteEvent(RemoteEventBusIdsChangedEvent.class));

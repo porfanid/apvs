@@ -7,6 +7,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class AudioUsersStatusRemoteEvent extends
@@ -28,7 +29,7 @@ public class AudioUsersStatusRemoteEvent extends
 	}
 
 	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
-			AudioUsersStatusRemoteEvent.Handler handler) {
+			AudioUsersStatusRemoteEvent.Handler handler) throws SerializationException {
 
 		HandlerRegistration registration = register(eventBus, handler);
 		eventBus.fireEvent(new RequestRemoteEvent(AudioUsersStatusRemoteEvent.class));

@@ -16,6 +16,7 @@ import ch.cern.atlas.apvs.domain.Device;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class CameraView extends ImageView implements Module,

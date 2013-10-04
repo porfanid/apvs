@@ -15,6 +15,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.media.client.Video;
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 

@@ -1,8 +1,9 @@
 package ch.cern.atlas.apvs.client.event;
 
-import org.atmosphere.gwt.client.AtmosphereGWTSerializer;
-import org.atmosphere.gwt.client.SerialTypes;
+import org.atmosphere.gwt20.client.GwtRpcClientSerializer;
+import org.atmosphere.gwt20.client.GwtRpcSerialTypes;
 
-@SerialTypes(ServerSettingsChangedRemoteEvent.class)
-public abstract class EventSerializer extends AtmosphereGWTSerializer {
+
+@GwtRpcSerialTypes(ServerSettingsChangedRemoteEvent.class)
+public abstract class EventSerializer extends GwtRpcClientSerializer {
 }

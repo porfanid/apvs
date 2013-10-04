@@ -18,6 +18,7 @@ import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class HistoryManager {
@@ -31,7 +32,7 @@ public class HistoryManager {
 	private ClientFactory clientFactory;
 	private RemoteEventBus eventBus;
 
-	private HistoryManager(ClientFactory clientFactory) {
+	private HistoryManager(ClientFactory clientFactory) throws SerializationException {
 		this.clientFactory = clientFactory;
 		this.eventBus = clientFactory.getRemoteEventBus();
 		
@@ -87,7 +88,8 @@ public class HistoryManager {
 				});
 	}
 
-	public static HistoryManager getInstance(ClientFactory clientFactory) {
+	public static HistoryManager getInstance(ClientFactory clientFactory)
+			throws SerializationException {
 		if (instance == null) {
 			instance = new HistoryManager(clientFactory);
 		}

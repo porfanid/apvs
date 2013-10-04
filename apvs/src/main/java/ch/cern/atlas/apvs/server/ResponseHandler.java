@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.atmosphere.gwt.poll.AtmospherePollService.SuspendInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ch.cern.atlas.apvs.eventbus.poll.AtmospherePollService.SuspendInfo;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
