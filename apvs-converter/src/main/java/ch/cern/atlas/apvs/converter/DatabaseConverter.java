@@ -19,7 +19,7 @@ public class DatabaseConverter {
 	}
 
 	public void run() {
-
+		System.out.println("START run()");
 		long count = database.getCount(Measurement.class);
 		System.out.println("Found: " + count + " records");
 
@@ -40,7 +40,7 @@ public class DatabaseConverter {
 				// Do something with filter here...
 
 				if (i % 10000 == 0) {
-					System.out.println("Handled " + i + " records");
+					System.out.println("OK Handled " + i + " records");
 
 					// print something here every 10000 records
 					System.err.println(m);
