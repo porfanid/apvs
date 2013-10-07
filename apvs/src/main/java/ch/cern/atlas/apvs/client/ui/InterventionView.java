@@ -34,13 +34,13 @@ import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.InetAddress;
 import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.User;
-import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Label;
@@ -217,7 +217,7 @@ public class InterventionView extends GlassPanel implements Module {
 		startTime = new ClickableTextColumn<Intervention>() {
 			@Override
 			public String getValue(Intervention object) {
-				return PtuClientConstants.dateFormatNoSeconds.format(object
+				return ClientConstants.dateFormatNoSeconds.format(object
 						.getStartTime());
 			}
 
@@ -253,7 +253,7 @@ public class InterventionView extends GlassPanel implements Module {
 				cell) {
 			@Override
 			public String getValue(Intervention object) {
-				return object.getEndTime() != null ? PtuClientConstants.dateFormatNoSeconds
+				return object.getEndTime() != null ? ClientConstants.dateFormatNoSeconds
 						.format(object.getEndTime()) : clientFactory.isSupervisor() ? END_INTERVENTION : ONGOING_INTERVENTION;
 			}
 

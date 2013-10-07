@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -172,7 +172,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 				});
 			}
 			date.setHTML(decorate(
-					PtuClientConstants.dateFormat.format(measurement.getDate()),
+					ClientConstants.dateFormat.format(measurement.getDate()),
 					measurement));
 			// unit.HorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 			table.setWidget(row, col++, date);

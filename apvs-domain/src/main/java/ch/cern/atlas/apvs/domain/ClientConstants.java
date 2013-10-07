@@ -1,8 +1,11 @@
-package ch.cern.atlas.apvs.ptu.shared;
+package ch.cern.atlas.apvs.domain;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.TimeZone;
 
-public interface PtuClientConstants {
+public interface ClientConstants {
+	public static final TimeZone timeZone = TimeZone.createTimeZone("CEST");
+	public static final DateTimeFormat simpleDateFormat = DateTimeFormat.getFormat("dd/MM/yyyy HH:mm:ss");
 	public static final DateTimeFormat dateFormat = DateTimeFormat.getFormat("dd MMM yyyy HH:mm:ss");
 	public static final DateTimeFormat dateFormatNoSeconds = DateTimeFormat.getFormat("dd MMM yyyy HH:mm");
 	public static final DateTimeFormat dateFormatShort = DateTimeFormat.getFormat("dd MMM HH:mm");

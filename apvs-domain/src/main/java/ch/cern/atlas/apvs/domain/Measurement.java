@@ -256,7 +256,8 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	public String toString() {
 		return "Measurement(" + getDevice().getName() + "): sensor:" + getSensor() + ", value:"
 				+ getValue() + ", unit:" + getUnit() + ", sampling rate:"
-				+ getSamplingRate() + ", date:" + getDate();
+				+ getSamplingRate();
+		// removed Date, too difficult
 	}
 
 	public static String getDisplayName(String name) {

@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.InterventionMap;
@@ -17,7 +18,6 @@ import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -191,7 +191,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		}
 		// Add date in tooltip
 		s = "<div title=\""
-				+ PtuClientConstants.dateFormat.format(current.getDate())
+				+ ClientConstants.dateFormat.format(current.getDate())
 				+ "\">" + s + "</div>";
 		return SafeHtmlUtils.fromSafeConstant(s);
 	}

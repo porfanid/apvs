@@ -14,6 +14,7 @@ import ch.cern.atlas.apvs.client.widget.DurationCell;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.domain.InterventionMap;
@@ -21,7 +22,6 @@ import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
-import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.DateCell;
@@ -113,7 +113,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 		table.addColumn(name, showHeader ? new TextHeader("Name") : null);
 
 		EditableCell cell = new EditableCell(classes, 50);
-		cell.setDateFormat(PtuClientConstants.dateFormatNoSeconds);
+		cell.setDateFormat(ClientConstants.dateFormatNoSeconds);
 		cell.setEnabled(false);
 		Column<String, Object> column = new Column<String, Object>(cell) {
 			public String getCause(String name) {

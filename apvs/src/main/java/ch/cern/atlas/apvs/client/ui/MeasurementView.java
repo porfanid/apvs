@@ -11,8 +11,8 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
+import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -237,7 +237,7 @@ public class MeasurementView extends AbstractMeasurementView {
 			public String getValue(String name) {
 				Measurement measurement = history
 						.getMeasurement(ptu, name);
-				return measurement != null ? PtuClientConstants.dateFormat
+				return measurement != null ? ClientConstants.dateFormat
 						.format(measurement.getDate()) : "";
 			}
 

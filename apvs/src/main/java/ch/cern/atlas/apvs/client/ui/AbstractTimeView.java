@@ -30,8 +30,8 @@ import org.moxieapps.gwt.highcharts.client.plotOptions.Marker;
 import org.moxieapps.gwt.highcharts.client.plotOptions.SeriesPlotOptions;
 
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
+import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Device;
-import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
@@ -263,7 +263,7 @@ public class AbstractTimeView extends GlassPanel {
 			postfix = "</i>";
 		}
 
-		String dateTime = PtuClientConstants.timeFormat.format(date);
+		String dateTime = ClientConstants.timeFormat.format(date);
 		if ((time < yesterday) || (time > tomorrow)) {
 			if (date.getYear() == today.getYear()) {
 				dateTime += newline + ddMMM.format(date);

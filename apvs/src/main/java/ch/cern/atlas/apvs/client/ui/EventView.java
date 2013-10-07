@@ -18,13 +18,13 @@ import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
-import ch.cern.atlas.apvs.ptu.shared.PtuClientConstants;
 
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell.Context;
@@ -291,7 +291,7 @@ public class EventView extends GlassPanel implements Module {
 		date = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return PtuClientConstants.dateFormat.format(object.getDate());
+				return ClientConstants.dateFormat.format(object.getDate());
 			}
 
 			@Override
