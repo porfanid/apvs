@@ -96,7 +96,6 @@
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-log4jdbc</module>
-		<module>apvs-ojdbc</module>
 		<module>apvs-ptu</module>
 		<module>apvs-server-connector</module>
   </modules>
@@ -120,6 +119,12 @@
 			<modules>
 				<module>apvs-dist</module>
 				<module>apvs-nettosphere</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>oracle</id>
+			<modules>
+				<module>apvs-ojdbc</module>
 			</modules>
 		</profile>
 	</profiles>

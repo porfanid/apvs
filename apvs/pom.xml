@@ -323,6 +323,17 @@
 				</plugins>
 			</build>
 		</profile>
+
+      <profile>
+        <id>oracle</id>
+        <dependencies>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc</artifactId>
+		</dependency>
+	</dependencies>
+      </profile>
+
 	</profiles>
 </project>
 

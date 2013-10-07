@@ -62,14 +62,10 @@
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc</artifactId>
-		</dependency>
-                       <dependency>
-                                <groupId>mysql</groupId>
-                                <artifactId>mysql-connector-java</artifactId>
-                        </dependency>
+                <dependency>
+                         <groupId>mysql</groupId>
+                         <artifactId>mysql-connector-java</artifactId>
+                </dependency>
 		<dependency>
 			<groupId>net.sf</groupId>
 			<artifactId>log4jdbc4</artifactId>
@@ -92,6 +88,19 @@
 			<artifactId>slf4j-jdk14</artifactId>
 		</dependency>
 	</dependencies>
+
+    <profiles>
+      <profile>
+        <id>oracle</id>
+        <dependencies>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc</artifactId>
+		</dependency>
+	</dependencies>
+      </profile>
+    </profiles>
+
 
 </project>
 

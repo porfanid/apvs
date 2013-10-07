@@ -54,10 +54,6 @@
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc</artifactId>
-		</dependency>
                        <dependency>
                                 <groupId>mysql</groupId>
                                 <artifactId>mysql-connector-java</artifactId>
@@ -76,6 +72,19 @@
 			<artifactId>slf4j-jdk14</artifactId>
 		</dependency>
 	</dependencies>
+
+
+   <profiles>
+      <profile>
+        <id>oracle</id>
+        <dependencies>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc</artifactId>
+		</dependency>
+	</dependencies>
+      </profile>
+    </profiles>
 
 </project>
 
