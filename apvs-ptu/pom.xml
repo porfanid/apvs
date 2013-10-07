@@ -73,20 +73,12 @@
 			<artifactId>apvs-log4jdbc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-ojdbc</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.cedarsoftware</groupId>
 			<artifactId>apvs-json-io</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
