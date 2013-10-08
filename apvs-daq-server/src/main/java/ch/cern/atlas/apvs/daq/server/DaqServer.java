@@ -53,7 +53,7 @@ public class DaqServer {
 	public void run() {
 		database = Database.getInstance();
 
-		Map<String, Device> devices = database.getDeviceMap();
+		final Map<String, Device> devices = database.getDeviceMap();
 		Map<Device, Map<String, List<Measurement>>> lastMeasurements = database
 				.getLastMeasurements(2);
 
