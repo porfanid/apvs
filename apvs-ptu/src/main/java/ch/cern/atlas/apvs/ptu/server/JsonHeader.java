@@ -64,6 +64,12 @@ public class JsonHeader {
 	}
 	
 	public String toString() {
-		return "JSON "+getSender()+" "+getReceiver()+" "+getFrameId()+" "+getAcknowledge()+" "+messages.size();
+		StringBuffer s = new StringBuffer("JSON "+getSender()+" "+getReceiver()+" "+getFrameId()+" "+getAcknowledge()+" "+messages.size());
+		for (JsonMessage m: messages) {
+			s.append("\n");
+			s.append("-");
+			s.append(m.toString());
+		}
+		return s.toString();
 	}
 }
