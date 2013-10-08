@@ -35,7 +35,6 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 
 			@Override
 			public void onMessageReceived(MessageEvent event) {
-				log.info("MSG received "+event);
 				if (event.getPrefix().equals(prefix)) {
 					return;
 				}
@@ -70,7 +69,7 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 	public void channelRead0(ChannelHandlerContext ctx, Packet packet)
 			throws Exception {
 
-		System.err.println("&&& "+prefix + " '" + packet + "'");
+//		System.err.println("&&& "+prefix + " '" + packet + "'");
 		bus.fireEvent(new MessageEvent(prefix, packet));
 	}
 

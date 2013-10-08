@@ -91,7 +91,7 @@ public class DaqServer {
 				protected void initChannel(SocketChannel ch) throws Exception {
 					ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
 					ch.pipeline().addLast(new RemoveDelimiterDecoder());
-					ch.pipeline().addLast(new JsonMessageDecoder());
+					ch.pipeline().addLast(new JsonMessageDecoder(devices));
 					ch.pipeline().addLast(new JsonMessageEncoder());
 					ch.pipeline().addLast(new MessageToBus("IN", bus));
 				}
@@ -112,7 +112,7 @@ public class DaqServer {
 				protected void initChannel(SocketChannel ch) throws Exception {
 					ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
 					ch.pipeline().addLast(new RemoveDelimiterDecoder());
-					ch.pipeline().addLast(new JsonMessageDecoder());
+					ch.pipeline().addLast(new JsonMessageDecoder(devices));
 					ch.pipeline().addLast(new JsonMessageEncoder());
 					ch.pipeline().addLast(new MessageToBus("OUT", bus));
 				}
