@@ -80,9 +80,7 @@ public class Database {
 		// new SchemaExport(configuration).create(true, false);
 
 		try {
-			if (checkUpdate) {
-				checkUpdate();	
-			}
+			checkUpdateAndConnection();	
 			readInterventions(true);
 		} catch (HibernateException e1) {
 			log.warn("Problem", e1);
@@ -126,10 +124,10 @@ public class Database {
 			@Override
 			public void run() {
 				try {
-					if (checkUpdate && !checkUpdate()) {
-						log.warn("DB no longer updated");
+					if (!checkUpdateAndConnection() && checkUpdate) {
+						log.warn("DB "+updatedCause);
 					} else if (!isConnected()) {
-						log.warn("DB no longer reachable");
+						log.warn("DB "+connectedCause);
 					}
 				} catch (HibernateException e) {
 					log.warn("Could not update or reach DB: ",
@@ -140,7 +138,7 @@ public class Database {
 		}, 0, 30, TimeUnit.SECONDS);
 	}
 
-	private boolean checkUpdate() throws HibernateException {
+	private boolean checkUpdateAndConnection() throws HibernateException {
 
 		Ternary wasConnected = connected;
 		Ternary wasUpdated = updated;

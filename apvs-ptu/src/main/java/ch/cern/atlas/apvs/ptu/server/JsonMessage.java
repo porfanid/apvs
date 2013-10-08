@@ -196,6 +196,10 @@ public class JsonMessage {
 			return null;
 		}
 	}
+	
+	public String toString() {
+		return msg.toString();
+	}
 
 	@SuppressWarnings("unused")
 	private String limit(String value, int length) {
