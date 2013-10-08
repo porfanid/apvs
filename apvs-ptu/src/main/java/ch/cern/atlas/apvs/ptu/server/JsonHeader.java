@@ -50,4 +50,20 @@ public class JsonHeader {
 	public String getSender() {
 		return sender;
 	}
+	
+	public String getReceiver() {
+		return receiver;
+	}
+	
+	public int getFrameId() {
+		return frameID;
+	}
+	
+	public boolean getAcknowledge() {
+		return acknowledge;
+	}
+	
+	public String toString() {
+		return "JSON "+getSender()+" "+getReceiver()+" "+getFrameId()+" "+getAcknowledge()+" "+messages.size();
+	}
 }
