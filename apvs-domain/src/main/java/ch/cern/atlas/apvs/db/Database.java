@@ -55,14 +55,15 @@ public class Database {
 	private SessionFactory sessionFactory;
 
 	private RemoteEventBus eventBus;
+
 	private Ternary connected = Ternary.Unknown;
 	private String connectedCause = "Not Connected Yet";
 	private Ternary updated = Ternary.Unknown;
 	private String updatedCause = "Not Verified Yet";
 
 	private InterventionMap interventions = new InterventionMap();
-
-	private Database(final RemoteEventBus eventBus) {
+	
+	private Database(final RemoteEventBus eventBus, final boolean checkUpdate) {
 		this.eventBus = eventBus;
 
 		configuration = new Configuration();
@@ -79,7 +80,9 @@ public class Database {
 		// new SchemaExport(configuration).create(true, false);
 
 		try {
-			checkUpdate();
+			if (checkUpdate) {
+				checkUpdate();	
+			}
 			readInterventions(true);
 		} catch (HibernateException e1) {
 			log.warn("Problem", e1);
@@ -123,14 +126,13 @@ public class Database {
 			@Override
 			public void run() {
 				try {
-					// rereadInterventions();
-					if (!checkUpdate()) {
+					if (checkUpdate && !checkUpdate()) {
 						log.warn("DB no longer updated");
 					} else if (!isConnected()) {
 						log.warn("DB no longer reachable");
 					}
 				} catch (HibernateException e) {
-					log.warn("Could not regularly-update intervention list: ",
+					log.warn("Could not update or reach DB: ",
 							e);
 				}
 
@@ -230,9 +232,13 @@ public class Database {
 		}
 	}
 
-	public static Database getInstance(RemoteEventBus eventBus) {
+	public static Database getInstance() {
+		return getInstance(null, false);
+	}
+	
+	public static Database getInstance(RemoteEventBus eventBus, boolean checkUpdate) {
 		if (instance == null) {
-			instance = new Database(eventBus);
+			instance = new Database(eventBus, checkUpdate);
 		}
 		return instance;
 	}

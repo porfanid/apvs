@@ -15,7 +15,7 @@ public class DatabaseConverter {
 	private Database database;
 
 	public DatabaseConverter() {
-		database = Database.getInstance(null);
+		database = Database.getInstance();
 	}
 
 	public void run() {

@@ -61,7 +61,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 		log.info("Starting PtuService...");
 
-		database = Database.getInstance(eventBus);
+		database = Database.getInstance(eventBus, true);
 
 		EventLoopGroup group = new NioEventLoopGroup();
 

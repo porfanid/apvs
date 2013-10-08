@@ -83,7 +83,7 @@ public class ServerSettingsStorage {
 			settings.put(key, store.getString(APVS_SERVER_SETTINGS+"."+key));
 		}
 		
-		settings.put(ServerSettings.Entry.databaseUrl.toString(), Database.getInstance(eventBus).getConfiguration().getProperty("connection.url"));
+		settings.put(ServerSettings.Entry.databaseUrl.toString(), Database.getInstance(eventBus, true).getConfiguration().getProperty("connection.url"));
 
 		log.info("Server Settings Read");
 

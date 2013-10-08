@@ -26,7 +26,6 @@ import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.SortOrder;
-import ch.cern.atlas.apvs.domain.User;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageDecoder;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageEncoder;
 import ch.cern.atlas.apvs.ptu.server.MessageEvent;
@@ -52,7 +51,7 @@ public class DaqServer {
 	}
 
 	public void run() {
-		database = Database.getInstance(null);
+		database = Database.getInstance();
 
 		Map<String, Device> devices = database.getDeviceMap();
 		Map<Device, Map<String, List<Measurement>>> lastMeasurements = database

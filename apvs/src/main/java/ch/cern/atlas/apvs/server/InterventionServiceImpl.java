@@ -28,7 +28,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		
-		database = Database.getInstance(APVSServerFactory.getInstance().getEventBus());
+		database = Database.getInstance(APVSServerFactory.getInstance().getEventBus(), true);
 	}
 	
 	@Override
