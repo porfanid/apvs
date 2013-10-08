@@ -12,7 +12,7 @@
 	<name>APVS ojdbc</name>
 
 	<build>
-		<plugins>
+ 	  <plugins>
             <plugin>
                 <artifactId>maven-install-plugin</artifactId>
 		<executions>
@@ -23,7 +23,7 @@
 					<artifactId>ojdbc</artifactId>
 					<version>${ojdbc-version}</version>
 					<packaging>jar</packaging>
-					<file>ojdbc6-${ojdbc-version}.jar</file>
+					<file>ojdbc6.jar</file>
 				</configuration>
 				<goals>
 					<goal>install-file</goal>
@@ -31,9 +31,8 @@
 				<phase>install</phase>
 			</execution>
 		</executions>
-            </plugin>
-            		
-		</plugins>
+	    </plugin>
+          </plugins>
 	</build>
 </project>
 

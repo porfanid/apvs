@@ -92,11 +92,20 @@
     <profiles>
       <profile>
         <id>oracle</id>
+        <activation>
+                <file>
+                        <exists>../apvs-ojdbc/ojdbc6.jar</exists>
+                </file>
+        </activation>
         <dependencies>
 		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc</artifactId>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-ojdbc</artifactId>
 		</dependency>
+                <dependency>
+                        <groupId>com.oracle</groupId>
+                        <artifactId>ojdbc</artifactId>
+                </dependency>
 	</dependencies>
       </profile>
     </profiles>
