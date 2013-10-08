@@ -10,6 +10,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.domain.Packet;
+
 public class JsonMessageDecoder extends ReplayingDecoder<Void> {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -21,8 +23,10 @@ public class JsonMessageDecoder extends ReplayingDecoder<Void> {
 			ByteBufInputStream is = new ByteBufInputStream(in);
 			// System.err.println("RIN/WIN: "+in.readerIndex()+" "+in.writerIndex());
 			PtuJsonReader reader = new PtuJsonReader(is);
-			Object packet = reader.readObject();
-			log.info("*** " + packet);
+			JsonHeader header = (JsonHeader)reader.readObject();
+			log.info("*** " + header);
+			Packet packet = new Packet(header.getSender(), header.getReceiver(), header.getFrameId(), header.getAcknowledge());
+			// FIXME add messages
 			out.add(packet);
 			reader.close();
 		}
