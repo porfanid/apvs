@@ -15,9 +15,9 @@ of simulators to mimic the DAQ behaviour and run the system without APVS DAQ.
 
 More info on maven: http://maven.apache.org/guides/getting-started/index.html 
 
-### Install ojdbc driver
+### Install ojdbc driver (Oracle only)
 
-Download ojdb6.jar from www.oracle.com and install in apvs-ojdbc/ojdbc6-<version>.jar
+Download ojdb6.jar from www.oracle.com and install in apvs-ojdbc/ojdbc6.jar
 
 ## Building
 
