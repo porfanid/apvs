@@ -35,6 +35,7 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 
 			@Override
 			public void onMessageReceived(MessageEvent event) {
+				log.info("MSG "+event);
 				if (event.getPrefix().equals(prefix)) {
 					return;
 				}

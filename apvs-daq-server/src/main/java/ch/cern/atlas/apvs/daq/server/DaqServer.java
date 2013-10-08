@@ -132,7 +132,7 @@ public class DaqServer {
 
 				@Override
 				public void onMessageReceived(MessageEvent event) {
-					log.info("" + event);
+					log.info("log " + event);
 				}
 			});
 
