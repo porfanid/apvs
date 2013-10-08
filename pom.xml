@@ -123,6 +123,9 @@
 		</profile>
 		<profile>
 			<id>oracle</id>
+			<activation>
+      				<activeByDefault>true</activeByDefault>
+    			</activation>
 			<modules>
 				<module>apvs-ojdbc</module>
 			</modules>
