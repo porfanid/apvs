@@ -131,7 +131,7 @@ public class DaqServer {
 
 				@Override
 				public void onMessageReceived(MessageEvent event) {
-					log.info("log " + event);
+					log.info("BUS " + event);
 				}
 			});
 
