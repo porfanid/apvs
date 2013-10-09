@@ -11,10 +11,13 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.db.Database;
+import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageDecoder;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageEncoder;
 import ch.cern.atlas.apvs.ptu.server.MessageEvent;
@@ -42,6 +45,8 @@ public class ServerConnector {
 	}
 		
 	public void run() {
+		Database database = Database.getInstance();
+		final Map<String, Device> devices = database.getDeviceMap();
 
 		final EventBus bus = new SimpleEventBus();
 
@@ -64,7 +69,7 @@ public class ServerConnector {
 					}
 				});
 				ch.pipeline().addLast(new RemoveDelimiterDecoder());
-				ch.pipeline().addLast(new JsonMessageDecoder());
+				ch.pipeline().addLast(new JsonMessageDecoder(devices));
 				ch.pipeline().addLast(new JsonMessageEncoder());
 				ch.pipeline().addLast(new MessageToBus("DOWN", bus));
 			}
@@ -79,7 +84,7 @@ public class ServerConnector {
 			protected void initChannel(SocketChannel ch) throws Exception {
 				ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
 				ch.pipeline().addLast(new RemoveDelimiterDecoder());
-				ch.pipeline().addLast(new JsonMessageDecoder());
+				ch.pipeline().addLast(new JsonMessageDecoder(devices));
 				ch.pipeline().addLast(new JsonMessageEncoder());
 				ch.pipeline().addLast(new MessageToBus("UP", bus));
 			}
