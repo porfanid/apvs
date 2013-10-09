@@ -8,6 +8,7 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.util.CharsetUtil;
 import ch.cern.atlas.apvs.domain.Packet;
 
 public class JsonMessageEncoder extends MessageToByteEncoder<Packet> {
@@ -26,6 +27,6 @@ public class JsonMessageEncoder extends MessageToByteEncoder<Packet> {
 		writer.write(packet);
 		writer.close();
 		out.writeBytes(encoded);
-		log.info("Written "+packet+" "+encoded);
+		log.info("Written "+packet+" "+encoded.toString(CharsetUtil.UTF_8));
 	}
 }
