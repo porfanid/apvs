@@ -23,7 +23,7 @@ import ch.cern.atlas.apvs.domain.Report;
 
 public class PtuSimulator extends Thread {
 
-	private static final boolean DEBUG_PARTIAL_MESSAGES = false;
+	private static boolean DEBUG_PARTIAL_MESSAGES = false;
 	
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
@@ -57,7 +57,7 @@ public class PtuSimulator extends Thread {
 
 			Device device = new Device(ptuId, InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
 			ptu = new Ptu(device);
-			log.info("Creating " + ptuId);
+			log.info("Creating " + ptuId+" delay "+(defaultWait/1000)+"s");
 
 			try {
 				ptu.addMeasurement(new Temperature(device, 25.7, start));
@@ -109,8 +109,9 @@ public class PtuSimulator extends Thread {
 					}
 					
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
-					System.out.print(".");
-					System.out.flush();
+					System.out.println(json);
+//					System.out.print(".");
+//					System.out.flush();
 					i++;
 				}
 			} catch (InterruptedException e) {
