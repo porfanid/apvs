@@ -1,11 +1,15 @@
 Origin: http://www.moxiegroup.com/moxieapps/gwt-highcharts/
 
-* highcharts 3.0.2
-* highstock 1.3.2
+* highcharts 3.0.6
+* highstock 1.3.6
 
 * One needs to copy the "js" directory from the Highcharts-x.x.zip file over to 
   ../apvs/src/main/webapp/highcharts
 
+cp -r Highcharts-3/js/* ../apvs/src/main/webapp/highcharts
+
 * One needs to copy the "js" directory from the Highstock-x.x.zip file over to 
   ../apvs-player/src/main/webapp/highstock
+
+cp -r Highstock-1/js/* ../apvs-player/src/main/webapp/highstock
 
