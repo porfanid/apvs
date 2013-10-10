@@ -38,9 +38,9 @@
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
 		<highcharts-version>1.5.0</highcharts-version>
 		<hudson-gwt-slf4j-version>2.2.0</hudson-gwt-slf4j-version>
-		<javassist-version>3.18.0-GA</javassist-version>
+		<javassist-version>3.18.1-GA</javassist-version>
 		<javax.servlet-api-version>3.1.0</javax.servlet-api-version>
-		<jdk-version>1.6</jdk-version>
+		<jdk-version>1.7</jdk-version>
 		<jetty9-version>9.0.3.v20130506</jetty9-version>
 		<jetty8-version>8.1.11.v20130520</jetty8-version>
 		<jetty7-version>7.6.11.v20130520</jetty7-version>
@@ -50,10 +50,10 @@
 		<logback-version>1.0.13</logback-version>
 		<log4jdbc-version>1.2</log4jdbc-version>
 		<mockito-version>1.9.5</mockito-version>
-		<gwtmockito-version>1.1.0</gwtmockito-version>
+		<gwtmockito-version>1.1.1</gwtmockito-version>
 		<mysql-version>5.1.26</mysql-version>
-		<netty-version>4.0.9.Final</netty-version>
-		<nettosphere-version>2.0.0</nettosphere-version>
+		<netty-version>4.0.10.Final</netty-version>
+		<nettosphere-version>2.0.1</nettosphere-version>
 		<ojdbc-jar>ojdbc6.jar</ojdbc-jar>
 		<ojdbc-version>11.2.0.4</ojdbc-version>
 		<servlet-api-version>3.0.0.v201112011016</servlet-api-version>
