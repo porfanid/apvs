@@ -658,7 +658,7 @@ public class JsonReader implements Closeable
 //        try
 //        {
 //            _in = new FastPushbackReader(new BufferedReader(new InputStreamReader(in, "UTF-8")));
-            _in = new FastPushbackReader2(in);
+            _in = new NoBufferPushbackReader(in);
 //        }
 //        catch (UnsupportedEncodingException e)
 //        {
@@ -2345,7 +2345,7 @@ public class JsonReader implements Closeable
      * PushbackReader.  This is due to this class not using syncrhonization
      * as it is not needed.
      */
-    private static class FastPushbackReader extends FilterReader
+    public static class FastPushbackReader extends FilterReader
     {
         protected final int[] _buf;
         protected int _idx;
@@ -2362,7 +2362,7 @@ public class JsonReader implements Closeable
             _idx = size;
         }
 
-        private FastPushbackReader(Reader r)
+        protected FastPushbackReader(Reader r)
         {
             this(r, 1);
         }
@@ -2405,51 +2405,5 @@ public class JsonReader implements Closeable
             super.close();
             _pos = 0;
         }
-    }
-    
-    /** 
-     * Same as above but based on simple InputStream withou buffer
-     * 
-     * @author duns
-     *
-     */
-    private static class FastPushbackReader2 extends FastPushbackReader {
-         
-        private InputStream in;
-
-    	private FastPushbackReader2(InputStream in) {
-    		super(new Reader() {
-
-				@Override
-				public void close() throws IOException {
-					// ignored
-				}
-
-				@Override
-				public int read(char[] arg0, int arg1, int arg2)
-						throws IOException {
-					return 0;
-				}
-    			
-    		});	// Fake object...
-    		this.in = in;
-    	}
-    	
-        public int read() throws IOException
-        {
-            _pos++;
-            if (_idx < _buf.length)
-            {
-                return _buf[_idx++];
-            }
-            return in.read();
-        }
-
-        public void close() throws IOException
-        {
-            in.close();
-            _pos = 0;
-        }
-   	
     }
 }
