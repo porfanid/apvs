@@ -35,7 +35,7 @@ public class PtuJsonTest {
 			+ "{\"Time\":\"04/07/2013 15:42:53\",\"Value\":\"33.19684099267707\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":null,\"Type\":\"Measurement\"},"
 			+ "{\"Time\":\"04/07/2013 21:16:13\",\"Value\":\"35.45927608218701\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":null,\"Type\":\"Measurement\"}"
 			+ "]}";
-
+	
 	@Test
 	public void readerTest() throws IOException {
 		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");

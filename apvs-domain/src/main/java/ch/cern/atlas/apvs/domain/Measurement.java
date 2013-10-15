@@ -44,7 +44,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	private Boolean connected;
 
 	private volatile transient String displayName;
-	private transient String type = "Measurement";
+	private String type = "Measurement";
 
 	protected Measurement() {
 	}

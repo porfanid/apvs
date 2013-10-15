@@ -1,10 +1,18 @@
-svn checkout http://json-io.googlecode.com/svn/trunk/ json-io
+git clone https://github.com/jdereg/json-io.git
 
-- src/main/java and test directory from svn
-- version r25 | jdereg@gmail.com | 2013-01-21 15:18:40 +0100 (Mon, 21 Jan 2013)
+- src/main/java and test directory from github
+- version 71e1bfa4143758d1aab1b901cb73588d8b1d8ce8
+
+JsonWriter
 - make writeImpl, writePrimitive and _out protected
-- line 1628, skip VOLATILE: if (((field.getModifiers() & Modifier.STATIC) == 0) && ((field.getModifiers() & Modifier.VOLATILE) == 0))
-- line 1504, call writeFieldName, to capitalize and change some names: writeFieldName(field.getName(), out);
-- line 663 changed to use FastPushbackReader2 (based on InputStream without StreamDecoder which buffer)
-- added FastPushbackReader2 at the end of the file
-- change the test and comment lines: 1782, 2492, 2494 and 2555-2558 as these the inputstream is no longer UTF-8 encoded... and works only for ascii
+- line 1549, call writeFieldName instead of writeJsonUtf8String, 
+  to capitalize and change some names: writeFieldName(entry.getKey(), out);
+- add method writeFieldName...
+- line 1679, skip VOLATILE: if (((field.getModifiers() & Modifier.STATIC) == 0) && ((field.getModifiers() & Modifier.VOLATILE) == 0))
+
+JsonReader
+- line 688 changed to use NoBufferPushbackReader (based on InputStream without StreamDecoder which buffer), and remove try catch block
+- line 2424 make FastPushbackReader protected, its second ctor, and all instance vars
+
+TestJsonReaderWriter
+- change the test and comment lines: 1800, 2498, 2500 and 2560-2563 as these the inputstream is no longer UTF-8 encoded... and works only for ascii

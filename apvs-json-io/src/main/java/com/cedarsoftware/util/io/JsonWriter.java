@@ -1,7 +1,5 @@
 package com.cedarsoftware.util.io;
 
-import com.cedarsoftware.util.SafeSimpleDateFormat;
-
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -17,6 +15,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -84,21 +83,28 @@ public class JsonWriter implements Closeable, Flushable
     private static Object[] _byteStrings = new Object[256];
     protected final Writer _out;
     private long _identity = 1;
-    static SafeSimpleDateFormat _dateFormat = new SafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    static final ThreadLocal<SimpleDateFormat> _dateFormat = new ThreadLocal<SimpleDateFormat>()
+    {
+        public SimpleDateFormat initialValue()
+        {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        }
+    };
 
     static
     {   // Add customer writers (these make common classes more succinct)
         addWriter(String.class, new JsonStringWriter());
         addWriter(Date.class, new DateWriter());
-        addWriter(Timestamp.class, new TimestampWriter());
         addWriter(BigInteger.class, new BigIntegerWriter());
         addWriter(BigDecimal.class, new BigDecimalWriter());
-        addWriter(TimeZone.class, new TimeZoneWriter());
+        addWriter(java.sql.Date.class, new SqlDateWriter());
+        addWriter(Timestamp.class, new TimestampWriter());
         addWriter(Calendar.class, new CalendarWriter());
+        addWriter(TimeZone.class, new TimeZoneWriter());
         addWriter(Locale.class, new LocaleWriter());
+        addWriter(Class.class, new ClassWriter());
         addWriter(StringBuilder.class, new StringBuilderWriter());
         addWriter(StringBuffer.class, new StringBufferWriter());
-        addWriter(Class.class, new ClassWriter());
     }
 
     public interface JsonClassWriter
@@ -155,6 +161,11 @@ public class JsonWriter implements Closeable, Flushable
         for (Object[] item : _writers)
         {
             Class clz = (Class)item[0];
+            if (clz == arrayComponentClass)
+            {
+                closestWriter = (JsonClassWriter)item[1];
+                break;
+            }
             int distance = getDistance(clz, arrayComponentClass);
             if (distance < minDistance)
             {
@@ -174,7 +185,7 @@ public class JsonWriter implements Closeable, Flushable
         }
 
         boolean referenced = _objsReferenced.containsKey(o);
-        
+
         if (!referenced && !showType && closestWriter.hasPrimitiveForm())
         {
             closestWriter.writePrimitiveForm(o, out);
@@ -211,7 +222,7 @@ public class JsonWriter implements Closeable, Flushable
         for (Object[] item : _writers)
         {
             Class clz = (Class)item[0];
-            if (clz.equals(c))
+            if (clz == c)
             {
                 item[1] = writer;   // Replace writer
                 return;
@@ -244,9 +255,9 @@ public class JsonWriter implements Closeable, Flushable
         public void write(Object obj, boolean showType, Writer out) throws IOException
         {
             Calendar cal = (Calendar) obj;
-            _dateFormat.setTimeZone(cal.getTimeZone());
+            _dateFormat.get().setTimeZone(cal.getTimeZone());
             out.write("\"time\":\"");
-            out.write(_dateFormat.format(cal.getTime()));
+            out.write(_dateFormat.get().format(cal.getTime()));
             out.write("\",\"zone\":\"");
             out.write(cal.getTimeZone().getID());
             out.write('"');
@@ -271,6 +282,40 @@ public class JsonWriter implements Closeable, Flushable
         {
             out.write(Long.toString(((Date) o).getTime()));
         }
+    }
+
+    public static class SqlDateWriter implements JsonClassWriter
+    {
+        public void write(Object obj, boolean showType, Writer out) throws IOException
+        {
+            String value = Long.toString(((Date) obj).getTime());
+            out.write("\"value\":");
+            out.write(value);
+        }
+
+        public boolean hasPrimitiveForm() { return true; }
+
+        public void writePrimitiveForm(Object o, Writer out) throws IOException
+        {
+            out.write(Long.toString(((java.sql.Date) o).getTime()));
+        }
+    }
+
+    public static class TimestampWriter implements JsonClassWriter
+    {
+        public void write(Object o, boolean showType, Writer out) throws IOException
+        {
+            Timestamp tstamp = (Timestamp) o;
+            out.write("\"time\":\"");
+            out.write(Long.toString((tstamp.getTime() / 1000) * 1000));
+            out.write("\",\"nanos\":\"");
+            out.write(Integer.toString(tstamp.getNanos()));
+            out.write('"');
+        }
+
+        public boolean hasPrimitiveForm() { return false; }
+
+        public void writePrimitiveForm(Object o, Writer out) throws IOException { }
     }
 
     public static class ClassWriter implements JsonClassWriter
@@ -408,23 +453,6 @@ public class JsonWriter implements Closeable, Flushable
         }
     }
 
-    public static class TimestampWriter implements JsonClassWriter
-    {
-        public void write(Object o, boolean showType, Writer out) throws IOException
-        {
-            Timestamp tstamp = (Timestamp) o;
-            out.write("\"time\":\"");
-            out.write(Long.toString((tstamp.getTime() / 1000) * 1000));
-            out.write("\",\"nanos\":\"");
-            out.write(Integer.toString(tstamp.getNanos()));
-            out.write('"');
-        }
-
-        public boolean hasPrimitiveForm() { return false; }
-
-        public void writePrimitiveForm(Object o, Writer out) throws IOException { }
-    }
-
     static
     {
         for (short i = -128; i <= 127; i++)
@@ -512,7 +540,7 @@ public class JsonWriter implements Closeable, Flushable
                 continue;
             }
 
-            if (!JsonReader.isPrimitive(obj.getClass()))
+            if (!JsonReader.isPrimitive(obj.getClass()) && !(obj instanceof String))
             {
                 Long id = visited.get(obj);
                 if (id != null)
@@ -528,7 +556,7 @@ public class JsonWriter implements Closeable, Flushable
             if (clazz.isArray())
             {
                 Class compType = clazz.getComponentType();
-                if (!JsonReader.isPrimitive(compType))
+                if (!JsonReader.isPrimitive(compType) && compType != String.class)
                 {   // Speed up: do not traceReferences of primitives, they cannot reference anything
                     final int len = Array.getLength(obj);
 
@@ -650,47 +678,47 @@ public class JsonWriter implements Closeable, Flushable
         out.write("\"@type\":\"");
         Class c = obj.getClass();
 
-        if (Boolean.class.equals(c))
+        if (Boolean.class == c)
         {
             out.write("boolean");
         }
-        else if (Byte.class.equals(c))
+        else if (Byte.class == c)
         {
             out.write("byte");
         }
-        else if (Short.class.equals(c))
+        else if (Short.class == c)
         {
             out.write("short");
         }
-        else if (Integer.class.equals(c))
+        else if (Integer.class == c)
         {
             out.write("int");
         }
-        else if (Long.class.equals(c))
+        else if (Long.class == c)
         {
             out.write("long");
         }
-        else if (Double.class.equals(c))
+        else if (Double.class == c)
         {
             out.write("double");
         }
-        else if (Float.class.equals(c))
+        else if (Float.class == c)
         {
             out.write("float");
         }
-        else if (Character.class.equals(c))
+        else if (Character.class == c)
         {
             out.write("char");
         }
-        else if (Date.class.equals(c))
+        else if (Date.class == c)
         {
             out.write("date");
         }
-        else if (Class.class.equals(c))
+        else if (Class.class == c)
         {
             out.write("class");
         }
-        else if (String.class.equals(c))
+        else if (String.class == c)
         {
             out.write("string");
         }
@@ -723,7 +751,7 @@ public class JsonWriter implements Closeable, Flushable
         Class arrayType = array.getClass();
         int len = Array.getLength(array);
         boolean referenced = _objsReferenced.containsKey(array);
-        boolean typeWritten = showType && !Object[].class.equals(arrayType);
+        boolean typeWritten = showType && !(Object[].class == arrayType);
 
         final Writer out = _out; // performance opt: place in final local for quicker access
         if (typeWritten || referenced)
@@ -770,35 +798,35 @@ public class JsonWriter implements Closeable, Flushable
         // Intentionally processing each primitive array type in separate
         // custom loop for speed. All of them could be handled using
         // reflective Array.get() but it is slower.  I chose speed over code length.
-        if (byte[].class.equals(arrayType))
+        if (byte[].class == arrayType)
         {
             writeByteArray((byte[]) array, lenMinus1);
         }
-        else if (char[].class.equals(arrayType))
+        else if (char[].class == arrayType)
         {
             writeJsonUtf8String(new String((char[]) array), out);
         }
-        else if (short[].class.equals(arrayType))
+        else if (short[].class == arrayType)
         {
             writeShortArray((short[]) array, lenMinus1);
         }
-        else if (int[].class.equals(arrayType))
+        else if (int[].class == arrayType)
         {
             writeIntArray((int[]) array, lenMinus1);
         }
-        else if (long[].class.equals(arrayType))
+        else if (long[].class == arrayType)
         {
             writeLongArray((long[]) array, lenMinus1);
         }
-        else if (float[].class.equals(arrayType))
+        else if (float[].class == arrayType)
         {
             writeFloatArray((float[]) array, lenMinus1);
         }
-        else if (double[].class.equals(arrayType))
+        else if (double[].class == arrayType)
         {
             writeDoubleArray((double[]) array, lenMinus1);
         }
-        else if (boolean[].class.equals(arrayType))
+        else if (boolean[].class == arrayType)
         {
             writeBooleanArray((boolean[]) array, lenMinus1);
         }
@@ -806,7 +834,7 @@ public class JsonWriter implements Closeable, Flushable
         {
             final Class componentClass = array.getClass().getComponentType();
             final boolean isPrimitiveArray = JsonReader.isPrimitive(componentClass);
-            final boolean isObjectArray = Object[].class.equals(arrayType);
+            final boolean isObjectArray = Object[].class == arrayType;
 
             for (int i = 0; i < len; i++)
             {
@@ -827,7 +855,7 @@ public class JsonWriter implements Closeable, Flushable
                 else if (writeArrayElementIfMatching(componentClass, value, false, out)) { }
                 else if (isObjectArray)
                 {
-                     if (writeIfMatching(value, true, out)) { }
+                    if (writeIfMatching(value, true, out)) { }
                     else
                     {
                         writeImpl(value, true);
@@ -836,7 +864,7 @@ public class JsonWriter implements Closeable, Flushable
                 else
                 {   // Specific Class-type arrays - only force type when
                     // the instance is derived from array base class.
-                    boolean forceType = !value.getClass().equals(componentClass);
+                    boolean forceType = !(value.getClass() == componentClass);
                     writeImpl(value, forceType);
                 }
 
@@ -937,13 +965,18 @@ public class JsonWriter implements Closeable, Flushable
         {
             return;
         }
+
         final Writer out = _out;
         boolean referenced = _objsReferenced.containsKey(col);
-
         boolean isEmpty = col.isEmpty();
-        if (referenced || showType || isEmpty)
+
+        if (referenced || showType)
         {
             out.write('{');
+        }
+        else if (isEmpty)
+        {
+            out.write('[');
         }
 
         if (referenced)
@@ -962,7 +995,14 @@ public class JsonWriter implements Closeable, Flushable
 
         if (isEmpty)
         {
-            out.write('}');
+            if (referenced || showType)
+            {
+                out.write('}');
+            }
+            else
+            {
+                out.write(']');
+            }
             return;
         }
 
@@ -1006,7 +1046,7 @@ public class JsonWriter implements Closeable, Flushable
         String type = jObj.type;
         Class arrayClass;
 
-        if (type == null || "[Ljava.lang.Object;".equals(type))
+        if (type == null || Object[].class.getName().equals(type))
         {
             arrayClass = Object[].class;
         }
@@ -1016,7 +1056,7 @@ public class JsonWriter implements Closeable, Flushable
         }
 
         final Writer out = _out;
-        final boolean isObjectArray = Object[].class.equals(arrayClass);
+        final boolean isObjectArray = Object[].class == arrayClass;
         final Class componentClass = arrayClass.getComponentType();
         boolean referenced = _objsReferenced.containsKey(jObj) && jObj.hasId();
         boolean typeWritten = showType && !isObjectArray;
@@ -1072,7 +1112,7 @@ public class JsonWriter implements Closeable, Flushable
             {
                 out.write("null");
             }
-            else if (Character.class.equals(componentClass) || char.class.equals(componentClass))
+            else if (Character.class == componentClass || char.class == componentClass)
             {
                 writeJsonUtf8String((String) value, out);
             }
@@ -1096,7 +1136,7 @@ public class JsonWriter implements Closeable, Flushable
             else
             {   // Specific Class-type arrays - only force type when
                 // the instance is derived from array base class.
-                boolean forceType = !value.getClass().equals(componentClass);
+                boolean forceType = !(value.getClass() == componentClass);
                 writeImpl(value, forceType);
             }
 
@@ -1196,7 +1236,7 @@ public class JsonWriter implements Closeable, Flushable
         out.write('{');
         if (referenced)
         {
-            writeId(String.valueOf(jObj.id));
+            writeId(String.valueOf(jObj.getId()));
         }
 
         if (showType)
@@ -1205,7 +1245,7 @@ public class JsonWriter implements Closeable, Flushable
             {
                 out.write(',');
             }
-            String type = jObj.type;
+            String type = jObj.getType();
             if (type != null)
             {
                 Class mapClass = JsonReader.classForName2(type);
@@ -1349,7 +1389,7 @@ public class JsonWriter implements Closeable, Flushable
         {
             ClassMeta meta = getDeepDeclaredFields(type);
             Field field = meta.get(fieldName);
-            return value.getClass().equals(field.getType());
+            return field != null && (value.getClass() == field.getType());
         }
         return false;
     }
@@ -1490,8 +1530,13 @@ public class JsonWriter implements Closeable, Flushable
             first = false;
         }
 
-        for (Field field : classInfo.values())
+        for (Map.Entry<String, Field> entry : classInfo.entrySet())
         {
+            Field field = entry.getValue();
+            if ((field.getModifiers() & Modifier.TRANSIENT) != 0)
+            {   // Do not write transient fields
+                continue;
+            }
             if (first)
             {
                 first = false;
@@ -1501,8 +1546,8 @@ public class JsonWriter implements Closeable, Flushable
                 out.write(',');
             }
 
-            writeFieldName(field.getName(), out);
-//            writeJsonUtf8String(field.getName(), out);
+            writeFieldName(entry.getKey(), out);
+//            writeJsonUtf8String(entry.getKey(), out);
             out.write(':');
 
             Object o;
@@ -1523,7 +1568,7 @@ public class JsonWriter implements Closeable, Flushable
 
             Class type = field.getType();
             boolean forceType = o.getClass() != type;     // If types are not exactly the same, write "@type" field
-            
+
             if (JsonReader.isPrimitive(type))
             {
                 writePrimitive(o);
@@ -1537,12 +1582,13 @@ public class JsonWriter implements Closeable, Flushable
 
         out.write('}');
     }
-
+    
     protected void writeFieldName(String name, Writer out) throws IOException {
-    	writeJsonUtf8String(name, out);
-	}
+        writeJsonUtf8String(name, out);
+    }
 
-	/**
+
+    /**
      * Write out special characters "\b, \f, \t, \n, \r", as such, backslash as \\
      * quote as \" and values less than an ASCII space (20hex) as "\\u00xx" format,
      * characters in the range of ASCII space to a '~' as ASCII, and anything higher in UTF-8.
@@ -1640,7 +1686,14 @@ public class JsonWriter implements Closeable, Flushable
                             }
                             catch (Exception ignored) { }
                         }
-                        classInfo.put(field.getName(), field);
+                        if (classInfo.containsKey(field.getName()))
+                        {
+                            classInfo.put(curr.getName() + '.' + field.getName(), field);
+                        }
+                        else
+                        {
+                            classInfo.put(field.getName(), field);
+                        }
                     }
                 }
             }

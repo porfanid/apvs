@@ -60,6 +60,16 @@ public class JsonObject<K, V> extends LinkedHashMap<K, V>
         return type;
     }
 
+    public Object getTarget()
+    {
+        return target;
+    }
+
+    public void setTarget(Object target)
+    {
+        this.target = target;
+    }
+
     public Class getTargetClass()
     {
         return target.getClass();
@@ -84,11 +94,7 @@ public class JsonObject<K, V> extends LinkedHashMap<K, V>
             Number integer = (Number) get("value");
             return integer.intValue();
         }
-        if ("long".equals(type))
-        {
-            return get("value");
-        }
-        if ("boolean".equals(type))
+        if ("long".equals(type) || "boolean".equals(type) || "double".equals(type))
         {
             return get("value");
         }
@@ -96,10 +102,6 @@ public class JsonObject<K, V> extends LinkedHashMap<K, V>
         {
             Number b = (Number) get("value");
             return b.byteValue();
-        }
-        if ("double".equals(type))
-        {
-            return get("value");
         }
         if ("float".equals(type))
         {
@@ -234,5 +236,10 @@ public class JsonObject<K, V> extends LinkedHashMap<K, V>
     void clearArray()
     {
         remove("@items");
+    }
+
+    public long getPos()
+    {
+        return pos;
     }
 }
