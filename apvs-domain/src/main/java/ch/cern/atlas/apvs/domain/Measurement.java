@@ -32,7 +32,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	private static final long serialVersionUID = -906069262585850986L;
 
 	private volatile Device device;
-    private Long id;
+    private volatile Long id;
 	private Date date;
 	private Double value;
 	private String unit;
