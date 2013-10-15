@@ -18,6 +18,7 @@ import ch.cern.atlas.apvs.domain.InetAddress;
 import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
+import ch.cern.atlas.apvs.domain.Packet;
 import ch.cern.atlas.apvs.domain.Ptu;
 import ch.cern.atlas.apvs.domain.Report;
 
@@ -87,7 +88,9 @@ public class PtuSimulator extends Thread {
 						msg = nextMeasurement(ptu,
 								new Date());
 					}
-					String json = PtuJsonWriter.objectToJson(new JsonHeader(msg));
+					Packet packet = new Packet(device.getName(), "Broadcast", i, false);
+					packet.addMessage(msg);
+					String json = PtuJsonWriter.objectToJson(packet); //new JsonHeader(msg));
 //					System.err.println(json +" "+json.length());
 					
 					if (WRITE_MARKERS) {

@@ -8,7 +8,12 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PtuPushServer {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private final String host;
 	private final int port;
@@ -20,6 +25,8 @@ public class PtuPushServer {
 		this.port = port;
 		this.refresh = refresh;
 		this.ids = ids;
+		
+		log.info("Host: "+host+":"+port+" refresh: "+(refresh/1000)+"s");
 	}
 
 	public void run() throws IOException {
