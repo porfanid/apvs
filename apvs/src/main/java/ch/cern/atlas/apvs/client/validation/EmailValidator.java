@@ -11,7 +11,7 @@ public class EmailValidator implements Validator {
 	@Override
 	public Validation validate(String value) {
 		if (value == null || value.equals("")) {
-			return new Validation(NONE, info);
+			return new Validation(WARNING, info);
 		} else if (!value.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
 			return new Validation(ERROR, "Not a valid e-mail");
 		}

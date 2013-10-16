@@ -3,13 +3,13 @@ package ch.cern.atlas.apvs.client.validation;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.gwtbootstrap.client.ui.ListBox;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.user.client.ui.ListBox;
 
 public class ListBoxField extends ValidationField {
 
@@ -54,11 +54,11 @@ public class ListBoxField extends ValidationField {
 	}
 	
 	public String getValue() {
-		return box.getValue();
+		return box.getItemText(box.getSelectedIndex());
 	}
 	
 	public Integer getId() {
-		return ids.get(box.getValue());
+		return ids.get(getValue());
 	}
 
 	public void addItem(String item, int id) {

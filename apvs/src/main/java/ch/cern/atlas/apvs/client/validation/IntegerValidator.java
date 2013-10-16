@@ -11,7 +11,7 @@ public class IntegerValidator implements Validator {
 	@Override
 	public Validation validate(String value) {
 		if (value == null || value.equals("")) {
-			return new Validation(NONE, info);
+			return new Validation(WARNING, info);
 		} else if (!value.matches("^\\d+$")) {
 			return new Validation(ERROR, "Not a valid number");
 		}

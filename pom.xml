@@ -31,8 +31,7 @@
 		<commons-io-version>2.4</commons-io-version>
 		<commons-lang-version>2.6</commons-lang-version>
 		<eventbinder-version>1.0.0</eventbinder-version>
-		<!-- <gwt-bootstrap-version>2.2.1.0</gwt-bootstrap-version> -->
-		<gwt-bootstrap-version>2.3.2.0-SNAPSHOT</gwt-bootstrap-version>
+		<gwt-bootstrap-version>0.2-SNAPSHOT</gwt-bootstrap-version>
 		<h2-version>1.3.173</h2-version>
 		<hibernate-version>4.2.6.Final</hibernate-version>
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
@@ -446,11 +445,11 @@
 				<scope>runtime</scope>
 			</dependency>
 
-			<dependency>
-				<groupId>com.github.gwtbootstrap</groupId>
-				<artifactId>gwt-bootstrap</artifactId>
-				<version>${gwt-bootstrap-version}</version>
-			</dependency>
+<dependency>
+    <groupId>com.svenjacobs.gwtbootstrap3</groupId>
+    <artifactId>gwtbootstrap3</artifactId>
+    <version>${gwt-bootstrap-version}</version>
+</dependency>
 
 			<dependency>
 				<groupId>com.google.gwt.eventbinder</groupId>

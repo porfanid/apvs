@@ -1,12 +1,12 @@
 package ch.cern.atlas.apvs.client.validation;
 
-import com.github.gwtbootstrap.client.ui.TextBox;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.svenjacobs.gwtbootstrap3.client.ui.TextBox;
 
 public class TextBoxField extends ValidationField {
 

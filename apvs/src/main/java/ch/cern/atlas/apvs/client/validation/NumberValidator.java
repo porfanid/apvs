@@ -11,7 +11,7 @@ public class NumberValidator implements Validator {
 	@Override
 	public Validation validate(String value) {
 		if (value == null || value.equals("")) {
-			return new Validation(NONE, info);
+			return new Validation(WARNING, info);
 		}
 		try {
 			Double.parseDouble(value);

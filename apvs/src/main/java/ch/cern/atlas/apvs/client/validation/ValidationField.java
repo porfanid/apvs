@@ -3,28 +3,27 @@ package ch.cern.atlas.apvs.client.validation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.gwtbootstrap.client.ui.ControlGroup;
-import com.github.gwtbootstrap.client.ui.ControlLabel;
-import com.github.gwtbootstrap.client.ui.Controls;
-import com.github.gwtbootstrap.client.ui.HelpInline;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.Widget;
+import com.svenjacobs.gwtbootstrap3.client.ui.FormGroup;
+import com.svenjacobs.gwtbootstrap3.client.ui.FormLabel;
 
-public abstract class ValidationField extends ControlGroup {
+public abstract class ValidationField extends FormGroup {
 
-	private ControlLabel label;
-	private Controls controls;
+	private FormLabel label;
+	private Widget controls;
 
 	private List<ValidationHandler> handlers = new ArrayList<ValidationHandler>();
 	private Validator validator;
-	private HelpInline help;
+//	private HelpInline help;
 
 	public ValidationField(String fieldLabel, Validator validator) {
-		label = new ControlLabel(fieldLabel);
+		label = new FormLabel();
+		label.setText(fieldLabel);
 		this.validator = validator;
 
-		controls = new Controls();
-		help = new HelpInline();
+//		controls = new FormElementContainer();
+//		help = new HelpInline();
 
 		add(label);
 		add(controls);
@@ -48,8 +47,8 @@ public abstract class ValidationField extends ControlGroup {
 			String value = getValue() != null ? getValue().trim() : null;
 			result = validator.validate(value);
 		}
-		help.setText(result.getMessage());
-		setType(result.getLevel());
+//		help.setText(result.getMessage());
+		setValidationState(result.getLevel());
 		if (fireEvents) {
 			fire(result.isValid());
 		}
@@ -57,8 +56,8 @@ public abstract class ValidationField extends ControlGroup {
 	}
 
 	protected void setField(Widget field) {
-		controls.add(field);
-		controls.add(help);
+		controls = field;
+//		controls.add(help);
 	}
 
 	public abstract String getValue();

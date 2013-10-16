@@ -42,11 +42,6 @@ import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.User;
 
-import com.github.gwtbootstrap.client.ui.Button;
-import com.github.gwtbootstrap.client.ui.Label;
-import com.github.gwtbootstrap.client.ui.Modal;
-import com.github.gwtbootstrap.client.ui.ModalFooter;
-import com.github.gwtbootstrap.client.ui.constants.FormType;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.Cell.Context;
@@ -78,6 +73,12 @@ import com.google.gwt.view.client.RangeChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
+import com.svenjacobs.gwtbootstrap3.client.ui.Button;
+import com.svenjacobs.gwtbootstrap3.client.ui.Label;
+import com.svenjacobs.gwtbootstrap3.client.ui.Modal;
+import com.svenjacobs.gwtbootstrap3.client.ui.ModalFooter;
+import com.svenjacobs.gwtbootstrap3.client.ui.constants.ButtonDismiss;
+import com.svenjacobs.gwtbootstrap3.client.ui.constants.FormType;
 
 public class InterventionView extends GlassPanel implements Module {
 
@@ -118,8 +119,10 @@ public class InterventionView extends GlassPanel implements Module {
 
 		EventBus eventBus = clientFactory.getEventBus(args.getArg(1));
 
+		Label label = new Label();
+		label.setText("No Interventions");
 		table.setSize("100%", height);
-		table.setEmptyTableWidget(new Label("No Interventions"));
+		table.setEmptyTableWidget(label);
 
 		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
@@ -377,6 +380,7 @@ public class InterventionView extends GlassPanel implements Module {
 				final Modal m = new Modal();
 
 				Button cancel = new Button("Cancel");
+				cancel.setDismiss(ButtonDismiss.MODAL);
 				cancel.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -386,6 +390,7 @@ public class InterventionView extends GlassPanel implements Module {
 				});
 
 				Button ok = new Button("Ok");
+				ok.setDismiss(ButtonDismiss.MODAL);
 				ok.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -420,7 +425,10 @@ public class InterventionView extends GlassPanel implements Module {
 
 				m.setTitle("Start a new Intervention");
 				m.add(form);
-				m.add(new ModalFooter(cancel, ok));
+				ModalFooter footer = new ModalFooter();
+				footer.add(cancel);
+				footer.add(ok);
+				m.add(footer);
 				m.show();
 			}
 		});
@@ -508,6 +516,7 @@ public class InterventionView extends GlassPanel implements Module {
 				final Modal m = new Modal();
 
 				final Button cancel = new Button("Cancel");
+				cancel.setDismiss(ButtonDismiss.MODAL);
 				cancel.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -517,6 +526,7 @@ public class InterventionView extends GlassPanel implements Module {
 				});
 
 				final Button ok = new Button("Ok");
+				ok.setDismiss(ButtonDismiss.MODAL);
 				ok.setEnabled(false);
 				ok.addClickHandler(new ClickHandler() {
 
@@ -548,7 +558,10 @@ public class InterventionView extends GlassPanel implements Module {
 				form.add(fieldset);
 				m.setTitle("Add a new User");
 				m.add(form);
-				m.add(new ModalFooter(cancel, ok));
+				ModalFooter footer = new ModalFooter();
+				footer.add(cancel);
+				footer.add(ok);
+				m.add(footer);
 				m.show();
 			}
 		});
@@ -621,6 +634,7 @@ public class InterventionView extends GlassPanel implements Module {
 				final Modal m = new Modal();
 
 				Button cancel = new Button("Cancel");
+				cancel.setDismiss(ButtonDismiss.MODAL);
 				cancel.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -630,6 +644,7 @@ public class InterventionView extends GlassPanel implements Module {
 				});
 
 				Button ok = new Button("Ok");
+				ok.setDismiss(ButtonDismiss.MODAL);
 				ok.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -665,7 +680,10 @@ public class InterventionView extends GlassPanel implements Module {
 
 				m.setTitle("Add a new PTU");
 				m.add(form);
-				m.add(new ModalFooter(cancel, ok));
+				ModalFooter footer = new ModalFooter();
+				footer.add(cancel);
+				footer.add(ok);
+				m.add(footer);
 				m.show();
 			}
 		});

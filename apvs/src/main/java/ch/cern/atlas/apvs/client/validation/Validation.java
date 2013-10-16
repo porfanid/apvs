@@ -1,27 +1,26 @@
 package ch.cern.atlas.apvs.client.validation;
 
-import com.github.gwtbootstrap.client.ui.constants.ControlGroupType;
+import com.svenjacobs.gwtbootstrap3.client.ui.constants.ValidationState;
 
 public class Validation {
 
-	public static ControlGroupType WARNING = ControlGroupType.WARNING;
-	public static ControlGroupType ERROR = ControlGroupType.ERROR;
-	public static ControlGroupType SUCCESS = ControlGroupType.SUCCESS;
-	public static ControlGroupType NONE = ControlGroupType.NONE;
+	public static ValidationState WARNING = ValidationState.WARNING;
+	public static ValidationState ERROR = ValidationState.ERROR;
+	public static ValidationState SUCCESS = ValidationState.SUCCESS;
 
-	private ControlGroupType level;
+	private ValidationState level;
 	private String message;
 	
 	public Validation() {
 		this(SUCCESS, "");
 	}
 	
-	public Validation(ControlGroupType level, String message) {
+	public Validation(ValidationState level, String message) {
 		this.level = level;
 		this.message = message;
 	}
 	
-	public ControlGroupType getLevel() {
+	public ValidationState getLevel() {
 		return level;
 	}
 	

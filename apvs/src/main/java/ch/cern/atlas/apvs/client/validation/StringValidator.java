@@ -16,7 +16,7 @@ public class StringValidator implements Validator {
 	@Override
 	public Validation validate(String value) {
 		if (value == null || value.length() == 0) {
-			return new Validation(NONE, info);
+			return new Validation(WARNING, info);
 		} else if (value.length() < minLength) {
 			return new Validation(ERROR, "Minimum length: "+minLength);
 		} else if (value.length() > maxLength) {

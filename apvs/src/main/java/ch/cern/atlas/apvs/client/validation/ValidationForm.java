@@ -3,11 +3,11 @@ package ch.cern.atlas.apvs.client.validation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.gwtbootstrap.client.ui.Form;
-import com.github.gwtbootstrap.client.ui.base.HasType;
-import com.github.gwtbootstrap.client.ui.constants.ButtonType;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.HasEnabled;
+import com.svenjacobs.gwtbootstrap3.client.ui.Form;
+import com.svenjacobs.gwtbootstrap3.client.ui.HasType;
+import com.svenjacobs.gwtbootstrap3.client.ui.constants.ButtonType;
 
 public class ValidationForm extends Form {
 

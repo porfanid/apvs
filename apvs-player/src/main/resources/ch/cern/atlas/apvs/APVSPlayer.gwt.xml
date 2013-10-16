@@ -29,14 +29,11 @@
 	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />
 
 	<inherits name="org.slf4j.Slf4j" />
-	<inherits name="com.github.gwtbootstrap.Bootstrap" />
-	<set-property name="bootstrap.responsiveDesign" value="true" />
+    <inherits name="com.svenjacobs.gwtbootstrap3.GwtBootstrap3"/>
 
 	<inherits name="org.moxieapps.gwt.highcharts.Highcharts" />
 
 	<!-- inherit css based theme -->
-	<inherits name='com.google.gwt.user.theme.standard.Standard' />
-
 	<stylesheet src='../APVSPlayer.css' />
 
 	<set-property name="locale" value="default" />

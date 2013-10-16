@@ -27,9 +27,8 @@
 
 	<inherits name="org.slf4j.Slf4j" />
     <inherits name="org.atmosphere.gwt20.AtmosphereGwt20"/>
-	<inherits name="com.github.gwtbootstrap.Bootstrap" />
-	<set-property name="bootstrap.responsiveDesign" value="true" />
-
+    <inherits name="com.svenjacobs.gwtbootstrap3.GwtBootstrap3"/>
+ 
 	<inherits name="org.hibernate.validator.HibernateValidator" />
 	<replace-with class="ch.cern.atlas.apvs.client.ui.APVSValidatorFactory">
 		<when-type-is class="javax.validation.ValidatorFactory" />
@@ -42,7 +41,6 @@
 	<inherits name="org.moxieapps.gwt.highcharts.Highcharts" />
 
 	<!-- inherit css based theme -->
-	<inherits name='com.google.gwt.user.theme.standard.Standard' />
 
 	<stylesheet src='../css/APVS.css' />
 

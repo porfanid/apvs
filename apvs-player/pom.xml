@@ -157,10 +157,10 @@
 			<groupId>org.hudsonci.libs</groupId>
 			<artifactId>hudson-gwt-slf4j</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.github.gwtbootstrap</groupId>
-			<artifactId>gwt-bootstrap</artifactId>
-		</dependency>
+               <dependency>
+                        <groupId>com.svenjacobs.gwtbootstrap3</groupId>
+                        <artifactId>gwtbootstrap3</artifactId>
+                </dependency>
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>

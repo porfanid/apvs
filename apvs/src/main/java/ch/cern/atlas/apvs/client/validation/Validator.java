@@ -1,13 +1,12 @@
 package ch.cern.atlas.apvs.client.validation;
 
-import com.github.gwtbootstrap.client.ui.constants.ControlGroupType;
+import com.svenjacobs.gwtbootstrap3.client.ui.constants.ValidationState;
 
 public interface Validator {
 	
-	public static ControlGroupType WARNING = ControlGroupType.WARNING;
-	public static ControlGroupType ERROR = ControlGroupType.ERROR;
-	public static ControlGroupType SUCCESS = ControlGroupType.SUCCESS;
-	public static ControlGroupType NONE = ControlGroupType.NONE;
+	public static ValidationState WARNING = ValidationState.WARNING;
+	public static ValidationState ERROR = ValidationState.ERROR;
+	public static ValidationState SUCCESS = ValidationState.SUCCESS;
 	
 	/**
 	 * 
