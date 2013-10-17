@@ -76,9 +76,11 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.svenjacobs.gwtbootstrap3.client.ui.Button;
 import com.svenjacobs.gwtbootstrap3.client.ui.Label;
 import com.svenjacobs.gwtbootstrap3.client.ui.Modal;
+import com.svenjacobs.gwtbootstrap3.client.ui.ModalComponent;
 import com.svenjacobs.gwtbootstrap3.client.ui.ModalFooter;
 import com.svenjacobs.gwtbootstrap3.client.ui.constants.ButtonDismiss;
 import com.svenjacobs.gwtbootstrap3.client.ui.constants.FormType;
+import com.svenjacobs.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 
 public class InterventionView extends GlassPanel implements Module {
 
@@ -607,30 +609,18 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public void update(String value) {
-				ValidationFieldset fieldset = new ValidationFieldset();
-
 				final TextBoxField ptuId = new TextBoxField("PTU ID",
 						new StringValidator(2, 20, "Enter alphanumeric ID"));
-				fieldset.add(ptuId);
-
 				final TextBoxField ip = new TextBoxField("IP");
-				fieldset.add(ip);
-
 				final String macAddressFormat = "XX:XX:XX:XX:XX:XX";
 				final TextBoxField macAddress = new TextBoxField("MAC Address",
 						new StringValidator(macAddressFormat.length(),
 								macAddressFormat.length(), "Enter "
 										+ macAddressFormat));
-				fieldset.add(macAddress);
-
 				final TextBoxField hostName = new TextBoxField("Host Name",
 						new StringValidator(3, 50, "Enter valid hostname"));
-				fieldset.add(hostName);
-
 				final TextAreaField description = new TextAreaField(
 						"Description");
-				fieldset.add(description);
-
 				final Modal m = new Modal();
 
 				Button cancel = new Button("Cancel");
@@ -674,12 +664,24 @@ public class InterventionView extends GlassPanel implements Module {
 					// }
 				});
 
+				ValidationFieldset fieldSet = new ValidationFieldset();
+				fieldSet.add(ptuId);
+				fieldSet.add(ip);
+				fieldSet.add(macAddress);
+				fieldSet.add(hostName);
+				fieldSet.add(description);
+
 				ValidationForm form = new ValidationForm(ok, cancel);
 				form.setType(FormType.HORIZONTAL);
-				form.add(fieldset);
+				form.add(fieldSet);
 
+				m.setBackdrop(ModalBackdrop.TRUE);
+				m.setFade(true);
+				m.setKeyboard(true);
+				m.setClosable(true);
 				m.setTitle("Add a new PTU");
 				m.add(form);
+				
 				ModalFooter footer = new ModalFooter();
 				footer.add(cancel);
 				footer.add(ok);

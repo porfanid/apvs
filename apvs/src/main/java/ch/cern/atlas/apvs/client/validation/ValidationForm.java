@@ -7,9 +7,11 @@ import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.HasEnabled;
 import com.svenjacobs.gwtbootstrap3.client.ui.Form;
 import com.svenjacobs.gwtbootstrap3.client.ui.HasType;
+import com.svenjacobs.gwtbootstrap3.client.ui.ModalComponent;
 import com.svenjacobs.gwtbootstrap3.client.ui.constants.ButtonType;
+import com.svenjacobs.gwtbootstrap3.client.ui.constants.FormType;
 
-public class ValidationForm extends Form {
+public class ValidationForm extends Form implements ModalComponent {
 
 	private List<ValidationFieldset> fieldsets = new ArrayList<ValidationFieldset>();
 	private List<ValidationHandler> handlers = new ArrayList<ValidationHandler>();
@@ -41,6 +43,8 @@ public class ValidationForm extends Form {
 				validate(true);
 			}
 		});
+		
+		setType(FormType.HORIZONTAL);
 	}
 
 	public void add(ValidationFieldset fieldset) {

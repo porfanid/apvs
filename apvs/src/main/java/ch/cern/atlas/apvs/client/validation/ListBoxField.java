@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ListBox;
 
 public class ListBoxField extends ValidationField {
@@ -65,5 +66,5 @@ public class ListBoxField extends ValidationField {
 		box.addItem(item);
 		ids.put(item, id);
 		validate(true);
-	}
+	}	
 }
