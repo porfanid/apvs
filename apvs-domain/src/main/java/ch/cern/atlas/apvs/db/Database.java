@@ -69,6 +69,16 @@ public class Database {
 
 		configuration = new Configuration();
 		configuration.configure(new File("hibernate.cfg.xml"));
+		
+		// mapped classes
+		configuration.addAnnotatedClass(Device.class);
+		configuration.addAnnotatedClass(Event.class);
+		configuration.addAnnotatedClass(Intervention.class);
+		configuration.addAnnotatedClass(Measurement.class);
+		configuration.addAnnotatedClass(Sensor.class);
+		configuration.addAnnotatedClass(User.class);
+		
+		// mapped types
 		configuration.registerTypeOverride(new DoubleStringType());
 		configuration.registerTypeOverride(new IntegerStringType());
 		configuration.registerTypeOverride(new MacAddressType());

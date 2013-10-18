@@ -39,8 +39,8 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 					return;
 				}
 
-				log.info("Will send to " + prefix + " "
-						+ ctx.channel().remoteAddress());
+//				log.info("Will send to " + prefix + " "
+//						+ ctx.channel().remoteAddress());
 				if ((ctx != null) && ctx.channel().isActive()) {
 					ctx.channel()
 							.write(event.getPacket())
@@ -69,7 +69,6 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 	public void channelRead0(ChannelHandlerContext ctx, Packet packet)
 			throws Exception {
 
-//		System.err.println("&&& "+prefix + " '" + packet + "'");
 		bus.fireEvent(new MessageEvent(prefix, packet));
 	}
 

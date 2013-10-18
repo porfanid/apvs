@@ -170,9 +170,5 @@ public class DaqServer {
 
 		new DaqServer(args.length > 0 ? Integer.parseInt(args[0]) : 10123,
 				args.length > 1 ? Integer.parseInt(args[1]) : 10124).run();
-	}
-	
-
-	
-	
+	}	
 }

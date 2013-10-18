@@ -21,6 +21,13 @@ public abstract class AbstractDomainTest {
 		// configures settings from hibernate.cfg.xml
 		Configuration configuration = new Configuration().configure();
 		
+		configuration.addAnnotatedClass(Device.class);
+		configuration.addAnnotatedClass(Event.class);
+		configuration.addAnnotatedClass(Intervention.class);
+		configuration.addAnnotatedClass(Measurement.class);
+		configuration.addAnnotatedClass(Sensor.class);
+		configuration.addAnnotatedClass(User.class);
+		
 		configuration.registerTypeOverride(new DoubleStringType());
 		configuration.registerTypeOverride(new IntegerStringType());
 		configuration.registerTypeOverride(new MacAddressType());
