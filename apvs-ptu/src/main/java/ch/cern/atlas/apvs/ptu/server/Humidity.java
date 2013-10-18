@@ -9,7 +9,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 public class Humidity extends Measurement {
 
 	public Humidity(Device device, double value, Date d) {
-		super(device, "Humidity", value, 50.0, 130.0, "ppm", 60000, d);
+		super(device, "Humidity", value, 50.0, 130.0, "ppm", 60000, "OneShoot", d);
 	}
 	
 }

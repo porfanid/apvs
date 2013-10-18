@@ -153,7 +153,7 @@ public class Data implements Serializable, IsSerializable {
 		return index == 0 ? null : new Measurement(device, name,
 				(Double) data[last][VALUE], (Double) data[last][LOW_LIMIT],
 				(Double) data[last][HIGH_LIMIT], unit,
-				(Integer) data[last][SAMPLING_RATE], new Date(
+				(Integer) data[last][SAMPLING_RATE], "Unknown", new Date(
 						data[last][TIME].longValue()));
 	}
 

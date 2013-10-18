@@ -51,7 +51,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	
 	public Measurement(Device device, String sensor, Double value,
 			Double lowLimit, Double highLimit, String unit,
-			Integer samplingRate, Date date) {
+			Integer samplingRate, String method, Date date) {
 		setDevice(device);
 		setSensor(sensor);
 		setValue(value);
@@ -59,7 +59,9 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		setHighLimit(highLimit);
 		setUnit(unit);
 		setSamplingRate(samplingRate);
+		setMethod(method);
 		setDate(date);
+		setConnected(true);
 
 		this.displayName = null;
 
@@ -72,8 +74,8 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	
 	public Measurement(Device device, String sensor, String displayName, Double value,
 			Double lowLimit, Double highLimit, String unit,
-			Integer samplingRate, Date date) {
-		this(device, sensor, value, lowLimit, highLimit, unit, samplingRate, date);
+			Integer samplingRate, String method, Date date) {
+		this(device, sensor, value, lowLimit, highLimit, unit, samplingRate, method, date);
 		this.displayName = displayName;
 	}
 	
@@ -148,7 +150,6 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		return method;
 	}
 	
-	@SuppressWarnings("unused")
 	private void setMethod(String method) {
 		this.method = method;
 	}

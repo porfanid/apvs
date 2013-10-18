@@ -1,19 +1,21 @@
-{
-	"Sender":"PTU_88",
-	"Receiver":"Broadcast",
-	"FrameID":"0",
-	"Acknowledge":"False",
-	"Messages":
-	[
-		{
-			"Type":"Measurement",
-			"Sensor":"Humidity",
-			"Time":"11/9/2012 10:02:25",
-			"Method":"OneShoot",
-			"Value":"33.19684099267707",
-			"Samplerate":"",
-			"Unit":"ppm"
-		}
-	]
-}
+{"Sender":"PTU-03","Receiver":"Broadcast","FrameID":"12","Acknowledge":"False","Messages":[
+{"Type":"Measurement","Sensor":"O2","Time":"18/10/2013 15:19:35","Method":"OneShoot","Value":"16.49","Unit":"%","SamplingRate":"5000","UpThreshold":"22","DownThreshold":"18.5"},
+{"Type":"Event","Sensor":"O2","EventType":"ValueChange","Time":"18/10/2013 15:19:35","Value":"16.49","Unit":"%","Threshold":"0.1"}
+]}
+{"Sender":"PTU-03","Receiver":"Broadcast","FrameID":"13","Acknowledge":"False","Messages":[
+{"Type":"Measurement","Sensor":"O2","Time":"18/10/2013 15:19:40","Method":"OneShoot","Value":"16.6579","Unit":"%","SamplingRate":"5000","UpThreshold":"22","DownThreshold":"18.5"},
+{"Type":"Event","Sensor":"O2","EventType":"ValueChange","Time":"18/10/2013 15:19:40","Value":"16.6579","Unit":"%","Threshold":"0.1"}
+]}
+{"Sender":"PTU-06","Receiver":"Broadcast","FrameID":"1067","Acknowledge":"False","Messages":[
+{"Type":"Measurement","Sensor":"O2","Time":"18/10/2013 15:22:41","Method":"OneShoot","Value":"5.53358","Unit":"%","SamplingRate":"5000","UpThreshold":"22","DownThreshold":"18.5"}
+]}
+{"Sender":"PTU-06","Receiver":"Broadcast","FrameID":"1068","Acknowledge":"False","Messages":[
+{"Type":"Measurement","Sensor":"CO2","Time":"18/10/2013 15:22:41","Method":"OneShoot","Value":"365.732","Unit":"ppm","SamplingRate":"5000","UpThreshold":"600","DownThreshold":"100"}
+]}
+{"Sender":"PTU-06","Receiver":"Broadcast","FrameID":"1069","Acknowledge":"False","Messages":[
+{"Type":"Measurement","Sensor":"BodyTemperature","Time":"18/10/2013 15:22:41","Method":"OneShoot","Value":"0","Unit":"C","SamplingRate":"5000","UpThreshold":"39","DownThreshold":"35"}
+]}
+{"Sender":"PTU-06","Receiver":"Broadcast","FrameID":"1070","Acknowledge":"False","Messages":[
+{"Type":"Measurement","Sensor":"BarometricPressure","Time":"18/10/2013 15:22:41","Method":"OneShoot","Value":"0.970966","Unit":"bar","SamplingRate":"5000","UpThreshold":"1.2","DownThreshold":"0.8"}
+]}
 

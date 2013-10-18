@@ -32,7 +32,7 @@ public class JsonMessageDecoder extends ReplayingDecoder<Void> {
 			// System.err.println("RIN/WIN: "+in.readerIndex()+" "+in.writerIndex());
 			PtuJsonReader reader = new PtuJsonReader(is);
 			JsonHeader header = (JsonHeader)reader.readObject();
-			log.info("*** " + header);
+//			log.info("*** " + header);
 			String deviceName = header.getSender();
 			Packet packet = new Packet(deviceName, header.getReceiver(), header.getFrameId(), header.getAcknowledge());
 			Device device = devices.get(deviceName);
@@ -54,6 +54,6 @@ public class JsonMessageDecoder extends ReplayingDecoder<Void> {
 		// TODO Auto-generated method stub
 		// super.exceptionCaught(ctx, cause);
 
-		log.trace("EX: ", cause);
+		log.trace(getClass()+" EX: ", cause);
 	}
 }

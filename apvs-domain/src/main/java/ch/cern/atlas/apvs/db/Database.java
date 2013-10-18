@@ -679,7 +679,7 @@ public class Database {
 				unit = Scale.getUnit(sensor, unit);
 
 				list.add(new Measurement(device, sensor, value,
-						low, high, unit, m.getSamplingRate(), m.getDate()));
+						low, high, unit, m.getSamplingRate(), m.getMethod(), m.getDate()));
 			}
 			tx.commit();
 			return list;

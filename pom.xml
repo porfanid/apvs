@@ -83,14 +83,12 @@
 	</properties>
 
 	<modules>
-		<module>apvs</module>
 		<module>apvs-asterisk</module>
 		<module>apvs-charts</module>
 		<module>apvs-configuration</module>
     		<module>apvs-doc</module>
 		<module>apvs-domain</module>
 		<module>apvs-eventbus</module>
-		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-log4jdbc</module>
 		<module>apvs-ptu</module>
@@ -111,6 +109,16 @@
 
 	<profiles>
 		<profile>
+			<id>default</id>
+			<activation>
+			      	<activeByDefault>true</activeByDefault>
+    			</activation>
+			<modules>
+				<module>apvs</module>
+				<module>apvs-jetty</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>daq</id>
 			<modules>
 				<module>apvs-daq-server</module>
@@ -125,6 +133,7 @@
 				<module>apvs-server-connector</module>
 				<module>apvs-converter</module>
 				<module>apvs-dist</module>
+				<module>apvs-jetty</module>
 				<module>apvs-nettosphere</module>
 			</modules>
 		</profile>

@@ -40,8 +40,8 @@ public class JsonMessage {
 			msg.put("Value", m.getValue().toString());
 			msg.put("Time", m.getDate());
 			msg.put("SamplingRate", m.getSamplingRate());
-			msg.put("HighLimit", m.getHighLimit());
-			msg.put("LowLimit", m.getLowLimit());
+			msg.put("UpThreshold", m.getHighLimit());
+			msg.put("DownThreshold", m.getLowLimit());
 		} else if (message instanceof Event) {
 			Event m = (Event) message;
 			msg.put("Type", m.getType());
@@ -105,8 +105,8 @@ public class JsonMessage {
 			}
 
 			return new Measurement(device, sensor, value,
-					getDouble("LowLimit"), getDouble("HighLimit"), unit,
-					samplingRate, time);
+					getDouble("DownThreshold"), getDouble("UpThreshold"), unit,
+					samplingRate, getString("Method"), time);
 		} else if (type.equals("Event")) {
 			return new Event(device, getString("Sensor"),
 					getString("EventType"), getDouble("Value"),

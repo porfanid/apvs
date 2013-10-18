@@ -128,13 +128,9 @@ public class DaqServer {
 			log.info("DaqServer in: " + inPort + " out: " + outPort);
 
 			// debug the bus...
-			bus.addHandler(MessageEvent.TYPE, new MessageEvent.Handler() {
-
-				@Override
-				public void onMessageReceived(MessageEvent event) {
-					log.info("BUS " + event);
-				}
-			});
+			new DebugHandler(bus);
+			
+			new DatabaseWriter(bus);
 
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 

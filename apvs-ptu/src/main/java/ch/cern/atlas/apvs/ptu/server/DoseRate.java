@@ -9,7 +9,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 public class DoseRate extends Measurement {
 
 	public DoseRate(Device device, double value, Date d) {
-		super(device, "DoseRate", value, 50.0, 100.0, "mSv/h", 50000, d);
+		super(device, "DoseRate", value, 50.0, 100.0, "mSv/h", 50000, "OneShoot", d);
 	}
 	
 }

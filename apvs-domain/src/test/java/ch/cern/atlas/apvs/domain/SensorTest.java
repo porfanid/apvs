@@ -16,9 +16,9 @@ public class SensorTest extends AbstractDomainTest {
 		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch");
 		
 		Measurement m1 = new Measurement(d1, "Temperature", 22.4, 20.0,
-				25.0, "Degrees", 60000, new Date());
+				25.0, "Degrees", 60000, "OneShoot", new Date());
 		Measurement m2 = new Measurement(d2, "Temperature", 22.8, 20.0, 25.0,
-				"Degrees", 60000, new Date());
+				"Degrees", 60000, "OneShoot", new Date());
 
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();

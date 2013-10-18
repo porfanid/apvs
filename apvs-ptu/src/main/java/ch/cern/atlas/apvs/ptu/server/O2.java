@@ -9,7 +9,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 public class O2 extends Measurement {
 
 	public O2(Device device, double value, Date d) {
-		super(device, "O2", value, 50.0, 100.0, "ppm", 55000, d);
+		super(device, "O2", value, 50.0, 100.0, "ppm", 55000, "OneShoot", d);
 	}
 	
 }
