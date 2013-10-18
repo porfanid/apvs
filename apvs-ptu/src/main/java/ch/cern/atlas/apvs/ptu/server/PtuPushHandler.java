@@ -13,6 +13,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.domain.Packet;
+
 public class PtuPushHandler extends PtuReconnectHandler {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -67,11 +69,10 @@ public class PtuPushHandler extends PtuReconnectHandler {
 			simulators.remove(ctx.channel());
 		}
 	}
-
+	
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg)
+	protected void channelRead0(ChannelHandlerContext ctx, Packet msg)
 			throws Exception {
-		// ignored
 	}
 
 	@Override

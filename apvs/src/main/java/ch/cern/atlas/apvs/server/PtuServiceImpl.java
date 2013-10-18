@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -62,6 +63,8 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		log.info("Starting PtuService...");
 
 		database = Database.getInstance(eventBus, true);
+		
+		Map<String, Device> devices = database.getDeviceMap();
 
 		EventLoopGroup group = new NioEventLoopGroup();
 
@@ -81,7 +84,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 		// Configure the pipeline factory.
 		bootstrap.group(group);
-		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler, true));
+		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler, devices));
 
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {

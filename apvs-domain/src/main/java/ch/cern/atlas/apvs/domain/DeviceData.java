@@ -35,7 +35,7 @@ public class DeviceData implements Serializable, IsSerializable {
 	}
 
 	public void put(Data data) {
-		if (data.getPtu() != device) {
+		if (!data.getPtu().equals(device)) {
 			throw new RuntimeException("Device '"+device+"' table cannot accept entry from '"+data.getPtu());
 		}
 		map.put(data.getName(), data);

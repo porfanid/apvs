@@ -3,7 +3,7 @@ package ch.cern.atlas.apvs.ptu.server;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -18,7 +18,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
+import ch.cern.atlas.apvs.domain.Packet;
+
+public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Packet> {
 	private static final int RECONNECT_DELAY = 20;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
