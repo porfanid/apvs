@@ -31,6 +31,7 @@ import ch.cern.atlas.apvs.ptu.server.JsonMessageEncoder;
 import ch.cern.atlas.apvs.ptu.server.MessageEvent;
 import ch.cern.atlas.apvs.ptu.server.MessageToBus;
 import ch.cern.atlas.apvs.ptu.server.RemoveDelimiterDecoder;
+import ch.cern.atlas.apvs.util.CircularList;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;

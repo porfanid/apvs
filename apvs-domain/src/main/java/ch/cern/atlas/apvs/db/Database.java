@@ -43,6 +43,7 @@ import ch.cern.atlas.apvs.hibernate.types.DoubleStringType;
 import ch.cern.atlas.apvs.hibernate.types.InetAddressType;
 import ch.cern.atlas.apvs.hibernate.types.IntegerStringType;
 import ch.cern.atlas.apvs.hibernate.types.MacAddressType;
+import ch.cern.atlas.apvs.util.CircularList;
 import ch.cern.atlas.apvs.util.StringUtils;
 
 public class Database {
@@ -697,7 +698,7 @@ public class Database {
 			query.setEntity("device", device);
 			query.setString("sensor", sensor);
 
-			List<Measurement> lastMeasurements = new ArrayList<Measurement>();
+			List<Measurement> lastMeasurements = new CircularList<Measurement>(maxEntries);
 			int n = 0;
 			for (@SuppressWarnings("unchecked")
 			Iterator<Measurement> i = query.iterate(); i.hasNext()
