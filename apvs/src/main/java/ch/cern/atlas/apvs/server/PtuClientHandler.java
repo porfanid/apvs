@@ -144,10 +144,19 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	private final static boolean DEBUG = true;
-	private final static boolean DEBUGPLUS = false;
+	private final static boolean DEBUGPLUS = true;
 
 	@Override
+	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+		// TODO Auto-generated method stub
+		super.channelReadComplete(ctx);
+		System.err.println("COMPLETE");
+	}
+	
+	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
+		System.err.println("READ");
+
 		// Print out the line received from the server.
 		// FIXME #634, not sure if this is correct
 		String line = msg.toString();
@@ -211,7 +220,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 				}
 			}
 		} catch (IOException ioe) {
-			// TODO Auto-generated catch block
 			ioe.printStackTrace();
 		}
 

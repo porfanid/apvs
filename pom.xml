@@ -85,21 +85,16 @@
 	<modules>
 		<module>apvs</module>
 		<module>apvs-asterisk</module>
-		<!-- <module>apvs-atmosphere</module> -->
 		<module>apvs-charts</module>
 		<module>apvs-configuration</module>
-		<module>apvs-converter</module>
-		<module>apvs-daq-server</module>
     		<module>apvs-doc</module>
 		<module>apvs-domain</module>
 		<module>apvs-eventbus</module>
-		<!-- <module>apvs-eventbus-demo</module> <module>apvs-gwt-maven-plugin</module> -->
 		<module>apvs-jetty</module>
 		<module>apvs-json-io</module>
 		<module>apvs-log4jdbc</module>
 		<module>apvs-ptu</module>
-		<module>apvs-server-connector</module>
-  </modules>
+	</modules>
 
 	<repositories>
 		<repository>
@@ -116,8 +111,19 @@
 
 	<profiles>
 		<profile>
+			<id>daq</id>
+			<modules>
+				<module>apvs-daq-server</module>
+				<module>apvs-server-connector</module>
+				<module>apvs-converter</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>prod</id>
 			<modules>
+				<module>apvs-daq-server</module>
+				<module>apvs-server-connector</module>
+				<module>apvs-db-converter</module>
 				<module>apvs-dist</module>
 				<module>apvs-nettosphere</module>
 			</modules>

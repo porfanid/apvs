@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
@@ -38,8 +40,8 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.TextHeader;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -291,9 +293,13 @@ public class EventView extends GlassPanel implements Module {
 		date = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					Window.alert("null date");
+					return "";
+				}
 				return ClientConstants.dateFormat.format(object.getDate());
 			}
-
+			
 			@Override
 			public String getDataStoreName() {
 				return "t.date";
@@ -318,6 +324,9 @@ public class EventView extends GlassPanel implements Module {
 		ptu = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
 				return object.getDevice().getName();
 			}
 
@@ -344,6 +353,9 @@ public class EventView extends GlassPanel implements Module {
 		name = new ClickableHtmlColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
 				return object.getSensor();
 			}
 
@@ -370,6 +382,9 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> eventType = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
 				return object.getEventType();
 			}
 
@@ -395,6 +410,10 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> value = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
+
 				return object.getValue() != null ? object.getValue().toString()
 						: "";
 			}
@@ -420,6 +439,10 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> threshold = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
+
 				return object.getThreshold() != null ? object.getThreshold()
 						.toString() : "";
 			}
@@ -445,6 +468,10 @@ public class EventView extends GlassPanel implements Module {
 		ClickableHtmlColumn<Event> unit = new ClickableHtmlColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
+
 				return object.getUnit();
 			}
 		};
