@@ -123,7 +123,7 @@
 			<modules>
 				<module>apvs-daq-server</module>
 				<module>apvs-server-connector</module>
-				<module>apvs-db-converter</module>
+				<module>apvs-converter</module>
 				<module>apvs-dist</module>
 				<module>apvs-nettosphere</module>
 			</modules>
