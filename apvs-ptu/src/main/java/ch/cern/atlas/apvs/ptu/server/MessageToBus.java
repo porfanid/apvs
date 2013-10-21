@@ -8,10 +8,13 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.SocketAddress;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Packet;
 
 import com.google.web.bindery.event.shared.EventBus;
@@ -26,6 +29,7 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 	private EventBus bus;
 	private ChannelHandlerContext ctx;
 	private HandlerRegistration handler;
+	private Device device;
 
 	public MessageToBus(final String prefix, EventBus bus) {
 		this.prefix = prefix;
@@ -69,6 +73,14 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 	public void channelRead0(ChannelHandlerContext ctx, Packet packet)
 			throws Exception {
 
+		if ((device == null) && (packet.getMessages().size() > 0)) {
+			device = packet.getMessages().get(0).getDevice();
+			
+			Packet connectionPacket = new Packet(device.getName(), "Broadcast", 0, false);
+			connectionPacket.addMessage(new Event(device, ctx.channel().remoteAddress().toString(), "Connect", new Date()));
+			bus.fireEvent(new MessageEvent(prefix, connectionPacket));
+		}
+		
 		bus.fireEvent(new MessageEvent(prefix, packet));
 	}
 
@@ -83,7 +95,15 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
-		
+
+		if (device != null) {
+			Packet connectionPacket = new Packet(device.getName(), "Broadcast", 0, false);
+			connectionPacket.addMessage(new Event(device, ctx.channel().remoteAddress().toString(), "Disconnect", new Date()));
+			bus.fireEvent(new MessageEvent(prefix, connectionPacket));
+			
+			device = null;
+		}
+
 		if (handler != null) {
 			log.info("Removed handler for "+ctx.channel().remoteAddress());
 			handler.removeHandler();

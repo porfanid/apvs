@@ -15,6 +15,8 @@ import com.google.gwt.event.shared.EventBus;
 public class DatabaseWriter {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	
+	private EventFilter eventFilter = new TypeEventFilter();
 
 	public DatabaseWriter(EventBus bus) {
 		final Database database = Database.getInstance();
@@ -39,8 +41,12 @@ public class DatabaseWriter {
 						 	case "Event":
 						 		Event event = (Event)msg;
 						 		
-						 		database.saveOrUpdate(event, false);
-						 		log.info("Written to DB: "+event);
+						 		if (eventFilter.filter(event)) {
+								 		database.saveOrUpdate(event, false);
+								 		log.info("Written to DB: "+event);
+						 		} else {
+						 			log.info("Discarded: "+event);
+						 		}
 						 		
 						 		break;
 						 	default:
