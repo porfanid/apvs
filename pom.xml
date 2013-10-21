@@ -129,6 +129,7 @@
 		<profile>
 			<id>prod</id>
 			<modules>
+				<module>apvs</module>
 				<module>apvs-daq-server</module>
 				<module>apvs-server-connector</module>
 				<module>apvs-converter</module>
