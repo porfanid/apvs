@@ -147,13 +147,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private final static boolean DEBUG = true;
 
 	@Override
-	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-		// TODO Auto-generated method stub
-		super.channelReadComplete(ctx);
-		System.err.println("COMPLETE");
-	}
-
-	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, Packet packet)
 			throws Exception {
 		System.err.println("READ " + packet);

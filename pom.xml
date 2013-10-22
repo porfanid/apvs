@@ -109,10 +109,7 @@
 
 	<profiles>
 		<profile>
-			<id>default</id>
-			<activation>
-			      	<activeByDefault>true</activeByDefault>
-    			</activation>
+			<id>gui</id>
 			<modules>
 				<module>apvs</module>
 				<module>apvs-jetty</module>

@@ -58,8 +58,13 @@ public class Database {
 	private RemoteEventBus eventBus;
 
 	private Ternary connected = Ternary.Unknown;
+	private Ternary wasConnected = connected;
 	private String connectedCause = "Not Connected Yet";
+	
+	private static final long MINUTE = 60 * 1000;
+	private static final long MAX_UPDATE_DELAY = 10 * MINUTE;
 	private Ternary updated = Ternary.Unknown;
+	private Ternary wasUpdated = updated;
 	private String updatedCause = "Not Verified Yet";
 
 	private InterventionMap interventions = new InterventionMap();
@@ -151,9 +156,6 @@ public class Database {
 
 	private boolean checkUpdateAndConnection() throws HibernateException {
 
-		Ternary wasConnected = connected;
-		Ternary wasUpdated = updated;
-
 		Session session = null;
 		Transaction tx = null;
 		try {
@@ -168,7 +170,7 @@ public class Database {
 			if (i.hasNext()) {
 				Date lastUpdate = i.next();
 				long time = lastUpdate.getTime();
-				updated = (time > now - (3 * 60000)) ? Ternary.True
+				updated = (time > now - MAX_UPDATE_DELAY) ? Ternary.True
 						: Ternary.False;
 				updatedCause = "Last Update: " + new Date(time);
 			} else {

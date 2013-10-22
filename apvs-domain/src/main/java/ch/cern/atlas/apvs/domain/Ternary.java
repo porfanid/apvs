@@ -55,4 +55,8 @@ public enum Ternary implements Serializable, IsSerializable {
 	public boolean isUnknown() {
 		return this.equals(Unknown);
 	}
+	
+	public String toString() {
+		return getString();
+	}
 }

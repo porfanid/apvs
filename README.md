@@ -19,33 +19,16 @@ More info on maven: http://maven.apache.org/guides/getting-started/index.html
 
 Download ojdb6.jar from www.oracle.com and install in apvs-ojdbc/ojdbc6.jar
 
-## Building
+## Building the GUI
 
 Change directory to the project and run:
 
-	 <apvs project directory> > mvn clean install
+	 <apvs project directory> > mvn clean install -Pgui
 	
 the project should be built in a couple of minutes, after downloading all the dependencies and plugins. 
 
 
-## Running
-
-There are two ways to run APVS: demo-mode where a plugin is needed in the browser and which is typically used 
-to have a quick edit-compile-debug cycle, and normal-mode, which runs in jetty, is faster but takes more time
-to compile. 
-
-### Run in demo-mode
-
-Run:
-
-	<apvs project directory>/apvs > mvn clean gwt:run
-	
-Using FireFox open 
-
-	http://localhost:8888/index.html?gwt.codesvr=localhost:9997
-	install the proper gwt plugin in firefox
-
-### Run the Jetty version
+## Running (inside Jetty)
 
 Configure:
 	copy EgroupCheckConfExample.properties to EgroupCheckConf.properties and edit username and pwd to access the supervisors e-group
