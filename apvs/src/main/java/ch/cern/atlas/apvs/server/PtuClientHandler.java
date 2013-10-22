@@ -68,7 +68,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		super(bootstrap);
 		this.eventBus = eventBus;
 
-		database = Database.getInstance(eventBus, true);
+		database = Database.getInstance();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
 

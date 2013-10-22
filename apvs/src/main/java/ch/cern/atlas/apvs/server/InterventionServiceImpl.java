@@ -6,6 +6,8 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.hibernate.HibernateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.service.InterventionService;
 import ch.cern.atlas.apvs.client.service.ServiceException;
@@ -14,6 +16,7 @@ import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.User;
+import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 /**
  * @author Mark Donszelmann
@@ -22,13 +25,24 @@ import ch.cern.atlas.apvs.domain.User;
 public class InterventionServiceImpl extends ResponsePollService implements
 		InterventionService {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
+	private RemoteEventBus eventBus;
 	private Database database;
+	private DatabaseHandler databaseHandler;
+	
+	public InterventionServiceImpl() {
+		log.info("Creating InterventionService...");
+		eventBus = APVSServerFactory.getInstance().getEventBus();
+	}
+
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		
-		database = Database.getInstance(APVSServerFactory.getInstance().getEventBus(), true);
+		database = Database.getInstance();
+		databaseHandler = DatabaseHandler.getInstance(eventBus);
 	}
 	
 	@Override
@@ -56,7 +70,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			if (!isSupervisor()) {
 				throw new ServiceException("Cannot add user, not a supervisor");
 			}
-			database.saveOrUpdate(user, false);
+			database.saveOrUpdate(user);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -69,7 +83,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			if (!isSupervisor()) {
 				throw new ServiceException("Cannot add device, not a supervisor");
 			}
-			database.saveOrUpdate(device, false);
+			database.saveOrUpdate(device);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -90,7 +104,8 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			if (!isSupervisor()) {
 				throw new ServiceException("Cannot add intervention, not a supervisor");
 			}
-			database.saveOrUpdate(intervention, true);
+			database.saveOrUpdate(intervention);
+			databaseHandler.readInterventions();
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -102,7 +117,8 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			if (!isSupervisor()) {
 				throw new ServiceException("Cannot update intervention, not a supervisor");
 			}
-			database.saveOrUpdate(intervention, true);
+			database.saveOrUpdate(intervention);
+			databaseHandler.readInterventions();
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}

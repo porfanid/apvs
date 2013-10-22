@@ -62,7 +62,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 		log.info("Starting PtuService...");
 
-		database = Database.getInstance(eventBus, true);
+		database = Database.getInstance();
 		
 		Map<String, Device> devices = database.getDeviceMap();
 

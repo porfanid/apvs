@@ -19,7 +19,6 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 //NOTE: implements IsSerializable in case serialization file cannot be found

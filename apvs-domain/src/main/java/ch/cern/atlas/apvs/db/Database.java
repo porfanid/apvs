@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -28,17 +25,10 @@ import ch.cern.atlas.apvs.domain.DeviceData;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Intervention;
-import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Sensor;
 import ch.cern.atlas.apvs.domain.SortOrder;
-import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.domain.User;
-import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
-import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
-import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
-import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.hibernate.types.DoubleStringType;
 import ch.cern.atlas.apvs.hibernate.types.InetAddressType;
 import ch.cern.atlas.apvs.hibernate.types.IntegerStringType;
@@ -55,23 +45,8 @@ public class Database {
 	private ServiceRegistry serviceRegistry;
 	private SessionFactory sessionFactory;
 
-	private RemoteEventBus eventBus;
-
-	private Ternary connected = Ternary.Unknown;
-	private Ternary wasConnected = connected;
-	private String connectedCause = "Not Connected Yet";
-	
-	private static final long MINUTE = 60 * 1000;
-	private static final long MAX_UPDATE_DELAY = 10 * MINUTE;
-	private Ternary updated = Ternary.Unknown;
-	private Ternary wasUpdated = updated;
-	private String updatedCause = "Not Verified Yet";
-
-	private InterventionMap interventions = new InterventionMap();
-	
-	private Database(final RemoteEventBus eventBus, final boolean checkUpdate) {
-		this.eventBus = eventBus;
-
+	private Database() {
+		
 		configuration = new Configuration();
 		configuration.configure(new File("hibernate.cfg.xml"));
 		
@@ -94,162 +69,11 @@ public class Database {
 		sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
 		// new SchemaExport(configuration).create(true, false);
-
-		try {
-			checkUpdateAndConnection();	
-			readInterventions(true);
-		} catch (HibernateException e1) {
-			log.warn("Problem", e1);
-		}
-
-		if (eventBus != null) {
-
-			RequestRemoteEvent.register(eventBus,
-					new RequestRemoteEvent.Handler() {
-
-						@Override
-						public void onRequestEvent(RequestRemoteEvent event) {
-							String type = event.getRequestedClassName();
-
-							if (type.equals(InterventionMapChangedRemoteEvent.class
-									.getName())) {
-								InterventionMapChangedRemoteEvent.fire(
-										eventBus, interventions);
-							} else if (type
-									.equals(ConnectionStatusChangedRemoteEvent.class
-											.getName())) {
-								ConnectionStatusChangedRemoteEvent.fire(
-										eventBus,
-										ConnectionType.databaseConnect,
-										connected, connectedCause);
-								ConnectionStatusChangedRemoteEvent.fire(
-										eventBus,
-										ConnectionType.databaseUpdate, updated,
-										updatedCause);
-							}
-						}
-					});
-		}
-
-		ScheduledExecutorService executor = Executors
-				.newSingleThreadScheduledExecutor();
-		executor.scheduleWithFixedDelay(new Runnable() {
-
-			// ScheduledFuture<?> watchdog;
-
-			@Override
-			public void run() {
-				try {
-					if (!checkUpdateAndConnection() && checkUpdate) {
-						log.warn("DB "+updatedCause);
-					} else if (!isConnected()) {
-						log.warn("DB "+connectedCause);
-					}
-				} catch (HibernateException e) {
-					log.warn("Could not update or reach DB: ",
-							e);
-				}
-
-			}
-		}, 0, 30, TimeUnit.SECONDS);
-	}
-
-	private boolean checkUpdateAndConnection() throws HibernateException {
-
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-
-			String sql = "select date from Measurement order by date desc";
-
-			long now = new Date().getTime();
-			@SuppressWarnings("unchecked")
-			Iterator<Date> i = session.createQuery(sql).iterate();
-			if (i.hasNext()) {
-				Date lastUpdate = i.next();
-				long time = lastUpdate.getTime();
-				updated = (time > now - MAX_UPDATE_DELAY) ? Ternary.True
-						: Ternary.False;
-				updatedCause = "Last Update: " + new Date(time);
-			} else {
-				updated = Ternary.False;
-				updatedCause = "Never Updated";
-			}
-			tx.commit();
-			connected = Ternary.True;
-			connectedCause = "";
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			connected = Ternary.False;
-			connectedCause = e.getMessage();
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-
-			if (eventBus != null) {
-				if (!updated.equals(wasUpdated)) {
-					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseUpdate, updated,
-							updatedCause);
-				}
-
-				if (!connected.equals(wasConnected)) {
-					ConnectionStatusChangedRemoteEvent.fire(eventBus,
-							ConnectionType.databaseConnect, connected,
-							connectedCause);
-				}
-			}
-		}
-
-		return !updated.isFalse();
-	}
-
-	@SuppressWarnings("unchecked")
-	private void readInterventions(boolean triggerEvents) {
-		InterventionMap newMap = new InterventionMap();
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-			for (Intervention intervention : (List<Intervention>) session
-					.createQuery("from Intervention i where i.endTime is null")
-					.list()) {
-				newMap.put(intervention.getDevice(), intervention);
-			}
-			tx.commit();
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-
-		if (triggerEvents && !interventions.equals(newMap)) {
-			interventions = newMap;
-			if (eventBus != null) {
-				InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
-			}
-		}
 	}
 
 	public static Database getInstance() {
-		return getInstance(null, false);
-	}
-	
-	public static Database getInstance(RemoteEventBus eventBus, boolean checkUpdate) {
 		if (instance == null) {
-			instance = new Database(eventBus, checkUpdate);
+			instance = new Database();
 		}
 		return instance;
 	}
@@ -264,10 +88,6 @@ public class Database {
 
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
-	}
-
-	public boolean isConnected() {
-		return connected.isTrue();
 	}
 
 	public List<Device> getDevices(boolean available) {
@@ -339,7 +159,7 @@ public class Database {
 
 	}
 
-	public void saveOrUpdate(Object object, boolean triggerEvents) {
+	public void saveOrUpdate(Object object) {
 		if (object == null) {
 			return;
 		}
@@ -351,8 +171,6 @@ public class Database {
 			tx = session.beginTransaction();
 			session.saveOrUpdate(object);
 			tx.commit();
-
-			readInterventions(triggerEvents);
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();
@@ -586,6 +404,31 @@ public class Database {
 			}
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Intervention> getInterventions() {
+		List<Intervention> interventions = null;
+		
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+			interventions = (List<Intervention>)session
+					.createQuery("from Intervention i where i.endTime is null").list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return interventions;
+	}
 
 	public Intervention getIntervention(Device device)
 			throws HibernateException {
@@ -610,6 +453,32 @@ public class Database {
 				session.close();
 			}
 		}
+	}
+	
+	public Date getLastMeasurementUpdateTime() {
+		Date date = null;
+		
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+
+			String sql = "select date from Measurement order by date desc";
+
+			date = (Date)session.createQuery(sql).setMaxResults(1).uniqueResult();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+		return date;
 	}
 
 	public List<Measurement> getMeasurements(Device ptu, String name)

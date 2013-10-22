@@ -26,7 +26,7 @@ public class EventServiceImpl extends ResponsePollService implements EventServic
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		
-		database = Database.getInstance(APVSServerFactory.getInstance().getEventBus(), true);
+		database = Database.getInstance();
 	}
 	
 	@Override

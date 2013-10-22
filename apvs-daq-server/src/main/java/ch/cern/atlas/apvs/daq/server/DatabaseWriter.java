@@ -33,7 +33,7 @@ public class DatabaseWriter {
 						 	case "Measurement":
 						 		Measurement measurement = (Measurement)msg;
 						 		
-						 		database.saveOrUpdate(measurement, false);
+						 		database.saveOrUpdate(measurement);
 						 		log.info("Written to DB: "+measurement);
 						 		
 						 		break;
@@ -42,7 +42,7 @@ public class DatabaseWriter {
 						 		Event event = (Event)msg;
 						 		
 						 		if (eventFilter.filter(event)) {
-								 		database.saveOrUpdate(event, false);
+								 		database.saveOrUpdate(event);
 								 		log.info("Written to DB: "+event);
 						 		} else {
 						 			log.info("Discarded: "+event);

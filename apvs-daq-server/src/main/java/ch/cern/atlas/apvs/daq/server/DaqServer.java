@@ -64,12 +64,12 @@ public class DaqServer {
 					InetAddress.getByName("localhost"), "APVS DAQ Server",
 					new MacAddress("00:00:00:00:00:00"), "apvs-daq-server");
 			devices.put(system.getName(), system);
-			database.saveOrUpdate(system, false);
+			database.saveOrUpdate(system);
 		}
 			
 		Event event = new Event(system, "daq", "server_start", new Date());
 		
-		database.saveOrUpdate(event, false);
+		database.saveOrUpdate(event);
 		
 		List<Intervention> interventions = database.getList(Intervention.class, 0, 4, new SortOrder[] {new SortOrder("startTime")});
 		log.info("Found " + interventions.size() + " interventions");
@@ -140,7 +140,7 @@ public class DaqServer {
 					fin.cancel(true);
 					fout.cancel(true);
 					
-					database.saveOrUpdate(new Event(system, "daq", "server_stop", new Date()), false);
+					database.saveOrUpdate(new Event(system, "daq", "server_stop", new Date()));
 					database.close();
 				}
 			}));
