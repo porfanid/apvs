@@ -804,7 +804,7 @@ public class DbHandler extends DbCallback {
 				unit = Scale.getUnit(m.getSensor(), unit);
 
 				list.add(new Measurement(m.getDevice(), m.getSensor(), value,
-						low, high, unit, m.getSamplingRate(), m.getDate()));
+						low, high, unit, m.getSamplingRate(), "OneShoot", m.getDate()));
 			}
 			tx.commit();
 			return list;

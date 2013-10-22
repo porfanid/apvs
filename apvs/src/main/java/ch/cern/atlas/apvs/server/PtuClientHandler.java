@@ -234,7 +234,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		unit = Scale.getUnit(sensor, unit);
 
 		message = new Measurement(message.getDevice(), sensor, value, low,
-				high, unit, message.getSamplingRate(), message.getDate());
+				high, unit, message.getSamplingRate(), "OneShoot", message.getDate());
 
 		System.err.println("Modified message: " + message);
 
