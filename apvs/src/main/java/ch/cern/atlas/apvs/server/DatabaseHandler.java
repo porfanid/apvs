@@ -32,8 +32,9 @@ public class DatabaseHandler {
 	private Ternary wasConnected = connected;
 	private String connectedCause = "Not Connected Yet";
 
-	private static final long MINUTE = 60 * 1000;
-	private static final long MAX_UPDATE_DELAY = 10 * MINUTE;
+	private static final long SECONDS = 1000;
+	private static final int DEFAULT_MAX_UPDATE_DELAY = 180;
+	private long delay;
 	private Ternary updated = Ternary.Unknown;
 	private Ternary wasUpdated = updated;
 	private String updatedCause = "Not Verified Yet";
@@ -42,7 +43,11 @@ public class DatabaseHandler {
 
 	private DatabaseHandler(final RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
+		
+		delay = ServerStorage.getLocalStorageIfSupported().getInt("APVS.database.updateDelay", DEFAULT_MAX_UPDATE_DELAY) * SECONDS;
 
+		log.info("Using update delay: "+delay+" ms");
+		
 		database = Database.getInstance();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
@@ -115,7 +120,7 @@ public class DatabaseHandler {
 			Date lastUpdate = database.getLastMeasurementUpdateTime();
 			if (lastUpdate != null) {
 				long time = lastUpdate.getTime();
-				updated = (time > now - MAX_UPDATE_DELAY) ? Ternary.True
+				updated = (time > now - delay) ? Ternary.True
 						: Ternary.False;
 				updatedCause = "Last Update: " + new Date(time);
 			} else {

@@ -28,7 +28,7 @@ public class ServerStorage {
 	private File configFile;
 	private boolean readOnly;
 
-	public ServerStorage() throws FileNotFoundException, IOException {
+	private ServerStorage() throws FileNotFoundException, IOException {
 		try {
 			configFile = new File(APVS_SERVER_SETTINGS_FILE);
 			if (!configFile.exists()) {
@@ -73,9 +73,21 @@ public class ServerStorage {
 	public String getString(String name) {
 		return config.getString(name);
 	}
-
-	public Boolean getBoolean(String name) {
+	
+	public String getString(String name, String defaultValue) {
+		return config.getString(name, defaultValue);
+	}
+	
+	public boolean getBoolean(String name) {
 		return config.getBoolean(name, false);
+	}
+
+	public int getInt(String name) {
+		return config.getInt(name);
+	}
+
+	public int getInt(String name, int defaultValue) {
+		return config.getInt(name, defaultValue);
 	}
 
 	public void setItem(String name, Object value) {
