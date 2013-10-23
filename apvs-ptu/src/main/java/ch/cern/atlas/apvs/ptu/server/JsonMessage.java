@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Report;
@@ -42,6 +43,7 @@ public class JsonMessage {
 			msg.put("SamplingRate", m.getSamplingRate());
 			msg.put("UpThreshold", m.getHighLimit());
 			msg.put("DownThreshold", m.getLowLimit());
+			msg.put("Method", m.getMethod());
 		} else if (message instanceof Event) {
 			Event m = (Event) message;
 			msg.put("Type", m.getType());
@@ -59,6 +61,17 @@ public class JsonMessage {
 			GeneralConfiguration m = (GeneralConfiguration) message;
 			msg.put("Type", m.getType());
 			msg.put("DosimeterID", m.getDosimeterId());
+		} else if (message instanceof MeasurementConfiguration) {
+			MeasurementConfiguration m = (MeasurementConfiguration) message;
+			msg.put("Type", m.getType());
+			msg.put("Sensor", m.getSensor());
+			msg.put("Unit", m.getUnit());
+			msg.put("Time", m.getDate());
+			msg.put("SamplingRate", m.getSamplingRate());
+			msg.put("UpThreshold", m.getHighLimit());
+			msg.put("DownThreshold", m.getLowLimit());
+			msg.put("Slope", m.getSlope());
+			msg.put("Offset", m.getOffset());
 		} else if (message instanceof SensorOrder) {
 			SensorOrder m = (SensorOrder) message;
 			msg.put("Type", m.getType());
@@ -117,6 +130,10 @@ public class JsonMessage {
 					getDate("Time"));
 		} else if (type.equals("GeneralConfiguration")) {
 			return new GeneralConfiguration(device, getString("DosimeterID"));
+		} else if (type.equals("MeasurementConfiguration")) {
+			return new MeasurementConfiguration(device, getString("Sensor"), 
+					getDouble("DownThreshold"), getDouble("UpThreshold"), getString("Unit"),
+					getInteger("SamplingRate"), getDouble("Slope"), getDouble("Offset"), getDate("Time"));
 		} else if (type.equals("SensorOrder")) {
 			return new SensorOrder(device, getString("Name"),
 					getString("Parameter"), getString("Value"));
@@ -127,8 +144,8 @@ public class JsonMessage {
 					getBoolean("CameraHandheld"), getBoolean("CameraHelmet"),
 					getBoolean("Audio"), getDate("Time"));
 		}
-		
-		log.warn("Ignoring message with unknown type: "+type+" "+msg);
+
+		log.warn("Ignoring message with unknown type: " + type + " " + msg);
 
 		return null;
 	}
@@ -198,7 +215,7 @@ public class JsonMessage {
 			return null;
 		}
 	}
-	
+
 	public String toString() {
 		return msg.toString();
 	}
