@@ -21,6 +21,7 @@ import ch.cern.atlas.apvs.client.ui.CameraView;
 import ch.cern.atlas.apvs.client.ui.EventView;
 import ch.cern.atlas.apvs.client.ui.GeneralInfoView;
 import ch.cern.atlas.apvs.client.ui.InterventionView;
+import ch.cern.atlas.apvs.client.ui.MeasurementConfigurationView;
 import ch.cern.atlas.apvs.client.ui.MeasurementTable;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.Module;
@@ -273,6 +274,8 @@ public class APVS implements EntryPoint {
 					module = new EventView();
 				} else if (id.startsWith("GeneralInfoView")) {
 					module = new GeneralInfoView();
+				} else if (id.startsWith("MeasurementConfigurationView")) {
+					module = new MeasurementConfigurationView();
 				} else if (id.startsWith("InterventionView")) {
 					module = new InterventionView();
 				} else if (id.startsWith("PlaceView")) {
