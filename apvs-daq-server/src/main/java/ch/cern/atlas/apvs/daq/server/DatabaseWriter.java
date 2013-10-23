@@ -49,6 +49,9 @@ public class DatabaseWriter {
 						 		}
 						 		
 						 		break;
+						 	case "GeneralConfiguration":
+						 		log.info("Discarded: "+msg);
+						 		break;
 						 	default:
 						 		log.warn("Unhandled message type: "+msg);
 						 		break;

@@ -58,7 +58,7 @@ public class JsonMessage {
 		} else if (message instanceof GeneralConfiguration) {
 			GeneralConfiguration m = (GeneralConfiguration) message;
 			msg.put("Type", m.getType());
-			msg.put("DosimeterId", m.getDosimeterId());
+			msg.put("DosimeterID", m.getDosimeterId());
 		} else if (message instanceof SensorOrder) {
 			SensorOrder m = (SensorOrder) message;
 			msg.put("Type", m.getType());
@@ -116,7 +116,7 @@ public class JsonMessage {
 					getString("Description"), getString("Criticality"),
 					getDate("Time"));
 		} else if (type.equals("GeneralConfiguration")) {
-			return new GeneralConfiguration(device, getString("DosimeterId"));
+			return new GeneralConfiguration(device, getString("DosimeterID"));
 		} else if (type.equals("SensorOrder")) {
 			return new SensorOrder(device, getString("Name"),
 					getString("Parameter"), getString("Value"));
@@ -127,6 +127,8 @@ public class JsonMessage {
 					getBoolean("CameraHandheld"), getBoolean("CameraHelmet"),
 					getBoolean("Audio"), getDate("Time"));
 		}
+		
+		log.warn("Ignoring message with unknown type: "+type+" "+msg);
 
 		return null;
 	}
