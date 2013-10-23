@@ -61,6 +61,7 @@ public class JsonMessage {
 			GeneralConfiguration m = (GeneralConfiguration) message;
 			msg.put("Type", m.getType());
 			msg.put("DosimeterID", m.getDosimeterId());
+			msg.put("bssid", m.getBSSID());
 		} else if (message instanceof MeasurementConfiguration) {
 			MeasurementConfiguration m = (MeasurementConfiguration) message;
 			msg.put("Type", m.getType());
@@ -129,7 +130,7 @@ public class JsonMessage {
 					getString("Description"), getString("Criticality"),
 					getDate("Time"));
 		} else if (type.equals("GeneralConfiguration")) {
-			return new GeneralConfiguration(device, getString("DosimeterID"));
+			return new GeneralConfiguration(device, getString("DosimeterID"), getString("bssid"));
 		} else if (type.equals("MeasurementConfiguration")) {
 			return new MeasurementConfiguration(device, getString("Sensor"), 
 					getDouble("DownThreshold"), getDouble("UpThreshold"), getString("Unit"),
@@ -151,7 +152,7 @@ public class JsonMessage {
 	}
 
 	private String getString(String key) {
-		return msg.get(key).toString();
+		return toString(msg.get(key));
 	}
 
 	private Double getDouble(String key) {
@@ -168,6 +169,14 @@ public class JsonMessage {
 
 	private Date getDate(String key) {
 		return toDate(msg.get(key));
+	}
+	
+	public static String toString(Object string) {
+		if ((string == null) || !(string instanceof String)) {
+			return null;
+		}
+		
+		return string.toString();
 	}
 
 	public static Double toDouble(Object number) {

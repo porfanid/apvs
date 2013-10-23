@@ -13,13 +13,15 @@ public class GeneralConfiguration implements Message, Serializable,
 	private volatile Device device;
 	private String type = "GeneralConfiguration";
 	private String dosimeterId;
+	private String bssid;
 
 	protected GeneralConfiguration() {
 	}
 
-	public GeneralConfiguration(Device device, String dosimeterId) {
+	public GeneralConfiguration(Device device, String dosimeterId, String bssid) {
 		this.device = device;
 		this.dosimeterId = dosimeterId;
+		this.bssid = bssid;
 	}
 
 	@Override
@@ -29,6 +31,10 @@ public class GeneralConfiguration implements Message, Serializable,
 
 	public String getDosimeterId() {
 		return dosimeterId;
+	}
+	
+	public String getBSSID() {
+		return bssid;
 	}
 
 	@Override
@@ -44,25 +50,62 @@ public class GeneralConfiguration implements Message, Serializable,
 
 	@Override
 	public int hashCode() {
-		return (getDevice() != null ? getDevice().hashCode() : 0)
-				+ (getDosimeterId() != null ? getDosimeterId().hashCode() : 0);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((bssid == null) ? 0 : bssid.hashCode());
+		result = prime * result + ((device == null) ? 0 : device.hashCode());
+		result = prime * result
+				+ ((dosimeterId == null) ? 0 : dosimeterId.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if ((obj != null) && (obj instanceof GeneralConfiguration)) {
-			GeneralConfiguration m = (GeneralConfiguration) obj;
-			return (getDevice() == null ? m.getDevice() == null : getDevice()
-					.equals(m.getDevice()))
-					&& (getDosimeterId() == null ? m.getDosimeterId() == null
-							: getDosimeterId().equals(m.getDosimeterId()));
+		if (this == obj) {
+			return true;
 		}
-		return super.equals(obj);
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		GeneralConfiguration other = (GeneralConfiguration) obj;
+		if (bssid == null) {
+			if (other.bssid != null) {
+				return false;
+			}
+		} else if (!bssid.equals(other.bssid)) {
+			return false;
+		}
+		if (device == null) {
+			if (other.device != null) {
+				return false;
+			}
+		} else if (!device.equals(other.device)) {
+			return false;
+		}
+		if (dosimeterId == null) {
+			if (other.dosimeterId != null) {
+				return false;
+			}
+		} else if (!dosimeterId.equals(other.dosimeterId)) {
+			return false;
+		}
+		if (type == null) {
+			if (other.type != null) {
+				return false;
+			}
+		} else if (!type.equals(other.type)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "GeneralConfiguration(" + getDevice().getName() + "): dosimeterId="
-				+ getDosimeterId();
+		return "GeneralConfiguration [device=" + device.getName() + ", type=" + type
+				+ ", dosimeterId=" + dosimeterId + ", bssid=" + bssid + "]";
 	}
 }

@@ -52,6 +52,9 @@ public class DatabaseWriter {
 						 	case "GeneralConfiguration":
 						 		log.info("Discarded: "+msg);
 						 		break;
+						 	case "MeasurementConfiguration":
+						 		log.info("Discarded: "+msg);
+						 		break;
 						 	default:
 						 		log.warn("Unhandled message type: "+msg);
 						 		break;
