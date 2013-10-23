@@ -68,6 +68,7 @@ import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -373,7 +374,7 @@ public class InterventionView extends GlassPanel implements Module {
 				final TextAreaField description = new TextAreaField(
 						"Description");
 				fieldset.add(description);
-
+				
 				final Modal m = new Modal();
 
 				Button cancel = new Button("Cancel");
@@ -395,7 +396,7 @@ public class InterventionView extends GlassPanel implements Module {
 						Intervention intervention = new Intervention(users
 								.get(userField.getId()), devices.get(ptu
 								.getId()), new Date(), null, impact.getValue(),
-								0.0, description.getValue());
+								0.0, description.getValue(), false);
 
 						interventionService.addIntervention(intervention,
 								new AsyncCallback<Void>() {

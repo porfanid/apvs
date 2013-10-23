@@ -181,7 +181,6 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		return type;
 	}
 	
-	
 	@Type(type="yes_no")
 	@Column(name = "CONNECTED", length=1)
 	public Boolean isConnected() {
