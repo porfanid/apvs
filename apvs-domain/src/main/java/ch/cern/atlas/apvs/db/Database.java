@@ -351,6 +351,69 @@ public class Database {
 			query.setString("sensor", sensor);
 		}
 	}
+	
+	public long getInterventionCount(boolean showTest) {
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+			Query query = session.createQuery("select count(*) from "
+					+ Intervention.class.getName() + " t"
+					+ getInterventionClause(showTest));
+			addInterventionParams(query, showTest);
+			Long count = (Long) query.uniqueResult();
+			tx.commit();
+			return count;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	public List<Intervention> getInterventions(int start, int length, SortOrder[] order,
+			boolean showTest) {
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+			Query query = session.createQuery(getSql(
+					"from " + Intervention.class.getName() + " t"
+							+ getInterventionClause(showTest), order));
+			addInterventionParams(query, showTest);
+			query.setFirstResult(start).setMaxResults(length);
+			@SuppressWarnings("unchecked")
+			List<Intervention> interventions = query.list();
+			tx.commit();
+			return interventions;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	private String getInterventionClause(boolean showTest) {
+		return showTest ? "" : " where t.test = :test or t.test is null";
+	}
+
+	private void addInterventionParams(Query query, boolean showTest) {
+		if (!showTest) {
+			query.setBoolean("test", showTest);
+		}
+	}
 
 	private String getSql(String sql, SortOrder[] order) {
 		StringBuffer s = new StringBuffer(sql);

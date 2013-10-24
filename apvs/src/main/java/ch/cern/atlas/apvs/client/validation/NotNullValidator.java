@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client.validation;
 
-public class NotNullValidator implements Validator {
+public class NotNullValidator implements Validator<String> {
 
 	@Override
 	public Validation validate(String value) {

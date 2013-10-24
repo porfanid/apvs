@@ -1,52 +1,52 @@
 package ch.cern.atlas.apvs.client.validation;
 
-import com.github.gwtbootstrap.client.ui.TextArea;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.user.client.ui.CheckBox;
 
-public class TextAreaField extends ValidationField<String> {
+public class CheckBoxField extends ValidationField<Boolean> {
 
-	private TextArea area;
-	
-	public TextAreaField(String fieldLabel, Validator<String> validator) {
+	private CheckBox box;
+		
+	public CheckBoxField(String fieldLabel, Validator<Boolean> validator) {
 		super(fieldLabel, validator);
 		
-		area = new TextArea();
+		box = new CheckBox();
 		
-		area.addBlurHandler(new BlurHandler() {		
+		box.addBlurHandler(new BlurHandler() {		
 			@Override
 			public void onBlur(BlurEvent event) {
 				validate(true);
 			}
 		});
 		
-		area.addFocusHandler(new FocusHandler() {
+		box.addFocusHandler(new FocusHandler() {
 			@Override
 			public void onFocus(FocusEvent event) {
 				validate(true);
 			}
 		});
 		
-		area.addKeyUpHandler(new KeyUpHandler() {		
+		box.addKeyUpHandler(new KeyUpHandler() {		
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
 				validate(true);
 			}
 		});
-		
-		setField(area);
+				
+		setField(box);
 	}
 	
-	public TextAreaField(String fieldLabel) {
+	public CheckBoxField(String fieldLabel) {
 		this(fieldLabel, null);
 	}
-	
-	public String getValue() {
-		return area.getValue() != null ? area.getValue().trim() : null;
+		
+	public Boolean getValue() {
+		return box.getValue();
 	}
-
+	
 }

@@ -8,11 +8,11 @@ import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 
-public class TextBoxField extends ValidationField {
+public class TextBoxField extends ValidationField<String> {
 
 	private TextBox box;
 		
-	public TextBoxField(String fieldLabel, Validator validator) {
+	public TextBoxField(String fieldLabel, Validator<String> validator) {
 		super(fieldLabel, validator);
 		
 		box = new TextBox();
@@ -46,7 +46,7 @@ public class TextBoxField extends ValidationField {
 	}
 		
 	public String getValue() {
-		return box.getValue();
+		return box.getValue() != null ? box.getValue().trim() : null;
 	}
 	
 }

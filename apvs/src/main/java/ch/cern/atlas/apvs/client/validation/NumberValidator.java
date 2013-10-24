@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client.validation;
 
-public class NumberValidator implements Validator {
+public class NumberValidator implements Validator<String> {
 
 	private String info;
 

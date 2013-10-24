@@ -1,8 +1,8 @@
 package ch.cern.atlas.apvs.client.validation;
 
-public class EmptyValidator implements Validator {
+public class EmptyStringValidator implements Validator<String> {
 
-	public EmptyValidator() {
+	public EmptyStringValidator() {
 	}
 	
 	@Override

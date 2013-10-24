@@ -157,7 +157,7 @@ public class Intervention implements Serializable, IsSerializable {
 	
 	@Type(type="yes_no")
 	@Column(name = "TEST", length=1)
-	private void setTest(Boolean test) {
+	public void setTest(Boolean test) {
 		this.test = test;
 	}
 

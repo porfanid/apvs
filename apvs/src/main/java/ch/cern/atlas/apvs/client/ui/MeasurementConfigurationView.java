@@ -21,6 +21,7 @@ import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
@@ -58,21 +59,20 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 	private EventBus cmdBus;
 	private Device device;
-	private String measurementName;
+	private String sensor;
 
-	private ScrolledDataGrid<Event> table = new ScrolledDataGrid<Event>();
+	private ScrolledDataGrid<MeasurementConfiguration> table = new ScrolledDataGrid<MeasurementConfiguration>();
 	private ScrollPanel scrollPanel;
 
 	private PagerHeader pager;
 	private ActionHeader update;
 	private boolean showUpdate;
 
-	private ClickableTextColumn<Event> date;
 	private String ptuHeader;
 	private CompositeHeader compositeFooter;
-	private ClickableTextColumn<Event> ptu;
+	private ClickableTextColumn<MeasurementConfiguration> ptu;
 	private String nameHeader;
-	private ClickableHtmlColumn<Event> name;
+	private ClickableHtmlColumn<MeasurementConfiguration> name;
 
 	private boolean selectable = false;
 	private boolean sortable = true;
@@ -96,7 +96,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		}
 
 		table.setSize("100%", height);
-		table.setEmptyTableWidget(new Label("No Events"));
+		table.setEmptyTableWidget(new Label("No Measurement Configuration"));
 
 		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
@@ -110,7 +110,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 						.getMinimumHorizontalScrollPosition());
 
 				table.getColumnSortList().clear();
-				table.getColumnSortList().push(new ColumnSortInfo(date, false));
+				table.getColumnSortList().push(new ColumnSortInfo(ptu, true));
 				ColumnSortEvent.fire(table, table.getColumnSortList());
 				scheduler.update();
 			}
@@ -156,13 +156,12 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 			}
 		});
 
-		AsyncDataProvider<Event> dataProvider = new AsyncDataProvider<Event>() {
+		AsyncDataProvider<MeasurementConfiguration> dataProvider = new AsyncDataProvider<MeasurementConfiguration>() {
 
 			@Override
-			protected void onRangeChanged(HasData<Event> display) {
+			protected void onRangeChanged(HasData<MeasurementConfiguration> display) {
 
-				clientFactory.getEventService().getRowCount(device,
-						measurementName, new AsyncCallback<Long>() {
+				clientFactory.getPtuService().getRowCount(new AsyncCallback<Long>() {
 
 							@Override
 							public void onSuccess(Long result) {
@@ -190,12 +189,11 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 					order[0] = new SortOrder("t.date", false);
 				}
 
-				clientFactory.getEventService().getTableData(range.getStart(), range.getLength(), order,
-						device, measurementName,
-						new AsyncCallback<List<Event>>() {
+				clientFactory.getPtuService().getTableData(range.getStart(), range.getLength(), order,
+						new AsyncCallback<List<MeasurementConfiguration>>() {
 
 							@Override
-							public void onSuccess(List<Event> result) {
+							public void onSuccess(List<MeasurementConfiguration> result) {
 								table.setRowData(range.getStart(), result);
 							}
 
@@ -244,8 +242,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 							return;
 
 						if (((device == null) || event.getDevice().equals(device))
-								&& ((measurementName == null) || event
-										.getSensor().equals(measurementName))) {
+								&& ((sensor == null) || event
+										.getSensor().equals(sensor))) {
 							showUpdate = true;
 							scheduler.update();
 						}
@@ -268,7 +266,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 						@Override
 						public void onSelection(SelectMeasurementEvent event) {
-							measurementName = event.getName();
+							sensor = event.getName();
 							showUpdate = true;
 							scheduler.update();
 						}
@@ -287,185 +285,81 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 			});
 		}
 
-		// DATE and TIME (1)
-		date = new ClickableTextColumn<Event>() {
+		// PtuID (1)
+		ptu = new ClickableTextColumn<MeasurementConfiguration>() {
 			@Override
-			public String getValue(Event object) {
-				if (object == null) {
-					Window.alert("null date");
-					return "";
-				}
-				return ClientConstants.dateFormat.format(object.getDate());
-			}
-			
-			@Override
-			public String getDataStoreName() {
-				return "t.date";
-			}
-		};
-		date.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		date.setSortable(sortable);
-		if (selectable) {
-			date.setFieldUpdater(new FieldUpdater<Event, String>() {
-
-				@Override
-				public void update(int index, Event object, String value) {
-					selectEvent(object);
-				}
-			});
-		}
-
-		table.addColumn(date, new TextHeader("Date / Time"), compositeFooter);
-		table.getColumnSortList().push(new ColumnSortInfo(date, false));
-
-		// PtuID (2)
-		ptu = new ClickableTextColumn<Event>() {
-			@Override
-			public String getValue(Event object) {
+			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
 					return "";
 				}
 				return object.getDevice().getName();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.device.name";
-			}
 		};
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		ptu.setSortable(sortable);
 		if (selectable) {
-			ptu.setFieldUpdater(new FieldUpdater<Event, String>() {
+			ptu.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
 
 				@Override
-				public void update(int index, Event object, String value) {
-					selectEvent(object);
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
 				}
 			});
 		}
 		ptuHeader = "PTU ID";
 		table.addColumn(ptu, new TextHeader(ptuHeader), compositeFooter);
 
-		// Name (3)
-		name = new ClickableHtmlColumn<Event>() {
+		// Name (2)
+		name = new ClickableHtmlColumn<MeasurementConfiguration>() {
 			@Override
-			public String getValue(Event object) {
+			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
 					return "";
 				}
 				return object.getSensor();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.sensor";
-			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(sortable);
 		if (selectable) {
-			name.setFieldUpdater(new FieldUpdater<Event, String>() {
+			name.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
 
 				@Override
-				public void update(int index, Event object, String value) {
-					selectEvent(object);
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
 				}
 			});
 		}
 		nameHeader = "Name";
 		table.addColumn(name, new TextHeader(nameHeader), compositeFooter);
 
-		// EventType
-		ClickableTextColumn<Event> eventType = new ClickableTextColumn<Event>() {
-			@Override
-			public String getValue(Event object) {
-				if (object == null) {
-					return "";
-				}
-				return object.getEventType();
-			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.eventType";
-			}
-		};
-		eventType.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		eventType.setSortable(sortable);
-		if (selectable) {
-			eventType.setFieldUpdater(new FieldUpdater<Event, String>() {
-
-				@Override
-				public void update(int index, Event object, String value) {
-					selectEvent(object);
-				}
-			});
-		}
-		table.addColumn(eventType, "EventType");
-
 		// Value
-		ClickableTextColumn<Event> value = new ClickableTextColumn<Event>() {
+		ClickableTextColumn<MeasurementConfiguration> value = new ClickableTextColumn<MeasurementConfiguration>() {
 			@Override
-			public String getValue(Event object) {
+			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
 					return "";
 				}
 
-				return object.getValue() != null ? object.getValue().toString()
-						: "";
-			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.value";
+				return "TBD";
 			}
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		if (selectable) {
-			value.setFieldUpdater(new FieldUpdater<Event, String>() {
+			value.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
 
 				@Override
-				public void update(int index, Event object, String value) {
-					selectEvent(object);
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
 				}
 			});
 		}
 		table.addColumn(value, new TextHeader("Value"));
 
-		// Threshold
-		ClickableTextColumn<Event> threshold = new ClickableTextColumn<Event>() {
-			@Override
-			public String getValue(Event object) {
-				if (object == null) {
-					return "";
-				}
-
-				return object.getThreshold() != null ? object.getThreshold()
-						.toString() : "";
-			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.threshold";
-			}
-		};
-		threshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		if (selectable) {
-			threshold.setFieldUpdater(new FieldUpdater<Event, String>() {
-
-				@Override
-				public void update(int index, Event object, String value) {
-					selectEvent(object);
-				}
-			});
-		}
-		table.addColumn(threshold, "Threshold");
-
 		// Unit
-		ClickableHtmlColumn<Event> unit = new ClickableHtmlColumn<Event>() {
+		ClickableHtmlColumn<MeasurementConfiguration> unit = new ClickableHtmlColumn<MeasurementConfiguration>() {
 			@Override
-			public String getValue(Event object) {
+			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
 					return "";
 				}
@@ -475,26 +369,122 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		if (selectable) {
-			unit.setFieldUpdater(new FieldUpdater<Event, String>() {
+			unit.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
 
 				@Override
-				public void update(int index, Event object, String value) {
-					selectEvent(object);
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
 				}
 			});
 		}
 		table.addColumn(unit, "Unit");
 
+		// Value
+		ClickableTextColumn<MeasurementConfiguration> lowLimit = new ClickableTextColumn<MeasurementConfiguration>() {
+			@Override
+			public String getValue(MeasurementConfiguration object) {
+				if (object == null) {
+					return "";
+				}
+
+				return object.getLowLimit() != null ? object.getLowLimit().toString()
+						: "";
+			}
+		};
+		lowLimit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		if (selectable) {
+			lowLimit.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+
+				@Override
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
+				}
+			});
+		}
+		table.addColumn(lowLimit, new TextHeader("Low Limit"));
+
+		// Value
+		ClickableTextColumn<MeasurementConfiguration> highLimit = new ClickableTextColumn<MeasurementConfiguration>() {
+			@Override
+			public String getValue(MeasurementConfiguration object) {
+				if (object == null) {
+					return "";
+				}
+
+				return object.getHighLimit() != null ? object.getHighLimit().toString()
+						: "";
+			}
+		};
+		highLimit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		if (selectable) {
+			highLimit.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+
+				@Override
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
+				}
+			});
+		}
+		table.addColumn(highLimit, new TextHeader("High Limit"));
+
+		// Value
+		ClickableTextColumn<MeasurementConfiguration> slope = new ClickableTextColumn<MeasurementConfiguration>() {
+			@Override
+			public String getValue(MeasurementConfiguration object) {
+				if (object == null) {
+					return "";
+				}
+
+				return object.getSlope() != null ? object.getSlope().toString()
+						: "";
+			}
+		};
+		slope.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		if (selectable) {
+			slope.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+
+				@Override
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
+				}
+			});
+		}
+		table.addColumn(slope, new TextHeader("Slope"));
+
+		// Value
+		ClickableTextColumn<MeasurementConfiguration> offset = new ClickableTextColumn<MeasurementConfiguration>() {
+			@Override
+			public String getValue(MeasurementConfiguration object) {
+				if (object == null) {
+					return "";
+				}
+
+				return object.getOffset() != null ? object.getOffset().toString()
+						: "";
+			}
+		};
+		offset.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		if (selectable) {
+			offset.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+
+				@Override
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
+				}
+			});
+		}
+		table.addColumn(offset, new TextHeader("Offset"));
+
 		// Selection
 		if (selectable) {
-			final SingleSelectionModel<Event> selectionModel = new SingleSelectionModel<Event>();
+			final SingleSelectionModel<MeasurementConfiguration> selectionModel = new SingleSelectionModel<MeasurementConfiguration>();
 			table.setSelectionModel(selectionModel);
 			selectionModel
 					.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
 
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
-							Event m = selectionModel.getSelectedObject();
+							MeasurementConfiguration m = selectionModel.getSelectedObject();
 							log.info(m + " " + event.getSource());
 						}
 					});
@@ -505,27 +495,12 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 	private boolean needsUpdate() {
 		if (showUpdate) {
-			ColumnSortList sortList = table.getColumnSortList();
-			ColumnSortInfo sortInfo = sortList.size() > 0 ? sortList.get(0)
-					: null;
-			if (sortInfo == null) {
-				return true;
-			}
-			if (!sortInfo.getColumn().equals(date)) {
-				return true;
-			}
-			if (sortInfo.isAscending()) {
-				return true;
-			}
-			showUpdate = (scrollPanel.getVerticalScrollPosition() != scrollPanel
-					.getMinimumVerticalScrollPosition())
-					|| (pager.getPage() != pager.getPageStart());
 			return showUpdate;
 		}
 		return false;
 	}
 
-	private void selectEvent(Event event) {
+	private void selectMeasurementConfiguration(MeasurementConfiguration measurementConfiguration) {
 	}
 
 	@Override
@@ -544,11 +519,11 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		}
 
 		if (table.getColumnIndex(name) >= 0) {
-			if (measurementName != null) {
+			if (sensor != null) {
 				table.removeColumn(name);
 			}
 		} else {
-			if (measurementName == null) {
+			if (sensor == null) {
 				// add Name column
 				table.insertColumn(2, name, nameHeader);
 			}

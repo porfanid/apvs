@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
-import ch.cern.atlas.apvs.client.validation.EmptyValidator;
+import ch.cern.atlas.apvs.client.settings.LocalStorage;
+import ch.cern.atlas.apvs.client.validation.CheckBoxField;
+import ch.cern.atlas.apvs.client.validation.EmptyStringValidator;
 import ch.cern.atlas.apvs.client.validation.IntegerValidator;
 import ch.cern.atlas.apvs.client.validation.ListBoxField;
 import ch.cern.atlas.apvs.client.validation.NotNullValidator;
@@ -22,6 +24,7 @@ import ch.cern.atlas.apvs.client.validation.TextAreaField;
 import ch.cern.atlas.apvs.client.validation.TextBoxField;
 import ch.cern.atlas.apvs.client.validation.ValidationFieldset;
 import ch.cern.atlas.apvs.client.validation.ValidationForm;
+import ch.cern.atlas.apvs.client.widget.CheckboxColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.DataStoreName;
@@ -50,6 +53,7 @@ import com.github.gwtbootstrap.client.ui.constants.FormType;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
@@ -68,7 +72,6 @@ import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -94,7 +97,7 @@ public class InterventionView extends GlassPanel implements Module {
 	private boolean sortable = true;
 
 	private final String ONGOING_INTERVENTION = "Ongoing";
-	private final String END_INTERVENTION = "End Intervention";
+	private final String END_INTERVENTION = "End Intervention...";
 
 	private InterventionServiceAsync interventionService;
 	// private Validator validator;
@@ -103,10 +106,19 @@ public class InterventionView extends GlassPanel implements Module {
 
 	private HorizontalPanel footer = new HorizontalPanel();
 	private PagerHeader pager;
-	private Button update;
+	private Button updateButton;
 	private boolean showUpdate;
+	
+	private LocalStorage localStorage;
+	private Boolean showTest;
 
 	public InterventionView() {
+		localStorage = LocalStorage.getInstance();
+		showTest = localStorage.getBoolean(LocalStorage.SHOW_TEST_INTERVENTIONS);
+		if (showTest == null) {
+			showTest = true;
+			localStorage.put(LocalStorage.SHOW_TEST_INTERVENTIONS, showTest);
+		}
 	}
 
 	@Override
@@ -125,8 +137,8 @@ public class InterventionView extends GlassPanel implements Module {
 		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
 
-		update = new Button("Update");
-		update.addClickHandler(new ClickHandler() {
+		updateButton = new Button("Update");
+		updateButton.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
@@ -139,8 +151,8 @@ public class InterventionView extends GlassPanel implements Module {
 				scheduler.update();
 			}
 		});
-		update.setVisible(false);
-		footer.add(update);
+		updateButton.setVisible(false);
+		footer.add(updateButton);
 
 		setWidth("100%");
 		add(table, CENTER);
@@ -163,7 +175,7 @@ public class InterventionView extends GlassPanel implements Module {
 			protected void onRangeChanged(HasData<Intervention> display) {
 				log.info("ON RANGE CHANGED " + display.getVisibleRange());
 
-				interventionService.getRowCount(new AsyncCallback<Long>() {
+				interventionService.getRowCount(showTest, new AsyncCallback<Long>() {
 
 					@Override
 					public void onSuccess(Long result) {
@@ -192,9 +204,10 @@ public class InterventionView extends GlassPanel implements Module {
 					order = new SortOrder[1];
 					order[0] = new SortOrder("t.endTime", false);
 				}
-				
+
 				interventionService.getTableData(range.getStart(),
 						range.getLength(), order,
+						showTest, 
 						new AsyncCallback<List<Intervention>>() {
 
 							@Override
@@ -250,12 +263,13 @@ public class InterventionView extends GlassPanel implements Module {
 						: TextCell.class;
 			}
 		};
-		endTime = new GenericColumn<Intervention>(
-				cell) {
+		endTime = new GenericColumn<Intervention>(cell) {
 			@Override
 			public String getValue(Intervention object) {
 				return object.getEndTime() != null ? ClientConstants.dateFormatNoSeconds
-						.format(object.getEndTime()) : clientFactory.isSupervisor() ? END_INTERVENTION : ONGOING_INTERVENTION;
+						.format(object.getEndTime()) : clientFactory
+						.isSupervisor() ? END_INTERVENTION
+						: ONGOING_INTERVENTION;
 			}
 
 			@Override
@@ -301,7 +315,7 @@ public class InterventionView extends GlassPanel implements Module {
 		Header<String> interventionFooter = new Header<String>(new ButtonCell()) {
 			@Override
 			public String getValue() {
-				return "Start a new Intervention";
+				return "New Intervention...";
 			}
 
 			public boolean onPreviewColumnSortEvent(Context context,
@@ -374,7 +388,11 @@ public class InterventionView extends GlassPanel implements Module {
 				final TextAreaField description = new TextAreaField(
 						"Description");
 				fieldset.add(description);
-				
+
+				final CheckBoxField test = new CheckBoxField(
+						"Test Intervention");
+				fieldset.add(test);
+
 				final Modal m = new Modal();
 
 				Button cancel = new Button("Cancel");
@@ -396,7 +414,7 @@ public class InterventionView extends GlassPanel implements Module {
 						Intervention intervention = new Intervention(users
 								.get(userField.getId()), devices.get(ptu
 								.getId()), new Date(), null, impact.getValue(),
-								0.0, description.getValue(), false);
+								0.0, description.getValue(), test.getValue());
 
 						interventionService.addIntervention(intervention,
 								new AsyncCallback<Void>() {
@@ -419,7 +437,7 @@ public class InterventionView extends GlassPanel implements Module {
 				form.setType(FormType.HORIZONTAL);
 				form.add(fieldset);
 
-				m.setTitle("Start a new Intervention");
+				m.setTitle("New Intervention");
 				m.add(form);
 				m.add(new ModalFooter(cancel, ok));
 				m.show();
@@ -477,7 +495,7 @@ public class InterventionView extends GlassPanel implements Module {
 		Header<String> nameFooter = new Header<String>(new ButtonCell()) {
 			@Override
 			public String getValue() {
-				return "Add a new User";
+				return "New User...";
 			}
 
 			public boolean onPreviewColumnSortEvent(Context context,
@@ -502,7 +520,7 @@ public class InterventionView extends GlassPanel implements Module {
 				fieldset.add(lname);
 
 				final TextBoxField cernId = new TextBoxField("CERN ID",
-						new OrValidator(new EmptyValidator(),
+						new OrValidator<String>(new EmptyStringValidator(),
 								new IntegerValidator("Enter a number")));
 				fieldset.add(cernId);
 
@@ -547,7 +565,7 @@ public class InterventionView extends GlassPanel implements Module {
 				ValidationForm form = new ValidationForm(ok, cancel);
 				form.setType(FormType.HORIZONTAL);
 				form.add(fieldset);
-				m.setTitle("Add a new User");
+				m.setTitle("New User");
 				m.add(form);
 				m.add(new ModalFooter(cancel, ok));
 				m.show();
@@ -582,7 +600,7 @@ public class InterventionView extends GlassPanel implements Module {
 		Header<String> deviceFooter = new Header<String>(new ButtonCell()) {
 			@Override
 			public String getValue() {
-				return "Add a new PTU";
+				return "New PTU...";
 			}
 
 			public boolean onPreviewColumnSortEvent(Context context,
@@ -664,7 +682,7 @@ public class InterventionView extends GlassPanel implements Module {
 				form.setType(FormType.HORIZONTAL);
 				form.add(fieldset);
 
-				m.setTitle("Add a new PTU");
+				m.setTitle("New PTU");
 				m.add(form);
 				m.add(new ModalFooter(cancel, ok));
 				m.show();
@@ -733,6 +751,49 @@ public class InterventionView extends GlassPanel implements Module {
 		// table.addColumn(recStatus, new TextHeader("Rec Status"),
 		// new TextHeader(""));
 
+		final CheckboxColumn<Intervention> test = new CheckboxColumn<Intervention>(
+				new CheckboxCell()) {
+			@Override
+			public Boolean getValue(Intervention intervention) {
+				return intervention.isTest();
+			}
+
+			@Override
+			public String getDataStoreName() {
+				return "t.test";
+			}
+		};
+		test.setFieldUpdater(new FieldUpdater<Intervention, Boolean>() {
+
+			@Override
+			public void update(int index, Intervention intervention,
+					Boolean value) {
+				if (!clientFactory.isSupervisor()) {
+					return;
+				}
+
+				intervention.setTest(value);
+				interventionService.updateIntervention(intervention,
+						new AsyncCallback<Void>() {
+
+							@Override
+							public void onSuccess(Void result) {
+								scheduler.update();
+							}
+
+							@Override
+							public void onFailure(Throwable caught) {
+								Window.alert(caught.getMessage());
+							}
+						});
+			}
+		});
+		test.setEnabled(clientFactory.isSupervisor());
+		test.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		test.setSortable(true);
+		final TextHeader testHeader = new TextHeader("Test");
+		final TextHeader testFooter = new TextHeader("");
+
 		// Description
 		EditTextColumn<Intervention> description = new EditTextColumn<Intervention>() {
 			@Override
@@ -773,8 +834,38 @@ public class InterventionView extends GlassPanel implements Module {
 						});
 			}
 		});
-		table.addColumn(description, new TextHeader("Description"),
-				new TextHeader(""));
+
+		Header<String> descriptionFooter = new Header<String>(new ButtonCell()) {
+			@Override
+			public String getValue() {
+				return showTest ? "Hide Test" : "Show Test";
+			}
+
+			public boolean onPreviewColumnSortEvent(Context context,
+					Element elem, NativeEvent event) {
+				// events are handled, do not sort, fix for #454
+				return false;
+			}
+		};
+		
+		descriptionFooter.setUpdater(new ValueUpdater<String>() {
+			@Override
+			public void update(String value) {
+				
+				showTest = value.toLowerCase().startsWith("show");
+				localStorage.put(LocalStorage.SHOW_TEST_INTERVENTIONS, showTest);
+				
+				String style = showTest ? null : "hide";
+				test.setCellStyleNames(style); 
+				testHeader.setHeaderStyleNames(style); 
+				testFooter.setHeaderStyleNames(style);
+				
+				InterventionView.this.update();
+			}
+		});
+
+		table.addColumn(description, new TextHeader("Description"), descriptionFooter);
+		table.addColumn(test, testHeader, testFooter);
 
 		// Selection
 		if (selectable) {
@@ -864,7 +955,7 @@ public class InterventionView extends GlassPanel implements Module {
 	@Override
 	public boolean update() {
 		// show or hide update button
-		update.setVisible(needsUpdate());
+		updateButton.setVisible(needsUpdate());
 
 		RangeChangeEvent.fire(table, table.getVisibleRange());
 		table.redraw();

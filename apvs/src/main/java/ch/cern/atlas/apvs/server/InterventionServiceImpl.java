@@ -55,10 +55,29 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
+	public long getRowCount(boolean showTest) throws ServiceException {
+		try {
+			return database.getInterventionCount(showTest);
+		} catch (HibernateException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
 	public List<Intervention> getTableData(int start, int length, SortOrder[] order)
 			throws ServiceException {
 		try {
 			return database.getList(Intervention.class, start, length, order);
+		} catch (HibernateException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public List<Intervention> getTableData(int start, int length, SortOrder[] order, boolean showTest)
+			throws ServiceException {
+		try {
+			return database.getInterventions(start, length, order, showTest);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}

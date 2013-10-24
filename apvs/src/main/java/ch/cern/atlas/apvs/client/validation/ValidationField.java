@@ -10,16 +10,16 @@ import com.github.gwtbootstrap.client.ui.HelpInline;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class ValidationField extends ControlGroup {
+public abstract class ValidationField<T> extends ControlGroup {
 
 	private ControlLabel label;
 	private Controls controls;
 
 	private List<ValidationHandler> handlers = new ArrayList<ValidationHandler>();
-	private Validator validator;
+	private Validator<T> validator;
 	private HelpInline help;
 
-	public ValidationField(String fieldLabel, Validator validator) {
+	public ValidationField(String fieldLabel, Validator<T> validator) {
 		label = new ControlLabel(fieldLabel);
 		this.validator = validator;
 
@@ -45,7 +45,7 @@ public abstract class ValidationField extends ControlGroup {
 	public boolean validate(boolean fireEvents) {
 		Validation result = new Validation();
 		if (validator != null) {
-			String value = getValue() != null ? getValue().trim() : null;
+			T value = getValue();
 			result = validator.validate(value);
 		}
 		help.setText(result.getMessage());
@@ -61,7 +61,7 @@ public abstract class ValidationField extends ControlGroup {
 		controls.add(help);
 	}
 
-	public abstract String getValue();
+	public abstract T getValue();
 
 	private void fire(boolean valid) {
 		for (ValidationHandler handler : handlers) {

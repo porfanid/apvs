@@ -2,7 +2,7 @@ package ch.cern.atlas.apvs.client.validation;
 
 import com.github.gwtbootstrap.client.ui.constants.ControlGroupType;
 
-public interface Validator {
+public interface Validator<T> {
 	
 	public static ControlGroupType WARNING = ControlGroupType.WARNING;
 	public static ControlGroupType ERROR = ControlGroupType.ERROR;
@@ -14,5 +14,5 @@ public interface Validator {
 	 * @param value
 	 * @return null if valid, otherwise error message
 	 */
-	Validation validate(String value);
+	Validation validate(T value);
 }

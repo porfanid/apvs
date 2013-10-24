@@ -1,0 +1,49 @@
+package ch.cern.atlas.apvs.client.widget;
+
+import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.cellview.client.Column;
+
+public abstract class CheckboxColumn<T> extends Column<T, Boolean> implements DataStoreName {
+
+	private boolean enabled;
+	
+	public CheckboxColumn() {
+		super(new CheckboxCell());
+		enabled = true;
+	}
+		
+	public CheckboxColumn(Cell<Boolean> cell) {
+		super(cell);
+	}
+	
+	@Override
+	public void render(Context context, T object, SafeHtmlBuilder sb) {
+		super.render(context, object, sb);
+	}
+	
+	@Override
+	public void onBrowserEvent(Context context, Element elem, T object,
+			NativeEvent event) {
+		if (enabled) {
+			super.onBrowserEvent(context, elem, object, event);
+		}
+	}
+	
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	public boolean isEnabled() {
+		return enabled;
+	}
+	
+	@Override
+	public String getDataStoreName() {
+		return null;
+	}
+}

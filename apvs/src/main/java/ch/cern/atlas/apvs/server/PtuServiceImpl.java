@@ -6,6 +6,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,6 @@ import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gwt.user.client.rpc.SerializationException;
-
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.manager.AlarmManager;
 import ch.cern.atlas.apvs.client.service.PtuService;
@@ -28,9 +27,13 @@ import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Order;
+import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
+
+import com.google.gwt.user.client.rpc.SerializationException;
 
 /**
  * @author Mark Donszelmann
@@ -113,7 +116,18 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 				});
 
 	}
+	
+	@Override
+	public long getRowCount() throws ServiceException {
+		return 0;
+	}
 
+	@Override
+	public List<MeasurementConfiguration> getTableData(int start, int length,
+			SortOrder[] order) throws ServiceException {
+		return new ArrayList<MeasurementConfiguration>();
+	}
+	
 	@Override
 	public List<Measurement> getMeasurements(List<Device> ptuList, String name)
 			throws ServiceException {
