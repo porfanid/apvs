@@ -7,6 +7,6 @@ import ch.cern.atlas.apvs.domain.SortOrder;
 public interface TableService<T> {
 	long getRowCount() throws ServiceException;
 
-	List<T> getTableData(int start, int length, SortOrder[] order)
+	List<T> getTableData(Integer start, Integer length, List<SortOrder> order)
 			throws ServiceException;
 }

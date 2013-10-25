@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,7 +20,6 @@ import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
-import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
@@ -39,7 +40,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -177,16 +177,15 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				final Range range = display.getVisibleRange();
 
 				final ColumnSortList sortList = table.getColumnSortList();
-				SortOrder[] order = new SortOrder[sortList.size()];
+				List<SortOrder> order = new ArrayList<SortOrder>(sortList.size());
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order[i] = new SortOrder(((DataStoreName)info.getColumn())
-							.getDataStoreName(), info.isAscending());
+					order.add(new SortOrder(((DataStoreName)info.getColumn())
+							.getDataStoreName(), info.isAscending()));
 				}
 
-				if (order.length == 0) {
-					order = new SortOrder[1];
-					order[0] = new SortOrder("t.date", false);
+				if (order.isEmpty()) {
+					order.add(new SortOrder("date", false));
 				}
 
 				clientFactory.getPtuService().getTableData(range.getStart(), range.getLength(), order,

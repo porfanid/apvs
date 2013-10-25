@@ -5,6 +5,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Date;
@@ -119,15 +120,25 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	
 	@Override
 	public long getRowCount() throws ServiceException {
-		return 0;
-	}
-
-	@Override
-	public List<MeasurementConfiguration> getTableData(int start, int length,
-			SortOrder[] order) throws ServiceException {
-		return new ArrayList<MeasurementConfiguration>();
+		try {
+			return database.getCount(MeasurementConfiguration.class);
+		} catch (HibernateException e) {
+			throw new ServiceException(e.getMessage());
+		}
 	}
 	
+	@Override
+	public List<MeasurementConfiguration> getTableData(Integer start, Integer length, List<SortOrder> order)
+			throws ServiceException {
+		try {
+			return database.getList(MeasurementConfiguration.class, start, length,
+					Database.getOrder(order));
+		} catch (HibernateException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+		
 	@Override
 	public List<Measurement> getMeasurements(List<Device> ptuList, String name)
 			throws ServiceException {

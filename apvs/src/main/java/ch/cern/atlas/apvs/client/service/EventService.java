@@ -16,6 +16,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface EventService extends TableService<Event>, RemoteService {
 	long getRowCount(Device device, String sensor) throws ServiceException;
 	
-	List<Event> getTableData(int start, int length, SortOrder[] order, Device device, String sensor)
+	List<Event> getTableData(int start, int length, List<SortOrder> order, Device device, String sensor)
 			throws ServiceException;
 }

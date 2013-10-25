@@ -1,11 +1,15 @@
 package ch.cern.atlas.apvs.server;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.hibernate.HibernateException;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,57 +34,72 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	private RemoteEventBus eventBus;
 	private Database database;
 	private DatabaseHandler databaseHandler;
-	
+
 	public InterventionServiceImpl() {
 		log.info("Creating InterventionService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
 
-
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		
+
 		database = Database.getInstance();
 		databaseHandler = DatabaseHandler.getInstance(eventBus);
 	}
-	
+
 	@Override
 	public long getRowCount() throws ServiceException {
 		try {
-			return database.getCount(Intervention.class);
+			return database.getCount(
+					Intervention.class);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
+		
+	@Override
+	public List<Intervention> getTableData(Integer start, Integer length,
+			List<SortOrder> order) throws ServiceException {
+		try {
+			return database.getList(Intervention.class, start, length,
+					Database.getOrder(order));
+		} catch (HibernateException e) {
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
 
 	@Override
 	public long getRowCount(boolean showTest) throws ServiceException {
 		try {
-			return database.getInterventionCount(showTest);
+			return database.getCount(
+					Intervention.class,
+					getCriterion(showTest));
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
 
 	@Override
-	public List<Intervention> getTableData(int start, int length, SortOrder[] order)
-			throws ServiceException {
+	public List<Intervention> getTableData(int start, int length,
+			List<SortOrder> order, boolean showTest) throws ServiceException {
 		try {
-			return database.getList(Intervention.class, start, length, order);
+			return database.getList(Intervention.class, start, length,
+					Database.getOrder(order), getCriterion(showTest),
+					Arrays.asList("device", "user"));
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
 
-	@Override
-	public List<Intervention> getTableData(int start, int length, SortOrder[] order, boolean showTest)
-			throws ServiceException {
-		try {
-			return database.getInterventions(start, length, order, showTest);
-		} catch (HibernateException e) {
-			throw new ServiceException(e.getMessage());
+	private List<Criterion> getCriterion(boolean showTest) {
+		List<Criterion> c = new ArrayList<Criterion>();
+		if (!showTest) {
+			c.add(Restrictions.or(Restrictions.eq("test", showTest),
+					Restrictions.isNull("test")));
 		}
+		return c;
 	}
 
 	@Override
@@ -96,11 +115,11 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void addDevice(Device device)
-			throws ServiceException {
+	public void addDevice(Device device) throws ServiceException {
 		try {
 			if (!isSupervisor()) {
-				throw new ServiceException("Cannot add device, not a supervisor");
+				throw new ServiceException(
+						"Cannot add device, not a supervisor");
 			}
 			database.saveOrUpdate(device);
 		} catch (HibernateException e) {
@@ -118,10 +137,12 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void addIntervention(Intervention intervention) throws ServiceException {
+	public void addIntervention(Intervention intervention)
+			throws ServiceException {
 		try {
 			if (!isSupervisor()) {
-				throw new ServiceException("Cannot add intervention, not a supervisor");
+				throw new ServiceException(
+						"Cannot add intervention, not a supervisor");
 			}
 			database.saveOrUpdate(intervention);
 			databaseHandler.readInterventions();
@@ -131,10 +152,12 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void updateIntervention(Intervention intervention) throws ServiceException {
+	public void updateIntervention(Intervention intervention)
+			throws ServiceException {
 		try {
 			if (!isSupervisor()) {
-				throw new ServiceException("Cannot update intervention, not a supervisor");
+				throw new ServiceException(
+						"Cannot update intervention, not a supervisor");
 			}
 			database.saveOrUpdate(intervention);
 			databaseHandler.readInterventions();
@@ -151,7 +174,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			throw new ServiceException(e.getMessage());
 		}
 	}
-		
+
 	@Override
 	public Intervention getIntervention(Device device) throws ServiceException {
 		try {
@@ -160,9 +183,10 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			throw new ServiceException(e.getMessage());
 		}
 	}
-	
+
 	private boolean isSupervisor() {
-		Boolean isSupervisor = (Boolean)getThreadLocalRequest().getSession(true).getAttribute("SUPERVISOR");
+		Boolean isSupervisor = (Boolean) getThreadLocalRequest().getSession(
+				true).getAttribute("SUPERVISOR");
 		return isSupervisor != null ? isSupervisor : false;
 	}
 }

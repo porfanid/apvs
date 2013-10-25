@@ -8,12 +8,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.NullPrecedence;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 import org.slf4j.Logger;
@@ -46,10 +54,10 @@ public class Database {
 	private SessionFactory sessionFactory;
 
 	private Database() {
-		
+
 		configuration = new Configuration();
 		configuration.configure(new File("hibernate.cfg.xml"));
-		
+
 		// mapped classes
 		configuration.addAnnotatedClass(Device.class);
 		configuration.addAnnotatedClass(Event.class);
@@ -57,7 +65,7 @@ public class Database {
 		configuration.addAnnotatedClass(Measurement.class);
 		configuration.addAnnotatedClass(Sensor.class);
 		configuration.addAnnotatedClass(User.class);
-		
+
 		// mapped types
 		configuration.registerTypeOverride(new DoubleStringType());
 		configuration.registerTypeOverride(new IntegerStringType());
@@ -90,6 +98,99 @@ public class Database {
 		return sessionFactory;
 	}
 
+	public long getCount(Class<?> clazz) {
+		return getCount(clazz, null);
+	}
+
+	public long getCount(Class<?> clazz, List<Criterion> criterion) {
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+
+			Criteria criteria = session.createCriteria(clazz);
+			criteria.setProjection(Projections.rowCount());
+
+			if (criterion != null) {
+				for (Criterion c : criterion) {
+					criteria.add(c);
+				}
+			}
+
+			Long count = (Long) criteria.uniqueResult();
+
+			tx.commit();
+			return count;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	public <T> List<T> getList(Class<T> clazz, Integer start, Integer length,
+			List<Order> order) {
+		return getList(clazz, start, length, order);
+	}
+
+	public <T> List<T> getList(Class<T> clazz, Integer start, Integer length,
+			List<Order> order, List<Criterion> criterion, List<String> alias) {
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+
+			Criteria criteria = session.createCriteria(clazz);
+			if (alias != null) {
+				for (String a : alias) {
+					criteria.createAlias(a, a);
+				}
+			}
+
+			if (start != null) {
+				criteria.setFirstResult(start);
+			}
+
+			if (length != null) {
+				criteria.setMaxResults(length);
+			}
+
+			if (order != null) {
+				for (Order o : order) {
+					criteria.addOrder(o);
+				}
+			}
+
+			if (criterion != null) {
+				for (Criterion c : criterion) {
+					criteria.add(c);
+				}
+			}
+
+			@SuppressWarnings("unchecked")
+			List<T> list = criteria.list();
+
+			tx.commit();
+			return list;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
 	public List<Device> getDevices(boolean available) {
 		Session session = null;
 		Transaction tx = null;
@@ -97,14 +198,20 @@ public class Database {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 
-			String sql = "from Device d";
+			Criteria c = session.createCriteria(Device.class);
+			c.addOrder(Order.asc("name"));
+
 			if (available) {
-				sql += " where d.id not in (select device.id from Intervention i where i.endTime is null)";
+				DetachedCriteria dc = DetachedCriteria
+						.forClass(Intervention.class);
+				dc.add(Restrictions.isNull("endTime"));
+				dc.setProjection(Projections.property("device.id"));
+
+				c.add(Property.forName("id").notIn(dc));
 			}
-			sql += " order by d.name";
 
 			@SuppressWarnings("unchecked")
-			List<Device> devices = session.createQuery(sql).list();
+			List<Device> devices = c.list();
 
 			tx.commit();
 			return devices;
@@ -135,11 +242,12 @@ public class Database {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 
-			Query query = session
-					.createQuery("select distinct sensor from Measurement m where m.device = :device");
-			query.setEntity("device", device);
+			Criteria c = session.createCriteria(Measurement.class);
+			c.add(Restrictions.eq("device", device));
+			c.setProjection(Projections.distinct(Projections.property("sensor")));
+
 			@SuppressWarnings("unchecked")
-			List<String> sensorNames = query.list();
+			List<String> sensorNames = c.list();
 			log.info("Found " + sensorNames.size() + " sensor names for "
 					+ device.getName());
 
@@ -191,12 +299,20 @@ public class Database {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 
-			String sql = "from User u";
+			Criteria c = session.createCriteria(User.class);
+			c.addOrder(Order.asc("lastName"));
+			c.addOrder(Order.asc("firstName"));
+
 			if (available) {
-				sql += " where u.id not in (select user.id from Intervention i where i.endTime is null)";
+				DetachedCriteria dc = DetachedCriteria
+						.forClass(Intervention.class);
+				dc.add(Restrictions.isNull("endTime"));
+				dc.setProjection(Projections.property("user.id"));
+
+				c.add(Property.forName("id").notIn(dc));
 			}
-			sql += " order by u.lastName, u.firstName";
-			List<User> users = session.createQuery(sql).list();
+
+			List<User> users = c.list();
 
 			tx.commit();
 
@@ -213,229 +329,6 @@ public class Database {
 		}
 	}
 
-	public <T> List<T> getList(Class<T> clazz, Integer start, Integer length,
-			SortOrder[] order) {
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-			@SuppressWarnings("unchecked")
-			List<T> list = getQuery(session, clazz, start, length, order)
-					.list();
-			tx.commit();
-			return list;
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-
-	public Query getQuery(Session session, Class<?> clazz, Integer start,
-			Integer length, SortOrder[] order) {
-		Query query = session.createQuery(getSql("from " + clazz.getName()
-				+ " t", order));
-		if (start != null) {
-			query.setFirstResult(start);
-		}
-		if (length != null) {
-			query.setMaxResults(length);
-		}
-		return query;
-	}
-
-	public long getCount(Class<?> clazz) {
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-			Long count = (Long) session.createQuery(
-					"select count(*) from " + clazz.getName()).uniqueResult();
-			tx.commit();
-			// System.err.println("Getting count for "+clazz+" "+count);
-			return count;
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-
-	public long getEventCount(Device device, String sensor) {
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-			Query query = session.createQuery("select count(*) from "
-					+ Event.class.getName() + " t"
-					+ getEventClause(device, sensor));
-			addEventParams(query, device, sensor);
-			Long count = (Long) query.uniqueResult();
-			tx.commit();
-			return count;
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-
-	public List<Event> getEvents(int start, int length, SortOrder[] order,
-			Device device, String sensor) {
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-			Query query = session.createQuery(getSql(
-					"from " + Event.class.getName() + " t"
-							+ getEventClause(device, sensor), order));
-			addEventParams(query, device, sensor);
-			query.setFirstResult(start).setMaxResults(length);
-			@SuppressWarnings("unchecked")
-			List<Event> events = query.list();
-			tx.commit();
-			return events;
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-
-	private String getEventClause(Device device, String sensor) {
-		String sql = "";
-		if ((device != null) || (sensor != null)) {
-			sql += " where";
-			if (device != null) {
-				sql += " t.device = :device";
-			}
-			if (sensor != null) {
-				if (sensor != null) {
-					sql += " and";
-				}
-				sql += " t.name = :sensor";
-			}
-		}
-		return sql;
-	}
-
-	private void addEventParams(Query query, Device device, String sensor) {
-		if (device != null) {
-			query.setEntity("device", device);
-		}
-		if (sensor != null) {
-			query.setString("sensor", sensor);
-		}
-	}
-	
-	public long getInterventionCount(boolean showTest) {
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-			Query query = session.createQuery("select count(*) from "
-					+ Intervention.class.getName() + " t"
-					+ getInterventionClause(showTest));
-			addInterventionParams(query, showTest);
-			Long count = (Long) query.uniqueResult();
-			tx.commit();
-			return count;
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-
-	public List<Intervention> getInterventions(int start, int length, SortOrder[] order,
-			boolean showTest) {
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-			Query query = session.createQuery(getSql(
-					"from " + Intervention.class.getName() + " t"
-							+ getInterventionClause(showTest), order));
-			addInterventionParams(query, showTest);
-			query.setFirstResult(start).setMaxResults(length);
-			@SuppressWarnings("unchecked")
-			List<Intervention> interventions = query.list();
-			tx.commit();
-			return interventions;
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
-
-	private String getInterventionClause(boolean showTest) {
-		return showTest ? "" : " where t.test = :test or t.test is null";
-	}
-
-	private void addInterventionParams(Query query, boolean showTest) {
-		if (!showTest) {
-			query.setBoolean("test", showTest);
-		}
-	}
-
-	private String getSql(String sql, SortOrder[] order) {
-		StringBuffer s = new StringBuffer(sql);
-		if (order != null) {
-			for (int i = 0; i < order.length; i++) {
-				if (i == 0) {
-					s.append(" order by ");
-				}
-
-				s.append(order[i].getName());
-				s.append(" ");
-				s.append(order[i].isAscending() ? "ASC" : "DESC");
-				// FIX for #710
-				s.append(" NULLS FIRST");
-				if (i + 1 < order.length) {
-					s.append(", ");
-				}
-			}
-		}
-		return s.toString();
-	}
-
 	public SensorMap getSensorMap() throws HibernateException {
 		Session session = null;
 		Transaction tx = null;
@@ -444,8 +337,9 @@ public class Database {
 
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
+
 			@SuppressWarnings("unchecked")
-			List<Sensor> list = session.createQuery("from Sensor").list();
+			List<Sensor> list = session.createCriteria(Sensor.class).list();
 			for (Iterator<Sensor> i = list.iterator(); i.hasNext();) {
 				Sensor sensor = i.next();
 				Boolean enabled = sensor.isEnabled() == null
@@ -467,31 +361,6 @@ public class Database {
 			}
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
-	public List<Intervention> getInterventions() {
-		List<Intervention> interventions = null;
-		
-		Session session = null;
-		Transaction tx = null;
-		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();
-			interventions = (List<Intervention>)session
-					.createQuery("from Intervention i where i.endTime is null").list();
-			tx.commit();
-		} catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			throw e;
-		} finally {
-			if (session != null) {
-				session.close();
-			}
-		}
-		return interventions;
-	}
 
 	public Intervention getIntervention(Device device)
 			throws HibernateException {
@@ -501,9 +370,10 @@ public class Database {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 			Intervention intervention = (Intervention) session
-					.createQuery(
-							"from Intervention i where i.endTime is null and i.device = :device order by i.startTime desc")
-					.setEntity("device", device).uniqueResult();
+					.createCriteria(Intervention.class)
+					.add(Restrictions.isNull("endTime"))
+					.add(Restrictions.eq("device", device))
+					.addOrder(Order.desc("startTime")).uniqueResult();
 			tx.commit();
 			return intervention;
 		} catch (HibernateException e) {
@@ -517,19 +387,20 @@ public class Database {
 			}
 		}
 	}
-	
+
 	public Date getLastMeasurementUpdateTime() {
 		Date date = null;
-		
+
 		Session session = null;
 		Transaction tx = null;
 		try {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 
-			String sql = "select date from Measurement order by date desc";
-
-			date = (Date)session.createQuery(sql).setMaxResults(1).uniqueResult();
+			date = (Date) session.createCriteria(Measurement.class)
+					.setProjection(Projections.property("date"))
+					.addOrder(Order.desc("date")).setMaxResults(1)
+					.uniqueResult();
 			tx.commit();
 		} catch (HibernateException e) {
 			if (tx != null) {
@@ -563,7 +434,7 @@ public class Database {
 		String sql = "from Measurement m, view_last_measurements_date d "
 				+ "where d.datetime = m.date " + "and d.sensor = m.sensor "
 				+ "and d.device_id = m.device.id";
-
+		
 		if (ptuList != null) {
 			sql += " and m.sensor in ("
 					+ StringUtils.join(ptuList.toArray(), ',', '\'') + ")";
@@ -577,6 +448,7 @@ public class Database {
 		try {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
+						
 			Query query = session.createQuery(sql);
 			if (name != null) {
 				query.setString("sensor", name);
@@ -593,7 +465,7 @@ public class Database {
 				if (!sensorMap.isEnabled(device, sensor)) {
 					continue;
 				}
-				
+
 				String unit = m.getUnit();
 				Double value = m.getValue();
 				Double low = m.getLowLimit();
@@ -612,8 +484,8 @@ public class Database {
 				high = Scale.getHighLimit(high, unit);
 				unit = Scale.getUnit(sensor, unit);
 
-				list.add(new Measurement(device, sensor, value,
-						low, high, unit, m.getSamplingRate(), m.getMethod(), m.getDate()));
+				list.add(new Measurement(device, sensor, value, low, high,
+						unit, m.getSamplingRate(), m.getMethod(), m.getDate()));
 			}
 			tx.commit();
 			return list;
@@ -636,19 +508,17 @@ public class Database {
 		try {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
+			
+			Criteria c = session.createCriteria(Measurement.class);
+			c.add(Restrictions.eq("device", device));
+			c.add(Restrictions.eq("sensor", sensor));
+			c.addOrder(Order.desc("date"));
+			c.setMaxResults(maxEntries);
 
-			Query query = session
-					.createQuery("from Measurement m where m.device = :device and m.sensor = :sensor order by m.date desc");
-			query.setEntity("device", device);
-			query.setString("sensor", sensor);
-
-			List<Measurement> lastMeasurements = new CircularList<Measurement>(maxEntries);
-			int n = 0;
-			for (@SuppressWarnings("unchecked")
-			Iterator<Measurement> i = query.iterate(); i.hasNext()
-					&& (n < maxEntries); n++) {
-				Measurement m = i.next();
-				lastMeasurements.add(m);
+			List<Measurement> lastMeasurements = new CircularList<Measurement>(
+					maxEntries);
+			for (Object m : c.list()) {
+				lastMeasurements.add((Measurement)m);
 			}
 			log.info("Found " + lastMeasurements.size()
 					+ " last measurements for device " + device.getName()
@@ -832,4 +702,18 @@ public class Database {
 		}
 	}
 
+	public static List<Order> getOrder(List<SortOrder> sortOrder) {
+		if (sortOrder == null)
+			return null;
+
+		List<Order> order = new ArrayList<Order>(sortOrder.size());
+		for (SortOrder o : sortOrder) {
+			String name = o.getName();
+			NullPrecedence precedence = o.isNullsFirst() ? NullPrecedence.FIRST
+					: NullPrecedence.LAST;
+			order.add(o.isAscending() ? Order.asc(name).nulls(precedence)
+					: Order.desc(name).nulls(precedence));
+		}
+		return order;
+	}
 }

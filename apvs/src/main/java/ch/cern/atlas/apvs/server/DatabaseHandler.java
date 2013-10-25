@@ -1,11 +1,15 @@
 package ch.cern.atlas.apvs.server;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.hibernate.HibernateException;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +26,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 public class DatabaseHandler {
 
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
-	
+
 	private static DatabaseHandler databaseHandler;
 
 	private RemoteEventBus eventBus;
@@ -43,11 +47,13 @@ public class DatabaseHandler {
 
 	private DatabaseHandler(final RemoteEventBus eventBus) {
 		this.eventBus = eventBus;
-		
-		delay = ServerStorage.getLocalStorageIfSupported().getInt("APVS.database.updateDelay", DEFAULT_MAX_UPDATE_DELAY) * SECONDS;
 
-		log.info("Using update delay: "+delay+" ms");
-		
+		delay = ServerStorage.getLocalStorageIfSupported().getInt(
+				"APVS.database.updateDelay", DEFAULT_MAX_UPDATE_DELAY)
+				* SECONDS;
+
+		log.info("Using update delay: " + delay + " ms");
+
 		database = Database.getInstance();
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
@@ -100,13 +106,13 @@ public class DatabaseHandler {
 			}
 		}, 0, 30, TimeUnit.SECONDS);
 	}
-	
+
 	public static DatabaseHandler getInstance(RemoteEventBus eventBus) {
 		if (databaseHandler == null) {
 			databaseHandler = new DatabaseHandler(eventBus);
 		}
 		return databaseHandler;
-	}	
+	}
 
 	public boolean isConnected() {
 		return connected.isTrue();
@@ -120,8 +126,7 @@ public class DatabaseHandler {
 			Date lastUpdate = database.getLastMeasurementUpdateTime();
 			if (lastUpdate != null) {
 				long time = lastUpdate.getTime();
-				updated = (time > now - delay) ? Ternary.True
-						: Ternary.False;
+				updated = (time > now - delay) ? Ternary.True : Ternary.False;
 				updatedCause = "Last Update: " + new Date(time);
 			} else {
 				updated = Ternary.False;
@@ -152,11 +157,15 @@ public class DatabaseHandler {
 
 	public void readInterventions() {
 		InterventionMap newMap = new InterventionMap();
-		
-		for (Intervention intervention : database.getInterventions() ) {
+
+		List<Criterion> c = new ArrayList<Criterion>();
+		c.add(Restrictions.isNull("endTime"));
+
+		for (Intervention intervention : database.getList(Intervention.class,
+				null, null, null, c, null)) {
 			newMap.put(intervention.getDevice(), intervention);
-		}	
-		
+		}
+
 		if (!interventions.equals(newMap)) {
 			interventions = newMap;
 			if (eventBus != null) {

@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -29,7 +29,6 @@ import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
@@ -180,16 +179,15 @@ public class EventView extends GlassPanel implements Module {
 				final Range range = display.getVisibleRange();
 
 				final ColumnSortList sortList = table.getColumnSortList();
-				SortOrder[] order = new SortOrder[sortList.size()];
+				List<SortOrder> order = new ArrayList<SortOrder>(sortList.size());
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order[i] = new SortOrder(((DataStoreName)info.getColumn())
-							.getDataStoreName(), info.isAscending());
+					order.add(new SortOrder(((DataStoreName)info.getColumn())
+							.getDataStoreName(), info.isAscending()));
 				}
 
-				if (order.length == 0) {
-					order = new SortOrder[1];
-					order[0] = new SortOrder("t.date", false);
+				if (order.isEmpty()) {
+					order.add(new SortOrder("date", false));
 				}
 
 				clientFactory.getEventService().getTableData(range.getStart(), range.getLength(), order,
@@ -302,7 +300,7 @@ public class EventView extends GlassPanel implements Module {
 			
 			@Override
 			public String getDataStoreName() {
-				return "t.date";
+				return "date";
 			}
 		};
 		date.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -332,7 +330,7 @@ public class EventView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.device.name";
+				return "device.name";
 			}
 		};
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -361,7 +359,7 @@ public class EventView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.sensor";
+				return "sensor";
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -390,7 +388,7 @@ public class EventView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.eventType";
+				return "eventType";
 			}
 		};
 		eventType.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -420,7 +418,7 @@ public class EventView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.value";
+				return "value";
 			}
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -449,7 +447,7 @@ public class EventView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.threshold";
+				return "threshold";
 			}
 		};
 		threshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);

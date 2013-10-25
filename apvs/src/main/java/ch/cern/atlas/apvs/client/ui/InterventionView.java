@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -170,7 +171,7 @@ public class InterventionView extends GlassPanel implements Module {
 		});
 
 		AsyncDataProvider<Intervention> dataProvider = new AsyncDataProvider<Intervention>() {
-
+			
 			@Override
 			protected void onRangeChanged(HasData<Intervention> display) {
 				log.info("ON RANGE CHANGED " + display.getVisibleRange());
@@ -191,18 +192,17 @@ public class InterventionView extends GlassPanel implements Module {
 				final Range range = display.getVisibleRange();
 
 				final ColumnSortList sortList = table.getColumnSortList();
-				SortOrder[] order = new SortOrder[sortList.size()];
+				List<SortOrder> order = new ArrayList<SortOrder>(sortList.size());
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order[i] = new SortOrder(
+					order.add(new SortOrder(
 							((DataStoreName) info.getColumn())
 									.getDataStoreName(),
-							info.isAscending());
+							info.isAscending()));
 				}
 
-				if (order.length == 0) {
-					order = new SortOrder[1];
-					order[0] = new SortOrder("t.endTime", false);
+				if (order.isEmpty()) {
+					order.add(new SortOrder("endTime", false));
 				}
 
 				interventionService.getTableData(range.getStart(),
@@ -237,7 +237,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.startTime";
+				return "startTime";
 			}
 		};
 		startTime.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -274,7 +274,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.endTime";
+				return "endTime";
 			}
 		};
 		endTime.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -478,7 +478,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.user.lastName";
+				return "user.lastName";
 			}
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -583,7 +583,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.device.name";
+				return "device.name";
 			}
 		};
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -701,7 +701,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.impactNumber";
+				return "impactNumber";
 			}
 		};
 		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -742,7 +742,7 @@ public class InterventionView extends GlassPanel implements Module {
 		//
 		// @Override
 		// public String getDataStoreName() {
-		// return "t.recStatus";
+		// return "recStatus";
 		// }
 		// };
 		// impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -760,7 +760,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.test";
+				return "test";
 			}
 		};
 		test.setFieldUpdater(new FieldUpdater<Intervention, Boolean>() {
@@ -804,7 +804,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			public String getDataStoreName() {
-				return "t.description";
+				return "description";
 			}
 		};
 		description.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);

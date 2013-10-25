@@ -3,7 +3,6 @@ package ch.cern.atlas.apvs.client.service;
 import java.util.List;
 
 import ch.cern.atlas.apvs.domain.Device;
-import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.User;
@@ -15,8 +14,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  * @author Mark Donszelmann
  */
 @RemoteServiceRelativePath("apvsIntervention")
-public interface InterventionService extends TableService<Intervention>,
-		RemoteService {
+public interface InterventionService extends TableService<Intervention>, RemoteService {
 
 	void addDevice(Device device) throws ServiceException;
 
@@ -33,8 +31,8 @@ public interface InterventionService extends TableService<Intervention>,
 	List<Device> getDevices(boolean notBusy) throws ServiceException;
 	
 	long getRowCount(boolean showTest) throws ServiceException;
-	
-	List<Intervention> getTableData(int start, int length, SortOrder[] order, boolean showTest)
+
+	List<Intervention> getTableData(int start, int length, List<SortOrder> order, boolean showTest)
 			throws ServiceException;
 
 }
