@@ -133,10 +133,47 @@ public class Database {
 			}
 		}
 	}
+	
+	// Keep for iterating
+	public Query getQuery(Session session, Class<?> clazz, Integer start,
+			Integer length, List<SortOrder> order) {
+		Query query = session.createQuery(getSql("from " + clazz.getName()
+				+ " t", order));
+		if (start != null) {
+			query.setFirstResult(start);
+		}
+		if (length != null) {
+			query.setMaxResults(length);
+		}
+		return query;
+	}
+	
+	private String getSql(String sql, List<SortOrder> order) {
+		StringBuffer s = new StringBuffer(sql);
+		if (order != null) {
+			for (int i=0; i<order.size(); i++) {
+				if (i == 0) {
+					s.append(" order by ");
+				}
+
+				s.append(order.get(i).getName());
+				s.append(" ");
+				s.append(order.get(i).isAscending() ? "ASC" : "DESC");
+				// FIX for #710
+				if (order.get(i).isNullsFirst()) {
+					s.append(" NULLS FIRST");
+				}
+				if (i + 1 < order.size()) {
+					s.append(", ");
+				}
+			}
+		}
+		return s.toString();
+	}
 
 	public <T> List<T> getList(Class<T> clazz, Integer start, Integer length,
 			List<Order> order) {
-		return getList(clazz, start, length, order);
+		return getList(clazz, start, length, order, null, null);
 	}
 
 	public <T> List<T> getList(Class<T> clazz, Integer start, Integer length,
