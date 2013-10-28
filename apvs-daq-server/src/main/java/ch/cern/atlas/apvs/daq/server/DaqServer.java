@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +29,8 @@ import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageDecoder;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageEncoder;
-import ch.cern.atlas.apvs.ptu.server.MessageEvent;
 import ch.cern.atlas.apvs.ptu.server.MessageToBus;
 import ch.cern.atlas.apvs.ptu.server.RemoveDelimiterDecoder;
-import ch.cern.atlas.apvs.util.CircularList;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -66,14 +65,17 @@ public class DaqServer {
 			devices.put(system.getName(), system);
 			database.saveOrUpdate(system);
 		}
-			
+
 		Event event = new Event(system, "daq", "server_start", new Date());
-		
+
 		database.saveOrUpdate(event);
-		
-		List<Intervention> interventions = database.getList(Intervention.class, 0, 4, new SortOrder[] {new SortOrder("startTime")});
+
+		List<Intervention> interventions = database.getList(Intervention.class,
+				0, 4,
+				Database.getOrder(Arrays.asList(new SortOrder("startTime"))));
 		log.info("Found " + interventions.size() + " interventions");
-		log.info("Found " + database.getCount(Intervention.class) + " total interventions");
+		log.info("Found " + database.getCount(Intervention.class)
+				+ " total interventions");
 
 		final EventBus bus = new SimpleEventBus();
 
@@ -129,7 +131,7 @@ public class DaqServer {
 
 			// debug the bus...
 			new DebugHandler(bus);
-			
+
 			new DatabaseWriter(bus);
 
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -139,8 +141,9 @@ public class DaqServer {
 					System.out.println("Shutting down");
 					fin.cancel(true);
 					fout.cancel(true);
-					
-					database.saveOrUpdate(new Event(system, "daq", "server_stop", new Date()));
+
+					database.saveOrUpdate(new Event(system, "daq",
+							"server_stop", new Date()));
 					database.close();
 				}
 			}));
@@ -166,5 +169,5 @@ public class DaqServer {
 
 		new DaqServer(args.length > 0 ? Integer.parseInt(args[0]) : 10123,
 				args.length > 1 ? Integer.parseInt(args[1]) : 10124).run();
-	}	
+	}
 }

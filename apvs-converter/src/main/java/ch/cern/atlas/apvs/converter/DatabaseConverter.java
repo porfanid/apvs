@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.converter;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.hibernate.HibernateException;
@@ -31,7 +32,7 @@ public class DatabaseConverter {
 			@SuppressWarnings("unchecked")
 			Iterator<Measurement> iterator = database.getQuery(session,
 					Measurement.class, null, null,
-					new SortOrder[] { new SortOrder("date", true) }).iterate();
+					Arrays.asList(new SortOrder("date", true))).iterate();
 
 			int i = 0;
 			for (; iterator.hasNext(); i++) {
