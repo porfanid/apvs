@@ -39,7 +39,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -292,7 +291,6 @@ public class EventView extends GlassPanel implements Module {
 			@Override
 			public String getValue(Event object) {
 				if (object == null) {
-					Window.alert("null date");
 					return "";
 				}
 				return ClientConstants.dateFormat.format(object.getDate());
