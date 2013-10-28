@@ -54,7 +54,6 @@ import com.github.gwtbootstrap.client.ui.constants.FormType;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.ValueUpdater;
@@ -706,6 +705,7 @@ public class InterventionView extends GlassPanel implements Module {
 		};
 		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		impact.setSortable(true);
+		impact.setEnabled(clientFactory.isSupervisor());
 		impact.setFieldUpdater(new FieldUpdater<Intervention, String>() {
 			@Override
 			public void update(int index, Intervention intervention,
@@ -745,14 +745,13 @@ public class InterventionView extends GlassPanel implements Module {
 		// return "recStatus";
 		// }
 		// };
-		// impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		// impact.setSortable(true);
-		// impact.setEnabled(clientFactory.isSupervisor());
+		// recStatus.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		// recStatus.setSortable(true);
+		// recStatus.setEnabled(clientFactory.isSupervisor());
 		// table.addColumn(recStatus, new TextHeader("Rec Status"),
 		// new TextHeader(""));
 
-		final CheckboxColumn<Intervention> test = new CheckboxColumn<Intervention>(
-				new CheckboxCell()) {
+		final CheckboxColumn<Intervention> test = new CheckboxColumn<Intervention>() {
 			@Override
 			public Boolean getValue(Intervention intervention) {
 				return intervention.isTest();

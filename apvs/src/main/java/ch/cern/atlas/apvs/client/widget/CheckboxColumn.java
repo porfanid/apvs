@@ -13,11 +13,11 @@ public abstract class CheckboxColumn<T> extends Column<T, Boolean> implements Da
 	private boolean enabled;
 	
 	public CheckboxColumn() {
-		super(new CheckboxCell());
+		super(new ActiveCheckboxCell());
 		enabled = true;
 	}
 		
-	public CheckboxColumn(Cell<Boolean> cell) {
+	public CheckboxColumn(ActiveCheckboxCell cell) {
 		super(cell);
 	}
 	
@@ -36,6 +36,7 @@ public abstract class CheckboxColumn<T> extends Column<T, Boolean> implements Da
 	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+		((ActiveCheckboxCell)getCell()).setEnabled(enabled);
 	}
 	
 	public boolean isEnabled() {
