@@ -15,7 +15,7 @@ public class Error implements Message, Serializable, IsSerializable {
 	private Integer errorNo;
 	private String description;
 	private String criticality;
-	private Date date;
+	private Date time;
 
 	protected Error() {
 	}
@@ -26,7 +26,7 @@ public class Error implements Message, Serializable, IsSerializable {
 		this.errorNo = errorNo;
 		this.description = description;
 		this.criticality = criticality;
-		this.date = date;
+		this.time = time;
 	}
 
 	@Override
@@ -46,8 +46,8 @@ public class Error implements Message, Serializable, IsSerializable {
 		return criticality;
 	}
 
-	public Date getDate() {
-		return date;
+	public Date getTime() {
+		return time;
 	}
 
 	@Override

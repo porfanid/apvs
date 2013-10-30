@@ -48,7 +48,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 		// return "";
 		// }
 		// Measurement m = historyMap.getMeasurement(ptuId, name);
-		// return m != null ? m.getLowLimit()+" "+m.getHighLimit() : "";
+		// return m != null ? m.getDownThreshold()+" "+m.getUpThreshold() : "";
 		// }
 		//
 		// @Override
@@ -59,8 +59,8 @@ public class MeasurementTable extends AbstractMeasurementView {
 		// if (m == null) {
 		// return;
 		// }
-		// gaugeWidget.setValue(m.getValue(), m.getLowLimit(),
-		// m.getHighLimit());
+		// gaugeWidget.setValue(m.getValue(), m.getDownThreshold(),
+		// m.getUpThreshold());
 		// sb.appendEscaped(gaugeWidget.getElement().getInnerHTML());
 		// Window.alert(gaugeWidget.getElement().getInnerHTML());
 		// }
@@ -172,7 +172,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 				});
 			}
 			date.setHTML(decorate(
-					ClientConstants.dateFormat.format(measurement.getDate()),
+					ClientConstants.dateFormat.format(measurement.getTime()),
 					measurement));
 			// unit.HorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 			table.setWidget(row, col++, date);

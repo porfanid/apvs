@@ -202,8 +202,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			SerializationException {
 		// Quick fix for #371
 		Date now = new Date();
-		if (message.getDate().getTime() < (now.getTime() - 5 * MINUTE)) {
-			log.warn("UPDATE IGNORED, too old " + message.getDate() + " " + now
+		if (message.getTime().getTime() < (now.getTime() - 5 * MINUTE)) {
+			log.warn("UPDATE IGNORED, too old " + message.getTime() + " " + now
 					+ " " + message);
 			return;
 		}
@@ -221,17 +221,17 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 		String unit = message.getUnit();
 		Double value = message.getValue();
-		Double low = message.getLowLimit();
-		Double high = message.getHighLimit();
+		Double low = message.getDownThreshold();
+		Double high = message.getUpThreshold();
 
 		// Scale down to microSievert
 		value = Scale.getValue(value, unit);
-		low = Scale.getLowLimit(low, unit);
-		high = Scale.getHighLimit(high, unit);
+		low = Scale.getDownThreshold(low, unit);
+		high = Scale.getUpThreshold(high, unit);
 		unit = Scale.getUnit(sensor, unit);
 
 		message = new Measurement(message.getDevice(), sensor, value, low,
-				high, unit, message.getSamplingRate(), "OneShoot", message.getDate());
+				high, unit, message.getSamplingRate(), "OneShoot", message.getTime());
 
 		System.err.println("Modified message: " + message);
 
@@ -248,7 +248,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 		eventBus.fireEvent(new EventChangedEvent(new Event(device, sensor,
 				message.getEventType(), message.getValue(), message
-						.getThreshold(), message.getUnit(), message.getDate())));
+						.getThreshold(), message.getUnit(), message.getTime())));
 
 		if (message.getEventType().equals("DosConnectionStatus_OFF")) {
 			dosimeterOk = Ternary.False;

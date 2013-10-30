@@ -378,21 +378,21 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		}
 		table.addColumn(unit, "Unit");
 
-		// Value
-		ClickableTextColumn<MeasurementConfiguration> lowLimit = new ClickableTextColumn<MeasurementConfiguration>() {
+		// DownThreshold
+		ClickableTextColumn<MeasurementConfiguration> downThreshold = new ClickableTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
 					return "";
 				}
 
-				return object.getLowLimit() != null ? object.getLowLimit().toString()
+				return object.getDownThreshold() != null ? object.getDownThreshold().toString()
 						: "";
 			}
 		};
-		lowLimit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		downThreshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		if (selectable) {
-			lowLimit.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+			downThreshold.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
 
 				@Override
 				public void update(int index, MeasurementConfiguration object, String value) {
@@ -400,23 +400,23 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(lowLimit, new TextHeader("Low Limit"));
+		table.addColumn(downThreshold, new TextHeader("Down Threshold"));
 
-		// Value
-		ClickableTextColumn<MeasurementConfiguration> highLimit = new ClickableTextColumn<MeasurementConfiguration>() {
+		// UpThreshold
+		ClickableTextColumn<MeasurementConfiguration> upThreshold = new ClickableTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
 					return "";
 				}
 
-				return object.getHighLimit() != null ? object.getHighLimit().toString()
+				return object.getUpThreshold() != null ? object.getUpThreshold().toString()
 						: "";
 			}
 		};
-		highLimit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		upThreshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		if (selectable) {
-			highLimit.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+			upThreshold.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
 
 				@Override
 				public void update(int index, MeasurementConfiguration object, String value) {
@@ -424,9 +424,9 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(highLimit, new TextHeader("High Limit"));
+		table.addColumn(upThreshold, new TextHeader("Up Threshold"));
 
-		// Value
+		// Slope
 		ClickableTextColumn<MeasurementConfiguration> slope = new ClickableTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
@@ -450,7 +450,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		}
 		table.addColumn(slope, new TextHeader("Slope"));
 
-		// Value
+		// Offset
 		ClickableTextColumn<MeasurementConfiguration> offset = new ClickableTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {

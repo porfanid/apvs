@@ -23,8 +23,8 @@ public class Data implements Serializable, IsSerializable {
 	private final static int INCREASE_CAPACITY = 200;
 	private final static int TIME = 0;
 	private final static int VALUE = 1;
-	private final static int LOW_LIMIT = 2;
-	private final static int HIGH_LIMIT = 3;
+	private final static int DOWN_THRESHOLD = 2;
+	private final static int UP_THRESHOLD = 3;
 	private final static int SAMPLING_RATE = 4;
 
 	private final static int SIZE = SAMPLING_RATE + 1;
@@ -72,13 +72,13 @@ public class Data implements Serializable, IsSerializable {
 		return result;
 	}
 
-	public Number[][] getLimits() {
+	public Number[][] getThresholds() {
 		Number[][] result = new Number[index][3];
 
 		for (int i = 0; i < index; i++) {
 			result[i][TIME] = data[i][TIME];
-			result[i][1] = data[i][LOW_LIMIT];
-			result[i][2] = data[i][HIGH_LIMIT];
+			result[i][1] = data[i][DOWN_THRESHOLD];
+			result[i][2] = data[i][UP_THRESHOLD];
 		}
 		return result;
 	}
@@ -91,8 +91,8 @@ public class Data implements Serializable, IsSerializable {
 		return maxEntries;
 	}
 
-	public boolean addEntry(long time, Number value, Number lowLimit,
-			Number highLimit, Integer samplingRate) {
+	public boolean addEntry(long time, Number value, Number downThreshold,
+			Number upThreshold, Integer samplingRate) {
 		// FIXME handle MaxEntries
 
 		// add the new value
@@ -104,8 +104,8 @@ public class Data implements Serializable, IsSerializable {
 
 		data[index][TIME] = time;
 		data[index][VALUE] = value;
-		data[index][LOW_LIMIT] = lowLimit;
-		data[index][HIGH_LIMIT] = highLimit;
+		data[index][DOWN_THRESHOLD] = downThreshold;
+		data[index][UP_THRESHOLD] = upThreshold;
 		data[index][SAMPLING_RATE] = samplingRate;
 
 		// fix for #502
@@ -138,8 +138,8 @@ public class Data implements Serializable, IsSerializable {
 	// equals when value within threshold, limits equal, sampling rate equal.
 	private boolean equals(Number[] m1, Number[] m2) {
 		return (Math.abs(m1[VALUE].doubleValue() - m2[VALUE].doubleValue()) < getThreshold(name))
-				&& equals(m1[LOW_LIMIT], m2[LOW_LIMIT])
-				&& equals(m1[HIGH_LIMIT], m2[HIGH_LIMIT])
+				&& equals(m1[DOWN_THRESHOLD], m2[DOWN_THRESHOLD])
+				&& equals(m1[UP_THRESHOLD], m2[UP_THRESHOLD])
 				&& equals(m1[SAMPLING_RATE], m2[SAMPLING_RATE]);
 	}
 
@@ -151,8 +151,8 @@ public class Data implements Serializable, IsSerializable {
 	public Measurement getMeasurement() {
 		int last = index - 1;
 		return index == 0 ? null : new Measurement(device, name,
-				(Double) data[last][VALUE], (Double) data[last][LOW_LIMIT],
-				(Double) data[last][HIGH_LIMIT], unit,
+				(Double) data[last][VALUE], (Double) data[last][DOWN_THRESHOLD],
+				(Double) data[last][UP_THRESHOLD], unit,
 				(Integer) data[last][SAMPLING_RATE], "Unknown", new Date(
 						data[last][TIME].longValue()));
 	}

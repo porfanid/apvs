@@ -53,9 +53,9 @@ public class GaugeWidget extends Chart {
 				.setColor("#000000").setPointWidth(5));
 	}
 
-	public void setValue(Number value, Number lowLimit, Number highLimit) {
-		double low = lowLimit.doubleValue();
-		double high = highLimit.doubleValue();
+	public void setValue(Number value, Number downThreshold, Number upThreshold) {
+		double low = downThreshold.doubleValue();
+		double high = upThreshold.doubleValue();
 		double val = value.doubleValue();
 		
 		double percent = (high - low) / 60;
@@ -83,7 +83,7 @@ public class GaugeWidget extends Chart {
 				.setMinorTickInterval(minorTickInterval);
 
 		lowBand.setFrom(min).setTo(low);
-		highBand.setFrom(highLimit).setTo(high);
+		highBand.setFrom(upThreshold).setTo(high);
 		
 		series.setPoints(new Number[] {value}, true);
 	}

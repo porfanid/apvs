@@ -16,18 +16,18 @@ public class Report implements Message, Serializable, IsSerializable {
 	private boolean cameraHandheld;
 	private boolean cameraHelmet;
 	private boolean audio;
-	private Date date;
+	private Date time;
 
 	protected Report() {
 	}
 	
-	public Report(Device device, double batteryLevel, boolean cameraHandheld, boolean cameraHelmet, boolean audio, Date date) {
+	public Report(Device device, double batteryLevel, boolean cameraHandheld, boolean cameraHelmet, boolean audio, Date time) {
 		this.device = device;
 		this.batteryLevel = batteryLevel;
 		this.cameraHandheld = cameraHandheld;
 		this.cameraHelmet = cameraHelmet;
 		this.audio = audio;
-		this.date = date;
+		this.time = time;
 	}
 
     @Override
@@ -51,8 +51,8 @@ public class Report implements Message, Serializable, IsSerializable {
 		return audio;
 	}
 
-	public Date getDate() {
-		return date;
+	public Date getTime() {
+		return time;
 	}
 
 	@Override

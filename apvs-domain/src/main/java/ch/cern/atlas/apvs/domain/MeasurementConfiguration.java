@@ -12,11 +12,11 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 
 	private Device device;
 	private String sensor;
-	private Date date;
+	private Date time;
 	private String unit;
 	private Integer samplingRate;
-	private Double highLimit;
-	private Double lowLimit;
+	private Double upThreshold;
+	private Double downThreshold;
 	private Double slope;
 	private Double offset;
 	
@@ -26,17 +26,17 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 	}
 	
 	public MeasurementConfiguration(Device device, String sensor,
-			Double lowLimit, Double highLimit, String unit,
+			Double downThreshold, Double upThreshold, String unit,
 			Integer samplingRate, Double slope, Double offset, Date date) {
 		setDevice(device);
 		setSensor(sensor);
-		setLowLimit(lowLimit);
-		setHighLimit(highLimit);
+		setDownThreshold(downThreshold);
+		setUpThreshold(upThreshold);
 		setUnit(unit);
 		setSamplingRate(samplingRate);
 		setSlope(slope);
 		setOffset(offset);
-		setDate(date);
+		setTime(time);
 
 		// Fix Unit for Body Temperature and Temperature
 		if ((sensor != null) && (sensor.equals("Temperature") || sensor.equals("BodyTemperature"))
@@ -53,20 +53,20 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.sensor = sensor;
 	}
 
-	public Double getLowLimit() {
-		return lowLimit;
+	public Double getDownThreshold() {
+		return downThreshold;
 	}
 	
-	private void setLowLimit(Double lowLimit) {
-		this.lowLimit = lowLimit;
+	private void setDownThreshold(Double downThreshold) {
+		this.downThreshold = downThreshold;
 	}
 
-	public Double getHighLimit() {
-		return highLimit;
+	public Double getUpThreshold() {
+		return upThreshold;
 	}
 
-	private void setHighLimit(Double highLimit) {
-		this.highLimit = highLimit;
+	private void setUpThreshold(Double upThreshold) {
+		this.upThreshold = upThreshold;
 	}
 
 	public String getUnit() {
@@ -85,12 +85,12 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.samplingRate = samplingRate;
 	}
 
-	public Date getDate() {
-		return date;
+	public Date getTime() {
+		return time;
 	}
 
-	private void setDate(Date date) {
-		this.date = date;
+	private void setTime(Date time) {
+		this.time = time;
 	}
 
 	public String getType() {
@@ -124,9 +124,9 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 	@Override
 	public String toString() {
 		return "MeasurementConfiguration [device=" + device.getName() + ", sensor="
-				+ sensor + ", date=" + date + ", unit=" + unit
-				+ ", samplingRate=" + samplingRate + ", highLimit=" + highLimit
-				+ ", lowLimit=" + lowLimit + ", slope=" + slope + ", offset="
+				+ sensor + ", time=" + time + ", unit=" + unit
+				+ ", samplingRate=" + samplingRate + ", upThreshold=" + upThreshold
+				+ ", downThreshold=" + downThreshold + ", slope=" + slope + ", offset="
 				+ offset + ", type=" + type + "]";
 	}
 
@@ -134,12 +134,12 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((date == null) ? 0 : date.hashCode());
+		result = prime * result + ((time == null) ? 0 : time.hashCode());
 		result = prime * result + ((device == null) ? 0 : device.hashCode());
 		result = prime * result
-				+ ((highLimit == null) ? 0 : highLimit.hashCode());
+				+ ((upThreshold == null) ? 0 : upThreshold.hashCode());
 		result = prime * result
-				+ ((lowLimit == null) ? 0 : lowLimit.hashCode());
+				+ ((downThreshold == null) ? 0 : downThreshold.hashCode());
 		result = prime * result + ((offset == null) ? 0 : offset.hashCode());
 		result = prime * result
 				+ ((samplingRate == null) ? 0 : samplingRate.hashCode());
@@ -162,11 +162,11 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 			return false;
 		}
 		MeasurementConfiguration other = (MeasurementConfiguration) obj;
-		if (date == null) {
-			if (other.date != null) {
+		if (time == null) {
+			if (other.time != null) {
 				return false;
 			}
-		} else if (!date.equals(other.date)) {
+		} else if (!time.equals(other.time)) {
 			return false;
 		}
 		if (device == null) {
@@ -176,18 +176,18 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		} else if (!device.equals(other.device)) {
 			return false;
 		}
-		if (highLimit == null) {
-			if (other.highLimit != null) {
+		if (upThreshold == null) {
+			if (other.upThreshold != null) {
 				return false;
 			}
-		} else if (!highLimit.equals(other.highLimit)) {
+		} else if (!upThreshold.equals(other.upThreshold)) {
 			return false;
 		}
-		if (lowLimit == null) {
-			if (other.lowLimit != null) {
+		if (downThreshold == null) {
+			if (other.downThreshold != null) {
 				return false;
 			}
-		} else if (!lowLimit.equals(other.lowLimit)) {
+		} else if (!downThreshold.equals(other.downThreshold)) {
 			return false;
 		}
 		if (offset == null) {

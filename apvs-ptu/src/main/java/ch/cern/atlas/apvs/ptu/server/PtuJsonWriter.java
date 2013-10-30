@@ -79,12 +79,6 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 		case "Date":
 			name = "Time";
 			break;
-		case "LowLimit":
-			name = "DownThreshold";
-			break;
-		case "HighLimit":
-			name = "UpThreshold";
-			break;
 		case "DosimeterId":
 			name = "DosimeterID";
 			break;

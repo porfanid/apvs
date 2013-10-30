@@ -293,7 +293,7 @@ public class EventView extends GlassPanel implements Module {
 				if (object == null) {
 					return "";
 				}
-				return ClientConstants.dateFormat.format(object.getDate());
+				return ClientConstants.dateFormat.format(object.getTime());
 			}
 			
 			@Override

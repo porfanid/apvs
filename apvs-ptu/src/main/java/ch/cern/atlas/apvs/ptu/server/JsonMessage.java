@@ -62,10 +62,10 @@ public class JsonMessage {
 			msg.put(SENSOR, m.getSensor());
 			msg.put(UNIT, m.getUnit());
 			msg.put(VALUE, m.getValue().toString());
-			msg.put(TIME, m.getDate());
+			msg.put(TIME, m.getTime());
 			msg.put(SAMPLING_RATE, m.getSamplingRate());
-			msg.put(UP_THRESHOLD, m.getHighLimit());
-			msg.put(DOWN_THRESHOLD, m.getLowLimit());
+			msg.put(UP_THRESHOLD, m.getUpThreshold());
+			msg.put(DOWN_THRESHOLD, m.getDownThreshold());
 			msg.put(METHOD, m.getMethod());
 		} else if (message instanceof Event) {
 			Event m = (Event) message;
@@ -73,13 +73,13 @@ public class JsonMessage {
 			msg.put(VALUE, m.getValue());
 			msg.put(THRESHOLD, m.getThreshold());
 			msg.put(UNIT, m.getUnit());
-			msg.put(TIME, m.getDate());
+			msg.put(TIME, m.getTime());
 		} else if (message instanceof Error) {
 			Error m = (Error) message;
 			msg.put(TYPE, m.getType());
 			msg.put(DESCRIPTION, m.getDescription());
 			msg.put(CRITICALITY, m.getCriticality());
-			msg.put(TIME, m.getDate());
+			msg.put(TIME, m.getTime());
 		} else if (message instanceof GeneralConfiguration) {
 			GeneralConfiguration m = (GeneralConfiguration) message;
 			msg.put(TYPE, m.getType());
@@ -90,10 +90,10 @@ public class JsonMessage {
 			msg.put(TYPE, m.getType());
 			msg.put(SENSOR, m.getSensor());
 			msg.put(UNIT, m.getUnit());
-			msg.put(TIME, m.getDate());
+			msg.put(TIME, m.getTime());
 			msg.put(SAMPLING_RATE, m.getSamplingRate());
-			msg.put(UP_THRESHOLD, m.getHighLimit());
-			msg.put(DOWN_THRESHOLD, m.getLowLimit());
+			msg.put(UP_THRESHOLD, m.getUpThreshold());
+			msg.put(DOWN_THRESHOLD, m.getDownThreshold());
 			msg.put(SLOPE, m.getSlope());
 			msg.put(OFFSET, m.getOffset());
 		} else if (message instanceof SensorOrder) {
@@ -114,7 +114,7 @@ public class JsonMessage {
 			msg.put(CAMERA_HANDHELD, m.getCameraHandheld());
 			msg.put(CAMERA_HELMET, m.getCameraHelmet());
 			msg.put(AUDIO, m.getAudio());
-			msg.put(TIME, m.getDate());
+			msg.put(TIME, m.getTime());
 		} else {
 			throw new RuntimeException("Cannot find JsonMessage for '"
 					+ message + "'");

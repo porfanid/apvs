@@ -426,7 +426,7 @@ public class Database {
 	}
 
 	public Date getLastMeasurementUpdateTime() {
-		Date date = null;
+		Date time = null;
 
 		Session session = null;
 		Transaction tx = null;
@@ -434,9 +434,9 @@ public class Database {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 
-			date = (Date) session.createCriteria(Measurement.class)
-					.setProjection(Projections.property("date"))
-					.addOrder(Order.desc("date")).setMaxResults(1)
+			time = (Date) session.createCriteria(Measurement.class)
+					.setProjection(Projections.property("time"))
+					.addOrder(Order.desc("time")).setMaxResults(1)
 					.uniqueResult();
 			tx.commit();
 		} catch (HibernateException e) {
@@ -449,7 +449,7 @@ public class Database {
 				session.close();
 			}
 		}
-		return date;
+		return time;
 	}
 
 	public List<Measurement> getMeasurements(Device ptu, String name)
@@ -469,7 +469,7 @@ public class Database {
 		SensorMap sensorMap = getSensorMap();
 
 		String sql = "from Measurement m, view_last_measurements_date d "
-				+ "where d.datetime = m.date " + "and d.sensor = m.sensor "
+				+ "where d.datetime = m.time " + "and d.sensor = m.sensor "
 				+ "and d.device_id = m.device.id";
 		
 		if (ptuList != null) {
@@ -505,8 +505,8 @@ public class Database {
 
 				String unit = m.getUnit();
 				Double value = m.getValue();
-				Double low = m.getLowLimit();
-				Double high = m.getHighLimit();
+				Double low = m.getDownThreshold();
+				Double high = m.getUpThreshold();
 
 				// if equal of low higher than high, no limits to be shown
 				if (low != null && high != null
@@ -517,12 +517,12 @@ public class Database {
 
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);
-				low = Scale.getLowLimit(low, unit);
-				high = Scale.getHighLimit(high, unit);
+				low = Scale.getDownThreshold(low, unit);
+				high = Scale.getUpThreshold(high, unit);
 				unit = Scale.getUnit(sensor, unit);
 
 				list.add(new Measurement(device, sensor, value, low, high,
-						unit, m.getSamplingRate(), m.getMethod(), m.getDate()));
+						unit, m.getSamplingRate(), m.getMethod(), m.getTime()));
 			}
 			tx.commit();
 			return list;
@@ -549,7 +549,7 @@ public class Database {
 			Criteria c = session.createCriteria(Measurement.class);
 			c.add(Restrictions.eq("device", device));
 			c.add(Restrictions.eq("sensor", sensor));
-			c.addOrder(Order.desc("date"));
+			c.addOrder(Order.desc("time"));
 			c.setMaxResults(maxEntries);
 
 			List<Measurement> lastMeasurements = new CircularList<Measurement>(
@@ -607,9 +607,9 @@ public class Database {
 
 		String sql = "from Measurement m" + " where m.device = :device";
 		if (from != null) {
-			sql += " and m.date > :date";
+			sql += " and m.time > :time";
 		}
-		sql += " order by m.date asc";
+		sql += " order by m.time asc";
 
 		Date now = new Date();
 
@@ -626,15 +626,13 @@ public class Database {
 			query.setEntity("device", device);
 
 			if (from != null) {
-				query.setTimestamp("date", from);
+				query.setTimestamp("time", from);
 			}
 
 			for (@SuppressWarnings("unchecked")
 			Iterator<Measurement> i = query.list().iterator(); i.hasNext();) {
 				Measurement measurement = i.next();
-				Date date = measurement.getDate();
-
-				long time = date.getTime();
+				long time = measurement.getTime().getTime();
 				if (time > now.getTime() + 60000) {
 					break;
 				}
@@ -653,15 +651,15 @@ public class Database {
 					continue;
 				}
 
-				Double low = measurement.getLowLimit();
-				Double high = measurement.getHighLimit();
+				Double low = measurement.getDownThreshold();
+				Double high = measurement.getUpThreshold();
 
 				Integer samplingRate = measurement.getSamplingRate();
 
 				// Scale down to microSievert
 				value = Scale.getValue(value, unit);
-				low = Scale.getLowLimit(low, unit);
-				high = Scale.getHighLimit(high, unit);
+				low = Scale.getDownThreshold(low, unit);
+				high = Scale.getUpThreshold(high, unit);
 				unit = Scale.getUnit(sensor, unit);
 
 				// if (!sensorMap.isEnabled(ptu, sensor)) {
@@ -714,7 +712,7 @@ public class Database {
 
 			long entries;
 			do {
-				count.setTimestamp("date", from);
+				count.setTimestamp("time", from);
 
 				entries = (Long) count.uniqueResult();
 				// System.err.println("Entries " + entries+" "+from);

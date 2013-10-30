@@ -89,7 +89,7 @@ public class FilterTest {
 		Assert.assertEquals(2, l.size());
 		Assert.assertEquals(m0, l.get(0));
 		Assert.assertEquals(m1.getValue(), l.get(1).getValue());
-		Assert.assertEquals(m2.getDate(), l.get(1).getDate());
+		Assert.assertEquals(m2.getTime(), l.get(1).getTime());
 	}
 
 	@Test
@@ -117,7 +117,7 @@ public class FilterTest {
 		Assert.assertEquals(m0, l.get(0)); 
 		Assert.assertEquals(m1,l.get(1)); 
 		Assert.assertEquals(m2.getValue(), l.get(1).getValue());
-		Assert.assertEquals(m3.getDate(), l.get(1).getDate());
+		Assert.assertEquals(m3.getTime(), l.get(1).getTime());
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class FilterTest {
 		Assert.assertEquals(3, l.size());
 		Assert.assertEquals(m0, l.get(0));
 		Assert.assertEquals(m2.getValue(), l.get(1).getValue());
-		Assert.assertEquals(m3.getDate(), l.get(1).getDate());
+		Assert.assertEquals(m3.getTime(), l.get(1).getTime());
 		Assert.assertEquals(m5, l.get(2));
 	}
 
@@ -146,7 +146,7 @@ public class FilterTest {
 		Assert.assertEquals(2, l.size());
 		Assert.assertEquals(m0, l.get(0));
 		Assert.assertEquals(m2.getValue(), l.get(1).getValue());
-		Assert.assertEquals(m4.getDate(), l.get(1).getDate());
+		Assert.assertEquals(m4.getTime(), l.get(1).getTime());
 	}
 
 	@Test
@@ -202,7 +202,7 @@ public class FilterTest {
 					double resolution) {
 
 				// update date
-				list.get(list.size()-1).setDate(current.getDate());
+				list.get(list.size()-1).setTime(current.getTime());
 				return true;
 			}
 		};
@@ -212,7 +212,7 @@ public class FilterTest {
 
 		Assert.assertTrue(update);
 		Assert.assertEquals(1, l.size());
-		Assert.assertEquals(t1, l.get(l.size()-1).getDate());
+		Assert.assertEquals(t1, l.get(l.size()-1).getTime());
 	}
 
 	@Test

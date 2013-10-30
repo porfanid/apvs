@@ -115,12 +115,12 @@ public class HistoryManager {
 											.getUnit(), 2000);
 							history.put(data);
 						}
-						if (measurement.getDate().getTime() < new Date()
+						if (measurement.getTime().getTime() < new Date()
 								.getTime() + 60000) {
-							data.addEntry(measurement.getDate().getTime(),
+							data.addEntry(measurement.getTime().getTime(),
 									measurement.getValue(),
-									measurement.getLowLimit(),
-									measurement.getHighLimit(),
+									measurement.getDownThreshold(),
+									measurement.getUpThreshold(),
 									measurement.getSamplingRate());
 						}
 

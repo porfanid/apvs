@@ -178,7 +178,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		long future1min = now + (60 * 1000);
 		long past5mins = now - (5 * 60 * 1000);
 		long pastDay = now - (24 * 3600 * 1000);
-		long time = current.getDate().getTime();
+		long time = current.getTime().getTime();
 		if (time > future1min) {
 			s = "<b>" + s + "</b>";
 		} else if (time < past5mins) {
@@ -191,7 +191,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 		}
 		// Add date in tooltip
 		s = "<div title=\""
-				+ ClientConstants.dateFormat.format(current.getDate())
+				+ ClientConstants.dateFormat.format(current.getTime())
 				+ "\">" + s + "</div>";
 		return SafeHtmlUtils.fromSafeConstant(s);
 	}
