@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
+import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.DurationCell;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
@@ -20,8 +22,8 @@ import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.domain.InterventionMap;
 import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
+import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.DateCell;
@@ -32,7 +34,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -63,6 +64,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 	private String databaseUpdateCause = "";
 
 	private InterventionMap interventions;
+	private PtuSettings ptuSettings;
 
 	private boolean showHeader = true;
 
@@ -76,13 +78,13 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					// ConnectionType.dosimeter.getString(),
 					ConnectionType.databaseConnect.getString(),
 					ConnectionType.databaseUpdate.getString(), "Start Time",
-					"Duration" });
+					"Duration", "Dosimeter", "Wireless" });
 	private List<Class<?>> classes = Arrays
 			.asList(new Class<?>[] { TextCell.class,
 					TextCell.class, // TextCell.class,
 					TextCell.class, // TextCell.class,
 					TextCell.class, TextCell.class, DateCell.class,
-					DurationCell.class });
+					DurationCell.class, TextCell.class, TextCell.class });
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -137,6 +139,10 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					return "";
 				} else if (name.equals("Duration")) {
 					return "";
+				} else if (name.equals("Dosimeter")) {
+					return "";
+				} else if (name.equals("Wireless")) {
+					return "";
 				}
 				System.out.println("GeneralInfoView name unknown '" + name
 						+ "'");
@@ -168,7 +174,11 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					Date startTime = getStartTime();
 					return startTime != null ? new Date().getTime()
 							- startTime.getTime() : null;
-				}
+				} else if (name.equals("Dosimeter")) {
+					return getDosimeterSerialNumber();
+				} else if (name.equals("Wireless")) {
+					return getBSSID();
+				} 
 				System.out.println("GeneralInfoView name unknown '" + name
 						+ "'");
 				return null;
@@ -252,6 +262,15 @@ public class GeneralInfoView extends GlassPanel implements Module {
 						scheduler.update();
 					}
 				});
+		
+		PtuSettingsChangedRemoteEvent.subscribe(clientFactory.getRemoteEventBus(), new PtuSettingsChangedRemoteEvent.Handler() {
+			
+			@Override
+			public void onPtuSettingsChanged(PtuSettingsChangedRemoteEvent event) {
+				ptuSettings = event.getPtuSettings();
+				scheduler.update();
+			}
+		});
 
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
@@ -282,6 +301,30 @@ public class GeneralInfoView extends GlassPanel implements Module {
 		}
 
 		return intervention.getStartTime();
+	}
+	
+	private String getDosimeterSerialNumber() {
+		if (ptu == null) {
+			return null;
+		}
+		
+		if (ptuSettings == null) {
+			return null;
+		}
+		
+		return ptuSettings.getDosimeterSerialNumber(ptu.getName());
+	}
+	
+	private String getBSSID() {
+		if (ptu == null) {
+			return null;
+		}
+		
+		if (ptuSettings == null) {
+			return null;
+		}
+		
+		return ptuSettings.getBSSID(ptu.getName());
 	}
 
 	@Override

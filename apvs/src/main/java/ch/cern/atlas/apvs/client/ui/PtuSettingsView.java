@@ -39,9 +39,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -234,6 +232,18 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				table.addColumn(dosimeterSet, "Dosimeter #");
 			}
 		}
+		
+		// WIRELESS
+		Column<Device, String> bssid = new Column<Device, String>(
+						new TextCell()) {
+					@Override
+					public String getValue(Device object) {
+						return settings.getBSSID(object.getName());
+					}
+				};
+		bssid.setSortable(false);
+		bssid.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		table.addColumn(bssid, "Wireless");
 
 		// HELMET URL
 		Column<Device, String> helmetUrl = new Column<Device, String>(

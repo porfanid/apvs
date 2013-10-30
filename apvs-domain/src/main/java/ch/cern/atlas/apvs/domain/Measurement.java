@@ -252,12 +252,21 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		return super.equals(obj);
 	}
 	
-	@Override
-	public String toString() {
+	public String toShortString() {
 		return "Measurement(" + getDevice().getName() + "): sensor:" + getSensor() + ", value:"
 				+ getValue() + ", unit:" + getUnit() + ", sampling rate:"
 				+ getSamplingRate();
 		// removed Date, too difficult
+	}
+	
+	@Override
+	public String toString() {
+		return "Measurement [device=" + device.getName() + ", id=" + id + ", date="
+				+ date + ", value=" + value + ", unit=" + unit + ", method="
+				+ method + ", samplingRate=" + samplingRate + ", sensor="
+				+ sensor + ", highLimit=" + highLimit + ", lowLimit="
+				+ lowLimit + ", connected=" + connected + ", type=" + type
+				+ "]";
 	}
 
 	public static String getDisplayName(String name) {

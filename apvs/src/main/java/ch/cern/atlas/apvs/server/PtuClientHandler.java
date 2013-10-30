@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
+import ch.cern.atlas.apvs.client.ui.MeasurementConfigurationView;
 import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.db.Scale;
 import ch.cern.atlas.apvs.db.SensorMap;
@@ -29,6 +30,7 @@ import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Packet;
@@ -179,6 +181,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 					handleMessage((Error) message);
 				} else if (message instanceof GeneralConfiguration) {
 					handleMessage((GeneralConfiguration) message);
+				} else if (message instanceof MeasurementConfiguration) {
+					handleMessage((MeasurementConfiguration) message);
 				} else {
 					log.warn("Error: unknown Message Type: "
 							+ message.getType());
@@ -262,13 +266,19 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private void handleMessage(GeneralConfiguration message)
 			throws SerializationException {
 		String ptuId = message.getDevice().getName();
-		String dosimeterId = message.getDosimeterId();
 
 		if (settings != null) {
-			settings.setDosimeterSerialNumber(ptuId, dosimeterId);
+			settings.setDosimeterSerialNumber(ptuId, message.getDosimeterId());
+			settings.setBSSID(ptuId, message.getBSSID());
 
 			eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
 		}
+	}
+
+	private void handleMessage(MeasurementConfiguration message)
+			throws SerializationException {
+		String ptuId = message.getDevice().getName();
+		// FIXME TBD
 	}
 
 	private void handleMessage(Report report) {

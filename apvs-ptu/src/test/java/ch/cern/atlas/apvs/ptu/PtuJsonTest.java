@@ -11,6 +11,7 @@ import org.junit.Test;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.InetAddress;
 import ch.cern.atlas.apvs.domain.MacAddress;
+import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Packet;
 import ch.cern.atlas.apvs.ptu.server.Humidity;
@@ -47,8 +48,8 @@ public class PtuJsonTest {
 		Assert.assertEquals(2, list.size());
 //		 System.err.println(list.get(0).toString());
 //		 System.err.println(list.get(1).toString());
-		Assert.assertEquals(msg0, list.get(0).toString());
-		Assert.assertEquals(msg1, list.get(1).toString());
+		Assert.assertEquals(msg0, ((Measurement)list.get(0)).toShortString());
+		Assert.assertEquals(msg1, ((Measurement)list.get(1)).toShortString());
 	}
 
 	@Test
