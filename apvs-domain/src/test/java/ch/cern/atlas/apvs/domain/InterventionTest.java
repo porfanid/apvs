@@ -3,7 +3,9 @@ package ch.cern.atlas.apvs.domain;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,8 +36,10 @@ public class InterventionTest extends AbstractDomainTest {
 		// now lets pull events from the database and list them
 		session = sessionFactory.openSession();
 		session.beginTransaction();
+		Criteria c = session.createCriteria(Intervention.class);
+		c.add(Restrictions.isNull("endTime"));
 		@SuppressWarnings("unchecked")
-		List<Intervention> result = session.createQuery("from Intervention intervention where intervention.endTime is null").list();
+		List<Intervention> result = c.list();
 		Assert.assertEquals(2, result.size());
 //		System.err.println(result.get(0));
 		Assert.assertEquals(i1, result.get(0));
@@ -56,7 +60,7 @@ public class InterventionTest extends AbstractDomainTest {
 		session.getTransaction().commit();	
 		
 		@SuppressWarnings("unchecked")
-		List<Intervention> result2 = session.createQuery("from Intervention").list();
+		List<Intervention> result2 = session.createCriteria(Intervention.class).list();
 		Assert.assertEquals(2, result2.size());
 		Assert.assertEquals(i1, result2.get(0));
 		Assert.assertEquals(i2, result2.get(1));		

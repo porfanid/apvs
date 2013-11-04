@@ -21,7 +21,7 @@ public class Error implements Message, Serializable, IsSerializable {
 	}
 
 	public Error(Device device, Integer errorNo, String description,
-			String criticality, Date date) {
+			String criticality, Date time) {
 		this.device = device;
 		this.errorNo = errorNo;
 		this.description = description;

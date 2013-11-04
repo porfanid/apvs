@@ -10,6 +10,7 @@ import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Message;
@@ -153,7 +154,7 @@ public class JsonMessage {
 					getString(DESCRIPTION), getString(CRITICALITY),
 					getDate(TIME));
 		} else if (type.equals("GeneralConfiguration")) {
-			return new GeneralConfiguration(device, getString(DOSIMETER_ID), getString(BSSID));
+			return new GeneralConfiguration(device, DOSIMETER_ID, getString(BSSID), getDate(TIME));
 		} else if (type.equals("MeasurementConfiguration")) {
 			return new MeasurementConfiguration(device, getString(SENSOR), 
 					getDouble(DOWN_THRESHOLD), getDouble(UP_THRESHOLD), getString(UNIT),

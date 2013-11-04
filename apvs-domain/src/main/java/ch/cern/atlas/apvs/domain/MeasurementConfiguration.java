@@ -3,14 +3,33 @@ package ch.cern.atlas.apvs.domain;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 //NOTE: implements IsSerializable in case serialization file cannot be found
+@Entity
+@Table( name = "TBL_MEASUREMENT_CONFIGURATION" )
 public class MeasurementConfiguration implements Message, Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -3852002718117362283L;
 
-	private Device device;
+	private volatile Device device;
+	private volatile Long id;
 	private String sensor;
 	private Date time;
 	private String unit;
@@ -27,7 +46,7 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 	
 	public MeasurementConfiguration(Device device, String sensor,
 			Double downThreshold, Double upThreshold, String unit,
-			Integer samplingRate, Double slope, Double offset, Date date) {
+			Integer samplingRate, Double slope, Double offset, Date time) {
 		setDevice(device);
 		setSensor(sensor);
 		setDownThreshold(downThreshold);
@@ -41,10 +60,24 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		// Fix Unit for Body Temperature and Temperature
 		if ((sensor != null) && (sensor.equals("Temperature") || sensor.equals("BodyTemperature"))
 				&& (unit != null) && unit.equals("C")) {
-			this.unit = "&deg;C";
+			setUnit("&deg;C");
 		}
 	}	
 			
+	@Id
+	@GeneratedValue(generator="increment")
+	@GenericGenerator(name="increment", strategy = "increment")
+	@Column(name = "ID", length=15)
+	public Long getId() {
+		return id;
+	}
+	
+	@SuppressWarnings("unused")
+	private void setId(Long id) {
+		this.id = id;
+	}
+
+	@Column(name = "SENSOR", length=50)
 	public String getSensor() {
 		return sensor;
 	}
@@ -53,6 +86,8 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.sensor = sensor;
 	}
 
+	@Column(name = "DOWN_THRES", length=20)
+	@Type(type="double_string")
 	public Double getDownThreshold() {
 		return downThreshold;
 	}
@@ -61,6 +96,8 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.downThreshold = downThreshold;
 	}
 
+	@Column(name = "UP_THRES", length=20)
+	@Type(type="double_string")
 	public Double getUpThreshold() {
 		return upThreshold;
 	}
@@ -69,6 +106,7 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.upThreshold = upThreshold;
 	}
 
+	@Column(name = "UNIT", length=20)
 	public String getUnit() {
 		return unit;
 	}
@@ -77,6 +115,8 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.unit = unit;
 	}
 	
+	@Column(name = "SAMPLINGRATE", length=20)
+	@Type(type="integer_string")
 	public Integer getSamplingRate() {
 		return samplingRate;
 	}
@@ -85,6 +125,8 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.samplingRate = samplingRate;
 	}
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "DATETIME", nullable=false)
 	public Date getTime() {
 		return time;
 	}
@@ -93,10 +135,16 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.time = time;
 	}
 
+	@Override
+	@Transient
 	public String getType() {
 		return type;
 	}
 		
+	@Override
+	@ManyToOne
+	@JoinColumn(name="DEVICE_ID", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE})
 	public Device getDevice() {
 		return device;
 	}

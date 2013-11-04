@@ -48,7 +48,7 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	protected Measurement() {
 	}
-	
+		
 	public Measurement(Device device, String sensor, Double value,
 			Double downThreshold, Double upThreshold, String unit,
 			Integer samplingRate, String method, Date time) {

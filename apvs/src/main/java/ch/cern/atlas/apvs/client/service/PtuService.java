@@ -16,7 +16,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  * @author Mark Donszelmann
  */
 @RemoteServiceRelativePath("apvsPtu")
-public interface PtuService extends TableService<MeasurementConfiguration>, RemoteService {
+public interface PtuService extends RemoteService {
 	public List<Measurement> getMeasurements(List<Device> ptuList, String name) throws ServiceException;
 	public List<Measurement> getMeasurements(Device device, String name) throws ServiceException;
 	

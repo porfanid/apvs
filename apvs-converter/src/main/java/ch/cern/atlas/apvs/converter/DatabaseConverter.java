@@ -32,7 +32,7 @@ public class DatabaseConverter {
 			@SuppressWarnings("unchecked")
 			Iterator<Measurement> iterator = database.getQuery(session,
 					Measurement.class, null, null,
-					Arrays.asList(new SortOrder("date", true))).iterate();
+					Arrays.asList(new SortOrder("time", true))).iterate();
 
 			int i = 0;
 			for (; iterator.hasNext(); i++) {

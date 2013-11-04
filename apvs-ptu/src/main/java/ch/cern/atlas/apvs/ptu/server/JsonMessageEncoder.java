@@ -16,10 +16,17 @@ public class JsonMessageEncoder extends MessageToByteEncoder<Packet> {
 	protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out)
 			throws Exception {
 		ByteBuf encoded = Unpooled.buffer();
+		encoded.clear();
 		ByteBufOutputStream os = new ByteBufOutputStream(encoded);
-		PtuJsonWriter writer = new PtuJsonWriter(os);		
-		writer.write(packet);
-		writer.close();
+//		PtuJsonWriter writer = new PtuJsonWriter(os);		
+//		writer.write(packet);
+//		writer.close();
+//		os.close();
+		
+		String s = PtuJsonWriter.toJson(packet);
+		System.err.println(s);
+		os.write(s.getBytes());
+		os.flush();
 		os.close();
 		
 //		log.info("Encoded  "+encoded.toString(CharsetUtil.UTF_8));

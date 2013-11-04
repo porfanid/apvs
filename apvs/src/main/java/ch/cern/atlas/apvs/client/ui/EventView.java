@@ -67,7 +67,7 @@ public class EventView extends GlassPanel implements Module {
 	private ActionHeader update;
 	private boolean showUpdate;
 
-	private ClickableTextColumn<Event> date;
+	private ClickableTextColumn<Event> time;
 	private String ptuHeader;
 	private CompositeHeader compositeFooter;
 	private ClickableTextColumn<Event> ptu;
@@ -110,7 +110,7 @@ public class EventView extends GlassPanel implements Module {
 						.getMinimumHorizontalScrollPosition());
 
 				table.getColumnSortList().clear();
-				table.getColumnSortList().push(new ColumnSortInfo(date, false));
+				table.getColumnSortList().push(new ColumnSortInfo(time, false));
 				ColumnSortEvent.fire(table, table.getColumnSortList());
 				scheduler.update();
 			}
@@ -186,7 +186,7 @@ public class EventView extends GlassPanel implements Module {
 				}
 
 				if (order.isEmpty()) {
-					order.add(new SortOrder("date", false));
+					order.add(new SortOrder("time", false));
 				}
 
 				clientFactory.getEventService().getTableData(range.getStart(), range.getLength(), order,
@@ -287,7 +287,7 @@ public class EventView extends GlassPanel implements Module {
 		}
 
 		// DATE and TIME (1)
-		date = new ClickableTextColumn<Event>() {
+		time = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
 				if (object == null) {
@@ -298,13 +298,13 @@ public class EventView extends GlassPanel implements Module {
 			
 			@Override
 			public String getDataStoreName() {
-				return "date";
+				return "time";
 			}
 		};
-		date.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		date.setSortable(sortable);
+		time.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		time.setSortable(sortable);
 		if (selectable) {
-			date.setFieldUpdater(new FieldUpdater<Event, String>() {
+			time.setFieldUpdater(new FieldUpdater<Event, String>() {
 
 				@Override
 				public void update(int index, Event object, String value) {
@@ -313,8 +313,8 @@ public class EventView extends GlassPanel implements Module {
 			});
 		}
 
-		table.addColumn(date, new TextHeader("Date / Time"), compositeFooter);
-		table.getColumnSortList().push(new ColumnSortInfo(date, false));
+		table.addColumn(time, new TextHeader("Date / Time"), compositeFooter);
+		table.getColumnSortList().push(new ColumnSortInfo(time, false));
 
 		// PtuID (2)
 		ptu = new ClickableTextColumn<Event>() {
@@ -509,7 +509,7 @@ public class EventView extends GlassPanel implements Module {
 			if (sortInfo == null) {
 				return true;
 			}
-			if (!sortInfo.getColumn().equals(date)) {
+			if (!sortInfo.getColumn().equals(time)) {
 				return true;
 			}
 			if (sortInfo.isAscending()) {

@@ -5,9 +5,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +26,7 @@ import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
-import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Order;
-import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
 
@@ -117,27 +113,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 				});
 
 	}
-	
-	@Override
-	public long getRowCount() throws ServiceException {
-		try {
-			return database.getCount(MeasurementConfiguration.class);
-		} catch (HibernateException e) {
-			throw new ServiceException(e.getMessage());
-		}
-	}
-	
-	@Override
-	public List<MeasurementConfiguration> getTableData(Integer start, Integer length, List<SortOrder> order)
-			throws ServiceException {
-		try {
-			return database.getList(MeasurementConfiguration.class, start, length,
-					Database.getOrder(order));
-		} catch (HibernateException e) {
-			throw new ServiceException(e.getMessage());
-		}
-	}
-
 		
 	@Override
 	public List<Measurement> getMeasurements(List<Device> ptuList, String name)

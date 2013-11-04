@@ -30,7 +30,7 @@ public class EventTest extends AbstractDomainTest {
 		// now lets pull events from the database and list them
 		session = sessionFactory.openSession();
 		session.beginTransaction();
-		List result = session.createQuery("from Event").list();
+		List result = session.createCriteria(Event.class).list();
 		Assert.assertEquals(2, result.size());
 //		System.err.println(result.get(0));
 		Assert.assertEquals(e1, result.get(0));

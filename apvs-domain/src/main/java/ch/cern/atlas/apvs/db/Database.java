@@ -31,9 +31,11 @@ import ch.cern.atlas.apvs.domain.Data;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.DeviceData;
 import ch.cern.atlas.apvs.domain.Event;
+import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Sensor;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.User;
@@ -53,16 +55,16 @@ public class Database {
 	private ServiceRegistry serviceRegistry;
 	private SessionFactory sessionFactory;
 
-	private Database() {
-
-		configuration = new Configuration();
-		configuration.configure(new File("hibernate.cfg.xml"));
+	protected Database(Configuration configuration) {
+		this.configuration = configuration;
 
 		// mapped classes
 		configuration.addAnnotatedClass(Device.class);
 		configuration.addAnnotatedClass(Event.class);
 		configuration.addAnnotatedClass(Intervention.class);
+		configuration.addAnnotatedClass(GeneralConfiguration.class);
 		configuration.addAnnotatedClass(Measurement.class);
+		configuration.addAnnotatedClass(MeasurementConfiguration.class);
 		configuration.addAnnotatedClass(Sensor.class);
 		configuration.addAnnotatedClass(User.class);
 
@@ -78,14 +80,14 @@ public class Database {
 
 		// new SchemaExport(configuration).create(true, false);
 	}
-
+		
 	public static Database getInstance() {
 		if (instance == null) {
-			instance = new Database();
+			instance = new Database(new Configuration().configure(new File("hibernate.cfg.xml")));
 		}
 		return instance;
 	}
-
+	
 	public void close() {
 		sessionFactory.close();
 	}
@@ -133,7 +135,7 @@ public class Database {
 			}
 		}
 	}
-	
+
 	// Keep for iterating
 	public Query getQuery(Session session, Class<?> clazz, Integer start,
 			Integer length, List<SortOrder> order) {
@@ -147,11 +149,11 @@ public class Database {
 		}
 		return query;
 	}
-	
+
 	private String getSql(String sql, List<SortOrder> order) {
 		StringBuffer s = new StringBuffer(sql);
 		if (order != null) {
-			for (int i=0; i<order.size(); i++) {
+			for (int i = 0; i < order.size(); i++) {
 				if (i == 0) {
 					s.append(" order by ");
 				}
@@ -471,7 +473,7 @@ public class Database {
 		String sql = "from Measurement m, view_last_measurements_date d "
 				+ "where d.datetime = m.time " + "and d.sensor = m.sensor "
 				+ "and d.device_id = m.device.id";
-		
+
 		if (ptuList != null) {
 			sql += " and m.sensor in ("
 					+ StringUtils.join(ptuList.toArray(), ',', '\'') + ")";
@@ -485,7 +487,7 @@ public class Database {
 		try {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
-						
+
 			Query query = session.createQuery(sql);
 			if (name != null) {
 				query.setString("sensor", name);
@@ -545,7 +547,7 @@ public class Database {
 		try {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
-			
+
 			Criteria c = session.createCriteria(Measurement.class);
 			c.add(Restrictions.eq("device", device));
 			c.add(Restrictions.eq("sensor", sensor));
@@ -555,7 +557,7 @@ public class Database {
 			List<Measurement> lastMeasurements = new CircularList<Measurement>(
 					maxEntries);
 			for (Object m : c.list()) {
-				lastMeasurements.add((Measurement)m);
+				lastMeasurements.add((Measurement) m);
 			}
 			log.info("Found " + lastMeasurements.size()
 					+ " last measurements for device " + device.getName()

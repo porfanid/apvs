@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,19 +13,16 @@ import ch.cern.atlas.apvs.client.widget.ActionHeader;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.CompositeHeader;
-import ch.cern.atlas.apvs.client.widget.DataStoreName;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Device;
-import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
-import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
-import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
+import ch.cern.atlas.apvs.event.DeviceConfigurationChangedRemoteEvent;
 
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell.Context;
@@ -37,17 +33,12 @@ import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
-import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.view.client.AsyncDataProvider;
-import com.google.gwt.view.client.HasData;
-import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.RangeChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -79,7 +70,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	protected Ternary databaseConnect = Ternary.Unknown;
+	private Ternary daqConnect = Ternary.Unknown;
+	private List<MeasurementConfiguration> data = new ArrayList<MeasurementConfiguration>();
 
 	public MeasurementConfigurationView() {
 	}
@@ -97,7 +89,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Measurement Configuration"));
-
+		
 		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
 		pager.setNextPageButtonsDisabled(true);
@@ -156,57 +148,9 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 			}
 		});
 
-		AsyncDataProvider<MeasurementConfiguration> dataProvider = new AsyncDataProvider<MeasurementConfiguration>() {
-
-			@Override
-			protected void onRangeChanged(HasData<MeasurementConfiguration> display) {
-
-				clientFactory.getPtuService().getRowCount(new AsyncCallback<Long>() {
-
-							@Override
-							public void onSuccess(Long result) {
-								table.setRowCount(result.intValue());
-							}
-
-							@Override
-							public void onFailure(Throwable caught) {
-								table.setRowCount(0);
-							}
-						});
-
-				final Range range = display.getVisibleRange();
-
-				final ColumnSortList sortList = table.getColumnSortList();
-				List<SortOrder> order = new ArrayList<SortOrder>(sortList.size());
-				for (int i = 0; i < sortList.size(); i++) {
-					ColumnSortInfo info = sortList.get(i);
-					order.add(new SortOrder(((DataStoreName)info.getColumn())
-							.getDataStoreName(), info.isAscending()));
-				}
-
-				if (order.isEmpty()) {
-					order.add(new SortOrder("date", false));
-				}
-
-				clientFactory.getPtuService().getTableData(range.getStart(), range.getLength(), order,
-						new AsyncCallback<List<MeasurementConfiguration>>() {
-
-							@Override
-							public void onSuccess(List<MeasurementConfiguration> result) {
-								table.setRowData(range.getStart(), result);
-							}
-
-							@Override
-							public void onFailure(Throwable caught) {
-								log.warn("RPC DB FAILED " + caught);
-								table.setRowCount(0);
-							}
-						});
-			}
-		};
-
 		// Table
-		dataProvider.addDataDisplay(table);
+		table.setRowCount(0);
+		table.setRowData(data);
 
 		AsyncHandler columnSortHandler = new AsyncHandler(table);
 		table.addColumnSortHandler(columnSortHandler);
@@ -220,34 +164,33 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 					public void onConnectionStatusChanged(
 							ConnectionStatusChangedRemoteEvent event) {
 						switch (event.getConnection()) {
-						case databaseConnect:
-							databaseConnect = event.getStatus();
+						case daq:
+							daqConnect = event.getStatus();
 							break;
 						default:
 							break;
 						}
 
-						showGlass(databaseConnect.not().isTrue());
+						showGlass(daqConnect.not().isTrue());
 					}
 				});
 
-		EventChangedEvent.register(clientFactory.getRemoteEventBus(),
-				new EventChangedEvent.Handler() {
+		DeviceConfigurationChangedRemoteEvent.subscribe(
+				clientFactory.getRemoteEventBus(),
+				new DeviceConfigurationChangedRemoteEvent.Handler() {
 
 					@Override
-					public void onEventChanged(EventChangedEvent e) {
-						Event event = e.getEvent();
-						if (event == null)
-							return;
-
-						if (((device == null) || event.getDevice().equals(device))
-								&& ((sensor == null) || event
-										.getSensor().equals(sensor))) {
-							showUpdate = true;
-							scheduler.update();
-						}
+					public void onDeviceConfigurationChanged(
+							DeviceConfigurationChangedRemoteEvent event) {
+						System.err.println("New DeviceConfiguration "+event.getDeviceConfiguration());
+						data = event.getDeviceConfiguration().getMeasurementConfiguration();
+						
+						table.setRowCount(data.size());
+						table.setRowData(data);
+						scheduler.update();
 					}
 				});
+
 
 		if (cmdBus != null) {
 			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
@@ -488,6 +431,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 						}
 					});
 		}
+		
 
 		return true;
 	}

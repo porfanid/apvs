@@ -78,7 +78,7 @@ public class PtuJsonTest {
 				PtuServerConstants.dateFormat.parse("04/07/2013 21:16:13")));
 
 		String output = PtuJsonWriter.toJson(packet);
-//		System.err.println(output);
+		System.err.println(output);
 		Assert.assertEquals(parsedJson, output);
 	}
 }
