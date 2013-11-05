@@ -119,14 +119,16 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	@Override
 	public long getRowCount() throws ServiceException {
-		return database.getCount(MeasurementConfiguration.class);
+//		return database.getCount(MeasurementConfiguration.class);
+		return database.getMeasurementConfigurationList().size();
 	}
 
 	@Override
 	public List<MeasurementConfiguration> getTableData(Integer start,
 			Integer length, List<SortOrder> sortOrder) throws ServiceException {
-		return database.getList(MeasurementConfiguration.class, start, length,
-				Database.getOrder(sortOrder), null, Arrays.asList("device"));
+//		return database.getList(MeasurementConfiguration.class, start, length,
+//				Database.getOrder(sortOrder), null, Arrays.asList("device"));
+		return database.getMeasurementConfigurationList();
 	}
 
 	@Override

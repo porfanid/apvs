@@ -80,14 +80,15 @@ public class Database {
 
 		// new SchemaExport(configuration).create(true, false);
 	}
-		
+
 	public static Database getInstance() {
 		if (instance == null) {
-			instance = new Database(new Configuration().configure(new File("hibernate.cfg.xml")));
+			instance = new Database(new Configuration().configure(new File(
+					"hibernate.cfg.xml")));
 		}
 		return instance;
 	}
-	
+
 	public void close() {
 		sessionFactory.close();
 	}
@@ -682,6 +683,32 @@ public class Database {
 			tx.commit();
 
 			return deviceData;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<MeasurementConfiguration> getMeasurementConfigurationList() {
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+
+			Query query = session.createQuery("from MeasurementConfiguration t"
+					+ " where (device,sensor,time) in"
+					+ " (select device,sensor,max(time)"
+					+ " from MeasurementConfiguration"
+					+ " group by device, sensor)");
+			return query.list();
 		} catch (HibernateException e) {
 			if (tx != null) {
 				tx.rollback();

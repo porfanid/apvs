@@ -17,6 +17,8 @@ import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
+import ch.cern.atlas.apvs.domain.ClientConstants;
+import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.Ternary;
@@ -171,7 +173,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 
 				if (order.isEmpty()) {
-					order.add(new SortOrder("time", false));
+					order.add(new SortOrder("device.name", false));
 				}
 
 				clientFactory.getPtuService().getTableData(range.getStart(), range.getLength(), order,
@@ -343,6 +345,34 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 			});
 		}
 		table.addColumn(unit, "Unit");
+		
+		// DATE and TIME
+		ClickableTextColumn<MeasurementConfiguration> time = new ClickableTextColumn<MeasurementConfiguration>() {
+			@Override
+			public String getValue(MeasurementConfiguration object) {
+				if (object == null) {
+					return "";
+				}
+				return ClientConstants.dateFormatNoSeconds.format(object.getTime());
+			}
+			
+			@Override
+			public String getDataStoreName() {
+				return "time";
+			}
+		};
+		time.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		time.setSortable(true);
+		if (selectable) {
+			time.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+
+				@Override
+				public void update(int index, MeasurementConfiguration object, String value) {
+					selectMeasurementConfiguration(object);
+				}
+			});
+		}
+		table.addColumn(time, new TextHeader("Updated"), compositeFooter);
 
 		// DownThreshold
 		ClickableTextColumn<MeasurementConfiguration> downThreshold = new ClickableTextColumn<MeasurementConfiguration>() {
