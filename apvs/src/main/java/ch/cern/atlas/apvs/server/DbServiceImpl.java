@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.server;
 
-import java.io.Serializable;
-import java.util.List;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
@@ -10,15 +7,10 @@ import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gwt.user.client.rpc.SerializationException;
-
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.DbService;
-import ch.cern.atlas.apvs.client.service.ServiceException;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.db.Database;
-import ch.cern.atlas.apvs.domain.Event;
-import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 /**

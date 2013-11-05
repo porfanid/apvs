@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Event;
+import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Packet;
 import ch.cern.atlas.apvs.ptu.server.MessageEvent;
@@ -49,12 +51,23 @@ public class DatabaseWriter {
 						 		}
 						 		
 						 		break;
+						 	
 						 	case "GeneralConfiguration":
-						 		log.info("Discarded: "+msg);
+						 		GeneralConfiguration gc = (GeneralConfiguration)msg;
+						 		
+						 		database.saveOrUpdate(gc);
+						 		log.info("Written to DB: "+gc);
+						 		
 						 		break;
+						 		
 						 	case "MeasurementConfiguration":
-						 		log.info("Discarded: "+msg);
+						 		MeasurementConfiguration mc = (MeasurementConfiguration)msg;
+						 		
+						 		database.saveOrUpdate(mc);
+						 		log.info("Written to DB: "+mc);
+						 		
 						 		break;
+						 		
 						 	default:
 						 		log.warn("Unhandled message type: "+msg);
 						 		break;

@@ -6,6 +6,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,9 @@ import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Order;
+import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
 
@@ -63,7 +66,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		log.info("Starting PtuService...");
 
 		database = Database.getInstance();
-		
+
 		Map<String, Device> devices = database.getDeviceMap();
 
 		EventLoopGroup group = new NioEventLoopGroup();
@@ -113,7 +116,19 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 				});
 
 	}
-		
+
+	@Override
+	public long getRowCount() throws ServiceException {
+		return database.getCount(MeasurementConfiguration.class);
+	}
+
+	@Override
+	public List<MeasurementConfiguration> getTableData(Integer start,
+			Integer length, List<SortOrder> sortOrder) throws ServiceException {
+		return database.getList(MeasurementConfiguration.class, start, length,
+				Database.getOrder(sortOrder), null, Arrays.asList("device"));
+	}
+
 	@Override
 	public List<Measurement> getMeasurements(List<Device> ptuList, String name)
 			throws ServiceException {

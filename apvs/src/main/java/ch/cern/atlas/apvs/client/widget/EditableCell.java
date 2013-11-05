@@ -79,6 +79,10 @@ public class EditableCell extends AbstractCell<Object> {
 
 		checkboxCell.setEnabled(enabled);
 	}
+	
+	public boolean isEnabled() {
+		return enabled;
+	}
 
 	@Override
 	public boolean isEditing(Context context, Element parent, Object value) {

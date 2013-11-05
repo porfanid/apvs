@@ -25,7 +25,6 @@ import ch.cern.atlas.apvs.db.Scale;
 import ch.cern.atlas.apvs.db.SensorMap;
 import ch.cern.atlas.apvs.domain.APVSException;
 import ch.cern.atlas.apvs.domain.Device;
-import ch.cern.atlas.apvs.domain.DeviceConfiguration;
 import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
@@ -38,14 +37,13 @@ import ch.cern.atlas.apvs.domain.Report;
 import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent.ConnectionType;
-import ch.cern.atlas.apvs.event.DeviceConfigurationChangedRemoteEvent;
-import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuJsonWriter;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
+import ch.cern.atlas.apvs.ptu.shared.MeasurementConfigurationChangedEvent;
 
 import com.google.gwt.user.client.rpc.SerializationException;
 
@@ -67,8 +65,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	private SensorMap sensorMap;
 	private Map<String, Device> deviceMap;
 
-	private DeviceConfiguration deviceConfiguration = new DeviceConfiguration();
-
 	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus)
 			throws SerializationException {
 		super(bootstrap);
@@ -82,11 +78,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			public void onRequestEvent(RequestRemoteEvent event) {
 				String type = event.getRequestedClassName();
 
-				if (type.equals(DeviceConfigurationChangedRemoteEvent.class
-						.getName())) {
-					DeviceConfigurationChangedRemoteEvent.fire(eventBus,
-							deviceConfiguration);
-				} else if (type.equals(ConnectionStatusChangedRemoteEvent.class
+				if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
 					ConnectionStatusChangedRemoteEvent.fire(eventBus,
 							ConnectionType.daq, isConnected(), getCause());
@@ -276,22 +268,17 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			throws SerializationException {
 		String ptuId = message.getDevice().getName();
 
-		// FIXME should be kept just in dc
 		if (settings != null) {
 			settings.setDosimeterSerialNumber(ptuId, message.getDosimeterId());
 			settings.setBSSID(ptuId, message.getBSSID());
 
 			eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
 		}
-		
-		deviceConfiguration.add(message);
-		eventBus.fireEvent(new DeviceConfigurationChangedRemoteEvent(deviceConfiguration));
 	}
 
 	private void handleMessage(MeasurementConfiguration message)
 			throws SerializationException {		
-		deviceConfiguration.add(message);
-		eventBus.fireEvent(new DeviceConfigurationChangedRemoteEvent(deviceConfiguration));
+		eventBus.fireEvent(new MeasurementConfigurationChangedEvent(message));
 	}
 
 	private void handleMessage(Report report) {

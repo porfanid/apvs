@@ -153,6 +153,8 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.device = device;
 	}
 	
+	@Column(name = "SLOPE", length=20)
+	@Type(type="double_string")
 	public Double getSlope() {
 		return slope;
 	}
@@ -161,6 +163,8 @@ public class MeasurementConfiguration implements Message, Serializable, IsSerial
 		this.slope = slope;
 	}
 	
+	@Column(name = "OFFSET", length=20)
+	@Type(type="double_string")
 	public Double getOffset() {
 		return offset;
 	}
