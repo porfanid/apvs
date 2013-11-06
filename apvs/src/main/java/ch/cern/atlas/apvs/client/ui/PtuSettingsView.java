@@ -214,7 +214,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 			dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 			dosimeter.setSortable(false);
-			table.addColumn(dosimeter, "Dosimeter #");
+			table.addColumn(dosimeter, "Dosimeter");
 
 			if (enableDosimeterChange) {
 				Column<Device, Device> dosimeterSet = new Column<Device, Device>(
@@ -229,7 +229,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				dosimeterSet.setSortable(false);
 				dosimeterSet
 						.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-				table.addColumn(dosimeterSet, "Dosimeter #");
+				table.addColumn(dosimeterSet, "Dosimeter");
 			}
 		}
 		

@@ -242,12 +242,16 @@ public class Database {
 			c.addOrder(Order.asc("name"));
 
 			if (available) {
+				// device not in Active Interventions
 				DetachedCriteria dc = DetachedCriteria
 						.forClass(Intervention.class);
 				dc.add(Restrictions.isNull("endTime"));
 				dc.setProjection(Projections.property("device.id"));
 
 				c.add(Property.forName("id").notIn(dc));
+				
+				// device not virtual
+//				c.add(Restrictions.ne("virtual", true));
 			}
 
 			@SuppressWarnings("unchecked")
@@ -694,6 +698,33 @@ public class Database {
 			}
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<GeneralConfiguration> getGeneralConfigurationList() {
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+
+			Query query = session.createQuery("from GeneralConfiguration"
+					+ " where (device,time) in"
+					+ " (select device,max(time)"
+					+ " from GeneralConfiguration"
+					+ " group by device)");
+			return query.list();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}
+	}
+
 
 	@SuppressWarnings("unchecked")
 	public List<MeasurementConfiguration> getMeasurementConfigurationList() {
@@ -703,7 +734,7 @@ public class Database {
 			session = sessionFactory.openSession();
 			tx = session.beginTransaction();
 
-			Query query = session.createQuery("from MeasurementConfiguration t"
+			Query query = session.createQuery("from MeasurementConfiguration"
 					+ " where (device,sensor,time) in"
 					+ " (select device,sensor,max(time)"
 					+ " from MeasurementConfiguration"
@@ -780,4 +811,5 @@ public class Database {
 		}
 		return order;
 	}
+
 }

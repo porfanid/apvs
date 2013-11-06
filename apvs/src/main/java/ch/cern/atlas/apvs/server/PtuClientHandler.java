@@ -266,11 +266,8 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	private void handleMessage(GeneralConfiguration message)
 			throws SerializationException {
-		String ptuId = message.getDevice().getName();
-
 		if (settings != null) {
-			settings.setDosimeterSerialNumber(ptuId, message.getDosimeterId());
-			settings.setBSSID(ptuId, message.getBSSID());
+			PtuSettingsStorage.updateFromDatabase(settings);
 
 			eventBus.fireEvent(new PtuSettingsChangedRemoteEvent(settings));
 		}

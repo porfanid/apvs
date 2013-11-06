@@ -315,7 +315,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(value, new TextHeader("Value"));
+		table.addColumn(value, new TextHeader("Value"), compositeFooter);
 
 		// Unit
 		ClickableHtmlColumn<MeasurementConfiguration> unit = new ClickableHtmlColumn<MeasurementConfiguration>() {
@@ -372,7 +372,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 			});
 		}
-		table.addColumn(time, new TextHeader("Updated"), compositeFooter);
+		table.addColumn(time, "Updated");
 
 		// DownThreshold
 		ClickableTextColumn<MeasurementConfiguration> downThreshold = new ClickableTextColumn<MeasurementConfiguration>() {

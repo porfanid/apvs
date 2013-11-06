@@ -46,12 +46,12 @@ public class Intervention implements Serializable, IsSerializable {
 	protected Intervention() {
 	}
 	
-	public Intervention(User user, Device device, Date startTime, Date endTime,
+	public Intervention(User user, Device device, Date startTime,
 			String impactNumber, Double recStatus, String description, Boolean test) {
 		setUser(user);
 		setDevice(device);
 		setStartTime(startTime);
-		setEndTime(endTime);
+		setEndTime(null);
 		setImpactNumber(impactNumber);
 		setRecStatus(recStatus);
 		setDescription(description);

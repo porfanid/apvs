@@ -153,7 +153,7 @@ public class JsonMessage {
 					getString(DESCRIPTION), getString(CRITICALITY),
 					getDate(TIME));
 		} else if (type.equals("GeneralConfiguration")) {
-			return new GeneralConfiguration(device, DOSIMETER_ID, getString(BSSID), getDate(TIME));
+			return new GeneralConfiguration(device, getString(DOSIMETER_ID), getString(BSSID), getDate(TIME));
 		} else if (type.equals("MeasurementConfiguration")) {
 			return new MeasurementConfiguration(device, getString(SENSOR), 
 					getDouble(DOWN_THRESHOLD), getDouble(UP_THRESHOLD), getString(UNIT),

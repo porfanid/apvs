@@ -412,7 +412,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 						Intervention intervention = new Intervention(users
 								.get(userField.getId()), devices.get(ptu
-								.getId()), new Date(), null, impact.getValue(),
+								.getId()), new Date(), impact.getValue(),
 								0.0, description.getValue(), test.getValue());
 
 						interventionService.addIntervention(intervention,

@@ -62,6 +62,7 @@ public class DaqServer {
 			system = new Device(systemDeviceName,
 					InetAddress.getByName("localhost"), "APVS DAQ Server",
 					new MacAddress("00:00:00:00:00:00"), "apvs-daq-server");
+			system.setVirtual(true);
 			devices.put(system.getName(), system);
 			database.saveOrUpdate(system);
 		}
