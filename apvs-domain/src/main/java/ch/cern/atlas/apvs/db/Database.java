@@ -250,8 +250,8 @@ public class Database {
 
 				c.add(Property.forName("id").notIn(dc));
 				
-				// device not virtual
-//				c.add(Restrictions.ne("virtual", true));
+				// device not virtual #770
+//				c.add(Restrictions.eq("virtual", false));
 			}
 
 			@SuppressWarnings("unchecked")

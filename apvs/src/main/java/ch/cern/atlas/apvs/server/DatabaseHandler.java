@@ -132,6 +132,8 @@ public class DatabaseHandler {
 				updated = Ternary.False;
 				updatedCause = "Never Updated";
 			}
+			connected = Ternary.True;
+			connectedCause = "";
 		} catch (HibernateException e) {
 			connected = Ternary.False;
 			connectedCause = e.getMessage();
