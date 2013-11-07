@@ -51,13 +51,12 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	@Override
 	public long getRowCount() throws ServiceException {
 		try {
-			return database.getCount(
-					Intervention.class);
+			return database.getCount(Intervention.class);
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
-		
+
 	@Override
 	public List<Intervention> getTableData(Integer start, Integer length,
 			List<SortOrder> order) throws ServiceException {
@@ -69,13 +68,11 @@ public class InterventionServiceImpl extends ResponsePollService implements
 		}
 	}
 
-
 	@Override
 	public long getRowCount(boolean showTest) throws ServiceException {
 		try {
-			return database.getCount(
-					Intervention.class,
-					getCriterion(showTest));
+			return database
+					.getCount(Intervention.class, getCriterion(showTest));
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -96,7 +93,9 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	private List<Criterion> getCriterion(boolean showTest) {
 		List<Criterion> c = new ArrayList<Criterion>();
 		if (!showTest) {
-			c.add(Restrictions.or(Restrictions.eq("test", showTest),
+			// show when not test or when not finished
+			c.add(Restrictions.or(Restrictions.isNull("endTime"),
+					Restrictions.eq("test", showTest),
 					Restrictions.isNull("test")));
 		}
 		return c;
