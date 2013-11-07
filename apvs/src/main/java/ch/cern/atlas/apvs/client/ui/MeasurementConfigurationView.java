@@ -19,6 +19,7 @@ import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Event;
+import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.Ternary;
@@ -272,7 +273,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				if (object == null) {
 					return "";
 				}
-				return object.getSensor();
+				return Measurement.getDisplayName(object.getSensor());
 			}
 			
 			@Override
