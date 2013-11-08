@@ -53,7 +53,7 @@
 		<mockito-version>1.9.5</mockito-version>
 		<gwtmockito-version>1.1.2</gwtmockito-version>
 		<mysql-version>5.1.27</mysql-version>
-		<netty-version>4.0.11.Final</netty-version>
+		<netty-version>4.0.12.Final</netty-version>
 		<nettosphere-version>2.0.2</nettosphere-version>
 		<ojdbc-jar>ojdbc6.jar</ojdbc-jar>
 		<ojdbc-version>11.2.0.4</ojdbc-version>
@@ -247,6 +247,23 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>gwt-maven-plugin</artifactId>
 					<version>${gwt-plugin-version}</version>
+					<dependencies>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-dev</artifactId>
+							<version>${gwt-version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-codeserver</artifactId>
+							<version>${gwt-version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-user</artifactId>
+							<version>${gwt-version}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 
 				<plugin>
