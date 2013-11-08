@@ -122,12 +122,4 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
 		return userPwd[0] + "/@//" + part[1];
 	}
-
-	private boolean audioUrlExpression(String url) {
-		if (url.indexOf("@") > 0) {
-			return true;
-		}
-		return false;
-	}
-
 }

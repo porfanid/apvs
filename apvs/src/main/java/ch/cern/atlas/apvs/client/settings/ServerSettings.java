@@ -12,9 +12,10 @@ public class ServerSettings extends AbstractServerSettings {
 	
 	public enum Entry {
 		ptuUrl("PTU URL", TextCell.class, TextCell.class),
-		procedureUrl("Procedure URL", TextCell.class, TextCell.class),
+		videoUrl("Video URL", TextCell.class, TextCell.class),
 		databaseUrl("Database URL", TextCell.class, TextCell.class),
-		audioUrl("Audio URL", TextCell.class, TextCell.class);
+		audioUrl("Audio URL", TextCell.class, TextCell.class),
+		procedureUrl("Procedure URL", TextCell.class, TextCell.class);
 		private String s;
 		private Class<?> c;
 		private Class<?> n;
@@ -75,10 +76,11 @@ public class ServerSettings extends AbstractServerSettings {
 		if (!setDefaults)
 			return;
 
-		put(Entry.ptuUrl.toString(), "pcatlaswpss03:10124");
-		put(Entry.procedureUrl.toString(), "");
+		put(Entry.ptuUrl.toString(), "wpss-sensor-server:10124");
+		put(Entry.videoUrl.toString(), "wpss-video-server:20000");
 		put(Entry.databaseUrl.toString(), "--");
-		put(Entry.audioUrl.toString(), "manager@pcatlaswpss02.cern.ch");
+		put(Entry.audioUrl.toString(), "manager@wpss-sensor-server.cern.ch");
+		put(Entry.procedureUrl.toString(), "");
 	}
 	
 	public String toString() {

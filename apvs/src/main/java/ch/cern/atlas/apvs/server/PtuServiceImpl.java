@@ -107,7 +107,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 										.parseInt(s[1]) : DEFAULT_PTU_PORT;
 
 								log.info("Setting PTU to " + host + ":" + port);
-								// #FIXME
 								ptuClientHandler.connect(new InetSocketAddress(
 										host, port));
 							}

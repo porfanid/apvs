@@ -18,22 +18,9 @@ public class PtuChannelInitializer extends ChannelInitializer<SocketChannel> {
 		this.handler = handler;
 		this.devices = devices;
 	}
-
-//	@Override
-//	protected void initChannel(SocketChannel ch) throws Exception {
-//		ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
-//		if (delimiter) {
-//			ch.pipeline().addLast(
-//					new DelimiterBasedFrameDecoder(8192, Unpooled
-//							.wrappedBuffer(new byte[] { 0x13 })));
-//		}
-//		ch.pipeline().addLast(new StringDecoder(CharsetUtil.UTF_8));
-//		ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8));
-//		ch.pipeline().addLast(handler);
-//	}
 	
 	protected void initChannel(SocketChannel ch) throws Exception {
-		ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
+//		ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
 		if (devices != null) {
 			ch.pipeline().addLast(new RemoveDelimiterDecoder());
 			ch.pipeline().addLast(new JsonMessageDecoder(devices));

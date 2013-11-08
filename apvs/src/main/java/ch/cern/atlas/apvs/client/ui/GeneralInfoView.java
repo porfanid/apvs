@@ -73,7 +73,8 @@ public class GeneralInfoView extends GlassPanel implements Module {
 	private List<String> names = Arrays
 			.asList(new String[] {
 					ConnectionType.server.getString(),
-					ConnectionType.audio.getString(), // ConnectionType.video.getString(),
+					ConnectionType.audio.getString(), 
+					ConnectionType.video.getString(),
 					ConnectionType.daq.getString(),
 					// ConnectionType.dosimeter.getString(),
 					ConnectionType.databaseConnect.getString(),
@@ -81,7 +82,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					"Duration", "Dosimeter", "Wireless" });
 	private List<Class<?>> classes = Arrays
 			.asList(new Class<?>[] { TextCell.class,
-					TextCell.class, // TextCell.class,
+					TextCell.class, TextCell.class,
 					TextCell.class, // TextCell.class,
 					TextCell.class, TextCell.class, DateCell.class,
 					DurationCell.class, TextCell.class, TextCell.class });
@@ -224,7 +225,6 @@ public class GeneralInfoView extends GlassPanel implements Module {
 							audioCause = event.getCause();
 							break;
 						case video:
-							// FIXME #192, not sent yet
 							videoOk = event.getStatus();
 							videoCause = event.getCause();
 							break;
