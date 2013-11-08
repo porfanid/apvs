@@ -4,6 +4,7 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class Tab implements Module {
@@ -30,7 +31,6 @@ public class Tab implements Module {
 			
 			@Override
 			public void onTabSelected(SelectTabEvent event) {
-				System.err.println(tab+" event: "+event);
 				setVisible(element, event.getTab().equals(tab));
 			}
 		});
