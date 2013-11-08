@@ -13,10 +13,10 @@ public class DeviceTest extends AbstractDomainTest {
 	public void testBasicUsage() {
 		Device d1 = new Device("PTU01", InetAddress.getByAddress(new byte[] {
 				127, 0, 0, 1 }), "Description", new MacAddress(new byte[] {
-				0x23, 0x45, 0x67, (byte)0x89, (byte)0xAB, (byte)0xCD }), "ptu01.cern.ch");
+				0x23, 0x45, 0x67, (byte)0x89, (byte)0xAB, (byte)0xCD }), "ptu01.cern.ch", false);
 		Device d2 = new Device("PTU02", InetAddress.getByName("localhost"),
 				"Some Desc", new MacAddress("23:45:67:89:AB:CD"),
-				"ptu02.cern.ch");
+				"ptu02.cern.ch", false);
 
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();

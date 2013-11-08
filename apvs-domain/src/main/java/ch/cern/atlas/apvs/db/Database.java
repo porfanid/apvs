@@ -34,6 +34,7 @@ import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Intervention;
+import ch.cern.atlas.apvs.domain.MacAddress;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Sensor;
@@ -810,6 +811,32 @@ public class Database {
 					: Order.desc(name).nulls(precedence));
 		}
 		return order;
+	}
+
+	public String getHostName(String bssid) {		
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+
+			Criteria c = session.createCriteria(Device.class);
+			c.add(Restrictions.eq("macAddress", new MacAddress(bssid)));
+			
+			Device device = (Device)c.uniqueResult();
+			tx.commit();
+			
+			return device == null ? bssid : device.getName();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}	
 	}
 
 }

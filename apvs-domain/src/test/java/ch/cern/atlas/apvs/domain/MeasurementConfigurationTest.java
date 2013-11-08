@@ -12,8 +12,8 @@ public class MeasurementConfigurationTest extends AbstractDomainTest {
 	@SuppressWarnings({ "rawtypes" })
 	@Test
 	public void testBasicUsage() {
-		Device d1 = new Device("PTU_88", InetAddress.getByName("localhost"), "ptu 88", null, "ptu_88.cern.ch");
-		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch");
+		Device d1 = new Device("PTU_88", InetAddress.getByName("localhost"), "ptu 88", null, "ptu_88.cern.ch", false);
+		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch", false);
 		
 		
 		MeasurementConfiguration mc1 = new MeasurementConfiguration(d1, "Temperature", 20.0, 25.0, "&deg;C", 60000, 1.0, 0.2, new Date());

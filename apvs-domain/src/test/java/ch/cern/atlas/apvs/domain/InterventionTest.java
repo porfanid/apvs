@@ -16,8 +16,8 @@ public class InterventionTest extends AbstractDomainTest {
 		User u1 = new User("Mark", "Donszelmann", "yyyyy");
 		User u2 = new User("Olga", "Beltramello", "xxxxx");
 		
-		Device d1 = new Device("PTU_88", InetAddress.getByName("localhost"), "ptu 88", null, "ptu_88.cern.ch");
-		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch");
+		Device d1 = new Device("PTU_88", InetAddress.getByName("localhost"), "ptu 88", null, "ptu_88.cern.ch", false);
+		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch", false);
 		
 		Intervention i1 = new Intervention(u1, d1, new Date(1234567), "12345", null, "Test Intervention 1", true);
 		Intervention i2 = new Intervention(u2, d2, new Date(1234567), "12345", null, "Test Intervention 2", true);

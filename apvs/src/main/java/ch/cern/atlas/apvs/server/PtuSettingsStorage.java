@@ -119,9 +119,11 @@ public class PtuSettingsStorage {
 	public static void updateFromDatabase(PtuSettings settings) {
 		Database database = Database.getInstance();
 		
+		
+		
 		for (GeneralConfiguration gc : database.getGeneralConfigurationList()) {
 			String ptuId = gc.getDevice().getName();
-			settings.setBSSID(ptuId, gc.getBSSID());
+			settings.setBSSID(ptuId, database.getHostName(gc.getBSSID()));
 			settings.setDosimeterSerialNumber(ptuId, gc.getDosimeterId());
 		};
 	}

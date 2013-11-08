@@ -23,7 +23,7 @@ public class FilterTest {
 	//String ptuId = "PTU099";
 	Device ptuId = new Device("PTU099", InetAddress.getByName("localhost"),
 	        "Some Desc", new MacAddress("23:45:67:89:AB:CD"),
-	        "ptu099.cern.ch");
+	        "ptu099.cern.ch", false);
 
 	long now = new Date().getTime();
 	Date t0 = new Date(now+20000);

@@ -41,14 +41,13 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 		// Serialization
 	}
 					
-	public Device(String name, InetAddress ip, String description, MacAddress macAddress, String hostName) {
+	public Device(String name, InetAddress ip, String description, MacAddress macAddress, String hostName, boolean virtual) {
 		setName(name);
 		setIp(ip);
 		setDescription(description);
 		setMacAddress(macAddress);
 		setHostName(hostName);
-		
-		setVirtual(false);
+		setVirtual(virtual);
 	}
 
 	@Id
@@ -117,7 +116,7 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 		return virtual;
 	}
 	
-	public void setVirtual(Boolean virtual) {
+	private void setVirtual(Boolean virtual) {
 		this.virtual = virtual;
 	}
 

@@ -357,7 +357,7 @@ public class InterventionView extends GlassPanel implements Module {
 							}
 						});
 
-				final ListBoxField ptu = new ListBoxField("PTU",
+				final ListBoxField ptu = new ListBoxField("Device",
 						new NotNullValidator());
 				fieldset.add(ptu);
 
@@ -599,7 +599,7 @@ public class InterventionView extends GlassPanel implements Module {
 		Header<String> deviceFooter = new Header<String>(new ButtonCell()) {
 			@Override
 			public String getValue() {
-				return "New PTU...";
+				return "New Device...";
 			}
 
 			public boolean onPreviewColumnSortEvent(Context context,
@@ -614,7 +614,7 @@ public class InterventionView extends GlassPanel implements Module {
 			public void update(String value) {
 				ValidationFieldset fieldset = new ValidationFieldset();
 
-				final TextBoxField ptuId = new TextBoxField("PTU ID",
+				final TextBoxField ptuId = new TextBoxField("Device Name",
 						new StringValidator(2, 20, "Enter alphanumeric ID"));
 				fieldset.add(ptuId);
 
@@ -635,6 +635,10 @@ public class InterventionView extends GlassPanel implements Module {
 				final TextAreaField description = new TextAreaField(
 						"Description");
 				fieldset.add(description);
+				
+				final CheckBoxField virtual = new CheckBoxField(
+						"Virtual Device");
+				fieldset.add(virtual);
 
 				final Modal m = new Modal();
 
@@ -658,7 +662,7 @@ public class InterventionView extends GlassPanel implements Module {
 								InetAddress.getByName(ip.getValue()),
 								description.getValue(), new MacAddress(
 										macAddress.getValue()), hostName
-										.getValue());
+										.getValue(), virtual.getValue());
 
 						interventionService.addDevice(device,
 								new AsyncCallback<Void>() {
@@ -681,13 +685,13 @@ public class InterventionView extends GlassPanel implements Module {
 				form.setType(FormType.HORIZONTAL);
 				form.add(fieldset);
 
-				m.setTitle("New PTU");
+				m.setTitle("New Device");
 				m.add(form);
 				m.add(new ModalFooter(cancel, ok));
 				m.show();
 			}
 		});
-		table.addColumn(ptu, new TextHeader("PTU ID"),
+		table.addColumn(ptu, new TextHeader("Device"),
 				clientFactory.isSupervisor() ? deviceFooter : null);
 
 		// Impact #

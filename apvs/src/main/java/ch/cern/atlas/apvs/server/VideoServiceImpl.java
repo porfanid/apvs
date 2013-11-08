@@ -65,7 +65,7 @@ public class VideoServiceImpl extends ResponsePollService implements VideoServic
 
 		// Configure the pipeline factory.
 		bootstrap.group(group);
-		bootstrap.handler(new PtuChannelInitializer(videoClientHandler, devices));
+		bootstrap.handler(new PtuChannelInitializer(videoClientHandler, devices, false));
 
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {

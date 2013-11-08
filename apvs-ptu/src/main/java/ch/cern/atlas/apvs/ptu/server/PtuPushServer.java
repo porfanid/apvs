@@ -40,7 +40,7 @@ public class PtuPushServer {
 
 		bootstrap.group(group);
 		bootstrap.handler(new PtuChannelInitializer(new PtuServerHandler(
-				refresh, ids), null));
+				refresh, ids), null, true));
 
 		// Start the connection attempt.
 		handler.connect(new InetSocketAddress(host, port));

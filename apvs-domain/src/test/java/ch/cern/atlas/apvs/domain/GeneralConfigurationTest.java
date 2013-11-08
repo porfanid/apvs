@@ -12,8 +12,8 @@ public class GeneralConfigurationTest extends AbstractDomainTest {
 	@SuppressWarnings({ "rawtypes" })
 	@Test
 	public void testBasicUsage() {
-		Device d1 = new Device("PTU_88", InetAddress.getByName("localhost"), "ptu 88", null, "ptu_88.cern.ch");
-		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch");
+		Device d1 = new Device("PTU_88", InetAddress.getByName("localhost"), "ptu 88", null, "ptu_88.cern.ch", false);
+		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch", false);
 		
 		GeneralConfiguration gc1 = new GeneralConfiguration(d1, "12345", "00:00:00:00:00:00", new Date());
 		GeneralConfiguration gc2 = new GeneralConfiguration(d1, "54321", "01:02:03:04:05:06", new Date());

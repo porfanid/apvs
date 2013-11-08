@@ -39,7 +39,7 @@ public class PtuJsonTest {
 	
 	@Test
 	public void readerTest() throws IOException {
-		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
+		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost", false);
 		
 		JsonHeader header = PtuJsonReader.jsonToJava(json);
 		// System.err.println(packet);
@@ -70,7 +70,7 @@ public class PtuJsonTest {
 
 	@Test
 	public void writerTest() throws ParseException {
-		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
+		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost", false);
 		Packet packet = new Packet(device.getName(), "Broadcast", 0, false);
 		packet.addMessage(new Humidity(device, 33.19684099267707,
 				PtuServerConstants.dateFormat.parse("04/07/2013 15:42:53")));

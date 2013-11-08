@@ -11,16 +11,20 @@ import ch.cern.atlas.apvs.domain.Device;
 
 public class PtuChannelInitializer extends ChannelInitializer<SocketChannel> {
 
+	private boolean handleIdle;
 	private ChannelInboundHandlerAdapter handler;
 	private Map<String, Device> devices;
 
-	public PtuChannelInitializer(ChannelInboundHandlerAdapter handler, Map<String, Device> devices) {
+	public PtuChannelInitializer(ChannelInboundHandlerAdapter handler, Map<String, Device> devices, boolean handleIdle) {
+		this.handleIdle = handleIdle;
 		this.handler = handler;
 		this.devices = devices;
 	}
 	
 	protected void initChannel(SocketChannel ch) throws Exception {
-//		ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));
+		if (handleIdle) {
+			ch.pipeline().addLast(new IdleStateHandler(60, 30, 0));			
+		}
 		if (devices != null) {
 			ch.pipeline().addLast(new RemoveDelimiterDecoder());
 			ch.pipeline().addLast(new JsonMessageDecoder(devices));

@@ -58,7 +58,7 @@ public class PtuSimulator extends Thread {
 
 			Device device = new Device(ptuId,
 					InetAddress.getByName("localhost"), "Test Device",
-					new MacAddress("00:00:00:00:00:00"), "localhost");
+					new MacAddress("00:00:00:00:00:00"), "localhost", false);
 			ptu = new Ptu(device);
 			log.info("Creating " + ptuId + " delay " + (defaultWait / 1000)
 					+ "s");
