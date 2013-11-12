@@ -25,7 +25,7 @@ public class PtuPushHandler extends PtuReconnectHandler {
 	private final int refresh;
 
 	public PtuPushHandler(Bootstrap bootstrap, String[] ids, int refresh) {
-		super(bootstrap);
+		super(bootstrap, "PTU_PUSH");
 
 		if (ids != null) {
 			ptuIds = ids;

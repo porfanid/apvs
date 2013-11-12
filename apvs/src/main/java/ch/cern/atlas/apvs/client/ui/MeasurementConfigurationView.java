@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.widget.ActionHeader;
+import ch.cern.atlas.apvs.client.widget.AsyncEditTextColumn;
+import ch.cern.atlas.apvs.client.widget.AsyncFieldUpdater;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.CompositeHeader;
@@ -18,9 +20,9 @@ import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
 import ch.cern.atlas.apvs.client.widget.ScrolledDataGrid;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.ClientConstants;
-import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
+import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
@@ -67,7 +69,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 	private String nameHeader;
 	private ClickableHtmlColumn<MeasurementConfiguration> name;
 
-	private boolean selectable = false;
+	private boolean selectable = true;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -376,7 +378,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		table.addColumn(time, "Updated");
 
 		// DownThreshold
-		ClickableTextColumn<MeasurementConfiguration> downThreshold = new ClickableTextColumn<MeasurementConfiguration>() {
+		final AsyncEditTextColumn<MeasurementConfiguration> downThreshold = new AsyncEditTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
@@ -395,18 +397,20 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		downThreshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		downThreshold.setSortable(true);
 		if (selectable) {
-			downThreshold.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+			downThreshold.setFieldUpdater(new AsyncFieldUpdater<MeasurementConfiguration, String>() {
 
 				@Override
 				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
+					
+					final Order order = new Order(object.getDevice(), "DosimeterID", value);
+					clientFactory.getPtuService().handleOrder(order, downThreshold.getCallback(getContext(), object.getDevice(), value));
 				}
 			});
 		}
 		table.addColumn(downThreshold, new TextHeader("Down Threshold"));
 
 		// UpThreshold
-		ClickableTextColumn<MeasurementConfiguration> upThreshold = new ClickableTextColumn<MeasurementConfiguration>() {
+		AsyncEditTextColumn<MeasurementConfiguration> upThreshold = new AsyncEditTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
@@ -436,7 +440,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		table.addColumn(upThreshold, new TextHeader("Up Threshold"));
 
 		// Slope
-		ClickableTextColumn<MeasurementConfiguration> slope = new ClickableTextColumn<MeasurementConfiguration>() {
+		AsyncEditTextColumn<MeasurementConfiguration> slope = new AsyncEditTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
@@ -466,7 +470,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		table.addColumn(slope, new TextHeader("Slope"));
 
 		// Offset
-		ClickableTextColumn<MeasurementConfiguration> offset = new ClickableTextColumn<MeasurementConfiguration>() {
+		AsyncEditTextColumn<MeasurementConfiguration> offset = new AsyncEditTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {

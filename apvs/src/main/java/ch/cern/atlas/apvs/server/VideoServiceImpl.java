@@ -40,7 +40,7 @@ public class VideoServiceImpl extends ResponsePollService implements VideoServic
 	private VideoClientHandler videoClientHandler;
 
 	public VideoServiceImpl() throws SerializationException {
-		log.info("Creating PtuService...");
+		log.info("Creating VideoService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 	}
 

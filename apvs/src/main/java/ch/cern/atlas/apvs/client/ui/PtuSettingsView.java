@@ -14,6 +14,8 @@ import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
+import ch.cern.atlas.apvs.client.widget.AsyncEditTextColumn;
+import ch.cern.atlas.apvs.client.widget.AsyncFieldUpdater;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.StringList;
@@ -26,8 +28,6 @@ import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
-import com.google.gwt.cell.client.ActionCell;
-import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -68,8 +68,6 @@ public class PtuSettingsView extends GlassPanel implements Module {
 	private List<VoipAccount> usersAccounts = new ArrayList<VoipAccount>();
 	private List<String> usersList = new ArrayList<String>();
 	private AudioSettings voipAccounts = new AudioSettings();
-
-	private Delegate<Device> setDosimeterSerialId = null;
 
 	public PtuSettingsView() {
 	}
@@ -160,87 +158,57 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		}
 
 		// DOSIMETER
-		boolean enableDosimeter = true;
-		boolean enableDosimeterChange = false;
-		Column<Device, String> dosimeter = null;
-		if (enableDosimeter) {
-			if (enableDosimeterChange) {
-				setDosimeterSerialId = new Delegate<Device>() {
-					@Override
-					public void execute(Device device) {
-						System.out.println("Action program "
-								+ settings.getDosimeterSerialNumber(device
-										.getName()) + " into " + device);
-						final Order order = new Order(device, "DosimeterID",
-								settings.getDosimeterSerialNumber(device
-										.getName()));
-						clientFactory.getPtuService().handleOrder(order,
-								new AsyncCallback<Void>() {
-
-									@Override
-									public void onSuccess(Void result) {
-										log.info("Order " + order + " set");
-									}
-
-									@Override
-									public void onFailure(Throwable caught) {
-										log.warn("Order " + order + " failed "
-												+ caught);
-									}
-								});
-					}
-				};
+		final AsyncEditTextColumn<Device> dosimeter = new AsyncEditTextColumn<Device>() {
+			@Override
+			public String getValue(Device device) {
+				return settings.getDosimeterSerialNumber(device.getName());
 			}
+			
+			@Override
+			protected void onSuccess(Context context, Device device, String value,
+					Void result) {
+				super.onSuccess(context, device, value, result);
+// FIXME, these may just come in from the PTU async
+				settings.setDosimeterSerialNumber(
+						device.getName(), value);
+				fireSettingsChangedEvent(eventBus, settings);
+				
+				table.redrawRow(context.getIndex());
+			}
+			
+			@Override
+			protected void onFailure(Context context, Device device, String value,
+					Throwable caught) {
+				super.onFailure(context, device, value, caught);
 
-			dosimeter = new Column<Device, String>(
-			// new TextInputSizeCell(15)) {
-					new TextCell()) {
+				table.redrawRow(context.getIndex());
+			}
+		};
+				
+		if (clientFactory.isSupervisor()) {
+			dosimeter.setFieldUpdater(new AsyncFieldUpdater<Device, String>() {
+
 				@Override
-				public String getValue(Device object) {
-					return settings.getDosimeterSerialNumber(object.getName());
+				public void update(int index, Device device, String value) {
+					
+					final Order order = new Order(device, "DosimeterID", value);
+					clientFactory.getPtuService().handleOrder(order, dosimeter.getCallback(getContext(), device, value));
 				}
-			};
-			if (enableDosimeterChange) {
-				dosimeter.setFieldUpdater(new FieldUpdater<Device, String>() {
-
-					@Override
-					public void update(int index, Device object, String value) {
-						settings.setDosimeterSerialNumber(object.getName(),
-								value);
-						fireSettingsChangedEvent(eventBus, settings);
-					}
-				});
-			}
-
-			dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-			dosimeter.setSortable(false);
-			table.addColumn(dosimeter, "Dosimeter");
-
-			if (enableDosimeterChange) {
-				Column<Device, Device> dosimeterSet = new Column<Device, Device>(
-						new ActionCell<Device>("Set to PTU",
-								setDosimeterSerialId)) {
-
-					@Override
-					public Device getValue(Device object) {
-						return object;
-					}
-				};
-				dosimeterSet.setSortable(false);
-				dosimeterSet
-						.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-				table.addColumn(dosimeterSet, "Dosimeter");
-			}
+			});
 		}
-		
+		dosimeter.setEnabled(clientFactory.isSupervisor());
+		dosimeter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		dosimeter.setSortable(false);
+		table.addColumn(dosimeter, "Dosimeter");
+
 		// WIRELESS
 		Column<Device, String> bssid = new Column<Device, String>(
-						new TextCell()) {
-					@Override
-					public String getValue(Device object) {
-						return settings.getBSSID(object.getName());
-					}
-				};
+				new TextCell()) {
+			@Override
+			public String getValue(Device object) {
+				return settings.getBSSID(object.getName());
+			}
+		};
 		bssid.setSortable(false);
 		bssid.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		table.addColumn(bssid, "Wireless");
@@ -327,9 +295,12 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					if (usersAccounts.get(i).getAccount()
 							.equals(voipAccounts.getNumber(object.getName())))
 						return (voipAccounts.getStatus(object.getName())/*
-															 * usersAccounts.get(
-															 * i).getStatus()
-															 */? "Online"
+																		 * usersAccounts
+																		 * .get(
+																		 * i).
+																		 * getStatus
+																		 * ()
+																		 */? "Online"
 								: "Offline");
 				}
 				return "Not assigned";
@@ -382,17 +353,14 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				return i1.getName().compareTo(i2.getName());
 			}
 		});
-		if (enableDosimeter) {
-			columnSortHandler.setComparator(dosimeter,
-					new Comparator<Device>() {
-						public int compare(Device o1, Device o2) {
-							return settings.getDosimeterSerialNumber(
-									o1.getName()).compareTo(
-									settings.getDosimeterSerialNumber(o2
-											.getName()));
-						}
-					});
-		}
+		columnSortHandler.setComparator(dosimeter, new Comparator<Device>() {
+			public int compare(Device o1, Device o2) {
+				return settings
+						.getDosimeterSerialNumber(o1.getName())
+						.compareTo(
+								settings.getDosimeterSerialNumber(o2.getName()));
+			}
+		});
 		columnSortHandler.setComparator(helmetUrl, new Comparator<Device>() {
 			public int compare(Device o1, Device o2) {
 				return settings.getCameraUrl(o1.getName(), CameraView.HELMET,
@@ -430,7 +398,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
 						interventions = event.getInterventionMap();
-						
+
 						dataProvider.getList().clear();
 						dataProvider.getList().addAll(interventions.getPtus());
 

@@ -25,7 +25,7 @@ public class VideoClientHandler extends PtuReconnectHandler {
 
 	public VideoClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus)
 			throws SerializationException {
-		super(bootstrap);
+		super(bootstrap, "VIDEO");
 		this.eventBus = eventBus;
 
 		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {

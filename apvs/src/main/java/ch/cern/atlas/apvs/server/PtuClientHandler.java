@@ -1,14 +1,11 @@
 package ch.cern.atlas.apvs.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -47,7 +44,6 @@ import ch.cern.atlas.apvs.ptu.shared.MeasurementConfigurationChangedEvent;
 
 import com.google.gwt.user.client.rpc.SerializationException;
 
-// FIXME not really sure...but was working in netty 3.5 without this... so was shared...
 @Sharable
 public class PtuClientHandler extends PtuReconnectHandler {
 
@@ -67,7 +63,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 	public PtuClientHandler(Bootstrap bootstrap, final RemoteEventBus eventBus)
 			throws SerializationException {
-		super(bootstrap);
+		super(bootstrap, "DAQ");
 		this.eventBus = eventBus;
 
 		database = Database.getInstance();
@@ -123,26 +119,14 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		super.channelInactive(ctx);
 	}
 
-	public void sendOrder(Order order) {
-		try {
-			System.out.println(PtuJsonWriter.objectToJson(order));
+	public ChannelFuture sendOrder(Order order) throws IOException {
+		System.out.println("=====> " + PtuJsonWriter.objectToJson(order));
 
-			ByteBuf buffer = Unpooled.buffer(8192);
-			OutputStream os = new ByteBufOutputStream(buffer);
-			PtuJsonWriter writer = new PtuJsonWriter(os);
-			writer.write(0x10);
-			writer.write(order);
-			writer.write(0x13);
-			System.out.println("Sending...");
-
-			ByteBufOutputStream cos = (ByteBufOutputStream) os;
-			getChannel().write(cos.buffer()).awaitUninterruptibly();
-			System.out.println(PtuJsonWriter.objectToJson(order));
-			writer.close();
-			System.out.println("Done...");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (isConnected()) {
+			return getChannel().write(
+					new Packet("apvs-daq-server", 0, false, order));
+		} else {
+			throw new IOException("Channel Closed");
 		}
 	}
 
@@ -274,7 +258,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	private void handleMessage(MeasurementConfiguration message)
-			throws SerializationException {		
+			throws SerializationException {
 		eventBus.fireEvent(new MeasurementConfigurationChangedEvent(message));
 	}
 

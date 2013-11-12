@@ -182,10 +182,4 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			throw new ServiceException(e.getMessage());
 		}
 	}
-
-	private boolean isSupervisor() {
-		Boolean isSupervisor = (Boolean) getThreadLocalRequest().getSession(
-				true).getAttribute("SUPERVISOR");
-		return isSupervisor != null ? isSupervisor : false;
-	}
 }

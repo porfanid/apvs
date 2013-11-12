@@ -5,7 +5,6 @@ import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 
 public abstract class EditTextColumn<T> extends Column<T, String> implements DataStoreName {
@@ -13,20 +12,14 @@ public abstract class EditTextColumn<T> extends Column<T, String> implements Dat
 	private boolean enabled;
 	
 	public EditTextColumn() {
-		super(new EditTextCell());
-		enabled = true;
+		this(new EditTextCell());
 	}
 		
 	public EditTextColumn(Cell<String> cell) {
 		super(cell);
+		enabled = true;
 	}
-	
-	@Override
-	public void render(Context context, T object, SafeHtmlBuilder sb) {
-		// TODO Auto-generated method stub
-		super.render(context, object, sb);
-	}
-	
+		
 	@Override
 	public void onBrowserEvent(Context context, Element elem, T object,
 			NativeEvent event) {

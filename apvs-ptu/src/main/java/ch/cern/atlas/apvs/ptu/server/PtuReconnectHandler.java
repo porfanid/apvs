@@ -27,6 +27,7 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private Bootstrap bootstrap;
+	private String name;
 
 	private InetSocketAddress address;
 	private Channel channel;
@@ -34,13 +35,14 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 	
 	private String cause;
 
-	public PtuReconnectHandler(Bootstrap bootstrap) {
+	public PtuReconnectHandler(Bootstrap bootstrap, String name) {
 		this.bootstrap = bootstrap;
+		this.name = name;
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		log.info("Connected to DAQ on "+address);
+		log.info("Connected to "+name+" on "+address);
 		channel = ctx.channel();
 		cause = "";
 		super.channelActive(ctx);
@@ -49,7 +51,7 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		// handle closed connection
-		log.info("Closed DAQ socket on "+address);
+		log.info("Closed "+name+" socket on "+address);
 
 		channel = null;
 		cancelTimer();
@@ -110,7 +112,7 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 			channel = null;
 		}
 		
-		log.info("Reconnecting to DAQ on " + address);
+		log.info("Reconnecting to "+name+" on " + address);
 		bootstrap.connect(address).addListener(new GenericFutureListener<Future<? super Void>>() {
 
 			@Override
@@ -118,7 +120,7 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 					throws Exception {
 				if (!arg.isSuccess()) {
 					log.warn(arg.cause().toString());
-					log.info("Sleeping for " + RECONNECT_DELAY + "s before reconnect DAQ on "+address);
+					log.info("Sleeping for " + RECONNECT_DELAY + "s before reconnect "+name+" on "+address);
 					
 					reconnectTimer = new HashedWheelTimer();
 					reconnectTimer.newTimeout(new TimerTask() {

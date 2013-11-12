@@ -1,12 +1,15 @@
 package ch.cern.atlas.apvs.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -165,8 +168,20 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	@Override
 	public void handleOrder(Order order) throws ServiceException {
 		System.err.println("Handle " + order);
+		if (!isSupervisor()) {
+			throw new ServiceException("Cannot handle order, not a supervisor");
+		}
 
-		ptuClientHandler.sendOrder(order);
+		try {
+			ChannelFuture future = ptuClientHandler.sendOrder(order).await();
+			if (!future.isSuccess()) {
+				throw new ServiceException(future.cause());
+			}
+		} catch (IOException e) {
+			throw new ServiceException(e);
+		} catch (InterruptedException e) {
+			throw new ServiceException(e);
+		}
 	}
 
 	@Override
@@ -195,5 +210,5 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		} catch (SerializationException e) {
 			throw new ServiceException(e);
 		}
-	}
+	}	
 }
