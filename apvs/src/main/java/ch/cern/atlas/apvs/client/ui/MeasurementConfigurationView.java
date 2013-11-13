@@ -22,7 +22,7 @@ import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
-import ch.cern.atlas.apvs.domain.Order;
+import ch.cern.atlas.apvs.domain.SensorOrder;
 import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.domain.Ternary;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
@@ -49,8 +49,6 @@ import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.RangeChangeEvent;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 
 public class MeasurementConfigurationView extends GlassPanel implements Module {
 
@@ -69,8 +67,6 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 	private String nameHeader;
 	private ClickableHtmlColumn<MeasurementConfiguration> name;
 
-	private boolean selectable = true;
-
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
 	private Ternary databaseConnect = Ternary.Unknown;
@@ -88,7 +84,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 		table.setSize("100%", height);
 		table.setEmptyTableWidget(new Label("No Measurement Configuration"));
-		
+
 		pager = new PagerHeader(TextLocation.LEFT);
 		pager.setDisplay(table);
 		pager.setNextPageButtonsDisabled(true);
@@ -150,9 +146,11 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		AsyncDataProvider<MeasurementConfiguration> dataProvider = new AsyncDataProvider<MeasurementConfiguration>() {
 
 			@Override
-			protected void onRangeChanged(HasData<MeasurementConfiguration> display) {
+			protected void onRangeChanged(
+					HasData<MeasurementConfiguration> display) {
 
-				clientFactory.getPtuService().getRowCount(new AsyncCallback<Long>() {
+				clientFactory.getPtuService().getRowCount(
+						new AsyncCallback<Long>() {
 
 							@Override
 							public void onSuccess(Long result) {
@@ -168,10 +166,11 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				final Range range = display.getVisibleRange();
 
 				final ColumnSortList sortList = table.getColumnSortList();
-				List<SortOrder> order = new ArrayList<SortOrder>(sortList.size());
+				List<SortOrder> order = new ArrayList<SortOrder>(
+						sortList.size());
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order.add(new SortOrder(((DataStoreName)info.getColumn())
+					order.add(new SortOrder(((DataStoreName) info.getColumn())
 							.getDataStoreName(), info.isAscending()));
 				}
 
@@ -179,11 +178,13 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 					order.add(new SortOrder("device.name", false));
 				}
 
-				clientFactory.getPtuService().getTableData(range.getStart(), range.getLength(), order,
+				clientFactory.getPtuService().getTableData(range.getStart(),
+						range.getLength(), order,
 						new AsyncCallback<List<MeasurementConfiguration>>() {
 
 							@Override
-							public void onSuccess(List<MeasurementConfiguration> result) {
+							public void onSuccess(
+									List<MeasurementConfiguration> result) {
 								table.setRowData(range.getStart(), result);
 							}
 
@@ -194,8 +195,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 							}
 						});
 			}
-		};		
-		
+		};
+
 		// Table
 		dataProvider.addDataDisplay(table);
 
@@ -221,16 +222,20 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 							break;
 						}
 
-						showGlass(daqConnect.not().isTrue() || databaseConnect.not().isTrue());
+						showGlass(daqConnect.not().isTrue()
+								|| databaseConnect.not().isTrue());
 					}
 				});
 
-		MeasurementConfigurationChangedEvent.register(clientFactory.getRemoteEventBus(),
+		MeasurementConfigurationChangedEvent.register(
+				clientFactory.getRemoteEventBus(),
 				new MeasurementConfigurationChangedEvent.Handler() {
 
 					@Override
-					public void onMeasurementConfigurationChanged(MeasurementConfigurationChangedEvent e) {
-						MeasurementConfiguration mc = e.getMeasurementConfiguration();
+					public void onMeasurementConfigurationChanged(
+							MeasurementConfigurationChangedEvent e) {
+						MeasurementConfiguration mc = e
+								.getMeasurementConfiguration();
 						if (mc == null)
 							return;
 
@@ -248,7 +253,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 				return object.getDevice().getName();
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "device.name";
@@ -256,15 +261,6 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		ptu.setSortable(true);
-		if (selectable) {
-			ptu.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
-
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
-				}
-			});
-		}
 		ptuHeader = "PTU ID";
 		table.addColumn(ptu, new TextHeader(ptuHeader), compositeFooter);
 
@@ -277,7 +273,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 				return Measurement.getDisplayName(object.getSensor());
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "sensor";
@@ -285,15 +281,6 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
-		if (selectable) {
-			name.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
-
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
-				}
-			});
-		}
 		nameHeader = "Name";
 		table.addColumn(name, new TextHeader(nameHeader), compositeFooter);
 
@@ -309,15 +296,6 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 			}
 		};
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		if (selectable) {
-			value.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
-
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
-				}
-			});
-		}
 		table.addColumn(value, new TextHeader("Value"), compositeFooter);
 
 		// Unit
@@ -330,7 +308,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 				return object.getUnit();
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "unit";
@@ -338,17 +316,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		unit.setSortable(true);
-		if (selectable) {
-			unit.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
-
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
-				}
-			});
-		}
 		table.addColumn(unit, "Unit");
-		
+
 		// DATE and TIME
 		ClickableTextColumn<MeasurementConfiguration> time = new ClickableTextColumn<MeasurementConfiguration>() {
 			@Override
@@ -356,9 +325,10 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				if (object == null) {
 					return "";
 				}
-				return ClientConstants.dateFormatNoSeconds.format(object.getTime());
+				return ClientConstants.dateFormatNoSeconds.format(object
+						.getTime());
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "time";
@@ -366,15 +336,6 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		time.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		time.setSortable(true);
-		if (selectable) {
-			time.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
-
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
-				}
-			});
-		}
 		table.addColumn(time, "Updated");
 
 		// DownThreshold
@@ -385,10 +346,10 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 					return "";
 				}
 
-				return object.getDownThreshold() != null ? object.getDownThreshold().toString()
-						: "";
+				return object.getDownThreshold() != null ? object
+						.getDownThreshold().toString() : "";
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "downThreshold";
@@ -396,31 +357,36 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		downThreshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		downThreshold.setSortable(true);
-		if (selectable) {
-			downThreshold.setFieldUpdater(new AsyncFieldUpdater<MeasurementConfiguration, String>() {
+		downThreshold
+				.setFieldUpdater(new AsyncFieldUpdater<MeasurementConfiguration, String>() {
 
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					
-					final Order order = new Order(object.getDevice(), "DosimeterID", value);
-					clientFactory.getPtuService().handleOrder(order, downThreshold.getCallback(getContext(), object.getDevice(), value));
-				}
-			});
-		}
+					@Override
+					public void update(int index,
+							MeasurementConfiguration object, String value) {
+
+						final SensorOrder order = new SensorOrder(object.getDevice(), object.getSensor(), 
+								"DownThreshold", value);
+						clientFactory.getPtuService().handleOrder(
+								order,
+								downThreshold.getCallback(getContext(),
+										object.getDevice(), value));
+					}
+				});
+		downThreshold.setEnabled(clientFactory.isSupervisor());
 		table.addColumn(downThreshold, new TextHeader("Down Threshold"));
 
 		// UpThreshold
-		AsyncEditTextColumn<MeasurementConfiguration> upThreshold = new AsyncEditTextColumn<MeasurementConfiguration>() {
+		final AsyncEditTextColumn<MeasurementConfiguration> upThreshold = new AsyncEditTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
 					return "";
 				}
 
-				return object.getUpThreshold() != null ? object.getUpThreshold().toString()
-						: "";
+				return object.getUpThreshold() != null ? object
+						.getUpThreshold().toString() : "";
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "upThreshold";
@@ -428,19 +394,25 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		upThreshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		upThreshold.setSortable(true);
-		if (selectable) {
-			upThreshold.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+		upThreshold
+				.setFieldUpdater(new AsyncFieldUpdater<MeasurementConfiguration, String>() {
 
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
-				}
-			});
-		}
+					@Override
+					public void update(int index,
+							MeasurementConfiguration object, String value) {
+						final SensorOrder order = new SensorOrder(object.getDevice(), object.getSensor(), 
+								"UpThreshold", value);
+						clientFactory.getPtuService().handleOrder(
+								order,
+								upThreshold.getCallback(getContext(),
+										object.getDevice(), value));
+					}
+				});
+		upThreshold.setEnabled(clientFactory.isSupervisor());
 		table.addColumn(upThreshold, new TextHeader("Up Threshold"));
 
 		// Slope
-		AsyncEditTextColumn<MeasurementConfiguration> slope = new AsyncEditTextColumn<MeasurementConfiguration>() {
+		final AsyncEditTextColumn<MeasurementConfiguration> slope = new AsyncEditTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
@@ -450,7 +422,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				return object.getSlope() != null ? object.getSlope().toString()
 						: "";
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "slope";
@@ -458,29 +430,34 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		slope.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		slope.setSortable(true);
-		if (selectable) {
-			slope.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+		slope.setFieldUpdater(new AsyncFieldUpdater<MeasurementConfiguration, String>() {
 
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
-				}
-			});
-		}
+			@Override
+			public void update(int index, MeasurementConfiguration object,
+					String value) {
+				final SensorOrder order = new SensorOrder(object.getDevice(), object.getSensor(), 
+						"Slope", value);
+				clientFactory.getPtuService().handleOrder(
+						order,
+						slope.getCallback(getContext(),
+								object.getDevice(), value));
+			}
+		});
+		slope.setEnabled(clientFactory.isSupervisor());
 		table.addColumn(slope, new TextHeader("Slope"));
 
 		// Offset
-		AsyncEditTextColumn<MeasurementConfiguration> offset = new AsyncEditTextColumn<MeasurementConfiguration>() {
+		final AsyncEditTextColumn<MeasurementConfiguration> offset = new AsyncEditTextColumn<MeasurementConfiguration>() {
 			@Override
 			public String getValue(MeasurementConfiguration object) {
 				if (object == null) {
 					return "";
 				}
 
-				return object.getOffset() != null ? object.getOffset().toString()
-						: "";
+				return object.getOffset() != null ? object.getOffset()
+						.toString() : "";
 			}
-			
+
 			@Override
 			public String getDataStoreName() {
 				return "offset";
@@ -488,32 +465,21 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		};
 		offset.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		offset.setSortable(true);
-		if (selectable) {
-			offset.setFieldUpdater(new FieldUpdater<MeasurementConfiguration, String>() {
+		offset.setFieldUpdater(new AsyncFieldUpdater<MeasurementConfiguration, String>() {
 
-				@Override
-				public void update(int index, MeasurementConfiguration object, String value) {
-					selectMeasurementConfiguration(object);
-				}
-			});
-		}
+			@Override
+			public void update(int index, MeasurementConfiguration object,
+					String value) {
+				final SensorOrder order = new SensorOrder(object.getDevice(), object.getSensor(), 
+						"Offset", value);
+				clientFactory.getPtuService().handleOrder(
+						order,
+						offset.getCallback(getContext(),
+								object.getDevice(), value));
+			}
+		});
+		offset.setEnabled(clientFactory.isSupervisor());
 		table.addColumn(offset, new TextHeader("Offset"));
-
-		// Selection
-		if (selectable) {
-			final SingleSelectionModel<MeasurementConfiguration> selectionModel = new SingleSelectionModel<MeasurementConfiguration>();
-			table.setSelectionModel(selectionModel);
-			selectionModel
-					.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-
-						@Override
-						public void onSelectionChange(SelectionChangeEvent event) {
-							MeasurementConfiguration m = selectionModel.getSelectedObject();
-							log.info(m + " " + event.getSource());
-						}
-					});
-		}
-		
 
 		return true;
 	}
@@ -523,9 +489,6 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 			return showUpdate;
 		}
 		return false;
-	}
-
-	private void selectMeasurementConfiguration(MeasurementConfiguration measurementConfiguration) {
 	}
 
 	@Override

@@ -15,13 +15,13 @@ public class AsyncEditTextCell extends EditTextCell {
 	}
 
 	private Map<Object, StateData> stateDataMap = new HashMap<Object, StateData>();
-	
+
 	private static class StateData {
-		
+
 		State state;
 		Throwable cause;
 		int count;
-		
+
 		StateData(State state, Throwable cause) {
 			this.state = state;
 			this.cause = cause;
@@ -73,11 +73,12 @@ public class AsyncEditTextCell extends EditTextCell {
 		void setState(State state) {
 			this.state = state;
 			cause = null;
-			
+
 			if (state == State.ok) {
 				count--;
-				if (count == 0) {
+				if (count <= 0) {
 					state = State.none;
+					count = 10;
 				}
 			}
 		}
@@ -112,74 +113,85 @@ public class AsyncEditTextCell extends EditTextCell {
 	@Override
 	public void render(Context context, String value, SafeHtmlBuilder sb) {
 		super.render(context, value, sb);
-		
-	    Object key = context.getKey();
-	    StateData stateData = getStateData(key);
-	    
-	    if (stateData == null) {
-	    	return;
-	    }
 
-		switch (stateData.getState()) {
-		case none:
-			clearStateData(key);
-			return;
-		case sent:
-			ViewData viewData = getViewData(context.getKey());
-			if (viewData == null)
-				sb.appendHtmlConstant("&nbsp;<i class=\"icon-star\"></i>");
-			stateData.setState(viewData == null ? State.ok : viewData.getText().equals(
-					value) ? State.ok : State.sent);
-			break;
-		case ok:
-			stateData.setState(State.ok);
-			break;
-		case error:
-			break;
-		default:
-			// ignore
-			break;
+		Object key = context.getKey();
+		StateData stateData = getStateData(key);
+
+		if (stateData != null) {
+			switch (stateData.getState()) {
+			case none:
+				clearStateData(key);
+				return;
+			case sent:
+				ViewData viewData = getViewData(context.getKey());
+				if ((viewData == null) || viewData.getText().equals(value)) {
+					stateData.setState(State.ok);
+				}
+				break;
+			case ok:
+				stateData.setState(State.ok);
+				break;
+			case error:
+				break;
+			default:
+				// ignore
+				break;
+			}
+
+			switch (stateData.getState()) {
+			case none:
+				break;
+			case sent:
+				sb.appendHtmlConstant("&nbsp;<i class=\"icon-time\"></i>");
+				break;
+			case ok:
+				sb.appendHtmlConstant("&nbsp;<i class=\"icon-ok\"></i>");
+				break;
+			case error:
+				sb.appendHtmlConstant("&nbsp;<i class=\"icon-exclamation-sign\" title=\""
+						+ stateData.getCause() + "\"></i>");
+				break;
+			default:
+				// ignore
+				break;
+			}
 		}
 
-		switch (stateData.getState()) {
-		case none:
-			break;
-		case sent:
-			sb.appendHtmlConstant("&nbsp;<i class=\"icon-time\"></i>");
-			break;
-		case ok:
-			sb.appendHtmlConstant("&nbsp;<i class=\"icon-ok\"></i>");
-			break;
-		case error:
-			sb.appendHtmlConstant("&nbsp;<i class=\"icon-exclamation-sign\" title=\""
-					+ stateData.getCause() + "\"></i>");
-			break;
-		default:
-			// ignore
-			break;
+		if (false) {
+			sb.appendHtmlConstant("&nbsp;<i class=\"icon-star\"></i>");
+			ViewData viewData = getViewData(context.getKey());
+			if (viewData != null) {
+				sb.appendHtmlConstant("&nbsp;o:" + viewData.getOriginal()
+						+ "&nbsp;t:" + viewData.getText());
+			}
+			sb.appendHtmlConstant("&nbsp;v:" + value);
+			if (stateData != null) {
+				sb.appendHtmlConstant("&nbsp;c:" + stateData.count);
+			}
 		}
 	}
 
-	protected void onSuccess(Context context, Device device, String value, Void result) {		
-	    Object key = context.getKey();
-	    StateData stateData = getStateData(key);
+	protected void onSuccess(Context context, Device device, String value,
+			Void result) {
+		Object key = context.getKey();
+		StateData stateData = getStateData(key);
 
-	    if (stateData == null) {
-	    	stateData = new StateData(State.sent, null);
-	    	setStateData(key, stateData);
-	    }
+		if (stateData == null) {
+			stateData = new StateData(State.sent, null);
+			setStateData(key, stateData);
+		}
 	}
 
 	protected void onFailure(Context context, Device device, String value,
 			Throwable caught) {
-	    Object key = context.getKey();
-	    StateData stateData = getStateData(key);
+		Object key = context.getKey();
+		StateData stateData = getStateData(key);
 
-	    if (stateData == null) {
-	    	stateData = new StateData(State.error, caught);
-	    	setStateData(key, stateData);
-	    }
+		if (stateData == null) {
+			stateData = new StateData(State.error, caught);
+			setStateData(key, stateData);
+		}
 
-	    clearViewData(device);
+		clearViewData(device);
 	}
 }
