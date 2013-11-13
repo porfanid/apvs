@@ -28,7 +28,6 @@ import ch.cern.atlas.apvs.client.validation.ValidationForm;
 import ch.cern.atlas.apvs.client.widget.CheckboxColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
-import ch.cern.atlas.apvs.client.widget.DataStoreName;
 import ch.cern.atlas.apvs.client.widget.EditTextColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.GenericColumn;
@@ -108,13 +107,14 @@ public class InterventionView extends GlassPanel implements Module {
 	private PagerHeader pager;
 	private Button updateButton;
 	private boolean showUpdate;
-	
+
 	private LocalStorage localStorage;
 	private Boolean showTest;
 
 	public InterventionView() {
 		localStorage = LocalStorage.getInstance();
-		showTest = localStorage.getBoolean(LocalStorage.SHOW_TEST_INTERVENTIONS);
+		showTest = localStorage
+				.getBoolean(LocalStorage.SHOW_TEST_INTERVENTIONS);
 		if (showTest == null) {
 			showTest = true;
 			localStorage.put(LocalStorage.SHOW_TEST_INTERVENTIONS, showTest);
@@ -170,34 +170,35 @@ public class InterventionView extends GlassPanel implements Module {
 		});
 
 		AsyncDataProvider<Intervention> dataProvider = new AsyncDataProvider<Intervention>() {
-			
+
 			@Override
 			protected void onRangeChanged(HasData<Intervention> display) {
 				log.info("ON RANGE CHANGED " + display.getVisibleRange());
 
-				interventionService.getRowCount(showTest, new AsyncCallback<Long>() {
+				interventionService.getRowCount(showTest,
+						new AsyncCallback<Long>() {
 
-					@Override
-					public void onSuccess(Long result) {
-						updateRowCount(result.intValue(), true);
-					}
+							@Override
+							public void onSuccess(Long result) {
+								updateRowCount(result.intValue(), true);
+							}
 
-					@Override
-					public void onFailure(Throwable caught) {
-						updateRowCount(0, true);
-					}
-				});
+							@Override
+							public void onFailure(Throwable caught) {
+								updateRowCount(0, true);
+							}
+						});
 
 				final Range range = display.getVisibleRange();
 
 				final ColumnSortList sortList = table.getColumnSortList();
-				List<SortOrder> order = new ArrayList<SortOrder>(sortList.size());
+				List<SortOrder> order = new ArrayList<SortOrder>(
+						sortList.size());
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
 					order.add(new SortOrder(
-							((DataStoreName) info.getColumn())
-									.getDataStoreName(),
-							info.isAscending()));
+							info.getColumn().getDataStoreName(), info
+									.isAscending()));
 				}
 
 				if (order.isEmpty()) {
@@ -205,8 +206,7 @@ public class InterventionView extends GlassPanel implements Module {
 				}
 
 				interventionService.getTableData(range.getStart(),
-						range.getLength(), order,
-						showTest, 
+						range.getLength(), order, showTest,
 						new AsyncCallback<List<Intervention>>() {
 
 							@Override
@@ -233,12 +233,8 @@ public class InterventionView extends GlassPanel implements Module {
 				return ClientConstants.dateFormatNoSeconds.format(object
 						.getStartTime());
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "startTime";
-			}
 		};
+		startTime.setDataStoreName("startTime");
 		startTime.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		startTime.setSortable(sortable);
 		if (selectable) {
@@ -270,12 +266,8 @@ public class InterventionView extends GlassPanel implements Module {
 						.isSupervisor() ? END_INTERVENTION
 						: ONGOING_INTERVENTION;
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "endTime";
-			}
 		};
+		endTime.setDataStoreName("endTime");
 		endTime.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		endTime.setSortable(sortable);
 		endTime.setEnabled(clientFactory.isSupervisor());
@@ -412,8 +404,8 @@ public class InterventionView extends GlassPanel implements Module {
 
 						Intervention intervention = new Intervention(users
 								.get(userField.getId()), devices.get(ptu
-								.getId()), new Date(), impact.getValue(),
-								0.0, description.getValue(), test.getValue());
+								.getId()), new Date(), impact.getValue(), 0.0,
+								description.getValue(), test.getValue());
 
 						interventionService.addIntervention(intervention,
 								new AsyncCallback<Void>() {
@@ -474,12 +466,8 @@ public class InterventionView extends GlassPanel implements Module {
 			public String getValue(Intervention object) {
 				return object.getName();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "user.lastName";
-			}
 		};
+		name.setDataStoreName("user.lastName");
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(sortable);
 		if (selectable) {
@@ -579,12 +567,8 @@ public class InterventionView extends GlassPanel implements Module {
 			public String getValue(Intervention object) {
 				return object.getPtuId();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "device.name";
-			}
 		};
+		ptu.setDataStoreName("device.name");
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		ptu.setSortable(sortable);
 		if (selectable) {
@@ -635,7 +619,7 @@ public class InterventionView extends GlassPanel implements Module {
 				final TextAreaField description = new TextAreaField(
 						"Description");
 				fieldset.add(description);
-				
+
 				final CheckBoxField virtual = new CheckBoxField(
 						"Virtual Device");
 				fieldset.add(virtual);
@@ -701,12 +685,8 @@ public class InterventionView extends GlassPanel implements Module {
 				return object.getImpactNumber() != null ? object
 						.getImpactNumber() : "";
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "impactNumber";
-			}
 		};
+		impact.setDataStoreName("impactNumber");
 		impact.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		impact.setSortable(true);
 		impact.setEnabled(clientFactory.isSupervisor());
@@ -743,12 +723,8 @@ public class InterventionView extends GlassPanel implements Module {
 		// return object.getRecStatus() != null ? Double.toString(object
 		// .getRecStatus()) : "";
 		// }
-		//
-		// @Override
-		// public String getDataStoreName() {
-		// return "recStatus";
-		// }
 		// };
+		// recStatus.setDataStoreName("recStatus");
 		// recStatus.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		// recStatus.setSortable(true);
 		// recStatus.setEnabled(clientFactory.isSupervisor());
@@ -760,12 +736,8 @@ public class InterventionView extends GlassPanel implements Module {
 			public Boolean getValue(Intervention intervention) {
 				return intervention.isTest();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "test";
-			}
 		};
+		test.setDataStoreName("test");
 		test.setFieldUpdater(new FieldUpdater<Intervention, Boolean>() {
 
 			@Override
@@ -804,12 +776,8 @@ public class InterventionView extends GlassPanel implements Module {
 				return object.getDescription() != null ? object
 						.getDescription() : "";
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "description";
-			}
 		};
+		description.setDataStoreName("description");
 		description.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		description.setSortable(true);
 		description.setEnabled(clientFactory.isSupervisor());
@@ -850,24 +818,26 @@ public class InterventionView extends GlassPanel implements Module {
 				return false;
 			}
 		};
-		
+
 		descriptionFooter.setUpdater(new ValueUpdater<String>() {
 			@Override
 			public void update(String value) {
-				
+
 				showTest = value.toLowerCase().startsWith("show");
-				localStorage.put(LocalStorage.SHOW_TEST_INTERVENTIONS, showTest);
-				
+				localStorage
+						.put(LocalStorage.SHOW_TEST_INTERVENTIONS, showTest);
+
 				String style = showTest ? null : "hide";
-				test.setCellStyleNames(style); 
-				testHeader.setHeaderStyleNames(style); 
+				test.setCellStyleNames(style);
+				testHeader.setHeaderStyleNames(style);
 				testFooter.setHeaderStyleNames(style);
-				
+
 				InterventionView.this.update();
 			}
 		});
 
-		table.addColumn(description, new TextHeader("Description"), descriptionFooter);
+		table.addColumn(description, new TextHeader("Description"),
+				descriptionFooter);
 		table.addColumn(test, testHeader, testFooter);
 
 		// Selection

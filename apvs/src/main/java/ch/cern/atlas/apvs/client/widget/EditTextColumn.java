@@ -7,7 +7,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.cellview.client.Column;
 
-public abstract class EditTextColumn<T> extends Column<T, String> implements DataStoreName {
+public abstract class EditTextColumn<T> extends Column<T, String> {
 
 	private boolean enabled;
 	
@@ -34,10 +34,5 @@ public abstract class EditTextColumn<T> extends Column<T, String> implements Dat
 	
 	public boolean isEnabled() {
 		return enabled;
-	}
-	
-	@Override
-	public String getDataStoreName() {
-		return null;
-	}
+	}	
 }

@@ -13,7 +13,6 @@ import ch.cern.atlas.apvs.client.widget.AsyncFieldUpdater;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.CompositeHeader;
-import ch.cern.atlas.apvs.client.widget.DataStoreName;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
@@ -30,7 +29,6 @@ import ch.cern.atlas.apvs.ptu.shared.MeasurementConfigurationChangedEvent;
 
 import com.google.gwt.cell.client.ActionCell.Delegate;
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -170,7 +168,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 						sortList.size());
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order.add(new SortOrder(((DataStoreName) info.getColumn())
+					order.add(new SortOrder(info.getColumn()
 							.getDataStoreName(), info.isAscending()));
 				}
 
@@ -253,12 +251,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 				return object.getDevice().getName();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "device.name";
-			}
 		};
+		ptu.setDataStoreName("device.name");
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		ptu.setSortable(true);
 		ptuHeader = "PTU ID";
@@ -273,12 +267,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				}
 				return Measurement.getDisplayName(object.getSensor());
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "sensor";
-			}
 		};
+		name.setDataStoreName("sensor");
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(true);
 		nameHeader = "Name";
@@ -308,12 +298,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 				return object.getUnit();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "unit";
-			}
 		};
+		unit.setDataStoreName("unit");
 		unit.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		unit.setSortable(true);
 		table.addColumn(unit, "Unit");
@@ -328,12 +314,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				return ClientConstants.dateFormatNoSeconds.format(object
 						.getTime());
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "time";
-			}
 		};
+		time.setDataStoreName("time");
 		time.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		time.setSortable(true);
 		table.addColumn(time, "Updated");
@@ -349,12 +331,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				return object.getDownThreshold() != null ? object
 						.getDownThreshold().toString() : "";
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "downThreshold";
-			}
 		};
+		downThreshold.setDataStoreName("downThreshold");
 		downThreshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		downThreshold.setSortable(true);
 		downThreshold
@@ -386,12 +364,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				return object.getUpThreshold() != null ? object
 						.getUpThreshold().toString() : "";
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "upThreshold";
-			}
 		};
+		upThreshold.setDataStoreName("upThreshold");
 		upThreshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		upThreshold.setSortable(true);
 		upThreshold
@@ -422,12 +396,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				return object.getSlope() != null ? object.getSlope().toString()
 						: "";
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "slope";
-			}
 		};
+		slope.setDataStoreName("slope");
 		slope.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		slope.setSortable(true);
 		slope.setFieldUpdater(new AsyncFieldUpdater<MeasurementConfiguration, String>() {
@@ -457,12 +427,8 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 				return object.getOffset() != null ? object.getOffset()
 						.toString() : "";
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "offset";
-			}
 		};
+		offset.setDataStoreName("offset");
 		offset.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		offset.setSortable(true);
 		offset.setFieldUpdater(new AsyncFieldUpdater<MeasurementConfiguration, String>() {

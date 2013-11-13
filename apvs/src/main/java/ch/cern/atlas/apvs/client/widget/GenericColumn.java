@@ -6,7 +6,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.cellview.client.Column;
 
-public abstract class GenericColumn<T> extends Column<T, Object> implements DataStoreName {
+public abstract class GenericColumn<T> extends Column<T, Object> {
 
 	private boolean enabled;
 
@@ -29,10 +29,5 @@ public abstract class GenericColumn<T> extends Column<T, Object> implements Data
 	
 	public boolean isEnabled() {
 		return enabled;
-	}
-	
-	@Override
-	public String getDataStoreName() {
-		return null;
-	}
+	}	
 }

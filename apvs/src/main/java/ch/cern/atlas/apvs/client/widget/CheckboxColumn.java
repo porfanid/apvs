@@ -6,7 +6,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 
-public abstract class CheckboxColumn<T> extends Column<T, Boolean> implements DataStoreName {
+public abstract class CheckboxColumn<T> extends Column<T, Boolean> {
 
 	private boolean enabled;
 	
@@ -39,10 +39,5 @@ public abstract class CheckboxColumn<T> extends Column<T, Boolean> implements Da
 	
 	public boolean isEnabled() {
 		return enabled;
-	}
-	
-	@Override
-	public String getDataStoreName() {
-		return null;
-	}
+	}	
 }

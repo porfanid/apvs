@@ -9,8 +9,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public abstract class AsyncEditTextColumn<T> extends EditTextColumn<T>
-		implements DataStoreName {
+public abstract class AsyncEditTextColumn<T> extends EditTextColumn<T> {
 
 	public AsyncEditTextColumn() {
 		this(new AsyncEditTextCell());
