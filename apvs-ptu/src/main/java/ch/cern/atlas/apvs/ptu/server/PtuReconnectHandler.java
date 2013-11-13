@@ -30,6 +30,7 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 	private String name;
 
 	private InetSocketAddress address;
+	private ChannelHandlerContext ctx;
 	private Channel channel;
 	private Timer reconnectTimer;
 	
@@ -43,6 +44,7 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		log.info("Connected to "+name+" on "+address);
+		this.ctx = ctx;
 		channel = ctx.channel();
 		cause = "";
 		super.channelActive(ctx);
@@ -104,7 +106,6 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 		}		
 	}
 	
-
 	private void reconnect() {
 	
 		if (channel != null) {
@@ -143,6 +144,10 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 
 	public Channel getChannel() {
 		return channel;
+	}
+	
+	public ChannelHandlerContext getContext() {
+		return ctx;
 	}
 
 }

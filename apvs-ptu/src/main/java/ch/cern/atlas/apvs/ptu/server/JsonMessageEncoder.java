@@ -24,7 +24,7 @@ public class JsonMessageEncoder extends MessageToByteEncoder<Packet> {
 //		os.close();
 		
 		String s = PtuJsonWriter.toJson(packet);
-		System.err.println(s);
+		System.err.println(getClass()+" "+s);
 		os.write(s.getBytes());
 		os.flush();
 		os.close();

@@ -173,10 +173,11 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		}
 
 		try {
-			ChannelFuture future = ptuClientHandler.sendOrder(order).await();
+			ChannelFuture future = ptuClientHandler.sendOrder(order).sync();
 			if (!future.isSuccess()) {
 				throw new ServiceException(future.cause());
 			}
+			System.err.println("Done " + order);
 		} catch (IOException e) {
 			throw new ServiceException(e);
 		} catch (InterruptedException e) {

@@ -62,6 +62,7 @@ public class MessageToBus extends SimpleChannelInboundHandler<Packet> {
 										}
 
 									});
+					ctx.flush();
 				} else {
 					log.info("Channel closed "+ctx.channel().remoteAddress());
 				}

@@ -123,8 +123,10 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		System.out.println("=====> " + PtuJsonWriter.objectToJson(order));
 
 		if (isConnected()) {
-			return getChannel().write(
+			ChannelFuture future = getChannel().write(
 					new Packet("apvs-daq-server", 0, false, order));
+			getContext().flush();
+			return future;
 		} else {
 			throw new IOException("Channel Closed");
 		}
