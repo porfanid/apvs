@@ -31,6 +31,7 @@ import ch.cern.atlas.apvs.ptu.server.JsonMessageDecoder;
 import ch.cern.atlas.apvs.ptu.server.JsonMessageEncoder;
 import ch.cern.atlas.apvs.ptu.server.MessageToBus;
 import ch.cern.atlas.apvs.ptu.server.RemoveDelimiterDecoder;
+import ch.cern.atlas.apvs.server.ServerStorage;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -44,10 +45,12 @@ public class DaqServer {
 	private Database database;
 	private Device system;
 	private final static String systemDeviceName = "apvs-daq-server";
+	private ServerStorage config;
 
 	public DaqServer(int inPort, int outPort) {
 		this.inPort = inPort;
 		this.outPort = outPort;
+		config = ServerStorage.getLocalStorageIfSupported();
 	}
 
 	public void run() {
