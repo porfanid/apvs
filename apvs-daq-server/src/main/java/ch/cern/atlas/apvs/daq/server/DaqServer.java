@@ -47,13 +47,13 @@ public class DaqServer {
 	private final static String systemDeviceName = "apvs-daq-server";
 	private ServerStorage config;
 
-	public DaqServer(int inPort, int outPort) {
-		this.inPort = inPort;
-		this.outPort = outPort;
+	public DaqServer() {
 		config = ServerStorage.getLocalStorageIfSupported();
+		this.inPort = config.getInt("APVS.daq.inport");
+		this.outPort = config.getInt("APVS.daq.outport");
 	}
 
-	public void run() {
+	public void run() {		
 		database = Database.getInstance();
 
 		final Map<String, Device> devices = database.getDeviceMap();
@@ -78,8 +78,8 @@ public class DaqServer {
 				Database.getOrder(Arrays.asList(new SortOrder("startTime"))));
 		log.info("Found " + interventions.size() + " interventions");
 		log.info("Found " + database.getCount(Intervention.class)
-				+ " total interventions");
-
+					+ " total interventions");
+		
 		final EventBus bus = new SimpleEventBus();
 
 		// Configure the server.
@@ -141,7 +141,7 @@ public class DaqServer {
 
 				@Override
 				public void run() {
-					System.out.println("Shutting down");
+					log.info("Shutting down");
 					fin.cancel(true);
 					fout.cancel(true);
 
@@ -165,12 +165,6 @@ public class DaqServer {
 	}
 
 	public static void main(String[] args) {
-		if ((args.length != 0) && (args.length != 2)) {
-			System.err.println("Usage: DaqServer source-port dest-port");
-			System.exit(1);
-		}
-
-		new DaqServer(args.length > 0 ? Integer.parseInt(args[0]) : 10123,
-				args.length > 1 ? Integer.parseInt(args[1]) : 10124).run();
+		new DaqServer().run();
 	}
 }
