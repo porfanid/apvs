@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
@@ -29,7 +26,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 
 public class MeasurementView extends AbstractMeasurementView {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListHandler<String> columnSortHandler;
@@ -347,7 +344,7 @@ public class MeasurementView extends AbstractMeasurementView {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							String s = selectionModel.getSelectedObject();
-							log.info(s + " " + event.getSource());
+//							log.info(s + " " + event.getSource());
 						}
 					});
 		}

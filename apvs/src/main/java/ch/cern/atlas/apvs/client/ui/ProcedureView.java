@@ -20,7 +20,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class ProcedureView extends SimplePanel implements Module {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	// FIXME
 	// private final String procedureURL =
@@ -120,7 +120,7 @@ public class ProcedureView extends SimplePanel implements Module {
 		video.addSource(source, videoType);
 		setWidget(video);
 
-		log.info(source);
+//		log.info(source);
 		// Thread.dumpStack();
 		
 		return false;

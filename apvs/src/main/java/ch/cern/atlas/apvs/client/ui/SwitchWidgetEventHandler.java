@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.event.SwitchWidgetEvent;
 import ch.cern.atlas.apvs.client.widget.IsSwitchableWidget;
 
@@ -11,7 +8,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class SwitchWidgetEventHandler implements SwitchWidgetEvent.Handler {
 	
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private EventBus switchBus;
 	private Element element;
@@ -33,14 +30,14 @@ public class SwitchWidgetEventHandler implements SwitchWidgetEvent.Handler {
 		boolean isDestination = oldWidget.isDestination();
 		if (replacement) {
 			if (!isDestination && (element.getChildCount() == 0)) {
-				log.info("Received other window in switch " + title);
+//				log.info("Received other window in switch " + title);
 				switchToWidget(title, widget);
 			}
 		} else if (isDestination) {
 			String oldTitle = element.getParentElement().getChild(1)
 					.getChild(0).getNodeValue();
 			
-			log.info("Received switch " + title);
+//			log.info("Received switch " + title);
 			// Widget is auto-removed from source
 			switchToWidget(title, widget);
 

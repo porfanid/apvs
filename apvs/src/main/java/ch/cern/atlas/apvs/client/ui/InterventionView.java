@@ -84,7 +84,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class InterventionView extends GlassPanel implements Module {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ScrolledDataGrid<Intervention> table = new ScrolledDataGrid<Intervention>();
 	private ScrollPanel scrollPanel;
@@ -173,7 +173,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			protected void onRangeChanged(HasData<Intervention> display) {
-				log.info("ON RANGE CHANGED " + display.getVisibleRange());
+//				log.info("ON RANGE CHANGED " + display.getVisibleRange());
 
 				interventionService.getRowCount(showTest,
 						new AsyncCallback<Long>() {
@@ -216,7 +216,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("RPC DB FAILED " + caught);
+//								log.warn("RPC DB FAILED " + caught);
 								updateRowCount(0, true);
 							}
 						});
@@ -345,7 +345,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("Caught : " + caught);
+//								log.warn("Caught : " + caught);
 							}
 						});
 
@@ -369,7 +369,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("Caught : " + caught);
+//								log.warn("Caught : " + caught);
 							}
 						});
 
@@ -850,7 +850,7 @@ public class InterventionView extends GlassPanel implements Module {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							Intervention m = selectionModel.getSelectedObject();
-							log.info(m + " " + event.getSource());
+//							log.info(m + " " + event.getSource());
 						}
 					});
 		}

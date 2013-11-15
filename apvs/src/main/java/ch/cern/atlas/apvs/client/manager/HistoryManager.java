@@ -22,7 +22,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class HistoryManager {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static HistoryManager instance;
 	private History history;
@@ -82,7 +82,7 @@ public class HistoryManager {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						log.warn("Cannot get histories " + caught);
+//						log.warn("Cannot get histories " + caught);
 					}
 				});
 	}

@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -22,7 +19,7 @@ import com.google.gwt.view.client.ListDataProvider;
 
 public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
@@ -90,7 +87,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
 						settings = event.getServerSettings();
 
-						log.info(settings.toString());
+//						log.info(settings.toString());
 
 						scheduler.update();
 					}

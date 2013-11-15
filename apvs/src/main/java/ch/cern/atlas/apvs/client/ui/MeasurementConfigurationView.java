@@ -50,7 +50,7 @@ import com.google.gwt.view.client.RangeChangeEvent;
 
 public class MeasurementConfigurationView extends GlassPanel implements Module {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ScrolledDataGrid<MeasurementConfiguration> table = new ScrolledDataGrid<MeasurementConfiguration>();
 	private ScrollPanel scrollPanel;
@@ -188,7 +188,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("RPC DB FAILED " + caught);
+//								log.warn("RPC DB FAILED " + caught);
 								table.setRowCount(0);
 							}
 						});

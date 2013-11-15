@@ -3,9 +3,6 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -19,7 +16,7 @@ import com.google.gwt.user.client.ui.HTML;
 
 public class MeasurementTable extends AbstractMeasurementView {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private FlexTable table = new FlexTable();
 	private Map<String, Integer> rows = new HashMap<String, Integer>();

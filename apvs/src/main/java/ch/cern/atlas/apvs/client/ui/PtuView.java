@@ -7,9 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
@@ -48,8 +45,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuView extends GlassPanel implements Module {
 
-	@SuppressWarnings("unused")
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static NumberFormat format = NumberFormat.getFormat("0.00");
 

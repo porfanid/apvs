@@ -21,7 +21,7 @@ import com.google.web.bindery.event.shared.EventBus;
 public class CameraView extends ImageView implements Module,
 		IsSwitchableWidget {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	public static final String HELMET = "Helmet";
 	public static final String HAND = "Hand";
@@ -107,12 +107,12 @@ public class CameraView extends ImageView implements Module,
 
 				@Override
 				public void onClick(ClickEvent event) {
-					log.info("Single Click Switch");
+//					log.info("Single Click Switch");
 
 					String title = element.getParentElement().getChild(1)
 							.getChild(0).getNodeValue();
 
-					log.info("Switch Widget: " + title);
+//					log.info("Switch Widget: " + title);
 					SwitchWidgetEvent.fire(switchBus, title, CameraView.this,
 							false);
 				}

@@ -53,7 +53,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class EventView extends GlassPanel implements Module {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private EventBus cmdBus;
 	private Device device;
@@ -201,7 +201,7 @@ public class EventView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("RPC DB FAILED " + caught);
+//								log.warn("RPC DB FAILED " + caught);
 								table.setRowCount(0);
 							}
 						});
@@ -472,7 +472,7 @@ public class EventView extends GlassPanel implements Module {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							Event m = selectionModel.getSelectedObject();
-							log.info(m + " " + event.getSource());
+//							log.info(m + " " + event.getSource());
 						}
 					});
 		}

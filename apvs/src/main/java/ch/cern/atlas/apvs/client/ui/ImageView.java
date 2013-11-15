@@ -16,7 +16,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class ImageView extends SimplePanel {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private String currentCameraUrl;
 	private String videoWidth;
@@ -99,7 +99,7 @@ public class ImageView extends SimplePanel {
 
 		if (cameraUrl.startsWith("http://") || cameraUrl.startsWith("https://")) {
 			if (cameraUrl.endsWith(".mjpg")) {
-				log.info(cameraUrl);
+//				log.info(cameraUrl);
 
 				if (image != null) {
 					image.setUrl("");
@@ -124,7 +124,7 @@ public class ImageView extends SimplePanel {
 					video.setLoop(true);
 					video.addSource(cameraUrl);
 				}
-				log.info(video.toString());
+//				log.info(video.toString());
 				video.setTitle(cameraUrl);
 				setWidget(video);
 				isMovingJPEG = false;
@@ -138,7 +138,7 @@ public class ImageView extends SimplePanel {
 							+ "\" src=\""
 							+ cameraUrl
 							+ "\" autoplay=\"true\" type=\"video/quicktime\" controller=\"true\" quitwhendone=\"false\" loop=\"false\"/></embed>");
-			log.info(video.toString());
+//			log.info(video.toString());
 			video.setTitle(cameraUrl);
 			setWidget(video);
 			isMovingJPEG = false;
@@ -155,7 +155,7 @@ public class ImageView extends SimplePanel {
 							+ "', '', 'href', '"
 							+ cameraUrl
 							+ "', 'autohref', 'true', 'target', 'myself', 'controller', 'true', 'autoplay', 'true');</script>");
-			log.info(video.toString());
+//			log.info(video.toString());
 			video.setTitle(cameraUrl);
 			setWidget(video);
 			isMovingJPEG = false;
