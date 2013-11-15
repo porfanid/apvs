@@ -20,7 +20,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class PtuSettings implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5390424254145424045L;
-	private static final String videoServer = "pcatlaswpss02";
+	private static final String videoServer = "wpss-video-server";
 
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
@@ -126,11 +126,20 @@ public class PtuSettings implements Serializable, IsSerializable {
 	}
 
 	public void setBSSID(String name, String bssid) {
-		entries.get(name).bssid = bssid;
+		get(name).bssid = bssid;
 	}
 	
 	public String getBSSID(String name) {
 		Entry entry = entries.get(name);
 		return entry != null ? entry.bssid : "";
+	}
+	
+	private Entry get(String name) {
+		Entry entry = entries.get(name);
+		if (entry == null) {
+			entry = new Entry(name);
+			entries.put(name, entry);
+		}
+		return entry;
 	}
 }
