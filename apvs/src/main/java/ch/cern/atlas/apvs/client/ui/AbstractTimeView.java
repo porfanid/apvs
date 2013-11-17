@@ -210,7 +210,7 @@ public class AbstractTimeView extends GlassPanel {
 	}
 	
 	protected void addPoint(Device device, long time, Number value,
-			Number lowLimit, Number highLimit) {
+			Number downThreshold, Number upThreshold) {
 		Series series = seriesById.get(device);
 		if (series == null) {
 			return;
@@ -228,7 +228,7 @@ public class AbstractTimeView extends GlassPanel {
 
 		Series limitSeries = limitSeriesById.get(device);
 		if (limitSeries != null) {
-			limitSeries.addPoint(new Point(time, lowLimit, highLimit), false,
+			limitSeries.addPoint(new Point(time, downThreshold, upThreshold), false,
 					shift, false);
 		}
 

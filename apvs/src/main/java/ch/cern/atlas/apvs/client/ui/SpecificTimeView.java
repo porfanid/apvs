@@ -51,7 +51,7 @@ public class SpecificTimeView extends AbstractTimeView {
 		if (history == null)
 			return;
 
-		setData(history.getPtu(), history.getData(), history.getLimits());
+		setData(history.getPtu(), history.getData(), history.getThresholds());
 
 		setUnit(history.getPtu(), history.getUnit());
 	}
@@ -79,11 +79,11 @@ public class SpecificTimeView extends AbstractTimeView {
 						if (m.getSensor().equals(measurementName)
 								&& ((device == null) || m.getDevice().equals(
 										device))
-								&& (m.getDate().getTime() < new Date()
+								&& (m.getTime().getTime() < new Date()
 										.getTime() + MINUTE)) {
-							addPoint(m.getDevice(), m.getDate().getTime(),
-									m.getValue(), m.getLowLimit(),
-									m.getHighLimit());
+							addPoint(m.getDevice(), m.getTime().getTime(),
+									m.getValue(), m.getDownThreshold(),
+									m.getUpThreshold());
 
 							setUnit(m.getDevice(), m.getUnit());
 						}

@@ -41,8 +41,11 @@ public class JsonHeader {
 
 	public List<Message> getMessages(Device device) {
 		List<Message> result = new ArrayList<Message>(messages.size());
-		for (JsonMessage m : messages) {
-			result.add(m.toMessage(device));
+		for (JsonMessage jsonMessage : messages) {
+			Message message = jsonMessage.toMessage(device);
+			if (message != null) {
+				result.add(message);
+			}
 		}
  		return result;
 	}

@@ -2,7 +2,7 @@ package ch.cern.atlas.apvs.client.validation;
 
 import com.svenjacobs.gwtbootstrap3.client.ui.constants.ValidationState;
 
-public interface Validator {
+public interface Validator<T> {
 	
 	public static ValidationState WARNING = ValidationState.WARNING;
 	public static ValidationState ERROR = ValidationState.ERROR;
@@ -13,5 +13,5 @@ public interface Validator {
 	 * @param value
 	 * @return null if valid, otherwise error message
 	 */
-	Validation validate(String value);
+	Validation validate(T value);
 }

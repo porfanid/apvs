@@ -74,15 +74,21 @@ public class PtuJsonWriter extends JsonWriter implements ObjectWriter {
 	@Override
 	protected void writeFieldName(String name, Writer out) throws IOException {
 		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
-		if (name.equals("Date")) {
+
+		switch (name) {
+		case "Date":
 			name = "Time";
+			break;
+		case "DosimeterId":
+			name = "DosimeterID";
+			break;
+		case "Bssid":
+			name = "bssid";
+			break;
+		default:
+			break;
 		}
-		if (name.equals("LowLimit")) {
-			name = "DownThreshold";
-		}
-		if (name.equals("HighLimit")) {
-			name = "UpThreshold";
-		}
+
 		super.writeFieldName(name, out);
 	}
 

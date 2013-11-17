@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>ch.cern.atlas</groupId>
 		<artifactId>apvs-project</artifactId>
-		<version>0.9.5-SNAPSHOT</version>
+		<version>0.9.6-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>apvs</artifactId>
@@ -47,11 +48,14 @@
 						<phase>validate</phase>
 						<configuration>
 							<target>
-								<property name="src.dir" value="${project.build.directory}/generated-sources/gwt" />
+								<property name="src.dir"
+									value="${project.build.directory}/generated-sources/gwt" />
 								<property name="package.dir" value="ch/cern/atlas/apvs/client" />
 
-								<echo file="${src.dir}/${package.dir}/Build.properties" message="version = ${project.version}${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Build.properties" append="true" message="build = ${buildNumber}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									message="version = ${project.version}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties"
+									append="true" message="build = ${buildNumber}${line.separator}" />
 							</target>
 						</configuration>
 					</execution>
@@ -145,10 +149,6 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-configuration</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-domain</artifactId>
 		</dependency>
 		<dependency>
@@ -172,8 +172,8 @@
 			<artifactId>atmosphere-runtime</artifactId>
 		</dependency>
 		<dependency>
-      			<groupId>com.google.gwt.eventbinder</groupId>
-      			<artifactId>eventbinder</artifactId>
+			<groupId>com.google.gwt.eventbinder</groupId>
+			<artifactId>eventbinder</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>
@@ -194,15 +194,23 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>com.googlecode.mgwt</groupId>
-			<artifactId>mgwt</artifactId>
-		</dependency>
--->
+		<!-- <dependency> <groupId>com.googlecode.mgwt</groupId> <artifactId>mgwt</artifactId> 
+			</dependency> -->
 		<dependency>
 			<groupId>com.moxie</groupId>
 			<artifactId>highcharts</artifactId>
@@ -211,10 +219,12 @@
 			<groupId>org.asterisk</groupId>
 			<artifactId>asterisk-java</artifactId>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>org.hudsonci.libs</groupId>
 			<artifactId>hudson-gwt-slf4j</artifactId>
 		</dependency>
+-->
 		<dependency>
 			<groupId>com.svenjacobs.gwtbootstrap3</groupId>
 			<artifactId>gwtbootstrap3</artifactId>
@@ -245,18 +255,14 @@
 			<artifactId>hibernate-validator</artifactId>
 			<classifier>sources</classifier>
 		</dependency>
-                <dependency>
-                        <groupId>org.javassist</groupId>
-                        <artifactId>javassist</artifactId>
-                </dependency>
-                <dependency>
-                         <groupId>commons-io</groupId>
-                         <artifactId>commons-io</artifactId>
-                </dependency>
-                <dependency>
-                         <groupId>commons-configuration</groupId>
-                         <artifactId>commons-configuration</artifactId>
-                </dependency>
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.kiouri</groupId>
@@ -266,20 +272,20 @@
 			<systemPath>${basedir}/gwt-slider-bar-1.0.jar</systemPath>
 		</dependency>
 
-<dependency>
-  <groupId>com.google.gwt.gwtmockito</groupId>
-  <artifactId>gwtmockito</artifactId>
-</dependency>
+		<dependency>
+			<groupId>com.google.gwt.gwtmockito</groupId>
+			<artifactId>gwtmockito</artifactId>
+		</dependency>
 
-<dependency>
-  <groupId>org.mockito</groupId>
-  <artifactId>mockito-all</artifactId>
-</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+		</dependency>
 
-<dependency>
-  <groupId>junit</groupId>
-  <artifactId>junit</artifactId>
-</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
 
 	</dependencies>
 
@@ -324,24 +330,24 @@
 			</build>
 		</profile>
 
-      <profile>
-        <id>oracle</id>
-        <activation>
-     		<file>
-			<exists>../apvs-ojdbc/ojdbc6.jar</exists>
-		</file>
-        </activation>
-	<dependencies>
-                <dependency>
-                        <groupId>ch.cern.atlas</groupId>
-                        <artifactId>apvs-ojdbc</artifactId>
-                </dependency>
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc</artifactId>
-		</dependency>
-	</dependencies>
-      </profile>
+		<profile>
+			<id>oracle</id>
+			<activation>
+				<file>
+					<exists>../apvs-ojdbc/ojdbc6.jar</exists>
+				</file>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>ch.cern.atlas</groupId>
+					<artifactId>apvs-ojdbc</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>com.oracle</groupId>
+					<artifactId>ojdbc</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
 
 	</profiles>
 </project>

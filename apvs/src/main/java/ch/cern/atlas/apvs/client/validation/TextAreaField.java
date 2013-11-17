@@ -8,11 +8,11 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.TextArea;
 
-public class TextAreaField extends ValidationField {
+public class TextAreaField extends ValidationField<String> {
 
 	private TextArea area;
 	
-	public TextAreaField(String fieldLabel, Validator validator) {
+	public TextAreaField(String fieldLabel, Validator<String> validator) {
 		super(fieldLabel, validator);
 		
 		area = new TextArea();
@@ -46,7 +46,7 @@ public class TextAreaField extends ValidationField {
 	}
 	
 	public String getValue() {
-		return area.getValue();
+		return area.getValue() != null ? area.getValue().trim() : null;
 	}
 
 }

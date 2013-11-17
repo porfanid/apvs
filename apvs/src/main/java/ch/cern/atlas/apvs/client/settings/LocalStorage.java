@@ -7,6 +7,7 @@ public class LocalStorage {
 	public static final String SELECTED_TAB = "SELECTED_TAB";
 	public static final String SELECTED_PTU_ID = "SELECTED_PTU_ID";
 	public static final String SUPERVISOR_PWD = "SUPERVISOR_PWD";
+	public static final String SHOW_TEST_INTERVENTIONS = "SHOW_TEST_INTERVENTIONS";
 	
 	private static LocalStorage instance;
 	private Storage store;
@@ -52,5 +53,14 @@ public class LocalStorage {
 	public Integer getInteger(String key) {
 		String s = get(key);
 		return s == null || s.equals("null") ? null : Integer.parseInt(s);
+	}
+	
+	public void put(String key, Boolean value) {
+		put(key, value == null ? null : value.toString());
+	}
+	
+	public Boolean getBoolean(String key) {
+		String s = get(key);
+		return s == null || s.equals("null") ? null : Boolean.parseBoolean(s);		
 	}
 }

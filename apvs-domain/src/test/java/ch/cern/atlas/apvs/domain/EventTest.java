@@ -12,8 +12,8 @@ public class EventTest extends AbstractDomainTest {
 	@SuppressWarnings({ "rawtypes" })
 	@Test
 	public void testBasicUsage() {
-		Device d1 = new Device("PTU_88", InetAddress.getByName("localhost"), "ptu 88", null, "ptu_88.cern.ch");
-		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch");
+		Device d1 = new Device("PTU_88", InetAddress.getByName("localhost"), "ptu 88", null, "ptu_88.cern.ch", false);
+		Device d2 = new Device("PTU_99", InetAddress.getByName("localhost"), "ptu 99", null, "ptu_99.cern.ch", false);
 		
 		Event e1 = new Event(d1, "Temperature", "UpValue", 20.5, 18.5, "&deg;", new Date());
 		Event e2 = new Event(d2, "Temperature", "LowValue", 17.5, 18.0, "&deg;", new Date());
@@ -30,7 +30,7 @@ public class EventTest extends AbstractDomainTest {
 		// now lets pull events from the database and list them
 		session = sessionFactory.openSession();
 		session.beginTransaction();
-		List result = session.createQuery("from Event").list();
+		List result = session.createCriteria(Event.class).list();
 		Assert.assertEquals(2, result.size());
 //		System.err.println(result.get(0));
 		Assert.assertEquals(e1, result.get(0));

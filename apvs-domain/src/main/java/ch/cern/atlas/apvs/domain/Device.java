@@ -35,16 +35,19 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 	private MacAddress macAddress;
 	private String hostName;
 	
+	private Boolean virtual;
+	
 	protected Device() {
 		// Serialization
 	}
 					
-	public Device(String name, InetAddress ip, String description, MacAddress macAddress, String hostName) {
+	public Device(String name, InetAddress ip, String description, MacAddress macAddress, String hostName, boolean virtual) {
 		setName(name);
 		setIp(ip);
 		setDescription(description);
 		setMacAddress(macAddress);
 		setHostName(hostName);
+		setVirtual(virtual);
 	}
 
 	@Id
@@ -107,11 +110,22 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 		this.hostName = hostName;
 	}
 	
+	@Type(type="yes_no")
+	@Column(name = "VIRTUAL", length=1)
+	public Boolean isVirtual() {
+		return virtual;
+	}
+	
+	private void setVirtual(Boolean virtual) {
+		this.virtual = virtual;
+	}
+
+	
 	@Override
 	public String toString() {
 		return "Device [id=" + id + ", name=" + name + ", ip=" + ip
 				+ ", description=" + description + ", macAddress=" + macAddress
-				+ ", hostName=" + hostName + "]";
+				+ ", hostName=" + hostName + ", virtual=" + virtual + "]";
 	}
 
 	@Override
@@ -122,10 +136,12 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 				+ ((description == null) ? 0 : description.hashCode());
 		result = prime * result
 				+ ((hostName == null) ? 0 : hostName.hashCode());
+		result = prime * result + id;
 		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
 		result = prime * result
 				+ ((macAddress == null) ? 0 : macAddress.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((virtual == null) ? 0 : virtual.hashCode());
 		return result;
 	}
 
@@ -155,6 +171,9 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 		} else if (!hostName.equals(other.hostName)) {
 			return false;
 		}
+		if (id != other.id) {
+			return false;
+		}
 		if (ip == null) {
 			if (other.ip != null) {
 				return false;
@@ -174,6 +193,13 @@ public class Device implements Comparable<Device>, Serializable, IsSerializable 
 				return false;
 			}
 		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (virtual == null) {
+			if (other.virtual != null) {
+				return false;
+			}
+		} else if (!virtual.equals(other.virtual)) {
 			return false;
 		}
 		return true;

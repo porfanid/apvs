@@ -1,4 +1,4 @@
 #!/bin/bash
-java -jar target/apvs-daq-server-jar-with-dependencies.jar
+java -Dlogback.configurationFile=logback.xml -jar target/apvs-daq-server-jar-with-dependencies.jar
 
 

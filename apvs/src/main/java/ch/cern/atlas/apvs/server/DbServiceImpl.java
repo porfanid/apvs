@@ -7,8 +7,6 @@ import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gwt.user.client.rpc.SerializationException;
-
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.service.DbService;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -21,14 +19,13 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 @SuppressWarnings("serial")
 public class DbServiceImpl extends ResponsePollService implements DbService {
 
-	// private static final int DEFAULT_DB_PORT = 1521;
-
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private String dbUrl;
 
 	private RemoteEventBus eventBus;
 	private Database database;
+	private DatabaseHandler databaseHandler;
 
 	public DbServiceImpl() {
 		log.info("Creating DbService...");
@@ -40,7 +37,8 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 		super.init(config);
 
 		log.info("Starting DbService...");
-		database = Database.getInstance(eventBus, true);
+		database = Database.getInstance();
+		databaseHandler = DatabaseHandler.getInstance(eventBus);
 		
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
@@ -78,6 +76,6 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 	
 	@Override
 	public boolean isConnected() {
-		return database.isConnected();
-	}
+		return databaseHandler.isConnected();
+	}	
 }

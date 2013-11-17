@@ -10,11 +10,11 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.svenjacobs.gwtbootstrap3.client.ui.TextBox;
 
-public class TextBoxField extends ValidationField {
+public class TextBoxField extends ValidationField<String> {
 
 	private TextBox box;
 		
-	public TextBoxField(String fieldLabel, Validator validator) {
+	public TextBoxField(String fieldLabel, Validator<String> validator) {
 		super(fieldLabel, validator);
 		
 		box = new TextBox() {
@@ -54,7 +54,7 @@ public class TextBoxField extends ValidationField {
 	}
 		
 	public String getValue() {
-		return box.getValue();
+		return box.getValue() != null ? box.getValue().trim() : null;
 	}
 	
 }

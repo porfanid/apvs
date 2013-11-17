@@ -30,7 +30,6 @@ public class Tab implements Module {
 			
 			@Override
 			public void onTabSelected(SelectTabEvent event) {
-				System.err.println(tab+" event: "+event);
 				setVisible(element, event.getTab().equals(tab));
 			}
 		});

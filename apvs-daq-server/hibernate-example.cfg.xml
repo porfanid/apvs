@@ -21,16 +21,8 @@
 		<!-- SQL dialect -->
 		
 		<!-- Echo all executed SQL to stdout -->
-		<property name="show_sql">true</property>
+		<property name="show_sql">false</property>
 
-		<!-- Names the annotated entity class -->
-		<mapping class="ch.cern.atlas.apvs.domain.Device" />
-		<mapping class="ch.cern.atlas.apvs.domain.Event" />
-		<mapping class="ch.cern.atlas.apvs.domain.Intervention" />
-		<mapping class="ch.cern.atlas.apvs.domain.Measurement" />
-		<mapping class="ch.cern.atlas.apvs.domain.Sensor" />
-		<mapping class="ch.cern.atlas.apvs.domain.User" />
-				
 	</session-factory>
 
 </hibernate-configuration>

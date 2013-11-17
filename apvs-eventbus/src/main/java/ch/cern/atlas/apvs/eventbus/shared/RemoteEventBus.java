@@ -23,7 +23,7 @@ import com.google.web.bindery.event.shared.UmbrellaException;
  */
 public class RemoteEventBus extends SimpleEventBus {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private final static boolean DEBUG = false;
 
@@ -75,7 +75,7 @@ public class RemoteEventBus extends SimpleEventBus {
 
 	public void fireEvent(RemoteEvent<?> event) {
 		if (DEBUG) {
-			log.info("Fire event " + event.getClass());
+//			log.info("Fire event " + event.getClass());
 		}
 		doFire(event, 0);
 	}
@@ -85,7 +85,7 @@ public class RemoteEventBus extends SimpleEventBus {
 			throw new NullPointerException("Cannot fire from a 0 uuid");
 		}
 		if (DEBUG) {
-			log.info("Fire event " + event.getClass() + " " + uuid);
+//			log.info("Fire event " + event.getClass() + " " + uuid);
 		}
 		doFire(event, uuid);
 	}

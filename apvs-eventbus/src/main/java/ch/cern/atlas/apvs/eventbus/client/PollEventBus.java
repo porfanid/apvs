@@ -3,9 +3,6 @@ package ch.cern.atlas.apvs.eventbus.client;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
@@ -16,7 +13,7 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 public class PollEventBus extends RemoteEventBus {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private EventBusServiceAsync eventBusService;
 	
@@ -58,16 +55,16 @@ public class PollEventBus extends RemoteEventBus {
 
 			@Override
 			public void onSuccess(Void result) {
-				log.info("Client: Sent event..." + event);
+//				log.info("Client: Sent event..." + event);
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				log.warn("Failed to send event " + event + " "
-						+ caught);
+//				log.warn("Failed to send event " + event + " "
+//						+ caught);
 				caught.printStackTrace();
 				if (caught.getCause() != null) {
-					log.warn("Caused by...");
+//					log.warn("Caused by...");
 					caught.getCause().printStackTrace();
 				}
 			}
@@ -80,14 +77,14 @@ public class PollEventBus extends RemoteEventBus {
 
 					@Override
 					public void onSuccess(List<RemoteEvent<?>> events) {
-					    log.info(getUUID()+": Received events..." + events.size());
+//					    log.info(getUUID()+": Received events..." + events.size());
 					    
 						// forward events locally
 						for (Iterator<RemoteEvent<?>> i = events.iterator(); i
 								.hasNext();) {
 
 							RemoteEvent<?> event = i.next();
-						    log.info("Client: Received event..." + event);
+//						    log.info("Client: Received event..." + event);
 							// do not fire your own events
 							if (event.getEventBusUUID() != getUUID()) {
 								PollEventBus.super.fireEvent(event);
@@ -99,7 +96,7 @@ public class PollEventBus extends RemoteEventBus {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						log.warn("Failed to get next event " + caught);
+//						log.warn("Failed to get next event " + caught);
 
 						getQueuedEvents();
 					}

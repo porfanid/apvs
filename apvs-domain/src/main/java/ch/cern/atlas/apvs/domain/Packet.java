@@ -27,6 +27,11 @@ public class Packet implements Serializable, IsSerializable {
 		this.acknowledge = acknowledge;
 	}
 	
+	public Packet(String sender, int frameID, boolean acknowledge, Message order) {
+		this(sender, order.getDevice().getName(), frameID, acknowledge);
+		addMessage(order);
+	}
+
 	public String getSender() {
 		return sender;
 	}

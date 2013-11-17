@@ -1,13 +1,18 @@
 package ch.cern.atlas.apvs.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -15,8 +20,6 @@ import javax.servlet.ServletException;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gwt.user.client.rpc.SerializationException;
 
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.manager.AlarmManager;
@@ -27,9 +30,13 @@ import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.History;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Order;
+import ch.cern.atlas.apvs.domain.SortOrder;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
+
+import com.google.gwt.user.client.rpc.SerializationException;
 
 /**
  * @author Mark Donszelmann
@@ -61,7 +68,9 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 		log.info("Starting PtuService...");
 
-		database = Database.getInstance(eventBus, true);
+		database = Database.getInstance();
+
+		Map<String, Device> devices = database.getDeviceMap();
 
 		EventLoopGroup group = new NioEventLoopGroup();
 
@@ -81,7 +90,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 		// Configure the pipeline factory.
 		bootstrap.group(group);
-		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler, true));
+		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler, devices, true));
 
 		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
@@ -101,7 +110,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 										.parseInt(s[1]) : DEFAULT_PTU_PORT;
 
 								log.info("Setting PTU to " + host + ":" + port);
-								// #FIXME
 								ptuClientHandler.connect(new InetSocketAddress(
 										host, port));
 							}
@@ -109,6 +117,20 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 					}
 				});
 
+	}
+
+	@Override
+	public long getRowCount() throws ServiceException {
+//		return database.getCount(MeasurementConfiguration.class);
+		return database.getMeasurementConfigurationList().size();
+	}
+
+	@Override
+	public List<MeasurementConfiguration> getTableData(Integer start,
+			Integer length, List<SortOrder> sortOrder) throws ServiceException {
+//		return database.getList(MeasurementConfiguration.class, start, length,
+//				Database.getOrder(sortOrder), null, Arrays.asList("device"));
+		return database.getMeasurementConfigurationList();
 	}
 
 	@Override
@@ -146,8 +168,21 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	@Override
 	public void handleOrder(Order order) throws ServiceException {
 		System.err.println("Handle " + order);
+		if (!isSupervisor()) {
+			throw new ServiceException("Cannot handle order, not a supervisor");
+		}
 
-		ptuClientHandler.sendOrder(order);
+		try {
+			ChannelFuture future = ptuClientHandler.sendOrder(order).sync();
+			if (!future.isSuccess()) {
+				throw new ServiceException(future.cause());
+			}
+			System.err.println("Done " + order);
+		} catch (IOException e) {
+			throw new ServiceException(e);
+		} catch (InterruptedException e) {
+			throw new ServiceException(e);
+		}
 	}
 
 	@Override
@@ -176,5 +211,5 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		} catch (SerializationException e) {
 			throw new ServiceException(e);
 		}
-	}
+	}	
 }

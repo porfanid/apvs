@@ -3,12 +3,14 @@ package ch.cern.atlas.apvs.ptu.server;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
@@ -18,26 +20,31 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
+import ch.cern.atlas.apvs.domain.Packet;
+
+public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Packet> {
 	private static final int RECONNECT_DELAY = 20;
 	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private Bootstrap bootstrap;
+	private String name;
 
 	private InetSocketAddress address;
+	private ChannelHandlerContext ctx;
 	private Channel channel;
 	private Timer reconnectTimer;
-	private boolean reconnectNow;
 	
 	private String cause;
 
-	public PtuReconnectHandler(Bootstrap bootstrap) {
+	public PtuReconnectHandler(Bootstrap bootstrap, String name) {
 		this.bootstrap = bootstrap;
+		this.name = name;
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		log.info("Connected to PTU");
+		log.info("Connected to "+name+" on "+address);
+		this.ctx = ctx;
 		channel = ctx.channel();
 		cause = "";
 		super.channelActive(ctx);
@@ -46,24 +53,11 @@ public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		// handle closed connection
-		log.info("Closed PTU socket ");
+		log.info("Closed "+name+" socket on "+address);
 
-		// handle (re)connection
 		channel = null;
-		if (reconnectNow) {
-			log.info("Immediate Reconnecting to PTU on " + address);
-			bootstrap.connect(address);
-			reconnectNow = false;
-		} else {
-			log.info("Sleeping for: " + RECONNECT_DELAY + "s");
-			reconnectTimer = new HashedWheelTimer();
-			reconnectTimer.newTimeout(new TimerTask() {
-				public void run(Timeout timeout) throws Exception {
-					log.info("Reconnecting to PTU_DAQ on " + address);
-					bootstrap.connect(address);
-				}
-			}, RECONNECT_DELAY, TimeUnit.SECONDS);
-		}
+		cancelTimer();
+		reconnect();
 
 		super.channelInactive(ctx);
 	}
@@ -101,26 +95,43 @@ public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
 			return;
 
 		address = newAddress;
-
-		if (channel != null) {
-			reconnect(true);
-		} else {
-			bootstrap.connect(address);
-		}
+		cancelTimer();
+		reconnect();
 	}
-
-	public void reconnect(boolean reconnectNow) {
-		this.reconnectNow = reconnectNow;
-
+	
+	private void cancelTimer() {
 		if (reconnectTimer != null) {
 			reconnectTimer.stop();
 			reconnectTimer = null;
-		}
-
+		}		
+	}
+	
+	private void reconnect() {
+	
 		if (channel != null) {
 			channel.disconnect();
 			channel = null;
 		}
+		
+		log.info("Reconnecting to "+name+" on " + address);
+		bootstrap.connect(address).addListener(new GenericFutureListener<Future<? super Void>>() {
+
+			@Override
+			public void operationComplete(Future<? super Void> arg)
+					throws Exception {
+				if (!arg.isSuccess()) {
+					log.warn(arg.cause().toString());
+					log.info("Sleeping for " + RECONNECT_DELAY + "s before reconnect "+name+" on "+address);
+					
+					reconnectTimer = new HashedWheelTimer();
+					reconnectTimer.newTimeout(new TimerTask() {
+						public void run(Timeout timeout) throws Exception {
+							reconnect();
+						}
+					}, RECONNECT_DELAY, TimeUnit.SECONDS);
+				}	
+			}
+		});
 	}
 
 	public boolean isConnected() {
@@ -133,6 +144,10 @@ public abstract class PtuReconnectHandler extends ChannelInboundHandlerAdapter {
 
 	public Channel getChannel() {
 		return channel;
+	}
+	
+	public ChannelHandlerContext getContext() {
+		return ctx;
 	}
 
 }

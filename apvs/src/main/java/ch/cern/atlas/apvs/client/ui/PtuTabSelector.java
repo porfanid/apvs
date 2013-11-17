@@ -5,9 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -24,7 +21,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
@@ -32,8 +28,6 @@ import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class PtuTabSelector extends HorizontalPanel implements Module {
-
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private RemoteEventBus remoteEventBus;
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
@@ -57,7 +51,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		// add(new Brand("ATWSS"));
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
-
+		
 		String[] busNames = args.getArg(0).split(",");
 		for (int i = 0; i < busNames.length; i++) {
 			eventBusses.add(clientFactory.getEventBus(busNames[i].trim()));
@@ -107,8 +101,17 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 						ptus = interventions.getPtus();
 
 						scheduler.update();
-
+						
 						if (selectedTab != null) {
+							if (selectedPtu == null) {
+								for (Device device : ptus) {
+									if (device.getName().equals(selectedTab)) {
+										selectedPtu = device;
+										break;
+									}
+								}
+							}
+							
 							fireEvent(new SelectTabEvent(
 									selectedPtu == null ? selectedTab : "Ptu"));
 							fireEvent(new SelectPtuEvent(selectedPtu));
@@ -168,7 +171,14 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		}
 
 		for (Iterator<String> i = extraTabs.iterator(); i.hasNext();) {
-			final String name = i.next();
+			String name = i.next();
+			if (name.endsWith("+")) {
+				name = name.substring(0, name.length()-1);
+				if ((ptus == null) || (ptus.size() == 0)) {
+					// bail out, no interventions
+					continue;
+				}
+			}
 			final ToggleButton b = new ToggleButton(name);
 			b.setDown(name.equals(selectedTab));
 
@@ -176,7 +186,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					selectedTab = name;
+					selectedTab = b.getText();
 					selectedPtu = null;
 
 					radio(b);

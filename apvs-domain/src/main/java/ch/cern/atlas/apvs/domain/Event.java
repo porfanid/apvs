@@ -36,17 +36,17 @@ public class Event implements Message, Serializable, IsSerializable {
 	private Double value;
 	private Double threshold;
 	private String unit;
-	private Date date;
+	private Date time;
 
 	protected Event() {
 	}
 	
-	public Event(Device device, String name, String eventType, Date date) {
-		this(device, name, eventType, 0.0, 0.0, "", date);
+	public Event(Device device, String name, String eventType, Date time) {
+		this(device, name, eventType, 0.0, 0.0, "", time);
 	}
 
 	public Event(Device device, String sensor, String eventType, Double value,
-			Double threshold, String unit, Date date) {
+			Double threshold, String unit, Date time) {
 
 		setDevice(device);
 		setSensor(sensor);
@@ -54,7 +54,7 @@ public class Event implements Message, Serializable, IsSerializable {
 		setValue(value);
 		setThreshold(threshold);
 		setUnit(unit);
-		setDate(date);
+		setTime(time);
 	}
 	
 	@SuppressWarnings("unused")
@@ -62,8 +62,8 @@ public class Event implements Message, Serializable, IsSerializable {
 		this.id = id;
 	}
 		
-	private void setDate(Date date) {
-		this.date = date;
+	private void setTime(Date time) {
+		this.time = time;
 	}
 
 	private void setUnit(String unit) {
@@ -135,8 +135,8 @@ public class Event implements Message, Serializable, IsSerializable {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "DATETIME", nullable=false)
-	public Date getDate() {
-		return date;
+	public Date getTime() {
+		return time;
 	}
 
 	@Override
@@ -150,14 +150,14 @@ public class Event implements Message, Serializable, IsSerializable {
 		return "Event(" + getDevice().getName() + "): sensor:" + getSensor() + ", type: "
 				+ getEventType() + ", value:" + getValue() + ", unit:"
 				+ getUnit() + ", threshold:" + getThreshold() + ", date:"
-				+ getDate();
+				+ getTime();
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((date == null) ? 0 : date.hashCode());
+		result = prime * result + ((time == null) ? 0 : time.hashCode());
 		result = prime * result + ((device == null) ? 0 : device.hashCode());
 		result = prime * result
 				+ ((eventType == null) ? 0 : eventType.hashCode());
@@ -183,11 +183,11 @@ public class Event implements Message, Serializable, IsSerializable {
 			return false;
 		}
 		Event other = (Event) obj;
-		if (date == null) {
-			if (other.date != null) {
+		if (time == null) {
+			if (other.time != null) {
 				return false;
 			}
-		} else if (!date.equals(other.date)) {
+		} else if (!time.equals(other.time)) {
 			return false;
 		}
 		if (device == null) {

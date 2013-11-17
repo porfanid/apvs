@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -40,19 +41,21 @@ public class Intervention implements Serializable, IsSerializable {
 	private String impactNumber;
 	private Double recStatus;
 	private String description;
+	private Boolean test;
 
 	protected Intervention() {
 	}
 	
-	public Intervention(User user, Device device, Date startTime, Date endTime,
-			String impactNumber, Double recStatus, String description) {
+	public Intervention(User user, Device device, Date startTime,
+			String impactNumber, Double recStatus, String description, Boolean test) {
 		setUser(user);
 		setDevice(device);
 		setStartTime(startTime);
-		setEndTime(endTime);
+		setEndTime(null);
 		setImpactNumber(impactNumber);
 		setRecStatus(recStatus);
 		setDescription(description);
+		setTest(test);
 	}
 	
 	@Id
@@ -147,14 +150,23 @@ public class Intervention implements Serializable, IsSerializable {
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
+	
+	public Boolean isTest() {
+		return test;
+	}
+	
+	@Type(type="yes_no")
+	@Column(name = "TEST", length=1)
+	public void setTest(Boolean test) {
+		this.test = test;
+	}
 
 	@Override
 	public String toString() {
-		return "Intervention [id=" + id + ", name=" + getName()
-				+ ", ptuId=" + getPtuId() + ", startTime=" + startTime
-				+ ", endTime=" + endTime + ", impactNumber=" + impactNumber
-				+ ", recStatus=" + recStatus + ", description=" + description
-				+ "]";
+		return "Intervention [user=" + user + ", device=" + device + ", id="
+				+ id + ", startTime=" + startTime + ", endTime=" + endTime
+				+ ", impactNumber=" + impactNumber + ", recStatus=" + recStatus
+				+ ", description=" + description + ", test=" + test + "]";
 	}
 
 	@Override
@@ -172,6 +184,7 @@ public class Intervention implements Serializable, IsSerializable {
 				+ ((recStatus == null) ? 0 : recStatus.hashCode());
 		result = prime * result
 				+ ((startTime == null) ? 0 : startTime.hashCode());
+		result = prime * result + ((test == null) ? 0 : test.hashCode());
 		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		return result;
 	}
@@ -231,6 +244,13 @@ public class Intervention implements Serializable, IsSerializable {
 				return false;
 			}
 		} else if (!startTime.equals(other.startTime)) {
+			return false;
+		}
+		if (test == null) {
+			if (other.test != null) {
+				return false;
+			}
+		} else if (!test.equals(other.test)) {
 			return false;
 		}
 		if (user == null) {

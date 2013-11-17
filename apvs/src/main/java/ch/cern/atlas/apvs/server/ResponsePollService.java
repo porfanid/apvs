@@ -30,4 +30,10 @@ public class ResponsePollService extends AtmospherePollService {
 				ServerSerialization.getModuleBaseURL(request, moduleBaseURL),
 				strongName);
 	}
+	
+	protected boolean isSupervisor() {
+		Boolean isSupervisor = (Boolean) getThreadLocalRequest().getSession(
+				true).getAttribute("SUPERVISOR");
+		return isSupervisor != null ? isSupervisor : false;
+	}
 }

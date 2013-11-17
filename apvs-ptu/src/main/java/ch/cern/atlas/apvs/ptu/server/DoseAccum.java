@@ -9,6 +9,6 @@ import ch.cern.atlas.apvs.domain.Measurement;
 public class DoseAccum extends Measurement {
 
 	public DoseAccum(Device device, double value, Date d) {
-		super(device, "DoseAccum", value, 50.0, 100.0, "mSv", 10000, d);
+		super(device, "DoseAccum", value, 50.0, 100.0, "mSv", 10000, "OneShoot", d);
 	}
 }

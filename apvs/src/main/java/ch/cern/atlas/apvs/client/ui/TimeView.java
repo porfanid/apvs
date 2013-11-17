@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
@@ -19,13 +16,11 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class TimeView extends SpecificTimeView implements Module {
 
-	@SuppressWarnings("unused")
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private Device device = null;
 	private PtuSettings settings;

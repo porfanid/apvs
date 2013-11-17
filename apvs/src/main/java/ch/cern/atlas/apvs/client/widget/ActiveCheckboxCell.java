@@ -3,8 +3,9 @@ package ch.cern.atlas.apvs.client.widget;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.cell.client.CheckboxCell;
 
-public class ActiveCheckboxCell extends com.google.gwt.cell.client.CheckboxCell {
+public class ActiveCheckboxCell extends CheckboxCell {
 
 	private static final SafeHtml INPUT_CHECKED = SafeHtmlUtils
 			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" checked/>");
@@ -34,7 +35,7 @@ public class ActiveCheckboxCell extends com.google.gwt.cell.client.CheckboxCell 
 			viewData = null;
 		}
 
-		Boolean checked = viewData != null ? viewData : value;
+		boolean checked = (value != null) && (viewData != null ? viewData : value);
 
 		if (checked && !enabled) {
 			sb.append(INPUT_CHECKED_DISABLED);

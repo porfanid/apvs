@@ -1,7 +1,7 @@
 package ch.cern.atlas.apvs.client.validation;
 
 
-public class StringValidator implements Validator {
+public class StringValidator implements Validator<String> {
 
 	protected int minLength;
 	protected int maxLength;

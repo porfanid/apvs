@@ -6,16 +6,18 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gwt.user.client.rpc.SerializationException;
-
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.ui.CameraView;
+import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
+
+import com.google.gwt.user.client.rpc.SerializationException;
 
 public class PtuSettingsStorage {
 
@@ -89,7 +91,7 @@ public class PtuSettingsStorage {
 		}
 		return instance;
 	}
-
+		
 	private void load() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {
@@ -110,8 +112,23 @@ public class PtuSettingsStorage {
 			settings.setCameraUrl(ptuId, CameraView.HELMET, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".helmetUrl"), proxy);
 			settings.setCameraUrl(ptuId, CameraView.HELMET, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".handUrl"), proxy);
 		}
+		
+		updateFromDatabase(settings);
 	}
 
+	public static void updateFromDatabase(PtuSettings settings) {
+		Database database = Database.getInstance();
+		
+		
+		
+		for (GeneralConfiguration gc : database.getGeneralConfigurationList()) {
+			String ptuId = gc.getDevice().getName();
+			settings.setBSSID(ptuId, database.getHostName(gc.getBSSID()));
+			settings.setDosimeterSerialNumber(ptuId, gc.getDosimeterId());
+		};
+	}
+
+	
 	private void store() {
 		ServerStorage store = ServerStorage.getLocalStorageIfSupported();
 		if (store == null) {

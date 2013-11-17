@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
@@ -24,13 +21,12 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextHeader;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.SelectionChangeEvent;
 
 public class MeasurementView extends AbstractMeasurementView {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListHandler<String> columnSortHandler;
@@ -119,7 +115,7 @@ public class MeasurementView extends AbstractMeasurementView {
 		// return "";
 		// }
 		// Measurement m = historyMap.getMeasurement(ptuId, name);
-		// return m != null ? m.getLowLimit()+" "+m.getHighLimit() : "";
+		// return m != null ? m.getDownThreshold()+" "+m.getUpThreshold() : "";
 		// }
 		//
 		// @Override
@@ -130,8 +126,8 @@ public class MeasurementView extends AbstractMeasurementView {
 		// if (m == null) {
 		// return;
 		// }
-		// gaugeWidget.setValue(m.getValue(), m.getLowLimit(),
-		// m.getHighLimit());
+		// gaugeWidget.setValue(m.getValue(), m.getDownThreshold(),
+		// m.getUpThreshold());
 		// sb.appendEscaped(gaugeWidget.getElement().getInnerHTML());
 		// Window.alert(gaugeWidget.getElement().getInnerHTML());
 		// }
@@ -170,8 +166,8 @@ public class MeasurementView extends AbstractMeasurementView {
 				}
 
 				double c = m.getValue().doubleValue();
-				Double lo = m.getLowLimit();
-				Double hi = m.getHighLimit();
+				Double lo = m.getDownThreshold();
+				Double hi = m.getUpThreshold();
 				String status = (lo != null) && (hi != null) && (lo >= hi) ? "in_range" : (lo != null) && (c < lo) ? "lo-limit"
 						: (hi != null) && (c > hi) ? "hi-limit" : "in-range";
 
@@ -238,7 +234,7 @@ public class MeasurementView extends AbstractMeasurementView {
 				Measurement measurement = history
 						.getMeasurement(ptu, name);
 				return measurement != null ? ClientConstants.dateFormat
-						.format(measurement.getDate()) : "";
+						.format(measurement.getTime()) : "";
 			}
 
 			@Override
@@ -331,7 +327,7 @@ public class MeasurementView extends AbstractMeasurementView {
 				}
 
 				if (o1 != null) {
-					return (o2 != null) ? o1.getDate().compareTo(o2.getDate())
+					return (o2 != null) ? o1.getTime().compareTo(o2.getTime())
 							: 1;
 				}
 				return -1;
@@ -348,7 +344,7 @@ public class MeasurementView extends AbstractMeasurementView {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							String s = selectionModel.getSelectedObject();
-							log.info(s + " " + event.getSource());
+//							log.info(s + " " + event.getSource());
 						}
 					});
 		}

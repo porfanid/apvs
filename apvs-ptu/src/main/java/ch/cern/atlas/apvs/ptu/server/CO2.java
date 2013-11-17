@@ -9,7 +9,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 public class CO2 extends Measurement {
 
 	public CO2(Device device, double value, Date d) {
-		super(device, "CO2", value, 50.0, 100.0, "ppm", 55000, d);
+		super(device, "CO2", value, 50.0, 100.0, "ppm", 55000, "OneShoot", d);
 	}
 	
 }

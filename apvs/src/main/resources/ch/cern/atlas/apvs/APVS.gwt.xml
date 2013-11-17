@@ -25,7 +25,9 @@
 	<set-property name="gwt.logging.consoleHandler" value="ENABLED" />
 	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />
 
+<!-- 
 	<inherits name="org.slf4j.Slf4j" />
+-->
     <inherits name="org.atmosphere.gwt20.AtmosphereGwt20"/>
     <inherits name="com.svenjacobs.gwtbootstrap3.GwtBootstrap3"/>
  

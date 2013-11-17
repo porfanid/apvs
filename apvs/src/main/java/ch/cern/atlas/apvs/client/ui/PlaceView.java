@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PlaceChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -16,7 +13,6 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.place.shared.Place;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -24,7 +20,7 @@ import com.google.web.bindery.event.shared.EventBus;
 public class PlaceView extends SimplePanel implements Module,
 		IsSwitchableWidget {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private RemoteEventBus remoteEventBus;
 	private String defaultImage = "Default-640x480.jpg";
@@ -78,7 +74,7 @@ public class PlaceView extends SimplePanel implements Module,
 						if (!ptu.equals(event.getPtu()))
 							return;
 
-						log.info("PLACE CHANGED " + event);
+//						log.info("PLACE CHANGED " + event);
 						Place place = event.getPlace();
 
 						Image image = new Image(defaultImage);
@@ -97,12 +93,12 @@ public class PlaceView extends SimplePanel implements Module,
 
 				@Override
 				public void onClick(ClickEvent event) {
-					log.info("Click " + event + " switch");
+//					log.info("Click " + event + " switch");
 
 					String title = element.getParentElement().getChild(1)
 							.getChild(0).getNodeValue();
 
-					log.info("Switch Widget: " + title);
+//					log.info("Switch Widget: " + title);
 					SwitchWidgetEvent.fire(switchBus, title, PlaceView.this,
 							false);
 				}

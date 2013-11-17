@@ -9,7 +9,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 public class Temperature extends Measurement {
 
 	public Temperature(Device device, double value, Date d) {
-		super(device, "Temperature", value, 15.0, 40.0, "&deg;C", 15000, d);
+		super(device, "Temperature", value, 15.0, 40.0, "&deg;C", 15000, "OneShoot", d);
 	}
 	
 }

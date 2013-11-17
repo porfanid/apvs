@@ -24,7 +24,7 @@ public class UserTest extends AbstractDomainTest {
 		// now lets pull events from the database and list them
 		session = sessionFactory.openSession();
 		session.beginTransaction();
-		List result = session.createQuery("from User").list();
+		List result = session.createCriteria(User.class).list();
 		Assert.assertEquals(2, result.size());
 		System.err.println(result.get(0));
 		Assert.assertEquals(u1, result.get(0));

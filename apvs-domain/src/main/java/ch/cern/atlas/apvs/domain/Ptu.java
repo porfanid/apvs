@@ -60,7 +60,7 @@ public class Ptu implements Serializable, IsSerializable {
 		Measurement r = measurements.get(sensor);
 		
 		// check if we try to store an older measurement
-		if ((r != null) && (r.getDate().getTime() > measurement.getDate().getTime())) {
+		if ((r != null) && (r.getTime().getTime() > measurement.getTime().getTime())) {
 			throw new APVSException("addMeasurement out of order for "+device.getName()+" "+measurement.getSensor());
 		} else {
 			measurements.put(sensor, measurement);

@@ -11,6 +11,7 @@ import org.junit.Test;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.InetAddress;
 import ch.cern.atlas.apvs.domain.MacAddress;
+import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Packet;
 import ch.cern.atlas.apvs.ptu.server.Humidity;
@@ -32,13 +33,13 @@ public class PtuJsonTest {
 
 	String parsedJson = "{"
 			+ "\"Sender\":\"PTU_88\",\"Receiver\":\"Broadcast\",\"FrameID\":\"0\",\"Acknowledge\":\"False\",\"Messages\":["
-			+ "{\"Time\":\"04/07/2013 15:42:53\",\"Value\":\"33.19684099267707\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":null,\"Type\":\"Measurement\"},"
-			+ "{\"Time\":\"04/07/2013 21:16:13\",\"Value\":\"35.45927608218701\",\"Unit\":\"ppm\",\"Method\":null,\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":null,\"Type\":\"Measurement\"}"
+			+ "{\"Time\":\"04/07/2013 15:42:53\",\"Value\":\"33.19684099267707\",\"Unit\":\"ppm\",\"Method\":\"OneShoot\",\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":\"True\",\"Type\":\"Measurement\"},"
+			+ "{\"Time\":\"04/07/2013 21:16:13\",\"Value\":\"35.45927608218701\",\"Unit\":\"ppm\",\"Method\":\"OneShoot\",\"SamplingRate\":\"60000\",\"Sensor\":\"Humidity\",\"UpThreshold\":\"130.0\",\"DownThreshold\":\"50.0\",\"Connected\":\"True\",\"Type\":\"Measurement\"}"
 			+ "]}";
 	
 	@Test
 	public void readerTest() throws IOException {
-		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
+		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost", false);
 		
 		JsonHeader header = PtuJsonReader.jsonToJava(json);
 		// System.err.println(packet);
@@ -47,8 +48,8 @@ public class PtuJsonTest {
 		Assert.assertEquals(2, list.size());
 //		 System.err.println(list.get(0).toString());
 //		 System.err.println(list.get(1).toString());
-		Assert.assertEquals(msg0, list.get(0).toString());
-		Assert.assertEquals(msg1, list.get(1).toString());
+		Assert.assertEquals(msg0, ((Measurement)list.get(0)).toShortString());
+		Assert.assertEquals(msg1, ((Measurement)list.get(1)).toShortString());
 	}
 
 	@Test
@@ -69,7 +70,7 @@ public class PtuJsonTest {
 
 	@Test
 	public void writerTest() throws ParseException {
-		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost");
+		Device device = new Device("PTU_88", InetAddress.getByName("localhost"), "Test Device", new MacAddress("00:00:00:00:00:00"), "localhost", false);
 		Packet packet = new Packet(device.getName(), "Broadcast", 0, false);
 		packet.addMessage(new Humidity(device, 33.19684099267707,
 				PtuServerConstants.dateFormat.parse("04/07/2013 15:42:53")));
@@ -77,7 +78,7 @@ public class PtuJsonTest {
 				PtuServerConstants.dateFormat.parse("04/07/2013 21:16:13")));
 
 		String output = PtuJsonWriter.toJson(packet);
-//		System.err.println(output);
+		System.err.println(output);
 		Assert.assertEquals(parsedJson, output);
 	}
 }

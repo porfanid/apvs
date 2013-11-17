@@ -4,7 +4,7 @@
 
 	<groupId>ch.cern.atlas</groupId>
 	<artifactId>apvs-project</artifactId>
-	<version>0.9.5-SNAPSHOT</version>
+	<version>0.9.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>APVS project</name>
 	<description>ATLAS Procedure Visualizer System</description>
@@ -25,33 +25,34 @@
 		<gwt-version>2.5.1</gwt-version>
 		<gwt-plugin-version>2.5.1</gwt-plugin-version>
 		<atmosphere-version>2.0.3</atmosphere-version>
-		<atmosphere-ext-version>2.0.0</atmosphere-ext-version>
+		<atmosphere-ext-version>2.0.1</atmosphere-ext-version>
 		<asterisk-java-version>f8c8f014253745783149ecbe0fed3faa074a7368</asterisk-java-version>
 		<commons-configuration-version>2.0-1527979</commons-configuration-version>
 		<commons-io-version>2.4</commons-io-version>
 		<commons-lang-version>2.6</commons-lang-version>
 		<eventbinder-version>1.0.0</eventbinder-version>
 		<gwt-bootstrap-version>0.2-SNAPSHOT</gwt-bootstrap-version>
-		<h2-version>1.3.173</h2-version>
-		<hibernate-version>4.2.6.Final</hibernate-version>
+		<h2-version>1.3.174</h2-version>
+		<hibernate-version>4.2.7.SP1</hibernate-version>
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
 		<highcharts-version>1.5.0</highcharts-version>
 		<hudson-gwt-slf4j-version>2.2.0</hudson-gwt-slf4j-version>
 		<javassist-version>3.18.1-GA</javassist-version>
 		<javax.servlet-api-version>3.1.0</javax.servlet-api-version>
 		<jdk-version>1.7</jdk-version>
-		<jetty9-version>9.0.3.v20130506</jetty9-version>
-		<jetty8-version>8.1.11.v20130520</jetty8-version>
-		<jetty7-version>7.6.11.v20130520</jetty7-version>
+		<jetty9-version>9.0.6.v20130930</jetty9-version>
+		<jetty8-version>8.1.14.v20131031</jetty8-version>
+		<jetty7-version>7.6.14.v20131031</jetty7-version>
 		<jetty-plugin-version>${jetty8-version}</jetty-plugin-version>
 		<json-version>20090211</json-version>
 		<junit-version>4.11</junit-version>
+ 		<liquibase-version>3.0.7</liquibase-version>
 		<logback-version>1.0.13</logback-version>
 		<log4jdbc-version>1.2</log4jdbc-version>
 		<mockito-version>1.9.5</mockito-version>
-		<gwtmockito-version>1.1.1</gwtmockito-version>
-		<mysql-version>5.1.26</mysql-version>
-		<netty-version>4.0.10.Final</netty-version>
+		<gwtmockito-version>1.1.2</gwtmockito-version>
+		<mysql-version>5.1.27</mysql-version>
+		<netty-version>4.0.12.Final</netty-version>
 		<nettosphere-version>2.0.2</nettosphere-version>
 		<ojdbc-jar>ojdbc6.jar</ojdbc-jar>
 		<ojdbc-version>11.2.0.4</ojdbc-version>
@@ -64,7 +65,7 @@
 		<compiler-plugin-version>3.1</compiler-plugin-version>
 		<deploy-plugin-version>2.8</deploy-plugin-version>
 		<failsafe-plugin-version>2.16</failsafe-plugin-version>
-		<install-plugin-version>2.5</install-plugin-version>
+		<install-plugin-version>2.5.1</install-plugin-version>
 		<resources-plugin-version>2.6</resources-plugin-version>
 		<site-plugin-version>3.3</site-plugin-version>
 		<surefire-plugin-version>2.16</surefire-plugin-version>
@@ -77,28 +78,24 @@
 
 		<antrun-plugin-version>1.7</antrun-plugin-version>
 		<assembly-plugin-version>2.4</assembly-plugin-version>
-		<release-plugin-version>2.4.1</release-plugin-version>
+		<release-plugin-version>2.4.2</release-plugin-version>
 		<source-plugin-version>2.2.1</source-plugin-version>
 	</properties>
 
 	<modules>
-		<module>apvs</module>
 		<module>apvs-asterisk</module>
-		<!-- <module>apvs-atmosphere</module> -->
 		<module>apvs-charts</module>
 		<module>apvs-configuration</module>
-		<module>apvs-converter</module>
-		<module>apvs-daq-server</module>
     		<module>apvs-doc</module>
 		<module>apvs-domain</module>
 		<module>apvs-eventbus</module>
-		<!-- <module>apvs-eventbus-demo</module> <module>apvs-gwt-maven-plugin</module> -->
-		<module>apvs-jetty</module>
+<!--
+		<module>apvs-gwt-bootstrap</module>
+-->
 		<module>apvs-json-io</module>
 		<module>apvs-log4jdbc</module>
 		<module>apvs-ptu</module>
-		<module>apvs-server-connector</module>
-  </modules>
+	</modules>
 
 	<repositories>
 		<repository>
@@ -115,9 +112,29 @@
 
 	<profiles>
 		<profile>
+			<id>gui</id>
+			<modules>
+				<module>apvs</module>
+				<module>apvs-jetty</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>daq</id>
+			<modules>
+				<module>apvs-daq-server</module>
+				<module>apvs-server-connector</module>
+				<module>apvs-converter</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>prod</id>
 			<modules>
+				<module>apvs</module>
+				<module>apvs-daq-server</module>
+				<module>apvs-server-connector</module>
+				<module>apvs-converter</module>
 				<module>apvs-dist</module>
+				<module>apvs-jetty</module>
 				<module>apvs-nettosphere</module>
 			</modules>
 		</profile>
@@ -221,10 +238,33 @@
 					<version>${install-plugin-version}</version>
 				</plugin>
 
+        <plugin>
+          <groupId>org.liquibase</groupId>
+          <artifactId>liquibase-maven-plugin</artifactId>
+          <version>${liquibase-version}</version>
+        </plugin>
+
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>gwt-maven-plugin</artifactId>
 					<version>${gwt-plugin-version}</version>
+					<dependencies>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-dev</artifactId>
+							<version>${gwt-version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-codeserver</artifactId>
+							<version>${gwt-version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-user</artifactId>
+							<version>${gwt-version}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 
 				<plugin>
@@ -363,16 +403,14 @@
 				<type>war</type>
 			</dependency>
 			<dependency>
+				<groupId>ch.cern.atlas</groupId>
+				<artifactId>apvs-gwt-bootstrap</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.cedarsoftware</groupId>
 				<artifactId>apvs-json-io</artifactId>
 				<version>${project.version}</version>
-
-				<exclusions>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-jdk14</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>ch.cern.atlas</groupId>
@@ -492,7 +530,17 @@
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-jdk14</artifactId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>${slf4j-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>log4j-over-slf4j</artifactId>
+				<version>${slf4j-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jul-to-slf4j</artifactId>
 				<version>${slf4j-version}</version>
 			</dependency>
 			<dependency>

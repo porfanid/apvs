@@ -11,6 +11,7 @@ import ch.cern.atlas.apvs.domain.Error;
 import ch.cern.atlas.apvs.domain.Event;
 import ch.cern.atlas.apvs.domain.GeneralConfiguration;
 import ch.cern.atlas.apvs.domain.Measurement;
+import ch.cern.atlas.apvs.domain.MeasurementConfiguration;
 import ch.cern.atlas.apvs.domain.Message;
 import ch.cern.atlas.apvs.domain.Order;
 import ch.cern.atlas.apvs.domain.Report;
@@ -22,7 +23,30 @@ public class JsonMessage {
 
 	private static Logger log = LoggerFactory.getLogger(JsonMessage.class
 			.getName());
-
+	
+	private static String TYPE = "Type";
+	private static String SENSOR = "Sensor";
+	private static String UNIT = "Unit";
+	private static String VALUE = "Value";
+	private static String TIME = "Time";
+	private static String SAMPLING_RATE = "SamplingRate";
+	private static String UP_THRESHOLD = "UpThreshold";
+	private static String DOWN_THRESHOLD = "DownThreshold";
+	private static String METHOD = "Method";
+	private static String THRESHOLD = "Threshold";
+	private static String DESCRIPTION = "Description";
+	private static String CRITICALITY = "Criticality";
+	private static String DOSIMETER_ID = "DosimeterID";
+	private static String BSSID = "bssid";
+	private static String SLOPE = "Slope";
+	private static String OFFSET = "Offset";
+	private static String NAME = "Name";
+	private static String PARAMETER = "Parameter";
+	private static String BATTERY_LEVEL = "BatteryLevel";
+	private static String CAMERA_HANDHELD = "CameraHandheld";
+	private static String CAMERA_HELMET = "CameraHelmet";
+	private static String AUDIO = "Audio";
+	
 	protected JsonObject<String, Object> msg;
 
 	public JsonMessage(JsonObject<String, Object> msg) {
@@ -34,50 +58,63 @@ public class JsonMessage {
 		msg = new JsonObject<String, Object>();
 		if (message instanceof Measurement) {
 			Measurement m = (Measurement) message;
-			msg.put("Type", m.getType());
-			msg.put("Sensor", m.getSensor());
-			msg.put("Unit", m.getUnit());
-			msg.put("Value", m.getValue().toString());
-			msg.put("Time", m.getDate());
-			msg.put("SamplingRate", m.getSamplingRate());
-			msg.put("HighLimit", m.getHighLimit());
-			msg.put("LowLimit", m.getLowLimit());
+			msg.put(TYPE, m.getType());
+			msg.put(SENSOR, m.getSensor());
+			msg.put(UNIT, m.getUnit());
+			msg.put(VALUE, m.getValue().toString());
+			msg.put(TIME, m.getTime());
+			msg.put(SAMPLING_RATE, m.getSamplingRate());
+			msg.put(UP_THRESHOLD, m.getUpThreshold());
+			msg.put(DOWN_THRESHOLD, m.getDownThreshold());
+			msg.put(METHOD, m.getMethod());
 		} else if (message instanceof Event) {
 			Event m = (Event) message;
-			msg.put("Type", m.getType());
-			msg.put("Value", m.getValue());
-			msg.put("Threshold", m.getThreshold());
-			msg.put("Unit", m.getUnit());
-			msg.put("Time", m.getDate());
+			msg.put(TYPE, m.getType());
+			msg.put(VALUE, m.getValue());
+			msg.put(THRESHOLD, m.getThreshold());
+			msg.put(UNIT, m.getUnit());
+			msg.put(TIME, m.getTime());
 		} else if (message instanceof Error) {
 			Error m = (Error) message;
-			msg.put("Type", m.getType());
-			msg.put("Description", m.getDescription());
-			msg.put("Criticality", m.getCriticality());
-			msg.put("Time", m.getDate());
+			msg.put(TYPE, m.getType());
+			msg.put(DESCRIPTION, m.getDescription());
+			msg.put(CRITICALITY, m.getCriticality());
+			msg.put(TIME, m.getTime());
 		} else if (message instanceof GeneralConfiguration) {
 			GeneralConfiguration m = (GeneralConfiguration) message;
-			msg.put("Type", m.getType());
-			msg.put("DosimeterId", m.getDosimeterId());
+			msg.put(TYPE, m.getType());
+			msg.put(DOSIMETER_ID, m.getDosimeterId());
+			msg.put(BSSID, m.getBSSID());
+		} else if (message instanceof MeasurementConfiguration) {
+			MeasurementConfiguration m = (MeasurementConfiguration) message;
+			msg.put(TYPE, m.getType());
+			msg.put(SENSOR, m.getSensor());
+			msg.put(UNIT, m.getUnit());
+			msg.put(TIME, m.getTime());
+			msg.put(SAMPLING_RATE, m.getSamplingRate());
+			msg.put(UP_THRESHOLD, m.getUpThreshold());
+			msg.put(DOWN_THRESHOLD, m.getDownThreshold());
+			msg.put(SLOPE, m.getSlope());
+			msg.put(OFFSET, m.getOffset());
 		} else if (message instanceof SensorOrder) {
 			SensorOrder m = (SensorOrder) message;
-			msg.put("Type", m.getType());
-			msg.put("Name", m.getName());
-			msg.put("Parameter", m.getParameter());
-			msg.put("Value", m.getValue());
+			msg.put(TYPE, m.getType());
+			msg.put(NAME, m.getName());
+			msg.put(PARAMETER, m.getParameter());
+			msg.put(VALUE, m.getValue());
 		} else if (message instanceof Order) {
 			Order m = (Order) message;
-			msg.put("Type", m.getType());
-			msg.put("Parameter", m.getParameter());
-			msg.put("Value", m.getValue());
+			msg.put(TYPE, m.getType());
+			msg.put(PARAMETER, m.getParameter());
+			msg.put(VALUE, m.getValue());
 		} else if (message instanceof Report) {
 			Report m = (Report) message;
-			msg.put("Type", m.getType());
-			msg.put("BatteryLevel", m.getBatteryLevel());
-			msg.put("CameraHandheld", m.getCameraHandheld());
-			msg.put("CameraHelmet", m.getCameraHelmet());
-			msg.put("Audio", m.getAudio());
-			msg.put("Time", m.getDate());
+			msg.put(TYPE, m.getType());
+			msg.put(BATTERY_LEVEL, m.getBatteryLevel());
+			msg.put(CAMERA_HANDHELD, m.getCameraHandheld());
+			msg.put(CAMERA_HELMET, m.getCameraHelmet());
+			msg.put(AUDIO, m.getAudio());
+			msg.put(TIME, m.getTime());
 		} else {
 			throw new RuntimeException("Cannot find JsonMessage for '"
 					+ message + "'");
@@ -85,13 +122,13 @@ public class JsonMessage {
 	}
 
 	public Message toMessage(Device device) {
-		String type = (String) msg.get("Type");
+		String type = (String) msg.get(TYPE);
 		if (type.equals("Measurement")) {
-			String sensor = getString("Sensor");
-			String unit = getString("Unit");
-			Double value = getDouble("Value");
-			Date time = getDate("Time");
-			Integer samplingRate = getInteger("SamplingRate");
+			String sensor = getString(SENSOR);
+			String unit = getString(UNIT);
+			Double value = getDouble(VALUE);
+			Date time = getDate(TIME);
+			Integer samplingRate = getInteger(SAMPLING_RATE);
 
 			// fix for #486 and #490
 			if ((sensor == null) || (value == null) || (unit == null)
@@ -105,34 +142,40 @@ public class JsonMessage {
 			}
 
 			return new Measurement(device, sensor, value,
-					getDouble("LowLimit"), getDouble("HighLimit"), unit,
-					samplingRate, time);
+					getDouble(DOWN_THRESHOLD), getDouble(UP_THRESHOLD), unit,
+					samplingRate, getString(METHOD), time);
 		} else if (type.equals("Event")) {
-			return new Event(device, getString("Sensor"),
-					getString("EventType"), getDouble("Value"),
-					getDouble("Threshold"), getString("Unit"), getDate("Time"));
+			return new Event(device, getString(SENSOR),
+					getString("EventType"), getDouble(VALUE),
+					getDouble(THRESHOLD), getString(UNIT), getDate(TIME));
 		} else if (type.equals("Error")) {
 			return new Error(device, getInteger("ErrNo"),
-					getString("Description"), getString("Criticality"),
-					getDate("Time"));
+					getString(DESCRIPTION), getString(CRITICALITY),
+					getDate(TIME));
 		} else if (type.equals("GeneralConfiguration")) {
-			return new GeneralConfiguration(device, getString("DosimeterId"));
+			return new GeneralConfiguration(device, getString(DOSIMETER_ID), getString(BSSID), getDate(TIME));
+		} else if (type.equals("MeasurementConfiguration")) {
+			return new MeasurementConfiguration(device, getString(SENSOR), 
+					getDouble(DOWN_THRESHOLD), getDouble(UP_THRESHOLD), getString(UNIT),
+					getInteger(SAMPLING_RATE), getDouble(SLOPE), getDouble(OFFSET), getDate(TIME));
 		} else if (type.equals("SensorOrder")) {
-			return new SensorOrder(device, getString("Name"),
-					getString("Parameter"), getString("Value"));
+			return new SensorOrder(device, getString(NAME),
+					getString(PARAMETER), getString(VALUE));
 		} else if (type.equals("Order")) {
-			return new Order(device, getString("Parameter"), getString("Value"));
+			return new Order(device, getString(PARAMETER), getString(VALUE));
 		} else if (type.equals("Report")) {
-			return new Report(device, getDouble("BatteryLevel"),
-					getBoolean("CameraHandheld"), getBoolean("CameraHelmet"),
-					getBoolean("Audio"), getDate("Time"));
+			return new Report(device, getDouble(BATTERY_LEVEL),
+					getBoolean(CAMERA_HANDHELD), getBoolean(CAMERA_HELMET),
+					getBoolean(AUDIO), getDate(TIME));
 		}
+
+		log.warn("Ignoring message with unknown type: " + type + " " + msg);
 
 		return null;
 	}
 
 	private String getString(String key) {
-		return msg.get(key).toString();
+		return toString(msg.get(key));
 	}
 
 	private Double getDouble(String key) {
@@ -149,6 +192,14 @@ public class JsonMessage {
 
 	private Date getDate(String key) {
 		return toDate(msg.get(key));
+	}
+	
+	public static String toString(Object string) {
+		if ((string == null) || !(string instanceof String)) {
+			return null;
+		}
+		
+		return string.toString();
 	}
 
 	public static Double toDouble(Object number) {
@@ -196,7 +247,7 @@ public class JsonMessage {
 			return null;
 		}
 	}
-	
+
 	public String toString() {
 		return msg.toString();
 	}

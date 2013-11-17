@@ -3,9 +3,6 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -14,13 +11,12 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 
 public class MeasurementTable extends AbstractMeasurementView {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private FlexTable table = new FlexTable();
 	private Map<String, Integer> rows = new HashMap<String, Integer>();
@@ -48,7 +44,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 		// return "";
 		// }
 		// Measurement m = historyMap.getMeasurement(ptuId, name);
-		// return m != null ? m.getLowLimit()+" "+m.getHighLimit() : "";
+		// return m != null ? m.getDownThreshold()+" "+m.getUpThreshold() : "";
 		// }
 		//
 		// @Override
@@ -59,8 +55,8 @@ public class MeasurementTable extends AbstractMeasurementView {
 		// if (m == null) {
 		// return;
 		// }
-		// gaugeWidget.setValue(m.getValue(), m.getLowLimit(),
-		// m.getHighLimit());
+		// gaugeWidget.setValue(m.getValue(), m.getDownThreshold(),
+		// m.getUpThreshold());
 		// sb.appendEscaped(gaugeWidget.getElement().getInnerHTML());
 		// Window.alert(gaugeWidget.getElement().getInnerHTML());
 		// }
@@ -172,7 +168,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 				});
 			}
 			date.setHTML(decorate(
-					ClientConstants.dateFormat.format(measurement.getDate()),
+					ClientConstants.dateFormat.format(measurement.getTime()),
 					measurement));
 			// unit.HorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 			table.setWidget(row, col++, date);

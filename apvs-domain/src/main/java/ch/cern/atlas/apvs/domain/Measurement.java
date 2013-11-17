@@ -33,14 +33,14 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	private volatile Device device;
     private volatile Long id;
-	private Date date;
+	private Date time;
 	private Double value;
 	private String unit;
 	private String method;
 	private Integer samplingRate;
 	private String sensor;
-	private Double highLimit;
-	private Double lowLimit;
+	private Double upThreshold;
+	private Double downThreshold;
 	private Boolean connected;
 
 	private volatile transient String displayName;
@@ -48,18 +48,20 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	protected Measurement() {
 	}
-	
+		
 	public Measurement(Device device, String sensor, Double value,
-			Double lowLimit, Double highLimit, String unit,
-			Integer samplingRate, Date date) {
+			Double downThreshold, Double upThreshold, String unit,
+			Integer samplingRate, String method, Date time) {
 		setDevice(device);
 		setSensor(sensor);
 		setValue(value);
-		setLowLimit(lowLimit);
-		setHighLimit(highLimit);
+		setDownThreshold(downThreshold);
+		setUpThreshold(upThreshold);
 		setUnit(unit);
 		setSamplingRate(samplingRate);
-		setDate(date);
+		setMethod(method);
+		setTime(time);
+		setConnected(true);
 
 		this.displayName = null;
 
@@ -71,9 +73,9 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	}	
 	
 	public Measurement(Device device, String sensor, String displayName, Double value,
-			Double lowLimit, Double highLimit, String unit,
-			Integer samplingRate, Date date) {
-		this(device, sensor, value, lowLimit, highLimit, unit, samplingRate, date);
+			Double downThreshold, Double upThreshold, String unit,
+			Integer samplingRate, String method, Date time) {
+		this(device, sensor, value, downThreshold, upThreshold, unit, samplingRate, method, time);
 		this.displayName = displayName;
 	}
 	
@@ -116,22 +118,22 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	@Column(name = "DOWN_THRES", length=20)
 	@Type(type="double_string")
-	public Double getLowLimit() {
-		return lowLimit;
+	public Double getDownThreshold() {
+		return downThreshold;
 	}
 	
-	private void setLowLimit(Double lowLimit) {
-		this.lowLimit = lowLimit;
+	private void setDownThreshold(Double downThreshold) {
+		this.downThreshold = downThreshold;
 	}
 
 	@Column(name = "UP_THRES", length=20)
 	@Type(type="double_string")
-	public Double getHighLimit() {
-		return highLimit;
+	public Double getUpThreshold() {
+		return upThreshold;
 	}
 
-	private void setHighLimit(Double highLimit) {
-		this.highLimit = highLimit;
+	private void setUpThreshold(Double upThreshold) {
+		this.upThreshold = upThreshold;
 	}
 
 	@Column(name = "UNIT", length=20)
@@ -148,7 +150,6 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		return method;
 	}
 	
-	@SuppressWarnings("unused")
 	private void setMethod(String method) {
 		this.method = method;
 	}
@@ -165,13 +166,13 @@ public class Measurement implements Message, Serializable, IsSerializable,
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "DATETIME", nullable=false)
-	public Date getDate() {
-		return date;
+	public Date getTime() {
+		return time;
 	}
 
 	// to update the measurement in case of no changes
-	public void setDate(Date date) {
-		this.date = date;
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
 	@Override
@@ -179,7 +180,6 @@ public class Measurement implements Message, Serializable, IsSerializable,
 	public String getType() {
 		return type;
 	}
-	
 	
 	@Type(type="yes_no")
 	@Column(name = "CONNECTED", length=1)
@@ -218,11 +218,11 @@ public class Measurement implements Message, Serializable, IsSerializable,
 		return (getDevice() != null ? getDevice().hashCode() : 0)
 				+ (getSensor() != null ? getSensor().hashCode() : 0)
 				+ (getValue() != null ? getValue().hashCode() : 0)
-				+ (getLowLimit() != null ? getLowLimit().hashCode() : 0)
-				+ (getHighLimit() != null ? getHighLimit().hashCode() : 0)
+				+ (getDownThreshold() != null ? getDownThreshold().hashCode() : 0)
+				+ (getUpThreshold() != null ? getUpThreshold().hashCode() : 0)
 				+ (getUnit() != null ? getUnit().hashCode() : 0)
 				+ (getSamplingRate() != null ? getSamplingRate().hashCode() : 0)
-				+ (getDate() != null ? getDate().hashCode() : 0)
+				+ (getTime() != null ? getTime().hashCode() : 0)
 				+ (getType() != null ? getType().hashCode() : 0);
 	}
 
@@ -236,28 +236,37 @@ public class Measurement implements Message, Serializable, IsSerializable,
 							.equals(m.getSensor()))
 					&& (getValue() == null ? m.getValue() == null : getValue()
 							.equals(m.getValue()))
-					&& (getLowLimit() == null ? m.getLowLimit() == null
-							: getLowLimit().equals(m.getLowLimit()))
-					&& (getHighLimit() == null ? m.getHighLimit() == null
-							: getHighLimit().equals(m.getHighLimit()))
+					&& (getDownThreshold() == null ? m.getDownThreshold() == null
+							: getDownThreshold().equals(m.getDownThreshold()))
+					&& (getUpThreshold() == null ? m.getUpThreshold() == null
+							: getUpThreshold().equals(m.getUpThreshold()))
 					&& (getUnit() == null ? m.getUnit() == null : getUnit()
 							.equals(m.getUnit()))
 					&& (getSamplingRate() == null ? m.getSamplingRate() == null
 							: getSamplingRate().equals(m.getSamplingRate()))
-					&& (getDate() == null ? m.getDate() == null : getDate()
-							.equals(m.getDate()))
+					&& (getTime() == null ? m.getTime() == null : getTime()
+							.equals(m.getTime()))
 					&& (getType() == null ? m.getType() == null : getType()
 							.equals(m.getType()));
 		}
 		return super.equals(obj);
 	}
 	
-	@Override
-	public String toString() {
+	public String toShortString() {
 		return "Measurement(" + getDevice().getName() + "): sensor:" + getSensor() + ", value:"
 				+ getValue() + ", unit:" + getUnit() + ", sampling rate:"
 				+ getSamplingRate();
 		// removed Date, too difficult
+	}
+	
+	@Override
+	public String toString() {
+		return "Measurement [device=" + device.getName() + ", id=" + id + ", time="
+				+ time + ", value=" + value + ", unit=" + unit + ", method="
+				+ method + ", samplingRate=" + samplingRate + ", sensor="
+				+ sensor + ", upThreshold=" + upThreshold + ", downThreshold="
+				+ downThreshold + ", connected=" + connected + ", type=" + type
+				+ "]";
 	}
 
 	public static String getDisplayName(String name) {

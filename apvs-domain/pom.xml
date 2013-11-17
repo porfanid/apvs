@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>ch.cern.atlas</groupId>
 		<artifactId>apvs-project</artifactId>
-		<version>0.9.5-SNAPSHOT</version>
+		<version>0.9.6-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>apvs-domain</artifactId>
@@ -27,6 +27,14 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<configuration>
+					<propertyFile>liquabase.properties</propertyFile>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 
@@ -48,18 +56,52 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>net.sf</groupId>
+			<artifactId>log4jdbc4</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>ch.cern.atlas</groupId>
 			<artifactId>apvs-eventbus</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>ch.cern.atlas</groupId>
+			<artifactId>apvs-configuration</artifactId>
+		</dependency>
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>oracle</id>
+			<activation>
+				<file>
+					<exists>../apvs-ojdbc/ojdbc6.jar</exists>
+				</file>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>ch.cern.atlas</groupId>
+					<artifactId>apvs-ojdbc</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>com.oracle</groupId>
+					<artifactId>ojdbc</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>
 
 

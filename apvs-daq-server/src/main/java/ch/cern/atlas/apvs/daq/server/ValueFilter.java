@@ -41,7 +41,7 @@ public class ValueFilter implements Filter {
 						(isInThreshold(secondLastMeasurement.getValue(), currentValue, resolution))) {
 					    // Update timestamp:current measurement is inside the resolution-distance 
 					    // from last and second last measurements.
-					    lastMeasurement.setDate(current.getDate());
+					    lastMeasurement.setTime(current.getTime());
 					    //return true;
 					    res = true;
 				    } else {

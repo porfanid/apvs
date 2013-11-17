@@ -16,14 +16,13 @@ import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.MeasurementChangedEvent;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class HistoryManager {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static HistoryManager instance;
 	private History history;
@@ -83,7 +82,7 @@ public class HistoryManager {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						log.warn("Cannot get histories " + caught);
+//						log.warn("Cannot get histories " + caught);
 					}
 				});
 	}
@@ -115,12 +114,12 @@ public class HistoryManager {
 											.getUnit(), 2000);
 							history.put(data);
 						}
-						if (measurement.getDate().getTime() < new Date()
+						if (measurement.getTime().getTime() < new Date()
 								.getTime() + 60000) {
-							data.addEntry(measurement.getDate().getTime(),
+							data.addEntry(measurement.getTime().getTime(),
 									measurement.getValue(),
-									measurement.getLowLimit(),
-									measurement.getHighLimit(),
+									measurement.getDownThreshold(),
+									measurement.getUpThreshold(),
 									measurement.getSamplingRate());
 						}
 

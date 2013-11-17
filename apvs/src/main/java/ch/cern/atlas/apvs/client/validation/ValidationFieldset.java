@@ -8,7 +8,7 @@ import com.svenjacobs.gwtbootstrap3.client.ui.FieldSet;
 
 public class ValidationFieldset extends FieldSet {
 
-	private List<ValidationField> fields = new ArrayList<ValidationField>();
+	private List<ValidationField<?>> fields = new ArrayList<ValidationField<?>>();
 	private List<ValidationHandler> handlers = new ArrayList<ValidationHandler>();
 
 	public ValidationFieldset() {
@@ -21,7 +21,7 @@ public class ValidationFieldset extends FieldSet {
 		});
 	}
 	
-	public void add(ValidationField field) {
+	public void add(ValidationField<?> field) {
 		super.add(field);
 		fields.add(field);
 
@@ -30,7 +30,7 @@ public class ValidationFieldset extends FieldSet {
 			@Override
 			public void onValid(boolean valid) {
 				if (valid) {
-					for (ValidationField field: fields) {
+					for (ValidationField<?> field: fields) {
 						valid &= field.validate(false);
 					}
 				}
@@ -47,7 +47,7 @@ public class ValidationFieldset extends FieldSet {
 	}
 	
 	public boolean validate(boolean fireEvents) {
-		for (ValidationField field: fields) {
+		for (ValidationField<?> field: fields) {
 			if (!field.validate(fireEvents)) {
 				return false;
 			}

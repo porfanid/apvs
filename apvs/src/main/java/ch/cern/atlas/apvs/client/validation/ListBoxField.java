@@ -12,12 +12,12 @@ import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ListBox;
 
-public class ListBoxField extends ValidationField {
+public class ListBoxField extends ValidationField<String> {
 
 	private ListBox box;
 	private Map<String, Integer> ids;
 	
-	public ListBoxField(String fieldLabel, Validator validator) {
+	public ListBoxField(String fieldLabel, Validator<String> validator) {
 		super(fieldLabel, validator);
 	    box = new ListBox();
 		
@@ -56,6 +56,7 @@ public class ListBoxField extends ValidationField {
 	
 	public String getValue() {
 		return box.getItemText(box.getSelectedIndex());
+//		return box.getValue() != null ? box.getValue().trim() : null;
 	}
 	
 	public Integer getId() {

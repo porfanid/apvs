@@ -30,14 +30,6 @@
 		<!-- Drop and re-create the database schema on startup -->
 		<property name="hbm2ddl.auto">create</property>
 
-		<!-- Names the annotated entity class -->
-		<mapping class="ch.cern.atlas.apvs.domain.Device" />
-		<mapping class="ch.cern.atlas.apvs.domain.Event" />
-		<mapping class="ch.cern.atlas.apvs.domain.Intervention" />
-		<mapping class="ch.cern.atlas.apvs.domain.Measurement" />
-		<mapping class="ch.cern.atlas.apvs.domain.Sensor" />
-		<mapping class="ch.cern.atlas.apvs.domain.User" />
-				
 	</session-factory>
 
 </hibernate-configuration>

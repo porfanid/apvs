@@ -20,7 +20,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class PtuSettings implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -5390424254145424045L;
-	private static final String videoServer = "pcatlaswpss02";
+	private static final String videoServer = "wpss-video-server";
 
 	private Map<String, Entry> entries = new HashMap<String, Entry>();
 
@@ -32,6 +32,7 @@ public class PtuSettings implements Serializable, IsSerializable {
 		String dosimeterSerialNo;
 		String helmetUrl;
 		String handUrl;
+		String bssid;
 
 		public Entry() {
 			// Serializable
@@ -43,13 +44,14 @@ public class PtuSettings implements Serializable, IsSerializable {
 			String id = Integer.toHexString(Integer.parseInt(name.substring(name.length()-1, name.length())));
 			helmetUrl = "http://"+videoServer+":8"+id+"90/worker"+id+".mjpg";
 			handUrl = "http://"+videoServer+":8"+id+"91/worker"+id+".mjpg";
+			bssid = "";
 		}
 
 		@Override
 		public String toString() {
-			return "PtuSetting: enabled=" + enabled + " dosimeterNo="
-					+ dosimeterSerialNo + " helmetUrl=" + helmetUrl
-					+ " handUrl=" + handUrl;
+			return "Entry [enabled=" + enabled + ", dosimeterSerialNo="
+					+ dosimeterSerialNo + ", helmetUrl=" + helmetUrl
+					+ ", handUrl=" + handUrl + ", bssid=" + bssid + "]";
 		}
 
 	}
@@ -121,5 +123,23 @@ public class PtuSettings implements Serializable, IsSerializable {
 	// Returns ptuId associated to dosimeterSerialNo
 	public String getPtuId(String dosimeterSerialNo) {
 		return getDosimeterToPtuMap().get(dosimeterSerialNo);
+	}
+
+	public void setBSSID(String name, String bssid) {
+		get(name).bssid = bssid;
+	}
+	
+	public String getBSSID(String name) {
+		Entry entry = entries.get(name);
+		return entry != null ? entry.bssid : "";
+	}
+	
+	private Entry get(String name) {
+		Entry entry = entries.get(name);
+		if (entry == null) {
+			entry = new Entry(name);
+			entries.put(name, entry);
+		}
+		return entry;
 	}
 }

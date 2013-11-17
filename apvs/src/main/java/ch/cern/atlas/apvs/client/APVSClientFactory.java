@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
+import ch.cern.atlas.apvs.client.service.VideoServiceAsync;
 import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.ui.Arguments;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
@@ -17,7 +18,6 @@ import ch.cern.atlas.apvs.eventbus.client.PollEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.place.shared.PlaceController;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -33,6 +33,7 @@ public class APVSClientFactory implements ClientFactory {
 	private final DbServiceAsync dbService = DbServiceAsync.Util.getInstance();
 	private final EventServiceAsync eventService = EventServiceAsync.Util.getInstance();
 	private final InterventionServiceAsync interventionService = InterventionServiceAsync.Util.getInstance();
+	private final VideoServiceAsync videoService = VideoServiceAsync.Util.getInstance();
 
 	private MeasurementView measurementView;
 	private boolean secure;
@@ -54,6 +55,7 @@ public class APVSClientFactory implements ClientFactory {
 		((ServiceDefTarget)dbService).setRpcRequestBuilder(requestBuilder);
 		((ServiceDefTarget)eventService).setRpcRequestBuilder(requestBuilder);
 		((ServiceDefTarget)interventionService).setRpcRequestBuilder(requestBuilder);
+		((ServiceDefTarget)videoService).setRpcRequestBuilder(requestBuilder);
 
 		// used for events
 		RemoteEventBus remoteEventBus = new PollEventBus(requestBuilder);
@@ -137,6 +139,11 @@ public class APVSClientFactory implements ClientFactory {
 	@Override
 	public InterventionServiceAsync getInterventionService() {
 		return interventionService;
+	}
+	
+	@Override
+	public VideoServiceAsync getVideoService() {
+		return videoService;
 	}
 	
 	@Override

@@ -12,16 +12,17 @@ import com.svenjacobs.gwtbootstrap3.client.ui.FormGroup;
 import com.svenjacobs.gwtbootstrap3.client.ui.FormLabel;
 import com.svenjacobs.gwtbootstrap3.client.ui.Span;
 
-public abstract class ValidationField extends FormGroup {
+public abstract class ValidationField<T> extends FormGroup {
 
 	private FormLabel label;
 	private Panel container;
 	private Span help;
 
 	private List<ValidationHandler> handlers = new ArrayList<ValidationHandler>();
-	private Validator validator;
+	private Validator<T> validator;
+//	private HelpInline help;
 
-	public ValidationField(String fieldLabel, Validator validator) {
+	public ValidationField(String fieldLabel, Validator<T> validator) {
 		label = new FormLabel();
 		label.setText(fieldLabel);
 		label.addStyleName("col-lg-4");
@@ -51,10 +52,10 @@ public abstract class ValidationField extends FormGroup {
 	public boolean validate(boolean fireEvents) {
 		Validation result = new Validation();
 		if (validator != null) {
-			String value = getValue() != null ? getValue().trim() : null;
+			T value = getValue();
 			result = validator.validate(value);
 		}
-		help.add(new Label(result.getMessage()));
+//		help.add(new Label(result.getMessage()));
 		setValidationState(result.getLevel());
 		if (fireEvents) {
 			fire(result.isValid());
@@ -68,7 +69,7 @@ public abstract class ValidationField extends FormGroup {
 		container.add(help);
 	}
 
-	public abstract String getValue();
+	public abstract T getValue();
 
 	private void fire(boolean valid) {
 		for (ValidationHandler handler : handlers) {

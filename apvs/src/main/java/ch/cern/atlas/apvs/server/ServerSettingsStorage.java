@@ -5,8 +5,6 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gwt.user.client.rpc.SerializationException;
-
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.ServerPwds;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -24,10 +22,7 @@ public class ServerSettingsStorage {
 	private ServerSettings settings;
 	private ServerPwds pwds;
 	
-	private RemoteEventBus eventBus;
-
 	private ServerSettingsStorage(final RemoteEventBus eventBus) {
-		this.eventBus = eventBus;
 
 		load();
 
@@ -83,7 +78,7 @@ public class ServerSettingsStorage {
 			settings.put(key, store.getString(APVS_SERVER_SETTINGS+"."+key));
 		}
 		
-		settings.put(ServerSettings.Entry.databaseUrl.toString(), Database.getInstance(eventBus, true).getConfiguration().getProperty("connection.url"));
+		settings.put(ServerSettings.Entry.databaseUrl.toString(), Database.getInstance().getConfiguration().getProperty("connection.url"));
 
 		log.info("Server Settings Read");
 

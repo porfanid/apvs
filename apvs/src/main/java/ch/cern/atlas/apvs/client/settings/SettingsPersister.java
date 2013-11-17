@@ -17,7 +17,7 @@ import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 
 public class SettingsPersister extends VerticalFlowPanel {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	
 	private final static String APVS_SETTINGS = "APVS.settings";
 	private SettingsFactory settingsFactory = GWT.create(SettingsFactory.class);
@@ -52,7 +52,7 @@ public class SettingsPersister extends VerticalFlowPanel {
 
 			@Override
 			public void onRequestEvent(RequestEvent event) {
-				log.info("Request " + event.getRequestedClassName());
+//				log.info("Request " + event.getRequestedClassName());
 				if (event.getRequestedClassName().equals(
 						SettingsChangedEvent.class.getName())) {
 					eventBus.fireEvent(new SettingsChangedEvent(settings));
@@ -69,11 +69,11 @@ public class SettingsPersister extends VerticalFlowPanel {
 		}
 		for (int i = 0; i < store.getLength(); i++) {
 			String key = store.key(i);
-			log.info(key + " " + store.getItem(key));
+//			log.info(key + " " + store.getItem(key));
 		}
 		String json = store.getItem(APVS_SETTINGS);
 		// String json = null;
-		log.info("get " + json);
+//		log.info("get " + json);
 
 		settings = settingsFactory.settings().as();
 		if (json != null) {
@@ -93,8 +93,8 @@ public class SettingsPersister extends VerticalFlowPanel {
 		AutoBean<Settings> bean = AutoBeanUtils.getAutoBean(settings);
 		String json = AutoBeanCodex.encode(bean).getPayload();
 
-		log.info("set " + json);
+//		log.info("set " + json);
 		store.setItem(APVS_SETTINGS, json);
-		log.info(""+store.getLength());
+//		log.info(""+store.getLength());
 	}
 }

@@ -11,6 +11,7 @@ public class SortOrder implements Serializable, IsSerializable {
 
 	private String name;
 	private boolean ascending;
+	private boolean nullsFirst;
 	
 	protected SortOrder() {
 	}
@@ -20,8 +21,13 @@ public class SortOrder implements Serializable, IsSerializable {
 	}
 	
 	public SortOrder(String name, boolean ascending) {
+		this(name, ascending, true);
+	}
+	
+	public SortOrder(String name, boolean ascending, boolean nullsFirst) {
 		this.name = name;
 		this.ascending = ascending;
+		this.nullsFirst = nullsFirst;
 	}
 	
 	public String getName() {
@@ -31,10 +37,15 @@ public class SortOrder implements Serializable, IsSerializable {
 	public boolean isAscending() {
 		return ascending;
 	}
+	
+	public boolean isNullsFirst() {
+		return nullsFirst;
+	}
 
 	@Override
 	public String toString() {
-		return "SortOrder [name=" + name + ", ascending=" + ascending + "]";
+		return "SortOrder [name=" + name + ", ascending=" + ascending
+				+ ", nullsFirst=" + nullsFirst + "]";
 	}
 
 	@Override
@@ -43,6 +54,7 @@ public class SortOrder implements Serializable, IsSerializable {
 		int result = 1;
 		result = prime * result + (ascending ? 1231 : 1237);
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (nullsFirst ? 1231 : 1237);
 		return result;
 	}
 
@@ -66,6 +78,9 @@ public class SortOrder implements Serializable, IsSerializable {
 				return false;
 			}
 		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (nullsFirst != other.nullsFirst) {
 			return false;
 		}
 		return true;

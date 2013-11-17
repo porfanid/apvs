@@ -9,7 +9,7 @@ import ch.cern.atlas.apvs.domain.Measurement;
 public class HeartRate extends Measurement {
 
 	public HeartRate(Device device, double value, Date d) {
-		super(device, "HeartRate", value, 40.0, 150.0, "bpm", 50000, d);
+		super(device, "HeartRate", value, 40.0, 150.0, "bpm", 50000, "OneShoot", d);
 	}
 	
 }

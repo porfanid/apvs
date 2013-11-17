@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
@@ -13,18 +10,16 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
@@ -92,7 +87,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
 						settings = event.getServerSettings();
 
-						log.info(settings.toString());
+//						log.info(settings.toString());
 
 						scheduler.update();
 					}
@@ -124,12 +119,4 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
 		return userPwd[0] + "/@//" + part[1];
 	}
-
-	private boolean audioUrlExpression(String url) {
-		if (url.indexOf("@") > 0) {
-			return true;
-		}
-		return false;
-	}
-
 }

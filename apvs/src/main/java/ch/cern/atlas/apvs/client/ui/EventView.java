@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.client.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,7 +13,6 @@ import ch.cern.atlas.apvs.client.widget.ActionHeader;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.CompositeHeader;
-import ch.cern.atlas.apvs.client.widget.DataStoreName;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.PagerHeader;
 import ch.cern.atlas.apvs.client.widget.PagerHeader.TextLocation;
@@ -39,7 +39,6 @@ import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -54,7 +53,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class EventView extends GlassPanel implements Module {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+//	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private EventBus cmdBus;
 	private Device device;
@@ -67,7 +66,7 @@ public class EventView extends GlassPanel implements Module {
 	private ActionHeader update;
 	private boolean showUpdate;
 
-	private ClickableTextColumn<Event> date;
+	private ClickableTextColumn<Event> time;
 	private String ptuHeader;
 	private CompositeHeader compositeFooter;
 	private ClickableTextColumn<Event> ptu;
@@ -79,7 +78,7 @@ public class EventView extends GlassPanel implements Module {
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
-	protected Ternary databaseConnect = Ternary.Unknown;
+	private Ternary databaseConnect = Ternary.Unknown;
 
 	public EventView() {
 	}
@@ -110,7 +109,7 @@ public class EventView extends GlassPanel implements Module {
 						.getMinimumHorizontalScrollPosition());
 
 				table.getColumnSortList().clear();
-				table.getColumnSortList().push(new ColumnSortInfo(date, false));
+				table.getColumnSortList().push(new ColumnSortInfo(time, false));
 				ColumnSortEvent.fire(table, table.getColumnSortList());
 				scheduler.update();
 			}
@@ -178,20 +177,21 @@ public class EventView extends GlassPanel implements Module {
 				final Range range = display.getVisibleRange();
 
 				final ColumnSortList sortList = table.getColumnSortList();
-				SortOrder[] order = new SortOrder[sortList.size()];
+				List<SortOrder> order = new ArrayList<SortOrder>(
+						sortList.size());
 				for (int i = 0; i < sortList.size(); i++) {
 					ColumnSortInfo info = sortList.get(i);
-					order[i] = new SortOrder(((DataStoreName)info.getColumn())
-							.getDataStoreName(), info.isAscending());
+					order.add(new SortOrder(
+							info.getColumn().getDataStoreName(), info
+									.isAscending()));
 				}
 
-				if (order.length == 0) {
-					order = new SortOrder[1];
-					order[0] = new SortOrder("t.date", false);
+				if (order.isEmpty()) {
+					order.add(new SortOrder("time", false));
 				}
 
-				clientFactory.getEventService().getTableData(range.getStart(), range.getLength(), order,
-						device, measurementName,
+				clientFactory.getEventService().getTableData(range.getStart(),
+						range.getLength(), order, device, measurementName,
 						new AsyncCallback<List<Event>>() {
 
 							@Override
@@ -201,7 +201,7 @@ public class EventView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								log.warn("RPC DB FAILED " + caught);
+//								log.warn("RPC DB FAILED " + caught);
 								table.setRowCount(0);
 							}
 						});
@@ -243,7 +243,8 @@ public class EventView extends GlassPanel implements Module {
 						if (event == null)
 							return;
 
-						if (((device == null) || event.getDevice().equals(device))
+						if (((device == null) || event.getDevice().equals(
+								device))
 								&& ((measurementName == null) || event
 										.getSensor().equals(measurementName))) {
 							showUpdate = true;
@@ -288,21 +289,21 @@ public class EventView extends GlassPanel implements Module {
 		}
 
 		// DATE and TIME (1)
-		date = new ClickableTextColumn<Event>() {
+		time = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
-				return ClientConstants.dateFormat.format(object.getDate());
-			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.date";
+				if (object == null) {
+					return "";
+				}
+				return ClientConstants.dateFormatNoSeconds.format(object
+						.getTime());
 			}
 		};
-		date.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		date.setSortable(sortable);
+		time.setDataStoreName("time");
+		time.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		time.setSortable(sortable);
 		if (selectable) {
-			date.setFieldUpdater(new FieldUpdater<Event, String>() {
+			time.setFieldUpdater(new FieldUpdater<Event, String>() {
 
 				@Override
 				public void update(int index, Event object, String value) {
@@ -311,21 +312,20 @@ public class EventView extends GlassPanel implements Module {
 			});
 		}
 
-		table.addColumn(date, new TextHeader("Date / Time"), compositeFooter);
-		table.getColumnSortList().push(new ColumnSortInfo(date, false));
+		table.addColumn(time, new TextHeader("Date / Time"), compositeFooter);
+		table.getColumnSortList().push(new ColumnSortInfo(time, false));
 
 		// PtuID (2)
 		ptu = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
 				return object.getDevice().getName();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.device.name";
-			}
 		};
+		ptu.setDataStoreName("device.name");
 		ptu.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		ptu.setSortable(sortable);
 		if (selectable) {
@@ -344,14 +344,13 @@ public class EventView extends GlassPanel implements Module {
 		name = new ClickableHtmlColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
 				return object.getSensor();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.sensor";
-			}
 		};
+		name.setDataStoreName("sensor");
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		name.setSortable(sortable);
 		if (selectable) {
@@ -370,14 +369,13 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> eventType = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
 				return object.getEventType();
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.eventType";
-			}
 		};
+		eventType.setDataStoreName("eventType");
 		eventType.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		eventType.setSortable(sortable);
 		if (selectable) {
@@ -395,15 +393,15 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> value = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
+
 				return object.getValue() != null ? object.getValue().toString()
 						: "";
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.value";
-			}
 		};
+		value.setDataStoreName("value");
 		value.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		if (selectable) {
 			value.setFieldUpdater(new FieldUpdater<Event, String>() {
@@ -420,15 +418,15 @@ public class EventView extends GlassPanel implements Module {
 		ClickableTextColumn<Event> threshold = new ClickableTextColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
+
 				return object.getThreshold() != null ? object.getThreshold()
 						.toString() : "";
 			}
-
-			@Override
-			public String getDataStoreName() {
-				return "t.threshold";
-			}
 		};
+		threshold.setDataStoreName("threshold");
 		threshold.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		if (selectable) {
 			threshold.setFieldUpdater(new FieldUpdater<Event, String>() {
@@ -445,6 +443,10 @@ public class EventView extends GlassPanel implements Module {
 		ClickableHtmlColumn<Event> unit = new ClickableHtmlColumn<Event>() {
 			@Override
 			public String getValue(Event object) {
+				if (object == null) {
+					return "";
+				}
+
 				return object.getUnit();
 			}
 		};
@@ -470,7 +472,7 @@ public class EventView extends GlassPanel implements Module {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							Event m = selectionModel.getSelectedObject();
-							log.info(m + " " + event.getSource());
+//							log.info(m + " " + event.getSource());
 						}
 					});
 		}
@@ -486,7 +488,7 @@ public class EventView extends GlassPanel implements Module {
 			if (sortInfo == null) {
 				return true;
 			}
-			if (!sortInfo.getColumn().equals(date)) {
+			if (!sortInfo.getColumn().equals(time)) {
 				return true;
 			}
 			if (sortInfo.isAscending()) {
