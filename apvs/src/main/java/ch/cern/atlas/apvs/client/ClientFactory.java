@@ -8,6 +8,7 @@ import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
 import ch.cern.atlas.apvs.client.service.PtuServiceAsync;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.service.ServerServiceAsync;
+import ch.cern.atlas.apvs.client.service.VideoServiceAsync;
 import ch.cern.atlas.apvs.client.settings.Proxy;
 import ch.cern.atlas.apvs.client.ui.MeasurementView;
 import ch.cern.atlas.apvs.client.ui.ProcedureView;
@@ -30,6 +31,7 @@ public interface ClientFactory {
 	DbServiceAsync getDbService();
 	EventServiceAsync getEventService();
 	InterventionServiceAsync getInterventionService();
+	VideoServiceAsync getVideoService();
 
 	MeasurementView getMeasurementView();
 

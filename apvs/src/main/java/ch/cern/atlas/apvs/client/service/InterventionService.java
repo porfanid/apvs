@@ -16,13 +16,13 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("apvsIntervention")
 public interface InterventionService extends TableService<Intervention>, RemoteService {
 
-	void addDevice(Device device) throws ServiceException;
+	Device addDevice(Device device) throws ServiceException;
 
-	void addUser(User user) throws ServiceException;
+	User addUser(User user) throws ServiceException;
 
-	void addIntervention(Intervention intervention) throws ServiceException;
+	Intervention addIntervention(Intervention intervention) throws ServiceException;
 
-	void updateIntervention(Intervention intervention) throws ServiceException;
+	Intervention updateIntervention(Intervention intervention) throws ServiceException;
 
 	Intervention getIntervention(Device device) throws ServiceException;
 

@@ -21,7 +21,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
@@ -172,7 +171,14 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		}
 
 		for (Iterator<String> i = extraTabs.iterator(); i.hasNext();) {
-			final String name = i.next();
+			String name = i.next();
+			if (name.endsWith("+")) {
+				name = name.substring(0, name.length()-1);
+				if ((ptus == null) || (ptus.size() == 0)) {
+					// bail out, no interventions
+					continue;
+				}
+			}
 			final ToggleButton b = new ToggleButton(name);
 			b.setDown(name.equals(selectedTab));
 
@@ -180,7 +186,7 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					selectedTab = name;
+					selectedTab = b.getText();
 					selectedPtu = null;
 
 					radio(b);

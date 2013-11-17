@@ -51,6 +51,7 @@
 		<url-pattern>/apvs/apvsAudio</url-pattern>
 		<url-pattern>/apvs/apvsEvent</url-pattern>
 		<url-pattern>/apvs/apvsIntervention</url-pattern>
+		<url-pattern>/apvs/apvsVideo</url-pattern>
 	</servlet-mapping>
 
 	<welcome-file-list>

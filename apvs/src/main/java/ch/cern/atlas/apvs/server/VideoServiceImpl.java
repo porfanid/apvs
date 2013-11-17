@@ -19,6 +19,7 @@ import ch.cern.atlas.apvs.client.service.VideoService;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
 import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Device;
+import ch.cern.atlas.apvs.domain.Intervention;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.server.PtuChannelInitializer;
 
@@ -93,4 +94,16 @@ public class VideoServiceImpl extends ResponsePollService implements VideoServic
 				});
 
 	}
+
+	@Override
+	public void startVideo(Intervention intervention) {
+		log.info("Start VIDEO for "+intervention);
+	}
+
+	@Override
+	public void stopVideo(Intervention intervention) {
+		
+	}
+	
+
 }

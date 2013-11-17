@@ -7,12 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
+import ch.cern.atlas.apvs.client.service.VideoServiceAsync;
 import ch.cern.atlas.apvs.client.settings.LocalStorage;
 import ch.cern.atlas.apvs.client.validation.CheckBoxField;
 import ch.cern.atlas.apvs.client.validation.EmptyStringValidator;
@@ -84,7 +82,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class InterventionView extends GlassPanel implements Module {
 
-//	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	// private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ScrolledDataGrid<Intervention> table = new ScrolledDataGrid<Intervention>();
 	private ScrollPanel scrollPanel;
@@ -99,6 +97,7 @@ public class InterventionView extends GlassPanel implements Module {
 	private final String END_INTERVENTION = "End Intervention...";
 
 	private InterventionServiceAsync interventionService;
+	private VideoServiceAsync videoService;
 	// private Validator validator;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
@@ -126,6 +125,7 @@ public class InterventionView extends GlassPanel implements Module {
 			final ClientFactory clientFactory, Arguments args) {
 
 		interventionService = clientFactory.getInterventionService();
+		videoService = clientFactory.getVideoService();
 
 		String height = args.getArg(0);
 
@@ -173,7 +173,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 			@Override
 			protected void onRangeChanged(HasData<Intervention> display) {
-//				log.info("ON RANGE CHANGED " + display.getVisibleRange());
+				// log.info("ON RANGE CHANGED " + display.getVisibleRange());
 
 				interventionService.getRowCount(showTest,
 						new AsyncCallback<Long>() {
@@ -216,7 +216,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-//								log.warn("RPC DB FAILED " + caught);
+								// log.warn("RPC DB FAILED " + caught);
 								updateRowCount(0, true);
 							}
 						});
@@ -283,10 +283,10 @@ public class InterventionView extends GlassPanel implements Module {
 				if (Window.confirm("Are you sure")) {
 					intervention.setEndTime(new Date());
 					interventionService.updateIntervention(intervention,
-							new AsyncCallback<Void>() {
+							new AsyncCallback<Intervention>() {
 
 								@Override
-								public void onSuccess(Void result) {
+								public void onSuccess(Intervention result) {
 									scheduler.update();
 								}
 
@@ -296,6 +296,19 @@ public class InterventionView extends GlassPanel implements Module {
 								}
 
 							});
+					
+					videoService.stopVideo(intervention, new AsyncCallback<Void>() {
+						
+						@Override
+						public void onSuccess(Void result) {
+							// ignored
+						}
+						
+						@Override
+						public void onFailure(Throwable caught) {
+							Window.alert(caught.getMessage());
+						}
+					});
 				}
 			}
 		});
@@ -345,7 +358,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-//								log.warn("Caught : " + caught);
+								// log.warn("Caught : " + caught);
 							}
 						});
 
@@ -369,7 +382,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-//								log.warn("Caught : " + caught);
+								// log.warn("Caught : " + caught);
 							}
 						});
 
@@ -408,10 +421,25 @@ public class InterventionView extends GlassPanel implements Module {
 								description.getValue(), test.getValue());
 
 						interventionService.addIntervention(intervention,
-								new AsyncCallback<Void>() {
+								new AsyncCallback<Intervention>() {
 
 									@Override
-									public void onSuccess(Void result) {
+									public void onSuccess(Intervention intervention) {
+										Window.alert("IID: "+intervention.getId());
+										
+										videoService.startVideo(intervention, new AsyncCallback<Void>() {
+											
+											@Override
+											public void onSuccess(Void result) {
+												// ignored
+											}
+											
+											@Override
+											public void onFailure(Throwable caught) {
+												Window.alert(caught.getMessage());
+											}
+										});
+
 										scheduler.update();
 									}
 
@@ -419,7 +447,7 @@ public class InterventionView extends GlassPanel implements Module {
 									public void onFailure(Throwable caught) {
 										Window.alert(caught.getMessage());
 									}
-								});
+								});						
 					}
 					// }
 				});
@@ -534,10 +562,10 @@ public class InterventionView extends GlassPanel implements Module {
 								lname.getValue(), cernId.getValue());
 
 						interventionService.addUser(user,
-								new AsyncCallback<Void>() {
+								new AsyncCallback<User>() {
 
 									@Override
-									public void onSuccess(Void result) {
+									public void onSuccess(User result) {
 										scheduler.update();
 									}
 
@@ -649,10 +677,10 @@ public class InterventionView extends GlassPanel implements Module {
 										.getValue(), virtual.getValue());
 
 						interventionService.addDevice(device,
-								new AsyncCallback<Void>() {
+								new AsyncCallback<Device>() {
 
 									@Override
-									public void onSuccess(Void result) {
+									public void onSuccess(Device result) {
 										scheduler.update();
 									}
 
@@ -700,10 +728,10 @@ public class InterventionView extends GlassPanel implements Module {
 
 				intervention.setImpactNumber(value);
 				interventionService.updateIntervention(intervention,
-						new AsyncCallback<Void>() {
+						new AsyncCallback<Intervention>() {
 
 							@Override
-							public void onSuccess(Void result) {
+							public void onSuccess(Intervention result) {
 								scheduler.update();
 							}
 
@@ -749,10 +777,10 @@ public class InterventionView extends GlassPanel implements Module {
 
 				intervention.setTest(value);
 				interventionService.updateIntervention(intervention,
-						new AsyncCallback<Void>() {
+						new AsyncCallback<Intervention>() {
 
 							@Override
-							public void onSuccess(Void result) {
+							public void onSuccess(Intervention result) {
 								scheduler.update();
 							}
 
@@ -791,10 +819,10 @@ public class InterventionView extends GlassPanel implements Module {
 
 				intervention.setDescription(value);
 				interventionService.updateIntervention(intervention,
-						new AsyncCallback<Void>() {
+						new AsyncCallback<Intervention>() {
 
 							@Override
-							public void onSuccess(Void result) {
+							public void onSuccess(Intervention result) {
 								scheduler.update();
 							}
 
@@ -850,7 +878,7 @@ public class InterventionView extends GlassPanel implements Module {
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
 							Intervention m = selectionModel.getSelectedObject();
-//							log.info(m + " " + event.getSource());
+							// log.info(m + " " + event.getSource());
 						}
 					});
 		}

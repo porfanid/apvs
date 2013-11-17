@@ -102,25 +102,27 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void addUser(User user) throws ServiceException {
+	public User addUser(User user) throws ServiceException {
 		try {
 			if (!isSupervisor()) {
 				throw new ServiceException("Cannot add user, not a supervisor");
 			}
 			database.saveOrUpdate(user);
+			return user;
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
 
 	@Override
-	public void addDevice(Device device) throws ServiceException {
+	public Device addDevice(Device device) throws ServiceException {
 		try {
 			if (!isSupervisor()) {
 				throw new ServiceException(
 						"Cannot add device, not a supervisor");
 			}
 			database.saveOrUpdate(device);
+			return device;
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
@@ -136,7 +138,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 	}
 
 	@Override
-	public void addIntervention(Intervention intervention)
+	public Intervention addIntervention(Intervention intervention)
 			throws ServiceException {
 		try {
 			if (!isSupervisor()) {
@@ -145,13 +147,14 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			}
 			database.saveOrUpdate(intervention);
 			databaseHandler.readInterventions();
+			return intervention;
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
 	}
 
 	@Override
-	public void updateIntervention(Intervention intervention)
+	public Intervention updateIntervention(Intervention intervention)
 			throws ServiceException {
 		try {
 			if (!isSupervisor()) {
@@ -160,6 +163,7 @@ public class InterventionServiceImpl extends ResponsePollService implements
 			}
 			database.saveOrUpdate(intervention);
 			databaseHandler.readInterventions();
+			return intervention;
 		} catch (HibernateException e) {
 			throw new ServiceException(e.getMessage());
 		}
