@@ -14,9 +14,10 @@ import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
+import ch.cern.atlas.apvs.client.widget.ActiveDynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.AsyncEditTextColumn;
 import ch.cern.atlas.apvs.client.widget.AsyncFieldUpdater;
-import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
+import ch.cern.atlas.apvs.client.widget.DynamicSelectionColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
@@ -261,8 +262,8 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		dataProvider.setList(new ArrayList<Device>());
 
 		// SIP Number
-		Column<Device, String> number = new Column<Device, String>(
-				new DynamicSelectionCell(new StringList<String>(usersList))) {
+		DynamicSelectionColumn<Device> number = new DynamicSelectionColumn<Device>(
+				new ActiveDynamicSelectionCell(new StringList<String>(usersList))) {
 
 			@Override
 			public String getValue(Device object) {
@@ -270,6 +271,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			}
 
 		};
+		number.setEnabled(clientFactory.isSupervisor());
 		number.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(number, "SIP Account");
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
-import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
+import ch.cern.atlas.apvs.client.widget.ActiveClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.domain.ClientConstants;
 import ch.cern.atlas.apvs.domain.Measurement;
@@ -62,7 +62,7 @@ public class MeasurementView extends AbstractMeasurementView {
 				if (m == null) {
 					return;
 				}
-				((ClickableTextCell) getCell()).render(context, decorate(s, m),
+				((ActiveClickableTextCell) getCell()).render(context, decorate(s, m),
 						sb);
 			}
 		};
@@ -174,7 +174,7 @@ public class MeasurementView extends AbstractMeasurementView {
 				sb.append(SafeHtmlUtils.fromSafeConstant("<div class=\""
 						+ status + "\">"));
 
-				((ClickableTextCell) getCell()).render(context,
+				((ActiveClickableTextCell) getCell()).render(context,
 						decorate(s, m, last), sb);
 
 				sb.append(SafeHtmlUtils.fromSafeConstant("</div>"));
@@ -210,7 +210,7 @@ public class MeasurementView extends AbstractMeasurementView {
 				if (m == null) {
 					return;
 				}
-				((ClickableTextCell) getCell()).render(context, decorate(s, m),
+				((ActiveClickableTextCell) getCell()).render(context, decorate(s, m),
 						sb);
 			}
 		};
@@ -244,7 +244,7 @@ public class MeasurementView extends AbstractMeasurementView {
 				if (m == null) {
 					return;
 				}
-				((ClickableTextCell) getCell()).render(context, decorate(s, m),
+				((ActiveClickableTextCell) getCell()).render(context, decorate(s, m),
 						sb);
 			}
 		};

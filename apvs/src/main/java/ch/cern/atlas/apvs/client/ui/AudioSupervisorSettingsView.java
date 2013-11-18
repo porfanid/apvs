@@ -10,7 +10,8 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorStatusRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
-import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
+import ch.cern.atlas.apvs.client.widget.ActiveDynamicSelectionCell;
+import ch.cern.atlas.apvs.client.widget.DynamicSelectionColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -58,8 +59,6 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 		});
 		add(table, CENTER);
 		
-		setVisible(clientFactory.isSupervisor());
-		
 		// Supervisor Label
 		Column<VoipAccount, String> supervisorLabel = new Column<VoipAccount, String> (new TextCell()) {
 			
@@ -71,13 +70,14 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 		table.addColumn(supervisorLabel, "Account Type");
 		
 		//  SIP Account
-		Column<VoipAccount, String> account = new Column<VoipAccount, String> (new DynamicSelectionCell(new StringList<String>(supervisorsList))){
+		DynamicSelectionColumn<VoipAccount> account = new DynamicSelectionColumn<VoipAccount> (new ActiveDynamicSelectionCell(new StringList<String>(supervisorsList))){
 			
 			@Override
 			public String getValue(VoipAccount object) {					
 					return object.getAccount();
 			}
 		};
+		account.setEnabled(clientFactory.isSupervisor());
 		account.setFieldUpdater(new FieldUpdater<VoipAccount, String>() {
 			
 			@Override

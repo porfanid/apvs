@@ -10,9 +10,9 @@ import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
 import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.widget.ActiveColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
-import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Device;
@@ -90,7 +90,7 @@ public class AlarmView extends GlassPanel implements Module {
 
 		EditableCell cell = new EditableCell(classes, 50);
 
-		GenericColumn<String> column = new GenericColumn<String>(cell) {
+		ActiveColumn<String, Object> column = new ActiveColumn<String, Object>(cell) {
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(names.get(0))) {

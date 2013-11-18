@@ -15,8 +15,8 @@ import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
+import ch.cern.atlas.apvs.client.widget.ActiveColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
-import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
@@ -70,7 +70,7 @@ public class AudioView extends GlassPanel implements Module {
 		// Status/Action Field column
 		EditableCell fieldActionCell = new EditableCell(classField);
 
-		GenericColumn<String> fieldActionCol = new GenericColumn<String>(
+		ActiveColumn<String, Object> fieldActionCol = new ActiveColumn<String, Object>(
 				fieldActionCell) {
 			@Override
 			public Object getValue(String fieldName) {
