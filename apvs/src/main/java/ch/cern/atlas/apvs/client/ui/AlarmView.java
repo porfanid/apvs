@@ -3,6 +3,9 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
 import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
@@ -31,6 +34,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class AlarmView extends GlassPanel implements Module {
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
@@ -99,7 +103,7 @@ public class AlarmView extends GlassPanel implements Module {
 					return alarms != null && alarms.isFall(device) ? "ALARM"
 							: "Cleared";
 				}
-				System.out.println("AlarmView name unknown '" + name + "'");
+				log.warn("AlarmView name unknown '" + name + "'");
 				return "unknown";
 			}
 
@@ -209,7 +213,7 @@ public class AlarmView extends GlassPanel implements Module {
 					public void onAlarmMapChanged(
 							AlarmMapChangedRemoteEvent event) {
 						alarms = event.getAlarmMap();
-						System.err.println("Alarms changed " + alarms);
+						log.info("Alarms changed " + alarms);
 						scheduler.update();
 					}
 				});

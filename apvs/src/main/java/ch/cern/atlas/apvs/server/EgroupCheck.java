@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -31,7 +32,7 @@ import org.w3c.dom.NodeList;
 
 public class EgroupCheck {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private static Logger log = LoggerFactory.getLogger(EgroupCheck.class.getName());
 
 	private static boolean DEBUG = false;
 
@@ -40,16 +41,15 @@ public class EgroupCheck {
 	 */
 	public static void main(String args[]) {
 		if (args.length < 2) {
-			System.err.println("Usage: EgroupCheck egroup email");
+			log.info("Usage: EgroupCheck egroup email");
 			System.exit(1);
 		}
 
 		try {
 			boolean result = check(args[0].toLowerCase(), args[1].toLowerCase());
-			System.err.println(result);
+			log.info(""+result);
 		} catch (Exception e) {
-			System.err
-					.println("Error occurred while sending SOAP Request to Server");
+			log.error("Error occurred while sending SOAP Request to Server");
 			e.printStackTrace();
 		}
 	}
@@ -160,9 +160,10 @@ public class EgroupCheck {
 
 		/* Print the request message */
 		if (DEBUG) {
-			System.out.print("Request SOAP Message = ");
-			soapMessage.writeTo(System.out);
-			System.out.println();
+			log.info("Request SOAP Message = ");
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			soapMessage.writeTo(baos);
+			log.info(baos.toString());
 		}
 
 		return soapMessage;
@@ -178,10 +179,11 @@ public class EgroupCheck {
 				.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		Source sourceContent = soapResponse.getSOAPPart().getContent();
-		System.out.print("\nResponse SOAP Message = ");
-		StreamResult result = new StreamResult(System.out);
+		log.info("\nResponse SOAP Message = ");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		StreamResult result = new StreamResult(baos);
 		transformer.transform(sourceContent, result);
-		System.out.println();
+		log.info(baos.toString());
 	}
 
 }

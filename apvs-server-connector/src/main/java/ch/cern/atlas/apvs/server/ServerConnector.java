@@ -29,7 +29,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 
 public class ServerConnector {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private static Logger log = LoggerFactory.getLogger(ServerConnector.class.getName());
 	private String srcHost;
 	private int srcPort;
 	private String dstHost;
@@ -65,7 +65,7 @@ public class ServerConnector {
 							Object evt) throws Exception {
 						// TODO Auto-generated method stub
 						super.userEventTriggered(ctx, evt);
-						System.err.println("*** "+evt);
+						log.debug("*** "+evt);
 					}
 				});
 				ch.pipeline().addLast(new RemoveDelimiterDecoder());
@@ -107,8 +107,7 @@ public class ServerConnector {
 
 	public static void main(String[] args) throws InterruptedException {
 		if ((args.length != 4) && (args.length != 2)) {
-			System.err
-					.println("Usage: ServerConnector source-host source-port [dest-host dest-port]");
+			log.info("Usage: ServerConnector source-host source-port [dest-host dest-port]");
 			System.exit(1);
 		}
 

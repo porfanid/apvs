@@ -5,8 +5,11 @@ import java.util.List;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserTest extends AbstractDomainTest {
+	private Logger log = LoggerFactory.getLogger(getClass());
 	
 	@SuppressWarnings({ "rawtypes" })
 	@Test
@@ -26,9 +29,9 @@ public class UserTest extends AbstractDomainTest {
 		session.beginTransaction();
 		List result = session.createCriteria(User.class).list();
 		Assert.assertEquals(2, result.size());
-		System.err.println(result.get(0));
+		log.info(""+result.get(0));
 		Assert.assertEquals(u1, result.get(0));
-		System.err.println(result.get(1));
+		log.info(""+result.get(1));
 		Assert.assertEquals(u2, result.get(1));
 		session.getTransaction().commit();
 		session.close();

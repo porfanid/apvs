@@ -776,7 +776,7 @@ public class Database {
 				count.setTimestamp("time", from);
 
 				entries = (Long) count.uniqueResult();
-				// System.err.println("Entries " + entries+" "+from);
+				// log.info("Entries " + entries+" "+from);
 
 				if (entries > maxEntries) {
 					from = new Date((from.getTime() + until.getTime()) / 2);

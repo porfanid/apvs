@@ -6,12 +6,16 @@ import java.util.Iterator;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.db.Database;
 import ch.cern.atlas.apvs.domain.Measurement;
 import ch.cern.atlas.apvs.domain.SortOrder;
 
 public class DatabaseConverter {
+	
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private Database database;
 
@@ -20,9 +24,9 @@ public class DatabaseConverter {
 	}
 
 	public void run() {
-		System.out.println("START run()");
+		log.info("START run()");
 		long count = database.getCount(Measurement.class);
-		System.out.println("Found: " + count + " records");
+		log.info("Found: " + count + " records");
 
 		Session session = null;
 		Transaction tx = null;
@@ -41,13 +45,13 @@ public class DatabaseConverter {
 				// Do something with filter here...
 
 				if (i % 10000 == 0) {
-					System.out.println("OK Handled " + i + " records");
+					log.info("OK Handled " + i + " records");
 
 					// print something here every 10000 records
-					System.err.println(m);
+					log.info(""+m);
 				}
 			}
-			System.out.println("Read all " + i + " records");
+			log.info("Read all " + i + " records");
 
 			System.exit(0);
 			// tx.commit();

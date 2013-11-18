@@ -12,6 +12,8 @@ import org.atmosphere.gwt20.client.AtmosphereRequest;
 import org.atmosphere.gwt20.client.AtmosphereRequestConfig;
 import org.atmosphere.gwt20.client.AtmosphereResponse;
 import org.atmosphere.gwt20.client.GwtRpcClientSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -21,6 +23,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.SerializationException;
 
 public class AtmosphereEventBus extends RemoteEventBus {
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private Atmosphere client;
 	private AtmosphereRequest request;
@@ -53,7 +56,7 @@ public class AtmosphereEventBus extends RemoteEventBus {
             	
             	List<Object> messages = response.getMessages();
             	
-    			System.err.println("EventBusListener Messages "+messages.size());
+    			log.trace("EventBusListener Messages "+messages.size());
     			
     			for (Iterator<?> i = messages.iterator(); i.hasNext(); ) {
     				Object message = i.next();

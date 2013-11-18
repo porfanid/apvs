@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
@@ -50,7 +53,7 @@ import com.google.web.bindery.event.shared.EventBus;
  */
 public class PtuSettingsView extends GlassPanel implements Module {
 
-//	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ListDataProvider<Device> dataProvider = new ListDataProvider<Device>();
 	private CellTable<Device> table = new CellTable<Device>();
@@ -80,12 +83,12 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 			@Override
 			public void onSuccess(Void result) {
-				System.err.println("Workers SIP accounts listed...");
+				log.info("Workers SIP accounts listed...");
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println("Fail to list workers SIP accounts "
+				log.warn("Fail to list workers SIP accounts "
 						+ caught);
 			}
 		});

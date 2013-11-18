@@ -1,5 +1,7 @@
 package ch.cern.atlas.apvs.hibernate.types;
 
+import java.net.UnknownHostException;
+
 import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
 
@@ -19,7 +21,11 @@ public class InetAddressTypeDescriptor  extends AbstractTypeDescriptor<InetAddre
 	}
 
 	public InetAddress fromString(String string) {
-		return InetAddress.getByName( string );
+		try {
+			return InetAddress.getByName( string );
+		} catch (IllegalArgumentException e) {
+			return InetAddress.getLocalHost();
+		}
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -44,10 +50,13 @@ public class InetAddressTypeDescriptor  extends AbstractTypeDescriptor<InetAddre
 			return (InetAddress) value;
 		}
 		else if ( String.class.isInstance( value ) ) {
-			return InetAddress.getByName( ( (String) value ) );
+			try {
+				return InetAddress.getByName( ( (String) value ) );
+			} catch (IllegalArgumentException e) {
+				throw unknownWrap( value.getClass() );
+			}
 		}
 		throw unknownWrap( value.getClass() );
-	}
-	
+	}	
 
 }

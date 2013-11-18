@@ -29,7 +29,7 @@ public class JsonMessageDecoder extends ReplayingDecoder<Void> {
 			List<Object> out) throws Exception {
 		if (ctx.channel().isActive()) {
 			ByteBufInputStream is = new ByteBufInputStream(in);
-			// System.err.println("RIN/WIN: "+in.readerIndex()+" "+in.writerIndex());
+			// log.debug("RIN/WIN: "+in.readerIndex()+" "+in.writerIndex());
 			PtuJsonReader reader = new PtuJsonReader(is);
 			JsonHeader header = (JsonHeader)reader.readObject();
 //			log.info("*** " + header);

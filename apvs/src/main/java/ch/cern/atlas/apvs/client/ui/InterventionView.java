@@ -669,9 +669,16 @@ public class InterventionView extends GlassPanel implements Module {
 					@Override
 					public void onClick(ClickEvent event) {
 						m.hide();
+						
+						InetAddress inetAddress = null;
+						try {
+							inetAddress = InetAddress.getByName(ip.getValue());
+						} catch (IllegalArgumentException e) {
+							inetAddress = InetAddress.getLocalHost();
+						}
 
 						Device device = new Device(ptuId.getValue(),
-								InetAddress.getByName(ip.getValue()),
+								inetAddress,
 								description.getValue(), new MacAddress(
 										macAddress.getValue()), hostName
 										.getValue(), virtual.getValue());

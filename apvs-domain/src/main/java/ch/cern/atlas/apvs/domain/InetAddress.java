@@ -8,6 +8,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class InetAddress implements Serializable, IsSerializable {
 
 	private static final long serialVersionUID = -8179909394365726414L;
+	private static InetAddress localHost = new InetAddress(new byte[] {127, 0, 0, 1});
 	private byte[] address;
 
 	protected InetAddress() {
@@ -18,10 +19,10 @@ public class InetAddress implements Serializable, IsSerializable {
 		this.address = address;
 	}
 
-	public static InetAddress getByName(String name) {
+	public static InetAddress getByName(String name) throws IllegalArgumentException {
 
 		if (name == null || "localhost".equals(name)) {
-			return new InetAddress(new byte[] { 127, 0, 0, 1 });
+			return localHost;
 		}
 
 		String[] parts = name.split("\\.");
@@ -36,16 +37,17 @@ public class InetAddress implements Serializable, IsSerializable {
 				parsed[i] = (byte) Integer.parseInt(parts[i]);
 			}
 		} catch (Exception e) {
-			System.out.println("InetAddress parsing issue: " + e);
-			System.out.println("nnn.nnn.nnn.nnn expected; actual: '" + name
-					+ "' -- assuming 127.0.0.1");
-			parsed = new byte[] { 127, 0, 0, 1 };
+			throw new IllegalArgumentException("InetAddress parsing issue: " + e+" nnn.nnn.nnn.nnn expected; actual: '" + name + "'");
 		}
 		return new InetAddress(parsed);
 	}
-
+	
 	public static InetAddress getByAddress(byte[] address) {
 		return new InetAddress(address);
+	}
+	
+	public static InetAddress getLocalHost() {
+		return localHost;
 	}
 
 	public byte[] getAddress() {

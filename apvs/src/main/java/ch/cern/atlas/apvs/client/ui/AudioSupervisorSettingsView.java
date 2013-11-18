@@ -3,6 +3,9 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorStatusRemoteEvent;
@@ -26,6 +29,8 @@ import com.google.gwt.view.client.ListDataProvider;
 
 public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	private CellTable<VoipAccount> table = new CellTable<VoipAccount>();
 	private ListDataProvider<VoipAccount> dataProvider = new ListDataProvider<VoipAccount>();
 
@@ -43,12 +48,12 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onSuccess(Void result) {
-				System.err.println("Supervisor SIP accounts listed...");
+				log.info("Supervisor SIP accounts listed...");
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println("Fail to list Supervisor SIP accounts " + caught);				
+				log.warn("Fail to list Supervisor SIP accounts " + caught);				
 			}
 		});
 		add(table, CENTER);
