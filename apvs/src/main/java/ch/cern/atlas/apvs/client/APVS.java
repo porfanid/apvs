@@ -3,6 +3,9 @@ package ch.cern.atlas.apvs.client;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.service.ServerService.User;
 import ch.cern.atlas.apvs.client.settings.LocalStorage;
@@ -67,7 +70,7 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public class APVS implements EntryPoint {
 
-//	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	@SuppressWarnings("unused")
 	private Window screen;
 
@@ -99,9 +102,9 @@ public class APVS implements EntryPoint {
 		
 	private void boot() {
 		Build build = GWT.create(Build.class);
-//		log.info("Starting APVS Version: " + build.version() + " - "
-//				+ build.build());
-
+		log.info("Starting APVS Version: " + build.version() + " - "
+				+ build.build());
+		
 		clientFactory = GWT.create(ClientFactory.class);
 		
 		clientFactory.getServerService().isReady(new AsyncCallback<Boolean>() {

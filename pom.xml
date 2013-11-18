@@ -37,7 +37,7 @@
 		<hibernate-version>4.2.7.SP1</hibernate-version>
 		<hibernate-validator-version>4.1.0.Final</hibernate-validator-version>
 		<highcharts-version>1.5.0</highcharts-version>
-		<hudson-gwt-slf4j-version>2.2.0</hudson-gwt-slf4j-version>
+		<gwt-slf4j-version>0.0.2</gwt-slf4j-version>
 		<javassist-version>3.18.1-GA</javassist-version>
 		<javax.servlet-api-version>3.1.0</javax.servlet-api-version>
 		<jdk-version>1.7</jdk-version>
@@ -543,9 +543,9 @@
 				<version>${slf4j-version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.hudsonci.libs</groupId>
-				<artifactId>hudson-gwt-slf4j</artifactId>
-				<version>${hudson-gwt-slf4j-version}</version>
+				<groupId>de.benediktmeurer.gwt-slf4j</groupId>
+				<artifactId>gwt-slf4j</artifactId>
+				<version>${gwt-slf4j-version}</version>
 			</dependency>
 
 			<dependency>
