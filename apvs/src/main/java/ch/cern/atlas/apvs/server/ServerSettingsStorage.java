@@ -109,7 +109,7 @@ public class ServerSettingsStorage {
 	}
 
 	public void setPassword(String name, String password) {
-		System.err.println("Storing " + name + " " + password);
+		log.info("Storing " + name + " " + password);
 		pwds.put(name, password);
 		store();
 	}

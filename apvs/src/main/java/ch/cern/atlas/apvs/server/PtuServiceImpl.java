@@ -157,7 +157,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 	public History getHistory(List<Device> devices, Date from,
 			Integer maxEntries) throws ServiceException {
 		try {
-			System.err.println(devices.size() + " " + from + " " + maxEntries);
+			log.debug(devices.size() + " " + from + " " + maxEntries);
 			return database.getHistory(devices, from, maxEntries);
 		} catch (HibernateException e) {
 			e.printStackTrace();
@@ -167,7 +167,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	@Override
 	public void handleOrder(Order order) throws ServiceException {
-		System.err.println("Handle " + order);
+		log.debug("Handle " + order);
 		if (!isSupervisor()) {
 			throw new ServiceException("Cannot handle order, not a supervisor");
 		}
@@ -177,7 +177,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 			if (!future.isSuccess()) {
 				throw new ServiceException(future.cause());
 			}
-			System.err.println("Done " + order);
+			log.debug("Done " + order);
 		} catch (IOException e) {
 			throw new ServiceException(e);
 		} catch (InterruptedException e) {
@@ -187,7 +187,6 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	@Override
 	public void clearPanicAlarm(Device ptu) throws ServiceException {
-		System.err.println("Clearing panic for " + ptu);
 		try {
 			AlarmManager.getInstance(eventBus).clearPanicAlarm(ptu);
 		} catch (SerializationException e) {
