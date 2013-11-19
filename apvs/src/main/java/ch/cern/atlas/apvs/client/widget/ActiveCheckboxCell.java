@@ -22,7 +22,7 @@ public class ActiveCheckboxCell extends CheckboxCell implements ActiveCell<Boole
 	private static final SafeHtml INPUT_UNCHECKED_DISABLED = SafeHtmlUtils
 			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" disabled=\"disabled\"/>");
 
-	private boolean enabled;
+	private boolean enabled = true;
 	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;

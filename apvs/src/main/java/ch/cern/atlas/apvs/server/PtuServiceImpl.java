@@ -187,6 +187,10 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	@Override
 	public void clearPanicAlarm(Device ptu) throws ServiceException {
+		if (!isSupervisor()) {
+			throw new ServiceException("Cannot handle clear, not a supervisor");
+		}
+		
 		try {
 			AlarmManager.getInstance(eventBus).clearPanicAlarm(ptu);
 		} catch (SerializationException e) {
@@ -196,6 +200,10 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	@Override
 	public void clearDoseAlarm(Device ptu) throws ServiceException {
+		if (!isSupervisor()) {
+			throw new ServiceException("Cannot handle clear, not a supervisor");
+		}
+		
 		try {
 			AlarmManager.getInstance(eventBus).clearDoseAlarm(ptu);
 		} catch (SerializationException e) {
@@ -205,6 +213,10 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 
 	@Override
 	public void clearFallAlarm(Device ptu) throws ServiceException {
+		if (!isSupervisor()) {
+			throw new ServiceException("Cannot handle clear, not a supervisor");
+		}
+		
 		try {
 			AlarmManager.getInstance(eventBus).clearFallAlarm(ptu);
 		} catch (SerializationException e) {

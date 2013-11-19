@@ -25,7 +25,7 @@ import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.text.shared.SimpleSafeHtmlRenderer;
 
 public class EditableCell extends AbstractCell<Object> implements ActiveCell<Object> {
-	private ActiveTextInputSizeCell textInputCell;
+	private ActiveTextInputCell textInputCell;
 	private MyEditTextCell editCell;
 	private MySelectionCell selectionCell;
 	private MyCheckboxCell checkboxCell;
@@ -54,7 +54,7 @@ public class EditableCell extends AbstractCell<Object> implements ActiveCell<Obj
 
 		enabled = true;
 
-		textInputCell = new ActiveTextInputSizeCell(size);
+		textInputCell = new ActiveTextInputCell(size);
 		editCell = new MyEditTextCell();
 		selectionCell = new MySelectionCell();
 		checkboxCell = new MyCheckboxCell();
