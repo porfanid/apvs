@@ -50,6 +50,11 @@
 	<inherits name='com.google.gwt.user.theme.standard.Standard' />
 
 	<stylesheet src='../css/APVS.css' />
+	
+	<script src="../highcharts/adapters/standalone-framework.js" />
+	<script src="../highcharts/highcharts.js" />
+	<script src="../highcharts/highcharts-more.js" />
+	<script src="../highcharts/modules/exporting.js" />
 
 	<set-property name="locale" value="default" />
 	<set-property name="gwt.logging.logLevel" value="FINEST" />
