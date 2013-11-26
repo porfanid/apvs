@@ -16,16 +16,6 @@
 	<inherits name="com.google.gwt.resources.Resources" />
 	<inherits name="com.google.web.bindery.autobean.AutoBean" />
 
-	<set-property name="gwt.logging.logLevel" value="INFO" />
-	<set-property name="gwt.logging.enabled" value="TRUE" />
-	<set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED" />
-	<set-property name="gwt.logging.developmentModeHandler"
-		value="ENABLED" />
-	<set-property name="gwt.logging.systemHandler" value="ENABLED" />
-	<set-property name="gwt.logging.popupHandler" value="ENABLED" />
-	<set-property name="gwt.logging.consoleHandler" value="ENABLED" />
-	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />
-
 <!-- 
 	<inherits name="org.slf4j.Slf4j" />
 -->
@@ -57,6 +47,16 @@
 	<script src="../highcharts/modules/exporting.js" />
 
 	<set-property name="locale" value="default" />
+	
+	<set-property name="gwt.logging.logLevel" value="INFO" />
+	<set-property name="gwt.logging.enabled" value="TRUE" />
+	<set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED" />
+	<set-property name="gwt.logging.developmentModeHandler"
+		value="ENABLED" />
+	<set-property name="gwt.logging.systemHandler" value="ENABLED" />
+	<set-property name="gwt.logging.popupHandler" value="ENABLED" />
+	<set-property name="gwt.logging.consoleHandler" value="ENABLED" />
+	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />
 	<set-property name="gwt.logging.logLevel" value="FINEST" />
 	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
 
