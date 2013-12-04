@@ -425,7 +425,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onSuccess(Intervention intervention) {
-										Window.alert("IID: "+intervention.getId());
+									//	Window.alert("IID: "+intervention.getId());
 										
 										videoService.startVideo(intervention, new AsyncCallback<Void>() {
 											
