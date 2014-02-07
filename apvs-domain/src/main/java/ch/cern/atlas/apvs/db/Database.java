@@ -15,6 +15,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -23,7 +24,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.service.ServiceRegistryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +75,8 @@ public class Database {
 		configuration.registerTypeOverride(new MacAddressType());
 		configuration.registerTypeOverride(new InetAddressType());
 
-		serviceRegistry = new ServiceRegistryBuilder().applySettings(
-				configuration.getProperties()).buildServiceRegistry();
+		serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
+				configuration.getProperties()).build();
 		sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
 		// new SchemaExport(configuration).create(true, false);
@@ -250,7 +250,7 @@ public class Database {
 				dc.setProjection(Projections.property("device.id"));
 
 				c.add(Property.forName("id").notIn(dc));
-				
+
 				// device not virtual
 				c.add(Restrictions.eq("virtual", false));
 			}
@@ -699,7 +699,7 @@ public class Database {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<GeneralConfiguration> getGeneralConfigurationList() {
 		Session session = null;
@@ -709,10 +709,8 @@ public class Database {
 			tx = session.beginTransaction();
 
 			Query query = session.createQuery("from GeneralConfiguration"
-					+ " where (device,time) in"
-					+ " (select device,max(time)"
-					+ " from GeneralConfiguration"
-					+ " group by device)");
+					+ " where (device,time) in" + " (select device,max(time)"
+					+ " from GeneralConfiguration" + " group by device)");
 			return query.list();
 		} catch (HibernateException e) {
 			if (tx != null) {
@@ -725,7 +723,6 @@ public class Database {
 			}
 		}
 	}
-
 
 	@SuppressWarnings("unchecked")
 	public List<MeasurementConfiguration> getMeasurementConfigurationList() {
@@ -813,7 +810,7 @@ public class Database {
 		return order;
 	}
 
-	public String getHostName(String bssid) {		
+	public String getHostName(String bssid) {
 		Session session = null;
 		Transaction tx = null;
 		try {
@@ -822,10 +819,10 @@ public class Database {
 
 			Criteria c = session.createCriteria(Device.class);
 			c.add(Restrictions.eq("macAddress", new MacAddress(bssid)));
-			
-			Device device = (Device)c.uniqueResult();
+
+			Device device = (Device) c.uniqueResult();
 			tx.commit();
-			
+
 			return device == null ? bssid : device.getName();
 		} catch (HibernateException e) {
 			if (tx != null) {
@@ -836,7 +833,7 @@ public class Database {
 			if (session != null) {
 				session.close();
 			}
-		}	
+		}
 	}
 
 }
