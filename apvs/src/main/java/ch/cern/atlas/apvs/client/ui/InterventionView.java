@@ -7,6 +7,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Label;
+import org.gwtbootstrap3.client.ui.Modal;
+import org.gwtbootstrap3.client.ui.ModalFooter;
+import org.gwtbootstrap3.client.ui.constants.ButtonDismiss;
+import org.gwtbootstrap3.client.ui.constants.FormType;
+import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
 import ch.cern.atlas.apvs.client.service.InterventionServiceAsync;
@@ -74,14 +82,6 @@ import com.google.gwt.view.client.RangeChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
-import com.svenjacobs.gwtbootstrap3.client.ui.Button;
-import com.svenjacobs.gwtbootstrap3.client.ui.Label;
-import com.svenjacobs.gwtbootstrap3.client.ui.Modal;
-import com.svenjacobs.gwtbootstrap3.client.ui.ModalComponent;
-import com.svenjacobs.gwtbootstrap3.client.ui.ModalFooter;
-import com.svenjacobs.gwtbootstrap3.client.ui.constants.ButtonDismiss;
-import com.svenjacobs.gwtbootstrap3.client.ui.constants.FormType;
-import com.svenjacobs.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 
 public class InterventionView extends GlassPanel implements Module {
 

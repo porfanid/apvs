@@ -1,6 +1,6 @@
 package ch.cern.atlas.apvs.client.validation;
 
-import com.svenjacobs.gwtbootstrap3.client.ui.constants.ValidationState;
+import org.gwtbootstrap3.client.ui.constants.ValidationState;
 
 public class Validation {
 

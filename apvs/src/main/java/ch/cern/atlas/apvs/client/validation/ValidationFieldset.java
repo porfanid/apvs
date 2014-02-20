@@ -3,8 +3,9 @@ package ch.cern.atlas.apvs.client.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gwtbootstrap3.client.ui.FieldSet;
+
 import com.google.gwt.event.logical.shared.AttachEvent;
-import com.svenjacobs.gwtbootstrap3.client.ui.FieldSet;
 
 public class ValidationFieldset extends FieldSet {
 

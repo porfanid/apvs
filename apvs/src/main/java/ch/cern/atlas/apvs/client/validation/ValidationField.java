@@ -3,14 +3,14 @@ package ch.cern.atlas.apvs.client.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gwtbootstrap3.client.ui.FlowPanel;
+import org.gwtbootstrap3.client.ui.FormGroup;
+import org.gwtbootstrap3.client.ui.FormLabel;
+import org.gwtbootstrap3.client.ui.Span;
+
 import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
-import com.svenjacobs.gwtbootstrap3.client.ui.FlowPanel;
-import com.svenjacobs.gwtbootstrap3.client.ui.FormGroup;
-import com.svenjacobs.gwtbootstrap3.client.ui.FormLabel;
-import com.svenjacobs.gwtbootstrap3.client.ui.Span;
 
 public abstract class ValidationField<T> extends FormGroup {
 

@@ -3,13 +3,14 @@ package ch.cern.atlas.apvs.client.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gwtbootstrap3.client.ui.Form;
+import org.gwtbootstrap3.client.ui.HasType;
+import org.gwtbootstrap3.client.ui.ModalComponent;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.client.ui.constants.FormType;
+
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.HasEnabled;
-import com.svenjacobs.gwtbootstrap3.client.ui.Form;
-import com.svenjacobs.gwtbootstrap3.client.ui.HasType;
-import com.svenjacobs.gwtbootstrap3.client.ui.ModalComponent;
-import com.svenjacobs.gwtbootstrap3.client.ui.constants.ButtonType;
-import com.svenjacobs.gwtbootstrap3.client.ui.constants.FormType;
 
 public class ValidationForm extends Form implements ModalComponent {
 
