@@ -1,5 +1,6 @@
 package ch.cern.atlas.apvs.domain;
 
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 
@@ -8,11 +9,14 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InterventionTest extends AbstractDomainTest {
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Test
-	public void testBasicUsage() {
+	public void testBasicUsage() throws UnknownHostException {
 		User u1 = new User("Mark", "Donszelmann", "yyyyy");
 		User u2 = new User("Olga", "Beltramello", "xxxxx");
 		
@@ -41,11 +45,11 @@ public class InterventionTest extends AbstractDomainTest {
 		@SuppressWarnings("unchecked")
 		List<Intervention> result = c.list();
 		Assert.assertEquals(2, result.size());
-//		System.err.println(result.get(0));
+//		log.info(""+result.get(0));
 		Assert.assertEquals(i1, result.get(0));
 		Assert.assertEquals(u1, result.get(0).getUser());
 		Assert.assertEquals(d1, result.get(0).getDevice());
-//		System.err.println(result.get(1));
+//		log.info(""+result.get(1));
 		Assert.assertEquals(i2, result.get(1));
 		Assert.assertEquals(u2, result.get(1).getUser());
 		Assert.assertEquals(d2, result.get(1).getDevice());

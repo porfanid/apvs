@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
@@ -12,8 +15,8 @@ import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.ConferenceRooms;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
+import ch.cern.atlas.apvs.client.widget.ActiveColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
-import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.event.ConnectionStatusChangedRemoteEvent;
@@ -33,6 +36,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class AudioView extends GlassPanel implements Module {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
@@ -65,7 +70,7 @@ public class AudioView extends GlassPanel implements Module {
 		// Status/Action Field column
 		EditableCell fieldActionCell = new EditableCell(classField);
 
-		GenericColumn<String> fieldActionCol = new GenericColumn<String>(
+		ActiveColumn<String, Object> fieldActionCol = new ActiveColumn<String, Object>(
 				fieldActionCell) {
 			@Override
 			public Object getValue(String fieldName) {
@@ -137,13 +142,13 @@ public class AudioView extends GlassPanel implements Module {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						System.err.println("FAIL CONFERENCE ESTABLISHMENT: "
+						log.warn("FAIL CONFERENCE ESTABLISHMENT: "
 								+ caught);
 					}
 
 					@Override
 					public void onSuccess(Void result) {
-						System.out.println("Conference established...");
+						log.info("Conference established...");
 					}
 				};
 
@@ -151,13 +156,12 @@ public class AudioView extends GlassPanel implements Module {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						System.err
-								.println("FAIL CALL ESTABLISHMENT: " + caught);
+						log.warn("FAIL CALL ESTABLISHMENT: " + caught);
 					}
 
 					@Override
 					public void onSuccess(Void result) {
-						System.out.println("Call Established...");
+						log.info("Call Established...");
 					}
 				};
 
@@ -165,13 +169,13 @@ public class AudioView extends GlassPanel implements Module {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						System.err.println("FAIL HANGUP ESTABLISHMENT: "
+						log.warn("FAIL HANGUP ESTABLISHMENT: "
 								+ caught);
 					}
 
 					@Override
 					public void onSuccess(Void result) {
-						System.out.println("Call Hangup...");
+						log.info("Call Hangup...");
 					}
 				};
 
@@ -179,12 +183,12 @@ public class AudioView extends GlassPanel implements Module {
 
 					@Override
 					public void onFailure(Throwable caught) {
-						System.err.println("FAIL MUTE: " + caught);
+						log.warn("FAIL MUTE: " + caught);
 					}
 
 					@Override
 					public void onSuccess(Void result) {
-						System.out.println("Mute/Unmute Success...");
+						log.info("Mute/Unmute Success...");
 					}
 				};
 

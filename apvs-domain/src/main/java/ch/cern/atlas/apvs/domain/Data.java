@@ -129,10 +129,7 @@ public class Data implements Serializable, IsSerializable {
 
 	private double getThreshold(String sensor) {
 		Double t = threshold.get(sensor);
-		if (t == null) {
-			System.err.println("Cannot find threshold for '" + sensor + "'");
-		}
-		return t != null ? t : 0.1;
+		return t != null ? t : 0.0;
 	}
 
 	// equals when value within threshold, limits equal, sampling rate equal.

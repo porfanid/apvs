@@ -12,4 +12,5 @@ pom.xml.releaseBackup
 /httpd-proxy.conf
 /hibernate.cfg.xml
 /hibernate-oracle.cfg.xml
+/hibernate-01.cfg.xml
 /hibernate-mysql.cfg.xml

@@ -65,7 +65,6 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 									database.getSensorMap();
 								} catch (HibernateException e) {
 									e.printStackTrace();
-									System.exit(1);
 								}
 
 							}

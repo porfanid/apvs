@@ -3,11 +3,15 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioSupervisorStatusRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
-import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
+import ch.cern.atlas.apvs.client.widget.ActiveDynamicSelectionCell;
+import ch.cern.atlas.apvs.client.widget.DynamicSelectionColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.StringList;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
@@ -26,6 +30,8 @@ import com.google.gwt.view.client.ListDataProvider;
 
 public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
+
 	private CellTable<VoipAccount> table = new CellTable<VoipAccount>();
 	private ListDataProvider<VoipAccount> dataProvider = new ListDataProvider<VoipAccount>();
 
@@ -43,17 +49,15 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			
 			@Override
 			public void onSuccess(Void result) {
-				System.err.println("Supervisor SIP accounts listed...");
+				log.info("Supervisor SIP accounts listed...");
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println("Fail to list Supervisor SIP accounts " + caught);				
+				log.warn("Fail to list Supervisor SIP accounts " + caught);				
 			}
 		});
 		add(table, CENTER);
-		
-		setVisible(clientFactory.isSupervisor());
 		
 		// Supervisor Label
 		Column<VoipAccount, String> supervisorLabel = new Column<VoipAccount, String> (new TextCell()) {
@@ -66,13 +70,14 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 		table.addColumn(supervisorLabel, "Account Type");
 		
 		//  SIP Account
-		Column<VoipAccount, String> account = new Column<VoipAccount, String> (new DynamicSelectionCell(new StringList<String>(supervisorsList))){
+		DynamicSelectionColumn<VoipAccount> account = new DynamicSelectionColumn<VoipAccount> (new ActiveDynamicSelectionCell(new StringList<String>(supervisorsList))){
 			
 			@Override
 			public String getValue(VoipAccount object) {					
 					return object.getAccount();
 			}
 		};
+		account.setEnabled(clientFactory.isSupervisor());
 		account.setFieldUpdater(new FieldUpdater<VoipAccount, String>() {
 			
 			@Override

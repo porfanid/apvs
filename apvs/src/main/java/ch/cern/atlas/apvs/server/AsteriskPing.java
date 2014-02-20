@@ -7,8 +7,12 @@ import org.asteriskjava.manager.TimeoutException;
 import org.asteriskjava.manager.action.PingAction;
 import org.asteriskjava.manager.response.ManagerResponse;
 import org.asteriskjava.manager.response.PingResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AsteriskPing {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private PingAction ping;
 	private ManagerConnection serverConnection;
@@ -25,17 +29,17 @@ public class AsteriskPing {
 			response = this.serverConnection.sendAction(ping, TIMEOUT);
 
 		} catch (IllegalArgumentException e1) {
-			System.out.println("Exception thrown in polling server: "
-					+ e1.getMessage());
+			log.error("Exception thrown in polling server: ",
+					e1);
 		} catch (IllegalStateException e1) {
-			System.out.println("Exception thrown in polling server: "
-					+ e1.getMessage());
+			log.error("Exception thrown in polling server: ",
+					e1);
 		} catch (IOException e1) {
-			System.out.println("Exception thrown in polling server: "
-					+ e1.getMessage());
+			log.error("Exception thrown in polling server: ",
+					e1);
 		} catch (TimeoutException e1) {
-			System.out.println("Exception thrown in polling server: "
-					+ e1.getMessage());
+			log.error("Exception thrown in polling server: ",
+					e1);
 		}
 		if (response instanceof PingResponse) {
 			return true;

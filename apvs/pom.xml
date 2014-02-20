@@ -194,17 +194,10 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
+			<groupId>de.benediktmeurer.gwt-slf4j</groupId>
+			<artifactId>gwt-slf4j</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>log4j-over-slf4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jul-to-slf4j</artifactId>
-		</dependency>
+
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
@@ -219,14 +212,8 @@
 			<groupId>org.asterisk</groupId>
 			<artifactId>asterisk-java</artifactId>
 		</dependency>
-<!--
 		<dependency>
-			<groupId>org.hudsonci.libs</groupId>
-			<artifactId>hudson-gwt-slf4j</artifactId>
-		</dependency>
--->
-		<dependency>
-			<groupId>com.svenjacobs.gwtbootstrap3</groupId>
+			<groupId>org.gwtbootstrap3</groupId>
 			<artifactId>gwtbootstrap3</artifactId>
 		</dependency>
 		<dependency>

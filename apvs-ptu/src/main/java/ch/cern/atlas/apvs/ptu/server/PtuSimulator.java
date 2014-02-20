@@ -95,7 +95,7 @@ public class PtuSimulator extends Thread {
 					packet.addMessage(msg);
 					String json = PtuJsonWriter.objectToJson(packet); // new
 																		// JsonHeader(msg));
-					// System.err.println(json +" "+json.length());
+					// log.info(json +" "+json.length());
 
 					if (WRITE_MARKERS) {
 						StringBuffer b = new StringBuffer();
@@ -116,16 +116,12 @@ public class PtuSimulator extends Thread {
 					}
 
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
-					System.out.println(json);
-					// System.out.print(".");
-					// System.out.flush();
+					log.info(""+json);
 					i++;
 				}
 			} catch (InterruptedException e) {
 				// ignored
 			}
-			System.err.print("*");
-			System.out.flush();
 		} catch (IOException e) {
 			// ignored
 		} finally {
@@ -142,7 +138,7 @@ public class PtuSimulator extends Thread {
 					@Override
 					public void operationComplete(Future<? super Void> future)
 							throws Exception {
-						// System.err.println("Sent "+msg+" "+msg.length()+" "+future.isSuccess());
+						// log.info("Sent "+msg+" "+msg.length()+" "+future.isSuccess());
 					}
 				});
 	}

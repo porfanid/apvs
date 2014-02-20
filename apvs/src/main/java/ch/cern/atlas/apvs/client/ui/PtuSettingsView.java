@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.AudioUsersStatusRemoteEvent;
@@ -11,12 +14,16 @@ import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.settings.VoipAccount;
+import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
+import ch.cern.atlas.apvs.client.widget.ActiveColumn;
+import ch.cern.atlas.apvs.client.widget.ActiveDynamicSelectionCell;
+import ch.cern.atlas.apvs.client.widget.ActiveEditTextCell;
+import ch.cern.atlas.apvs.client.widget.ActiveTextInputCell;
 import ch.cern.atlas.apvs.client.widget.AsyncEditTextColumn;
 import ch.cern.atlas.apvs.client.widget.AsyncFieldUpdater;
-import ch.cern.atlas.apvs.client.widget.DynamicSelectionCell;
+import ch.cern.atlas.apvs.client.widget.DynamicSelectionColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.StringList;
-import ch.cern.atlas.apvs.client.widget.TextInputSizeCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Intervention;
@@ -26,7 +33,6 @@ import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.cell.client.Cell.Context;
-import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Element;
@@ -50,7 +56,7 @@ import com.google.web.bindery.event.shared.EventBus;
  */
 public class PtuSettingsView extends GlassPanel implements Module {
 
-//	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ListDataProvider<Device> dataProvider = new ListDataProvider<Device>();
 	private CellTable<Device> table = new CellTable<Device>();
@@ -80,23 +86,21 @@ public class PtuSettingsView extends GlassPanel implements Module {
 
 			@Override
 			public void onSuccess(Void result) {
-				System.err.println("Workers SIP accounts listed...");
+				log.info("Workers SIP accounts listed...");
 			}
 
 			@Override
 			public void onFailure(Throwable caught) {
-				System.err.println("Fail to list workers SIP accounts "
+				log.warn("Fail to list workers SIP accounts "
 						+ caught);
 			}
 		});
 
 		add(table, CENTER);
 
-		setVisible(clientFactory.isSupervisor());
-
 		// ENABLED
-		Column<Device, Boolean> enabled = new Column<Device, Boolean>(
-				new CheckboxCell()) {
+		ActiveColumn<Device, Boolean> enabled = new ActiveColumn<Device, Boolean>(
+				new ActiveCheckboxCell()) {
 			@Override
 			public Boolean getValue(Device object) {
 				return settings.isEnabled(object.getName());
@@ -110,6 +114,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
+		enabled.setEnabled(clientFactory.isSupervisor());
 		enabled.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		enabled.setSortable(true);
 		table.addColumn(enabled, "Enabled");
@@ -211,8 +216,8 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumn(bssid, "Wireless");
 
 		// HELMET URL
-		Column<Device, String> helmetUrl = new Column<Device, String>(
-				new TextInputSizeCell(50)) {
+		ActiveColumn<Device, String> helmetUrl = new ActiveColumn<Device, String>(
+				new ActiveEditTextCell()) {
 			@Override
 			public String getValue(Device object) {
 				return settings.getCameraUrl(object.getName(),
@@ -228,13 +233,14 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
+		helmetUrl.setEnabled(clientFactory.isSupervisor());
 		helmetUrl.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		helmetUrl.setSortable(true);
 		table.addColumn(helmetUrl, "Helmet Camera URL");
 
 		// HAND URL
-		Column<Device, String> handUrl = new Column<Device, String>(
-				new TextInputSizeCell(50)) {
+		ActiveColumn<Device, String> handUrl = new ActiveColumn<Device, String>(
+				new ActiveEditTextCell()) {
 			@Override
 			public String getValue(Device object) {
 				return settings.getCameraUrl(object.getName(), CameraView.HAND,
@@ -250,6 +256,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 				fireSettingsChangedEvent(eventBus, settings);
 			}
 		});
+		handUrl.setEnabled(clientFactory.isSupervisor());
 		handUrl.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		handUrl.setSortable(true);
 		table.addColumn(handUrl, "Hand Camera URL");
@@ -258,8 +265,8 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		dataProvider.setList(new ArrayList<Device>());
 
 		// SIP Number
-		Column<Device, String> number = new Column<Device, String>(
-				new DynamicSelectionCell(new StringList<String>(usersList))) {
+		DynamicSelectionColumn<Device> number = new DynamicSelectionColumn<Device>(
+				new ActiveDynamicSelectionCell(new StringList<String>(usersList))) {
 
 			@Override
 			public String getValue(Device object) {
@@ -267,6 +274,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			}
 
 		};
+		number.setEnabled(clientFactory.isSupervisor());
 		number.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		table.addColumn(number, "SIP Account");
 
@@ -430,23 +438,6 @@ public class PtuSettingsView extends GlassPanel implements Module {
 						scheduler.update();
 					}
 				});
-
-		// DosimeterSerialNumbersChangedEvent.subscribe(eventBus,
-		// new DosimeterSerialNumbersChangedEvent.Handler() {
-		//
-		// @Override
-		// public void onDosimeterSerialNumbersChanged(
-		// DosimeterSerialNumbersChangedEvent event) {
-		// dosimeterSerialNumbers.clear();
-		// dosimeterSerialNumbers.addAll(event
-		// .getDosimeterSerialNumbers());
-		// log.info("DOSI changed "
-		// + dosimeterSerialNumbers.size());
-		//
-		// // FIXME, allow for setting not available as DOSI #
-		// scheduler.update();
-		// }
-		// });
 
 		scheduler.update();
 

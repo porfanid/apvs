@@ -13,7 +13,7 @@ import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.settings.PtuSettings;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
-import ch.cern.atlas.apvs.client.widget.ClickableTextCell;
+import ch.cern.atlas.apvs.client.widget.ActiveClickableTextCell;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
@@ -272,7 +272,7 @@ public class PtuView extends GlassPanel implements Module {
 
 				Measurement m = history != null ? history.getMeasurement(ptu, name) : null;
 				if (m != null) {
-					((ClickableTextCell) getCell()).render(context,
+					((ActiveClickableTextCell) getCell()).render(context,
 							MeasurementView.decorate(getValue(name), m, last),
 							sb);
 				}

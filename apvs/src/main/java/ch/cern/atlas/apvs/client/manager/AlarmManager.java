@@ -2,6 +2,9 @@ package ch.cern.atlas.apvs.client.manager;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gwt.user.client.rpc.SerializationException;
 
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
@@ -12,6 +15,8 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 
 public class AlarmManager {
+	
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static AlarmManager instance;
 	private AlarmMap alarms;
@@ -31,8 +36,7 @@ public class AlarmManager {
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
 						// FIXME #298
-						System.err
-								.println("FIXME (3x?)... Received............."
+						log.warn("FIXME (3x?)... Received............."
 										+ event.getEventBusUUID() + " "
 										+ event.getSourceUUID());
 						List<Device> newPtuIds = event.getInterventionMap()

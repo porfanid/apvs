@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -37,7 +40,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class GeneralInfoView extends GlassPanel implements Module {
 
-//	private Logger log = LoggerFactory.getLogger(getClass());
+	private Logger log = LoggerFactory.getLogger(getClass());
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
 	private CellTable<String> table = new CellTable<String>();
 
@@ -141,7 +144,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 				} else if (name.equals("Wireless")) {
 					return "";
 				}
-				System.out.println("GeneralInfoView name unknown '" + name
+				log.warn("GeneralInfoView name unknown '" + name
 						+ "'");
 				return "";
 
@@ -176,7 +179,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 				} else if (name.equals("Wireless")) {
 					return getBSSID();
 				} 
-				System.out.println("GeneralInfoView name unknown '" + name
+				log.warn("GeneralInfoView name unknown '" + name
 						+ "'");
 				return null;
 			}

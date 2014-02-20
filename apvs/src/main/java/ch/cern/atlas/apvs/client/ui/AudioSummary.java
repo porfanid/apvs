@@ -3,6 +3,9 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.AudioUsersSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.AudioSettings;
@@ -24,6 +27,8 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class AudioSummary extends GlassPanel implements Module {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
@@ -118,13 +123,12 @@ public class AudioSummary extends GlassPanel implements Module {
 
 								@Override
 								public void onSuccess(Void result) {
-									System.err.println("Call Hangup...");
+									log.info("Call Hangup...");
 								}
 
 								@Override
 								public void onFailure(Throwable caught) {
-									System.err
-											.println("Fail to established the call "
+									log.warn("Fail to established the call "
 													+ caught);
 								}
 							});
@@ -133,13 +137,12 @@ public class AudioSummary extends GlassPanel implements Module {
 
 								@Override
 								public void onSuccess(Void result) {
-									System.err.println("Call Established...");
+									log.info("Call Established...");
 								}
 
 								@Override
 								public void onFailure(Throwable caught) {
-									System.err
-											.println("Fail to established the call "
+									log.warn("Fail to established the call "
 													+ caught);
 								}
 							});

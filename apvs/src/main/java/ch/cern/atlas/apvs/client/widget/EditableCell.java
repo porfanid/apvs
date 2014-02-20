@@ -24,8 +24,8 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.text.shared.SimpleSafeHtmlRenderer;
 
-public class EditableCell extends AbstractCell<Object> {
-	private TextInputSizeCell textInputCell;
+public class EditableCell extends AbstractCell<Object> implements ActiveCell<Object> {
+	private ActiveTextInputCell textInputCell;
 	private MyEditTextCell editCell;
 	private MySelectionCell selectionCell;
 	private MyCheckboxCell checkboxCell;
@@ -54,7 +54,7 @@ public class EditableCell extends AbstractCell<Object> {
 
 		enabled = true;
 
-		textInputCell = new TextInputSizeCell(size);
+		textInputCell = new ActiveTextInputCell(size);
 		editCell = new MyEditTextCell();
 		selectionCell = new MySelectionCell();
 		checkboxCell = new MyCheckboxCell();
@@ -73,13 +73,18 @@ public class EditableCell extends AbstractCell<Object> {
 		dateCell.setFormat(format);
 	}
 
-	// FIXME works only for checkbox
+	@Override
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 
+		textInputCell.setEnabled(enabled);
+		editCell.setEnabled(enabled);
+		selectionCell.setEnabled(enabled);
 		checkboxCell.setEnabled(enabled);
+		buttonCell.setEnabled(enabled);
 	}
 	
+	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -465,7 +470,7 @@ public class EditableCell extends AbstractCell<Object> {
 		return TextCell.class;
 	}
 
-	private class MyEditTextCell extends EditTextCell {
+	private class MyEditTextCell extends ActiveEditTextCell {
 		@Override
 		protected void onEnterKeyDown(Context context, Element parent,
 				String value, NativeEvent event,
@@ -483,7 +488,7 @@ public class EditableCell extends AbstractCell<Object> {
 		}
 	}
 
-	private class MySelectionCell extends DynamicSelectionCell {
+	private class MySelectionCell extends ActiveDynamicSelectionCell {
 		@Override
 		protected void onEnterKeyDown(Context context, Element parent,
 				String value, NativeEvent event,
@@ -501,7 +506,7 @@ public class EditableCell extends AbstractCell<Object> {
 		}
 	}
 
-	private class MyButtonCell extends ButtonCell {
+	private class MyButtonCell extends ActiveButtonCell {
 		@Override
 		protected void onEnterKeyDown(Context context, Element parent,
 				String value, NativeEvent event,

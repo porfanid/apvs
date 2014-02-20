@@ -9,7 +9,7 @@
   <logger name="org" level="INFO"/>
   <logger name="io" level="INFO"/>
   <logger name="log4jdbc" level="INFO"/>
-  <logger name="ch.cern.atlas.apvs.db" level="DEBUG"/>
+  <logger name="ch.cern.atlas.apvs.db" level="INFO"/>
   <logger name="ch.cern.atlas.apvs.daq" level="INFO"/>
 
   <root level="INFO">

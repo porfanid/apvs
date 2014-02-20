@@ -23,12 +23,12 @@ import ch.cern.atlas.apvs.client.validation.TextAreaField;
 import ch.cern.atlas.apvs.client.validation.TextBoxField;
 import ch.cern.atlas.apvs.client.validation.ValidationFieldset;
 import ch.cern.atlas.apvs.client.validation.ValidationForm;
+import ch.cern.atlas.apvs.client.widget.ActiveColumn;
 import ch.cern.atlas.apvs.client.widget.CheckboxColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableTextColumn;
 import ch.cern.atlas.apvs.client.widget.EditTextColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
-import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.HumanTime;
 import ch.cern.atlas.apvs.client.widget.PagerHeader;
@@ -91,7 +91,7 @@ public class InterventionView extends GlassPanel implements Module {
 	private ScrollPanel scrollPanel;
 
 	private ClickableTextColumn<Intervention> startTime;
-	private GenericColumn<Intervention> endTime;
+	private ActiveColumn<Intervention, Object> endTime;
 
 	private boolean selectable = false;
 	private boolean sortable = true;
@@ -263,7 +263,7 @@ public class InterventionView extends GlassPanel implements Module {
 						: TextCell.class;
 			}
 		};
-		endTime = new GenericColumn<Intervention>(cell) {
+		endTime = new ActiveColumn<Intervention, Object>(cell) {
 			@Override
 			public String getValue(Intervention object) {
 				return object.getEndTime() != null ? ClientConstants.dateFormatNoSeconds
@@ -432,7 +432,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onSuccess(Intervention intervention) {
-										Window.alert("IID: "+intervention.getId());
+									//	Window.alert("IID: "+intervention.getId());
 										
 										videoService.startVideo(intervention, new AsyncCallback<Void>() {
 											
@@ -678,9 +678,16 @@ public class InterventionView extends GlassPanel implements Module {
 					@Override
 					public void onClick(ClickEvent event) {
 						m.hide();
+						
+						InetAddress inetAddress = null;
+						try {
+							inetAddress = InetAddress.getByName(ip.getValue());
+						} catch (IllegalArgumentException e) {
+							inetAddress = InetAddress.getLocalHost();
+						}
 
 						Device device = new Device(ptuId.getValue(),
-								InetAddress.getByName(ip.getValue()),
+								inetAddress,
 								description.getValue(), new MacAddress(
 										macAddress.getValue()), hostName
 										.getValue(), virtual.getValue());

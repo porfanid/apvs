@@ -40,6 +40,8 @@ import org.asteriskjava.manager.event.MeetMeLeaveEvent;
 import org.asteriskjava.manager.event.NewChannelEvent;
 import org.asteriskjava.manager.event.PeerEntryEvent;
 import org.asteriskjava.manager.event.PeerStatusEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gwt.user.client.rpc.SerializationException;
 
@@ -65,6 +67,8 @@ import ch.cern.atlas.apvs.ptu.shared.EventChangedEvent;
 
 public class AudioServiceImpl extends ResponsePollService implements
 		AudioService, ManagerEventListener {
+
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static final long serialVersionUID = 1L;
 
@@ -126,12 +130,12 @@ public class AudioServiceImpl extends ResponsePollService implements
 						.fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(
 								supervisorAccount));
 
-				System.out.println("Trying login in Asterisk Server on "
+				log.info("Trying login in Asterisk Server on "
 						+ asteriskUrl + " ...");
 				try {
 					login();
 				} catch (AudioException e) {
-					System.err.println("Fail to login: " + e.getMessage());
+					log.error("Fail to login: ", e);
 				}
 			} else {
 				boolean audioFormerState = audioOk;
@@ -140,7 +144,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				} else {
 					asteriskConnected = false;
 					audioOk = false;
-					System.err.println("Asterisk Server: " + asteriskUrl
+					log.warn("Asterisk Server: " + asteriskUrl
 							+ " is not available...");
 				}
 				if ((audioFormerState != audioOk)) {
@@ -159,7 +163,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		if (eventBus != null)
 			return;
 
-		System.out.println("Creating AudioService...");
+		log.info("Creating AudioService...");
 		eventBus = APVSServerFactory.getInstance().getEventBus();
 		ServerSettingsStorage.getInstance(eventBus);
 		AudioUsersSettingsStorage.getInstance(eventBus);
@@ -185,7 +189,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		System.out.println("Starting Audio Service...");
+		log.info("Starting Audio Service...");
 
 		voipAccounts = new AudioSettings();
 		supervisorAccount = new VoipAccount();
@@ -236,8 +240,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 														0, ASTERISK_POLLING,
 														TimeUnit.MILLISECONDS);
 								} else {
-									System.err
-											.println("Audio URL \""
+									log.error
+											("Audio URL \""
 													+ asteriskAddress
 													+ "\" does not follow the correct format -> username@asterisk_hostname");
 								}
@@ -255,8 +259,8 @@ public class AudioServiceImpl extends ResponsePollService implements
 					@Override
 					public void onConnectionUUIDchanged(
 							ConnectionUUIDsChangedEvent event) {
-						System.err
-								.println("****** Supervisor Connect or Disconnect "
+						log.error
+								("****** Supervisor Connect or Disconnect "
 										+ event);
 					}
 				});
@@ -305,7 +309,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					try {
 						hangupMultiple(channels);
 					} catch (AudioException e) {
-						System.err.println("Failed to Hangup Channel"
+						log.error("Failed to Hangup Channel"
 								+ e.getMessage());
 					}
 					call(voipAccounts.getNumber(ptuId),
@@ -393,27 +397,27 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 					@Override
 					public void onSuccess(AsteriskChannel arg0) {
-						System.err.println("User added to conference call...");
+						log.info("User added to conference call...");
 					}
 
 					@Override
 					public void onNoAnswer(AsteriskChannel arg0) {
-						System.err.println("No answer...");
+						log.warn("No answer...");
 					}
 
 					@Override
 					public void onFailure(LiveException arg0) {
-						System.err.println("Failure to load...");
+						log.error("Failure to load...");
 					}
 
 					@Override
 					public void onDialing(AsteriskChannel arg0) {
-						System.err.println("User currently dialing someone...");
+						log.info("User currently dialing someone...");
 					}
 
 					@Override
 					public void onBusy(AsteriskChannel arg0) {
-						System.err.println("User Busy...");
+						log.info("User Busy...");
 					}
 				});
 	}
@@ -545,11 +549,11 @@ public class AudioServiceImpl extends ResponsePollService implements
 			// ConnectEvent
 		} else if (event instanceof ConnectEvent) {
 			asteriskConnected = true;
-			System.out.println("Connected to Asterisk server");
+			log.info("Connected to Asterisk server");
 			// DisconnectEvent
 		} else if (event instanceof DisconnectEvent) {
 			asteriskConnected = false;
-			System.out.println("Disconnected from Asterisk server");
+			log.info("Disconnected from Asterisk server");
 		}
 	}
 
@@ -560,7 +564,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 	public void newChannelEvent(NewChannelEvent event) {
 		DateFormat dateFormat = new SimpleDateFormat("yyMMdd-HH.mm.ss");
 		Date date = new Date();
-		System.out.println(dateFormat.format(date));
+		log.info(dateFormat.format(date));
 		MonitorAction record = new MonitorAction();
 
 		String channel = event.getChannel();
@@ -579,7 +583,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			}
 		} else if (number.matches("SIP/2[0-9]{3}")) {
 			if (number.equals(supervisorAccount.getAccount())) {
-				System.out.println("Channel for supervisor created");
+				log.info("Channel for supervisor created");
 				supervisorAccount.setChannel(channel);
 				((RemoteEventBus) eventBus)
 						.fireEvent(new AudioSupervisorSettingsChangedRemoteEvent(
@@ -588,7 +592,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 						+ dateFormat.format(date), "wav", true);
 			}
 		} else {
-			System.err.println("#NewChannelEvent - NO PTU FOUND WITH NUMBER "
+			log.error("#NewChannelEvent - NO PTU FOUND WITH NUMBER "
 					+ number);
 			return;
 		}
@@ -641,7 +645,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					supervisorAccount.setOnCall(true);
 				}
 			} else {
-				System.err.println("#BridgeEvent - ERROR IN ASSIGNMENT "
+				log.error("#BridgeEvent - ERROR IN ASSIGNMENT "
 						+ number1 + " & " + number2);
 				return;
 			}
@@ -657,14 +661,14 @@ public class AudioServiceImpl extends ResponsePollService implements
 							.getUsername(ptuId2));
 					supervisorAccount.setOnCall(true);
 				} else {
-					System.err.println("#BridgeEvent - ERROR IN ASSIGNMENT "
+					log.error("#BridgeEvent - ERROR IN ASSIGNMENT "
 							+ number1 + " & " + number2);
 					return;
 				}
 
 			}
 		} else {
-			System.err.println("#BridgeEvent - ERROR IN ASSIGNMENT " + number1
+			log.error("#BridgeEvent - ERROR IN ASSIGNMENT " + number1
 					+ " & " + number2);
 			return;
 		}
@@ -706,7 +710,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				return;
 			}
 		}
-		System.err.println("#HangupEvent - NO DEVICE FOUND WITH NUMBER "
+		log.error("#HangupEvent - NO DEVICE FOUND WITH NUMBER "
 				+ number);
 	}
 
@@ -742,8 +746,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			}
 		}
 
-		System.err
-				.println("#PeerStatusEvent - NO PTU OR SUPERVISOR FOUND OR ASSIGNED WITH NUMBER "
+				log.error("#PeerStatusEvent - NO PTU OR SUPERVISOR FOUND OR ASSIGNED WITH NUMBER "
 						+ number);
 	}
 
@@ -789,7 +792,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 			}
 		}
 
-		System.err.println("#MeetMeJoinEvent - NO PTU FOUND WITH NUMBER "
+		log.error("#MeetMeJoinEvent - NO PTU FOUND WITH NUMBER "
 				+ number);
 	}
 
@@ -835,7 +838,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				return;
 			}
 		}
-		System.err.println("#MeetMeLeaveEvent - NO PTU FOUND WITH NUMBER "
+		log.error("#MeetMeLeaveEvent - NO PTU FOUND WITH NUMBER "
 				+ number);
 	}
 

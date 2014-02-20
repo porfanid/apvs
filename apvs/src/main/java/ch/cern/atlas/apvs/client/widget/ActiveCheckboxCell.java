@@ -4,8 +4,11 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 
-public class ActiveCheckboxCell extends CheckboxCell {
+public class ActiveCheckboxCell extends CheckboxCell implements ActiveCell<Boolean> {
 
 	private static final SafeHtml INPUT_CHECKED = SafeHtmlUtils
 			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" checked/>");
@@ -19,10 +22,14 @@ public class ActiveCheckboxCell extends CheckboxCell {
 	private static final SafeHtml INPUT_UNCHECKED_DISABLED = SafeHtmlUtils
 			.fromSafeConstant("<input type=\"checkbox\" tabindex=\"-1\" disabled=\"disabled\"/>");
 
-	private boolean enabled;
+	private boolean enabled = true;
 	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	public boolean isEnabled() {
+		return enabled;
 	}
 	
 	@Override
@@ -45,6 +52,15 @@ public class ActiveCheckboxCell extends CheckboxCell {
 			sb.append(INPUT_CHECKED);
 		} else if (!checked && enabled) {
 			sb.append(INPUT_UNCHECKED);
+		}
+	}
+	
+	@Override
+	public void onBrowserEvent(com.google.gwt.cell.client.Cell.Context context,
+			Element parent, Boolean value, NativeEvent event,
+			ValueUpdater<Boolean> valueUpdater) {
+		if (enabled) {
+			super.onBrowserEvent(context, parent, value, event, valueUpdater);
 		}
 	}
 }

@@ -3,12 +3,11 @@ package ch.cern.atlas.apvs.client.widget;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.cern.atlas.apvs.client.widget.EditTextCell.ViewData;
 import ch.cern.atlas.apvs.domain.Device;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
-public class AsyncEditTextCell extends EditTextCell {
+public class AsyncEditTextCell extends ActiveEditTextCell {
 
 	enum State {
 		none, sent, ok, error;

@@ -13,11 +13,21 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 
 // Copied from SelectionCell and made options the "model" and removed indexOptions.
+// added enabling
 // Mark Donszelmann
-public class DynamicSelectionCell extends AbstractInputCell<String, String> {
+public class ActiveDynamicSelectionCell extends AbstractInputCell<String, String> implements ActiveCell<String> {
 
+	private boolean enabled = true;
+	
+	private static final SafeHtml SELECT = SafeHtmlUtils
+			.fromSafeConstant("<select tabindex=\"-1\" class=\"dynamicSelectionCell\">");
+	
+	private static final SafeHtml SELECT_DISABLED = SafeHtmlUtils
+			.fromSafeConstant("<select tabindex=\"-1\" class=\"dynamicSelectionCell\" disabled=\"disabled\">");
+	
 	interface Template extends SafeHtmlTemplates {
 		@Template("<option value=\"{0}\">{0}</option>")
 		SafeHtml deselected(String option);
@@ -36,7 +46,7 @@ public class DynamicSelectionCell extends AbstractInputCell<String, String> {
 	 * @param options
 	 *            the options in the cell
 	 */
-	public DynamicSelectionCell(List<String> options) {
+	public ActiveDynamicSelectionCell(List<String> options) {
 		super("change");
 		if (template == null) {
 			template = GWT.create(Template.class);
@@ -44,13 +54,27 @@ public class DynamicSelectionCell extends AbstractInputCell<String, String> {
 		this.options = options;
 	}
 	
-	public DynamicSelectionCell() {
+	public ActiveDynamicSelectionCell() {
 		this(null);
+	}
+	
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	@Override
 	public void onBrowserEvent(Context context, Element parent, String value,
 			NativeEvent event, ValueUpdater<String> valueUpdater) {
+		if (!enabled) {
+			return;
+		}
+		
 		super.onBrowserEvent(context, parent, value, event, valueUpdater);
 
 		if (options == null) {
@@ -88,7 +112,7 @@ public class DynamicSelectionCell extends AbstractInputCell<String, String> {
 
 		int selectedIndex = options
 				.indexOf(viewData == null ? value : viewData);
-		sb.appendHtmlConstant("<select tabindex=\"-1\" class=\"dynamicSelectionCell\">");
+		sb.append(enabled ? SELECT : SELECT_DISABLED);
 		int index = 0;
 		for (String option : options) {
 			if (index++ == selectedIndex) {

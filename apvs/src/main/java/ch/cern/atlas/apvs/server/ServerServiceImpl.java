@@ -24,6 +24,9 @@ public class ServerServiceImpl extends ResponsePollService implements
 	
 	public ServerServiceImpl() {
 		log.info("Creating ServerService...");
+		
+		java.util.logging.Logger logger = java.util.logging.Logger.getLogger("TEST");
+		logger.info("TEST");
 	}
 
 	@Override
