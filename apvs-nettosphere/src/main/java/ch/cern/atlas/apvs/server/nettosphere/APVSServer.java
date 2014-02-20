@@ -5,6 +5,7 @@ import org.atmosphere.nettosphere.Config;
 import org.atmosphere.nettosphere.Nettosphere;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
  * Start the Netty server.
@@ -18,6 +19,9 @@ public class APVSServer {
 //    private static final Logger logger = Logger.getLogger(APVSServer.class);
 
     public static void main(String[] args) {
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+		
 		int port = Integer.parseInt(System.getProperty("port",
 				"" + DEFAULT_PORT_NO));
 		

@@ -181,7 +181,6 @@ public class AudioSettings implements Serializable, IsSerializable {
 	
 	// Add PTU
 	public boolean add(String name) {
-		System.err.println("Adding " + name);
 		if (!entries.containsKey(name)) {
 			entries.put(name, new VoipAccount("SIP/1000", false));
 			return true;

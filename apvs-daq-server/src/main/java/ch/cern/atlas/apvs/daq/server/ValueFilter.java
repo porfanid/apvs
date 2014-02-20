@@ -2,9 +2,15 @@ package ch.cern.atlas.apvs.daq.server;
 
 import java.util.List;
   
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.domain.Measurement;
 
 public class ValueFilter implements Filter {
+	
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	@Override
 	public boolean filter(Measurement current, List<Measurement> list,
@@ -16,8 +22,8 @@ public class ValueFilter implements Filter {
 			//with 0 or 1 previous measurement in LIST, just add current as new element of list.
 			if (current != null){
 				list.add(current);
-				//System.out.println("ValueFilter: (previous <2) just add <"+current.getValue()+"> to the list");
-				//System.out.println("ValueFilter: List len is:"+list.size());
+				//log.info("ValueFilter: (previous <2) just add <"+current.getValue()+"> to the list");
+				//log.info("ValueFilter: List len is:"+list.size());
 				//return false
 				res = false;
 			} else {

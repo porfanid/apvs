@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class PtuPushServer {
 
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private static Logger log = LoggerFactory.getLogger(PtuPushServer.class.getName());
 
 	private final String host;
 	private final int port;
@@ -49,7 +49,7 @@ public class PtuPushServer {
 	public static void main(String[] args) throws Exception {
 		// Print usage if no argument is specified.
 		if (args.length != 2) {
-			System.err.println("Usage: " + PtuPushServer.class.getSimpleName()
+			log.info("Usage: " + PtuPushServer.class.getSimpleName()
 					+ " <host> <port> <refresh>");
 			return;
 		}

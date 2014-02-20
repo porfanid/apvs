@@ -3,13 +3,16 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.domain.AlarmMap;
 import ch.cern.atlas.apvs.client.event.AlarmMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
+import ch.cern.atlas.apvs.client.widget.ActiveColumn;
 import ch.cern.atlas.apvs.client.widget.ClickableHtmlColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
-import ch.cern.atlas.apvs.client.widget.GenericColumn;
 import ch.cern.atlas.apvs.client.widget.GlassPanel;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.domain.Device;
@@ -31,6 +34,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class AlarmView extends GlassPanel implements Module {
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private CellTable<String> table = new CellTable<String>();
 	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
@@ -86,7 +90,7 @@ public class AlarmView extends GlassPanel implements Module {
 
 		EditableCell cell = new EditableCell(classes, 50);
 
-		GenericColumn<String> column = new GenericColumn<String>(cell) {
+		ActiveColumn<String, Object> column = new ActiveColumn<String, Object>(cell) {
 			@Override
 			public Object getValue(String name) {
 				if (name.equals(names.get(0))) {
@@ -99,7 +103,7 @@ public class AlarmView extends GlassPanel implements Module {
 					return alarms != null && alarms.isFall(device) ? "ALARM"
 							: "Cleared";
 				}
-				System.out.println("AlarmView name unknown '" + name + "'");
+				log.warn("AlarmView name unknown '" + name + "'");
 				return "unknown";
 			}
 
@@ -209,7 +213,7 @@ public class AlarmView extends GlassPanel implements Module {
 					public void onAlarmMapChanged(
 							AlarmMapChangedRemoteEvent event) {
 						alarms = event.getAlarmMap();
-						System.err.println("Alarms changed " + alarms);
+						log.info("Alarms changed " + alarms);
 						scheduler.update();
 					}
 				});

@@ -1,5 +1,8 @@
 package ch.cern.atlas.apvs.ptu.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -8,6 +11,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import ch.cern.atlas.apvs.domain.Packet;
 
 public class JsonMessageEncoder extends MessageToByteEncoder<Packet> {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	public JsonMessageEncoder() {
 	}
@@ -24,7 +29,7 @@ public class JsonMessageEncoder extends MessageToByteEncoder<Packet> {
 //		os.close();
 		
 		String s = PtuJsonWriter.toJson(packet);
-		System.err.println(getClass()+" "+s);
+		log.info(getClass()+" "+s);
 		os.write(s.getBytes());
 		os.flush();
 		os.close();

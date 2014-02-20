@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client.ui;
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.ServerSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.settings.ServerSettings;
+import ch.cern.atlas.apvs.client.widget.ActiveColumn;
 import ch.cern.atlas.apvs.client.widget.EditableCell;
 import ch.cern.atlas.apvs.client.widget.UpdateScheduler;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
@@ -38,8 +39,6 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 
 		add(table);
 
-		setVisible(clientFactory.isSupervisor());
-
 		// name column
 		Column<String, Object> name = new Column<String, Object>(
 				new EditableCell(ServerSettings.Entry.getNameClasses(), 30)) {
@@ -59,7 +58,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		table.addColumn(name, "Server Setting");
 
-		Column<String, Object> column = new Column<String, Object>(
+		ActiveColumn<String, Object> column = new ActiveColumn<String, Object>(
 				new EditableCell(ServerSettings.Entry.getCellClasses(), 50)) {
 			@Override
 			public Object getValue(String name) {
@@ -72,7 +71,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 				getCell().render(context, s, sb);
 			}
 		};
-
+		column.setEnabled(clientFactory.isSupervisor());
 		column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		table.addColumn(column, "Value");
 

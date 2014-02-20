@@ -22,7 +22,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class HistoryManager {
 
-//	private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static HistoryManager instance;
 	private History history;
@@ -43,8 +43,7 @@ public class HistoryManager {
 					public void onInterventionMapChanged(
 							InterventionMapChangedRemoteEvent event) {
 						// FIXME #298
-						System.err
-								.println("FIXME (3x?)... Received............."
+						log.warn("FIXME (3x?)... Received............."
 										+ event.getEventBusUUID() + " "
 										+ event.getSourceUUID());
 						List<Device> newPtus = event.getInterventionMap()

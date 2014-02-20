@@ -63,14 +63,10 @@ public class DosimeterSimulator extends Thread {
 					cos.buffer().clear();
 
 					Thread.sleep(10000 + random.nextInt(5000));
-					System.out.print(".");
-					System.out.flush();
 				}
 			} catch (InterruptedException e) {
 				// ignored
 			}
-			System.err.print("*");
-			System.out.flush();
 			os.close();
 		} catch (IOException e) {
 		} finally {

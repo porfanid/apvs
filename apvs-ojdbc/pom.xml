@@ -17,7 +17,7 @@
                 <artifactId>maven-install-plugin</artifactId>
 		<executions>
 			<execution>
-				<id>commons-configuration</id>
+				<id>ojdbc</id>
 		    		<configuration>
 					<groupId>com.oracle</groupId>
 					<artifactId>ojdbc</artifactId>

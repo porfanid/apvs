@@ -12,7 +12,7 @@ public class PtuServer {
 		Logger log = LoggerFactory.getLogger(PtuServer.class.getName());
 
 		if (args.length < 2) {
-			System.err.println("Usage: " + PtuServer.class.getSimpleName()
+			log.info("Usage: " + PtuServer.class.getSimpleName()
 					+ "[<host>] <port> <refresh> [IDs...]");
 			return;
 		}

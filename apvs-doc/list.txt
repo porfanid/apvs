@@ -1,0 +1,16 @@
+- documentation, what is where and what is missing
+	- User Guide (with some videos) [Mark and ...]
+        - Infrastructure [Christos, Alex]
+	- Setup of a stand-alone system [Alex, Mark]
+        - Overview of components [?]
+	- Electronics Design and Schematics Doc [Christos, Alex]
+        - DAQ server doc [Mark]
+        - GUI doc [Mark]
+        - PTU software [Christos]
+	- PTU Testing Report [Alex]
+
+written in something that produces HTML and PDF (for edms)
+(docbookx, latex?)
+
+- copy on EDMS
+

@@ -120,7 +120,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	}
 
 	public ChannelFuture sendOrder(Order order) throws IOException {
-		System.out.println("=====> " + PtuJsonWriter.objectToJson(order));
+		log.info("=====> " + PtuJsonWriter.objectToJson(order));
 
 		if (isConnected()) {
 			ChannelFuture future = getChannel().write(
@@ -137,7 +137,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, Packet packet)
 			throws Exception {
-		System.err.println("READ " + packet);
+		log.info("READ " + packet);
 
 		Device device = deviceMap.get(packet.getSender());
 		List<Message> list = packet.getMessages();
@@ -148,12 +148,12 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 
 		if (DEBUG) {
-			log.info("# of mesg: " + list.size());
+			log.debug("# of mesg: " + list.size());
 		}
 		for (Iterator<Message> i = list.iterator(); i.hasNext();) {
 			Message message = i.next();
 			if (DEBUG) {
-				log.info(message.toString());
+				log.debug(message.toString());
 			}
 
 			try {
@@ -195,9 +195,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		}
 
 		Device ptu = message.getDevice();
-		System.err.println(ptu);
 		String sensor = message.getSensor();
-		System.err.println(sensor);
 
 		if (!sensorMap.isEnabled(ptu, sensor)) {
 			// log.warn("UPDATE IGNORED, disabled measurement " + ptuId + " " +
@@ -219,8 +217,6 @@ public class PtuClientHandler extends PtuReconnectHandler {
 		message = new Measurement(message.getDevice(), sensor, value, low,
 				high, unit, message.getSamplingRate(), "OneShoot",
 				message.getTime());
-
-		System.err.println("Modified message: " + message);
 
 		measurementChanged.add(message);
 

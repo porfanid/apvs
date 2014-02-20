@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -55,16 +56,31 @@
 							<artifactId>slf4j-api</artifactId>
 							<type>jar</type>
 						</overlay>
-		<overlay>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
+						<overlay>
+							<groupId>org.slf4j</groupId>
+							<artifactId>jcl-over-slf4j</artifactId>
 							<type>jar</type>
-		</overlay>
-		<overlay>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
+						</overlay>
+						<overlay>
+							<groupId>org.slf4j</groupId>
+							<artifactId>log4j-over-slf4j</artifactId>
 							<type>jar</type>
-		</overlay>
+						</overlay>
+						<overlay>
+							<groupId>org.slf4j</groupId>
+							<artifactId>jul-to-slf4j</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>ch.qos.logback</groupId>
+							<artifactId>logback-classic</artifactId>
+							<type>jar</type>
+						</overlay>
+						<overlay>
+							<groupId>ch.qos.logback</groupId>
+							<artifactId>logback-core</artifactId>
+							<type>jar</type>
+						</overlay>
 						<overlay>
 							<groupId>io.netty</groupId>
 							<artifactId>netty-all</artifactId>
@@ -73,7 +89,7 @@
 						<overlay>
 							<groupId>javax.servlet</groupId>
 							<artifactId>javax.servlet-api</artifactId>
-                            				<type>jar</type>
+							<type>jar</type>
 						</overlay>
 					</overlays>
 				</configuration>
@@ -97,6 +113,18 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>

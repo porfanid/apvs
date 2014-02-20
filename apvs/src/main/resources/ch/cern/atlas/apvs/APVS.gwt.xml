@@ -16,18 +16,11 @@
 	<inherits name="com.google.gwt.resources.Resources" />
 	<inherits name="com.google.web.bindery.autobean.AutoBean" />
 
-	<set-property name="gwt.logging.logLevel" value="INFO" />
-	<set-property name="gwt.logging.enabled" value="TRUE" />
-	<set-property name="gwt.logging.developmentModeHandler"
-		value="ENABLED" />
-	<set-property name="gwt.logging.systemHandler" value="DISABLED" />
-	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
-	<set-property name="gwt.logging.consoleHandler" value="ENABLED" />
-	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />
-
 <!-- 
 	<inherits name="org.slf4j.Slf4j" />
 -->
+	<inherits name="de.benediktmeurer.gwt.slf4j.jul.JUL" />
+
     <inherits name="org.atmosphere.gwt20.AtmosphereGwt20"/>
     <inherits name="com.svenjacobs.gwtbootstrap3.GwtBootstrap3"/>
  
@@ -45,8 +38,23 @@
 	<!-- inherit css based theme -->
 
 	<stylesheet src='../css/APVS.css' />
+	
+	<script src="../highcharts/adapters/standalone-framework.js" />
+	<script src="../highcharts/highcharts.js" />
+	<script src="../highcharts/highcharts-more.js" />
+	<script src="../highcharts/modules/exporting.js" />
 
 	<set-property name="locale" value="default" />
+	
+	<set-property name="gwt.logging.logLevel" value="INFO" />
+	<set-property name="gwt.logging.enabled" value="TRUE" />
+	<set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED" />
+	<set-property name="gwt.logging.developmentModeHandler"
+		value="ENABLED" />
+	<set-property name="gwt.logging.systemHandler" value="ENABLED" />
+	<set-property name="gwt.logging.popupHandler" value="ENABLED" />
+	<set-property name="gwt.logging.consoleHandler" value="ENABLED" />
+	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />
 	<set-property name="gwt.logging.logLevel" value="FINEST" />
 	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
 

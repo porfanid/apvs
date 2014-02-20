@@ -10,6 +10,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class APVSServer {
 	private static Logger log = LoggerFactory.getLogger(APVSServer.class.getName());
@@ -17,6 +18,9 @@ public class APVSServer {
 	private static final int DEFAULT_PORT_NO = 8095;
 
 	public static void main(String[] args) {
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+		
 		int port = Integer.parseInt(System.getProperty("port",
 				"" + DEFAULT_PORT_NO));
 
