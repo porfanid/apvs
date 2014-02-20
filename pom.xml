@@ -74,6 +74,7 @@
 
 		<jar-plugin-version>2.4</jar-plugin-version>
 		<war-plugin-version>2.4</war-plugin-version>
+		<shade-plugin-version>2.2</shade-plugin-version>
 
 		<javadoc-plugin-version>2.9.1</javadoc-plugin-version>
 
@@ -318,6 +319,11 @@
 				<plugin>
 					<artifactId>maven-war-plugin</artifactId>
 					<version>${war-plugin-version}</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>${shade-plugin-version}</version>
 				</plugin>
 
 			</plugins>
