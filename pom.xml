@@ -24,8 +24,8 @@
 
 		<gwt-version>2.6.0</gwt-version>
 		<gwt-plugin-version>2.6.0</gwt-plugin-version>
-		<atmosphere-version>2.0.7</atmosphere-version>
-		<atmosphere-ext-version>2.0.2</atmosphere-ext-version>
+		<atmosphere-version>2.1.0</atmosphere-version>
+		<atmosphere-ext-version>2.1.0</atmosphere-ext-version>
 		<asterisk-java-version>f8c8f014253745783149ecbe0fed3faa074a7368</asterisk-java-version>
 		<commons-configuration-version>2.0-1527979</commons-configuration-version>
 		<commons-io-version>2.4</commons-io-version>
@@ -44,7 +44,7 @@
 		<jetty8-version>8.1.14.v20131031</jetty8-version>
 		<jetty7-version>7.6.14.v20131031</jetty7-version>
 		<jetty-plugin-version>${jetty8-version}</jetty-plugin-version>
-		<json-version>20090211</json-version>
+		<json-version>20140107</json-version>
 		<junit-version>4.11</junit-version>
  		<liquibase-version>3.1.1</liquibase-version>
 		<logback-version>1.1.1</logback-version>
@@ -73,6 +73,7 @@
 
 		<jar-plugin-version>2.4</jar-plugin-version>
 		<war-plugin-version>2.4</war-plugin-version>
+		<shade-plugin-version>2.2</shade-plugin-version>
 
 		<javadoc-plugin-version>2.9.1</javadoc-plugin-version>
 
@@ -319,6 +320,11 @@
 				<plugin>
 					<artifactId>maven-war-plugin</artifactId>
 					<version>${war-plugin-version}</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>${shade-plugin-version}</version>
 				</plugin>
 
 			</plugins>

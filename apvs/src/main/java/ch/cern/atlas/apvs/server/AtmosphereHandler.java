@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
+import org.atmosphere.cpr.AtmosphereConfig;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.handler.ReflectorServletProcessor;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ public class AtmosphereHandler extends ReflectorServletProcessor {
 	private org.slf4j.Logger log = LoggerFactory.getLogger(getClass().getName());
 
     @Override
-    public void init(ServletConfig servletConfig) throws ServletException {
+    public void init(AtmosphereConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         Logger.getLogger("").setLevel(Level.INFO);
         Logger.getLogger("org.atmosphere.gwt").setLevel(Level.ALL);
