@@ -20,9 +20,9 @@
 		    		<configuration>
 					<groupId>com.moxie</groupId>
 					<artifactId>highcharts</artifactId>
-					<version>${highcharts-version}</version>
+					<version>${moxie-highcharts-version}</version>
 					<packaging>jar</packaging>
-					<file>org.moxieapps.gwt.highcharts-${highcharts-version}.jar</file>
+					<file>org.moxieapps.gwt.highcharts-${moxie-highcharts-version}.jar</file>
 				</configuration>
 				<goals>
 					<goal>install-file</goal>

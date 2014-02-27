@@ -39,10 +39,10 @@
 
 	<stylesheet src='../css/APVS.css' />
 	
-	<script src="../highcharts/adapters/standalone-framework.js" />
-	<script src="../highcharts/highcharts.js" />
-	<script src="../highcharts/highcharts-more.js" />
-	<script src="../highcharts/modules/exporting.js" />
+	<script src="../webjars/highstock/${highstock-version}/js/adapters/standalone-framework.js" />
+	<script src="../webjars/highstock/${highstock-version}/js/highstock.js" />
+	<script src="../webjars/highstock/${highstock-version}/js/highcharts-more.js" />
+	<script src="../webjars/highstock/${highstock-version}/js/modules/exporting.js" />
 
 	<set-property name="locale" value="default" />
 	

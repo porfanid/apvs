@@ -36,7 +36,7 @@
       <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
     </file>
     <file>
-      <source>${project.basedir}/../apvs-ptu/target/apvs-ptu-jar-with-dependencies.jar</source>
+      <source>${project.basedir}/../apvs-ptu/target/apvs-ptu-exec.jar</source>
       <destName>apvs-ptu.jar</destName>
       <outputDirectory>/${project.build.finalName}/lib</outputDirectory>
     </file>
