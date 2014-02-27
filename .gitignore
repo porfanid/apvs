@@ -5,9 +5,10 @@ bin
 .settings
 .DS_Store
 ._.DS_Store
+dependency-reduced-pom.xml
+pom.xml.releaseBackup
 /target
 /release.properties
-pom.xml.releaseBackup
 /EgroupCheckConf.properties
 /httpd-proxy.conf
 /hibernate.cfg.xml

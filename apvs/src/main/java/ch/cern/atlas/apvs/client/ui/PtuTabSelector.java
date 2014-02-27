@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.gwtbootstrap3.client.ui.ListItem;
+import org.gwtbootstrap3.client.ui.NavTabs;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -21,13 +24,11 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class PtuTabSelector extends HorizontalPanel implements Module {
+public class PtuTabSelector extends NavTabs implements Module {
 
 	private RemoteEventBus remoteEventBus;
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
@@ -143,8 +144,8 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 					continue;
 				}
 
-				final ToggleButton b = new ToggleButton(getName(ptu));
-				b.setDown(ptu.getName().equals(selectedTab));
+				final ListItem b = new ListItem(getName(ptu));
+				b.setActive(ptu.getName().equals(selectedTab));
 
 				b.addClickHandler(new ClickHandler() {
 
@@ -179,8 +180,8 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 					continue;
 				}
 			}
-			final ToggleButton b = new ToggleButton(name);
-			b.setDown(name.equals(selectedTab));
+			final ListItem b = new ListItem(name);
+			b.setActive(name.equals(selectedTab));
 
 			b.addClickHandler(new ClickHandler() {
 
@@ -207,12 +208,12 @@ public class PtuTabSelector extends HorizontalPanel implements Module {
 		return false;
 	}
 
-	private void radio(ToggleButton b) {
+	private void radio(ListItem b) {
 		for (int i = 0; i < getWidgetCount(); i++) {
 			Widget w = getWidget(i);
-			if (w instanceof ToggleButton) {
-				ToggleButton t = (ToggleButton) w;
-				t.setDown(w == b);
+			if (w instanceof ListItem) {
+				ListItem t = (ListItem) w;
+				t.setActive(w == b);
 			}
 		}
 	}
