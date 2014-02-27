@@ -7,7 +7,6 @@ import org.gwtbootstrap3.client.ui.FlowPanel;
 import org.gwtbootstrap3.client.ui.FormGroup;
 import org.gwtbootstrap3.client.ui.FormLabel;
 import org.gwtbootstrap3.client.ui.HelpBlock;
-import org.gwtbootstrap3.client.ui.Span;
 
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.Panel;
