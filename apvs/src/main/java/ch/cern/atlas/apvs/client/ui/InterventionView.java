@@ -14,6 +14,8 @@ import org.gwtbootstrap3.client.ui.ModalFooter;
 import org.gwtbootstrap3.client.ui.constants.ButtonDismiss;
 import org.gwtbootstrap3.client.ui.constants.FormType;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
@@ -70,7 +72,6 @@ import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -279,42 +280,47 @@ public class InterventionView extends GlassPanel implements Module {
 		endTime.setFieldUpdater(new FieldUpdater<Intervention, Object>() {
 
 			@Override
-			public void update(int index, Intervention intervention,
+			public void update(int index, final Intervention intervention,
 					Object value) {
 				if (!clientFactory.isSupervisor()) {
 					return;
 				}
 
-				if (Window.confirm("Are you sure")) {
-					intervention.setEndTime(new Date());
-					interventionService.updateIntervention(intervention,
-							new AsyncCallback<Intervention>() {
-
-								@Override
-								public void onSuccess(Intervention result) {
-									scheduler.update();
-								}
-
-								@Override
-								public void onFailure(Throwable caught) {
-									Window.alert(caught.getMessage());
-								}
-
-							});
-					
-					videoService.stopVideo(intervention, new AsyncCallback<Void>() {
+				Bootbox.confirm("Ending intervention started on "+intervention.getStartTime()+" for "+intervention.getPtuId()+" !", new ConfirmCallback() {
+					@Override
+				    public void callback(boolean result) {
+						if (!result) return;
 						
-						@Override
-						public void onSuccess(Void result) {
-							// ignored
-						}
+						intervention.setEndTime(new Date());
+						interventionService.updateIntervention(intervention,
+								new AsyncCallback<Intervention>() {
+
+									@Override
+									public void onSuccess(Intervention result) {
+										scheduler.update();
+									}
+
+									@Override
+									public void onFailure(Throwable caught) {
+										Bootbox.alert(caught.getMessage());
+									}
+
+								});
 						
-						@Override
-						public void onFailure(Throwable caught) {
-							Window.alert(caught.getMessage());
-						}
-					});
-				}
+						videoService.stopVideo(intervention, new AsyncCallback<Void>() {
+							
+							@Override
+							public void onSuccess(Void result) {
+								// ignored
+							}
+							
+							@Override
+							public void onFailure(Throwable caught) {
+								Bootbox.alert(caught.getMessage());
+							}
+						});			
+					}
+				});
 			}
 		});
 		table.addColumn(endTime, new TextHeader("End Time"), pager.getHeader());
@@ -432,7 +438,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onSuccess(Intervention intervention) {
-									//	Window.alert("IID: "+intervention.getId());
+									//	Bootbox.alert("IID: "+intervention.getId());
 										
 										videoService.startVideo(intervention, new AsyncCallback<Void>() {
 											
@@ -443,7 +449,7 @@ public class InterventionView extends GlassPanel implements Module {
 											
 											@Override
 											public void onFailure(Throwable caught) {
-												Window.alert(caught.getMessage());
+												Bootbox.alert(caught.getMessage());
 											}
 										});
 
@@ -452,7 +458,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onFailure(Throwable caught) {
-										Window.alert(caught.getMessage());
+										Bootbox.alert(caught.getMessage());
 									}
 								});						
 					}
@@ -583,12 +589,12 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onFailure(Throwable caught) {
-										Window.alert(caught.getMessage());
+										Bootbox.alert(caught.getMessage());
 									}
 								});
 					}
 				});
-
+				
 				ValidationForm form = new ValidationForm(ok, cancel);
 				form.setType(FormType.HORIZONTAL);
 				form.add(fieldset);
@@ -702,7 +708,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 									@Override
 									public void onFailure(Throwable caught) {
-										Window.alert(caught.getMessage());
+										Bootbox.alert(caught.getMessage());
 									}
 								});
 					}
@@ -768,7 +774,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								Window.alert(caught.getMessage());
+								Bootbox.alert(caught.getMessage());
 							}
 						});
 			}
@@ -817,7 +823,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								Window.alert(caught.getMessage());
+								Bootbox.alert(caught.getMessage());
 							}
 						});
 			}
@@ -859,7 +865,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 							@Override
 							public void onFailure(Throwable caught) {
-								Window.alert(caught.getMessage());
+								Bootbox.alert(caught.getMessage());
 							}
 						});
 			}

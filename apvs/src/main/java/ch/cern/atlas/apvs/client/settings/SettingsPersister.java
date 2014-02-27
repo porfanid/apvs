@@ -1,7 +1,6 @@
 package ch.cern.atlas.apvs.client.settings;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import ch.cern.atlas.apvs.client.event.SettingsChangedEvent;
 import ch.cern.atlas.apvs.client.widget.VerticalFlowPanel;
@@ -10,7 +9,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.storage.client.Storage;
-import com.google.gwt.user.client.Window;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
@@ -32,7 +30,7 @@ public class SettingsPersister extends VerticalFlowPanel {
 		try {
 			load();
 		} catch (Exception e) {
-			Window.alert("Could not load settings, continuing... \n"
+			Bootbox.alert("Could not load settings, continuing... \n"
 					+ e.getMessage());
 			e.printStackTrace();
 		}
@@ -64,7 +62,7 @@ public class SettingsPersister extends VerticalFlowPanel {
 	private void load() {
 		Storage store = Storage.getLocalStorageIfSupported();
 		if (store == null) {
-			Window.alert("Settings will not be stored");
+			Bootbox.alert("Settings will not be stored");
 			return;
 		}
 		for (int i = 0; i < store.getLength(); i++) {

@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 
 import com.google.gwt.core.client.Scheduler;
@@ -63,7 +60,7 @@ public class ImageView extends SimplePanel {
 
 					if ((currentCameraUrl != null) && isMovingJPEG) {
 						image.setUrl(currentCameraUrl);
-						// Window.alert("Set URL to "+currentCameraUrl);
+						// Bootbox.alert("Set URL to "+currentCameraUrl);
 					}
 
 					return true;

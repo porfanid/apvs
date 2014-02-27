@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client;
 import java.util.Date;
 import java.util.List;
 
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +117,7 @@ public class APVS implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert("Server not ready. reload webpage "
+				Bootbox.alert("Server not ready. reload webpage "
 						+ caught);
 			}
 		});
@@ -225,7 +226,7 @@ public class APVS implements EntryPoint {
 		// get first div element
 		NodeList<Element> divs = Document.get().getElementsByTagName("div");
 		if (divs.getLength() == 0) {
-			Window.alert("Please define a <div> element with the class set to your view you want to show.");
+			Bootbox.alert("Please define a <div> element with the class set to your view you want to show.");
 			return;
 		}
 

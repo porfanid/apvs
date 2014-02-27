@@ -330,7 +330,7 @@ public class AudioView extends GlassPanel implements Module {
 					public void onAudioUsersSettingsChanged(
 							AudioUsersSettingsChangedRemoteEvent event) {
 						voipAccounts = event.getAudioSettings();
-						// Window.alert("IMPACT NUMBER:" +
+						// Bootbox.alert("IMPACT NUMBER:" +
 						// voipAccounts.getActivity("PTU-02") );
 
 						updateTable();
@@ -374,7 +374,7 @@ public class AudioView extends GlassPanel implements Module {
 		String ptuId = ptu.getName();
 		boolean a = (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts
 				.getActivity(ptuId) == null));
-		// Window.alert(voipAccounts.getUsername(ptuId)+ ": "
+		// Bootbox.alert(voipAccounts.getUsername(ptuId)+ ": "
 		// +String.valueOf(a));
 		if (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts
 				.getActivity(ptuId) == null)) {

@@ -511,6 +511,11 @@
     				<version>${gwt-bootstrap-version}</version>
 			</dependency>
 			<dependency>
+    				<groupId>org.gwtbootstrap3</groupId>
+    				<artifactId>gwtbootstrap3-extras</artifactId>
+    				<version>${gwt-bootstrap-version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.google.gwt.eventbinder</groupId>
 				<artifactId>eventbinder</artifactId>
 				<version>${eventbinder-version}</version>

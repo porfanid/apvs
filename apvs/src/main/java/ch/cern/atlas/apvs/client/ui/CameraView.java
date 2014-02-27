@@ -1,8 +1,5 @@
 package ch.cern.atlas.apvs.client.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
@@ -164,7 +161,7 @@ public class CameraView extends ImageView implements Module,
 	public boolean update() {
 		final String cameraUrl = getCameraUrl(type, device, factory.getProxy());
 //		setUrl(null);
-//		Window.alert("CameraURL: '"+ptuId+"' 'null'");
+//		Bootbox.alert("CameraURL: '"+ptuId+"' 'null'");
 		
 		// fix for #465
 //		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
@@ -172,7 +169,7 @@ public class CameraView extends ImageView implements Module,
 //			@Override
 //			public void execute() {
 				setUrl(cameraUrl);
-//				Window.alert("CameraURL: '"+ptuId+"' '"+cameraUrl+"'");
+//				Bootbox.alert("CameraURL: '"+ptuId+"' '"+cameraUrl+"'");
 //			}
 //		});
 		

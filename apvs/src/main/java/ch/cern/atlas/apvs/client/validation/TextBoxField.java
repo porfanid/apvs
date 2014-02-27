@@ -1,6 +1,7 @@
 package ch.cern.atlas.apvs.client.validation;
 
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
@@ -9,7 +10,6 @@ import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 
 public class TextBoxField extends ValidationField<String> {
 
@@ -22,7 +22,7 @@ public class TextBoxField extends ValidationField<String> {
 			@Override
 			public void onBrowserEvent(Event event) {
 				super.onBrowserEvent(event);
-				Window.alert(" "+event);
+				Bootbox.alert(" "+event);
 			}
 		};
 		

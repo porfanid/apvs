@@ -6,6 +6,7 @@ import java.util.List;
 import org.gwtbootstrap3.client.ui.FlowPanel;
 import org.gwtbootstrap3.client.ui.FormGroup;
 import org.gwtbootstrap3.client.ui.FormLabel;
+import org.gwtbootstrap3.client.ui.HelpBlock;
 import org.gwtbootstrap3.client.ui.Span;
 
 import com.google.gwt.event.logical.shared.AttachEvent;
@@ -16,11 +17,10 @@ public abstract class ValidationField<T> extends FormGroup {
 
 	private FormLabel label;
 	private Panel container;
-	private Span help;
 
 	private List<ValidationHandler> handlers = new ArrayList<ValidationHandler>();
 	private Validator<T> validator;
-//	private HelpInline help;
+	private HelpBlock help;
 
 	public ValidationField(String fieldLabel, Validator<T> validator) {
 		label = new FormLabel();
@@ -33,8 +33,7 @@ public abstract class ValidationField<T> extends FormGroup {
 		container.addStyleName("col-lg-8");
 		add(container);
 
-		help = new Span();
-		help.addStyleName("help-block");
+		help = new HelpBlock();
 		
 		addAttachHandler(new AttachEvent.Handler() {
 
@@ -55,7 +54,7 @@ public abstract class ValidationField<T> extends FormGroup {
 			T value = getValue();
 			result = validator.validate(value);
 		}
-//		help.add(new Label(result.getMessage()));
+		help.setText(result.getMessage());
 		setValidationState(result.getLevel());
 		if (fireEvents) {
 			fire(result.isValid());

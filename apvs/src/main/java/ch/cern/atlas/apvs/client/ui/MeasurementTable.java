@@ -58,7 +58,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 		// gaugeWidget.setValue(m.getValue(), m.getDownThreshold(),
 		// m.getUpThreshold());
 		// sb.appendEscaped(gaugeWidget.getElement().getInnerHTML());
-		// Window.alert(gaugeWidget.getElement().getInnerHTML());
+		// Bootbox.alert(gaugeWidget.getElement().getInnerHTML());
 		// }
 		//
 		// };
@@ -82,7 +82,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 	public boolean update() {
 		boolean result = super.update();
 
-//		Window.alert("Update "+ptuId+" "+historyMap+" "+last);
+//		Bootbox.alert("Update "+ptuId+" "+historyMap+" "+last);
 		
 		if ((history != null) && (ptu != null)) {
 

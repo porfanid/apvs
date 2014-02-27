@@ -78,7 +78,7 @@ public class ActiveDynamicSelectionCell extends AbstractInputCell<String, String
 		super.onBrowserEvent(context, parent, value, event, valueUpdater);
 
 		if (options == null) {
-			// Window.alert("Options are not set");
+			// Bootbox.alert("Options are not set");
 			return;
 		}
 

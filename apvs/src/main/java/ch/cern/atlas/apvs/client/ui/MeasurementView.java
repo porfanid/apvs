@@ -129,7 +129,7 @@ public class MeasurementView extends AbstractMeasurementView {
 		// gaugeWidget.setValue(m.getValue(), m.getDownThreshold(),
 		// m.getUpThreshold());
 		// sb.appendEscaped(gaugeWidget.getElement().getInnerHTML());
-		// Window.alert(gaugeWidget.getElement().getInnerHTML());
+		// Bootbox.alert(gaugeWidget.getElement().getInnerHTML());
 		// }
 		//
 		// };
