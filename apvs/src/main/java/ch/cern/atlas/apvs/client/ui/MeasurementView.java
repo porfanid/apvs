@@ -47,7 +47,7 @@ public class MeasurementView extends AbstractMeasurementView {
 
 		table.setWidth("100%");
 
-		add(table, CENTER);
+		add(table);
 
 		name = new ClickableHtmlColumn<String>() {
 			@Override

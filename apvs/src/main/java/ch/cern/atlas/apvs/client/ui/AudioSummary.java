@@ -47,7 +47,7 @@ public class AudioSummary extends GlassPanel implements Module {
 		
 		table.setWidth("100%");
 		
-		add(table, CENTER);
+		add(table);
 
 		// PTU ID
 		Column<String, String> ptuId = new Column<String, String>(

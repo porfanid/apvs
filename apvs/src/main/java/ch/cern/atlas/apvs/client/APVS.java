@@ -202,18 +202,7 @@ public class APVS implements EntryPoint {
 				login(event.getResult());
 			}
 		});
-		pwdDialog.setModal(true);
-		pwdDialog.setGlassEnabled(true);
-		pwdDialog.setPopupPositionAndShow(new PositionCallback() {
-
-			@Override
-			public void setPosition(int offsetWidth, int offsetHeight) {
-				// center
-				pwdDialog.setPopupPosition(
-						(Window.getClientWidth() - offsetWidth) / 3,
-						(Window.getClientHeight() - offsetHeight) / 3);
-			}
-		});
+		pwdDialog.show();
 	}
 	
 	private void start() throws SerializationException {

@@ -1,7 +1,8 @@
 package ch.cern.atlas.apvs.client.validation;
 
 import org.gwtbootstrap3.client.ui.TextBox;
-import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
@@ -9,23 +10,16 @@ import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.user.client.Event;
 
 public class TextBoxField extends ValidationField<String> {
-
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private TextBox box;
 		
 	public TextBoxField(String fieldLabel, Validator<String> validator) {
 		super(fieldLabel, validator);
-		
-		box = new TextBox() {
-			@Override
-			public void onBrowserEvent(Event event) {
-				super.onBrowserEvent(event);
-				Bootbox.alert(" "+event);
-			}
-		};
-		
+
+		box = new TextBox();
+
 		box.addBlurHandler(new BlurHandler() {		
 			@Override
 			public void onBlur(BlurEvent event) {
@@ -46,7 +40,7 @@ public class TextBoxField extends ValidationField<String> {
 				validate(true);
 			}
 		});
-				
+		
 		setField(box);
 	}
 	

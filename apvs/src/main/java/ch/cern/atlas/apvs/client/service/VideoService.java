@@ -1,6 +1,5 @@
 package ch.cern.atlas.apvs.client.service;
 
-import ch.cern.atlas.apvs.domain.Device;
 import ch.cern.atlas.apvs.domain.Intervention;
 
 import com.google.gwt.user.client.rpc.RemoteService;

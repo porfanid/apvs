@@ -30,7 +30,7 @@ public class MeasurementTable extends AbstractMeasurementView {
 
 		super.configure(element, clientFactory, args);
 
-		add(table, CENTER);
+		add(table);
 
 		if (showHeader) {
 			rows.put("-Header-", 0);

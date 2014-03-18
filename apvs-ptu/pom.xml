@@ -66,10 +66,6 @@
 			<artifactId>apvs-eventbus</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>ch.cern.atlas</groupId>
-			<artifactId>apvs-log4jdbc</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.cedarsoftware</groupId>
 			<artifactId>apvs-json-io</artifactId>
 		</dependency>
@@ -82,8 +78,8 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sf</groupId>
-			<artifactId>log4jdbc4</artifactId>
+			<groupId>com.googlecode.log4jdbc</groupId>
+			<artifactId>log4jdbc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.javassist</groupId>

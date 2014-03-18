@@ -8,7 +8,6 @@ import org.gwtbootstrap3.client.ui.HasType;
 import org.gwtbootstrap3.client.ui.ModalComponent;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.FormType;
-import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.HasEnabled;
@@ -45,7 +44,7 @@ public class ValidationForm extends Form implements ModalComponent {
 				validate(true);
 			}
 		});
-		
+				
 		setType(FormType.HORIZONTAL);
 	}
 
@@ -82,12 +81,4 @@ public class ValidationForm extends Form implements ModalComponent {
 		}
 		return true;
 	}
-	
-	@Override
-	protected void onAttach() {
-		// TODO Auto-generated method stub
-		super.onAttach();
-		Bootbox.alert("Attached");
-	}
-
 }

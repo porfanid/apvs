@@ -21,6 +21,10 @@ public abstract class ValidationField<T> extends FormGroup {
 	private Validator<T> validator;
 	private HelpBlock help;
 
+	public ValidationField(String fieldLabel) {
+		this(fieldLabel, null);
+	}
+	
 	public ValidationField(String fieldLabel, Validator<T> validator) {
 		label = new FormLabel();
 		label.setText(fieldLabel);

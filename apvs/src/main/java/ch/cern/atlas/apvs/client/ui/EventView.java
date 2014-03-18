@@ -3,9 +3,6 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectPtuEvent;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
@@ -130,7 +127,7 @@ public class EventView extends GlassPanel implements Module {
 		// add(msg, NORTH);
 
 		setWidth("100%");
-		add(table, CENTER);
+		add(table);
 
 		scrollPanel = table.getScrollPanel();
 		scrollPanel.addScrollHandler(new ScrollHandler() {

@@ -65,7 +65,7 @@ public class AudioView extends GlassPanel implements Module {
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		table.setWidth("100%");
 
-		add(table, CENTER);
+		add(table);
 
 		// Status/Action Field column
 		EditableCell fieldActionCell = new EditableCell(classField);
@@ -126,7 +126,7 @@ public class AudioView extends GlassPanel implements Module {
 
 		};
 
-		fieldActionCol.setHorizontalAlignment(ALIGN_CENTER);
+		fieldActionCol.setHorizontalAlignment(ActiveColumn.ALIGN_CENTER);
 		fieldActionCol.setEnabled(clientFactory.isSupervisor());
 		table.addColumn(fieldActionCol);
 

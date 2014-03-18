@@ -89,7 +89,7 @@ public class PtuView extends GlassPanel implements Module {
 		
 		table.setWidth("100%");
 
-		add(table, CENTER);
+		add(table);
 
 		// name column
 		ClickableHtmlColumn<String> name = new ClickableHtmlColumn<String>() {

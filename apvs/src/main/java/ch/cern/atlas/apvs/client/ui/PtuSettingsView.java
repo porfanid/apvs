@@ -18,7 +18,6 @@ import ch.cern.atlas.apvs.client.widget.ActiveCheckboxCell;
 import ch.cern.atlas.apvs.client.widget.ActiveColumn;
 import ch.cern.atlas.apvs.client.widget.ActiveDynamicSelectionCell;
 import ch.cern.atlas.apvs.client.widget.ActiveEditTextCell;
-import ch.cern.atlas.apvs.client.widget.ActiveTextInputCell;
 import ch.cern.atlas.apvs.client.widget.AsyncEditTextColumn;
 import ch.cern.atlas.apvs.client.widget.AsyncFieldUpdater;
 import ch.cern.atlas.apvs.client.widget.DynamicSelectionColumn;
@@ -96,7 +95,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 			}
 		});
 
-		add(table, CENTER);
+		add(table);
 
 		// ENABLED
 		ActiveColumn<Device, Boolean> enabled = new ActiveColumn<Device, Boolean>(

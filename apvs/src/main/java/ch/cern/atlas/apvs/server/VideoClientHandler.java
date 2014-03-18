@@ -3,7 +3,6 @@ package ch.cern.atlas.apvs.server;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,6 +3,22 @@ package ch.cern.atlas.apvs.client.widget;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gwtbootstrap3.client.shared.event.ModalHiddenEvent;
+import org.gwtbootstrap3.client.shared.event.ModalHiddenHandler;
+import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Form;
+import org.gwtbootstrap3.client.ui.Input;
+import org.gwtbootstrap3.client.ui.Modal;
+import org.gwtbootstrap3.client.ui.ModalBody;
+import org.gwtbootstrap3.client.ui.ModalFooter;
+import org.gwtbootstrap3.client.ui.ModalHeader;
+import org.gwtbootstrap3.client.ui.constants.FormType;
+import org.gwtbootstrap3.client.ui.constants.InputType;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+
+import ch.cern.atlas.apvs.client.validation.InputField;
+import ch.cern.atlas.apvs.client.validation.ValidationFieldset;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -10,28 +26,31 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PasswordTextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 
-public class PasswordDialog extends DialogBox {
+public class PasswordDialog extends Modal {
 
-	private PasswordTextBox pwdBox;
+	private InputField field;
 	private List<DialogResultHandler> handlers = new ArrayList<DialogResultHandler>();
 
-	public PasswordDialog() {
-		setText("APVS");
+	public PasswordDialog() {		
+		ValidationFieldset fieldset = new ValidationFieldset();
+		field = new InputField("Supervisor Password");
+		fieldset.add(field);
+		
+		Form form = new Form();
+		form.setType(FormType.HORIZONTAL);
+		form.add(fieldset);
+		
+		ModalHeader header = new ModalHeader();
+		header.setTitle("Supervisor Password");
 
-		VerticalPanel panel = new VerticalPanel();
-		setWidget(panel);
+		ModalBody body = new ModalBody();
+		body.add(form);
 
-		panel.add(new Label("APVS Supervisor Password"));
-
-		pwdBox = new PasswordTextBox();
-		pwdBox.addKeyDownHandler(new KeyDownHandler() {
+		Input input = field.getField();
+		input.setType(InputType.PASSWORD);
+		input.addKeyDownHandler(new KeyDownHandler() {
 
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
@@ -42,10 +61,8 @@ public class PasswordDialog extends DialogBox {
 				}
 			}
 		});
-		panel.add(pwdBox);
 
-		HorizontalPanel bar = new HorizontalPanel();
-		panel.add(bar);
+		ModalFooter footer = new ModalFooter();
 
 		Button cancel = new Button("Cancel");
 		cancel.addClickHandler(new ClickHandler() {
@@ -55,7 +72,7 @@ public class PasswordDialog extends DialogBox {
 				cancel();
 			}
 		});
-		bar.add(cancel);
+		footer.add(cancel);
 
 		Button ok = new Button("Ok");
 		ok.addClickHandler(new ClickHandler() {
@@ -65,7 +82,19 @@ public class PasswordDialog extends DialogBox {
 				ok();
 			}
 		});
-		bar.add(ok);
+		footer.add(ok);
+		
+		// for close button
+		addHiddenHandler(new ModalHiddenHandler() {
+			@Override
+			public void onHidden(ModalHiddenEvent evt) {
+				fireEvent(new DialogResultEvent(null));
+			}
+		});
+		
+		add(header);
+		add(body);
+		add(footer);
 	}
 
 	public void addDialogResultHandler(DialogResultHandler handler) {
@@ -79,7 +108,7 @@ public class PasswordDialog extends DialogBox {
 
 			@Override
 			public void execute() {
-				pwdBox.setFocus(true);
+//				field.setFocus(true);
 			}
 		});
 	}
@@ -91,7 +120,7 @@ public class PasswordDialog extends DialogBox {
 
 	private void ok() {
 		hide();
-		fireEvent(new DialogResultEvent(pwdBox.getText()));
+		fireEvent(new DialogResultEvent(field.getValue()));
 	}
 
 	private void fireEvent(DialogResultEvent event) {

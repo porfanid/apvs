@@ -57,7 +57,8 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 				log.warn("Fail to list Supervisor SIP accounts " + caught);				
 			}
 		});
-		add(table, CENTER);
+		
+		add(table);
 		
 		// Supervisor Label
 		Column<VoipAccount, String> supervisorLabel = new Column<VoipAccount, String> (new TextCell()) {

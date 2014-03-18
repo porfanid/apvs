@@ -10,7 +10,9 @@ import java.util.Map;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.Modal;
+import org.gwtbootstrap3.client.ui.ModalBody;
 import org.gwtbootstrap3.client.ui.ModalFooter;
+import org.gwtbootstrap3.client.ui.ModalHeader;
 import org.gwtbootstrap3.client.ui.constants.ButtonDismiss;
 import org.gwtbootstrap3.client.ui.constants.FormType;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
@@ -25,7 +27,7 @@ import ch.cern.atlas.apvs.client.settings.LocalStorage;
 import ch.cern.atlas.apvs.client.validation.CheckBoxField;
 import ch.cern.atlas.apvs.client.validation.EmptyStringValidator;
 import ch.cern.atlas.apvs.client.validation.IntegerValidator;
-import ch.cern.atlas.apvs.client.validation.ListBoxField;
+import ch.cern.atlas.apvs.client.validation.SelectField;
 import ch.cern.atlas.apvs.client.validation.NotNullValidator;
 import ch.cern.atlas.apvs.client.validation.OrValidator;
 import ch.cern.atlas.apvs.client.validation.StringValidator;
@@ -161,7 +163,7 @@ public class InterventionView extends GlassPanel implements Module {
 		footer.add(updateButton);
 
 		setWidth("100%");
-		add(table, CENTER);
+		add(table);
 
 		scrollPanel = table.getScrollPanel();
 		scrollPanel.addScrollHandler(new ScrollHandler() {
@@ -286,41 +288,54 @@ public class InterventionView extends GlassPanel implements Module {
 					return;
 				}
 
-				Bootbox.confirm("Ending intervention started on "+intervention.getStartTime()+" for "+intervention.getPtuId()+" !", new ConfirmCallback() {
-					@Override
-				    public void callback(boolean result) {
-						if (!result) return;
-						
-						intervention.setEndTime(new Date());
-						interventionService.updateIntervention(intervention,
-								new AsyncCallback<Intervention>() {
-
-									@Override
-									public void onSuccess(Intervention result) {
-										scheduler.update();
-									}
-
-									@Override
-									public void onFailure(Throwable caught) {
-										Bootbox.alert(caught.getMessage());
-									}
-
-								});
-						
-						videoService.stopVideo(intervention, new AsyncCallback<Void>() {
-							
+				Bootbox.confirm(
+						"Ending intervention started on "
+								+ ClientConstants.dateFormatNoSeconds
+										.format(intervention.getStartTime())
+								+ " for " + intervention.getPtuId() + " !",
+						new ConfirmCallback() {
 							@Override
-							public void onSuccess(Void result) {
-								// ignored
+							public void callback(boolean result) {
+								if (!result)
+									return;
+
+								intervention.setEndTime(new Date());
+								interventionService.updateIntervention(
+										intervention,
+										new AsyncCallback<Intervention>() {
+
+											@Override
+											public void onSuccess(
+													Intervention result) {
+												scheduler.update();
+											}
+
+											@Override
+											public void onFailure(
+													Throwable caught) {
+												Bootbox.alert(caught
+														.getMessage());
+											}
+
+										});
+
+								videoService.stopVideo(intervention,
+										new AsyncCallback<Void>() {
+
+											@Override
+											public void onSuccess(Void result) {
+												// ignored
+											}
+
+											@Override
+											public void onFailure(
+													Throwable caught) {
+												Bootbox.alert(caught
+														.getMessage());
+											}
+										});
 							}
-							
-							@Override
-							public void onFailure(Throwable caught) {
-								Bootbox.alert(caught.getMessage());
-							}
-						});			
-					}
-				});
+						});
 			}
 		});
 		table.addColumn(endTime, new TextHeader("End Time"), pager.getHeader());
@@ -349,7 +364,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 				ValidationFieldset fieldset = new ValidationFieldset();
 
-				final ListBoxField userField = new ListBoxField("User",
+				final SelectField userField = new SelectField("User",
 						new NotNullValidator());
 				fieldset.add(userField);
 
@@ -373,7 +388,7 @@ public class InterventionView extends GlassPanel implements Module {
 							}
 						});
 
-				final ListBoxField ptu = new ListBoxField("Device",
+				final SelectField ptu = new SelectField("Device",
 						new NotNullValidator());
 				fieldset.add(ptu);
 
@@ -437,21 +452,26 @@ public class InterventionView extends GlassPanel implements Module {
 								new AsyncCallback<Intervention>() {
 
 									@Override
-									public void onSuccess(Intervention intervention) {
-									//	Bootbox.alert("IID: "+intervention.getId());
-										
-										videoService.startVideo(intervention, new AsyncCallback<Void>() {
-											
-											@Override
-											public void onSuccess(Void result) {
-												// ignored
-											}
-											
-											@Override
-											public void onFailure(Throwable caught) {
-												Bootbox.alert(caught.getMessage());
-											}
-										});
+									public void onSuccess(
+											Intervention intervention) {
+										// Bootbox.alert("IID: "+intervention.getId());
+
+										videoService.startVideo(intervention,
+												new AsyncCallback<Void>() {
+
+													@Override
+													public void onSuccess(
+															Void result) {
+														// ignored
+													}
+
+													@Override
+													public void onFailure(
+															Throwable caught) {
+														Bootbox.alert(caught
+																.getMessage());
+													}
+												});
 
 										scheduler.update();
 									}
@@ -460,7 +480,7 @@ public class InterventionView extends GlassPanel implements Module {
 									public void onFailure(Throwable caught) {
 										Bootbox.alert(caught.getMessage());
 									}
-								});						
+								});
 					}
 					// }
 				});
@@ -469,8 +489,12 @@ public class InterventionView extends GlassPanel implements Module {
 				form.setType(FormType.HORIZONTAL);
 				form.add(fieldset);
 
-				m.setTitle("New Intervention");
-				m.add(form);
+				ModalHeader header = new ModalHeader();
+				header.setTitle("New Intervention");
+				m.add(header);
+				ModalBody body = new ModalBody();
+				body.add(form);
+				m.add(body);
 				ModalFooter footer = new ModalFooter();
 				footer.add(cancel);
 				footer.add(ok);
@@ -543,11 +567,11 @@ public class InterventionView extends GlassPanel implements Module {
 				ValidationFieldset fieldset = new ValidationFieldset();
 
 				final TextBoxField fname = new TextBoxField("First Name",
-						new StringValidator(1, 50, "*"));
+						new StringValidator(1, 50, ""));
 				fieldset.add(fname);
 
 				final TextBoxField lname = new TextBoxField("Last Name",
-						new StringValidator(2, 50, "*"));
+						new StringValidator(2, 50, ""));
 				fieldset.add(lname);
 
 				final TextBoxField cernId = new TextBoxField("CERN ID",
@@ -594,12 +618,16 @@ public class InterventionView extends GlassPanel implements Module {
 								});
 					}
 				});
-				
+
 				ValidationForm form = new ValidationForm(ok, cancel);
 				form.setType(FormType.HORIZONTAL);
 				form.add(fieldset);
-				m.setTitle("New User");
-				m.add(form);
+				ModalHeader header = new ModalHeader();
+				header.setTitle("New User");
+				m.add(header);
+				ModalBody body = new ModalBody();
+				body.add(form);
+				m.add(body);
 				ModalFooter footer = new ModalFooter();
 				footer.add(cancel);
 				footer.add(ok);
@@ -684,7 +712,7 @@ public class InterventionView extends GlassPanel implements Module {
 					@Override
 					public void onClick(ClickEvent event) {
 						m.hide();
-						
+
 						InetAddress inetAddress = null;
 						try {
 							inetAddress = InetAddress.getByName(ip.getValue());
@@ -693,9 +721,8 @@ public class InterventionView extends GlassPanel implements Module {
 						}
 
 						Device device = new Device(ptuId.getValue(),
-								inetAddress,
-								description.getValue(), new MacAddress(
-										macAddress.getValue()), hostName
+								inetAddress, description.getValue(),
+								new MacAddress(macAddress.getValue()), hostName
 										.getValue(), virtual.getValue());
 
 						interventionService.addDevice(device,
@@ -730,9 +757,13 @@ public class InterventionView extends GlassPanel implements Module {
 				m.setFade(true);
 				m.setKeyboard(true);
 				m.setClosable(true);
-				m.setTitle("New Device");
-				m.add(form);
-				
+				ModalHeader header = new ModalHeader();
+				header.setTitle("New Device");
+				m.add(header);
+				ModalBody body = new ModalBody();
+				body.add(form);
+				m.add(body);
+
 				ModalFooter footer = new ModalFooter();
 				footer.add(cancel);
 				footer.add(ok);
