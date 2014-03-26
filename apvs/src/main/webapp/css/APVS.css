@@ -9,7 +9,7 @@ root {
     display: block;
 }
 
-body {
+#body {
     background-color: #365d86;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#365d86),
         to(#264d75) );

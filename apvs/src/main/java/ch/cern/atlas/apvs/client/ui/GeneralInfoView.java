@@ -94,7 +94,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
-
+		
 		cmdBus = clientFactory.getEventBus(args.getArg(0));
 		options = args.getArg(1);
 

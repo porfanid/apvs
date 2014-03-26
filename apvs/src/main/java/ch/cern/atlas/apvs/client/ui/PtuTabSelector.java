@@ -5,8 +5,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.gwtbootstrap3.client.ui.AnchorButton;
+import org.gwtbootstrap3.client.ui.DropDownMenu;
+import org.gwtbootstrap3.client.ui.ListDropDown;
 import org.gwtbootstrap3.client.ui.ListItem;
-import org.gwtbootstrap3.client.ui.NavTabs;
+import org.gwtbootstrap3.client.ui.NavbarCollapse;
+import org.gwtbootstrap3.client.ui.NavbarNav;
+import org.gwtbootstrap3.client.ui.UnorderedList;
+import org.gwtbootstrap3.client.ui.constants.NavbarPull;
+import org.gwtbootstrap3.client.ui.constants.Toggle;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
@@ -24,14 +31,16 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class PtuTabSelector extends NavTabs implements Module {
+public class PtuTabSelector extends NavbarCollapse implements Module {
 
 	private RemoteEventBus remoteEventBus;
 	private List<EventBus> eventBusses = new ArrayList<EventBus>();
+
+	private NavbarNav nav;
+	private AnchorButton dropDown;
 
 	private List<Device> ptus;
 	private Device selectedPtu;
@@ -39,6 +48,8 @@ public class PtuTabSelector extends NavTabs implements Module {
 	private PtuSettings settings;
 	private InterventionMap interventions;
 	private List<String> extraTabs;
+
+	private List<ListItem> items;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -48,11 +59,10 @@ public class PtuTabSelector extends NavTabs implements Module {
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
-
-		// add(new Brand("ATWSS"));
+		setId("navbar-collapse");
 
 		remoteEventBus = clientFactory.getRemoteEventBus();
-		
+
 		String[] busNames = args.getArg(0).split(",");
 		for (int i = 0; i < busNames.length; i++) {
 			eventBusses.add(clientFactory.getEventBus(busNames[i].trim()));
@@ -102,7 +112,7 @@ public class PtuTabSelector extends NavTabs implements Module {
 						ptus = interventions.getPtus();
 
 						scheduler.update();
-						
+
 						if (selectedTab != null) {
 							if (selectedPtu == null) {
 								for (Device device : ptus) {
@@ -112,7 +122,7 @@ public class PtuTabSelector extends NavTabs implements Module {
 									}
 								}
 							}
-							
+
 							fireEvent(new SelectTabEvent(
 									selectedPtu == null ? selectedTab : "Ptu"));
 							fireEvent(new SelectPtuEvent(selectedPtu));
@@ -133,9 +143,30 @@ public class PtuTabSelector extends NavTabs implements Module {
 	@Override
 	public boolean update() {
 		clear();
+		nav = new NavbarNav();
+		add(nav);
+
+		items = new ArrayList<ListItem>();
+		dropDown = null;
+
 		if (ptus != null) {
 
 			Collections.sort(ptus);
+
+			UnorderedList list = nav;
+
+			if (ptus.size() > 1) {
+				// create dropdown menu
+				ListDropDown dropDownList = new ListDropDown();
+				nav.add(dropDownList);
+
+				dropDown = new AnchorButton();
+				dropDown.setToggle(Toggle.DROPDOWN);
+				dropDownList.add(dropDown);
+
+				list = new DropDownMenu();
+				dropDownList.add(list);
+			}
 
 			for (Iterator<Device> i = ptus.iterator(); i.hasNext();) {
 				final Device ptu = i.next();
@@ -156,7 +187,8 @@ public class PtuTabSelector extends NavTabs implements Module {
 						selectedPtu = ptu;
 
 						radio(b);
-
+						setDropdown();
+						
 						fireEvent(new SelectTabEvent("Ptu"));
 						LocalStorage.getInstance().put(
 								LocalStorage.SELECTED_TAB, selectedTab);
@@ -164,22 +196,44 @@ public class PtuTabSelector extends NavTabs implements Module {
 						fireEvent(new SelectPtuEvent(selectedPtu));
 						LocalStorage.getInstance().put(
 								LocalStorage.SELECTED_PTU_ID,
-								selectedPtu != null ? selectedPtu.getName() : null);
+								selectedPtu != null ? selectedPtu.getName()
+										: null);
 					}
 				});
-				add(b);
+				list.add(b);
+				items.add(b);
 			}
 		}
 
 		for (Iterator<String> i = extraTabs.iterator(); i.hasNext();) {
 			String name = i.next();
-			if (name.endsWith("+")) {
-				name = name.substring(0, name.length()-1);
-				if ((ptus == null) || (ptus.size() == 0)) {
-					// bail out, no interventions
-					continue;
+			switch (name) {
+			case ">":
+				nav = new NavbarNav();
+				nav.setPull(NavbarPull.RIGHT);
+				add(nav);
+				continue;
+			case "=":
+				nav = new NavbarNav();
+				nav.setPull(NavbarPull.LEFT);
+				add(nav);
+				continue;
+			case "<":
+				nav = new NavbarNav();
+				nav.setPull(NavbarPull.NONE);
+				add(nav);
+				continue;
+			default:
+				if (name.endsWith("+")) {
+					name = name.substring(0, name.length() - 1);
+					if ((ptus == null) || (ptus.size() == 0)) {
+						// bail out, no interventions
+						continue;
+					}
 				}
+				break;
 			}
+
 			final ListItem b = new ListItem(name);
 			b.setActive(name.equals(selectedTab));
 
@@ -189,32 +243,44 @@ public class PtuTabSelector extends NavTabs implements Module {
 				public void onClick(ClickEvent event) {
 					selectedTab = b.getText();
 					selectedPtu = null;
-
+				
 					radio(b);
+					setDropdown();
 
 					fireEvent(new SelectTabEvent(selectedTab));
 					LocalStorage.getInstance().put(LocalStorage.SELECTED_TAB,
 							selectedTab);
 
 					fireEvent(new SelectPtuEvent(selectedPtu));
-					LocalStorage.getInstance()
-							.put(LocalStorage.SELECTED_PTU_ID,
-									selectedPtu != null ? selectedPtu.getName() : null);
+					LocalStorage.getInstance().put(
+							LocalStorage.SELECTED_PTU_ID,
+							selectedPtu != null ? selectedPtu.getName() : null);
 				}
 			});
-			add(b);
+			nav.add(b);
+			items.add(b);
 		}
+
+		setDropdown();
 
 		return false;
 	}
 
-	private void radio(ListItem b) {
-		for (int i = 0; i < getWidgetCount(); i++) {
-			Widget w = getWidget(i);
-			if (w instanceof ListItem) {
-				ListItem t = (ListItem) w;
-				t.setActive(w == b);
+	private void setDropdown() {
+		if (dropDown != null) {
+			if (selectedPtu == null) {
+				dropDown.setText("PTU");
+				dropDown.setActive(false);
+			} else {
+				dropDown.setText(getName(selectedPtu));
+				dropDown.setActive(selectedPtu.getName().equals(selectedTab));
 			}
+		}
+	}
+
+	private void radio(ListItem b) {
+		for (ListItem i : items) {
+			i.setActive(i == b);
 		}
 	}
 

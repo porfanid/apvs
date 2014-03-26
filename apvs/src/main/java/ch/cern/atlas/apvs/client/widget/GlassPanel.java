@@ -1,12 +1,11 @@
 package ch.cern.atlas.apvs.client.widget;
 
-import org.gwtbootstrap3.client.ui.PanelBody;
-
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GlassPanel extends PanelBody implements NativePreviewHandler {
+public class GlassPanel extends SimplePanel implements NativePreviewHandler {
 
 	private boolean glassShowing;
 

@@ -43,206 +43,265 @@
 			application to display correctly.</div>
 	</noscript>
 
-	<header class="navbar navbar-static-top bs-docs-nav" id="top">
-		<div class="container">
-			<div class="navbar-header">
-				<button class="navbar-toggle" type="button" data-toggle="collapse"
-					data-target=".apvs-navbar-collapse">
-					<span class="sr-only">Toggle navigation</span> <span
-						class="icon-bar"></span> <span class="icon-bar"></span> <span
-						class="icon-bar"></span>
-				</button>
-				<a href="../" class="navbar-brand">ATLAS Wireless Safety System</a>
-			</div>
-			<nav class="collapse navbar-collapse apvs-navbar-collapse">
-				<!-- 
-				<ul class="nav navbar-nav">
-					<li><a href="../getting-started">Getting started</a></li>
-					<li><a href="../css">CSS</a></li>
-					<li><a href="../components">Components</a></li>
-					<li><a href="../javascript">JavaScript</a></li>
-					<li><a href="../customize">Customize</a></li>
-				</ul>
--->
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="http://atlas.web.cern.ch"><img
-							src="images/logo-110x42.jpg" /></a></li>
-				</ul>
-			</nav>
-		</div>
-	</header>
-
-
 	<div class="container">
-		<div class="row">
-			<div class="col-md-12 login">
-				<p>
-					<a href="http://www.cern.ch">European Organization for Nuclear
-						Research</a>
-				</p>
-			</div>
+
+		<div class="page-header">
+			<h1>ATLAS Wireless Safety Supervision System</h1>
 		</div>
 
-		<div class="row">
-			<div class="col-md-12 header">
-				<h1>
-					<a href="../operation.php">ATLAS Wireless Safety System</a>
-				</h1>
-				<a href="http://atlas.web.cern.ch"><img
-					src="images/logo-110x42.jpg" /></a>
+		<nav class="navbar navbar-default navbar-static-top" id="top">
+			<div class="navbar-header">
+				<a href="../" class="navbar-brand">ATWSS</a>
+				<button class="navbar-toggle" type="button" data-toggle="collapse"
+					data-target="#navbar-collapse">
+					<span class="sr-only">Toggle navigation</span> <i
+						class="fa fa-bars"></i>
+				</button>
 			</div>
-		</div>
+			<div
+				id="PtuTabSelector(tab, ptu, measurements, dosimeter; Cameras+; Interventions; Events; >; Summary+; Settings)"></div>
+		</nav>
 
-		<div class="container main">
+		<div id="Tab(tab; Ptu)">
 			<div class="row">
-				<div class="col-md-12">
-					<div
-						id="PtuTabSelector(tab, ptu, measurements, dosimeter; Cameras+; Interventions; Events; Summary+; Settings)"></div>
-				</div>
-			</div>
-
-			<div id="Tab(tab; Ptu)">
-				<div class="row">
-					<div class="col-md-3">
-						<div class="row">
-							<!--
-						<div class="col-md-6 item">
-							<h3>Alarms</h3>
-							<div id="AlarmView(ptu; NoHeader)"></div>
-						</div>
--->
-							<div class="col-md-12 item">
-								<h3>Audio</h3>
-								<div id="AudioView(ptu; NoHeader)"></div>
+				<div class="col-md-3">
+					<!--
+						<div class="col-md-6">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title" >Alarms</h3>
+							</div>
+							<div class="panel-body">
+								<div id="AlarmView(ptu; NoHeader)"></div>
 							</div>
 						</div>
+						</div>
+-->
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Audio</h3>
+						</div>
+						<div class="panel-body">
+							<div id="AudioView(ptu; NoHeader)"></div>
+						</div>
+					</div>
 
-						<div class="item">
-							<h3>Measurements</h3>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Measurements</h3>
+						</div>
+						<div class="panel-body">
 							<div id="MeasurementView(measurements; NoHeader, NoSort)"></div>
 							<div id="TimeView(300; measurements; NoExport)"></div>
 						</div>
 					</div>
+				</div>
 
-					<div class="col-md-6 item">
-						<h3>Helmet Camera</h3>
-						<div id="CameraView(ptu; Helmet)"></div>
+				<div class="col-md-6">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Helmet Camera</h3>
+						</div>
+						<div class="panel-body">
+							<div id="CameraView(ptu; Helmet)"></div>
+						</div>
 					</div>
+				</div>
 
-					<div class="col-md-3">
-						<div class="item">
-							<h3>Hand-held Camera</h3>
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Hand-held Camera</h3>
+						</div>
+						<div class="panel-body">
 							<div id="CameraView(ptu; Hand)"></div>
 						</div>
+					</div>
 
-						<div class="item">
-							<h3>Worker View</h3>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Worker View</h3>
+						</div>
+						<div class="panel-body">
 							<div id="PlaceView()"></div>
 						</div>
 					</div>
 				</div>
+			</div>
 
-				<div class="row">
-					<div class="col-md-3 item">
-						<h3>General Info</h3>
-						<div id="GeneralInfoView(ptu; NoHeader)"></div>
+			<div class="row">
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">General Info</h3>
+						</div>
+						<div class="panel-body">
+							<div id="GeneralInfoView(ptu; NoHeader)"></div>
+						</div>
 					</div>
-					<div class="col-md-3 item">
-						<h3>Dosimeter</h3>
-						<div
-							id="MeasurementView(dosimeter; NoHeader, NoSort, NoSelection; DoseRate; DoseAccum)"></div>
+				</div>
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Dosimeter</h3>
+						</div>
+						<div class="panel-body">
+							<div
+								id="MeasurementView(dosimeter; NoHeader, NoSort, NoSelection; DoseRate; DoseAccum)"></div>
+						</div>
 					</div>
-					<div class="col-md-3 item">
-						<h3>Dose Rate</h3>
-						<div id="TimeView(200; ptu; NoTitle, NoExport; DoseRate)"></div>
+				</div>
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Dose Rate</h3>
+						</div>
+						<div class="panel-body">
+							<div id="TimeView(200; ptu; NoTitle, NoExport; DoseRate)"></div>
+						</div>
 					</div>
-
-					<div class="col-md-3 item">
-						<h3>Accumulated Dose</h3>
-						<div id="TimeView(200; ptu; NoTitle, NoExport; DoseAccum)"></div>
+				</div>
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Accumulated Dose</h3>
+						</div>
+						<div class="panel-body">
+							<div id="TimeView(200; ptu; NoTitle, NoExport; DoseAccum)"></div>
+						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<div id="Tab(tab; Cameras)">
-				<div class="row">
-					<div class="col-md-12 item">
-						<h3>Camera Overview</h3>
-						<div id="CameraTable()"></div>
+		<div id="Tab(tab; Cameras)">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Camera Overview</h3>
+						</div>
+						<div class="panel-body">
+							<div id="CameraTable()"></div>
+						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<div id="Tab(tab; Interventions)">
-				<div class="row">
-					<div class="panel panel-default col-md-12">
+		<div id="Tab(tab; Interventions)">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h3 class="panel-title">Interventions</h3>
 						</div>
-						<div id="InterventionView(600px; tab)"></div>
+						<div class="panel-body">
+							<div id="InterventionView(600px; tab)"></div>
+						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<div id="Tab(tab; Events)">
-				<div class="row">
-					<div class="col-md-12 item">
-						<h3>All Events</h3>
-						<div id="EventView(400px; tab)"></div>
+		<div id="Tab(tab; Events)">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">All Events</h3>
+						</div>
+						<div class="panel-body">
+							<div id="EventView(400px; tab)"></div>
+						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<div id="Tab(tab; Summary)">
-				<div class="row">
-					<div class="col-md-12 item">
-						<h3>All PTUs</h3>
-						<div id="PtuView(allPtus)"></div>
+		<div id="Tab(tab; Summary)">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">All PTUs</h3>
+						</div>
+						<div class="panel-body">
+							<div id="PtuView(allPtus)"></div>
+						</div>
 						<div id="TimeView(200; allPtus)"></div>
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<div id="Tab(tab; Settings)">
-				<div class="row">
-					<div class="col-md-12 item">
-						<h3>PTU Settings</h3>
-						<div id="PtuSettingsView()"></div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-6 item">
-						<h3>Server Settings</h3>
-						<div id="ServerSettingsView()"></div>
-					</div>
-					<div class="col-md-6 item">
-						<h3>Audio Supervisor Settings</h3>
-						<div id="AudioSupervisorSettingsView()"></div>
+		<div id="Tab(tab; Settings)">
+			<div class="row">
+				<div class="col-md-12">
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">PTU Settings</h3>
+						</div>
+						<div class="panel-body">
+							<div id="PtuSettingsView()"></div>
+						</div>
 					</div>
 				</div>
 			</div>
+			<div class="row">
+				<div class="col-md-6">
 
-			<div id="Tab(tab; Calibration)">
-				<div class="row">
-					<div class="col-md-12 item">
-						<h3>Calibration</h3>
-						<div id="MeasurementConfigurationView(400px)"></div>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Server Settings</h3>
+						</div>
+						<div class="panel-body">
+							<div id="ServerSettingsView()"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Audio Supervisor Settings</h3>
+						</div>
+						<div class="panel-body">
+							<div id="AudioSupervisorSettingsView()"></div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="col-md-12 footer">
-				<div class="copyright" id="footer">
-					<p>
-						Copyright&copy; 2011-2014 CERN - <a
-							href="mailto:Mark.Donszelmann@cern.ch">ATLAS Wireless Safety
-							System</a> - ${project.version}
-					</p>
+		<div id="Tab(tab; Calibration)">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Calibration</h3>
+						</div>
+						<div class="panel-body">
+							<div id="MeasurementConfigurationView(400px)"></div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12 footer">
+			<div class="copyright" id="footer">
+				<p>
+					Copyright&copy; 2011-2014 CERN - <a
+						href="mailto:Mark.Donszelmann@cern.ch">ATLAS Wireless Safety
+						System</a> - ${project.version}
+				</p>
+			</div>
+		</div>
+	</div>
 	</div>
 
 </body>

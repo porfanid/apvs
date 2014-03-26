@@ -40,6 +40,8 @@ public class ImageView extends SimplePanel {
 		this.factory = factory;
 		this.videoWidth = width;
 		this.videoHeight = height;
+		
+		addStyleName("no-margins");
 
 		image = new Image();
 		image.setWidth(videoWidth);

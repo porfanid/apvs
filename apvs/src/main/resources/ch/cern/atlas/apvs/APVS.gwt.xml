@@ -39,7 +39,7 @@
 
 	<!-- inherit css based theme -->
 
-	<stylesheet src='../css/APVS.css' />
+	<stylesheet src='../css/ATWSS.css' />
 	
 	<script src="../webjars/highstock/${highstock-version}/js/adapters/standalone-framework.js" />
 	<script src="../webjars/highstock/${highstock-version}/js/highstock.js" />
