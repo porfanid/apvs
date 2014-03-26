@@ -1,0 +1,21 @@
+/* 
+    Document   : ATWSS.css
+    Author     : Mark Donszelmann
+*/
+
+/*
+   Overrides of bootstrap
+*/
+
+/*
+  get the right side within the margins
+*/
+@media ( min-width : 768px) {
+	.navbar-nav.navbar-right:last-child {
+		margin-right: 0px;
+	}
+}
+
+.no-margins {
+	margin: -15px;
+}
