@@ -3,6 +3,7 @@ package ch.cern.atlas.apvs.client;
 import java.util.Date;
 import java.util.List;
 
+import org.gwtbootstrap3.client.ui.Paragraph;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +63,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.RootPanel;
+
 
 /**
  * @author Mark Donszelmann
@@ -230,8 +230,8 @@ public class APVS implements EntryPoint {
 			Element element = divs.getItem(i);
 			String id = element.getId();
 
-			if (id.equals("footer")) {
-				Label supervisor = new Label(
+			if (id.equals("footer-left")) {
+				Paragraph supervisor = new Paragraph(
 						clientFactory.getFullName()+" : "+
 						(clientFactory.isSupervisor() ? "Supervisor"
 								: "Observer"));
