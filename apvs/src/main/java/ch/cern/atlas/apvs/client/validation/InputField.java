@@ -31,7 +31,7 @@ public class InputField extends ValidationField<String> {
 	}
 		
 	public String getValue() {
-		return input.getFormValue() != null ? input.getFormValue().trim() : null;
+		return input.getValue() != null ? input.getValue().trim() : null;
 	}
 
 	public Input getField() {
