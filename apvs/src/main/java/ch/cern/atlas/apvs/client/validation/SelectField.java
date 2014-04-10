@@ -52,7 +52,7 @@ public class SelectField extends ValidationField<String> {
 	}
 	
 	public String getValue() {
-		return select.getValue();
+		return select.getItemCount() > 0 ? select.getValue() : null;
 	}
 	
 	public Integer getId() {
