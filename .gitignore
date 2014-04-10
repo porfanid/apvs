@@ -1,5 +1,7 @@
 /APVS.properties
 bin
+.idea
+*.iml
 .project
 .classpath
 .settings
