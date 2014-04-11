@@ -4,7 +4,7 @@
   <parent>
     <artifactId>apvs-project</artifactId>
     <groupId>ch.cern.atlas</groupId>
-    <version>0.9.6</version>
+    <version>0.9.7-SNAPSHOT</version>
   </parent>
   <groupId>ch.cern.atlas</groupId>
   <artifactId>apvs-doc</artifactId>
