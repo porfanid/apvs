@@ -517,6 +517,8 @@ public class InterventionView extends GlassPanel implements Module {
 			}
 		};
 		duration.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		// #812, in principle we could ask the server to return us the records based on the order given 
+		// above... as this is a calculated column.
 		duration.setSortable(false);
 		if (selectable) {
 			duration.setFieldUpdater(new FieldUpdater<Intervention, String>() {
