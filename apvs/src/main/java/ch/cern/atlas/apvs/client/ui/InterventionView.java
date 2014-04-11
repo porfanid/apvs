@@ -18,6 +18,8 @@ import org.gwtbootstrap3.client.ui.constants.FormType;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
@@ -27,9 +29,9 @@ import ch.cern.atlas.apvs.client.settings.LocalStorage;
 import ch.cern.atlas.apvs.client.validation.CheckBoxField;
 import ch.cern.atlas.apvs.client.validation.EmptyStringValidator;
 import ch.cern.atlas.apvs.client.validation.IntegerValidator;
-import ch.cern.atlas.apvs.client.validation.SelectField;
 import ch.cern.atlas.apvs.client.validation.NotNullValidator;
 import ch.cern.atlas.apvs.client.validation.OrValidator;
+import ch.cern.atlas.apvs.client.validation.SelectField;
 import ch.cern.atlas.apvs.client.validation.StringValidator;
 import ch.cern.atlas.apvs.client.validation.TextAreaField;
 import ch.cern.atlas.apvs.client.validation.TextBoxField;
@@ -88,7 +90,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class InterventionView extends GlassPanel implements Module {
 
-	// private Logger log = LoggerFactory.getLogger(getClass().getName());
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ScrolledDataGrid<Intervention> table = new ScrolledDataGrid<Intervention>();
 	private ScrollPanel scrollPanel;
@@ -104,7 +106,6 @@ public class InterventionView extends GlassPanel implements Module {
 
 	private InterventionServiceAsync interventionService;
 	private VideoServiceAsync videoService;
-	// private Validator validator;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -417,6 +418,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 				final TextAreaField description = new TextAreaField(
 						"Description");
+				description.addStyleName("no-resize");
 				fieldset.add(description);
 
 				final CheckBoxField test = new CheckBoxField(
@@ -687,6 +689,7 @@ public class InterventionView extends GlassPanel implements Module {
 						new StringValidator(3, 50, "Enter valid hostname"));
 				final TextAreaField description = new TextAreaField(
 						"Description");
+				description.addStyleName("no-resize");
 				fieldset.add(description);
 
 				final CheckBoxField virtual = new CheckBoxField(

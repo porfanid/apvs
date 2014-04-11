@@ -5,11 +5,15 @@ import java.util.Map;
 
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 import org.gwtbootstrap3.extras.select.client.ui.Select;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.gwt.dom.client.SelectElement;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 
 public class SelectField extends ValidationField<String> {
+	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private Select select;
 	private Map<String, Integer> ids;
@@ -60,10 +64,15 @@ public class SelectField extends ValidationField<String> {
 	}
 
 	public void addItem(String item, int id) {
-		Option option = new Option();
-		option.setText(item);
-		select.add(option);
 		ids.put(item, id);
+		Option o = new Option();
+		o.setText(item);
+		select.add(o);
+		select.refresh();
 		validate(true);
 	}	
+	
+	public int getItemCount() {
+		return select.getItemCount();
+	}
 }

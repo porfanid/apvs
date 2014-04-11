@@ -19,3 +19,7 @@
 .no-margins {
 	margin: -15px;
 }
+
+.no-resize {
+	resize: none;
+}
