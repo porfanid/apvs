@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.cern.atlas</groupId>
     <artifactId>apvs-project</artifactId>
-    <version>0.9.6-SNAPSHOT</version>
+    <version>0.9.6</version>
     <packaging>pom</packaging>
     <name>APVS project</name>
     <description>ATLAS Procedure Visualizer System</description>
@@ -13,7 +12,7 @@
     <scm>
         <connection>scm:git:git://github.com/CERN/apvs.git</connection>
         <developerConnection>scm:git:git@github.com:CERN/apvs.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>apvs-project-0.9.6</tag>
         <url>https://github.com/CERN/apvs</url>
     </scm>
 
