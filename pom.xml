@@ -93,9 +93,6 @@
         <module>apvs-doc</module>
         <module>apvs-domain</module>
         <module>apvs-eventbus</module>
-        <!--
-                <module>apvs-gwt-bootstrap</module>
-        -->
         <module>apvs-json-io</module>
         <module>apvs-ptu</module>
     </modules>
