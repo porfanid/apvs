@@ -57,8 +57,8 @@
         <mysql-version>5.1.30</mysql-version>
         <netty-version>4.0.18.Final</netty-version>
         <nettosphere-version>2.1.2</nettosphere-version>
-        <ojdbc-jar>ojdbc6.jar</ojdbc-jar>
-        <ojdbc-version>11.2.0.4</ojdbc-version>
+        <ojdbc-jar>ojdbc7</ojdbc-jar>
+        <ojdbc-version>12.1.0.1</ojdbc-version>
         <servlet-api-version>3.0.0.v201112011016</servlet-api-version>
         <slf4j-version>1.7.7</slf4j-version>
         <validation-api-version>1.0.0.GA</validation-api-version>
@@ -142,7 +142,7 @@
             <id>oracle</id>
             <activation>
                 <file>
-                    <exists>apvs-ojdbc/ojdbc6.jar</exists>
+                    <exists>apvs-ojdbc/${ojdbc-jar}.jar</exists>
                 </file>
             </activation>
             <modules>
@@ -637,7 +637,7 @@
             </dependency>
             <dependency>
                 <groupId>com.oracle</groupId>
-                <artifactId>ojdbc</artifactId>
+                <artifactId>${ojdbc-jar}</artifactId>
                 <version>${ojdbc-version}</version>
             </dependency>
             <dependency>

@@ -8,5 +8,5 @@ bin
 ._.DS_Store
 dependency-reduced-pom.xml
 pom.xml.releaseBackup
-/target
+target
 /release.properties

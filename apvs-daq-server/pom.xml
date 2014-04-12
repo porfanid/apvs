@@ -95,7 +95,7 @@
 			<id>oracle</id>
 			<activation>
 				<file>
-					<exists>../apvs-ojdbc/ojdbc6.jar</exists>
+					<exists>../apvs-ojdbc/${ojdbc-jar}.jar</exists>
 				</file>
 			</activation>
 			<dependencies>
@@ -105,7 +105,7 @@
 				</dependency>
 				<dependency>
 					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc</artifactId>
+					<artifactId>${ojdbc-jar}</artifactId>
 				</dependency>
 			</dependencies>
 		</profile>

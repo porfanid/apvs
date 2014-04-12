@@ -20,10 +20,10 @@
 				<id>ojdbc</id>
 		    		<configuration>
 					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc</artifactId>
+					<artifactId>${ojdbc-jar}</artifactId>
 					<version>${ojdbc-version}</version>
 					<packaging>jar</packaging>
-					<file>ojdbc6.jar</file>
+					<file>${ojdbc-jar}.jar</file>
 				</configuration>
 				<goals>
 					<goal>install-file</goal>
