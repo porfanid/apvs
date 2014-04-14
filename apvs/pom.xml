@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>ch.cern.atlas</groupId>
 		<artifactId>apvs-project</artifactId>
-		<version>0.9.7-SNAPSHOT</version>
+		<version>0.9.7</version>
 	</parent>
 
 	<artifactId>apvs</artifactId>
@@ -48,14 +47,11 @@
 						<phase>validate</phase>
 						<configuration>
 							<target>
-								<property name="src.dir"
-									value="${project.build.directory}/generated-sources/gwt" />
+								<property name="src.dir" value="${project.build.directory}/generated-sources/gwt" />
 								<property name="package.dir" value="ch/cern/atlas/apvs/client" />
 
-								<echo file="${src.dir}/${package.dir}/Build.properties"
-									message="version = ${project.version}${line.separator}" />
-								<echo file="${src.dir}/${package.dir}/Build.properties"
-									append="true" message="build = ${buildNumber}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties" message="version = ${project.version}${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Build.properties" append="true" message="build = ${buildNumber}${line.separator}" />
 							</target>
 						</configuration>
 					</execution>
