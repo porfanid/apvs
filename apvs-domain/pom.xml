@@ -81,12 +81,13 @@
 		</dependency>
 	</dependencies>
 
+<!-- NOTE profile selection cannot use variables !!! -->
 	<profiles>
 		<profile>
 			<id>oracle</id>
 			<activation>
 				<file>
-					<exists>../apvs-ojdbc/${ojdbc-jar}.jar</exists>
+					<exists>../apvs-ojdbc/ojdbc7.jar</exists>
 				</file>
 			</activation>
 			<dependencies>
