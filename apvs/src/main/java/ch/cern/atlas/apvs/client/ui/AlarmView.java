@@ -188,7 +188,7 @@ public class AlarmView extends GlassPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(names);
 
-		ConnectionStatusChangedRemoteEvent.subscribe(eventBus,
+		ConnectionStatusChangedRemoteEvent.subscribe(this, eventBus,
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
@@ -206,7 +206,7 @@ public class AlarmView extends GlassPanel implements Module {
 					}
 				});
 
-		AlarmMapChangedRemoteEvent.subscribe(eventBus,
+		AlarmMapChangedRemoteEvent.subscribe(this, eventBus,
 				new AlarmMapChangedRemoteEvent.Handler() {
 
 					@Override
@@ -218,7 +218,7 @@ public class AlarmView extends GlassPanel implements Module {
 					}
 				});
 
-		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+		SelectPtuEvent.subscribe(this, cmdBus, new SelectPtuEvent.Handler() {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {

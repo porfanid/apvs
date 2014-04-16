@@ -207,7 +207,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(names);
 
-		ConnectionStatusChangedRemoteEvent.subscribe(
+		ConnectionStatusChangedRemoteEvent.subscribe(this, 
 				clientFactory.getRemoteEventBus(),
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
@@ -250,7 +250,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					}
 				});
 
-		InterventionMapChangedRemoteEvent.subscribe(
+		InterventionMapChangedRemoteEvent.subscribe(this, 
 				clientFactory.getRemoteEventBus(),
 				new InterventionMapChangedRemoteEvent.Handler() {
 
@@ -262,7 +262,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 					}
 				});
 		
-		PtuSettingsChangedRemoteEvent.subscribe(clientFactory.getRemoteEventBus(), new PtuSettingsChangedRemoteEvent.Handler() {
+		PtuSettingsChangedRemoteEvent.subscribe(this, clientFactory.getRemoteEventBus(), new PtuSettingsChangedRemoteEvent.Handler() {
 			
 			@Override
 			public void onPtuSettingsChanged(PtuSettingsChangedRemoteEvent event) {
@@ -272,7 +272,7 @@ public class GeneralInfoView extends GlassPanel implements Module {
 		});
 
 		if (cmdBus != null) {
-			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+			SelectPtuEvent.subscribe(this, cmdBus, new SelectPtuEvent.Handler() {
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {

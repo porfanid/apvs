@@ -74,7 +74,7 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 
 		// listen to all event busses
 		for (final EventBus eventBus : eventBusses) {
-			RequestEvent.register(eventBus, new RequestEvent.Handler() {
+			RequestEvent.register(this, eventBus, new RequestEvent.Handler() {
 
 				@Override
 				public void onRequestEvent(RequestEvent event) {
@@ -88,7 +88,7 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 			});
 		}
 
-		PtuSettingsChangedRemoteEvent.subscribe(remoteEventBus,
+		PtuSettingsChangedRemoteEvent.subscribe(this, remoteEventBus,
 				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -100,7 +100,7 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 					}
 				});
 
-		InterventionMapChangedRemoteEvent.subscribe(remoteEventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, remoteEventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override

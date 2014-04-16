@@ -26,11 +26,11 @@ public class ColorMapChangedEvent extends Event<ColorMapChangedEvent.Handler> {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(EventBus eventBus,
+	public static HandlerRegistration subscribe(Object target, EventBus eventBus,
 			ColorMapChangedEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestEvent(ColorMapChangedEvent.class));
+		eventBus.fireEvent(new RequestEvent(ColorMapChangedEvent.class, target.getClass()));
 		
 		return registration;
 	}

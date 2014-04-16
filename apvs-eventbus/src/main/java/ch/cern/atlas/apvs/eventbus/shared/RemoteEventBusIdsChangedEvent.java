@@ -37,10 +37,10 @@ public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIds
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus, Handler handler) throws SerializationException {
+	public static HandlerRegistration subscribe(Object source, RemoteEventBus eventBus, Handler handler) throws SerializationException {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(RemoteEventBusIdsChangedEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(RemoteEventBusIdsChangedEvent.class, source.getClass()));
 		
 		return registration;
 	}

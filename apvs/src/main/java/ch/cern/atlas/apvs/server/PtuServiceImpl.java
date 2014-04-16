@@ -90,7 +90,7 @@ public class PtuServiceImpl extends ResponsePollService implements PtuService {
 		bootstrap.group(group);
 		bootstrap.handler(new PtuChannelInitializer(ptuClientHandler, devices, true));
 
-		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+		ServerSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override

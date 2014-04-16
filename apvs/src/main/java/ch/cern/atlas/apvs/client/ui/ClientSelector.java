@@ -36,7 +36,7 @@ public class ClientSelector extends SimplePanel {
 			}
 		});
 		
-		RemoteEventBusIdsChangedEvent.subscribe(eventBus,
+		RemoteEventBusIdsChangedEvent.subscribe(this, eventBus,
 				new RemoteEventBusIdsChangedEvent.Handler() {
 
 					@Override

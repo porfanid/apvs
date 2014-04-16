@@ -78,7 +78,7 @@ public class ServerSettingsView extends VerticalFlowPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(ServerSettings.Entry.getKeys());
 
-		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+		ServerSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
 					@Override
 					public void onServerSettingsChanged(

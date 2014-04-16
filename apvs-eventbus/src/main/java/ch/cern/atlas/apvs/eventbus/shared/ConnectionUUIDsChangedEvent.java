@@ -42,12 +42,12 @@ public class ConnectionUUIDsChangedEvent extends
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus,
 			Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 
 		eventBus.fireEvent(new RequestRemoteEvent(
-				ConnectionUUIDsChangedEvent.class));
+				ConnectionUUIDsChangedEvent.class, src.getClass()));
 
 		return registration;
 	}

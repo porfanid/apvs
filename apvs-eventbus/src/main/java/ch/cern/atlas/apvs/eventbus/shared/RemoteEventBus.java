@@ -9,9 +9,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.google.web.bindery.event.shared.UmbrellaException;

@@ -54,7 +54,7 @@ public class TimeView extends SpecificTimeView implements Module {
 		this.title = !options.contains("NoTitle");
 		this.export = !options.contains("NoExport");
 
-		ConnectionStatusChangedRemoteEvent.subscribe(
+		ConnectionStatusChangedRemoteEvent.subscribe(this,
 				clientFactory.getRemoteEventBus(),
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
@@ -71,7 +71,7 @@ public class TimeView extends SpecificTimeView implements Module {
 					}
 				});
 
-		PtuSettingsChangedRemoteEvent.subscribe(eventBus,
+		PtuSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -82,7 +82,7 @@ public class TimeView extends SpecificTimeView implements Module {
 					}
 				});
 
-		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
@@ -93,7 +93,7 @@ public class TimeView extends SpecificTimeView implements Module {
 					}
 				});
 
-		HistoryChangedEvent.subscribe(clientFactory,
+		HistoryChangedEvent.subscribe(this, clientFactory,
 				new HistoryChangedEvent.Handler() {
 
 					@Override
@@ -104,7 +104,7 @@ public class TimeView extends SpecificTimeView implements Module {
 				});
 
 		if (cmdBus != null) {
-			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+			SelectPtuEvent.subscribe(this, cmdBus, new SelectPtuEvent.Handler() {
 
 				@Override
 				public void onPtuSelected(final SelectPtuEvent event) {
@@ -113,7 +113,7 @@ public class TimeView extends SpecificTimeView implements Module {
 				}
 			});
 
-			SelectMeasurementEvent.subscribe(cmdBus,
+			SelectMeasurementEvent.subscribe(this, cmdBus,
 					new SelectMeasurementEvent.Handler() {
 
 						@Override
@@ -123,7 +123,7 @@ public class TimeView extends SpecificTimeView implements Module {
 						}
 					});
 
-			RequestEvent.register(cmdBus, new RequestEvent.Handler() {
+			RequestEvent.register(this, cmdBus, new RequestEvent.Handler() {
 
 				@Override
 				public void onRequestEvent(RequestEvent event) {

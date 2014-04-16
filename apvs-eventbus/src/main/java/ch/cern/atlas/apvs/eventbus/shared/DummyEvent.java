@@ -34,11 +34,11 @@ public class DummyEvent extends RemoteEvent<DummyEvent.Handler> {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus,
 			DummyEvent.Handler handler) throws SerializationException {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(DummyEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(DummyEvent.class, src.getClass()));
 		
 		return registration;
 	}

@@ -123,7 +123,7 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.getList().add(new VoipAccount());		
 
-		AudioSupervisorSettingsChangedRemoteEvent.subscribe(eventBus, new AudioSupervisorSettingsChangedRemoteEvent.Handler()  {
+		AudioSupervisorSettingsChangedRemoteEvent.subscribe(this, eventBus, new AudioSupervisorSettingsChangedRemoteEvent.Handler()  {
 			
 			@Override
 			public void onAudioSupervisorSettingsChanged(AudioSupervisorSettingsChangedRemoteEvent event) {
@@ -133,7 +133,7 @@ public class AudioSupervisorSettingsView extends GlassPanel implements Module {
 			}
 		});
 		
-		AudioSupervisorStatusRemoteEvent.subscribe(eventBus, new AudioSupervisorStatusRemoteEvent.Handler()  {
+		AudioSupervisorStatusRemoteEvent.subscribe(this, eventBus, new AudioSupervisorStatusRemoteEvent.Handler()  {
 			
 			@Override
 			public void onAudioSupervisorStatusChanged(AudioSupervisorStatusRemoteEvent event) {

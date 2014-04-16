@@ -27,18 +27,20 @@ public class RequestEvent extends Event<RequestEvent.Handler> {
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(EventBus eventBus,
+	public static HandlerRegistration register(Object target, EventBus eventBus,
 			RequestEvent.Handler handler) {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
 	private String requestedClassName;
+	private String targetClassName;
 
 	public RequestEvent() {
 	}
 
-	public RequestEvent(Class<? extends Event<?>> requestedClass) {
+	public RequestEvent(Class<? extends Event<?>> requestedClass, Class<?> targetClass) {
 		this.requestedClassName = requestedClass.getName();
+		this.targetClassName = targetClass.getName();
 	}
 
 	@Override
@@ -50,6 +52,10 @@ public class RequestEvent extends Event<RequestEvent.Handler> {
 		return requestedClassName;
 	}
 
+	public String getTargetClassName() {
+		return targetClassName;
+	}
+
 	@Override
 	protected void dispatch(Handler handler) {
 		handler.onRequestEvent(this);
@@ -57,6 +63,6 @@ public class RequestEvent extends Event<RequestEvent.Handler> {
 
 	@Override
 	public String toString() {
-		return "RequestEvent of class "+getRequestedClassName();
+		return "RequestEvent of class "+getRequestedClassName() +" by "+getTargetClassName();
 	}
 }

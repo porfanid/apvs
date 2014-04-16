@@ -39,11 +39,11 @@ public class PlaceChangedRemoteEvent extends RemoteEvent<PlaceChangedRemoteEvent
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus,
 			PlaceChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(PlaceChangedRemoteEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(PlaceChangedRemoteEvent.class, src.getClass()));
 		
 		return registration;
 	}

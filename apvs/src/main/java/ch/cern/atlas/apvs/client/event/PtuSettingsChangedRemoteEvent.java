@@ -38,11 +38,11 @@ public class PtuSettingsChangedRemoteEvent extends RemoteEvent<PtuSettingsChange
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus,
 			PtuSettingsChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(PtuSettingsChangedRemoteEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(PtuSettingsChangedRemoteEvent.class, src.getClass()));
 		
 		return registration;
 	}

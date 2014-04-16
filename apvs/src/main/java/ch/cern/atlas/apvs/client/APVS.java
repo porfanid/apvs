@@ -309,7 +309,7 @@ public class APVS implements EntryPoint {
 			}
 			
 			// subscribe to keep track and set default PTU
-			InterventionMapChangedRemoteEvent.subscribe(remoteEventBus, new InterventionMapChangedRemoteEvent.Handler() {
+			InterventionMapChangedRemoteEvent.subscribe(this, remoteEventBus, new InterventionMapChangedRemoteEvent.Handler() {
 				
 				@Override
 				public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
@@ -330,7 +330,7 @@ public class APVS implements EntryPoint {
 		}
 		
 		// Server ALIVE status
-		RequestRemoteEvent.register(remoteEventBus, new RequestRemoteEvent.Handler() {
+		RequestRemoteEvent.register(this, remoteEventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {

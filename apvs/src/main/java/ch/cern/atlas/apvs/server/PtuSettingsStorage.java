@@ -46,7 +46,7 @@ public class PtuSettingsStorage {
 					}
 				});
 		
-		InterventionMapChangedRemoteEvent.subscribe(eventBus, new InterventionMapChangedRemoteEvent.Handler() {
+		InterventionMapChangedRemoteEvent.subscribe(this, eventBus, new InterventionMapChangedRemoteEvent.Handler() {
 			
 			@Override
 			public void onInterventionMapChanged(
@@ -70,7 +70,7 @@ public class PtuSettingsStorage {
 			}
 		});
 
-		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+		RequestRemoteEvent.register(this, eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {

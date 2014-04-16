@@ -157,7 +157,7 @@ public class AudioSummary extends GlassPanel implements Module {
 		dataProvider.addDataDisplay(table);
 		dataProvider.setList(new ArrayList<String>());
 
-		ConnectionStatusChangedRemoteEvent.subscribe(eventBus,
+		ConnectionStatusChangedRemoteEvent.subscribe(this, eventBus,
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
@@ -179,7 +179,7 @@ public class AudioSummary extends GlassPanel implements Module {
 				});
 
 		// NOTE: FIXME the two below need to be merged...
-		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
@@ -194,7 +194,7 @@ public class AudioSummary extends GlassPanel implements Module {
 					}
 				});
 
-		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,
+		AudioUsersSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new AudioUsersSettingsChangedRemoteEvent.Handler() {
 
 					@Override

@@ -44,7 +44,7 @@ public class AtmosphereEventBusHandler extends ReflectorServletProcessor {
 		eventBus = ServerEventBus.getInstance();
 		uuids = new ArrayList<String>();
 
-		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+		RequestRemoteEvent.register(this, eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {

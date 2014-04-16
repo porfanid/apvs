@@ -36,11 +36,11 @@ public class SettingsChangedEvent extends Event<SettingsChangedEvent.Handler> {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object target, RemoteEventBus eventBus,
 			SettingsChangedEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestEvent(SettingsChangedEvent.class));
+		eventBus.fireEvent(new RequestEvent(SettingsChangedEvent.class, target.getClass()));
 		
 		return registration;
 	}

@@ -46,7 +46,7 @@ public class SettingsPersister extends VerticalFlowPanel {
 					}
 				});
 
-		RequestEvent.register(eventBus, new RequestEvent.Handler() {
+		RequestEvent.register(this, eventBus, new RequestEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestEvent event) {

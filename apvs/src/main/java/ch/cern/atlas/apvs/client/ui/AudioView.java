@@ -299,7 +299,7 @@ public class AudioView extends GlassPanel implements Module {
 		// dataProvider.setList(new ArrayList<String>());
 
 		if (cmdBus != null) {
-			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+			SelectPtuEvent.subscribe(this, cmdBus, new SelectPtuEvent.Handler() {
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
@@ -311,7 +311,7 @@ public class AudioView extends GlassPanel implements Module {
 			});
 		}
 
-		ConnectionStatusChangedRemoteEvent.subscribe(eventBus,
+		ConnectionStatusChangedRemoteEvent.subscribe(this, eventBus,
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
@@ -323,7 +323,7 @@ public class AudioView extends GlassPanel implements Module {
 					}
 				});
 
-		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,
+		AudioUsersSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new AudioUsersSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -337,7 +337,7 @@ public class AudioView extends GlassPanel implements Module {
 					}
 				});
 
-		AudioSupervisorSettingsChangedRemoteEvent.subscribe(eventBus,
+		AudioSupervisorSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new AudioSupervisorSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -347,7 +347,7 @@ public class AudioView extends GlassPanel implements Module {
 					}
 				});
 
-		MeetMeRemoteEvent.subscribe(eventBus, new MeetMeRemoteEvent.Handler() {
+		MeetMeRemoteEvent.subscribe(this, eventBus, new MeetMeRemoteEvent.Handler() {
 
 			@Override
 			public void onMeetMeEvent(MeetMeRemoteEvent event) {

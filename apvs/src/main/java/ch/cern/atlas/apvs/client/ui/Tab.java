@@ -26,7 +26,7 @@ public class Tab implements Module {
 		
 		setVisible(element, false);
 		
-		SelectTabEvent.subscribe(eventBus, new SelectTabEvent.Handler() {
+		SelectTabEvent.subscribe(this, eventBus, new SelectTabEvent.Handler() {
 			
 			@Override
 			public void onTabSelected(SelectTabEvent event) {

@@ -78,7 +78,7 @@ public class ProcedureView extends SimplePanel implements Module {
 					}
 				});
 
-		ServerSettingsChangedRemoteEvent.subscribe(remoteEventBus,
+		ServerSettingsChangedRemoteEvent.subscribe(this, remoteEventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override

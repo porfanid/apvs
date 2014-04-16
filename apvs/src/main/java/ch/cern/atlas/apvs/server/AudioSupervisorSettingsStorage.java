@@ -29,7 +29,7 @@ public class AudioSupervisorSettingsStorage {
 			}
 		}); 
 		
-		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+		RequestRemoteEvent.register(this, eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {

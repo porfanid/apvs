@@ -50,11 +50,11 @@ public class HistoryChangedEvent extends Event<HistoryChangedEvent.Handler> {
 		return clientFactory.getRemoteEventBus().addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(ClientFactory clientFactory,
+	public static HandlerRegistration subscribe(Object target, ClientFactory clientFactory,
 			HistoryChangedEvent.Handler handler) {
 		HandlerRegistration registration = register(clientFactory, handler);
 		
-		clientFactory.getRemoteEventBus().fireEvent(new RequestEvent(HistoryChangedEvent.class));
+		clientFactory.getRemoteEventBus().fireEvent(new RequestEvent(HistoryChangedEvent.class, target.getClass()));
 		
 		return registration;
 	}

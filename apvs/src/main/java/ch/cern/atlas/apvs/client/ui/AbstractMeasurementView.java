@@ -82,7 +82,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 			selectionModel = new SingleSelectionModel<String>();
 		}
 
-		ConnectionStatusChangedRemoteEvent.subscribe(remoteEventBus,
+		ConnectionStatusChangedRemoteEvent.subscribe(this, remoteEventBus,
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
 					@Override
@@ -103,7 +103,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 					}
 				});
 
-		InterventionMapChangedRemoteEvent.subscribe(remoteEventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, remoteEventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
@@ -115,7 +115,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 					}
 				});
 
-		HistoryChangedEvent.subscribe(clientFactory,
+		HistoryChangedEvent.subscribe(this, clientFactory,
 				new HistoryChangedEvent.Handler() {
 
 					@Override
@@ -126,7 +126,7 @@ public abstract class AbstractMeasurementView extends GlassPanel implements
 					}
 				});
 
-		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+		SelectPtuEvent.subscribe(this, cmdBus, new SelectPtuEvent.Handler() {
 
 			@Override
 			public void onPtuSelected(final SelectPtuEvent event) {

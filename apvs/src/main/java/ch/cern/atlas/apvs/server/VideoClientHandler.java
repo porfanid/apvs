@@ -27,7 +27,7 @@ public class VideoClientHandler extends PtuReconnectHandler {
 		super(bootstrap, "VIDEO");
 		this.eventBus = eventBus;
 
-		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+		RequestRemoteEvent.register(this, eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {

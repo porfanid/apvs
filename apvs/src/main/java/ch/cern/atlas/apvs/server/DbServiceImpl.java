@@ -40,7 +40,7 @@ public class DbServiceImpl extends ResponsePollService implements DbService {
 		database = Database.getInstance();
 		databaseHandler = DatabaseHandler.getInstance(eventBus);
 		
-		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+		ServerSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override

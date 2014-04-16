@@ -51,19 +51,19 @@ public class PlaceView extends SimplePanel implements Module,
 				switchBus, element, this));
 
 		if (eventBus != null) {
-			SelectPtuEvent.subscribe(eventBus, new SelectPtuEvent.Handler() {
+			SelectPtuEvent.subscribe(this, eventBus, new SelectPtuEvent.Handler() {
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptu = event.getPtu();
 
 					remoteEventBus.fireEvent(new RequestRemoteEvent(
-							PlaceChangedRemoteEvent.class));
+							PlaceChangedRemoteEvent.class, this.getClass()));
 				}
 			});
 		}
 
-		PlaceChangedRemoteEvent.subscribe(remoteEventBus,
+		PlaceChangedRemoteEvent.subscribe(this, remoteEventBus,
 				new PlaceChangedRemoteEvent.Handler() {
 
 					@Override

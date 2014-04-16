@@ -68,7 +68,7 @@ public class VideoServiceImpl extends ResponsePollService implements VideoServic
 		bootstrap.group(group);
 		bootstrap.handler(new PtuChannelInitializer(videoClientHandler, devices, false));
 
-		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+		ServerSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override

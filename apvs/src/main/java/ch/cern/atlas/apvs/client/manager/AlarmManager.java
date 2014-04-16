@@ -29,7 +29,7 @@ public class AlarmManager {
 		alarms = new AlarmMap();
 		
 		// subscribe
-		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override

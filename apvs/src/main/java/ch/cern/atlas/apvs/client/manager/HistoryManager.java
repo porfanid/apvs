@@ -36,7 +36,7 @@ public class HistoryManager {
 		this.eventBus = clientFactory.getRemoteEventBus();
 		
 		// subscribe
-		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override

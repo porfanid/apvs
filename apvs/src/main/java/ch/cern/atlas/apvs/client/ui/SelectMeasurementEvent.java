@@ -22,11 +22,11 @@ public class SelectMeasurementEvent extends Event<SelectMeasurementEvent.Handler
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	public static HandlerRegistration subscribe(EventBus eventBus,
+	public static HandlerRegistration subscribe(Object target, EventBus eventBus,
 			SelectMeasurementEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestEvent(SelectMeasurementEvent.class));
+		eventBus.fireEvent(new RequestEvent(SelectMeasurementEvent.class, target.getClass()));
 		
 		return registration;
 	}

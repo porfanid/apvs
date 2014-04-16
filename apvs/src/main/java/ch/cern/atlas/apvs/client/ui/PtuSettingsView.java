@@ -384,7 +384,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 		table.getColumnSortList().push(ptuId);
 
-		PtuSettingsChangedRemoteEvent.subscribe(eventBus,
+		PtuSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new PtuSettingsChangedRemoteEvent.Handler() {
 					@Override
 					public void onPtuSettingsChanged(
@@ -395,7 +395,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					}
 				});
 
-		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
@@ -410,7 +410,7 @@ public class PtuSettingsView extends GlassPanel implements Module {
 					}
 				});
 
-		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,
+		AudioUsersSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new AudioUsersSettingsChangedRemoteEvent.Handler() {
 
 					@Override

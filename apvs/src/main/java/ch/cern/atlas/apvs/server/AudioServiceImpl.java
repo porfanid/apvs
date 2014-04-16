@@ -135,7 +135,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 				try {
 					login();
 				} catch (AudioException e) {
-					log.error("Fail to login: ", e);
+					log.error("Fail to login: "+e.getMessage());
 				}
 			} else {
 				boolean audioFormerState = audioOk;
@@ -171,7 +171,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 
 		executorService = Executors.newSingleThreadScheduledExecutor();
 
-		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+		RequestRemoteEvent.register(this, eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
@@ -197,7 +197,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		audioOk = false;
 		asteriskConnected = false;
 
-		ServerSettingsChangedRemoteEvent.subscribe(eventBus,
+		ServerSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new ServerSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -253,7 +253,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 		// FOR #281, uids may still change in the future, related to #284, at
 		// this moment any reload generated more uids... none is taken away on
 		// disconnect
-		ConnectionUUIDsChangedEvent.subscribe(eventBus,
+		ConnectionUUIDsChangedEvent.subscribe(this, eventBus,
 				new ConnectionUUIDsChangedEvent.Handler() {
 
 					@Override
@@ -265,7 +265,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					}
 				});
 
-		AudioUsersSettingsChangedRemoteEvent.subscribe(eventBus,
+		AudioUsersSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new AudioUsersSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -275,7 +275,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					}
 				});
 
-		AudioSupervisorSettingsChangedRemoteEvent.subscribe(eventBus,
+		AudioSupervisorSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new AudioSupervisorSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -285,7 +285,7 @@ public class AudioServiceImpl extends ResponsePollService implements
 					}
 				});
 
-		MeetMeRemoteEvent.subscribe(eventBus, new MeetMeRemoteEvent.Handler() {
+		MeetMeRemoteEvent.subscribe(this, eventBus, new MeetMeRemoteEvent.Handler() {
 
 			@Override
 			public void onMeetMeEvent(MeetMeRemoteEvent event) {

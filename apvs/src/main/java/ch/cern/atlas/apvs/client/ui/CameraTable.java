@@ -43,7 +43,7 @@ public class CameraTable extends SimplePanel implements Module {
 				
 		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
 		
-		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
@@ -59,7 +59,7 @@ public class CameraTable extends SimplePanel implements Module {
 
 				});
 
-		PtuSettingsChangedRemoteEvent.subscribe(eventBus,
+		PtuSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -71,7 +71,7 @@ public class CameraTable extends SimplePanel implements Module {
 					}
 				});
 		
-		HistoryChangedEvent.subscribe(clientFactory,
+		HistoryChangedEvent.subscribe(this, clientFactory,
 				new HistoryChangedEvent.Handler() {
 
 					@Override

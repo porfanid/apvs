@@ -41,11 +41,11 @@ public class SelectPtuEvent extends Event<SelectPtuEvent.Handler> {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(EventBus eventBus,
+	public static HandlerRegistration subscribe(Object target, EventBus eventBus,
 			SelectPtuEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestEvent(SelectPtuEvent.class));
+		eventBus.fireEvent(new RequestEvent(SelectPtuEvent.class, target.getClass()));
 		
 		return registration;
 	}

@@ -38,11 +38,11 @@ public class ServerSettingsChangedRemoteEvent extends RemoteEvent<ServerSettings
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus,
 			ServerSettingsChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(ServerSettingsChangedRemoteEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(ServerSettingsChangedRemoteEvent.class, src.getClass()));
 		
 		return registration;
 	}

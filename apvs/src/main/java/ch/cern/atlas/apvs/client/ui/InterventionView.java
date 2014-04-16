@@ -987,7 +987,7 @@ public class InterventionView extends GlassPanel implements Module {
 		});
 
 		// FIXME #189 so we handle it with events
-		SelectTabEvent.subscribe(eventBus, new SelectTabEvent.Handler() {
+		SelectTabEvent.subscribe(this, eventBus, new SelectTabEvent.Handler() {
 
 			@Override
 			public void onTabSelected(SelectTabEvent event) {

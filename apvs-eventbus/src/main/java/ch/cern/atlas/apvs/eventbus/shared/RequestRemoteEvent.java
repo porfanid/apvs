@@ -32,18 +32,20 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 	 *            an Handler instance
 	 * @return an {@link HandlerRegistration} instance
 	 */
-	public static HandlerRegistration register(EventBus eventBus,
+	public static HandlerRegistration register(Object target, EventBus eventBus,
 			RequestRemoteEvent.Handler handler) {
 		return ((RemoteEventBus)eventBus).addHandler(TYPE, handler);
 	}
 
 	private String requestedClassName;
+	private String targetClassName;
 
 	public RequestRemoteEvent() {
 	}
 
-	public RequestRemoteEvent(Class<? extends Serializable> requestedClass) {
+	public RequestRemoteEvent(Class<? extends Serializable> requestedClass, Class<?> targetClass) {
 		this.requestedClassName = requestedClass.getName();
+		this.targetClassName = targetClass.getName();
 	}
 
 	@Override
@@ -55,6 +57,10 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 		return requestedClassName;
 	}
 
+	public String getTargetClassName() {
+		return targetClassName;
+	}
+
 	@Override
 	protected void dispatch(Handler handler) {
 		handler.onRequestEvent(this);
@@ -62,7 +68,7 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 
 	@Override
 	public String toString() {
-		return "RequestRemoteEvent of class "+getRequestedClassName();
+		return "RequestRemoteEvent of class "+getRequestedClassName()+" by "+getTargetClassName();
 	}
 
 }

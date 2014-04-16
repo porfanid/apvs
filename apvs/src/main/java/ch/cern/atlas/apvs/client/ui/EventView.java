@@ -212,7 +212,7 @@ public class EventView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 
 		// Subscriptions
-		ConnectionStatusChangedRemoteEvent.subscribe(
+		ConnectionStatusChangedRemoteEvent.subscribe(this, 
 				clientFactory.getRemoteEventBus(),
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
@@ -251,7 +251,7 @@ public class EventView extends GlassPanel implements Module {
 				});
 
 		if (cmdBus != null) {
-			SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+			SelectPtuEvent.subscribe(this, cmdBus, new SelectPtuEvent.Handler() {
 
 				@Override
 				public void onPtuSelected(SelectPtuEvent event) {
@@ -261,7 +261,7 @@ public class EventView extends GlassPanel implements Module {
 				}
 			});
 
-			SelectMeasurementEvent.subscribe(cmdBus,
+			SelectMeasurementEvent.subscribe(this, cmdBus,
 					new SelectMeasurementEvent.Handler() {
 
 						@Override
@@ -273,7 +273,7 @@ public class EventView extends GlassPanel implements Module {
 					});
 
 			// FIXME #189
-			SelectTabEvent.subscribe(cmdBus, new SelectTabEvent.Handler() {
+			SelectTabEvent.subscribe(this, cmdBus, new SelectTabEvent.Handler() {
 
 				@Override
 				public void onTabSelected(SelectTabEvent event) {

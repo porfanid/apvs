@@ -38,11 +38,11 @@ public class SelectTabEvent extends Event<SelectTabEvent.Handler> {
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(EventBus eventBus,
+	public static HandlerRegistration subscribe(Object target, EventBus eventBus,
 			SelectTabEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestEvent(SelectTabEvent.class));
+		eventBus.fireEvent(new RequestEvent(SelectTabEvent.class, target.getClass()));
 		
 		return registration;
 	}

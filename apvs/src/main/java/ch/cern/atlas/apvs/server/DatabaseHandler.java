@@ -56,7 +56,7 @@ public class DatabaseHandler {
 
 		database = Database.getInstance();
 
-		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+		RequestRemoteEvent.register(this, eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
@@ -64,7 +64,7 @@ public class DatabaseHandler {
 
 				if (type.equals(InterventionMapChangedRemoteEvent.class
 						.getName())) {
-					log.info("Request to DB");
+					log.info("Request to DB "+event);
 					InterventionMapChangedRemoteEvent.fire(eventBus,
 							interventions);
 				} else if (type.equals(ConnectionStatusChangedRemoteEvent.class

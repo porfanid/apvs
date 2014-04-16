@@ -25,11 +25,11 @@ public class AudioSupervisorSettingsChangedRemoteEvent extends
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus,
 			AudioSupervisorSettingsChangedRemoteEvent.Handler handler) {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(AudioSupervisorSettingsChangedRemoteEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(AudioSupervisorSettingsChangedRemoteEvent.class, src.getClass()));
 
 		return registration;
 	}

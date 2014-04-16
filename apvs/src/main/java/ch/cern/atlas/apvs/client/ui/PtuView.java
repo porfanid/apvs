@@ -142,7 +142,7 @@ public class PtuView extends GlassPanel implements Module {
 		selectionModel = new SingleSelectionModel<String>();
 		table.setSelectionModel(selectionModel);
 
-		ConnectionStatusChangedRemoteEvent.subscribe(
+		ConnectionStatusChangedRemoteEvent.subscribe(this, 
 				clientFactory.getRemoteEventBus(),
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
@@ -176,7 +176,7 @@ public class PtuView extends GlassPanel implements Module {
 					}
 				});
 
-		PtuSettingsChangedRemoteEvent.subscribe(eventBus,
+		PtuSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -188,7 +188,7 @@ public class PtuView extends GlassPanel implements Module {
 					}
 				});
 
-		InterventionMapChangedRemoteEvent.subscribe(eventBus,
+		InterventionMapChangedRemoteEvent.subscribe(this, eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
 					@Override
@@ -203,7 +203,7 @@ public class PtuView extends GlassPanel implements Module {
 					}
 				});
 
-		HistoryChangedEvent.subscribe(clientFactory,
+		HistoryChangedEvent.subscribe(this, clientFactory,
 				new HistoryChangedEvent.Handler() {
 
 					@Override
@@ -215,7 +215,7 @@ public class PtuView extends GlassPanel implements Module {
 				});		
 
 		if (cmdBus != null) {
-			ColorMapChangedEvent.subscribe(cmdBus,
+			ColorMapChangedEvent.subscribe(this, cmdBus,
 					new ColorMapChangedEvent.Handler() {
 						@Override
 						public void onColorMapChanged(ColorMapChangedEvent event) {

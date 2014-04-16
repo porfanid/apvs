@@ -68,7 +68,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 
 		database = Database.getInstance();
 
-		RequestRemoteEvent.register(eventBus, new RequestRemoteEvent.Handler() {
+		RequestRemoteEvent.register(this, eventBus, new RequestRemoteEvent.Handler() {
 
 			@Override
 			public void onRequestEvent(RequestRemoteEvent event) {
@@ -86,7 +86,7 @@ public class PtuClientHandler extends PtuReconnectHandler {
 			}
 		});
 
-		PtuSettingsChangedRemoteEvent.subscribe(eventBus,
+		PtuSettingsChangedRemoteEvent.subscribe(this, eventBus,
 				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override

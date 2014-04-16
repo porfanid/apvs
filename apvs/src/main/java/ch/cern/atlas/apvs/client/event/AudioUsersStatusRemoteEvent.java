@@ -28,11 +28,11 @@ public class AudioUsersStatusRemoteEvent extends
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus,
 			AudioUsersStatusRemoteEvent.Handler handler) throws SerializationException {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(AudioUsersStatusRemoteEvent.class));
+		eventBus.fireEvent(new RequestRemoteEvent(AudioUsersStatusRemoteEvent.class, src.getClass()));
 
 		return registration;
 	}

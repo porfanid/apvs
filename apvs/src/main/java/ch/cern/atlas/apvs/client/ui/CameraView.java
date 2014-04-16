@@ -116,7 +116,7 @@ public class CameraView extends ImageView implements Module,
 			});
 		}
 
-		PtuSettingsChangedRemoteEvent.subscribe(factory.getRemoteEventBus(),
+		PtuSettingsChangedRemoteEvent.subscribe(this, factory.getRemoteEventBus(),
 				new PtuSettingsChangedRemoteEvent.Handler() {
 
 					@Override
@@ -129,7 +129,7 @@ public class CameraView extends ImageView implements Module,
 					}
 				});
 
-		SelectPtuEvent.subscribe(cmdBus, new SelectPtuEvent.Handler() {
+		SelectPtuEvent.subscribe(this, cmdBus, new SelectPtuEvent.Handler() {
 
 			@Override
 			public void onPtuSelected(SelectPtuEvent event) {

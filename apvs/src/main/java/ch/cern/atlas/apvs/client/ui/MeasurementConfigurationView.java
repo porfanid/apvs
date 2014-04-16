@@ -199,7 +199,7 @@ public class MeasurementConfigurationView extends GlassPanel implements Module {
 		table.addColumnSortHandler(columnSortHandler);
 
 		// Subscriptions
-		ConnectionStatusChangedRemoteEvent.subscribe(
+		ConnectionStatusChangedRemoteEvent.subscribe(this, 
 				clientFactory.getRemoteEventBus(),
 				new ConnectionStatusChangedRemoteEvent.Handler() {
 
