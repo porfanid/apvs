@@ -24,8 +24,8 @@ public class InterventionMapChangedRemoteEvent extends RemoteEvent<InterventionM
 		void onInterventionMapChanged(InterventionMapChangedRemoteEvent event);
 	}
 
-	public static void fire(RemoteEventBus eventBus, InterventionMap interventions) {
-		eventBus.fireEvent(new InterventionMapChangedRemoteEvent(interventions));
+	public static void fire(Object src, RemoteEventBus eventBus, InterventionMap interventions) {
+		eventBus.fireEvent(new InterventionMapChangedRemoteEvent(src, interventions));
 	}	
 	
 	private static final Type<InterventionMapChangedRemoteEvent.Handler> TYPE = new Type<InterventionMapChangedRemoteEvent.Handler>();
@@ -48,7 +48,7 @@ public class InterventionMapChangedRemoteEvent extends RemoteEvent<InterventionM
 			InterventionMapChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(InterventionMapChangedRemoteEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src, InterventionMapChangedRemoteEvent.class));
 		
 		return registration;
 	}
@@ -58,7 +58,8 @@ public class InterventionMapChangedRemoteEvent extends RemoteEvent<InterventionM
 	public InterventionMapChangedRemoteEvent() {
 	}
 
-	public InterventionMapChangedRemoteEvent(InterventionMap interventions) {
+	public InterventionMapChangedRemoteEvent(Object src, InterventionMap interventions) {
+		super(src);
 		this.interventions = interventions;
 	}
 
@@ -74,6 +75,5 @@ public class InterventionMapChangedRemoteEvent extends RemoteEvent<InterventionM
 	@Override
 	protected void dispatch(Handler handler) {
 		handler.onInterventionMapChanged(this);
-	}
-
+	}	
 }

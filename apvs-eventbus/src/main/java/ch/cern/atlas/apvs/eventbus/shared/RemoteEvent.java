@@ -31,10 +31,15 @@ public abstract class RemoteEvent<H> implements Serializable, IsSerializable {
 		}
 	}
 	
+	private String sourceClassName;
 	private Integer uuid = null;
 	private Long eventBusUUID = null;
 
 	protected RemoteEvent() {
+	}
+
+	protected RemoteEvent(Object src) {
+		sourceClassName = src.getClass().getName();
 	}
 
 	public abstract Type<H> getAssociatedType();
@@ -52,10 +57,14 @@ public abstract class RemoteEvent<H> implements Serializable, IsSerializable {
 		name = name.substring(name.lastIndexOf(".") + 1);
 		return "event: " + name + ":";
 	}
+	
+	public String getSourceClassName() {
+		return sourceClassName;
+	}
 
 	@Override
 	public String toString() {
-		return "Remote event of class "+getClass();
+		return "Remote event of class "+getClass()+" from "+getSourceClassName();
 	}
 
 	protected abstract void dispatch(H handler);

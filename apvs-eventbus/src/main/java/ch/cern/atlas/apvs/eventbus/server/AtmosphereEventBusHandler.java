@@ -51,7 +51,7 @@ public class AtmosphereEventBusHandler extends ReflectorServletProcessor {
 				String type = event.getRequestedClassName();
 
 				if (type.equals(ConnectionUUIDsChangedEvent.class.getName())) {
-					ConnectionUUIDsChangedEvent.fire(eventBus, uuids, null,
+					ConnectionUUIDsChangedEvent.fire(this, eventBus, uuids, null,
 							null);
 				}
 			}

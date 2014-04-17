@@ -32,7 +32,7 @@ public class AudioUsersStatusRemoteEvent extends
 			AudioUsersStatusRemoteEvent.Handler handler) throws SerializationException {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(AudioUsersStatusRemoteEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src, AudioUsersStatusRemoteEvent.class));
 
 		return registration;
 	}

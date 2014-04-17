@@ -306,29 +306,29 @@ public class APVS implements EntryPoint {
 						RootPanel.get(id).add((IsWidget) module);
 					}
 				}
-			}
-			
-			// subscribe to keep track and set default PTU
-			InterventionMapChangedRemoteEvent.subscribe(this, remoteEventBus, new InterventionMapChangedRemoteEvent.Handler() {
-				
-				@Override
-				public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
-					InterventionMap interventionMap = event.getInterventionMap();
-									
-					if ((defaultPtu == null) || (interventionMap.get(defaultPtu).equals(null))) {
-						List<Device> ptus = interventionMap.getPtus();
-						if (ptus.size() > 0) {
-							defaultPtu = ptus.get(0);
-						} else {
-							defaultPtu = null;
-						}
-						
-						SelectPtuEvent.fire(clientFactory.getEventBus("ptu"), defaultPtu);
-					}
-				}
-			});
+			}		
 		}
-		
+
+		// subscribe to keep track and set default PTU
+		InterventionMapChangedRemoteEvent.subscribe(this, remoteEventBus, new InterventionMapChangedRemoteEvent.Handler() {
+			
+			@Override
+			public void onInterventionMapChanged(InterventionMapChangedRemoteEvent event) {
+				InterventionMap interventionMap = event.getInterventionMap();
+								
+				if ((defaultPtu == null) || (interventionMap.get(defaultPtu).equals(null))) {
+					List<Device> ptus = interventionMap.getPtus();
+					if (ptus.size() > 0) {
+						defaultPtu = ptus.get(0);
+					} else {
+						defaultPtu = null;
+					}
+					
+					SelectPtuEvent.fire(clientFactory.getEventBus("ptu"), defaultPtu);
+				}
+			}
+		});
+
 		// Server ALIVE status
 		RequestRemoteEvent.register(this, remoteEventBus, new RequestRemoteEvent.Handler() {
 

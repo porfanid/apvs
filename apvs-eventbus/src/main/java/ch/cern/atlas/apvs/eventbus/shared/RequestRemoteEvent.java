@@ -38,14 +38,13 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 	}
 
 	private String requestedClassName;
-	private String targetClassName;
 
 	public RequestRemoteEvent() {
 	}
 
-	public RequestRemoteEvent(Class<? extends Serializable> requestedClass, Class<?> targetClass) {
+	public RequestRemoteEvent(Object src, Class<? extends Serializable> requestedClass) {
+		super(src);
 		this.requestedClassName = requestedClass.getName();
-		this.targetClassName = targetClass.getName();
 	}
 
 	@Override
@@ -57,10 +56,6 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 		return requestedClassName;
 	}
 
-	public String getTargetClassName() {
-		return targetClassName;
-	}
-
 	@Override
 	protected void dispatch(Handler handler) {
 		handler.onRequestEvent(this);
@@ -68,7 +63,7 @@ public class RequestRemoteEvent extends RemoteEvent<RequestRemoteEvent.Handler> 
 
 	@Override
 	public String toString() {
-		return "RequestRemoteEvent of class "+getRequestedClassName()+" by "+getTargetClassName();
+		return "RequestRemoteEvent of class "+getRequestedClassName()+" by "+getSourceClassName();
 	}
 
 }

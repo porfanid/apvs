@@ -55,7 +55,7 @@ public class AlarmMapChangedRemoteEvent extends RemoteEvent<AlarmMapChangedRemot
 			AlarmMapChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(AlarmMapChangedRemoteEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src, AlarmMapChangedRemoteEvent.class));
 		
 		return registration;
 	}

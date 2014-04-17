@@ -38,12 +38,16 @@ public class DummyEvent extends RemoteEvent<DummyEvent.Handler> {
 			DummyEvent.Handler handler) throws SerializationException {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(DummyEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src, DummyEvent.class));
 		
 		return registration;
 	}
 
 	public DummyEvent() {
+	}
+	
+	public DummyEvent(Object src) {
+		super(src);
 	}
 
 	@Override

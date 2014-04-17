@@ -29,7 +29,7 @@ public class AudioUsersSettingsChangedRemoteEvent extends
 			AudioUsersSettingsChangedRemoteEvent.Handler handler) {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(AudioUsersSettingsChangedRemoteEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src, AudioUsersSettingsChangedRemoteEvent.class));
 
 		return registration;
 	}

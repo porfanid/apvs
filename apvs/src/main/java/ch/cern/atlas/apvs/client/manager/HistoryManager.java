@@ -45,7 +45,7 @@ public class HistoryManager {
 						// FIXME #298
 						log.warn("FIXME (3x?)... Received............."
 										+ event.getEventBusUUID() + " "
-										+ event.getSourceUUID());
+										+ event.getInterventionMap().getPtus().size()+" "+event);
 						List<Device> newPtus = event.getInterventionMap()
 								.getPtus();
 						if (!newPtus.equals(ptus)) {

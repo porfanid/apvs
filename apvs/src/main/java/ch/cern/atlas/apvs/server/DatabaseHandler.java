@@ -65,7 +65,7 @@ public class DatabaseHandler {
 				if (type.equals(InterventionMapChangedRemoteEvent.class
 						.getName())) {
 					log.info("Request to DB "+event);
-					InterventionMapChangedRemoteEvent.fire(eventBus,
+					InterventionMapChangedRemoteEvent.fire(this, eventBus,
 							interventions);
 				} else if (type.equals(ConnectionStatusChangedRemoteEvent.class
 						.getName())) {
@@ -173,7 +173,7 @@ public class DatabaseHandler {
 			interventions = newMap;
 			if (eventBus != null) {
 				log.info("Read Interventions from DB");
-				InterventionMapChangedRemoteEvent.fire(eventBus, interventions);
+				InterventionMapChangedRemoteEvent.fire(this, eventBus, interventions);
 			}
 		}
 	}

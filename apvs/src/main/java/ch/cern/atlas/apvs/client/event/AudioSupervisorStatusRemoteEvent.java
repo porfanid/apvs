@@ -31,7 +31,7 @@ public class AudioSupervisorStatusRemoteEvent extends
 			AudioSupervisorStatusRemoteEvent.Handler handler) {
 
 		HandlerRegistration registration = register(eventBus, handler);
-		eventBus.fireEvent(new RequestRemoteEvent(AudioSupervisorStatusRemoteEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src, AudioSupervisorStatusRemoteEvent.class));
 
 		return registration;
 	}

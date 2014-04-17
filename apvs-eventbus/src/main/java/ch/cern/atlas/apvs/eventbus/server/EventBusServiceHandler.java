@@ -201,7 +201,7 @@ public class EventBusServiceHandler extends AtmospherePollService implements
 			clients.put(uuid, info);
 
 			// event without eventBusUUID
-			RemoteEventBusIdsChangedEvent event = new RemoteEventBusIdsChangedEvent(
+			RemoteEventBusIdsChangedEvent event = new RemoteEventBusIdsChangedEvent(this, 
 					new ArrayList<Long>(clients.keySet()));
 			// broadcast to all
 			sendToRemote(event);

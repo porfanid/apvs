@@ -72,12 +72,13 @@ public class ConnectionStatusChangedRemoteEvent extends
 		return eventBus.addHandler(TYPE, handler);
 	}
 
-	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus,
+	public static HandlerRegistration subscribe(Object src,
+			RemoteEventBus eventBus,
 			ConnectionStatusChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 
-		eventBus.fireEvent(new RequestRemoteEvent(
-				ConnectionStatusChangedRemoteEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src,
+				ConnectionStatusChangedRemoteEvent.class));
 
 		return registration;
 	}

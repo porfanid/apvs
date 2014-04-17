@@ -57,8 +57,8 @@ public class PlaceView extends SimplePanel implements Module,
 				public void onPtuSelected(SelectPtuEvent event) {
 					ptu = event.getPtu();
 
-					remoteEventBus.fireEvent(new RequestRemoteEvent(
-							PlaceChangedRemoteEvent.class, this.getClass()));
+					remoteEventBus.fireEvent(new RequestRemoteEvent(this, 
+							PlaceChangedRemoteEvent.class));
 				}
 			});
 		}

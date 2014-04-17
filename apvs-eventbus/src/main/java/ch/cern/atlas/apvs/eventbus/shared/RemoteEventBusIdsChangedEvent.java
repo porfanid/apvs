@@ -37,10 +37,10 @@ public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIds
 		return eventBus.addHandler(TYPE, handler);
 	}
 	
-	public static HandlerRegistration subscribe(Object source, RemoteEventBus eventBus, Handler handler) throws SerializationException {
+	public static HandlerRegistration subscribe(Object src, RemoteEventBus eventBus, Handler handler) throws SerializationException {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(RemoteEventBusIdsChangedEvent.class, source.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src, RemoteEventBusIdsChangedEvent.class));
 		
 		return registration;
 	}
@@ -51,7 +51,8 @@ public class RemoteEventBusIdsChangedEvent extends RemoteEvent<RemoteEventBusIds
 	public RemoteEventBusIdsChangedEvent() {
 	}
 
-	public RemoteEventBusIdsChangedEvent(ArrayList<Long> remoteIds) {
+	public RemoteEventBusIdsChangedEvent(Object src, ArrayList<Long> remoteIds) {
+		super(src);
 		this.remoteIds = remoteIds;
 	}
 

@@ -23,9 +23,9 @@ public class ConnectionUUIDsChangedEvent extends
 
 	private static final Type<ConnectionUUIDsChangedEvent.Handler> TYPE = new Type<ConnectionUUIDsChangedEvent.Handler>();
 
-	public static void fire(RemoteEventBus eventBus, ArrayList<String> uuids,
+	public static void fire(Object src, RemoteEventBus eventBus, ArrayList<String> uuids,
 			String connected, String disconnected) {
-		eventBus.fireEvent(new ConnectionUUIDsChangedEvent(uuids, connected, disconnected));
+		eventBus.fireEvent(new ConnectionUUIDsChangedEvent(src, uuids, connected, disconnected));
 	}
 
 	/**
@@ -46,8 +46,8 @@ public class ConnectionUUIDsChangedEvent extends
 			Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 
-		eventBus.fireEvent(new RequestRemoteEvent(
-				ConnectionUUIDsChangedEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src,
+				ConnectionUUIDsChangedEvent.class));
 
 		return registration;
 	}
@@ -59,8 +59,9 @@ public class ConnectionUUIDsChangedEvent extends
 	public ConnectionUUIDsChangedEvent() {
 	}
 
-	public ConnectionUUIDsChangedEvent(ArrayList<String> uuids, String connected,
+	public ConnectionUUIDsChangedEvent(Object src, ArrayList<String> uuids, String connected,
 			String disconnected) {
+		super(src);
 		this.uuids = uuids;
 		this.connected = connected;
 		this.disconnected = disconnected;

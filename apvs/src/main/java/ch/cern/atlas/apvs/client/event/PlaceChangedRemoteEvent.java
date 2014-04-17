@@ -43,7 +43,7 @@ public class PlaceChangedRemoteEvent extends RemoteEvent<PlaceChangedRemoteEvent
 			PlaceChangedRemoteEvent.Handler handler) {
 		HandlerRegistration registration = register(eventBus, handler);
 		
-		eventBus.fireEvent(new RequestRemoteEvent(PlaceChangedRemoteEvent.class, src.getClass()));
+		eventBus.fireEvent(new RequestRemoteEvent(src, PlaceChangedRemoteEvent.class));
 		
 		return registration;
 	}
