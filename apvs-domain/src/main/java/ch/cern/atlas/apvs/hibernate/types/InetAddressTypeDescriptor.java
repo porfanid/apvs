@@ -1,7 +1,5 @@
 package ch.cern.atlas.apvs.hibernate.types;
 
-import java.net.UnknownHostException;
-
 import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
 

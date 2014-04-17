@@ -6,11 +6,9 @@ import java.util.List;
 import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SensorTest extends AbstractDomainTest {
-	private Logger log = LoggerFactory.getLogger(getClass());
+//	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@SuppressWarnings({ "rawtypes" })
 	@Test

@@ -9,11 +9,9 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class InterventionTest extends AbstractDomainTest {
-	private Logger log = LoggerFactory.getLogger(getClass());
+//	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Test
 	public void testBasicUsage() throws UnknownHostException {
