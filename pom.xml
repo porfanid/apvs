@@ -139,6 +139,13 @@
             </modules>
         </profile>
         <profile>
+            <id>out-of-date</id>
+            <modules>
+                <module>apvs-dosimeter</module>
+                <module>apvs-player</module>
+            </modules>
+        </profile>
+        <profile>
             <id>oracle</id>
             <activation>
                 <file>
