@@ -134,6 +134,22 @@
 		</plugins>
 	</build>
 
+	<reporting>
+    		<plugins>
+      			<plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>gwt-maven-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>compile-report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      			</plugin>
+    		</plugins>
+  	</reporting>  
+
 	<dependencies>
 		<dependency>
 			<groupId>ch.cern.atlas</groupId>
