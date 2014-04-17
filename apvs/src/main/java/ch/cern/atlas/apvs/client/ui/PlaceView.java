@@ -34,8 +34,9 @@ public class PlaceView extends SimplePanel implements Module,
 	public boolean configure(final Element element,
 			final ClientFactory clientFactory, Arguments args) {
 
+		addStyleName("no-margins");
+		
 		final String width = "100%";
-		final String height = "100%";
 
 		final EventBus switchBus = clientFactory.getEventBus("switch");
 

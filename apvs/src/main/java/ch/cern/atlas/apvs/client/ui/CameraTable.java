@@ -2,6 +2,15 @@ package ch.cern.atlas.apvs.client.ui;
 
 import java.util.List;
 
+import org.gwtbootstrap3.client.ui.Column;
+import org.gwtbootstrap3.client.ui.Div;
+import org.gwtbootstrap3.client.ui.Panel;
+import org.gwtbootstrap3.client.ui.PanelBody;
+import org.gwtbootstrap3.client.ui.PanelHeader;
+import org.gwtbootstrap3.client.ui.Row;
+import org.gwtbootstrap3.client.ui.constants.ColumnSize;
+import org.moxieapps.gwt.highcharts.client.Chart;
+
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.HistoryChangedEvent;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
@@ -14,35 +23,28 @@ import ch.cern.atlas.apvs.event.InterventionMapChangedRemoteEvent;
 import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class CameraTable extends SimplePanel implements Module {
+public class CameraTable extends Div implements Module {
 
-	private FlexTable table = new FlexTable();
 	private PtuSettings settings;
 	private InterventionMap interventions;
 	private History history;
 	private List<Device> ptus;
-	
+
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
-	
+
 	private ClientFactory factory;
 
 	@Override
 	public boolean configure(Element element, ClientFactory clientFactory,
 			Arguments args) {
-		
+
 		this.factory = clientFactory;
-		
-		table.setWidth("100%");
-		add(table);
-				
+
 		RemoteEventBus eventBus = clientFactory.getRemoteEventBus();
-		
+
 		InterventionMapChangedRemoteEvent.subscribe(this, eventBus,
 				new InterventionMapChangedRemoteEvent.Handler() {
 
@@ -70,7 +72,7 @@ public class CameraTable extends SimplePanel implements Module {
 						scheduler.update();
 					}
 				});
-		
+
 		HistoryChangedEvent.subscribe(this, clientFactory,
 				new HistoryChangedEvent.Handler() {
 
@@ -82,59 +84,101 @@ public class CameraTable extends SimplePanel implements Module {
 					}
 				});
 
-		
 		return true;
 	}
-	
+
 	@Override
 	public boolean update() {
 		return false;
 	}
 
+	private Widget getCameraView(String title, Widget camera) {
+		PanelHeader header = new PanelHeader();
+		header.add(new HTML("<h3 class=\"panel-title\">" + title + "</h3>"));
+
+		PanelBody body = new PanelBody();
+		body.add(camera);
+
+		Panel defaultPanel = new Panel();
+		defaultPanel.add(header);
+		defaultPanel.add(body);
+		return defaultPanel;
+	}
+
 	private void configChanged() {
-		table.clear();
-		
+		clear();
+
 		if ((ptus == null) || (settings == null) || (history == null)) {
 			return;
 		}
-		
-		int row = 0;
+
+		Row row = new Row();
+		add(row);
+
 		int column = 0;
-		int labelColumn = 0;
-		for(Device ptu: ptus) {
+		for (Device ptu : ptus) {
 
-			Label label = new Label(ptu.getName());
-			label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			table.setWidget(row, labelColumn, label);
-			// 2
-			table.getFlexCellFormatter().setColSpan(row, labelColumn, 1);
-			labelColumn++;
+			Widget helmet = new ImageView(factory, settings.getCameraUrl(
+					ptu.getName(), CameraView.HELMET, factory.getProxy()));
 
-			Widget helmet = new ImageView(factory, settings.getCameraUrl(ptu.getName(), CameraView.HELMET, factory.getProxy()));
-			table.setWidget(row+1, column, helmet);
-			// 25%
-			table.getCellFormatter().setWidth(row+1, column, "50%");
-			
-//			SpecificTimeView timeView = new SpecificTimeView();
-//			Chart chart = timeView.createSingleChart(factory, "DoseRate", ptu, historyMap, interventions, false);
-//			Label chart = new Label("TEST "+(row+2)+" "+column+" "+ptu.getName());
-//			table.setWidget(row+2, column, chart);
-			// 25%
-//			table.getCellFormatter().setWidth(row+2, column, "50%");
+			Column col = new Column(getColumnSize(ptus.size()));
+			row.add(col);
+			col.add(getCameraView(ptu.getName(), helmet));
 
+			SpecificTimeView timeView = new SpecificTimeView();
+			Chart chart = timeView.createSingleChart(factory, "DoseRate", ptu,
+					history, interventions, false);
+			col.add(chart);
 			column++;
 
-//			Widget hand = new ImageView(factory, settings.getCameraUrl(ptu, CameraView.HAND, factory.getProxy()));
-//			table.setWidget(row+1, column, hand);
-//			table.getCellFormatter().setWidth(row+1, column, "25%");
-//			column++;
-			
-			// 3
-			if (column >= 2) {
-				column = 0;
-				labelColumn = 0;
-				row += 2;
+			row = addRow(row, column, ptus.size());
+
+			// Widget hand = new ImageView(factory, settings.getCameraUrl(ptu,
+			// CameraView.HAND, factory.getProxy()));
+		}
+	}
+
+	private Row addRow(Row row, int column, int count) {
+		switch (count) {
+		case 1:
+		case 2:
+			break;
+		case 3:
+		case 5:
+		case 6:
+			if ((column % 3) == 0) {
+				row = new Row();
+				add(row);
 			}
+			break;
+		case 4:
+		case 7:
+		case 8:
+		default:
+			if ((column % 4) == 0) {
+				row = new Row();
+				add(row);
+			}
+			break;
+		}
+		return row;
+	}
+	
+	private ColumnSize getColumnSize(int count) {
+		switch (count) {
+		case 1:
+			return ColumnSize.MD_12;
+		case 2:
+			return ColumnSize.MD_6;
+		case 3:
+		case 5:
+		case 6:
+			return ColumnSize.MD_4;
+		case 4:
+		case 7:
+		case 8:
+		default:
+			return ColumnSize.MD_3;
 		}
 	}
 }

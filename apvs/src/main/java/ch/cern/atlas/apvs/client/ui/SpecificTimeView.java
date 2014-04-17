@@ -26,6 +26,7 @@ public class SpecificTimeView extends AbstractTimeView {
 			History history, InterventionMap interventions, boolean showLimits) {
 		createChart(Measurement.getDisplayName(measurementName) + " (" + device.getName()
 				+ ")");
+		chart.setSize("100%", "200px");
 		add(chart);
 
 		addSeries(device, getName(device, interventions), showLimits);
