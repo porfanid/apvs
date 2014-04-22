@@ -12,7 +12,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -76,7 +75,7 @@ public class PlaceView extends SimplePanel implements Module,
 							return;
 
 //						log.info("PLACE CHANGED " + event);
-						Place place = event.getPlace();
+//						Place place = event.getPlace();
 
 						Image image = new Image(defaultImage);
 						image.setWidth(width);

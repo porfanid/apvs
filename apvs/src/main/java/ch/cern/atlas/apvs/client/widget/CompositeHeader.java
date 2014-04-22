@@ -9,6 +9,7 @@ import com.google.gwt.cell.client.HasCell;
 import com.google.gwt.user.cellview.client.Header;
 
 public class CompositeHeader extends Header<String> {
+	@SafeVarargs
 	public CompositeHeader(Header<String>... headers) {
 		super(new CompositeCell<String>(new CellList(headers)));
 	}
@@ -21,6 +22,7 @@ public class CompositeHeader extends Header<String> {
 	private static class CellList extends ArrayList<HasCell<String, ?>> {
 		private static final long serialVersionUID = 6750254855948081834L;
 
+		@SafeVarargs
 		public CellList(Header<String>... headers) {
 			for (final Header<String> header: headers) {
 				add(new HasCell<String, String>() {

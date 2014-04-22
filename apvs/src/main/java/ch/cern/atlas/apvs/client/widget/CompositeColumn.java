@@ -14,6 +14,7 @@ import com.google.gwt.user.cellview.client.Column;
  *
  */
 public class CompositeColumn extends Column<String, String> {
+	@SafeVarargs
 	public CompositeColumn(Column<String,String>... columns) {
 		super(new CompositeCell<String>(new CellList(columns)));
 	}
@@ -27,6 +28,7 @@ public class CompositeColumn extends Column<String, String> {
 
 		private static final long serialVersionUID = 8188871056982325315L;
 
+		@SafeVarargs
 		public <T> CellList(Column<T, String>... columns) {
 			for (final Column<T, String> column: columns) {
 				add(new HasCell<String, String>() {

@@ -242,7 +242,7 @@ public class APVS implements EntryPoint {
 
 			String[] parts = id.split("\\(", 2);
 			if (parts.length == 2) {
-				String className = parts[0];
+//				String className = parts[0];
 				if ((parts[1].length() > 0) && !parts[1].endsWith(")")) {
 //					log.warn("Missing closing parenthesis on '" + id + "'");
 					parts[1] += ")";

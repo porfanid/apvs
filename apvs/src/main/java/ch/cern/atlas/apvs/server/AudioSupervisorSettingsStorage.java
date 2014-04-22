@@ -55,8 +55,6 @@ public class AudioSupervisorSettingsStorage {
 			log.warn("Supervisor Audio Settings will not be stored");
 			return;
 		}
-
-		String json = store.getString(APVS_AUDIO_SUPERVISOR_SETTINGS);
 		
 		supervisorAccount = new VoipAccount(true);
 		

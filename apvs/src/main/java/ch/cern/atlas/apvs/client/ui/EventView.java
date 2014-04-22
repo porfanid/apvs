@@ -468,7 +468,7 @@ public class EventView extends GlassPanel implements Module {
 
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
-							Event m = selectionModel.getSelectedObject();
+//							Event m = selectionModel.getSelectedObject();
 //							log.info(m + " " + event.getSource());
 						}
 					});

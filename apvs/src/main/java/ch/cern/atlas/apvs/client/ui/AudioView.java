@@ -372,8 +372,8 @@ public class AudioView extends GlassPanel implements Module {
 		}
 
 		String ptuId = ptu.getName();
-		boolean a = (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts
-				.getActivity(ptuId) == null));
+//		boolean a = (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts
+//				.getActivity(ptuId) == null));
 		// Bootbox.alert(voipAccounts.getUsername(ptuId)+ ": "
 		// +String.valueOf(a));
 		if (!(voipAccounts.getActivity(ptuId).equals("") || voipAccounts

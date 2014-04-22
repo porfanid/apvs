@@ -343,7 +343,7 @@ public class MeasurementView extends AbstractMeasurementView {
 
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
-							String s = selectionModel.getSelectedObject();
+//							String s = selectionModel.getSelectedObject();
 //							log.info(s + " " + event.getSource());
 						}
 					});

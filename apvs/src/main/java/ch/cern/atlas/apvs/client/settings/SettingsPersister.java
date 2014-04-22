@@ -65,10 +65,10 @@ public class SettingsPersister extends VerticalFlowPanel {
 			Bootbox.alert("Settings will not be stored");
 			return;
 		}
-		for (int i = 0; i < store.getLength(); i++) {
-			String key = store.key(i);
+//		for (int i = 0; i < store.getLength(); i++) {
+//			String key = store.key(i);
 //			log.info(key + " " + store.getItem(key));
-		}
+//		}
 		String json = store.getItem(APVS_SETTINGS);
 		// String json = null;
 //		log.info("get " + json);

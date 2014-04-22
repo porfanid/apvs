@@ -14,7 +14,6 @@ import org.gwtbootstrap3.client.ui.ModalFooter;
 import org.gwtbootstrap3.client.ui.ModalHeader;
 import org.gwtbootstrap3.client.ui.constants.FormType;
 import org.gwtbootstrap3.client.ui.constants.InputType;
-import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import ch.cern.atlas.apvs.client.validation.InputField;
 import ch.cern.atlas.apvs.client.validation.ValidationFieldset;
@@ -26,7 +25,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public class PasswordDialog extends Modal {
 

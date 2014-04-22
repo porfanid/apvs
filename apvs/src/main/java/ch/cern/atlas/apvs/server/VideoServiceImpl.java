@@ -102,7 +102,7 @@ public class VideoServiceImpl extends ResponsePollService implements VideoServic
 
 	@Override
 	public void stopVideo(Intervention intervention) {
-		
+		log.info("Stop VIDEO for "+intervention);
 	}
 	
 

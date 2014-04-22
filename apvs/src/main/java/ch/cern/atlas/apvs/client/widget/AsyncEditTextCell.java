@@ -156,18 +156,18 @@ public class AsyncEditTextCell extends ActiveEditTextCell {
 			}
 		}
 
-		if (false) {
-			sb.appendHtmlConstant("&nbsp;<i class=\"icon-star\"></i>");
-			ViewData viewData = getViewData(context.getKey());
-			if (viewData != null) {
-				sb.appendHtmlConstant("&nbsp;o:" + viewData.getOriginal()
-						+ "&nbsp;t:" + viewData.getText());
-			}
-			sb.appendHtmlConstant("&nbsp;v:" + value);
-			if (stateData != null) {
-				sb.appendHtmlConstant("&nbsp;c:" + stateData.count);
-			}
-		}
+//		if (false) {
+//			sb.appendHtmlConstant("&nbsp;<i class=\"icon-star\"></i>");
+//			ViewData viewData = getViewData(context.getKey());
+//			if (viewData != null) {
+//				sb.appendHtmlConstant("&nbsp;o:" + viewData.getOriginal()
+//						+ "&nbsp;t:" + viewData.getText());
+//			}
+//			sb.appendHtmlConstant("&nbsp;v:" + value);
+//			if (stateData != null) {
+//				sb.appendHtmlConstant("&nbsp;c:" + stateData.count);
+//			}
+//		}
 	}
 
 	protected void onSuccess(Context context, Device device, String value,

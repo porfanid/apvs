@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.moxieapps.gwt.highcharts.client.Axis;
 import org.moxieapps.gwt.highcharts.client.AxisTitle;
+import org.moxieapps.gwt.highcharts.client.BaseChart;
 import org.moxieapps.gwt.highcharts.client.Chart;
 import org.moxieapps.gwt.highcharts.client.ChartTitle;
 import org.moxieapps.gwt.highcharts.client.Color;
@@ -117,7 +118,7 @@ public class AbstractTimeView extends GlassPanel {
 						// String.format("%s, ", (Object[])color))
 						"#AA4643", "#89A54E", "#80699B", "#3D96AE", "#DB843D",
 						"#92A8CD", "#A47D7C", "#B5CA92", "#4572A7")
-				.setZoomType(Chart.ZoomType.X)
+				.setZoomType(BaseChart.ZoomType.X)
 				.setSizeToMatchContainer()
 				.setWidth100()
 				.setHeight100()

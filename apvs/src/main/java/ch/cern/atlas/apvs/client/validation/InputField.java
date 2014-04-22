@@ -1,14 +1,11 @@
 package ch.cern.atlas.apvs.client.validation;
 
 import org.gwtbootstrap3.client.ui.Input;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 
 public class InputField extends ValidationField<String> {
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
 	private Input input;
 		
 	public InputField(String fieldLabel, Validator<String> validator) {

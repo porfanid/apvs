@@ -18,8 +18,6 @@ import org.gwtbootstrap3.client.ui.constants.FormType;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.SelectTabEvent;
@@ -89,8 +87,6 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
 public class InterventionView extends GlassPanel implements Module {
-
-	private Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private ScrolledDataGrid<Intervention> table = new ScrolledDataGrid<Intervention>();
 	private ScrollPanel scrollPanel;
@@ -950,7 +946,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
-							Intervention m = selectionModel.getSelectedObject();
+//							Intervention m = selectionModel.getSelectedObject();
 							// log.info(m + " " + event.getSource());
 						}
 					});
