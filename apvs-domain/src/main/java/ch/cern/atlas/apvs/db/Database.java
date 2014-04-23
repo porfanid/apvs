@@ -432,6 +432,32 @@ public class Database {
 			}
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Intervention> getInterventions() {
+		Session session = null;
+		Transaction tx = null;
+		try {
+			session = sessionFactory.openSession();
+			tx = session.beginTransaction();
+			
+			List<Intervention> interventions = session
+					.createCriteria(Intervention.class)
+					.add(Restrictions.or(Restrictions.and(Restrictions.isNull("endTime"), Restrictions.eq("recStatus", 0)),
+							Restrictions.and(Restrictions.isNotNull("endTime"), Restrictions.ne("recStatus", 0)))).list();
+			tx.commit();
+			return interventions;
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			throw e;
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+		}		
+	}
 
 	public Date getLastMeasurementUpdateTime() {
 		Date time = null;
