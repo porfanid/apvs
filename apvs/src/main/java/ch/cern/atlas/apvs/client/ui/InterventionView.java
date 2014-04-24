@@ -72,6 +72,7 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.TextHeader;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -443,7 +444,7 @@ public class InterventionView extends GlassPanel implements Module {
 
 						Intervention intervention = new Intervention(users
 								.get(userField.getId()), devices.get(ptu
-								.getId()), new Date(), impact.getValue(), 0.0,
+								.getId()), new Date(), impact.getValue(), 0,
 								description.getValue(), test.getValue());
 
 						interventionService.addIntervention(intervention,
@@ -513,7 +514,8 @@ public class InterventionView extends GlassPanel implements Module {
 			}
 		};
 		duration.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		// #812, in principle we could ask the server to return us the records based on the order given 
+		// #812, in principle we could ask the server to return us the records
+		// based on the order given
 		// above... as this is a calculated column.
 		duration.setSortable(false);
 		if (selectable) {
@@ -814,19 +816,19 @@ public class InterventionView extends GlassPanel implements Module {
 		table.addColumn(impact, new TextHeader("Impact #"), new TextHeader(""));
 
 		// Rec Status
-		// TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
-		// @Override
-		// public String getValue(Intervention object) {
-		// return object.getRecStatus() != null ? Double.toString(object
-		// .getRecStatus()) : "";
-		// }
-		// };
-		// recStatus.setDataStoreName("recStatus");
-		// recStatus.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		// recStatus.setSortable(true);
-		// recStatus.setEnabled(clientFactory.isSupervisor());
-		// table.addColumn(recStatus, new TextHeader("Rec Status"),
-		// new TextHeader(""));
+		TextColumn<Intervention> recStatus = new TextColumn<Intervention>() {
+			@Override
+			public String getValue(Intervention object) {
+				return object.getRecStatus() != null ? Integer.toString(object
+						.getRecStatus()) : "";
+			}
+		};
+		recStatus.setDataStoreName("recStatus");
+		recStatus.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		recStatus.setSortable(true);
+//		recStatus.setEnabled(clientFactory.isSupervisor());
+		table.addColumn(recStatus, new TextHeader("Rec Status"),
+				new TextHeader(""));
 
 		final CheckboxColumn<Intervention> test = new CheckboxColumn<Intervention>() {
 			@Override
@@ -946,7 +948,8 @@ public class InterventionView extends GlassPanel implements Module {
 
 						@Override
 						public void onSelectionChange(SelectionChangeEvent event) {
-//							Intervention m = selectionModel.getSelectedObject();
+							// Intervention m =
+							// selectionModel.getSelectedObject();
 							// log.info(m + " " + event.getSource());
 						}
 					});

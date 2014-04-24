@@ -39,7 +39,7 @@ public class Intervention implements Serializable, IsSerializable {
 	private Date startTime;
 	private Date endTime;
 	private String impactNumber;
-	private Double recStatus;
+	private Integer recStatus;
 	private String description;
 	private Boolean test;
 
@@ -47,7 +47,7 @@ public class Intervention implements Serializable, IsSerializable {
 	}
 	
 	public Intervention(User user, Device device, Date startTime,
-			String impactNumber, Double recStatus, String description, Boolean test) {
+			String impactNumber, Integer recStatus, String description, Boolean test) {
 		setUser(user);
 		setDevice(device);
 		setStartTime(startTime);
@@ -112,13 +112,12 @@ public class Intervention implements Serializable, IsSerializable {
 		this.impactNumber = impactNumber;
 	}
 	
-	// FIXME, check if this is correct
-	@Column(name = "REC_STATUS")
-	public Double getRecStatus() {
+	@Column(name = "REC_STATUS", length=3)
+	public Integer getRecStatus() {
 		return recStatus;
 	}
 	
-	public void setRecStatus(Double recStatus) {
+	public void setRecStatus(Integer recStatus) {
 		this.recStatus = recStatus;
 	}
 

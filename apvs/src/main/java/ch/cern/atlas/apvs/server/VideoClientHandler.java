@@ -87,7 +87,7 @@ public class VideoClientHandler extends PtuReconnectHandler {
 				public void operationComplete(Future<? super Void> future)
 						throws Exception {
 					if (future.isSuccess()) {
-						double recStatus = start ? 1.0 : 0.0;
+						int recStatus = start ? 1 : 0;
 						log.info("Updated rec-status for "+intervention.getName()+" to "+recStatus);
 						intervention.setRecStatus(recStatus);
 						database.saveOrUpdate(intervention);

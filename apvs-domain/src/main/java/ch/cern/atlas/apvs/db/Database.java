@@ -443,8 +443,8 @@ public class Database {
 			
 			List<Intervention> interventions = session
 					.createCriteria(Intervention.class)
-					.add(Restrictions.or(Restrictions.and(Restrictions.isNull("endTime"), Restrictions.eq("recStatus", 0.0)),
-							Restrictions.and(Restrictions.isNotNull("endTime"), Restrictions.ne("recStatus", 0.0)))).list();
+					.add(Restrictions.or(Restrictions.and(Restrictions.isNull("endTime"), Restrictions.eq("recStatus", 0)),
+							Restrictions.and(Restrictions.isNotNull("endTime"), Restrictions.ne("recStatus", 0)))).list();
 			tx.commit();
 			return interventions;
 		} catch (HibernateException e) {
