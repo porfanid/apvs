@@ -97,12 +97,12 @@ public class VideoServiceImpl extends ResponsePollService implements VideoServic
 
 	@Override
 	public void startVideo(Intervention intervention) {
-		videoClientHandler.startVideo(intervention);
+		videoClientHandler.sendCommand(intervention, true);
 	}
 
 	@Override
 	public void stopVideo(Intervention intervention) {
-		videoClientHandler.stopVideo(intervention);
+		videoClientHandler.sendCommand(intervention, false);
 	}
 	
 
