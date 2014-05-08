@@ -22,9 +22,9 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <gwt-version>2.6.0</gwt-version>
-        <gwt-plugin-version>2.6.0</gwt-plugin-version>
-        <atmosphere-version>2.1.3</atmosphere-version>
+        <gwt-version>2.6.1-rc2</gwt-version>
+        <gwt-plugin-version>2.6.1-rc2</gwt-plugin-version>
+        <atmosphere-version>2.1.4</atmosphere-version>
         <atmosphere-ext-version>2.1.1</atmosphere-ext-version>
         <asterisk-java-version>f8c8f014253745783149ecbe0fed3faa074a7368</asterisk-java-version>
         <commons-configuration-version>2.0-1527979</commons-configuration-version>
@@ -46,7 +46,7 @@
         <jetty7-version>7.6.14.v20131031</jetty7-version>
         <jetty-plugin-version>${jetty8-version}</jetty-plugin-version>
         <json-version>20140107</json-version>
-        <jquery-version>2.1.0-2</jquery-version>
+        <jquery-version>2.1.1</jquery-version>
         <junit-version>4.11</junit-version>
         <liquibase-version>3.1.1</liquibase-version>
         <logback-version>1.1.2</logback-version>
@@ -55,7 +55,7 @@
         <moxie-highcharts-version>1.6.0</moxie-highcharts-version>
         <gwtmockito-version>1.1.3</gwtmockito-version>
         <mysql-version>5.1.30</mysql-version>
-        <netty-version>4.0.18.Final</netty-version>
+        <netty-version>4.0.19.Final</netty-version>
         <nettosphere-version>2.1.2</nettosphere-version>
         <ojdbc-jar>ojdbc7</ojdbc-jar>
         <ojdbc-version>12.1.0.1</ojdbc-version>
@@ -76,7 +76,7 @@
 
         <jar-plugin-version>2.4</jar-plugin-version>
         <war-plugin-version>2.4</war-plugin-version>
-        <shade-plugin-version>2.2</shade-plugin-version>
+        <shade-plugin-version>2.3</shade-plugin-version>
 
         <javadoc-plugin-version>2.9.1</javadoc-plugin-version>
 
