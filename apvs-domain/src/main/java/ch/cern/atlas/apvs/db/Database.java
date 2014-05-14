@@ -837,6 +837,12 @@ public class Database {
 	}
 
 	public String getHostName(String bssid) {
+		// FIXME, maybe something better
+		if (bssid == null) {
+			return "";
+		}
+		
+		
 		Session session = null;
 		Transaction tx = null;
 		try {
