@@ -110,7 +110,7 @@ public class PtuSettingsStorage {
 			settings.setEnabled(ptuId, store.getBoolean(APVS_PTU_SETTINGS+"."+ptuId+".enabled"));
 			settings.setDosimeterSerialNumber(ptuId, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".dosimeterSerialNo"));
 			settings.setCameraUrl(ptuId, CameraView.HELMET, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".helmetUrl"), proxy);
-			settings.setCameraUrl(ptuId, CameraView.HELMET, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".handUrl"), proxy);
+			settings.setCameraUrl(ptuId, CameraView.HAND, store.getString(APVS_PTU_SETTINGS+"."+ptuId+".handUrl"), proxy);
 		}
 		
 		updateFromDatabase(settings);
