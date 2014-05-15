@@ -12,6 +12,7 @@ import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.ModalBody;
 import org.gwtbootstrap3.client.ui.ModalFooter;
 import org.gwtbootstrap3.client.ui.ModalHeader;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.FormType;
 import org.gwtbootstrap3.client.ui.constants.InputType;
 
@@ -30,6 +31,7 @@ public class PasswordDialog extends Modal {
 
 	private InputField field;
 	private List<DialogResultHandler> handlers = new ArrayList<DialogResultHandler>();
+	private String result;
 
 	public PasswordDialog() {		
 		ValidationFieldset fieldset = new ValidationFieldset();
@@ -73,6 +75,7 @@ public class PasswordDialog extends Modal {
 		footer.add(cancel);
 
 		Button ok = new Button("Ok");
+		ok.setType(ButtonType.PRIMARY);
 		ok.addClickHandler(new ClickHandler() {
 
 			@Override
@@ -86,13 +89,15 @@ public class PasswordDialog extends Modal {
 		addHiddenHandler(new ModalHiddenHandler() {
 			@Override
 			public void onHidden(ModalHiddenEvent evt) {
-				fireEvent(new DialogResultEvent(null));
+				fireEvent(new DialogResultEvent(result));
 			}
 		});
 		
 		add(header);
 		add(body);
 		add(footer);
+		
+		result = null;
 	}
 
 	public void addDialogResultHandler(DialogResultHandler handler) {
@@ -112,13 +117,13 @@ public class PasswordDialog extends Modal {
 	}
 
 	private void cancel() {
+		result = null;
 		hide();
-		fireEvent(new DialogResultEvent(null));
 	}
 
 	private void ok() {
+		result = field.getValue();
 		hide();
-		fireEvent(new DialogResultEvent(field.getValue()));
 	}
 
 	private void fireEvent(DialogResultEvent event) {

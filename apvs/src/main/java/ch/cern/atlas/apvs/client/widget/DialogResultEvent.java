@@ -11,4 +11,9 @@ public class DialogResultEvent {
 	public String getResult() {
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getName()+" "+getResult();
+	}
 }
