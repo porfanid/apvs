@@ -3,7 +3,7 @@ package ch.cern.atlas.apvs.client;
 import java.util.Date;
 import java.util.List;
 
-import org.gwtbootstrap3.client.ui.Paragraph;
+import org.gwtbootstrap3.client.ui.html.Paragraph;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

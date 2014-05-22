@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gwtbootstrap3.client.ui.Form;
-import org.gwtbootstrap3.client.ui.HasType;
 import org.gwtbootstrap3.client.ui.ModalComponent;
+import org.gwtbootstrap3.client.ui.base.HasType;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.FormType;
 

@@ -7,13 +7,14 @@ import java.util.List;
 
 import org.gwtbootstrap3.client.ui.AnchorButton;
 import org.gwtbootstrap3.client.ui.DropDownMenu;
+import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListDropDown;
 import org.gwtbootstrap3.client.ui.ListItem;
 import org.gwtbootstrap3.client.ui.NavbarCollapse;
 import org.gwtbootstrap3.client.ui.NavbarNav;
-import org.gwtbootstrap3.client.ui.UnorderedList;
 import org.gwtbootstrap3.client.ui.constants.NavbarPull;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
+import org.gwtbootstrap3.client.ui.html.UnorderedList;
 
 import ch.cern.atlas.apvs.client.ClientFactory;
 import ch.cern.atlas.apvs.client.event.PtuSettingsChangedRemoteEvent;
@@ -161,7 +162,7 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 				nav.add(dropDownList);
 
 				dropDown = new AnchorButton();
-				dropDown.setToggle(Toggle.DROPDOWN);
+				dropDown.setDataToggle(Toggle.DROPDOWN);
 				dropDownList.add(dropDown);
 
 				list = new DropDownMenu();
@@ -175,10 +176,12 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 					continue;
 				}
 
-				final ListItem b = new ListItem(getName(ptu));
-				b.setActive(ptu.getName().equals(selectedTab));
+				final ListItem item = new ListItem();
+				Label label = new Label(getName(ptu));
+				item.add(label);
+				item.setActive(ptu.getName().equals(selectedTab));
 
-				b.addClickHandler(new ClickHandler() {
+				label.addClickHandler(new ClickHandler() {
 
 					@Override
 					public void onClick(ClickEvent event) {
@@ -186,7 +189,7 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 						selectedTab = ptu.getName();
 						selectedPtu = ptu;
 
-						radio(b);
+						radio(item);
 						setDropdown();
 						
 						fireEvent(new SelectTabEvent("Ptu"));
@@ -200,8 +203,8 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 										: null);
 					}
 				});
-				list.add(b);
-				items.add(b);
+				list.add(item);
+				items.add(item);
 			}
 		}
 
@@ -234,17 +237,18 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 				break;
 			}
 
-			final ListItem b = new ListItem(name);
-			b.setActive(name.equals(selectedTab));
+			final ListItem item = new ListItem();
+			final Label label = new Label(name);
+			item.setActive(name.equals(selectedTab));
 
-			b.addClickHandler(new ClickHandler() {
+			label.addClickHandler(new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					selectedTab = b.getText();
+					selectedTab = label.getText();
 					selectedPtu = null;
 				
-					radio(b);
+					radio(item);
 					setDropdown();
 
 					fireEvent(new SelectTabEvent(selectedTab));
@@ -257,8 +261,8 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 							selectedPtu != null ? selectedPtu.getName() : null);
 				}
 			});
-			nav.add(b);
-			items.add(b);
+			nav.add(item);
+			items.add(item);
 		}
 
 		setDropdown();

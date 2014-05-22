@@ -425,7 +425,7 @@ public class InterventionView extends GlassPanel implements Module {
 				final Modal m = new Modal();
 
 				Button cancel = new Button("Cancel");
-				cancel.setDismiss(ButtonDismiss.MODAL);
+				cancel.setDataDismiss(ButtonDismiss.MODAL);
 				cancel.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -435,7 +435,7 @@ public class InterventionView extends GlassPanel implements Module {
 				});
 
 				Button ok = new Button("Ok");
-				ok.setDismiss(ButtonDismiss.MODAL);
+				ok.setDataDismiss(ButtonDismiss.MODAL);
 				ok.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -584,7 +584,7 @@ public class InterventionView extends GlassPanel implements Module {
 				final Modal m = new Modal();
 
 				final Button cancel = new Button("Cancel");
-				cancel.setDismiss(ButtonDismiss.MODAL);
+				cancel.setDataDismiss(ButtonDismiss.MODAL);
 				cancel.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -594,7 +594,7 @@ public class InterventionView extends GlassPanel implements Module {
 				});
 
 				final Button ok = new Button("Ok");
-				ok.setDismiss(ButtonDismiss.MODAL);
+				ok.setDataDismiss(ButtonDismiss.MODAL);
 				ok.setEnabled(false);
 				ok.addClickHandler(new ClickHandler() {
 
@@ -699,7 +699,7 @@ public class InterventionView extends GlassPanel implements Module {
 				final Modal m = new Modal();
 
 				Button cancel = new Button("Cancel");
-				cancel.setDismiss(ButtonDismiss.MODAL);
+				cancel.setDataDismiss(ButtonDismiss.MODAL);
 				cancel.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -709,7 +709,7 @@ public class InterventionView extends GlassPanel implements Module {
 				});
 
 				Button ok = new Button("Ok");
-				ok.setDismiss(ButtonDismiss.MODAL);
+				ok.setDataDismiss(ButtonDismiss.MODAL);
 				ok.addClickHandler(new ClickHandler() {
 
 					@Override
@@ -756,9 +756,9 @@ public class InterventionView extends GlassPanel implements Module {
 				form.setType(FormType.HORIZONTAL);
 				form.add(fieldSet);
 
-				m.setBackdrop(ModalBackdrop.TRUE);
+				m.setDataBackdrop(ModalBackdrop.TRUE);
 				m.setFade(true);
-				m.setKeyboard(true);
+				m.setDataKeyboard(true);
 				m.setClosable(true);
 				ModalHeader header = new ModalHeader();
 				header.setTitle("New Device");

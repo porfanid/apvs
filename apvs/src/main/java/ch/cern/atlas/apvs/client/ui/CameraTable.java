@@ -3,12 +3,12 @@ package ch.cern.atlas.apvs.client.ui;
 import java.util.List;
 
 import org.gwtbootstrap3.client.ui.Column;
-import org.gwtbootstrap3.client.ui.Div;
 import org.gwtbootstrap3.client.ui.Panel;
 import org.gwtbootstrap3.client.ui.PanelBody;
 import org.gwtbootstrap3.client.ui.PanelHeader;
 import org.gwtbootstrap3.client.ui.Row;
 import org.gwtbootstrap3.client.ui.constants.ColumnSize;
+import org.gwtbootstrap3.client.ui.html.Div;
 import org.moxieapps.gwt.highcharts.client.Chart;
 
 import ch.cern.atlas.apvs.client.ClientFactory;

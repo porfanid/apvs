@@ -27,9 +27,8 @@ public class InputField extends ValidationField<String> {
 		this(fieldLabel, null);
 	}
 	
-	// Change to getValue for 0.7 of gwtbootstrap3
 	public String getValue() {
-		return input.getFormValue() != null ? input.getFormValue().trim() : null;
+		return input.getValue() != null ? input.getValue().trim() : null;
 	}
 
 	public Input getField() {
