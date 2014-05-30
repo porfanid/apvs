@@ -6,8 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.gwtbootstrap3.client.ui.AnchorButton;
+import org.gwtbootstrap3.client.ui.AnchorListItem;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.DropDownMenu;
-import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListDropDown;
 import org.gwtbootstrap3.client.ui.ListItem;
 import org.gwtbootstrap3.client.ui.NavbarCollapse;
@@ -32,6 +33,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -50,7 +52,7 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 	private InterventionMap interventions;
 	private List<String> extraTabs;
 
-	private List<ListItem> items;
+	private List<AnchorListItem> items;
 
 	private UpdateScheduler scheduler = new UpdateScheduler(this);
 
@@ -147,7 +149,7 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 		nav = new NavbarNav();
 		add(nav);
 
-		items = new ArrayList<ListItem>();
+		items = new ArrayList<AnchorListItem>();
 		dropDown = null;
 
 		if (ptus != null) {
@@ -176,12 +178,10 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 					continue;
 				}
 
-				final ListItem item = new ListItem();
-				Label label = new Label(getName(ptu));
-				item.add(label);
+				final AnchorListItem item = new AnchorListItem(getName(ptu));
 				item.setActive(ptu.getName().equals(selectedTab));
 
-				label.addClickHandler(new ClickHandler() {
+				item.addClickHandler(new ClickHandler() {
 
 					@Override
 					public void onClick(ClickEvent event) {
@@ -237,15 +237,14 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 				break;
 			}
 
-			final ListItem item = new ListItem();
-			final Label label = new Label(name);
+			final AnchorListItem item = new AnchorListItem(name);
 			item.setActive(name.equals(selectedTab));
 
-			label.addClickHandler(new ClickHandler() {
+			item.addClickHandler(new ClickHandler() {
 
 				@Override
 				public void onClick(ClickEvent event) {
-					selectedTab = label.getText();
+					selectedTab = item.getText();
 					selectedPtu = null;
 				
 					radio(item);
@@ -282,8 +281,8 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 		}
 	}
 
-	private void radio(ListItem b) {
-		for (ListItem i : items) {
+	private void radio(AnchorListItem b) {
+		for (AnchorListItem i : items) {
 			i.setActive(i == b);
 		}
 	}
