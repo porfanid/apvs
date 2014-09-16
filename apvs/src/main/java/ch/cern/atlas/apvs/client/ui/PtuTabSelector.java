@@ -7,13 +7,12 @@ import java.util.List;
 
 import org.gwtbootstrap3.client.ui.AnchorButton;
 import org.gwtbootstrap3.client.ui.AnchorListItem;
-import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.DropDownMenu;
 import org.gwtbootstrap3.client.ui.ListDropDown;
-import org.gwtbootstrap3.client.ui.ListItem;
 import org.gwtbootstrap3.client.ui.NavbarCollapse;
 import org.gwtbootstrap3.client.ui.NavbarNav;
 import org.gwtbootstrap3.client.ui.constants.NavbarPull;
+import org.gwtbootstrap3.client.ui.constants.Pull;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.client.ui.html.UnorderedList;
 
@@ -33,7 +32,6 @@ import ch.cern.atlas.apvs.eventbus.shared.RequestEvent;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -213,17 +211,17 @@ public class PtuTabSelector extends NavbarCollapse implements Module {
 			switch (name) {
 			case ">":
 				nav = new NavbarNav();
-				nav.setPull(NavbarPull.RIGHT);
+				nav.setPull(Pull.RIGHT);
 				add(nav);
 				continue;
 			case "=":
 				nav = new NavbarNav();
-				nav.setPull(NavbarPull.LEFT);
+				nav.setPull(Pull.LEFT);
 				add(nav);
 				continue;
 			case "<":
 				nav = new NavbarNav();
-				nav.setPull(NavbarPull.NONE);
+				nav.setPull(Pull.NONE);
 				add(nav);
 				continue;
 			default:
