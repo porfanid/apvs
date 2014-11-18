@@ -117,7 +117,7 @@ public class PtuSimulator extends Thread {
 						write(packet);
 					}
 
-					log.info(""+packet);
+//					log.info(""+packet);
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
 					i++;
 				}
@@ -138,7 +138,7 @@ public class PtuSimulator extends Thread {
 					@Override
 					public void operationComplete(Future<? super Void> future)
 							throws Exception {
-						log.info("Sent "+msg+" "+future.isSuccess()+" "+future.cause().getMessage());
+						log.info("Sent "+future.isSuccess());
 					}
 				});
 		channel.flush();
