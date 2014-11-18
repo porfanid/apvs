@@ -30,7 +30,7 @@ public class PtuChannelInitializer extends ChannelInitializer<SocketChannel> {
 			ch.pipeline().addLast(new JsonMessageDecoder(devices));
 		}
 		ch.pipeline().addLast(new JsonMessageEncoder());
-		if (devices != null) {
+		if (handler != null) {
 			ch.pipeline().addLast(handler);
 		}
 	}

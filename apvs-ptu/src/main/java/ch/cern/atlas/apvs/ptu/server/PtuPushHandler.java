@@ -33,7 +33,7 @@ public class PtuPushHandler extends PtuReconnectHandler {
 
 		this.refresh = refresh;
 	}
-
+	    
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		super.channelActive(ctx);
