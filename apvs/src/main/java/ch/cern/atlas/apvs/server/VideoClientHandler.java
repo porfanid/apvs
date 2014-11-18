@@ -19,6 +19,7 @@ import ch.cern.atlas.apvs.eventbus.shared.RemoteEventBus;
 import ch.cern.atlas.apvs.eventbus.shared.RequestRemoteEvent;
 import ch.cern.atlas.apvs.ptu.server.PtuReconnectHandler;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.SerializationException;
 
 @Sharable
@@ -79,7 +80,7 @@ public class VideoClientHandler extends PtuReconnectHandler {
 	}
 	
 	public void sendCommand(final Intervention intervention, final boolean start) {
-		if (ctx.channel().isActive()) {
+		if ((ctx != null) && ctx.channel().isActive()) {
 			Packet packet = new Packet("Server", 4000, false, new VideoStartStop(intervention, start));
 			ctx.channel().write(packet).addListener(new GenericFutureListener<Future<? super Void>>() {
 
@@ -98,6 +99,6 @@ public class VideoClientHandler extends PtuReconnectHandler {
 				}
 			});
 			ctx.flush();
-		}
+		}		
 	}
 }
