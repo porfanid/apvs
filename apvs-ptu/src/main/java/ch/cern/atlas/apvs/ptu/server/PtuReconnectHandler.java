@@ -129,7 +129,9 @@ public abstract class PtuReconnectHandler extends SimpleChannelInboundHandler<Pa
 							reconnect();
 						}
 					}, RECONNECT_DELAY, TimeUnit.SECONDS);
-				}	
+				} else {
+					log.info("Being connected");
+				}
 			}
 		});
 	}

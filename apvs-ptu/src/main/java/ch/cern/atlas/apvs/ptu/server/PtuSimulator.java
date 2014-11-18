@@ -36,7 +36,8 @@ public class PtuSimulator extends Thread {
 	private final String ptuId;
 	private Ptu ptu;
 
-	private final static boolean WRITE_MARKERS = true;
+	// encoding stack uses packet, so cannot include markers at this time
+	private final static boolean WRITE_MARKERS = false;
 
 	public PtuSimulator(String ptuId, int refresh) {
 		this(ptuId, refresh, null);
@@ -93,37 +94,36 @@ public class PtuSimulator extends Thread {
 					Packet packet = new Packet(device.getName(), "Broadcast",
 							i, false);
 					packet.addMessage(msg);
-					String json = PtuJsonWriter.objectToJson(packet); // new
+//					String json = PtuJsonWriter.objectToJson(packet); // new
 																		// JsonHeader(msg));
 					// log.info(json +" "+json.length());
 
 					if (WRITE_MARKERS) {
 						StringBuffer b = new StringBuffer();
 						b.append((char) 0x10);
-						b.append(json);
+//						b.append(json);
 						b.append((char) 0x00);
 						b.append((char) 0x13);
-						json = b.toString();
+//						json = b.toString();
 					}
 
 					if (channel != null) {
-						if (DEBUG_PARTIAL_MESSAGES && (json.length() > 75)) {
-							write(json.substring(0, 75));
-							json = json.substring(75, json.length());
-							Thread.sleep(1000);
-						}
-						write(json);
+//						if (DEBUG_PARTIAL_MESSAGES && (json.length() > 75)) {
+//							write(json.substring(0, 75));
+//							json = json.substring(75, json.length());
+//							Thread.sleep(1000);
+//						}
+//						write(json);
+						write(packet);
 					}
 
+					log.info(""+packet);
 					Thread.sleep(defaultWait + random.nextInt(extraWait));
-					log.info(""+json);
 					i++;
 				}
 			} catch (InterruptedException e) {
 				// ignored
 			}
-		} catch (IOException e) {
-			// ignored
 		} finally {
 			if (channel != null) {
 				log.info("Closing");
@@ -132,15 +132,16 @@ public class PtuSimulator extends Thread {
 		}
 	}
 
-	private void write(final String msg) {
+	private void write(final Packet msg) {
 		channel.write(msg).addListener(
 				new GenericFutureListener<Future<? super Void>>() {
 					@Override
 					public void operationComplete(Future<? super Void> future)
 							throws Exception {
-						// log.info("Sent "+msg+" "+msg.length()+" "+future.isSuccess());
+						log.info("Sent "+msg+" "+future.isSuccess()+" "+future.cause().getMessage());
 					}
 				});
+		channel.flush();
 	}
 
 	private Measurement nextMeasurement(Ptu ptu, Date d) {
