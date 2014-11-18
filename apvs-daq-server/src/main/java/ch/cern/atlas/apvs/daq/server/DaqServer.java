@@ -41,6 +41,7 @@ public class DaqServer {
 
 	private int inPort;
 	private int outPort;
+	private int filterPort;
 
 	private Database database;
 	private Device system;
@@ -51,6 +52,7 @@ public class DaqServer {
 		config = ServerStorage.getLocalStorageIfSupported();
 		this.inPort = config.getInt("APVS.daq.inport");
 		this.outPort = config.getInt("APVS.daq.outport");
+		this.filterPort = config.getInt("APVS.daq.filterport");
 	}
 
 	public void run() {		
@@ -134,6 +136,8 @@ public class DaqServer {
 
 			// debug the bus...
 			new DebugHandler(bus);
+			
+			new FilterHandler(bus, devices, filterPort);
 
 			new DatabaseWriter(bus);
 
