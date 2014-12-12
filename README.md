@@ -1,4 +1,4 @@
-# APVS
+# APVS / EDUSAFE
 
 The APVS system, written with gwt interfaces a web portal to the APVS DAQ system.
 It uses atmosphere to keep values read by the DAQ system up to date on a supervisor
