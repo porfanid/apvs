@@ -2,7 +2,7 @@
 
 <module rename-to="apvsplayer">
 
-<!-- 
+<!--
 	<inherits name='elemental.Elemental' />
 	<inherits name="com.kiouri.sliderbar.SliderBarMVP" />
 -->
@@ -24,12 +24,12 @@
 	<set-property name="gwt.logging.developmentModeHandler"
 		value="ENABLED" />
 	<set-property name="gwt.logging.systemHandler" value="DISABLED" />
-	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
 	<set-property name="gwt.logging.consoleHandler" value="ENABLED" />
-	<set-property name="gwt.logging.firebugHandler" value="ENABLED" />
 
-	<inherits name="org.slf4j.Slf4j" />
-    <inherits name="com.svenjacobs.gwtbootstrap3.GwtBootstrap3"/>
+	<inherits name="de.benediktmeurer.gwt.slf4j.jul.JUL" />
+  <inherits name="org.gwtbootstrap3.GwtBootstrap3"/>
+	<inherits name="org.gwtbootstrap3.extras.bootbox.Bootbox"/>
+  <inherits name="org.gwtbootstrap3.extras.select.Select"/>
 
 	<inherits name="org.moxieapps.gwt.highcharts.Highcharts" />
 
@@ -38,7 +38,6 @@
 
 	<set-property name="locale" value="default" />
 	<set-property name="gwt.logging.logLevel" value="FINEST" />
-	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
 
 	<set-property name="compiler.stackMode" value="emulated" />
 	<set-configuration-property name="compiler.emulatedStack.recordLineNumbers"

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>ch.cern.atlas</groupId>
 		<artifactId>apvs-project</artifactId>
-		<version>0.9.5-SNAPSHOT</version>
+		<version>0.9.9-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>apvs-player</artifactId>
@@ -13,6 +13,9 @@
 	<name>APVS player</name>
 
 	<properties>
+		<gwt-version>2.7.0</gwt-version>
+		<gwt-plugin-version>2.7.0</gwt-plugin-version>
+
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
 
 		<gwt.style>PRETTY</gwt.style>
@@ -35,7 +38,7 @@
 		</resources>
 		<plugins>
 			<plugin>
-				<!-- Adds a Build.properties file to inject constants into GWT with build 
+				<!-- Adds a Build.properties file to inject constants into GWT with build
 					time and version number -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -138,11 +141,15 @@
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-servlet</artifactId>
 		</dependency>
-		<!-- <dependency> <groupId>com.google.gwt</groupId> <artifactId>gwt-elemental</artifactId> 
+		<!-- <dependency> <groupId>com.google.gwt</groupId> <artifactId>gwt-elemental</artifactId>
 			</dependency> -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.benediktmeurer.gwt-slf4j</groupId>
+			<artifactId>gwt-slf4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
@@ -153,14 +160,14 @@
 			<groupId>com.moxie</groupId>
 			<artifactId>highcharts</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.hudsonci.libs</groupId>
-			<artifactId>hudson-gwt-slf4j</artifactId>
-		</dependency>
-               <dependency>
-                        <groupId>com.svenjacobs.gwtbootstrap3</groupId>
-                        <artifactId>gwtbootstrap3</artifactId>
-                </dependency>
+    <dependency>
+      <groupId>org.gwtbootstrap3</groupId>
+      <artifactId>gwtbootstrap3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gwtbootstrap3</groupId>
+      <artifactId>gwtbootstrap3-extras</artifactId>
+    </dependency>
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
@@ -228,7 +235,3 @@
 		</profile>
 	</profiles>
 </project>
-
-
-
-
