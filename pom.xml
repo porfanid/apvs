@@ -136,13 +136,13 @@
                 <module>apvs-dist</module>
                 <module>apvs-jetty</module>
                 <module>apvs-nettosphere</module>
+                <module>apvs-player</module>
             </modules>
         </profile>
         <profile>
             <id>out-of-date</id>
             <modules>
                 <module>apvs-dosimeter</module>
-                <module>apvs-player</module>
             </modules>
         </profile>
         <profile>
