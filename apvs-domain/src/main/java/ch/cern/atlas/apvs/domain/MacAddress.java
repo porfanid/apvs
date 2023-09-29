@@ -1,23 +1,31 @@
-package ch.cern.atlas.apvs.domain;
-
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-public class MacAddress implements Serializable, IsSerializable {
+/**
+ * Represents a MAC address (Media Access Control address) and provides utility methods for handling MAC addresses.
+ * This class is immutable, ensuring that instances cannot be modified after creation.
+ */
+public class MacAddress implements Serializable {
 
 	private static final long serialVersionUID = 2378438435776354265L;
-	private byte[] mac;
-
-	protected MacAddress() {
-		// serializable
-	}
+	private final byte[] mac;
 	
+
+	/**
+     * Constructs a MacAddress instance from a MAC address string.
+     *
+     * @param s The MAC address string in the format "XX:XX:XX:XX:XX:XX".
+     * @throws IllegalArgumentException If the input string is not a valid MAC address.
+     */
 	public MacAddress(String s) {
+
+		if(!MacAddress.isValidMacAddress(s)){
+			throw new IllegalArgumentException("Invalid Mac Address");
+		}
+
 		String[] tokens = s.split(":");
-		if (tokens.length != 6)
-			throw new IllegalArgumentException("mac should be six bytes");
 
 		byte[] b = new byte[6];
 		int i = 0;
@@ -34,6 +42,20 @@ public class MacAddress implements Serializable, IsSerializable {
 		mac = b;
 	}
 
+
+	/**
+     * Constructs a MacAddress instance from a byte array representing a MAC address.
+     *
+     * @param mac The byte array representing a MAC address. It must have a length of 6 bytes.
+     * @throws IllegalArgumentException If the input byte array is null or not of length 6.
+     */
+	public MacAddress(byte[] mac) {
+		if (mac == null || mac.length != 6)
+			throw new IllegalArgumentException("mac should be six bytes");
+
+		this.mac = mac;
+	}
+
 	private int hex(char c) {
 		if (c >= 'a' && c <= 'z')
 			return (c - 'a') + 10;
@@ -47,13 +69,12 @@ public class MacAddress implements Serializable, IsSerializable {
 		throw new IllegalArgumentException("invalid hex char: " + c);
 	}
 
-	public MacAddress(byte[] mac) {
-		if (mac == null || mac.length != 6)
-			throw new IllegalArgumentException("mac should be six bytes");
 
-		this.mac = mac;
-	}
-
+	/**
+     * Calculates the hash code for this MacAddress instance.
+     *
+     * @return The hash code.
+     */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -62,6 +83,13 @@ public class MacAddress implements Serializable, IsSerializable {
 		return result;
 	}
 
+
+	/**
+     * Compares this MacAddress instance to another object for equality.
+     *
+     * @param obj The object to compare.
+     * @return true if the objects are equal, false otherwise.
+     */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -71,25 +99,48 @@ public class MacAddress implements Serializable, IsSerializable {
 		if (getClass() != obj.getClass())
 			return false;
 		MacAddress other = (MacAddress) obj;
-		if (!Arrays.equals(mac, other.mac))
-			return false;
-		return true;
+
+
+		return Arrays.equals(mac, other.mac);
 	}
 
+
+	/**
+     * Gets the byte array representation of this MacAddress instance.
+     *
+     * @return A copy of the internal byte array.
+     */
 	public byte[] getBytes() {
-		return mac;
+		// Return a copy of the internal array to maintain immutability
+		return Arrays.copyOf(mac, mac.length);
 	}
 
+
+	/**
+     * Returns a string representation of this MacAddress in the format "XX:XX:XX:XX:XX:XX".
+     *
+     * @return The string representation of this MacAddress.
+     */
 	@Override
 	public String toString() {
-		return toString(mac[0]) + ":" + toString(mac[1]) + ":"
-				+ toString(mac[2]) + ":" + toString(mac[3]) + ":"
-				+ toString(mac[4]) + ":" + toString(mac[5]);
+		return String.format("%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	}
 
 	private String toString(byte b) {
-		final char[] hex = new String("0123456789ABCDEF").toCharArray();
-		return "" + hex[(b & 0xF0) >> 4] + hex[(b & 0x0F)];
+		return String.format("%02X", b);
 	}
 
+
+	/**
+     * Checks whether a given string is a valid MAC address in the format "XX:XX:XX:XX:XX:XX".
+     *
+     * @param s The string to check.
+     * @return true if the input string is a valid MAC address, false otherwise.
+     */
+	private static boolean isValidMacAddress(String s) {
+		String MAC_PATTERN = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$";
+        Pattern pattern = Pattern.compile(MAC_PATTERN);
+        Matcher matcher = pattern.matcher(s);
+        return matcher.matches();
+    }
 }
